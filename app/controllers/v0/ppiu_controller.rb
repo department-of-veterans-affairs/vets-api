@@ -49,20 +49,7 @@ module V0
     end
 
     def send_confirmation_email
-      user_emails = current_user.all_emails
-
-      if user_emails.present?
-        user_emails.each do |email|
-          DirectDepositEmailJob.perform_async(email, params[:ga_client_id])
-        end
-      else
-        log_message_to_sentry(
-          'Direct Deposit info update: no email address present for confirmation email',
-          :info,
-          {},
-          feature: 'direct_deposit'
-        )
-      end
+      DirectDepositEmailJob.send_to_emails(current_user.all_emails, params[:ga_client_id], :comp_pen)
     end
   end
 end

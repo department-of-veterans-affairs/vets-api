@@ -27,7 +27,7 @@ module CARMA
         @claim_guid = args[:claim_guid]
 
         self.veteran = args[:veteran] || {}
-        self.primary_caregiver = args[:primary_caregiver] || {}
+        self.primary_caregiver = args[:primary_caregiver]
         self.secondary_caregiver_one = args[:secondary_caregiver_one]
         self.secondary_caregiver_two = args[:secondary_caregiver_two]
       end
@@ -37,23 +37,27 @@ module CARMA
       end
 
       def primary_caregiver=(pc_metadata_hash)
-        @primary_caregiver = Caregiver.new(pc_metadata_hash)
+        @primary_caregiver = if pc_metadata_hash.nil?
+                               nil
+                             else
+                               Caregiver.new(pc_metadata_hash)
+                             end
       end
 
       def secondary_caregiver_one=(sc_one_metadata_hash)
-        @secondary_caregiver_one =  if sc_one_metadata_hash.nil?
-                                      nil
-                                    else
-                                      Caregiver.new(sc_one_metadata_hash)
-                                    end
+        @secondary_caregiver_one = if sc_one_metadata_hash.nil?
+                                     nil
+                                   else
+                                     Caregiver.new(sc_one_metadata_hash)
+                                   end
       end
 
       def secondary_caregiver_two=(sc_two_metadata_hash)
-        @secondary_caregiver_two =  if sc_two_metadata_hash.nil?
-                                      nil
-                                    else
-                                      Caregiver.new(sc_two_metadata_hash)
-                                    end
+        @secondary_caregiver_two = if sc_two_metadata_hash.nil?
+                                     nil
+                                   else
+                                     Caregiver.new(sc_two_metadata_hash)
+                                   end
       end
     end
   end

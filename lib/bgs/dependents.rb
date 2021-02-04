@@ -14,7 +14,6 @@ module BGS
     end
 
     def create_all
-      report_674 if @views['report674']
       report_deaths if @views['report_death']
       report_divorce if @dependents_application['report_divorce']
 
@@ -63,23 +62,6 @@ module BGS
           marriage_termination_type_code: formatted_info['marriage_termination_type_code'],
           type: 'divorce'
         }
-      )
-    end
-
-    def report_674
-      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(
-        @dependents_application
-      )
-      formatted_info = adult_attending_school.format_info
-      participant = bgs_service.create_participant(@proc_id)
-      bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
-      send_address(adult_attending_school, participant, adult_attending_school.address)
-
-      @dependents << adult_attending_school.serialize_dependent_result(
-        participant,
-        'Child',
-        'Other',
-        { 'type': '674' }
       )
     end
 

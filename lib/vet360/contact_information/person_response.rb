@@ -18,6 +18,10 @@ module Vet360
           person: Vet360::Models::Person.build_from(@response_body&.dig('bio'))
         )
       end
+
+      def cache?
+        super || status == 404
+      end
     end
   end
 end

@@ -87,10 +87,16 @@
               ]
             },
             "state": {
-              "type": "string"
+              "type": [
+                "string",
+                null
+              ]
             },
             "city": {
-              "type": "string"
+              "type": [
+                "string",
+                null
+              ]
             },
             "parentSiteCode": {
               "type": "string"

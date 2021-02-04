@@ -5,17 +5,15 @@ module HealthQuest
     class VAAppointmentsSerializer
       include FastJsonapi::ObjectSerializer
 
-      set_id do |object|
-        Digest::MD5.hexdigest(object.start_date)
-      end
+      set_id :id
 
       set_type :va_appointments
 
-      attributes :start_date, :sta6aid, :clinic_id, :clinic_friendly_name, :facility_id, :community_care
+      attributes :start_date, :sta6aid, :clinic_id, :clinic_friendly_name, :facility_id, :community_care, :patient_icn
 
       attribute :vds_appointments do |object|
         Array.wrap(object&.vds_appointments).map do |vds|
-          vds.except(:patient_id)                                       # remove patient identifiers
+          vds.except(:patient_id) # remove patient identifiers
              .reverse_merge(booking_note: nil, appointment_length: nil) # make array consistent
         end
       end

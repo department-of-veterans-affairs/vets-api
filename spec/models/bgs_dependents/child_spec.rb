@@ -6,6 +6,7 @@ RSpec.describe BGSDependents::Child do
   let(:child_info) do
     {
       'does_child_live_with_you' => false,
+      'child_income' => false,
       'child_address_info' => {
         'person_child_lives_with' => { 'first' => 'Bill', 'middle' => 'Oliver', 'last' => 'Bradsky' },
         'address' => {
@@ -51,7 +52,8 @@ RSpec.describe BGSDependents::Child do
         'first' => 'John',
         'middle' => 'oliver',
         'last' => 'Hamm',
-        'suffix' => 'Sr.'
+        'suffix' => 'Sr.',
+        'child_income' => 'N'
       }
     end
 

@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe 'Upload supporting evidence', type: :request do
   include SchemaMatchers
+  let(:user) { build(:disabilities_compensation_user) }
 
   let(:pdf_file) do
     fixture_file_upload('files/doctors-note.pdf', 'application/pdf')
@@ -11,6 +12,10 @@ RSpec.describe 'Upload supporting evidence', type: :request do
 
   let(:encrypted_pdf_file) do
     fixture_file_upload('files/password_is_test.pdf', 'application/pdf')
+  end
+
+  before do
+    sign_in_as(user)
   end
 
   describe 'Post /v0/upload_supporting_evidence' do

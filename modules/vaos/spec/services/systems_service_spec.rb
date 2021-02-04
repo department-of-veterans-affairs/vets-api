@@ -241,6 +241,36 @@ describe VAOS::SystemsService do
     end
   end
 
+  describe '#get_facilities_limits with multiple institution_codes' do
+    let(:user) { build(:user, :vaos) }
+
+    context 'with a 200 response' do
+      it 'returns a number of requests and limits for multiple facilities' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method uri]) do
+          response = subject.get_facilities_limits(%w[688 442], '323')
+
+          expect(response.body.first[:number_of_requests]).to eq(0)
+          expect(response.body.first[:request_limit]).to eq(1)
+          expect(response.body.first[:institution_code]).to eq('688')
+          expect(response.body.second[:number_of_requests]).to eq(0)
+          expect(response.body.second[:request_limit]).to eq(1)
+          expect(response.body.second[:institution_code]).to eq('442')
+          expect(response.body.size).to eq(2)
+        end
+      end
+    end
+
+    context 'with a 500 response' do
+      it 'returns a number of requests and limits for multiple facilities' do
+        VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple_500', match_requests_on: %i[method uri]) do
+          expect { subject.get_facility_limits(%w[688 442], '323') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
   describe '#get_system_pact' do
     context 'with a 200 response' do
       it 'returns pact info' do
@@ -356,27 +386,6 @@ describe VAOS::SystemsService do
   end
 
   describe '#get_request_eligibility_criteria' do
-    context 'with no site_codes or parent_sites param' do
-      it 'returns the full list', :aggregate_failures do
-        VCR.use_cassette('vaos/systems/get_request_eligibility_criteria', match_requests_on: %i[method uri]) do
-          response = subject.get_request_eligibility_criteria
-          expect(response.size).to eq(1269)
-          first_result = response.first
-          expect(first_result.id).to eq('405GC')
-          expect(first_result.request_settings.first).to eq(
-            {
-              id: '502',
-              type_of_care: 'Outpatient Mental Health',
-              patient_history_required: 'No',
-              stop_codes: [{ primary: '502' }],
-              submitted_request_limit: 2,
-              enterprise_submitted_request_limit: 2
-            }
-          )
-        end
-      end
-    end
-
     context 'with a site_codes param array' do
       it 'returns an array', :aggregate_failures do
         VCR.use_cassette('vaos/systems/get_request_eligibility_criteria_by_site_codes',

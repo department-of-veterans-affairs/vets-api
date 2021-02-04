@@ -5,7 +5,7 @@ module VAOS
     ##
     # Faraday middleware that logs various semantically relevant attributes needed for debugging and audit purposes
     #
-    class VaosLogging < Faraday::Middleware
+    class VAOSLogging < Faraday::Middleware
       def initialize(app)
         super(app)
       end
@@ -94,4 +94,4 @@ module VAOS
   end
 end
 
-Faraday::Middleware.register_middleware vaos_logging: VAOS::Middleware::VaosLogging
+Faraday::Middleware.register_middleware vaos_logging: VAOS::Middleware::VAOSLogging

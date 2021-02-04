@@ -5,7 +5,8 @@ VAOS::Engine.routes.draw do
     resources :appointments, only: %i[index create] do
       put 'cancel', on: :collection
     end
-    resources :appointment_requests, only: %i[index create update] do
+    get '/appointments/:type/:id', to: 'appointments#show', type: /va/
+    resources :appointment_requests, only: %i[index create update show] do
       resources :messages, only: %i[index create]
     end
     get 'community_care/eligibility/:service_type', to: 'cc_eligibility#show'
@@ -22,6 +23,7 @@ VAOS::Engine.routes.draw do
       resources :limits, only: :index
       get 'visits/:schedule_type', to: 'visits#index'
     end
+    get '/facilities/limits', to: 'facilities#limits'
     resource :preferences, only: %i[show update]
     resources :direct_booking_eligibility_criteria, only: :index
     resources :request_eligibility_criteria, only: :index

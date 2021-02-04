@@ -6,7 +6,7 @@ module EVSS
     #
     # @return [EVSSClaimDocument] An EVSS claim document ready for submission
     #
-    class Form8940Document < EvssDocument
+    class Form8940Document < EVSSDocument
       FORM_ID = '21-8940' # form id for PTSD IU
       DOC_TYPE = 'L149'
 

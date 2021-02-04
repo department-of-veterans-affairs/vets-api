@@ -101,7 +101,8 @@ class FormProfile
     decision_review: ['20-0996'],
     mdot: ['MDOT'],
     fsr: ['5655'],
-    vre_counseling: ['28-8832']
+    vre_counseling: ['28-8832'],
+    vre_readiness: ['28-1900']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -126,7 +127,8 @@ class FormProfile
     'MDOT' => ::FormProfiles::MDOT,
     '22-10203' => ::FormProfiles::VA10203,
     '5655' => ::FormProfiles::VA5655,
-    '28-8832' => ::FormProfiles::VA288832
+    '28-8832' => ::FormProfiles::VA288832,
+    '28-1900' => ::FormProfiles::VA281900
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i.freeze
@@ -348,10 +350,28 @@ class FormProfile
     prefilled = {}
 
     hash.each do |k, v|
-      prefilled[k.camelize(:lower)] = v.is_a?(Hash) ? convert_mapping(v) : call_methods(v)
+      if v.is_a?(Array) && v.any?(Hash)
+        prefilled[k.camelize(:lower)] = []
+
+        v.each do |h|
+          nested_prefill = {}
+
+          h.each do |key, val|
+            nested_prefill[key.camelize(:lower)] = convert_value(val)
+          end
+
+          prefilled[k.camelize(:lower)] << nested_prefill
+        end
+      else
+        prefilled[k.camelize(:lower)] = convert_value(v)
+      end
     end
 
     prefilled
+  end
+
+  def convert_value(val)
+    val.is_a?(Hash) ? convert_mapping(val) : call_methods(val)
   end
 
   def generate_prefill(mappings)

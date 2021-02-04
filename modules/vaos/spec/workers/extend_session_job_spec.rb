@@ -12,7 +12,7 @@ RSpec.describe VAOS::ExtendSessionJob, type: :job do
   end
 
   describe '.perform_async' do
-    it 'submits succesfully' do
+    it 'submits successfully' do
       expect do
         subject.perform_async(user.account_uuid)
       end.to change(subject.jobs, :size).by(1)

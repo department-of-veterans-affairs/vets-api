@@ -212,10 +212,11 @@ module SAML
       uuid = previous_saml_uuid(params)
       previous = uuid && SAMLRequestTracker.find(uuid)
       type = previous&.payload_attr(:type) || params[:type]
+      transaction_id = previous&.payload_attr(:transaction_id) || SecureRandom.uuid
       # if created_at is set to nil (meaning no previous tracker to use), it
       # will be initialized to the current time when it is saved
       SAMLRequestTracker.new(
-        payload: { type: type }.compact,
+        payload: { type: type, transaction_id: transaction_id }.compact,
         created_at: previous&.created_at
       )
     end

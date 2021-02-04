@@ -12,7 +12,7 @@ task rebuild_encrypted_fixture: :environment do
   formatter = CovidResearch::RedisFormat.new
   formatter.form_data = JSON.generate(submission)
 
-  File.open('w', File.join(fixture_dir, 'encrypted-form.json')) do |f|
+  File.open(File.join(fixture_dir, 'encrypted-form.json'), 'w') do |f|
     f.puts formatter.to_json
   end
 end

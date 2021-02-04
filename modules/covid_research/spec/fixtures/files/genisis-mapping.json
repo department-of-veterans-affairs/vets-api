@@ -1,6 +1,10 @@
 {
   "expected":[
-    {"QuestionName":"diagnosed","QuestionValue":"No"},
+    {"QuestionName":"diagnosed","QuestionValue":"Yes"},
+    {"QuestionName":"DIAGNOSED_DETAILS::SYMPTOMS_ONLY","QuestionValue":"Yes"},
+    {"QuestionName":"DIAGNOSED_DETAILS::ANTIBODY_BLOOD_TEST","QuestionValue":"No"},
+    {"QuestionName":"DIAGNOSED_DETAILS::NASAL_SWAB_TEST_POSITIVE","QuestionValue":"No"},
+    {"QuestionName":"DIAGNOSED_DETAILS::DIFFERENT_METHOD","QuestionValue":"Yes"},
     {"QuestionName":"closeContactPositive","QuestionValue":"UNSURE"},
     {"QuestionName":"hospitalized","QuestionValue":"Yes"},
     {"QuestionName":"smokeOrVape","QuestionValue":"No"},

@@ -55,6 +55,4 @@ class PPMS::ProviderSerializer
   attribute :pref_contact, &:contact_method
 
   attribute :unique_id, &:provider_identifier
-
-  has_many :specialties
 end

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VAOS::Middleware::VaosLogging do
+describe VAOS::Middleware::VAOSLogging do
   let(:user) { build(:user, :vaos) }
   let(:service) { VAOS::AppointmentService.new(user) }
   let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }

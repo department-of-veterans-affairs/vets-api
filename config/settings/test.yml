@@ -26,18 +26,15 @@ saml_ssoe:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
 
-
 edu:
   prefill: true
   sftp:
     relative_path: 'spool_files'
 
-
 pension_burial:
   prefill: true
   sftp:
     relative_path: 'VETSGOV_PENSION'
-
 
 hca:
   prefill: true
@@ -65,6 +62,12 @@ search:
   affiliate: va
   url: https://search.usa.gov/api/v2
 
+search_click_tracking:
+  access_key: TESTKEY
+  affiliate: va
+  module_code: I14Y
+  url: https://api.gsa.gov/technology/searchgov/v2
+
 vba_documents:
   enable_download_endpoint: true
 
@@ -84,3 +87,24 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+veteran_readiness_and_employment:
+  base_url: https://fake_url.com
+  credentials: fake_auth
+  auth_endpoint: https://fake_url.com/auth/oauth/token
+
+hqva_mobile:
+  url: "https://veteran.apps.va.gov"
+  mock: false
+  key_path: modules/health_quest/config/rsa/sandbox_rsa
+  development_key_path: modules/health_quest/config/rsa/sandbox_rsa
+  timeout: 15
+  lighthouse:
+    url: "https://sandbox-api.va.gov"
+    pgd_path: "/services/pgd/v0/r4"
+    host: "sandbox-api.va.gov"
+    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    redis_session_prefix: "healthquest_lighthouse"
+    mock: false
+    key_path: modules/health_quest/config/rsa/sandbox_rsa

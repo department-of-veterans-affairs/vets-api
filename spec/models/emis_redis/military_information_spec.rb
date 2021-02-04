@@ -6,12 +6,32 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
   subject { described_class.for_user(user) }
 
   let(:user) { build(:user, :loa3) }
+  let(:ang_service_episode) do
+    build(:service_episode, branch_of_service_code: 'F',
+                            personnel_category_type_code: 'N')
+  end
+  let(:dod_service_epsiode) do
+    build(:service_episode, branch_of_service_code: 'D',
+                            personnel_category_type_code: 'A')
+  end
+  let(:army_reserve_service_epsiode) do
+    build(:service_episode, branch_of_service_code: 'A',
+                            personnel_category_type_code: 'V')
+  end
 
   describe '#last_entry_date' do
     it 'returns the begin date from the latest service episode' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
         expect(subject.last_entry_date).to eq('2007-04-01')
       end
+    end
+  end
+
+  describe '#service_branch_used_in_disability' do
+    it 'translates the service_episode codes to a string' do
+      expect(subject.service_branch_used_in_disability(ang_service_episode)).to eq('Air National Guard')
+      expect(subject.service_branch_used_in_disability(dod_service_epsiode)).to eq(nil)
+      expect(subject.service_branch_used_in_disability(army_reserve_service_epsiode)).to eq('Army Reserve')
     end
   end
 

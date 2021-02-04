@@ -37,7 +37,8 @@ FactoryBot.define do
         },
         veteranFullName: {
           first: 'MARK', middle: 'WEBB', last: 'WEBB'
-        }
+        },
+        veteranSocialSecurityNumber: '796104437'
       }.to_json
     }
   end

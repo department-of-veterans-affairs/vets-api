@@ -11,11 +11,11 @@ describe EVSS::DisabilityCompensationAuthHeaders do
   let(:invalid_headers) { described_class.new(blank_gender_user) }
 
   # rubocop:disable all
-  it 'includes gender in the headers' do
+  it 'includes gender and birth date in the headers' do
     expect(valid_headers.add_headers(auth_headers)).to eq(
       'foo' => 'bar',
       'va_eauth_authorization' =>
-        '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":null,"firstName":"abraham","lastName":"lincoln","birthDate":null,"gender":"MALE"}}')
+        '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":null,"firstName":"abraham","lastName":"lincoln","birthDate":"1809-02-12T00:00:00+00:00","gender":"MALE"}}')
   end
   # rubocop:enable all
 

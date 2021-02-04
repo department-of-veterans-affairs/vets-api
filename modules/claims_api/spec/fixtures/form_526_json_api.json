@@ -3,6 +3,7 @@
     "type": "form/526",
     "attributes": {
       "veteran": {
+        "flashes": ["Hardship", "Homeless"],
         "currentlyVAEmployee": false,
         "currentMailingAddress": {
           "city": "Portland",
@@ -22,17 +23,19 @@
           "diagnosticCode": 9999,
           "disabilityActionType": "NEW",
           "name": "PTSD (post traumatic stress disorder)",
+          "specialIssues": ["Fully Developed Claim", "PTSD/2"],
           "secondaryDisabilities": [
             {
               "name": "PTSD personal trauma",
               "disabilityActionType": "SECONDARY",
-              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
+              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description",
+              "specialIssues": ["Radiation", "Emergency Care – CH17 Determination"]
             }
           ]
         }
       ],
       "standardClaim": false,
-      "autoCestPDFGenerationDisabled": false,
+      "autoCestPDFGenerationDisabled": true,
       "claimDate": "1990-01-03",
       "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
       "serviceInformation": {

@@ -87,8 +87,15 @@
       {
         "type": "contestableIssue",
         "attributes": {
-          "issue": "sleep apnea",
+          "issue": "left shoulder",
           "decisionDate": "1900-01-07"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "sleep apnea",
+          "decisionDate": "1900-01-08"
         }
       }
     ]

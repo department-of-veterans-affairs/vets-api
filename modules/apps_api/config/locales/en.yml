@@ -2,6 +2,7 @@ en:
   apps_api:
     endpoint_descriptions:
       index: 'A listing of available applications that can be linked with your user profile on va.gov'
+      scopes: 'A listing of all scopes a given service category could request'
     field_descriptions:
       id: 'Unique ID of the application.'
       name: 'The name of the application.'
@@ -13,3 +14,6 @@ en:
       app_url: 'The URL of the application.'
       privacy_url: 'The URL where the applications privacy policy can be reached.'
       tos_url: 'The URL where the applications terms of service can be reached.'
+      scope_name: 'The name of the scope in Okta'
+      display_name: 'The name of the scope as it would be displayed to users'
+      scope_description: 'A description of the scope'

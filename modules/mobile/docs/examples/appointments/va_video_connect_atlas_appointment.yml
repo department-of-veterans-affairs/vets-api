@@ -1,0 +1,27 @@
+data:
+  - type: appointment
+    id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
+    attributes:
+      appointmentType: VA_VIDEO_CONNECT_ATLAS
+      status: BOOKED
+      startDateLocal: 2019-04-20T14:15:00.000-04:00
+      startDateUtc: 2019-04-20T18:15:00.000Z
+      minutesDuration: 60
+      comment: Please log on 5 minutes before the start of your appointment
+      healthcareService: ATLAS Conference Center
+      location:
+        name: VA Long Beach Healthcare System
+        address:
+          street: 5901 East 7th Street, Building 165
+          city: Long Beach
+          state: CA
+          zipCode: "90822"
+        lat: null
+        long: null
+        phone:
+          areaCode: "562"
+          number: "826-8000"
+          extension: null
+        url: null
+        code: GL45678
+      timeZone: America/Los_Angeles

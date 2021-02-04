@@ -1,7 +1,8 @@
 {
     "form526": {
-        "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+        "applicationExpirationDate": "2021-11-05T18:19:50Z",
         "bddQualified": false,
+        "claimSubmissionSource": "VA.gov",
         "claimantCertification": true,
         "directDeposit": {
             "accountNumber": "123123123123",

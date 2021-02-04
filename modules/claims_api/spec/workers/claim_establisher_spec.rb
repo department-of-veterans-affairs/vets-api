@@ -11,7 +11,9 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    EVSS::DisabilityCompensationAuthHeaders.new(user)
+                                           .add_headers(EVSS::AuthHeaders.new(user).to_h)
+                                           .merge(BGS::AuthHeaders.new(user).to_h)
   end
 
   let(:claim) do
@@ -21,7 +23,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     claim
   end
 
-  it 'submits succesfully' do
+  it 'submits successfully' do
     expect do
       subject.perform_async(claim.id)
     end.to change(subject.jobs, :size).by(1)
@@ -63,5 +65,17 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body)
     expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+  end
+
+  it 'fails current job if record fails to persist to the database' do
+    evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::Service')
+    allow(EVSS::DisabilityCompensationForm::Service).to receive(:new) { evss_service_stub }
+    allow(evss_service_stub).to receive(:submit_form526) { OpenStruct.new(claim_id: 1337) }
+    expect_any_instance_of(ClaimsApi::AutoEstablishedClaim).to receive(:save!)
+      .and_raise(ActiveRecord::RecordInvalid.new(claim))
+
+    expect do
+      subject.new.perform(claim.id)
+    end.to raise_error(ActiveRecord::RecordInvalid)
   end
 end

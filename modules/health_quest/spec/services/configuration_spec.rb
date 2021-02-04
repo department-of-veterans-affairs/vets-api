@@ -29,7 +29,7 @@ describe HealthQuest::Configuration do
   end
 
   describe '#mock_enabled?' do
-    context 'when Settings.va_mobile.mock is true' do
+    context 'when Settings.hqva_mobile.mock is true' do
       before { Settings.hqva_mobile.mock = 'true' }
 
       it 'returns true' do
@@ -37,7 +37,7 @@ describe HealthQuest::Configuration do
       end
     end
 
-    context 'when Settings.va_mobile.mock is false' do
+    context 'when Settings.hqva_mobile.mock is false' do
       before { Settings.hqva_mobile.mock = 'false' }
 
       it 'returns false' do

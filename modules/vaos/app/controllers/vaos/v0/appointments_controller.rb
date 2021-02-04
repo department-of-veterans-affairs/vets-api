@@ -16,6 +16,10 @@ module VAOS
         head :no_content # There is no id associated with the created resource, so no point returning a response body
       end
 
+      def show
+        render json: VAOS::V0::VAAppointmentsSerializer.new(appointment)
+      end
+
       def cancel
         appointment_service.put_cancel_appointment(cancel_params)
         head :no_content
@@ -40,6 +44,10 @@ module VAOS
         VAOS::AppointmentService.new(current_user)
       end
 
+      def appointment
+        @appointment ||= appointment_service.get_appointment(id)
+      end
+
       def appointments
         @appointments ||=
           appointment_service.get_appointments(type, start_date, end_date, pagination_params)
@@ -54,6 +62,10 @@ module VAOS
         raise Common::Exceptions::InvalidFieldValue.new('type', type) unless %w[va cc].include?(type)
         raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
         raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
+      end
+
+      def id
+        params[:id]
       end
 
       def type

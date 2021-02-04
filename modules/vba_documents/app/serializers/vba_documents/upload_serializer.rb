@@ -1,12 +1,25 @@
 # frozen_string_literal: true
 
 require_dependency 'common/exceptions'
+require_dependency 'vba_documents/pdf_inspector'
 
 module VBADocuments
   class UploadSerializer < ActiveModel::Serializer
+    MAX_DETAIL_DISPLAY_LENGTH = 200
+
     type 'document_upload'
 
-    attributes :guid, :status, :code, :detail, :location, :updated_at
+    attributes :guid, :status, :code, :detail, :location, :updated_at, :uploaded_pdf
+
+    module ClassMethods
+      include PDFInspector::Constants
+      def scrub_unnecessary_keys(pdf_hash)
+        pdf_hash.delete(DOC_TYPE_KEY.to_s)
+        pdf_hash.delete(SOURCE_KEY.to_s)
+        pdf_hash
+      end
+    end
+    extend ClassMethods
 
     def id
       object.guid
@@ -14,6 +27,18 @@ module VBADocuments
 
     delegate :code, to: :object
     delegate :detail, to: :object
+
+    def detail
+      detail = object.detail.to_s
+      detail = detail[0..MAX_DETAIL_DISPLAY_LENGTH - 1] + '...' if detail.length > MAX_DETAIL_DISPLAY_LENGTH
+      detail
+    end
+
+    def uploaded_pdf
+      return nil unless object.uploaded_pdf
+
+      UploadSerializer.scrub_unnecessary_keys(object.uploaded_pdf)
+    end
 
     def status
       object.status == 'vbms' ? 'success' : object.status

@@ -53,6 +53,7 @@ module EVSS
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
+        output_form['claimSubmissionSource'] = 'VA.gov'
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -66,6 +67,10 @@ module EVSS
       end
 
       private
+
+      def redacted(account_number, routing_number)
+        account_number&.include?('*') || routing_number&.include?('*')
+      end
 
       def input_form
         @form_content['form526']
@@ -98,7 +103,7 @@ module EVSS
                     input_form['bankAccountNumber'].present? && input_form['bankRoutingNumber'].present?
         # if banking data is not included then it has not changed and will be retrieved
         # from the PPIU service
-        if !populated
+        if !populated || redacted(input_form['bankAccountNumber'], input_form['bankRoutingNumber'])
           get_banking_info
         else
           direct_deposit(
@@ -194,21 +199,25 @@ module EVSS
       ###
 
       def translate_service_info
-        {
+        service_info = {
           'serviceInformation' => {
             'servicePeriods' => translate_service_periods,
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
             'servedInCombatZone' => input_form['servedInCombatZonePost911'],
-            'alternateNames' => translate_names,
-            'separationLocationName' => input_form.dig('serviceInformation',
-                                                       'separationLocation',
-                                                       'separationLocationName'),
-            'separationLocationCode' => input_form.dig('serviceInformation',
-                                                       'separationLocation',
-                                                       'separationLocationCode')
+            'alternateNames' => translate_names
           }.compact
         }
+
+        if days_until_release.positive?
+          service_info['serviceInformation']['separationLocationName'] = input_form.dig('serviceInformation',
+                                                                                        'separationLocation',
+                                                                                        'separationLocationName')
+          service_info['serviceInformation']['separationLocationCode'] = input_form.dig('serviceInformation',
+                                                                                        'separationLocation',
+                                                                                        'separationLocationCode')
+        end
+        service_info
       end
 
       def translate_service_periods
@@ -600,46 +609,8 @@ module EVSS
         end
       end
 
-      ###
-      # Date calculations
-      ###
-
       def application_expiration_date
-        return (rad_date + 1.day + 365.days).iso8601 if greater_rad_date?
-        return (application_create_date + 365.days).iso8601 if greater_itf_date?
-
-        itf.expiration_date.iso8601
-      end
-
-      def greater_rad_date?
-        rad_date.present? && rad_date > application_create_date
-      end
-
-      def greater_itf_date?
-        itf.creation_date.nil? || itf.expiration_date.nil? || itf.creation_date > application_create_date
-      end
-
-      def application_create_date
-        # Application create date is the date the user began their application
-        @acd ||= InProgressForm.where(form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: @user.uuid)
-                               .first.created_at
-      end
-
-      def rad_date
-        # retrieve the most recent Release from Active Duty (RAD) date
-        return @rd if @rd
-
-        service_episodes = @user.military_information.service_episodes_by_date
-        @rd = Time.zone.parse(service_episodes.first&.end_date.to_s)
-      end
-
-      def itf
-        # retrieve the active intent to file for compensation
-        return @itf if @itf
-
-        service = EVSS::IntentToFile::Service.new(@user)
-        response = service.get_active('compensation')
-        @itf = response.intent_to_file
+        1.year.from_now.iso8601
       end
 
       ###
@@ -652,11 +623,13 @@ module EVSS
         recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
       end
 
+      def days_until_release
+        @days_until_release ||= user_supplied_rad_date - @form_submission_date
+      end
+
       def bdd_qualified?
         # To be bdd_qualified application should be submitted 180-90 days prior to Release from Active Duty (RAD) date.
         # Applications < 90 days prior to release can be submitted but only with value as false.
-        days_until_release = user_supplied_rad_date - @form_submission_date
-
         if days_until_release > 180
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: 'User may not submit BDD more than 180 days prior to RAD date',

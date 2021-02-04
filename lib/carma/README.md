@@ -2,9 +2,9 @@
 CARMA (Caregiver Record Management Application)
 
 ## Description
-CARMA (Caregiver Record Management Application) is a Salesforce application that the VA's Caregivers Program uses to intake, track, and process 10-10CG submissions.
+CARMA is a Salesforce application that the VA's Caregivers Program uses to track and process 10-10CG submissions.
 
-This CARMA service/module is used to submit valid, online, 10-10CG submissions (CaregiversAssistanceClaim) to CARMA. It includes models that map to the Salesforce API interface and an http client.
+This library is used to submit valid, online, 10-10CG submissions (CaregiversAssistanceClaim) to CARMA. It includes an HTTP client and models that map to the CARMA domain.
 
 ## Design
 
@@ -16,7 +16,7 @@ This is an http client used to communicate with CARMA. It contains configuration
 
 ## Example
 
-### Simple Submission
+### Simple Submission (with implicit client)
 ```
 claim = CaregiversAssistanceClaim.new
 
@@ -31,7 +31,7 @@ submission.metadata = {
 submission.submit!(CARMA::Client::Client.new)
 ```
 
-### Submission with Attachments 
+### Submission with Attachments (with explicit client)
 ```
 carma_client  = CARMA::Client::Client.new
 claim         = SavedClaim::CaregiversAssistanceClaim.new
@@ -56,7 +56,7 @@ attachments = CARMA::Models::Attachments.new(
 attachments.add('10-10CG', 'tmp/pdfs/10-10CG-claim-guid.pdf')
 attachments.add('POA', 'tmp/pdfs/POA-claim-guid.pdf')
 
-attachments.submit!(carma_client)
+attachments.submit!(carma_client) # Pass the same client used for the submission request, so another auth request isn't made
 ```
 
 ## Data Contract
@@ -68,7 +68,7 @@ attachments.submit!(carma_client)
     claimGuid: string;
     claimId: number | null;
     veteran: { icn: string | null; isVeteran?: true | false; },
-    primaryCaregiver: { icn: string | null; isVeteran?: true | false; },
+    primaryCaregiver?: { icn: string | null; isVeteran?: true | false; },
     secondaryCaregiverOne?: { icn: string | null; isVeteran?: true | false; },
     secondaryCaregiverTwo?: { icn: string | null; isVeteran?: true | false; },
   }

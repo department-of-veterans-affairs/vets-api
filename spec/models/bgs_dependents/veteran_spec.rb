@@ -23,7 +23,7 @@ RSpec.describe BGSDependents::Veteran do
       'phone_number' => '1112223333',
       'email_address' => 'foo@foo.com',
       'country_name' => 'USA',
-      'address_line1' => '8200 Doby LN',
+      'address_line1' => '2037400 twenty ninth St',
       'city' => 'Pasadena',
       'state_code' => 'CA',
       'zip_code' => '21122',
@@ -48,7 +48,14 @@ RSpec.describe BGSDependents::Veteran do
   describe '#veteran_response' do
     it 'formats params veteran response' do
       expect(
-        vet.veteran_response({ vnp_ptcpnt_id: '149500' }, '1234', address, '134', '310')
+        vet.veteran_response(
+          { vnp_ptcpnt_id: '149500' },
+          address,
+          { va_file_number: '1234',
+            claim_type_end_product: '134',
+            location_id: '310',
+            net_worth_over_limit_ind: 'Y' }
+        )
       ).to include(veteran_response_result_sample)
     end
   end

@@ -3,9 +3,7 @@
 module V0
   class EducationCareerCounselingClaimsController < ClaimsBaseController
     def create
-      load_user
       claim = SavedClaim::EducationCareerCounselingClaim.new(form: filtered_params[:form])
-      claim.add_claimant_info(current_user) if current_user
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
@@ -13,7 +11,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
 
-      claim.process_attachments!
+      claim.send_to_central_mail!
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       clear_saved_form(claim.form_id)

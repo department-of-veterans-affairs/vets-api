@@ -23,5 +23,11 @@ RSpec.describe CARMA::Client::Configuration, type: :model do
     it 'sets #base_url' do
       expect(subject.base_path).to eq(app_config_url + '/services/oauth2/token')
     end
+
+    describe '#mock_enabled?' do
+      it 'equals the salesforce carma mock setting' do
+        expect(subject.mock_enabled?).to eq(Settings['salesforce-carma'].mock)
+      end
+    end
   end
 end

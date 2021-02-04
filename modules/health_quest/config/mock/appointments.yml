@@ -1,0 +1,106 @@
+---
+  :method: :get
+  :body:
+    error_occurred: false
+    error_message: null
+    status: null
+    debug_info: null
+    data:
+      appointment_list:
+      - id: '202101281500983000089800000000000000'
+        start_date: '2021-01-28T15:00:00Z'
+        clinic_id: '898'
+        facility_id: '983'
+        sta6aid: 983GD
+        station_name: CHYSHR-Loveland VA Clinic
+        location_name: LVLND  SOCIAL WORK
+        patient_icn: 1012845331V153043
+        community_care: false
+        vds_appointments:
+        - id: 898;20210128.080000
+          appointment_time: '2021-01-28T15:00:00Z'
+          clinic:
+            name: LVLND  SOCIAL WORK
+            ask_for_check_in: false
+            facility_code: '983'
+          patient_id: '7216691'
+          type: SERVICE CONNECTED
+          current_status: CANCELLED BY PATIENT
+      - id: '202101281600983000113500000000000000'
+        start_date: '2021-01-28T16:00:00Z'
+        clinic_id: '1135'
+        facility_id: '983'
+        sta6aid: '983'
+        station_name: CHYSHR-Cheyenne VA Medical Center
+        location_name: CHY PHARMACY
+        patient_icn: 1012845331V153043
+        community_care: false
+        vds_appointments:
+        - id: 1135;20210128.090000
+          appointment_time: '2021-01-28T16:00:00Z'
+          clinic:
+            name: CHY PHARMACY
+            ask_for_check_in: false
+            facility_code: '983'
+          patient_id: '7216691'
+          type: SERVICE CONNECTED
+          current_status: CANCELLED BY PATIENT
+      - id: '202109171910983000084800000000000000'
+        start_date: '2021-09-17T19:10:00Z'
+        clinic_id: '848'
+        clinic_friendly_name: CHY PC VAR2
+        facility_id: '983'
+        sta6aid: '983'
+        station_name: CHYSHR-Cheyenne VA Medical Center
+        location_name: CHY PC VAR2
+        patient_icn: 1012845331V153043
+        community_care: false
+        vds_appointments:
+        - id: 848;20210917.131000
+          appointmentLength: '20'
+          appointment_time: '2021-09-17T19:10:00Z'
+          clinic:
+            name: CHY PC VAR2
+            ask_for_check_in: false
+            facility_code: '983'
+          patient_id: '7216691'
+          type: REGULAR
+          current_status: FUTURE
+          booking_note: 'New issue: new medical issue.  new medical issue.  new medical
+            issue.  new medical issue.  new medical issue.  new medical issue.  new medical
+            issue.'
+      - id: '202111051930983000084800000000000000'
+        start_date: '2021-11-05T19:30:00Z'
+        clinic_id: '848'
+        clinic_friendly_name: CHY PC VAR2
+        facility_id: '983'
+        sta6aid: '983'
+        station_name: CHYSHR-Cheyenne VA Medical Center
+        location_name: CHY PC VAR2
+        patient_icn: 1012845331V153043
+        community_care: false
+        vds_appointments:
+        - id: 848;20211105.133000
+          appointment_time: '2021-11-05T19:30:00Z'
+          clinic:
+            name: CHY PC VAR2
+            ask_for_check_in: false
+            facility_code: '983'
+          patient_id: '7216691'
+          type: REGULAR
+          current_status: CANCELLED BY PATIENT
+      num_appointments: 20
+  :headers:
+    Cache-Control: no-cache
+    Pragma: no-cache
+    Content-Length: '77249'
+    Content-Type: application/json; charset=utf-8
+    Expires: "-1"
+    Server: Microsoft-IIS/7.5
+    X-Aspnet-Version: 4.0.30319
+    X-Powered-By: ASP.NET
+    Access-Control-Allow-Origin: "*"
+    Access-Control-Allow-Methods: GET, PUT, POST, DELETE, HEAD
+    Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept
+    Date: Fri, 20 Jul 2018 15:38:45 GMT
+  :status: 200

@@ -129,7 +129,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 03:31:51 GMT
 - request:
     method: post
-    uri: "<MVI_URL>"
+    uri: "<MPI_URL>"
     body:
       encoding: ASCII-8BIT
       string: !binary |-

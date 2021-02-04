@@ -2,5 +2,5 @@
 
 require 'va_forms/engine'
 
-module VaForms
+module VAForms
 end

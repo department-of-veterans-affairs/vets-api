@@ -8,6 +8,10 @@ module CARMA
       def service_name
         'CARMA'
       end
+
+      def mock_enabled?
+        Settings['salesforce-carma'].mock
+      end
     end
   end
 end

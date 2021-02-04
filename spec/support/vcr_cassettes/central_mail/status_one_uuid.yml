@@ -2,13 +2,13 @@
 http_interactions:
 - request:
     method: post
-    uri: https://icmhs-api-test.csrarad.com/VADocument/getStatus
+    uri: https://test2.domaonline.com/EmmsAPI/VADocument/getStatus
     body:
       encoding: UTF-8
-      string: token=%3CPENSIONS_TOKEN%3E&uuid=%5B%2234656d73-7c31-456d-9c49-2024fff1cd47%22%5D
+      string: token=<PENSIONS_TOKEN>&uuid=%5B%22a8c29dbc-a0a6-4177-ae57-fc6143ec7edb%22%5D
     headers:
       User-Agent:
-      - Faraday v0.9.2
+      - Faraday v0.17.0
       Content-Type:
       - application/x-www-form-urlencoded
       Accept-Encoding:
@@ -18,20 +18,51 @@ http_interactions:
   response:
     status:
       code: 200
-      message: ''
+      message: OK
     headers:
-      Date:
-      - Thu, 22 Mar 2018 18:43:51 GMT
+      Cache-Control:
+      - no-cache
+      Pragma:
+      - no-cache
+      Content-Length:
+      - '251'
       Content-Type:
-      - application/json;charset=UTF-8
-      Connection:
-      - close
-      Transfer-Encoding:
-      - chunked
+      - application/json; charset=utf-8
+      Expires:
+      - "-1"
+      Server:
+      - Microsoft-IIS/8.5
+      X-Aspnet-Version:
+      - 4.0.30319
+      X-Powered-By:
+      - ASP.NET
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Content-Security-Policy:
+      - 'default-src https://*.domaonline.com; script-src https://*.domaonline.com
+        https://uptime.com https://cdnjs.cloudflare.com https://cdn.quilljs.com https://www.gstatic.com
+        https://beacon-v2.helpscout.net https://*.cloudfront.net https://www.ssa.gov/accessibility/andi/
+        ''unsafe-inline'' ''unsafe-eval''; style-src https://www.ssa.gov/accessibility/andi/
+        https://*.domaonline.com https://fonts.googleapis.com https://beacon-v2.helpscout.net
+        https://*.cloudfront.net https://cdn.quilljs.com https://cdnjs.cloudflare.com
+        https://www.gstatic.com ''unsafe-inline''; connect-src https://*.domaonline.com
+        https://beaconapi.helpscout.net https://chatapi.helpscout.net https://*.cloudfront.net
+        https://rum.uptime.com ''unsafe-inline''; img-src * data:; frame-src blob:
+        https://*.domaonline.com https://beacon-v2.helpscout.net; frame-ancestors
+        https://*.domaonline.com; font-src https://*.domaonline.com https://fonts.gstatic.com;
+        base-uri https://*.domaonline.com  https://docs.helpscout.net; object-src
+        https://*.domaonline.com https://beacon-v2.helpscout.net;'
+      Date:
+      - Sat, 12 Dec 2020 03:33:19 GMT
     body:
       encoding: UTF-8
-      string: '[[{"uuid":"34656d73-7c31-456d-9c49-2024fff1cd47","status":"In Process","errorMessage":"","lastUpdated":"2018-03-20
-        16:57:37"}]]'
-    http_version:
-  recorded_at: Thu, 22 Mar 2018 18:43:51 GMT
-recorded_with: VCR 3.0.3
+      string: '[[{"uuid":"a8c29dbc-a0a6-4177-ae57-fc6143ec7edb","status":"Error","errorMessage":"Errors:
+        ;ERR-EMMS-FAILED, Attachment List Count Does Not Match Folder File Count,
+        ConfirmationNumber: 40, File: EMMS-GCIO-40.XML;","lastUpdated":"2020-12-05
+        12:59:51"}]]'
+  recorded_at: Sat, 12 Dec 2020 03:33:26 GMT
+recorded_with: VCR 6.0.0

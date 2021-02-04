@@ -11,7 +11,7 @@
       "minItems": 0,
       "uniqueItems": true,
       "items": {
-        "$ref": "va_appointment.json"
+        "$ref": "va_appointment_raw.json"
       }
     },
     "meta": {

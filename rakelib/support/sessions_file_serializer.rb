@@ -15,6 +15,6 @@ class SessionsFileSerializer < SessionsSerializer
 
   def add(data)
     uuid = save_session(data['uuid'])
-    redis_set(uuid, data['users_b'], data['mvi-profile-response'], data['user_identities'])
+    redis_set(uuid, data['users_b'], data['mpi-profile-response'], data['user_identities'])
   end
 end

@@ -76,18 +76,24 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
       claim_3 = described_class.new(form: {
         "veteran": {},
+        "secondaryCaregiverOne": {}
+      }.to_json)
+      expect(claim_3.form_subjects).to eq(%w[veteran secondaryCaregiverOne])
+
+      claim_4 = described_class.new(form: {
+        "veteran": {},
         "primaryCaregiver": {},
         "secondaryCaregiverOne": {}
       }.to_json)
-      expect(claim_3.form_subjects).to eq(%w[veteran primaryCaregiver secondaryCaregiverOne])
+      expect(claim_4.form_subjects).to eq(%w[veteran primaryCaregiver secondaryCaregiverOne])
 
-      claim_4 = described_class.new(form: {
+      claim_5 = described_class.new(form: {
         "veteran": {},
         "primaryCaregiver": {},
         "secondaryCaregiverOne": {},
         "secondaryCaregiverTwo": {}
       }.to_json)
-      expect(claim_4.form_subjects).to eq(%w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo])
+      expect(claim_5.form_subjects).to eq(%w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo])
     end
 
     context 'when no subjects are present' do
