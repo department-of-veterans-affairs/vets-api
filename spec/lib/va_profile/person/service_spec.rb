@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/person/service'
+require 'va_profile/person/service'
 
-describe Vet360::Person::Service, skip_vet360: true do
+describe VAProfile::Person::Service, skip_vet360: true do
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
 
   after  { Timecop.return }
@@ -15,16 +15,16 @@ describe Vet360::Person::Service, skip_vet360: true do
 
     context 'with a user present, that has a icn_with_aaid, and no passed in ICN' do
       it 'returns a status of 200', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id
 
           expect(response).to be_ok
-          expect(response).to be_a(Vet360::ContactInformation::PersonTransactionResponse)
+          expect(response).to be_a(VAProfile::ContactInformation::PersonTransactionResponse)
         end
       end
 
-      it 'initiates an asynchronous Vet360 transaction', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
+      it 'initiates an asynchronous VAProfile transaction', :aggregate_failures do
+        VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id
 
           expect(response.transaction.id).to be_present
@@ -37,16 +37,16 @@ describe Vet360::Person::Service, skip_vet360: true do
       let(:icn) { '1000123456V123456' }
 
       it 'returns a status of 200', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id(icn)
 
           expect(response).to be_ok
-          expect(response).to be_a(Vet360::ContactInformation::PersonTransactionResponse)
+          expect(response).to be_a(VAProfile::ContactInformation::PersonTransactionResponse)
         end
       end
 
-      it 'initiates an asynchronous Vet360 transaction', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
+      it 'initiates an asynchronous VAProfile transaction', :aggregate_failures do
+        VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id(icn)
 
           expect(response.transaction.id).to be_present
@@ -57,7 +57,7 @@ describe Vet360::Person::Service, skip_vet360: true do
 
     context 'with a 400 response' do
       it 'raises an exception', :aggregate_failures do
-        VCR.use_cassette('vet360/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
           expect { subject.init_vet360_id }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
