@@ -71,6 +71,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
         # insert new entry before
         if "add_group '#{file_name.camelize}', 'modules/#{file_name}/'" < entry.strip
           insert_into_file "spec/#{f}_helper.rb", "#{new_entry}", before: "#{entry}"
+          return true
         end
       end
     end
@@ -91,6 +92,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
       # insert new entry before
       if "gem '#{file_name}'" < entry.strip
         insert_into_file "Gemfile", "#{new_entry}", before: "#{entry}"
+        return true
       end
     end
   end
@@ -110,6 +112,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
       # insert new entry before
       if "mount #{file_name.camelize}::Engine, at: '/#{file_name}'" < entry.strip
         insert_into_file "config/routes.rb", "#{new_entry}", before: "#{entry}"
+        return true
       end
     end
   end
