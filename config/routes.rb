@@ -353,11 +353,11 @@ Rails.application.routes.draw do
   end
 
   # Modules
-  mount HealthQuest::Engine, at: '/health_quest'
-  mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
-  mount Mobile::Engine, at: '/mobile'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
+  mount HealthQuest::Engine, at: '/health_quest'
+  mount Mobile::Engine, at: '/mobile'
+  mount VAOS::Engine, at: '/vaos'
   # End Modules
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
