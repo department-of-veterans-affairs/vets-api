@@ -110,6 +110,18 @@ RSpec.describe Form526Submission do
       end
     end
 
+    context 'BDD' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/526_bdd.json')
+      end
+
+      it 'queues 1 UploadBddInstructions job' do
+        expect do
+          subject.perform_ancillary_jobs('some name')
+        end.to change(EVSS::DisabilityCompensationForm::UploadBddInstructions.jobs, :size).by(1)
+      end
+    end
+
     context 'with form 4142' do
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_4142.json')

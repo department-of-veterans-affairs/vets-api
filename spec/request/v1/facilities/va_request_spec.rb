@@ -252,6 +252,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
               operating_status: {
                 code: 'NORMAL'
               },
+              operational_hours_special_instructions: nil,
               phone: {
                 fax: '360-690-0864',
                 main: '360-759-1901',
