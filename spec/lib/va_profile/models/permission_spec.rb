@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/models/permission'
+require 'va_profile/models/permission'
 
-describe Vet360::Models::Permission do
+describe VAProfile::Models::Permission do
   describe 'validations' do
     it 'we have a valid factory in place' do
       expect(build(:permission)).to be_valid
