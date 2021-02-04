@@ -7,6 +7,7 @@ require 'evss/disability_compensation_auth_headers'
 require_relative 'configuration'
 require_relative 'rated_disabilities_response'
 require_relative 'form_submit_response'
+require_relative 'service_unavailable_exception'
 
 module EVSS
   module DisabilityCompensationForm
@@ -35,12 +36,15 @@ module EVSS
       # @return [EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse] Response with a list of rated disabilities
       #
       def get_rated_disabilities
+        if @headers['va_eauth_birlsfilenumber'].blank?
+          Rails.logger.info('Missing `birls_id`', edipi: @headers['va_eauth_dodedipnid'])
+        end
         with_monitoring_and_error_handling do
-          if @headers['va_eauth_birlsfilenumber'].blank?
-            Rails.logger.info('Missing `birls_id`', edipi: @headers['va_eauth_dodedipnid'])
+          Rails.cache.fetch("evss_rated_disabilities/#{@headers['va_eauth_dodedipnid']}-#{@headers['va_eauth_pnid']}",
+                            expires_in: 30.minutes) do
+            raw_response = perform(:get, 'ratedDisabilities')
+            RatedDisabilitiesResponse.new(raw_response.status, raw_response)
           end
-          raw_response = perform(:get, 'ratedDisabilities')
-          RatedDisabilitiesResponse.new(raw_response.status, raw_response)
         end
       end
 
@@ -69,7 +73,15 @@ module EVSS
 
       private
 
+      def handle_service_unavailable_error(error)
+        if error.is_a?(Common::Client::Errors::ClientError) && error.status == 503
+          raise EVSS::DisabilityCompensationForm::ServiceUnavailableException
+        end
+      end
+
       def handle_error(error)
+        handle_service_unavailable_error(error)
+
         # Common::Client::Errors::ClientError is raised from Common::Client::Base#request after it rescues
         # Faraday::ClientError.  EVSS::ErrorMiddleware::EVSSError is raised from EVSS::ErrorMiddleware when
         # there is a 200-response with an error message in the body

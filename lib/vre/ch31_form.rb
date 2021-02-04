@@ -10,8 +10,9 @@ module VRE
     include SentryLogging
     configuration VRE::Configuration
     STATSD_KEY_PREFIX = 'api.vre'
+    SENTRY_TAG = { team: 'vfs-ebenefits' }.freeze
 
-    def initialize(user, claim)
+    def initialize(user:, claim:)
       @user = user
       @claim = claim
     end
@@ -28,6 +29,12 @@ module VRE
 
       raise Ch31Error if response_body['error_occurred'] == true
 
+      log_message_to_sentry(
+        'Temp message for testing',
+        :warn,
+        { application_intake_id: response_body['application_intake'] },
+        SENTRY_TAG
+      )
       response_body
     rescue Ch31Error => e
       process_ch_31_error(e, response_body)
@@ -45,9 +52,9 @@ module VRE
       vre_payload = {
         data: {
           educationLevel: form_data['yearsOfEducation'],
-          useEva: form_data['use_eva'],
+          useEva: form_data['useEva'],
           useTelecounseling: form_data['useTelecounseling'],
-          meetingTime: form_data['appointmentTimePreferences'].key(true),
+          meetingTime: form_data['appointmentTimePreferences'],
           isMoving: form_data['isMoving'],
           mainPhone: form_data['mainPhone'],
           cellPhone: form_data['cellPhone'],
@@ -56,48 +63,69 @@ module VRE
       }
 
       vre_payload[:data].merge!(veteran_address(form_data))
-      vre_payload[:data].merge!({ veteranInformation: claim_form_hash['veteranInformation'] })
+      vre_payload[:data].merge!({ veteranInformation: adjusted_veteran_information })
       vre_payload[:data].merge!(new_address) if claim_form_hash['newAddress'].present?
 
       vre_payload.to_json
     end
 
     def veteran_address(form_data)
-      vet_address = form_data['veteranAddress']
+      vet_address = mapped_address_hash(form_data['veteranAddress'])
 
-      {
-        veteranAddress: {
-          isForeign: vet_address['country'] != 'USA',
-          isMilitary: vet_address['isMilitary'] || false,
-          countryName: vet_address['country'],
-          addressLine1: vet_address['street'],
-          addressLine2: vet_address['street2'],
-          addressLine3: vet_address['street3'],
-          city: vet_address['city'],
-          stateCode: vet_address['state'],
-          zipCode: vet_address['postalCode']
-        }
+      adjusted_address = {
+        veteranAddress: vet_address
       }
+
+      return adjusted_address if adjusted_address.dig(:veteranAddress, :isForeign) == false
+
+      # VRE/CMSA expects different keys for postal and state for foreign addresses
+      # internationPostalCode misspelling is correct
+      international_address = adjusted_address[:veteranAddress]
+      international_address[:internationPostalCode] = international_address.delete(:zipCode)
+      international_address[:province] = international_address.delete(:stateCode)
+
+      adjusted_address
     end
 
     def claim_form_hash
       @claim.parsed_form
     end
 
+    def adjusted_veteran_information
+      vet_info = claim_form_hash['veteranInformation']
+
+      vet_info['VAFileNumber'] = vet_info.delete('vaFileNumber') if vet_info.key?('vaFileNumber')
+
+      vet_info
+    end
+
     def new_address
-      new_address = claim_form_hash['newAddress']
+      new_address = mapped_address_hash(claim_form_hash['newAddress'])
+
+      adjusted_new_address = {
+        newAddress: new_address
+      }
+
+      return adjusted_new_address unless new_address[:isForeign]
+
+      # VRE/CMSA expects different keys for postal and state for foreign addresses
+      new_address[:internationalPostalCode] = new_address.delete(:zipCode)
+      new_address[:province] = new_address.delete(:stateCode)
+
+      adjusted_new_address
+    end
+
+    def mapped_address_hash(client_hash)
       {
-        "newAddress": {
-          "isForeign": new_address['country'] != 'USA',
-          "isMilitary": new_address['isMilitary'],
-          "countryName": new_address['country'],
-          "addressLine1": new_address['street'],
-          "addressLine2": new_address['street2'],
-          "addressLine3": new_address['street3'],
-          "city": new_address['city'],
-          "province": new_address['state'],
-          "internationalPostalCode": new_address['postalCode']
-        }
+        isForeign: client_hash['country'] != 'USA',
+        isMilitary: client_hash['isMilitary'] || false,
+        countryName: client_hash['country'],
+        addressLine1: client_hash['street'],
+        addressLine2: client_hash['street2'],
+        addressLine3: client_hash['street3'],
+        city: client_hash['city'],
+        stateCode: client_hash['state'],
+        zipCode: client_hash['postalCode']
       }
     end
 
@@ -108,7 +136,7 @@ module VRE
           intake_id: response_body['ApplicationIntake'],
           error_message: response_body['ErrorMessage']
         },
-        { team: 'vfs-ebenefits' }
+        SENTRY_TAG
       )
     end
 
@@ -118,7 +146,7 @@ module VRE
         {
           icn: @user.icn
         },
-        { team: 'vfs-ebenefits' }
+        SENTRY_TAG
       )
 
       { 'error_occurred' => true, 'error_message' => 'Claim cannot be null' }

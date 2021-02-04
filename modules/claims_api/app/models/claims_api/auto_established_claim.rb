@@ -8,7 +8,14 @@ module ClaimsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_flash_responses, key: Settings.db_encryption_key,
+                                         marshal: true,
+                                         marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_special_issue_responses, key: Settings.db_encryption_key,
+                                                 marshal: true,
+                                                 marshaler: JsonMarshal::Marshaller)
 
+    after_create :log_special_issues
     after_create :log_flashes
 
     has_many :supporting_documents, dependent: :destroy
@@ -26,7 +33,7 @@ module ClaimsApi
 
     before_validation :set_md5
     after_validation :remove_encrypted_fields, on: [:update]
-    validates :md5, uniqueness: true
+    validates :md5, uniqueness: true, on: :create
 
     EVSS_CLAIM_ATTRIBUTES.each do |attribute|
       define_method attribute do
@@ -44,6 +51,7 @@ module ClaimsApi
 
     def to_internal
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
+      form_data['claimSubmissionSource'] = 'Lighthouse'
       {
         "form526": form_data
       }.to_json
@@ -86,6 +94,12 @@ module ClaimsApi
 
     def log_flashes
       Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following flashes - #{flashes}") if flashes.present?
+    end
+
+    def log_special_issues
+      return if special_issues.blank?
+
+      Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following special issues - #{special_issues}")
     end
 
     def remove_encrypted_fields

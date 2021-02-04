@@ -127,7 +127,7 @@ describe MPI::Messages::FindProfileMessage do
             last_name: 'Smith',
             birth_date: Time.new(1980, 1, 1).utc
           )
-        end.to raise_error(ArgumentError, 'required keys are missing')
+        end.to raise_error(ArgumentError, 'required keys are missing: [:ssn]')
       end
 
       it 'throws an argument error for empty value' do
@@ -138,7 +138,7 @@ describe MPI::Messages::FindProfileMessage do
             birth_date: Time.new(1980, 1, 1).utc,
             ssn: rand.to_s[2..11]
           )
-        end.to raise_error(ArgumentError, 'required values are missing')
+        end.to raise_error(ArgumentError, 'required values are missing for keys: [:last_name]')
       end
 
       it 'throws an argument error for nil value' do
@@ -149,7 +149,29 @@ describe MPI::Messages::FindProfileMessage do
             birth_date: Time.new(1980, 1, 1).utc,
             ssn: rand.to_s[2..11]
           )
-        end.to raise_error(ArgumentError, 'required values are missing')
+        end.to raise_error(ArgumentError, 'required values are missing for keys: [:last_name]')
+      end
+    end
+  end
+
+  describe '#required_fields_present?' do
+    subject { described_class.new(profile) }
+
+    let(:missing_keys) { ':given_names, :last_name, :birth_date, :ssn' }
+
+    context 'missing keys' do
+      let(:profile) { {} }
+
+      it 'raises with list of missing keys' do
+        expect { subject }.to raise_error(/#{missing_keys}/)
+      end
+    end
+
+    context 'missing values' do
+      let(:profile) { { given_names: nil, last_name: '', birth_date: nil, ssn: '' } }
+
+      it 'raises with list of keys for missing values' do
+        expect { subject }.to raise_error(/#{missing_keys}/)
       end
     end
   end

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::ValidVaFileNumbersController, type: :controller do
+RSpec.describe V0::Profile::ValidVAFileNumbersController, type: :controller do
   let(:user) { create(:evss_user) }
 
   describe '#show' do

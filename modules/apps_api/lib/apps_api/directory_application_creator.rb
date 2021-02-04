@@ -6,10 +6,10 @@ module AppsApi
   class DirectoryApplicationCreator
     def call
       DirectoryApplication.find_or_initialize_by(name: 'Apple Health').tap do |app|
-        app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs01ca0lwp7cApBuM297'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/AppleHealth+Logo+1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = ['IOS']
+        app.platforms = ['iOS']
         app.app_url = 'https://www.apple.com/ios/health/'
         app.description =
           'With the Apple Health app, you can see all your health records — such as '\
@@ -22,10 +22,10 @@ module AppsApi
         app.save
       end
       DirectoryApplication.find_or_initialize_by(name: 'iBlueButton').tap do |app|
-        app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofxnUUHtF1i297'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/iBlueButton+Logo+1024+x+1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = %w[IOS Android]
+        app.platforms = %w[iOS Android]
         app.app_url = 'https://ibluebutton.com'
         app.description =
           'iBlueButton places your VA medical information securely onto your phone or '\
@@ -37,8 +37,23 @@ module AppsApi
         app.tos_url = 'https://ice.ibluebutton.com/docs/ibb/eula.html'
         app.save
       end
+      DirectoryApplication.find_or_initialize_by(name: 'Coral Health').tap do |app|
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/CoralHealth+1024x1024.png'
+        app.app_type = 'Third-Party-OAuth'
+        app.service_categories = ['Health']
+        app.platforms = %w[iOS Android]
+        app.app_url = 'https://mycoralhealth.com'
+        app.description =
+          'Coral Health is a free personal healthcare management app that is used to track medications,'\
+          ' get medication reminders, consolidate official medical records,'\
+          ' and monitor health trends and issues over time.'
+        app.privacy_url = 'https://mycoralhealth.com/privacy-policy'
+        app.tos_url = 'https://mycoralhealth.com/terms-of-service'
+        app.save
+      end
+
       DirectoryApplication.find_or_initialize_by(name: 'MyLinks').tap do |app|
-        app.logo_url = 'https://ok5static.oktacdn.com/fs/bco/4/fs0499ofptWwE5ruy297'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/MyLinks+Logo+1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = ['Web']
@@ -54,7 +69,7 @@ module AppsApi
         app.save
       end
       DirectoryApplication.find_or_initialize_by(name: 'Clinical Trial Selector').tap do |app|
-        app.logo_url = 'https://cts.girlscomputingleague.org/static/img/CTS-white-100.png'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/CTS+1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
         app.platforms = ['Web']
@@ -70,22 +85,18 @@ module AppsApi
         app.save
       end
       DirectoryApplication.find_or_initialize_by(name: 'OneRecord').tap do |app|
-        app.logo_url = 'https://ok5static.oktacdn.com/fs/bcg/4/gfs5hrv23wAozhWis297'
+        app.logo_url = 'https://dvp-oauth-application-directory-logos.s3-us-gov-west-1.amazonaws.com/One+Record1024x1024.png'
         app.app_type = 'Third-Party-OAuth'
         app.service_categories = ['Health']
-        app.platforms = %w[Web IOS Android]
+        app.platforms = %w[Web iOS Android]
         app.app_url = 'https://onerecord.com'
         app.description =
-          'OneRecord is a consumer facing application that enables the user to access and aggregate their medical '\
-          'records from Electronic Health Record Systems through healthcare industry standards and APIs. '\
-          'The platform is secure, scalable and device agnostic.'\
-          'OneRecord is built on a foundation of interoperability so that all data can flow seamlessly. '\
-          'Leveraging IHE XCA/ XCPD and HL7 FHIR transactions, OneRecord is able combine data sets to run '\
-          'through through our proprietary machine learning reconciliation and deduplication process. '\
-          'Users are involved in the deduplication of their own data, creating a unique patient-in-the-loop '\
-          'framework for our algorithms. OneRecord builds a longitudinal health record and while also creating '\
-          'a patient generated data in the tracking portion of the app. '\
-          'OneRecord is focused on women with chronic illnesses.'
+          "Your Health, Your Life, Your OneRecord.\n\n"\
+          'OneRecord is an app that enables you to build a consolidated medical record of your full health history. '\
+          'Whether you have medical records from your time in active duty, your treatment at VA facilities, '\
+          'or from doctors and hospitals outside of the military system, '\
+          "secure your medical records in one place — your OneRecord.\n\n"\
+          'Available on IOS, Android, and on the web at www.onerecord.com'
         app.privacy_url = 'https://onerecord.com/privacy'
         app.tos_url = 'https://onerecord.com/terms'
         app.save

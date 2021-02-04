@@ -9,6 +9,8 @@ module VBADocuments
     include SetGuid
     include SentryLogging
 
+    send(:validates_uniqueness_of, :guid)
+
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
     ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
@@ -38,7 +40,7 @@ module VBADocuments
         statuses = JSON.parse(response.body)
         updated = statuses.select { |stat| stat.dig(0, 'uuid').present? }.map do |stat|
           sub = submissions.select { |s| s.guid == stat[0]['uuid'] }.first
-          sub.send(:map_downstream_status, stat[0])
+          sub.send(:map_upstream_status, stat[0])
           sub
         end
         ActiveRecord::Base.transaction { updated.each(&:save!) }
@@ -59,7 +61,7 @@ module VBADocuments
           if response_object.blank?
             log_message_to_sentry('Empty status response for known UUID from Central Mail API', :warning)
           else
-            map_downstream_status(response_object)
+            map_upstream_status(response_object)
           end
           save!
         else
@@ -101,7 +103,7 @@ module VBADocuments
       IN_FLIGHT_STATUSES.include?(status)
     end
 
-    def map_downstream_status(response_object)
+    def map_upstream_status(response_object)
       case response_object['status']
       when 'Received'
         self.status = 'received'
@@ -114,7 +116,7 @@ module VBADocuments
       when 'Error', 'Processing Error'
         self.status = 'error'
         self.code = 'DOC202'
-        self.detail = "Downstream status: #{response_object['errorMessage']}"
+        self.detail = "Upstream status: #{response_object['errorMessage']}"
       else
         log_message_to_sentry('Unknown status value from Central Mail API',
                               :warning,

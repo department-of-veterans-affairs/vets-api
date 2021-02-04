@@ -8,3 +8,6 @@ Mobile::ApplicationController.extend StatsD::Instrument
 Mobile::ApplicationController.statsd_count_success :authenticate, 'mobile.authentication'
 StatsD.increment('mobile.authentication.success', 0)
 StatsD.increment('mobile.authentication.failure', 0)
+
+StatsD.increment('mobile.appointments.get_appointments.success', 0)
+StatsD.increment('mobile.appointments.get_appointments.failure', 0)

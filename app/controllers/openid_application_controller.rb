@@ -3,6 +3,7 @@
 require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
+require 'rest-client'
 require 'saml/settings_service'
 require 'sentry_logging'
 require 'oidc/key_service'
@@ -35,10 +36,7 @@ class OpenidApplicationController < ApplicationController
 
     # issued for a client vs a user
     if token.client_credentials_token?
-      if token.payload['scp'].include?('launch/patient')
-        # API-3500 will fetch launch context
-        # token.payload[:"icn"] = '1234V5678'
-      end
+      token.payload[:icn] = fetch_smart_launch_context if token.payload['scp'].include?('launch/patient')
       return true
     end
 
@@ -88,6 +86,18 @@ class OpenidApplicationController < ApplicationController
 
   def fetch_aud
     Settings.oidc.isolated_audience.default
+  end
+
+  def fetch_smart_launch_context
+    response = RestClient.get(Settings.oidc.smart_launch_url,
+                              { Authorization: 'Bearer ' + token.token_string })
+    unless response.nil? || response.code != 200
+      json_response = JSON.parse(response.body)
+      json_response['launch']
+    end
+  rescue => e
+    log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
+    nil
   end
 
   attr_reader :current_user, :session, :scopes

@@ -62,5 +62,25 @@ describe PagerDuty::Models::Service do
         end
       end
     end
+
+    context 'with an alternate service prefix' do
+      before do
+        Settings.maintenance.service_query_prefix = 'Staging: External: '
+      end
+
+      after do
+        Settings.maintenance.service_query_prefix = 'External: '
+      end
+
+      it 'includes the staging service from the returned list of services' do
+        statuses = described_class.statuses_for(valid_staging_service)
+        expect(statuses.length).to eq 1
+      end
+
+      it 'strips the configured prefix from the name' do
+        statuses = described_class.statuses_for(valid_staging_service)
+        expect(statuses.first.service).to eq 'Appeals'
+      end
+    end
   end
 end

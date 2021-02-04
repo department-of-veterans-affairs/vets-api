@@ -29,6 +29,7 @@ class StatsdMiddleware
     burials
     claims-status
     coronavirus-research
+    coronavirus-vaccination
     covid19screen
     dashboard
     dependents-view-dependents
@@ -53,6 +54,7 @@ class StatsdMiddleware
     questionnaire
     resources-and-support
     search
+    search-click-tracking
     static-pages
     terms-and-conditions
     vaos

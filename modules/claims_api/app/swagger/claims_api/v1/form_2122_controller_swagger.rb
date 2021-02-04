@@ -382,7 +382,11 @@ module ClaimsApi
       swagger_path '/forms/2122/active' do
         operation :get do
           key :summary, 'Check active power of attorney status'
-          key :description, 'Returns last active JSON payload.'
+          key :description,
+              <<~X
+                Returns last active JSON payload.
+                * Any authenticated user can view any individual's active, and previous, POA.
+              X
           key :operationId, 'getActive2122Poa'
           key :tags, [
             'Power of Attorney'

@@ -57,7 +57,8 @@ module BGS
         country: @veteran[:address_country],
         date_of_claim: Time.current.strftime('%m/%d/%Y'),
         end_product_name: @end_product_name,
-        end_product_code: @end_product_code
+        end_product_code: @end_product_code,
+        soj: @veteran[:regional_office_number]
       }.merge(BENEFIT_CLAIM_PARAM_CONSTANTS)
     end
 

@@ -583,15 +583,25 @@ RSpec.describe FormProfile, type: :model do
   let(:v5655_expected) do
     {
       'personalIdentification' => {
-        'sSN' => user.ssn.last(4),
+        'ssn' => user.ssn.last(4),
         'fileNumber' => '7890'
       },
       'personalData' => {
         'fullName' => full_name,
         'address' => address,
         'phone' => us_phone,
+        'email' => user.pciu_email,
         'dateOfBirth' => user.birth_date
-      }
+      },
+      'income' => [
+        {
+          'veteranOrSpouse' => 'VETERAN',
+          'otherIncome' => {
+            'name' => 'VA Benefits',
+            'amount' => '541.83'
+          }
+        }
+      ]
     }
   end
 
@@ -732,15 +742,30 @@ RSpec.describe FormProfile, type: :model do
   let(:v28_8832_expected) do
     {
       'claimantAddress' => {
-        'addressLine1' => street_check[:street],
-        'addressLine2' => street_check[:street2],
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
-        'stateCode' => user.va_profile[:address][:state],
-        'countryName' => user.va_profile[:address][:country],
-        'zipCode' => user.va_profile[:address][:postal_code][0..4]
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhoneNumber' => us_phone,
       'claimantEmailAddress' => user.pciu_email
+    }
+  end
+
+  let(:v28_1900_expected) do
+    {
+      'veteranAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'mainPhone' => us_phone,
+      'email' => user.pciu_email
     }
   end
 
@@ -838,10 +863,18 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(BGS::PeopleService).to(
           receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
         )
+        allow_any_instance_of(User).to(
+          receive(:participant_id).and_return('111111')
+        )
+        allow_any_instance_of(User).to(
+          receive(:icn).and_return('999999')
+        )
       end
 
       it 'returns a prefilled 5655 form' do
-        expect_prefilled('5655')
+        VCR.use_cassette('bgs/awards_service/get_awards') do
+          expect_prefilled('5655')
+        end
       end
     end
 
@@ -1046,6 +1079,7 @@ RSpec.describe FormProfile, type: :model do
           FEEDBACK-TOOL
           686C-674
           28-8832
+          28-1900
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)

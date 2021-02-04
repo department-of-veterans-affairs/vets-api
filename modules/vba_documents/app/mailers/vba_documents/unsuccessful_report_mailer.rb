@@ -1,21 +1,20 @@
 # frozen_string_literal: true
 
+require 'vba_documents/deployment'
+
 module VBADocuments
   class UnsuccessfulReportMailer < ApplicationMailer
-    RECIPIENTS = %w[
-      david.mazik@va.gov
-      michael.bastos@oddball.io
-      ryan.link@oddball.io
-      christopher.stone@libertyits.com
-      valerie.hase@va.gov
-      mark.greenburg@adhocteam.us
-      premal.shah@va.gov
-      lydia.vian@thunderyard.com
-      joshua.jennings@libertyits.com
-      cristopher.shupp@libertyits.com
-      gregory.bowman@libertyits.com
-      zachary.goldfine@va.gov
-    ].freeze
+    def self.fetch_recipients
+      env = VBADocuments::Deployment.environment
+      env = 'prod' if env.eql?(:unknown_environment)
+      # the above shouldn't get hit, but if an environment becomes undetectable we will send that env to everyone
+      # and tag it as 'unknown_environment' to motivate a quick repair.
+      hash = YAML.load_file(__dir__ + '/unsuccessful_report_recipients.yml')
+      env_hash = hash[env.to_s].nil? ? [] : hash[env.to_s]
+      env_hash + hash['common']
+    end
+
+    RECIPIENTS = fetch_recipients.freeze
 
     def build(consumer_totals, pending_submissions, unsuccessful_submissions, date_from, date_to)
       @consumer_totals = consumer_totals
@@ -23,6 +22,7 @@ module VBADocuments
       @unsuccessful_submissions = unsuccessful_submissions
       @date_from = date_from
       @date_to = date_to
+      @environment = VBADocuments::Deployment.environment
 
       path = VBADocuments::Engine.root.join(
         'app',
@@ -36,7 +36,7 @@ module VBADocuments
 
       mail(
         to: RECIPIENTS,
-        subject: 'Benefits Intake Unsuccessful Submission Report',
+        subject: "Benefits Intake Unsuccessful Submission Report for #{@environment}",
         body: body
       )
     end

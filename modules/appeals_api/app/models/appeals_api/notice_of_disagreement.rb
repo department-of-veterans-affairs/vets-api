@@ -1,219 +1,118 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
+require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
-    include SentryLogging
+    include CentralMailStatus
 
-    class << self
-      def date_from_string(string)
-        string.match(/\d{4}-\d{2}-\d{2}/) && Date.parse(string)
-      rescue ArgumentError
-        nil
-      end
+    def self.load_json_schema(filename)
+      MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
+    end
 
-      def load_json_schema(filename)
-        MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
-      end
-
-      # a json schemer error is a hash with this shape:
-      #
-      # {
-      #   "type": "required",
-      #   "details": {
-      #     "missing_keys": ["addressLine1"]
-      #   },
-      #   "data_pointer": "/data/attributes/veteran/address",
-      #   "data": {
-      #     "addressLine2": "Suite #1200",
-      #     "addressLine3": "Box 4",
-      #     "city": "New York",
-      #     "countryName": "United States",
-      #     "stateCode": "NY",
-      #     "zipCode5": "30012",
-      #     "internationalPostalCode": "1"
-      #   },
-      #   "schema_pointer": "/definitions/nodCreateAddress",
-      #   "schema": {
-      #     "type": "object",
-      #     "additionalProperties": false,
-      #     "properties": {
-      #       "addressLine1": {"type": "string"},
-      #       "addressLine2": {"type": "string"},
-      #       "addressLine3": {"type": "string"},
-      #       "city": {"type": "string"},
-      #       "stateCode": {"$ref": "#/definitions/nodCreateStateCode"},
-      #       "countryName": {"type": "string"},
-      #       "zipCode5": {"type": "string", "pattern": "^[0-9]{5}$"},
-      #       "internationalPostalCode": {"type": "string"}
-      #     },
-      #     "required": [
-      #       "addressLine1",
-      #       "city",
-      #       "countryName",
-      #       "zipCode5"
-      #     ]
-      #   },
-      #   "root_schema": {
-      #     ... # entire schema
-      #   }
-      # }
-      def json_schemer_errors(data:, schema:)
-        data ||= {} # this is to compensate for a JSON Schemer bug --nil input always returns 0 errors
-        JSONSchemer.schema(schema).validate(data).to_a
-      end
-
-      def json_schemer_error_to_string(error)
-        type = error['type']
-        schema = error['schema']
-        missing_keys = error.dig('details', 'missing_keys')
-
-        reason = if type == 'required' && missing_keys.present?
-                   "did not contain the required keys: #{missing_keys}"
-                 else
-                   "did not match the following requirements: #{schema}"
-                 end
-
-        path = error['data_pointer'].presence || '/'
-
-        "The property \"#{path}\" #{reason}"
-      end
+    def self.date_from_string(string)
+      string.match(/\d{4}-\d{2}-\d{2}/) && Date.parse(string)
+    rescue ArgumentError
+      nil
     end
 
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    FORM_SCHEMA = load_json_schema '10182'
-    AUTH_HEADERS_SCHEMA = load_json_schema '10182_headers'
+    validate :validate_hearing_type_selection
 
-    validate(
-      :validate_auth_headers_against_schema,
-      :validate_form_data_against_schema,
-      :validate_claimant_properly_included_or_absent,
-      :validate_that_at_least_one_set_of_contact_info_is_present,
-      # At least one must be present ^^^
-      # --not enforced at the JSON Schema level.
-      # Using JSON Schema's conditional keywords (if, oneOf, anyOf, not, etc) produces fairly unreadable errors.
-      :validate_address
-    )
-
-    def claimant_name
-      name 'Claimant'
+    def pdf_structure(version)
+      Object.const_get(
+        "AppealsApi::PdfConstruction::NoticeOfDisagreement::#{version.upcase}::Structure"
+      ).new(self)
     end
 
-    def claimant_birth_date
-      birth_date 'Claimant'
+    def veteran_first_name
+      header_field_as_string 'X-VA-Veteran-First-Name'
     end
 
-    def claimant_contact_info
-      form_data&.dig('data', 'attributes', 'claimant')
+    def veteran_last_name
+      header_field_as_string 'X-VA-Veteran-Last-Name'
     end
 
-    def veteran_contact_info
-      form_data&.dig('data', 'attributes', 'veteran')
+    def ssn
+      header_field_as_string 'X-VA-Veteran-SSN'
+    end
+
+    def file_number
+      header_field_as_string 'X-VA-Veteran-File-Number'
     end
 
     def consumer_name
-      auth_headers&.dig('X-Consumer-Username')
+      header_field_as_string 'X-Consumer-Username'
+    end
+
+    def consumer_id
+      header_field_as_string 'X-Consumer-ID'
+    end
+
+    def veteran_homeless_state
+      form_data&.dig('data', 'attributes', 'veteran', 'homeless')
+    end
+
+    def veteran_representative
+      form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
+    end
+
+    def board_review_option
+      form_data&.dig('data', 'attributes', 'boardReviewOption')
+    end
+
+    def hearing_type_preference
+      form_data&.dig('data', 'attributes', 'hearingTypePreference')
+    end
+
+    def zip_code_5
+      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+    end
+
+    def lob
+      'BVA'
     end
 
     private
 
-    def validate_auth_headers_against_schema
-      validate_against_schema data: auth_headers, schema: AUTH_HEADERS_SCHEMA, attribute_name: :auth_headers
-    end
+    def validate_hearing_type_selection
+      return if board_review_hearing_selected? && includes_hearing_type_preference?
 
-    def validate_form_data_against_schema
-      validate_against_schema data: form_data, schema: FORM_SCHEMA, attribute_name: :form_data
-    end
+      source = '/data/attributes/hearingTypePreference'
+      data = I18n.t('common.exceptions.validation_errors')
 
-    def validate_against_schema(data:, schema:, attribute_name:)
-      self.class.json_schemer_errors(data: data, schema: schema)
-          .map { |error| self.class.json_schemer_error_to_string error }
-          .each { |error_message| errors.add attribute_name, error_message }
-    end
-
-    def validate_claimant_properly_included_or_absent
-      return true if claimant_properly_included_or_absent?
-
-      # at least 1 piece is missing (name, birth_date, or contact info)
-
-      add_missing_claimant_info_error 'name', attribute_name: :auth_headers if claimant_name.blank?
-      add_missing_claimant_info_error 'birth date', attribute_name: :auth_headers if claimant_birth_date.blank?
-      if claimant_contact_info.blank?
-        add_missing_claimant_info_error 'contact info (data/attributes/claimant)', attribute_name: :form_data
-      end
-
-      false
-    end
-
-    def claimant_properly_included_or_absent?
-      required_claimant_fields_are_all_present? || all_claimant_fields_blank?
-    end
-
-    def required_claimant_fields_are_all_present?
-      claimant_name.present? && claimant_birth_date.present? && claimant_contact_info.present?
-    end
-
-    def all_claimant_fields_blank?
-      claimant_name.blank? && claimant_birth_date.blank? && claimant_contact_info.blank?
-    end
-
-    def add_missing_claimant_info_error(field, attribute_name:)
-      errors.add attribute_name, "if any claimant info is present, claimant #{field} must also be present"
-    end
-
-    def validate_address
-      contact_info = veteran_contact_info || claimant_contact_info
-      homeless = contact_info&.dig('homeless')
-      address = contact_info&.dig('address')
-
-      if !homeless && address.nil?
-        errors.add :form_data, "at least one must be included: '/data/attributes/veteran/address', " \
-"'/data/attributes/claimant/address'"
+      if hearing_type_missing?
+        errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_missing'))
+      elsif unexpected_hearing_type_inclusion?
+        errors.add source, data.merge(detail: I18n.t('appeals_api.errors.hearing_type_preference_inclusion'))
       end
     end
 
-    # Note: This only checks for veteran or claimant *contact info*
-    # The veteran's name/ssn/birth date/etc is required in the JSON Schema, and the claimant's name/birth date
-    # is checked for in the preceding validation `validate_claimant_properly_included_or_absent`
-    def validate_that_at_least_one_set_of_contact_info_is_present
-      return if veteran_contact_info.present? || claimant_contact_info.present?
+    def board_review_hearing_selected?
+      board_review_option == 'hearing'
+    end
 
-      errors.add :form_data, "at least one must be included: '/data/attributes/veteran', '/data/attributes/claimant'"
+    def includes_hearing_type_preference?
+      hearing_type_preference.present?
+    end
+
+    def hearing_type_missing?
+      board_review_hearing_selected? && !includes_hearing_type_preference?
+    end
+
+    def unexpected_hearing_type_inclusion?
+      !board_review_hearing_selected? && includes_hearing_type_preference?
     end
 
     def birth_date(who)
       self.class.date_from_string header_field_as_string "X-VA-#{who}-Birth-Date"
     end
 
-    def name(who)
-      [
-        first_name(who),
-        middle_initial(who),
-        last_name(who)
-      ].map(&:presence).compact.map(&:strip).join(' ')
-    end
-
-    def first_name(who)
-      header_field_as_string "X-VA-#{who}-First-Name"
-    end
-
-    def middle_initial(who)
-      header_field_as_string "X-VA-#{who}-Middle-Initial"
-    end
-
-    def last_name(who)
-      header_field_as_string "X-VA-#{who}-Last-Name"
-    end
-
     def header_field_as_string(key)
-      header_field(key).to_s.strip
-    end
-
-    def header_field(key)
-      auth_headers&.dig(key)
+      auth_headers&.dig(key).to_s.strip
     end
   end
 end

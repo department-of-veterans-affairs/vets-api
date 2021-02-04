@@ -1,5 +1,24 @@
 # frozen_string_literal: true
 
+# Dictionary of TZ Database timezone names (the physical location of the time zone)
+# looked up by the the time zone schedule for the region (standard vs daylight savings time)
+
+Mobile::VA_TZ_DATABASE_NAMES_BY_SCHEDULE = {
+  'AKST' => 'America/Anchorage',
+  'AKDT' => 'America/Anchorage',
+  'AST' => 'America/Argentina/San_Juan',
+  'CDT' => 'America/Chicago',
+  'CST' => 'America/Chicago',
+  'EDT' => 'America/New_York',
+  'EST' => 'America/New_York',
+  'HST' => 'Pacific/Honolulu',
+  'MDT' => 'America/Denver',
+  'MST' => 'America/Denver',
+  'PHST' => 'Asia/Manila',
+  'PDT' => 'America/Los_Angeles',
+  'PST' => 'America/Los_Angeles'
+}.freeze
+
 # Dictionary of facility names and time zones by facility id
 # This data currently is unavailable via API and although appointment times
 # include an ISO 8601 Z offset that is not sufficient to determine the time zone

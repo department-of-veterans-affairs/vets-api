@@ -41,7 +41,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     supporting_document
   end
 
-  it 'submits succesfully' do
+  it 'submits successfully' do
     expect do
       subject.perform_async(supporting_document.id)
     end.to change(subject.jobs, :size).by(1)

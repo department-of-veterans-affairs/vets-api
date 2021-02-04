@@ -8,7 +8,14 @@ describe HealthQuest::V0::VAAppointmentsSerializer do
   let(:klass) { described_class }
   let(:user) { build(:user, :health_quest) }
   let(:appt_service) { HealthQuest::AppointmentService.new(user) }
+  let(:appt_body) { appt_service.mock_appointment }
+  let(:appt_response) { double('Faraday::Response', body: appt_body[:data]) }
   let(:appt) { appt_service.get_appointment_by_id(132) }
+
+  before do
+    allow_any_instance_of(HealthQuest::UserService).to receive(:session).and_return('stubbed_token')
+    allow_any_instance_of(HealthQuest::AppointmentService).to receive(:perform).and_return(appt_response)
+  end
 
   describe 'subject type' do
     it 'is a HealthQuest::V0::VAAppointmentsSerializer' do

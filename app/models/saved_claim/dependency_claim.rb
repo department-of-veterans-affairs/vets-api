@@ -27,16 +27,18 @@ class SavedClaim::DependencyClaim < SavedClaim
     report_stepchild_not_in_household
     report_marriage_of_child_under18
     child_marriage
-    not_attending_school
+    report_child18_or_older_is_not_attending_school
     add_spouse
   ].freeze
 
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
-  def upload_pdf
+  def upload_pdf(form_id, doc_type: '148')
+    self.form_id = form_id
+
     form_path = PdfFill::Filler.fill_form(self)
-    upload_to_vbms(form_path)
+    upload_to_vbms(path: form_path, doc_type: doc_type)
   end
 
   def add_veteran_info(va_file_number_with_payload)
@@ -81,23 +83,34 @@ class SavedClaim::DependencyClaim < SavedClaim
     []
   end
 
+  # Run after a claim is saved, this processes any files/supporting documents that are present
+  def process_attachments!
+    supporting_documents = parsed_form.dig('dependents_application', 'supporting_documents')
+    if supporting_documents
+      files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmation_code'] })
+      files.find_each { |f| f.update(saved_claim_id: id) }
+    end
+  end
+
+  def upload_to_vbms(path:, doc_type: '148')
+    uploader = ClaimsApi::VBMSUploader.new(
+      filepath: path,
+      file_number: parsed_form['veteran_information']['ssn'],
+      doc_type: doc_type
+    )
+
+    uploader.upload!
+  end
+
   private
 
   def partitioned_686_674_params
     dependent_data = parsed_form
 
-    college_student_data = dependent_data['dependents_application'].extract!(*STUDENT_ATTENDING_COLLEGE_KEYS)
+    student_data = dependent_data['dependents_application'].extract!(*STUDENT_ATTENDING_COLLEGE_KEYS)
+    veteran_data = dependent_data['dependents_application'].slice('household_income', 'veteran_contact_information')
+    college_student_data = { 'dependents_application' => student_data.merge!(veteran_data) }
 
     { college_student_data: college_student_data, dependent_data: dependent_data }
-  end
-
-  def upload_to_vbms(path)
-    uploader = ClaimsApi::VBMSUploader.new(
-      filepath: path,
-      file_number: parsed_form['veteran_information']['ssn'],
-      doc_type: '148'
-    )
-
-    uploader.upload!
   end
 end

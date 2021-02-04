@@ -4,21 +4,18 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 
 RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller do
-  let(:user) { create(:evss_user) }
-
-  let(:test_form_no_vet_info) do
-    build(:education_career_counseling_claim_no_vet_information)
-  end
+  let(:loa3_user) { create(:evss_user) }
+  let(:loa1_user) { create(:user) }
 
   let(:test_form) do
     build(:education_career_counseling_claim)
   end
 
   describe 'POST create' do
-    context 'logged in user' do
+    context 'logged in loa3 user' do
       it 'validates successfully' do
-        sign_in_as(user)
-        form_params = { education_career_counseling_claim: { form: test_form_no_vet_info.form } }
+        sign_in_as(loa3_user)
+        form_params = { education_career_counseling_claim: { form: test_form.form } }
 
         post(:create, params: form_params)
         expect(response.code).to eq('200')

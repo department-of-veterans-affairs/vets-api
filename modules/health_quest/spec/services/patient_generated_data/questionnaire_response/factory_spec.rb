@@ -5,13 +5,13 @@ require 'rails_helper'
 describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
   subject { described_class }
 
-  let(:headers) { { 'Accept' => 'application/json+fhir' } }
   let(:user) { double('User', icn: '1008596379V859838') }
-  let(:session_service) { double('HealthQuest::SessionService', user: user, headers: headers) }
+  let(:session_store) { double('SessionStore', token: '123abc') }
+  let(:session_service) { double('HealthQuest::Lighthouse::Session', user: user, retrieve: session_store) }
   let(:client_reply) { double('FHIR::ClientReply') }
 
   before do
-    allow(HealthQuest::SessionService).to receive(:new).with(user).and_return(session_service)
+    allow(HealthQuest::Lighthouse::Session).to receive(:build).with(user).and_return(session_service)
   end
 
   describe 'object initialization' do
@@ -31,11 +31,13 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
   end
 
   describe '#search' do
-    it 'returns a ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
-        .to receive(:search).with({ author: user.icn }).and_return(client_reply)
+    let(:filters) { { resource_name: 'questionnaire_response', appointment_id: nil }.with_indifferent_access }
+    let(:options_builder) { HealthQuest::PatientGeneratedData::OptionsBuilder.manufacture(user, filters) }
 
-      expect(subject.new(user).search).to eq(client_reply)
+    it 'returns a ClientReply' do
+      allow_any_instance_of(FHIR::Client).to receive(:search).with(anything, anything).and_return(client_reply)
+
+      expect(subject.new(user).search(options_builder.to_hash)).to eq(client_reply)
     end
   end
 
@@ -47,6 +49,23 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
         .to receive(:get).with(id).and_return(client_reply)
 
       expect(subject.new(user).get(id)).to eq(client_reply)
+    end
+  end
+
+  describe '#create' do
+    let(:data) do
+      {
+        appointment_id: 'abc123',
+        questionnaire_response: {},
+        questionnaire_id: 'abcd-1234'
+      }
+    end
+
+    it 'returns a ClientReply' do
+      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        .to receive(:create).with(anything, anything).and_return(client_reply)
+
+      expect(subject.new(user).create(data)).to eq(client_reply)
     end
   end
 end

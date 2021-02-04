@@ -17,6 +17,19 @@ describe MPI::Responses::IdParser do
       end
     end
 
+    context 'idme_id' do
+      let(:expected_idme_id) { 'someidmeid' }
+      let(:ids_to_parse) do
+        [correlation_id('87654321^PI^200CORP^USVBA^H'),
+         correlation_id("#{expected_idme_id}^PN^200VIDM^USDVA^A"),
+         correlation_id('12345678^PI^200CORP^USVBA^A')]
+      end
+
+      it 'correctly parses the idme_id from ids to parse' do
+        expect(MPI::Responses::IdParser.new.parse(ids_to_parse)[:idme_id]).to eq expected_idme_id
+      end
+    end
+
     context 'BIRLS' do
       let(:birls_ids) do
         [correlation_id('987654321^PI^200BRLS^USVBA^A'),
@@ -89,6 +102,40 @@ describe MPI::Responses::IdParser do
           expect_invalid_icn_to_return_nil('12345678901234567^AA^200M^USVHA^P')
           expect_invalid_icn_to_return_nil('12345678901234567^PI^200M^USVHA^P')
         end
+      end
+    end
+  end
+
+  describe '#parse_string' do
+    context 'when input ids is nil' do
+      it 'returns nil'
+    end
+
+    context 'input ids is a string of parsable ids separated by |' do
+      let(:ids) { "#{expected_vba_corp_id}^PI^200CORP^USVBA^A|#{expected_idme_id}^PN^200VIDM^USDVA^A" }
+      let(:expected_idme_id) { '12331231' }
+      let(:expected_vba_corp_id) { '87654321' }
+      let(:expected_parsed_result) do
+        {
+          icn: nil,
+          sec_id: nil,
+          mhv_ids: nil,
+          active_mhv_ids: nil,
+          edipi: nil,
+          vba_corp_id: expected_vba_corp_id,
+          idme_id: expected_idme_id,
+          vha_facility_ids: nil,
+          cerner_facility_ids: nil,
+          cerner_id: nil,
+          birls_ids: [],
+          vet360_id: nil,
+          icn_with_aaid: nil,
+          birls_id: nil
+        }
+      end
+
+      it 'creates a hash with correctly parsed ids' do
+        expect(MPI::Responses::IdParser.new.parse_string(ids)).to eq expected_parsed_result
       end
     end
   end

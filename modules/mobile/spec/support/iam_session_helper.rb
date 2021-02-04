@@ -31,8 +31,7 @@ module IAMSessionHelper
 end
 
 RSpec.configure do |config|
-  config.include IAMSessionHelper, type: :controller
-  config.include IAMSessionHelper, type: :request
+  config.include IAMSessionHelper
 
   config.before :each, type: :request do
     Flipper.enable('mobile_api')

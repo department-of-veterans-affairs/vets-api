@@ -8,6 +8,14 @@ module V0
       render json: service.submit_financial_status_report(fsr_form)
     end
 
+    def download_pdf
+      send_data(
+        service.get_pdf,
+        type: 'application/pdf',
+        filename: 'VA Form 5655 - Submitted'
+      )
+    end
+
     private
 
     def full_name
@@ -36,6 +44,7 @@ module V0
         personal_identification: %i[fsr_reason ssn file_number],
         personal_data: [
           :telephone_number,
+          :email,
           :date_of_birth,
           :married,
           :ages_of_other_dependents,
@@ -120,7 +129,7 @@ module V0
     # rubocop:enable Metrics/MethodLength
 
     def service
-      DebtManagementCenter::FinancialStatusReportService.new
+      DebtManagementCenter::FinancialStatusReportService.new(current_user)
     end
   end
 end

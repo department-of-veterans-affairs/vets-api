@@ -4,23 +4,25 @@ module HealthQuest
   module PatientGeneratedData
     module FHIRClient
       def url
-        "#{Settings.hqva_mobile.url}/smart-pgd-fhir/v1"
+        "#{lighthouse.url}#{lighthouse.pgd_path}"
       end
 
       def client
         FHIR::Client.new(url).tap do |client|
-          client.use_dstu2
+          client.use_r4
           client.default_json
-          client.additional_headers = headers&.merge(accept_headers)
+          client.additional_headers = headers
         end
-      end
-
-      def accept_headers
-        { 'Accept' => 'application/json+fhir' }
       end
 
       def headers
         raise NotImplementedError "#{self.class} should have implemented headers ..."
+      end
+
+      private
+
+      def lighthouse
+        Settings.hqva_mobile.lighthouse
       end
     end
   end

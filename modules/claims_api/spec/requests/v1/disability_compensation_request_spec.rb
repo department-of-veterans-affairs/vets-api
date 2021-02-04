@@ -21,7 +21,14 @@ RSpec.describe 'Disability Claims ', type: :request do
   end
 
   describe '#526' do
-    let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
+    let(:auto_cest_pdf_generation_disabled) { false }
+    let(:data) do
+      temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+      temp = JSON.parse(temp)
+      temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
+
+      temp.to_json
+    end
     let(:path) { '/services/claims/v1/forms/526' }
     let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
 
@@ -44,11 +51,27 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    it 'creates the sidekick job' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('evss/claims/claims') do
-          expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-          post path, params: data, headers: headers.merge(auth_header)
+    context 'when autoCestPDFGenerationDisabled is false' do
+      let(:auto_cest_pdf_generation_disabled) { false }
+
+      it 'creates the sidekick job' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims') do
+            expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+            post path, params: data, headers: headers.merge(auth_header)
+          end
+        end
+      end
+    end
+
+    context 'when autoCestPDFGenerationDisabled is true' do
+      let(:auto_cest_pdf_generation_disabled) { true }
+
+      it 'creates the sidekick job' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims') do
+            post path, params: data, headers: headers.merge(auth_header)
+          end
         end
       end
     end
@@ -71,6 +94,19 @@ RSpec.describe 'Disability Claims ', type: :request do
           token = JSON.parse(response.body)['data']['attributes']['token']
           aec = ClaimsApi::AutoEstablishedClaim.find(token)
           expect(aec.flashes).to eq(%w[Hardship Homeless])
+        end
+      end
+    end
+
+    it 'sets the special issues' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/claims/claims') do
+          post path, params: data, headers: headers.merge(auth_header)
+          token = JSON.parse(response.body)['data']['attributes']['token']
+          aec = ClaimsApi::AutoEstablishedClaim.find(token)
+          expect(aec.special_issues).to eq([{ 'code' => 9999,
+                                              'name' => 'PTSD (post traumatic stress disorder)',
+                                              'special_issues' => %w[FDC PTSD/2 RDN ECCD] }])
         end
       end
     end

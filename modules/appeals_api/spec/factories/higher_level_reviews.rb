@@ -9,6 +9,9 @@ FactoryBot.define do
     form_data do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996.json"
     end
+    trait :status_error do
+      status { 'error' }
+    end
     trait :status_received do
       status { 'received' }
     end

@@ -16,6 +16,9 @@ FactoryBot.define do
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
       sec_id { nil }
+      participant_id { nil }
+      birls_id { nil }
+      icn { nil }
       mhv_icn { nil }
       multifactor { false }
       mhv_correlation_id { nil }
@@ -51,6 +54,9 @@ FactoryBot.define do
                              ssn: t.ssn,
                              idme_uuid: t.idme_uuid,
                              sec_id: t.sec_id,
+                             participant_id: t.participant_id,
+                             birls_id: t.birls_id,
+                             icn: t.icn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
                              multifactor: t.multifactor,
