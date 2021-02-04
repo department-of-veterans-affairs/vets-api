@@ -3,18 +3,19 @@
 require 'appeals_api/decision_review_report'
 
 module AppealsApi
-  class DecisionReviewMailer < ApplicationMailer
-    def build(date_from:, date_to:, friendly_duration: '')
-      @report = DecisionReviewReport.new(from: date_from, to: date_to)
-      @friendly_duration = friendly_duration
+  class DailyErrorReportMailer < ApplicationMailer
+    def build
+      @report = DecisionReviewReport.new
       @friendly_env = (Settings.vsp_environment || Rails.env).titleize
+
+      return if @report.no_faulty_records?
 
       template = File.read(path)
       body = ERB.new(template).result(binding)
 
       mail(
-        to: Settings.modules_appeals_api.reports.decision_review.recipients,
-        subject: "#{@friendly_duration} Decision Review API report (#{@friendly_env})",
+        to: Settings.modules_appeals_api.reports.daily_error.recipients,
+        subject: "Daily Error Decision Review API report (#{@friendly_env})",
         content_type: 'text/html',
         body: body
       )
@@ -27,8 +28,8 @@ module AppealsApi
         'app',
         'views',
         'appeals_api',
-        'decision_review_mailer',
-        'mailer.html.erb'
+        'daily_error_report',
+        'index.html.erb'
       )
     end
   end

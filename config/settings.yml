@@ -162,13 +162,23 @@ modules_appeals_api:
   higher_level_review_updater_enabled: true
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
-  report_enabled: false
-  report_recipients:
-    - drew.fisher@adhocteam.us
-    - jack.schuss@oddball.io
-    - kelly@adhocteam.us
-    - laura.trager@adhocteam.us
-    - nathan.wright@oddball.io
+  reports:
+    decision_review:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
+    daily_error:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
   schema_dir: config/schemas
 
 vre_counseling:
