@@ -53,7 +53,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     ["spec", "simplecov"].each do |f|
       helper_file             =  File.read("spec/#{f}_helper.rb")
 
-      if f == spec
+      if f == "spec"
         existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
       else
         existing_entries = helper_file.match(/def add_modules(.*)end/m).to_s.split("\n")
