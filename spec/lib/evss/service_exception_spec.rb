@@ -17,9 +17,8 @@ describe EVSS::ServiceException do
         stub_const 'EVSS::ServiceException::ERROR_MAP', error_map
       end
 
-      it 'when there are multiple EVSS error messsages, it ignores' \
-         'EVSS error message order, and uses the order of ERROR_MAP' \
-         'to choose which is the highest priority error' do
+      it 'ignores EVSS error message order, when there are multiple EVSS error messsages,' \
+         ' and uses the order of ERROR_MAP to choose which is the highest priority error' do
         original_body = {
           messages: [
             { key: 'a' },
