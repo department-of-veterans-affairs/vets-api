@@ -103,7 +103,7 @@ namespace :form526 do
         print_header: -> { puts ROW[:order].map { |key| ROW[:headers][key] }.join(separator) },
         print_hr: -> { puts },
         print_row: redact_participant_id ? print_row_with_redacted_participant_id : print_row,
-        print_total: ->(header, total) { puts "#{header.strip}#{separator}#{total}" },
+        print_total: ->(header, total) { puts "#{header.to_s.strip}#{separator}#{total}" },
         ignore_submission: ->(submission) { submission.bdd? ? false : submission.id },
         submissions: Form526Submission.where('created_at >= ?', start_date.to_date.beginning_of_day),
         success_failure_totals_header_string: '* Job Success/Failure counts *'
