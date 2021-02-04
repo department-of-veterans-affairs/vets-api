@@ -34,11 +34,11 @@ class SavedClaim::DependencyClaim < SavedClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
-  def upload_pdf(form_id)
+  def upload_pdf(form_id, doc_type: '148')
     self.form_id = form_id
 
     form_path = PdfFill::Filler.fill_form(self)
-    upload_to_vbms(form_path)
+    upload_to_vbms(path: form_path, doc_type: doc_type)
   end
 
   def add_veteran_info(va_file_number_with_payload)
@@ -92,7 +92,7 @@ class SavedClaim::DependencyClaim < SavedClaim
     end
   end
 
-  def upload_to_vbms(path, doc_type: '148')
+  def upload_to_vbms(path:, doc_type: '148')
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
       file_number: parsed_form['veteran_information']['ssn'],
@@ -107,9 +107,9 @@ class SavedClaim::DependencyClaim < SavedClaim
   def partitioned_686_674_params
     dependent_data = parsed_form
 
-    keys = (STUDENT_ATTENDING_COLLEGE_KEYS.dup << %w[veteran_contact_information household_income]).flatten
-
-    college_student_data = { 'dependents_application' => dependent_data['dependents_application'].extract!(*keys) }
+    student_data = dependent_data['dependents_application'].extract!(*STUDENT_ATTENDING_COLLEGE_KEYS)
+    veteran_data = dependent_data['dependents_application'].slice('household_income', 'veteran_contact_information')
+    college_student_data = { 'dependents_application' => student_data.merge!(veteran_data) }
 
     { college_student_data: college_student_data, dependent_data: dependent_data }
   end

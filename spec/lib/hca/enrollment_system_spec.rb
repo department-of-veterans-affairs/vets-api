@@ -1337,8 +1337,14 @@ describe HCA::EnrollmentSystem do
     end
 
     it 'returns the right result' do
-      Timecop.freeze(Date.new(2015, 10, 21)) do
-        expect(subject).to eq(test_result)
+      Timecop.freeze(DateTime.new(2015, 10, 21, 23, 0, 0, '-5')) do
+        result = subject
+        expect(result).to eq(test_result)
+        expect(
+          result['va:form']['va:applications']['va:applicationInfo'][0]['va:appDate']
+        ).to eq(
+          '2015-10-21' # Application Date is in Central Time
+        )
       end
     end
 

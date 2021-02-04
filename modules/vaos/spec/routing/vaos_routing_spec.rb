@@ -27,6 +27,24 @@ RSpec.describe 'VAOS routing configuration', type: :routing do
     )
   end
 
+  it 'routes to the appointments show' do
+    expect(get('/vaos/v0/appointments/va/12345')).to route_to(
+      format: :json,
+      controller: 'vaos/v0/appointments',
+      action: 'show',
+      id: '12345',
+      type: 'va'
+    )
+  end
+
+  it 'routes to the appointments show fails when not va' do
+    expect(get('/vaos/v0/appointments/xx/12345')).to route_to(
+      controller: 'application',
+      action: 'routing_error',
+      path: 'vaos/v0/appointments/xx/12345'
+    )
+  end
+
   it 'routes to the appointment requests index' do
     expect(get('/vaos/v0/appointment_requests')).to route_to(
       format: :json,

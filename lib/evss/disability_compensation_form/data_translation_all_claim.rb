@@ -53,6 +53,7 @@ module EVSS
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
+        output_form['claimSubmissionSource'] = 'VA.gov'
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -198,21 +199,25 @@ module EVSS
       ###
 
       def translate_service_info
-        {
+        service_info = {
           'serviceInformation' => {
             'servicePeriods' => translate_service_periods,
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
             'servedInCombatZone' => input_form['servedInCombatZonePost911'],
-            'alternateNames' => translate_names,
-            'separationLocationName' => input_form.dig('serviceInformation',
-                                                       'separationLocation',
-                                                       'separationLocationName'),
-            'separationLocationCode' => input_form.dig('serviceInformation',
-                                                       'separationLocation',
-                                                       'separationLocationCode')
+            'alternateNames' => translate_names
           }.compact
         }
+
+        if days_until_release.positive?
+          service_info['serviceInformation']['separationLocationName'] = input_form.dig('serviceInformation',
+                                                                                        'separationLocation',
+                                                                                        'separationLocationName')
+          service_info['serviceInformation']['separationLocationCode'] = input_form.dig('serviceInformation',
+                                                                                        'separationLocation',
+                                                                                        'separationLocationCode')
+        end
+        service_info
       end
 
       def translate_service_periods
@@ -618,11 +623,13 @@ module EVSS
         recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
       end
 
+      def days_until_release
+        @days_until_release ||= user_supplied_rad_date - @form_submission_date
+      end
+
       def bdd_qualified?
         # To be bdd_qualified application should be submitted 180-90 days prior to Release from Active Duty (RAD) date.
         # Applications < 90 days prior to release can be submitted but only with value as false.
-        days_until_release = user_supplied_rad_date - @form_submission_date
-
         if days_until_release > 180
           raise Common::Exceptions::UnprocessableEntity.new(
             detail: 'User may not submit BDD more than 180 days prior to RAD date',

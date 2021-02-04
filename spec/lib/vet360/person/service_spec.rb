@@ -34,10 +34,7 @@ describe Vet360::Person::Service, skip_vet360: true do
     end
 
     context 'with a passed in ICN' do
-      subject { described_class.new(rake_user) }
-
       let(:icn) { '1000123456V123456' }
-      let(:rake_user) { 'rake_user' }
 
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do

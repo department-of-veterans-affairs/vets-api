@@ -30,6 +30,7 @@ require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
 require 'search/configuration'
+require 'search_click_tracking/configuration'
 require 'okta/configuration'
 require 'vet360/contact_information/configuration'
 require 'iam_ssoe_oauth/configuration'
@@ -70,6 +71,7 @@ services = [
   SM::Configuration.instance.breakers_service,
   Vet360::ContactInformation::Configuration.instance.breakers_service,
   Search::Configuration.instance.breakers_service,
+  SearchClickTracking::Configuration.instance.breakers_service,
   Okta::Configuration.instance.breakers_service,
   VAOS::Configuration.instance.breakers_service,
   IAMSSOeOAuth::Configuration.instance.breakers_service,

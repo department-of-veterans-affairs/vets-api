@@ -49,6 +49,11 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       payload = JSON.parse(pending_record.to_internal)
       expect(payload['form526']['claimDate']).to eq(pending_record.created_at.to_date.to_s)
     end
+
+    it 'adds an identifier for Lighthouse submissions' do
+      payload = JSON.parse(pending_record.to_internal)
+      expect(payload['form526']['claimSubmissionSource']).to eq('Lighthouse')
+    end
   end
 
   describe 'evss_id_by_token' do

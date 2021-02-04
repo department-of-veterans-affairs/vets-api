@@ -119,8 +119,8 @@ RSpec.describe 'appointments', type: :request do
                   'lat' => 41.148027,
                   'long' => -104.7862575,
                   'phone' => {
-                    'areaCode' => nil,
-                    'number' => nil,
+                    'areaCode' => '307',
+                    'number' => '778-7550',
                     'extension' => nil
                   },
                   'url' => nil,
@@ -129,7 +129,8 @@ RSpec.describe 'appointments', type: :request do
                 'minutesDuration' => 20,
                 'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
                 'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
-                'status' => 'BOOKED'
+                'status' => 'BOOKED',
+                'timeZone' => 'America/Denver'
               }
             }
           )
@@ -142,34 +143,36 @@ RSpec.describe 'appointments', type: :request do
 
           expect(cc_appointment).to include(
             {
+              'id' => '8a48912a6c2409b9016c4e4ef7ae018b',
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'COMMUNITY_CARE',
-                'comment' => 'Test',
+                'comment' => '',
                 'facilityId' => nil,
-                'healthcareService' => 'AP',
+                'healthcareService' => 'rtt',
                 'location' => {
-                  'name' => 'AP',
+                  'name' => 'rtt',
                   'address' => {
-                    'street' => '2345, Oak Crest Cir',
-                    'city' => 'Aldie',
-                    'state' => 'VA',
-                    'zipCode' => '20106'
+                    'street' => 'test drive',
+                    'city' => 'clraksburg',
+                    'state' => 'MD',
+                    'zipCode' => '00000'
                   },
                   'lat' => nil,
                   'long' => nil,
                   'phone' => {
-                    'areaCode' => nil,
-                    'number' => nil,
+                    'areaCode' => '301',
+                    'number' => '916-1212',
                     'extension' => nil
                   },
                   'url' => nil,
                   'code' => nil
                 },
                 'minutesDuration' => 60,
-                'startDateLocal' => '2020-01-10T13:00:00.000-05:00',
-                'startDateUtc' => '2020-01-10T18:00:00.000Z',
-                'status' => 'BOOKED'
+                'startDateLocal' => '2020-11-01T22:30:00.000-05:00',
+                'startDateUtc' => '2020-11-02T03:30:00.000Z',
+                'status' => 'BOOKED',
+                'timeZone' => 'America/New_York'
               }
             }
           )
@@ -214,7 +217,7 @@ RSpec.describe 'appointments', type: :request do
         end
 
         it 'has va appointments' do
-          expect(response.parsed_body['data'].size).to eq(101)
+          expect(response.parsed_body['data'].size).to eq(33)
         end
 
         it 'matches the expected schema' do

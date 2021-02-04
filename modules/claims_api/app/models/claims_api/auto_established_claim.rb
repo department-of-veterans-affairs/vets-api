@@ -33,7 +33,7 @@ module ClaimsApi
 
     before_validation :set_md5
     after_validation :remove_encrypted_fields, on: [:update]
-    validates :md5, uniqueness: true
+    validates :md5, uniqueness: true, on: :create
 
     EVSS_CLAIM_ATTRIBUTES.each do |attribute|
       define_method attribute do
@@ -51,6 +51,7 @@ module ClaimsApi
 
     def to_internal
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
+      form_data['claimSubmissionSource'] = 'Lighthouse'
       {
         "form526": form_data
       }.to_json

@@ -25,11 +25,11 @@ Rails.application.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
+    resources :disability_compensation_in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
-    resources :financial_status_reports, only: :create
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
 
@@ -50,6 +50,12 @@ Rails.application.routes.draw do
       get 'suggested_conditions'
       get 'user_submissions'
       get 'separation_locations'
+    end
+
+    resources :financial_status_reports, only: %i[create] do
+      collection do
+        get :download_pdf
+      end
     end
 
     post '/mvi_users/:id', to: 'mpi_users#submit'
@@ -255,6 +261,7 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
+    resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'
 
@@ -345,6 +352,7 @@ Rails.application.routes.draw do
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
+  # Modules
   mount HealthQuest::Engine, at: '/health_quest'
   mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
@@ -358,6 +366,8 @@ Rails.application.routes.draw do
     require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 

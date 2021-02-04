@@ -72,23 +72,16 @@ class ModuleGenerator < Rails::Generators::NamedBase
   def update_and_install
     # spec helper add group
     # Don't add these entries to the files in test env/running specs
-
     unless Rails.env.test?
-
       # insert into main app gemfile
       insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
-      route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
+
+      insert_into_file 'config/routes.rb',
+                       "\tmount #{file_name.camelize}::Engine, at: '/#{file_name}'\n", after: "# Modules\n"
 
       run 'bundle install'
 
       puts "\n\u{1F64C} new module generated at ./modules/#{file_name}\n\n\n"
-    end
-  end
-
-  def create_commit_message
-    if Dir.exist?("modules/#{file_name}")
-      git add: '.'
-      git commit: "-a -m 'Initial commit of module structure *KEEP THIS COMMIT MESSAGE*'"
     end
   end
 

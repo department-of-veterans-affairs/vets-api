@@ -163,6 +163,12 @@ modules_appeals_api:
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
   report_enabled: false
+  report_recipients:
+    - drew.fisher@adhocteam.us
+    - jack.schuss@oddball.io
+    - kelly@adhocteam.us
+    - laura.trager@adhocteam.us
+    - nathan.wright@oddball.io
   schema_dir: config/schemas
 
 vre_counseling:
@@ -398,6 +404,8 @@ redis:
     # secondary_url: redis://localhost:6378
   sidekiq:
     url: redis://localhost:6379
+  rails_cache:
+    url: redis://localhost:6379
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
@@ -413,6 +421,96 @@ reports:
     bucket: ~
     region: ~
     secret_access_key: ~
+  spool10203_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Darrell.Neel@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Neel_Darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - Turner_Desiree@bah.com
+  spool_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Darrell.Neel@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Neel_Darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - Turner_Desiree@bah.com
+  year_to_date_report:
+    emails:
+      - 222A.VBAVACO@va.gov
+      - 224B.VBAVACO@va.gov
+      - 224C.VBAVACO@va.gov
+      - Brandon.Scott2@va.gov
+      - Brian.Grubb@va.gov
+      - Christina.DiTucci@va.gov
+      - John.McNeal@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - Lucas.Tickner@va.gov
+      - michele.mendola@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - matthew.ziolkowski@va.gov
+      - Michael.Johnson19@va.gov
+      - neel_darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - turner_desiree@bah.com
+
 
 oidc:
   auth_server_metadata_url: ~
@@ -490,6 +588,14 @@ search:
   affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
+
+  # Settings for search-click-tracking
+search_click_tracking:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  module_code: I14Y
+  mock: false
+  url: https://api.gsa.gov/technology/searchgov/v2
 
 flipper:
   admin_user_emails:
@@ -594,6 +700,7 @@ hqva_mobile:
   timeout: 15
   lighthouse:
     url: "https://sandbox-api.va.gov"
+    pgd_path: "/services/pgd/v0/r4"
     host: "sandbox-api.va.gov"
     aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
     claim_common_id: "0oa9gvwf5mvxcX3zH2p7"

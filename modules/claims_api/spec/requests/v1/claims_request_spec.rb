@@ -73,37 +73,61 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     context 'when source matches' do
-      it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-        with_okta_user(scopes) do |auth_header|
-          create(:auto_established_claim,
-                 source: 'abraham lincoln',
-                 auth_headers: { some: 'data' },
-                 evss_id: 600_118_851,
-                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-          VCR.use_cassette('evss/claims/claim') do
-            get(
-              '/services/claims/v1/claims/600118851',
-              params: nil, headers: request_headers.merge(auth_header)
-            )
-            expect(response).to match_response_schema('claims_api/claim')
+      context 'when evss_id is provided' do
+        it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          with_okta_user(scopes) do |auth_header|
+            create(:auto_established_claim,
+                   source: 'abraham lincoln',
+                   auth_headers: { some: 'data' },
+                   evss_id: 600_118_851,
+                   id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+            VCR.use_cassette('evss/claims/claim') do
+              get(
+                '/services/claims/v1/claims/600118851',
+                params: nil, headers: request_headers.merge(auth_header)
+              )
+              expect(response).to match_response_schema('claims_api/claim')
+              expect(JSON.parse(response.body)['data']['id']).to eq('600118851')
+            end
+          end
+        end
+
+        it 'shows a single Claim through auto established claims when camel-inflected',
+           run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          with_okta_user(scopes) do |auth_header|
+            create(:auto_established_claim,
+                   source: 'abraham lincoln',
+                   auth_headers: { some: 'data' },
+                   evss_id: 600_118_851,
+                   id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+            VCR.use_cassette('evss/claims/claim') do
+              get(
+                '/services/claims/v1/claims/600118851',
+                params: nil, headers: request_headers_camel.merge(auth_header)
+              )
+              expect(response).to match_camelized_response_schema('claims_api/claim')
+              expect(JSON.parse(response.body)['data']['id']).to eq('600118851')
+            end
           end
         end
       end
 
-      it 'shows a single Claim through auto established claims when camel-inflected',
-         run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
-        with_okta_user(scopes) do |auth_header|
-          create(:auto_established_claim,
-                 source: 'abraham lincoln',
-                 auth_headers: { some: 'data' },
-                 evss_id: 600_118_851,
-                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
-          VCR.use_cassette('evss/claims/claim') do
-            get(
-              '/services/claims/v1/claims/600118851',
-              params: nil, headers: request_headers_camel.merge(auth_header)
-            )
-            expect(response).to match_camelized_response_schema('claims_api/claim')
+      context 'when uuid is provided' do
+        it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+          with_okta_user(scopes) do |auth_header|
+            create(:auto_established_claim,
+                   source: 'abraham lincoln',
+                   auth_headers: { some: 'data' },
+                   evss_id: 600_118_851,
+                   id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+            VCR.use_cassette('evss/claims/claim') do
+              get(
+                '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+                params: nil, headers: request_headers.merge(auth_header)
+              )
+              expect(response).to match_response_schema('claims_api/claim')
+              expect(JSON.parse(response.body)['data']['id']).to eq('d5536c5c-0465-4038-a368-1a9d9daf65c9')
+            end
           end
         end
       end
