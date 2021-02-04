@@ -15,7 +15,6 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
   end
 
   def create_component
-
     # Take each passed in argument (e.g.) controller, serializer, etc
     # and create the corresponding files within the module for each arg
     path = "modules/#{file_name}/app"

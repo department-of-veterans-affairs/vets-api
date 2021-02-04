@@ -59,8 +59,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     options[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
                        "'modules/#{file_name}/'\n"
 
-    module_generator_file_insert("spec/simplecov_helper.rb", options)
-
+    module_generator_file_insert('spec/simplecov_helper.rb', options)
 
     options = {}
     options[:regex] = /# Modules(.*)# End Modules/m
@@ -68,10 +67,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     options[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
                        "'modules/#{file_name}/'\n"
 
-    module_generator_file_insert("spec/spec_helper.rb", options)
-
-
-
+    module_generator_file_insert('spec/spec_helper.rb', options)
   end
 
   def update_gemfile
@@ -79,11 +75,11 @@ class ModuleGenerator < Rails::Generators::NamedBase
     options[:insert_matcher] = "gem '#{file_name}'"
     options[:new_entry] = "\t#{options[:insert_matcher]}\n"
 
-    module_generator_file_insert("Gemfile", options)
+    module_generator_file_insert('Gemfile', options)
   end
 
   def update_routes_file
-    helper_file      =  File.read("config/routes.rb")
+    helper_file = File.read('config/routes.rb')
     existing_entries = existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
 
     ## removes the begining and ending matcher
@@ -95,8 +91,8 @@ class ModuleGenerator < Rails::Generators::NamedBase
     existing_entries.each do |entry|
       # if the current entry is alphabetically greater
       # insert new entry before
-      if "mount #{file_name.camelize}::Engine, at: '/#{file_name}'" < entry.strip
-        insert_into_file "config/routes.rb", "#{new_entry}", before: "#{entry}"
+      if entry.strip > "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
+        insert_into_file 'config/routes.rb', new_entry.to_s, before: entry.to_s
         return true
       end
     end
