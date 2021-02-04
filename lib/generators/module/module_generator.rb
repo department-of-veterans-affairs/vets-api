@@ -80,7 +80,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
 
   def update_routes_file
     helper_file = File.read('config/routes.rb')
-    existing_entries = existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
+    existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
 
     ## removes the begining and ending matcher
     existing_entries.pop
