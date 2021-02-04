@@ -16,8 +16,10 @@ module HealthQuest
     # @!attribute user
     #   @return [User]
     class Factory
-      attr_reader :aggregated_data,
+      attr_reader :appointments,
+                  :aggregated_data,
                   :patient,
+                  :appointment_service,
                   :patient_service,
                   :user
 
@@ -28,6 +30,7 @@ module HealthQuest
       def initialize(user)
         @aggregated_data = default_response
         @user = user
+        @appointment_service = AppointmentService.new(user)
         @patient_service = PatientGeneratedData::Patient::Factory.manufacture(user)
       end
 
@@ -40,6 +43,9 @@ module HealthQuest
       def all
         @patient = get_patient.resource
         return default_response if patient.blank?
+
+        @appointments = get_appointments[:data]
+        return default_response if appointments.blank?
 
         compose
       end
@@ -54,6 +60,15 @@ module HealthQuest
       end
 
       ##
+      # Gets a patients appointments by a default date range
+      #
+      # @return [Hash] a hash containing appointment data and meta data
+      #
+      def get_appointments
+        @get_appointments ||= appointment_service.get_appointments(three_months_ago, one_year_from_now)
+      end
+
+      ##
       # Builds the final aggregated data structure after the PGD and appointment
       # health_quest services are called
       #
@@ -65,6 +80,14 @@ module HealthQuest
       end
 
       private
+
+      def three_months_ago
+        3.months.ago.in_time_zone
+      end
+
+      def one_year_from_now
+        1.year.from_now.in_time_zone
+      end
 
       def default_response
         { data: [] }
