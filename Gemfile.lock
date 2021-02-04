@@ -88,7 +88,6 @@ PATH
       sidekiq
     health_quest (0.1.0)
     mobile (0.1.0)
-      dry-validation
     openid_auth (0.0.1)
     test_user_dashboard (0.1.0)
       rails (~> 6.0.3, >= 6.0.3.2)
