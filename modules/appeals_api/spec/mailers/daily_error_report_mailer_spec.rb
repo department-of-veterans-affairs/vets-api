@@ -22,7 +22,6 @@ RSpec.describe AppealsApi::DailyErrorReportMailer, type: [:mailer] do
       end
     end
 
-
     it 'sends to the right people' do
       with_settings(Settings, vsp_environment: 'mary Poppins') do
         create(:notice_of_disagreement, :status_error)

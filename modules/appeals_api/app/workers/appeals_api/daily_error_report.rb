@@ -7,9 +7,7 @@ module AppealsApi
     include Sidekiq::Worker
 
     def perform
-      if Settings.modules_appeals_api.reports.daily_error.enabled
-        DailyErrorReportMailer.build.deliver_now
-      end
+      DailyErrorReportMailer.build.deliver_now if Settings.modules_appeals_api.reports.daily_error.enabled
     end
   end
 end
