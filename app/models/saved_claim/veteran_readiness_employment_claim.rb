@@ -14,13 +14,15 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     updated_form = parsed_form
 
-    updated_form['veteranInformation'] = {
-      'VAFileNumber' => veteran_va_file_number(user),
-      'pid' => user.participant_id,
-      'edipi' => user.edipi,
-      'vet360ID' => user.vet360_id,
-      'dob' => parsed_date(user.birth_date)
-    }
+    updated_form['veteranInformation'].merge!(
+      {
+        'VAFileNumber' => updated_form['veteranInformation']['vaFileNumber'] || veteran_va_file_number(user),
+        'pid' => user.participant_id,
+        'edipi' => user.edipi,
+        'vet360ID' => user.vet360_id,
+        'dob' => parsed_date(user.birth_date)
+      }
+    ).except!('vaFileNumber')
 
     update(form: updated_form.to_json)
   end

@@ -404,6 +404,8 @@ redis:
     # secondary_url: redis://localhost:6378
   sidekiq:
     url: redis://localhost:6379
+  rails_cache:
+    url: redis://localhost:6379
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
@@ -422,31 +424,92 @@ reports:
   spool10203_submission:
     emails:
       - Brian.Grubb@va.gov
-      - Joseph.Preisser@va.gov
-      - Lucas.Tickner@va.gov
-      - tammy.hurley1@va.gov
-      - Ricardo.DaSilva@va.gov
-      - kyle.pietrosanto@va.gov
-      - Joshua.Lashbrook@va.gov
-      - shay.norton@va.gov
       - dana.kuykendall@va.gov
       - Jennifer.Waltz2@va.gov
-      - kathleen.dalfonso@va.gov
-      - lihan@adhocteam.us
-    staging_emails:
-      - Brian.Grubb@va.gov
       - Joseph.Preisser@va.gov
-      - Lucas.Tickner@va.gov
-      - tammy.hurley1@va.gov
-      - Ricardo.DaSilva@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
       - kyle.pietrosanto@va.gov
       - lihan@adhocteam.us
-      - Delli-Gatti_Michael@bah.com
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
       - Darrell.Neel@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
       - Neel_Darrell@bah.com
+      - Ricardo.DaSilva@va.gov
       - shawkey_daniel@bah.com
       - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
       - Turner_Desiree@bah.com
+  spool_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Darrell.Neel@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Neel_Darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - Turner_Desiree@bah.com
+  year_to_date_report:
+    emails:
+      - 222A.VBAVACO@va.gov
+      - 224B.VBAVACO@va.gov
+      - 224C.VBAVACO@va.gov
+      - Brandon.Scott2@va.gov
+      - Brian.Grubb@va.gov
+      - Christina.DiTucci@va.gov
+      - John.McNeal@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - Lucas.Tickner@va.gov
+      - michele.mendola@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - matthew.ziolkowski@va.gov
+      - Michael.Johnson19@va.gov
+      - neel_darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - turner_desiree@bah.com
 
 
 oidc:
