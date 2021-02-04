@@ -12,7 +12,7 @@ RSpec.describe AppealsApi::DailyErrorReportMailer, type: [:mailer] do
       with_settings(Settings, vsp_environment: 'mary Poppins') do
         create(:notice_of_disagreement, :status_error)
 
-        expect(subject.subject).to eq 'Daily Error Decision Review API report (mary Poppins)'
+        expect(subject.subject).to eq 'Daily Error Decision Review API report (Mary Poppins)'
       end
     end
 
