@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/models/validation_address'
+require 'va_profile/models/validation_address'
 
-describe Vet360::Models::ValidationAddress do
-  let(:address) { build(:vet360_validation_address, :multiple_matches) }
+describe VAProfile::Models::ValidationAddress do
+  let(:address) { build(:va_profile_validation_address, :multiple_matches) }
 
   describe '#address_validation_req' do
     it 'formats the address for an address validation request' do
