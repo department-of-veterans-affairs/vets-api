@@ -52,7 +52,14 @@ class ModuleGenerator < Rails::Generators::NamedBase
     # spec and simplecov helper add group
     ["spec", "simplecov"].each do |f|
       helper_file             =  File.read("spec/#{f}_helper.rb")
-      existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
+
+      if f == spec
+        existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
+      else
+        existing_entries = helper_file.match(/def add_modules(.*)end/m).to_s.split("\n")
+      end
+
+      ## removes the begining and ending matcher
       existing_entries.pop
       existing_entries.shift
 
@@ -69,15 +76,53 @@ class ModuleGenerator < Rails::Generators::NamedBase
     end
   end
 
+  def update_gemfile
+    helper_file      =  File.read("Gemfile")
+    existing_entries = helper_file.match(/path 'modules' do(.*)end/m).to_s.split("\n")
+
+    ## removes the begining and ending matcher
+    existing_entries.pop
+    existing_entries.shift
+
+    new_entry = "\tgem '#{file_name}'\n"
+
+    existing_entries.each do |entry|
+      # if the current entry is alphabetically greater
+      # insert new entry before
+      if "gem '#{file_name}'" < entry.strip
+        insert_into_file "Gemfile", "#{new_entry}", before: "#{entry}"
+      end
+    end
+  end
+
+  def update_routes_file
+    helper_file      =  File.read("config/routes.rb")
+    existing_entries = existing_entries = helper_file.match(/# Modules(.*)# End Modules/m).to_s.split("\n")
+
+    ## removes the begining and ending matcher
+    existing_entries.pop
+    existing_entries.shift
+
+    new_entry = "\tmount #{file_name.camelize}::Engine, at: '/#{file_name}'\n"
+
+    existing_entries.each do |entry|
+      # if the current entry is alphabetically greater
+      # insert new entry before
+      if "mount #{file_name.camelize}::Engine, at: '/#{file_name}'" < entry.strip
+        insert_into_file "config/routes.rb", "#{new_entry}", before: "#{entry}"
+      end
+    end
+  end
+
   def update_and_install
     # spec helper add group
     # Don't add these entries to the files in test env/running specs
     unless Rails.env.test?
       # insert into main app gemfile
-      insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
-
-      insert_into_file 'config/routes.rb',
-                       "\tmount #{file_name.camelize}::Engine, at: '/#{file_name}'\n", after: "# Modules\n"
+      # insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
+      #
+      # insert_into_file 'config/routes.rb',
+      #                  "\tmount #{file_name.camelize}::Engine, at: '/#{file_name}'\n", after: "# Modules\n"
 
       run 'bundle install'
 

@@ -358,6 +358,7 @@ Rails.application.routes.draw do
   mount CovidResearch::Engine, at: '/covid-research'
   mount Mobile::Engine, at: '/mobile'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
+  # End Modules
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
