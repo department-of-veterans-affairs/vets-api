@@ -937,7 +937,7 @@ RSpec.describe FormProfile, type: :model do
           stub_methods_for_emis_data
           Settings.vet360.prefill = true
 
-          v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+          v22_1990_expected['email'] = VAProfileRedis::ContactInformation.for_user(user).email.email_address
           v22_1990_expected['homePhone'] = '3035551234'
           v22_1990_expected['mobilePhone'] = '3035551234'
           v22_1990_expected['veteranAddress'] = {
@@ -1108,7 +1108,8 @@ RSpec.describe FormProfile, type: :model do
             before do
               Settings.vet360.prefill = true
               expected_veteran_info = v21_526_ez_expected['veteran']
-              expected_veteran_info['emailAddress'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+              expected_veteran_info['emailAddress'] =
+                VAProfileRedis::ContactInformation.for_user(user).email.email_address
               expected_veteran_info['primaryPhone'] = '3035551234'
             end
 

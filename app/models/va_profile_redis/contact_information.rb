@@ -8,7 +8,7 @@ require 'vet360/models/permission'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
-module Vet360Redis
+module VAProfileRedis
   # Facade for Vet360::ContactInformation::Service. The user_serializer delegates
   # to this class through the User model.
   #
@@ -20,9 +20,9 @@ module Vet360Redis
 
     # Redis settings for ttl and namespacing reside in config/redis.yml
     #
-    redis_config_key :vet360_contact_info_response
+    redis_config_key :va_profile_contact_info_response
 
-    # @return [User] the user being queried in Vet360
+    # @return [User] the user being queried in VA Profile
     #
     attr_accessor :user
 
@@ -34,7 +34,7 @@ module Vet360Redis
       contact_info
     end
 
-    # Returns the user's email model. In Vet360, a user can only have one
+    # Returns the user's email model. In VA Profile, a user can only have one
     # email address.
     #
     # @return [Vet360::Models::Email] The user's one email address model
@@ -45,7 +45,7 @@ module Vet360Redis
       value_for('emails')&.first
     end
 
-    # Returns the user's residence. In Vet360, a user can only have one
+    # Returns the user's residence. In VA Profile, a user can only have one
     # residence address.
     #
     # @return [Vet360::Models::Address] The user's one residential address model
@@ -56,7 +56,7 @@ module Vet360Redis
       dig_out('addresses', 'address_pou', Vet360::Models::Address::RESIDENCE)
     end
 
-    # Returns the user's mailing address. In Vet360, a user can only have one
+    # Returns the user's mailing address. In VA Profile, a user can only have one
     # mailing address.
     #
     # @return [Vet360::Models::Address] The user's one mailing address model
@@ -67,7 +67,7 @@ module Vet360Redis
       dig_out('addresses', 'address_pou', Vet360::Models::Address::CORRESPONDENCE)
     end
 
-    # Returns the user's home phone. In Vet360, a user can only have one
+    # Returns the user's home phone. In VA Profile, a user can only have one
     # home phone.
     #
     # @return [Vet360::Models::Telephone] The user's one home phone model
@@ -78,7 +78,7 @@ module Vet360Redis
       dig_out('telephones', 'phone_type', Vet360::Models::Telephone::HOME)
     end
 
-    # Returns the user's mobile phone. In Vet360, a user can only have one
+    # Returns the user's mobile phone. In VA Profile, a user can only have one
     # mobile phone.
     #
     # @return [Vet360::Models::Telephone] The user's one mobile phone model
@@ -89,7 +89,7 @@ module Vet360Redis
       dig_out('telephones', 'phone_type', Vet360::Models::Telephone::MOBILE)
     end
 
-    # Returns the user's work phone. In Vet360, a user can only have one
+    # Returns the user's work phone. In VA Profile, a user can only have one
     # work phone.
     #
     # @return [Vet360::Models::Telephone] The user's one work phone model
@@ -100,7 +100,7 @@ module Vet360Redis
       dig_out('telephones', 'phone_type', Vet360::Models::Telephone::WORK)
     end
 
-    # Returns the user's temporary phone. In Vet360, a user can only have one
+    # Returns the user's temporary phone. In VA Profile, a user can only have one
     # temporary phone.
     #
     # @return [Vet360::Models::Telephone] The user's one temporary phone model
@@ -111,7 +111,7 @@ module Vet360Redis
       dig_out('telephones', 'phone_type', Vet360::Models::Telephone::TEMPORARY)
     end
 
-    # Returns the user's fax number. In Vet360, a user can only have one
+    # Returns the user's fax number. In VA Profile, a user can only have one
     # fax number.
     #
     # @return [Vet360::Models::Telephone] The user's one fax number model
@@ -122,7 +122,7 @@ module Vet360Redis
       dig_out('telephones', 'phone_type', Vet360::Models::Telephone::FAX)
     end
 
-    # Returns the user's text permission. In Vet360, a user can only have one
+    # Returns the user's text permission. In VA Profile, a user can only have one
     # text permission.
     #
     # @return [Vet360::Models::Permission] The user's one text permission model
@@ -153,7 +153,7 @@ module Vet360Redis
     end
 
     # This method allows us to populate the local instance of a
-    # Vet360Redis::ContactInformation object with the uuid necessary
+    # VAProfileRedis::ContactInformation object with the uuid necessary
     # to perform subsequent actions on the key such as deletion.
     def populate_from_redis
       response_from_redis_or_service
