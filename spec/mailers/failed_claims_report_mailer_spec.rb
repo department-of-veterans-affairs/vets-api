@@ -48,11 +48,7 @@ RSpec.describe FailedClaimsReportMailer, type: [:mailer] do
       end
 
       it 'emails the the right recipients' do
-        expect(subject.to).to eq(
-          %w[
-            lihan@adhocteam.us
-          ]
-        )
+        expect(subject.to).to eq(FailedClaimsReportMailer::RECIPIENTS)
       end
     end
   end
