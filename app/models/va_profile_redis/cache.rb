@@ -2,11 +2,11 @@
 
 require 'sentry_logging'
 
-module Vet360Redis
+module VAProfileRedis
   class Cache
     include SentryLogging
 
-    # Invalidates the cache set in Vet360Redis::ContactInformation through
+    # Invalidates the cache set in VAProfileRedis::ContactInformation through
     # our Common::RedisStore#destroy method.
     #
     # @param user [User] The current user
@@ -17,7 +17,7 @@ module Vet360Redis
       if contact_info.present?
         contact_info.destroy
       else
-        new.log_message_to_sentry('Vet360: Cannot invalidate a nil response cache', :info)
+        new.log_message_to_sentry('VA Profile: Cannot invalidate a nil response cache', :info)
       end
     end
   end
