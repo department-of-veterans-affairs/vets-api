@@ -23,6 +23,7 @@ describe Common::Exceptions::DetailedSchemaErrors do
       'gender' => 'male',
       'location' => { 'latitude' => 38.9013369,
                       'longitude' => -77.0316181 },
+      'favoriteFood' => 'pizza',
       'requiredField' => 'exists' }
   end
   let(:pointer) { subject[:source][:pointer] }
@@ -126,6 +127,15 @@ describe Common::Exceptions::DetailedSchemaErrors do
       expect(subject[:title]).to eq 'Invalid option'
       expect(subject[:detail]).to eq "'#{data['gender']}' is not an available option"
       expect(subject[:meta][:available_options]).to match_array %w[male female undisclosed]
+    end
+  end
+
+  context 'const' do
+    it 'has title, detail, and meta' do
+      data['favoriteFood'] = Faker::Lorem.sentence
+      expect(subject[:title]).to eq 'Invalid value'
+      expect(subject[:detail]).to eq "'#{data['favoriteFood']}' does not match the provided const"
+      expect(subject[:meta][:required_value]).to eq('pizza')
     end
   end
 
