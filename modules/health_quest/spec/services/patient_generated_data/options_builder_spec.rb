@@ -29,7 +29,7 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
   end
 
   describe '#appointment_id' do
-    let(:filters) { qr_filter.merge!(appointment_id: '123').with_indifferent_access }
+    let(:filters) { qr_filter.merge!(subject: '123').with_indifferent_access }
 
     it 'has an appointment_id' do
       expect(options_builder.appointment_id).to eq('123')
@@ -45,7 +45,7 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
   end
 
   describe '#context_type_value' do
-    let(:filters) { q_filter.merge!(use_context: 'venue$534/12975,venue$534/12976').with_indifferent_access }
+    let(:filters) { q_filter.merge!('context-type-value': 'venue$534/12975,venue$534/12976').with_indifferent_access }
 
     it 'has a context_type_value' do
       expect(options_builder.context_type_value).to eq('venue$534/12975,venue$534/12976')
@@ -53,7 +53,7 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
   end
 
   describe '#appointment_reference' do
-    let(:filters) { qr_filter.merge!(appointment_id: '123').with_indifferent_access }
+    let(:filters) { qr_filter.merge!(subject: '123').with_indifferent_access }
 
     it 'has an appointment reference link' do
       expect(options_builder.appointment_reference)
@@ -63,19 +63,19 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
 
   describe '#registry' do
     context 'when resource is questionnaire_response' do
-      let(:filters) { qr_filter.merge!(appointment_id: '123').with_indifferent_access }
+      let(:filters) { qr_filter.merge!(subject: '123').with_indifferent_access }
 
       it 'has relevant keys' do
         expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys)
-          .to eq(%i[appointment_id patient authored])
+          .to eq(%i[subject source authored])
       end
     end
 
     context 'when resource is questionnaire' do
-      let(:filters) { q_filter.merge!(use_context: '123').with_indifferent_access }
+      let(:filters) { q_filter.merge!('context-type-value': '123').with_indifferent_access }
 
       it 'has relevant keys' do
-        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[use_context])
+        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[context-type-value])
       end
     end
   end
@@ -83,20 +83,20 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
   describe '#to_hash' do
     context 'when resource is questionnaire_response' do
       context 'when appointment_id' do
-        let(:filters) { qr_filter.merge!(appointment_id: '123').with_indifferent_access }
+        let(:filters) { qr_filter.merge!(subject: '123').with_indifferent_access }
 
-        it 'returns a _tag hash' do
+        it 'returns a subject hash' do
           expect(options_builder.to_hash)
-            .to eq({ _tag: 'https://sandbox-api.va.gov/services/pgd/v0/r4/NamingSystem/va-appointment-identifier|123' })
+            .to eq({ subject: 'https://sandbox-api.va.gov/services/pgd/v0/r4/NamingSystem/va-appointment-identifier|123' })
         end
       end
 
       context 'when patient' do
-        let(:filters) { qr_filter.merge!(patient: '1008596379V859838').with_indifferent_access }
+        let(:filters) { qr_filter.merge!(source: '1008596379V859838').with_indifferent_access }
 
         it 'returns a subject hash' do
           expect(options_builder.to_hash)
-            .to eq({ subject: '1008596379V859838' })
+            .to eq({ source: '1008596379V859838' })
         end
       end
 
@@ -112,7 +112,7 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
 
     context 'when resource is questionnaire' do
       context 'when use_context' do
-        let(:filters) { q_filter.merge!(use_context: '').with_indifferent_access }
+        let(:filters) { q_filter.merge!('context-type-value': '').with_indifferent_access }
 
         it 'returns an use_context hash' do
           expect(options_builder.to_hash)

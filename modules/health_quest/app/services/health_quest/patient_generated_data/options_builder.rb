@@ -34,10 +34,10 @@ module HealthQuest
       # @return [Hash]
       #
       def to_hash
-        name = filters.delete(:resource_name)
-        query_param = filters.keys.pop
+        name = filters.delete(:resource_name).to_sym
+        query_params = filters.keys.map(&:to_sym)
 
-        registry[name.to_sym][query_param.to_sym]
+        registry[name].slice(*query_params)
       end
 
       ##
@@ -48,12 +48,12 @@ module HealthQuest
       def registry
         {
           questionnaire_response: {
-            appointment_id: { _tag: appointment_reference },
-            patient: { subject: user.icn },
-            authored: { authored: resource_created_date }
+            subject: appointment_reference,
+            source: user.icn,
+            authored: resource_created_date
           },
           questionnaire: {
-            use_context: { 'context-type-value': context_type_value }
+            'context-type-value': context_type_value
           }
         }
       end
@@ -74,7 +74,7 @@ module HealthQuest
       # @return [String]
       #
       def appointment_id
-        @appointment_id ||= filters&.fetch(:appointment_id, nil)
+        @appointment_id ||= filters&.fetch(:subject, nil)
       end
 
       ##
@@ -92,7 +92,7 @@ module HealthQuest
       # @return [String]
       #
       def context_type_value
-        @context_type_value ||= filters&.fetch(:use_context, nil)
+        @context_type_value ||= filters&.fetch('context-type-value', nil)
       end
 
       private
