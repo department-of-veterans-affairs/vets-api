@@ -16,7 +16,6 @@ module ModuleHelper
     existing_entries.each do |entry|
       # if the current entry is alphabetically greater
       # insert new entry before
-
       if options[:insert_matcher] < entry.strip
         insert_into_file file_path, new_entry.to_s, before: entry.to_s
         return true
