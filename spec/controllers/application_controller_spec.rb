@@ -239,7 +239,8 @@ RSpec.describe ApplicationController, type: :controller do
       # if current user is nil it means user is not signed in.
       expect(Raven).to receive(:tags_context).once.with(
         controller_name: 'anonymous',
-        sign_in_method: 'not-signed-in'
+        sign_in_method: 'not-signed-in',
+        source_app: 'my_testing'
       )
       expect(Raven).to receive(:tags_context).once.with(
         error: 'mhv_session'
@@ -247,6 +248,7 @@ RSpec.describe ApplicationController, type: :controller do
       # since user is not signed in this shouldnt get called.
       expect(Raven).not_to receive(:user_context)
       expect(Raven).to receive(:capture_exception).once
+      request.headers['Source-App-Name'] = 'my_testing'
       with_settings(Settings.sentry, dsn: 'T') do
         get :client_connection_failed
       end

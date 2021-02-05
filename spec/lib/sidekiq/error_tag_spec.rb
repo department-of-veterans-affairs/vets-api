@@ -13,13 +13,10 @@ describe Sidekiq::ErrorTag do
   end
 
   before do
-    allow_any_instance_of(ApplicationController).to receive(:request).and_return(
-      OpenStruct.new(
-        uuid: '123',
-        remote_ip: '99.99.99.99',
-        user_agent: 'banana'
-      )
-    )
+    req = ActionDispatch::TestRequest.create('HTTP_USER_AGENT' => 'banana', 'REMOTE_ADDR' => '99.99.99.99')
+    req.request_id = '123'
+    allow_any_instance_of(ApplicationController).to receive(:request).and_return(req)
+
     ApplicationController.new.send(:set_tags_and_extra_context)
   end
 
