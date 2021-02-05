@@ -140,7 +140,7 @@ describe VAProfile::AddressValidation::Service do
                     'code' => 'ADDR306',
                     'key' => 'lowConfidenceScore',
                     'severity' => 'WARN',
-                    'text' => 'VAProfile Validation Failed: Confidence Score less than 80'
+                    'text' => 'Vet360 Validation Failed: Confidence Score less than 80'
                   }
                 ]
               }
