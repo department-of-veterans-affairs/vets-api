@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'formatters/date_formatter'
+
 module VAOS
   class JwtWrapper
     VERSION = 2.1
@@ -66,9 +68,7 @@ module VAOS
     end
 
     def parsed_date
-      return unless user.birth_date
-
-      user.birth_date.to_date.strftime('%Y%m%d')
+      Formatters::DateFormatter.format_date(user.birth_date, :number_iso8601)
     end
 
     def edipi

@@ -3,6 +3,7 @@
 require 'active_model'
 require 'common/models/form'
 require 'common/exceptions'
+require 'formatters/date_formatter'
 
 module VAOS
   class AppointmentRequestForm < Common::Form
@@ -141,9 +142,7 @@ module VAOS
     end
 
     def birth_date
-      return unless @user.birth_date
-
-      @user.birth_date.to_date.strftime('%b %d, %Y')
+      Formatters::DateFormatter.format_date(@user.birth_date, :month_day_year)
     end
 
     def edipi

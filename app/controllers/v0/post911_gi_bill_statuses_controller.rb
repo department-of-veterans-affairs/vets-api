@@ -4,6 +4,7 @@ require 'evss/gi_bill_status/external_service_unavailable'
 require 'evss/gi_bill_status/gi_bill_status_response'
 require 'evss/gi_bill_status/outside_working_hours'
 require 'evss/gi_bill_status/service'
+require 'formatters/date_formatter'
 
 module V0
   class Post911GIBillStatusesController < ApplicationController
@@ -78,14 +79,8 @@ module V0
         participant_id: user.participant_id,
         vet360_id: user.vet360_id,
         ssn: user.ssn,
-        birth_date: birth_date_formatted(user.birth_date)
+        birth_date: Formatters::DateFormatter.format_date(user.birth_date, :datetime_iso8601)
       }.to_json
-    end
-
-    def birth_date_formatted(birth_date)
-      return unless birth_date
-
-      DateTime.parse(birth_date).iso8601
     end
 
     def skip_sentry_exception_types

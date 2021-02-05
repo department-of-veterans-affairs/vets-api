@@ -9,6 +9,7 @@ require 'evss/pciu/service'
 require 'mpi/messages/find_profile_message'
 require 'mpi/service'
 require 'saml/user'
+require 'formatters/date_formatter'
 
 class User < Common::RedisStore
   include BetaSwitch
@@ -103,7 +104,7 @@ class User < Common::RedisStore
       return nil
     end
 
-    Date.parse(birth_date.to_s).iso8601
+    Formatters::DateFormatter.format_date(birth_date)
   end
 
   def zip
@@ -350,21 +351,13 @@ class User < Common::RedisStore
   private
 
   def mpi_profile
-    if mpi.nil?
-      Rails.logger.info "[User] Cannot find MPI record for User with uuid: #{uuid}"
-      return nil
-    end
-
-    if mpi.profile.nil?
-      Rails.logger.info "[User] Cannot find MPI profile record for User with uuid: #{uuid}"
-      return nil
-    end
+    return nil unless mpi
 
     mpi.profile
   end
 
   def mpi_profile_birth_date
-    return unless mpi_profile
+    return nil unless mpi_profile
 
     if mpi_profile.birth_date.nil?
       Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
