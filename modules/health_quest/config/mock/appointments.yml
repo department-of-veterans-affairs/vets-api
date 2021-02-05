@@ -9,8 +9,8 @@
       appointment_list:
       - id: '202101281500983000089800000000000000'
         start_date: '2021-01-28T15:00:00Z'
-        clinic_id: '898'
-        facility_id: '983'
+        clinic_id: '12975'
+        facility_id: '534'
         sta6aid: 983GD
         station_name: CHYSHR-Loveland VA Clinic
         location_name: LVLND  SOCIAL WORK
@@ -28,8 +28,8 @@
           current_status: CANCELLED BY PATIENT
       - id: '202101281600983000113500000000000000'
         start_date: '2021-01-28T16:00:00Z'
-        clinic_id: '1135'
-        facility_id: '983'
+        clinic_id: '12976'
+        facility_id: '534'
         sta6aid: '983'
         station_name: CHYSHR-Cheyenne VA Medical Center
         location_name: CHY PHARMACY
@@ -47,9 +47,9 @@
           current_status: CANCELLED BY PATIENT
       - id: '202109171910983000084800000000000000'
         start_date: '2021-09-17T19:10:00Z'
-        clinic_id: '848'
+        clinic_id: '12977'
         clinic_friendly_name: CHY PC VAR2
-        facility_id: '983'
+        facility_id: '534'
         sta6aid: '983'
         station_name: CHYSHR-Cheyenne VA Medical Center
         location_name: CHY PC VAR2
@@ -71,9 +71,9 @@
             issue.'
       - id: '202111051930983000084800000000000000'
         start_date: '2021-11-05T19:30:00Z'
-        clinic_id: '848'
+        clinic_id: '12975'
         clinic_friendly_name: CHY PC VAR2
-        facility_id: '983'
+        facility_id: '534'
         sta6aid: '983'
         station_name: CHYSHR-Cheyenne VA Medical Center
         location_name: CHY PC VAR2

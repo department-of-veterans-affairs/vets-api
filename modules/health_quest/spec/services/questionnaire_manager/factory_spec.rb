@@ -24,6 +24,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
       expect(factory.respond_to?(:patient)).to eq(true)
       expect(factory.respond_to?(:appointment_service)).to eq(true)
       expect(factory.respond_to?(:patient_service)).to eq(true)
+      expect(factory.respond_to?(:transformer)).to eq(true)
       expect(factory.respond_to?(:user)).to eq(true)
     end
   end
@@ -79,14 +80,43 @@ describe HealthQuest::QuestionnaireManager::Factory do
       end
     end
 
-    context 'when patient and appointments exist' do
+    context 'when patient and appointments and no questionnaires' do
       let(:appointments) { { data: [{}, {}] } }
       let(:fhir_patient) { double('FHIR::Patient') }
       let(:client_reply) { double('FHIR::ClientReply', resource: fhir_patient) }
+      let(:questionnaire_client_reply) { double('FHIR::ClientReply', resource: double('FHIR::ClientReply', entry: [])) }
 
       before do
         allow_any_instance_of(subject).to receive(:get_appointments).and_return(appointments)
         allow_any_instance_of(subject).to receive(:get_patient).and_return(client_reply)
+        allow_any_instance_of(subject).to receive(:get_questionnaires).and_return(questionnaire_client_reply)
+      end
+
+      it 'returns a default hash' do
+        hash = { data: [] }
+
+        expect(described_class.manufacture(user).all).to eq(hash)
+      end
+
+      it 'has a FHIR::Patient patient' do
+        factory = described_class.manufacture(user)
+        factory.all
+
+        expect(factory.patient).to eq(fhir_patient)
+      end
+    end
+
+    context 'when patient and appointment and questionnaires exist' do
+      let(:appointments) { { data: [{}, {}] } }
+      let(:fhir_patient) { double('FHIR::Patient') }
+      let(:fhir_questionnaire_bundle) { double('FHIR::Bundle', entry: [{}, {}]) }
+      let(:client_reply) { double('FHIR::ClientReply', resource: fhir_patient) }
+      let(:questionnaire_client_reply) { double('FHIR::ClientReply', resource: fhir_questionnaire_bundle) }
+
+      before do
+        allow_any_instance_of(subject).to receive(:get_appointments).and_return(appointments)
+        allow_any_instance_of(subject).to receive(:get_patient).and_return(client_reply)
+        allow_any_instance_of(subject).to receive(:get_questionnaires).and_return(questionnaire_client_reply)
       end
 
       it 'returns a WIP hash' do
