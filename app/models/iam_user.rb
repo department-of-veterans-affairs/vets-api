@@ -16,9 +16,11 @@ class IAMUser < ::User
   attribute :iam_icn, String
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
+  attribute :iam_mhv_id, String
 
   # MPI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
   alias mhv_icn iam_icn
+  alias mhv_correlation_id iam_mhv_id
 
   # Builds an user instance from a IAMUserIdentity
   #
@@ -52,6 +54,20 @@ class IAMUser < ::User
 
   def sec_id
     identity.iam_sec_id || va_profile&.sec_id
+  end
+
+  def mhv_account_type
+    MHVAccountTypeService.new(self).mhv_account_type
+  end
+
+  # This is not the correct way of determining a VA patient
+  # It should be based on presence of treating facilities like in 
+  # the parent class, which means we need to extract the list of facilities
+  # from the IAM introspection payload.
+  # But if we are only going to enable SM for existing premium users then 
+  # this is a safe approach for enabling the pundit policy to succeed.
+  def va_patient?
+    mhv_correlation_id.present?
   end
 
   def set_expire
