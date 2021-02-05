@@ -35,6 +35,8 @@ module Mobile
 
         def va_appointments_with_facilities(appointments_from_response)
           appointments, facility_ids = va_appointments_adapter.parse(appointments_from_response)
+          return [] if appointments.nil?
+
           get_appointment_facilities(appointments, facility_ids) if appointments.size.positive?
         end
 
