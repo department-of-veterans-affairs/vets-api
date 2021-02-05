@@ -7,22 +7,42 @@ module HealthQuest
     # An aggregator which collects and combines data from the health_quest services, those which
     # interact with appointments and patient generated data in particular
     #
+    # @!attribute appointments
+    #   @return [Array]
     # @!attribute aggregated_data
     #   @return [Hash]
     # @!attribute patient
     #   @return [FHIR::Patient]
+    # @!attribute questionnaires
+    #   @return [Array]
+    # @!attribute appointment_service
+    #   @return [HealthQuest::AppointmentService]
     # @!attribute patient_service
     #   @return [PatientGeneratedData::Patient::Factory]
+    # @!attribute user
+    # @!attribute questionnaire_service
+    #   @return [PatientGeneratedData::Questionnaire::Factory]
+    # @!attribute transformer
+    #   @return [HealthQuest::QuestionnaireManager::Transformer]
     # @!attribute user
     #   @return [User]
     class Factory
       attr_reader :appointments,
                   :aggregated_data,
                   :patient,
+                  :questionnaires,
                   :appointment_service,
                   :patient_service,
+                  :questionnaire_service,
+                  :transformer,
                   :user
 
+      ##
+      # Builds a HealthQuest::QuestionnaireManager::Factory instance from a user.
+      #
+      # @param user [User] the logged in user.
+      # @return [HealthQuest::QuestionnaireManager::Factory] an instance of this class
+      #
       def self.manufacture(user)
         new(user)
       end
@@ -32,6 +52,8 @@ module HealthQuest
         @user = user
         @appointment_service = AppointmentService.new(user)
         @patient_service = PatientGeneratedData::Patient::Factory.manufacture(user)
+        @questionnaire_service = PatientGeneratedData::Questionnaire::Factory.manufacture(user)
+        @transformer = Transformer.build
       end
 
       ##
@@ -46,6 +68,9 @@ module HealthQuest
 
         @appointments = get_appointments[:data]
         return default_response if appointments.blank?
+
+        @questionnaires = get_questionnaires.resource&.entry
+        return default_response if questionnaires.blank?
 
         compose
       end
@@ -69,14 +94,30 @@ module HealthQuest
       end
 
       ##
-      # Builds the final aggregated data structure after the PGD and appointment
-      # health_quest services are called
+      # Gets a list of Questionnaires from the PGD
       #
-      # @return [Hash] a combined hash containing appointment, questionnaire_response,
-      # questionnaire and SIP data
+      # @return [FHIR::Bundle] an object containing the
+      # entries for FHIR::Questionnaire objects
+      #
+      def get_questionnaires
+        @get_questionnaires ||= begin
+          use_context = transformer.get_use_context(appointments)
+
+          questionnaire_service.search(use_context: use_context)
+        end
+      end
+
+      ##
+      # Calls the `combine` transformer object method and passes the appointment,
+      # questionnaire_response, questionnaire and SIP data as key/value arguments
+      #
+      # @return [Hash] the final aggregated data structure for the UI/FE
       #
       def compose
-        { data: 'WIP' }
+        @compose ||= begin
+          @aggregated_data =
+            transformer.combine(appointments: appointments, questionnaires: questionnaires)
+        end
       end
 
       private
