@@ -113,6 +113,7 @@ module Common
       def format(error)
         format = error.dig 'schema', 'format'
         data = i18n_interpolated :format, detail: { value: error['data'] }
+        data[:meta] ||= {}
         data.merge! meta: { format: format }
         data
       end
