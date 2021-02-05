@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vet360/contact_information/transaction_response'
+require 'va_profile/contact_information/transaction_response'
 
-describe Vet360::ContactInformation::TransactionResponse do
+describe VAProfile::ContactInformation::TransactionResponse do
   describe '.from' do
     subject { described_class.from(raw_response) }
 
     let(:raw_response) { OpenStruct.new(body: body) }
 
-    describe Vet360::ContactInformation::PersonTransactionResponse do
+    describe VAProfile::ContactInformation::PersonTransactionResponse do
       context 'with a MVI201 response error' do
         let(:body) do
           {
@@ -95,10 +95,10 @@ describe Vet360::ContactInformation::TransactionResponse do
 
       it 'logs that error to sentry' do
         expect(described_class).to receive(:log_message_to_sentry).with(
-          'Vet360 transaction error',
+          'VAProfile transaction error',
           :error,
           { response_body: body },
-          error: :vet360
+          error: :va_profile
         )
         subject
       end
