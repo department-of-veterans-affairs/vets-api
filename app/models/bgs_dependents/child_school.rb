@@ -39,12 +39,14 @@ module BGSDependents
         curnt_school_city_nm: school_information&.dig('address', 'city'),
         curnt_school_addrs_zip_nbr: school_information&.dig('address', 'zip_code'),
         curnt_school_cntry_nm: school_information&.dig('address', 'country_name'),
-        course_name_txt: program_information&.dig('course_of_study'),
+        course_name_txt: school_information&.dig('training_program'),
         curnt_sessns_per_wk_num: program_information&.dig('classes_per_week'),
         curnt_hours_per_wk_num: program_information&.dig('hours_per_week'),
         school_actual_expctd_start_dt: current_term_dates&.dig('official_school_start_date'),
         school_term_start_dt: format_date(current_term_dates&.dig('expected_student_start_date')),
-        gradtn_dt: format_date(current_term_dates&.dig('expected_graduation_date'))
+        gradtn_dt: format_date(current_term_dates&.dig('expected_graduation_date')),
+        full_time_studnt_type_cd: school_information&.dig('school_type'),
+        part_time_school_subjct_txt: program_information&.dig('course_of_study')
       }
     end
 

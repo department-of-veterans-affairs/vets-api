@@ -26,20 +26,31 @@
             "required": [
               "appointmentType",
               "comment",
+              "clinicId",
               "facilityId",
               "healthcareService",
               "location",
               "minutesDuration",
               "startDateLocal",
               "startDateUtc",
-              "status"
+              "status",
+              "timeZone"
             ],
             "properties": {
               "appointmentType": {
                 "type": "string"
               },
               "comment": {
-                "type": ["string", "null"]
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "clinicId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
               "facilityId": {
                 "type": [
@@ -144,7 +155,10 @@
                 }
               },
               "minutesDuration": {
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               },
               "startDateLocal": {
                 "type": "string"
@@ -154,6 +168,12 @@
               },
               "status": {
                 "type": "string"
+              },
+              "timeZone": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           }

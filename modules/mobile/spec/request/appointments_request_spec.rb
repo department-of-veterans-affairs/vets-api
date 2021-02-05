@@ -7,21 +7,24 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
 
+  before do
+    iam_sign_in
+    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+  end
+
+  before(:all) do
+    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
+    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+  end
+
+  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+
   describe 'GET /mobile/v0/appointments' do
     before do
-      iam_sign_in
-      allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
       Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
     end
 
     after { Timecop.return }
-
-    before(:all) do
-      @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-      VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-    end
-
-    after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
     context 'with a missing params' do
       it 'returns a bad request error' do
@@ -106,6 +109,7 @@ RSpec.describe 'appointments', type: :request do
               'attributes' => {
                 'appointmentType' => 'VA',
                 'comment' => nil,
+                'clinicId' => '308',
                 'facilityId' => '442',
                 'healthcareService' => 'CHY PC KILPATRICK',
                 'location' => {
@@ -143,33 +147,35 @@ RSpec.describe 'appointments', type: :request do
 
           expect(cc_appointment).to include(
             {
+              'id' => '8a48912a6c2409b9016c4e4ef7ae018b',
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'COMMUNITY_CARE',
                 'comment' => 'Test',
+                'clinicId' => nil,
                 'facilityId' => nil,
-                'healthcareService' => 'AP',
+                'healthcareService' => 'rtt',
                 'location' => {
-                  'name' => 'AP',
+                  'name' => 'rtt',
                   'address' => {
-                    'street' => '2345, Oak Crest Cir',
-                    'city' => 'Aldie',
-                    'state' => 'VA',
-                    'zipCode' => '20106'
+                    'street' => 'test drive',
+                    'city' => 'clraksburg',
+                    'state' => 'MD',
+                    'zipCode' => '00000'
                   },
                   'lat' => nil,
                   'long' => nil,
                   'phone' => {
-                    'areaCode' => '999',
-                    'number' => '999-9999',
+                    'areaCode' => '301',
+                    'number' => '916-1212',
                     'extension' => nil
                   },
                   'url' => nil,
                   'code' => nil
                 },
                 'minutesDuration' => 60,
-                'startDateLocal' => '2020-01-10T13:00:00.000-05:00',
-                'startDateUtc' => '2020-01-10T18:00:00.000Z',
+                'startDateLocal' => '2020-11-01T22:30:00.000-05:00',
+                'startDateUtc' => '2020-11-02T03:30:00.000Z',
                 'status' => 'BOOKED',
                 'timeZone' => 'America/New_York'
               }
@@ -216,7 +222,7 @@ RSpec.describe 'appointments', type: :request do
         end
 
         it 'has va appointments' do
-          expect(response.parsed_body['data'].size).to eq(101)
+          expect(response.parsed_body['data'].size).to eq(33)
         end
 
         it 'matches the expected schema' do

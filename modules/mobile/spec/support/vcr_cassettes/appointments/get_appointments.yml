@@ -75,6 +75,7 @@ http_interactions:
         		},
         		"appointmentList": [
         			{
+                        "id": "202006031600983000030800000000000000",
         				"startDate": "2020-11-03T16:00:00Z",
         				"clinicId": "308",
         				"clinicFriendlyName": "Green Team Clinic1",
@@ -98,6 +99,7 @@ http_interactions:
         				]
         			},
         			{
+                        "id": "202006051600983000030800000000000000",
         				"startDate": "2020-11-03T20:20:00Z",
         				"clinicId": "308",
         				"clinicFriendlyName": "Green Team Clinic1",
@@ -120,6 +122,7 @@ http_interactions:
         				]
         			},
         			{
+                        "id": "202006081400983000045500000000000000",
         				"startDate": "2020-11-05T16:00:00Z",
         				"clinicId": "308",
         				"clinicFriendlyName": "Green Team Clinic1",
@@ -142,6 +145,7 @@ http_interactions:
         				]
         			},
         			{
+                        "id": "202006101500983000094500000000000000",
         				"startDate": "2020-11-08T14:00:00Z",
         				"clinicId": "455",
         				"facilityId": "983",
@@ -164,6 +168,7 @@ http_interactions:
         				]
         			},
         			{
+                        "id": "202006111340983000084900000000000000",
         				"startDate": "2020-11-10T15:00:00Z",
         				"clinicId": "945",
         				"clinicFriendlyName": "C&P BEV AUDIO FTC",
@@ -186,6 +191,7 @@ http_interactions:
         				]
         			},
         			{
+                        "id": "202006111340983000085000000000000000",
         				"startDate": "2020-11-17T20:40:00Z",
         				"clinicId": "308",
         				"clinicFriendlyName": "Green Team Clinic1",
@@ -208,6 +214,7 @@ http_interactions:
         				]
         			},
         			{
+                        "id": "202006111340983000085100000000000000",
         				"startDate": "2020-11-24T16:00:00Z",
         				"clinicId": "945",
         				"clinicFriendlyName": "C&P BEV AUDIO FTC",
@@ -230,6 +237,7 @@ http_interactions:
         				]
         			},
         			{
+                        "id": "202006111340983000085200000000000000",
         				"startDate": "2020-11-30T17:32:00Z",
         				"facilityId": "983",
         				"patientIcn": "1012845331V153043",
