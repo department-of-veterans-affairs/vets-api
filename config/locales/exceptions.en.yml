@@ -244,6 +244,12 @@ en:
           detail: "The %{size} items provided did not match the definition"
           code: 147
           status: 422
+        format:
+          <<: *defaults
+          title: Invalid format
+          detail: "'%{value}' did not match the defined format"
+          code: 148
+          status: 422
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services

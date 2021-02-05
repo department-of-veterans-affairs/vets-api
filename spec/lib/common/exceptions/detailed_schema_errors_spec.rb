@@ -19,6 +19,7 @@ describe Common::Exceptions::DetailedSchemaErrors do
     { 'name' => 'Dom N. Ated',
       'age' => 30,
       'married' => false,
+      'pattern' => 'domn@ed',
       'email' => 'domn@ed.com',
       'gender' => 'male',
       'location' => { 'latitude' => 38.9013369,
@@ -131,10 +132,19 @@ describe Common::Exceptions::DetailedSchemaErrors do
 
   context 'patterns' do
     it 'has title, detail, and meta' do
+      data['pattern'] = Faker::Lorem.sentence
+      expect(subject[:title]).to eq 'Invalid format'
+      expect(subject[:detail]).to eq "'#{data['pattern']}' did not match the defined format"
+      expect(subject[:meta][:regex]).to eq '.@.'
+    end
+  end
+
+  context 'email' do
+    it 'has title, detail, and meta' do
       data['email'] = Faker::Lorem.sentence
       expect(subject[:title]).to eq 'Invalid format'
       expect(subject[:detail]).to eq "'#{data['email']}' did not match the defined format"
-      expect(subject[:meta][:regex]).to eq '.@.'
+      expect(subject[:meta][:format]).to eq 'email'
     end
   end
 
@@ -185,9 +195,9 @@ describe Common::Exceptions::DetailedSchemaErrors do
     subject { described_class.new(@validator.validate(data).to_a).errors }
 
     it 'displays all errors found for that pointer' do
-      data['email'] = 'A'
+      data['pattern'] = 'A'
       expect(subject.size).to eq 2
-      expect(subject.map { |e| e[:source][:pointer] }).to eq %w[/email /email]
+      expect(subject.map { |e| e[:source][:pointer] }).to eq %w[/pattern /pattern]
       expect(subject.map { |e| e[:code] }).to match_array %w[142 143]
     end
   end

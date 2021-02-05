@@ -10,13 +10,14 @@
         "name": { "$ref": "#/definitions/name" },
         "age": { "$ref": "#/definitions/age" },
         "married": { "$ref": "#/definitions/married" },
+        "pattern": { "$ref": "#/definitions/pattern" },
         "email": { "$ref": "#/definitions/email" },
         "gender": { "$ref": "#/definitions/gender" },
         "location": { "$ref": "#/definitions/location" },
         "favoriteFruits": { "$ref":  "#/definitions/favoriteFruits" },
         "requiredField": { "$ref": "#/definitions/requiredField" }
       },
-      "required": ["name", "age", "married", "email", "gender", "location", "requiredField"]
+      "required": ["name", "age", "married", "pattern", "email", "gender", "location", "requiredField"]
     },
     "name": {
       "type": "string",
@@ -31,10 +32,13 @@
     "married": {
       "type": "boolean"
     },
-    "email": {
+    "pattern": {
       "type": "string",
       "pattern": ".@.",
       "minLength": 3
+    },
+    "email": {
+      "format": "email"
     },
     "gender": {
       "type": "string",
