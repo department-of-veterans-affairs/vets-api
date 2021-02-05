@@ -24,25 +24,25 @@ RSpec.describe 'telephone', type: :request do
 
     context 'with a 200 response' do
       it 'matches the telephone schema', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/post_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/post_telephone_success') do
           post('/v0/profile/telephones', params: telephone.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
       it 'matches the telephone camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/post_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/post_telephone_success') do
           post('/v0/profile/telephones', params: telephone.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
 
       it 'creates a new AsyncTransaction::Vet360::TelephoneTransaction db record' do
-        VCR.use_cassette('vet360/contact_information/post_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/post_telephone_success') do
           expect do
             post('/v0/profile/telephones', params: telephone.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::TelephoneTransaction, :count).from(0).to(1)
@@ -54,7 +54,7 @@ RSpec.describe 'telephone', type: :request do
       it 'matches the errors schema', :aggregate_failures do
         telephone.id = 42
 
-        VCR.use_cassette('vet360/contact_information/post_telephone_w_id_error') do
+        VCR.use_cassette('va_profile/contact_information/post_telephone_w_id_error') do
           post('/v0/profile/telephones', params: telephone.to_json, headers: headers)
 
           expect(response).to have_http_status(:bad_request)
@@ -65,7 +65,7 @@ RSpec.describe 'telephone', type: :request do
       it 'matches the errors camel-inflected schema', :aggregate_failures do
         telephone.id = 42
 
-        VCR.use_cassette('vet360/contact_information/post_telephone_w_id_error') do
+        VCR.use_cassette('va_profile/contact_information/post_telephone_w_id_error') do
           post('/v0/profile/telephones', params: telephone.to_json, headers: headers)
 
           expect(response).to have_http_status(:bad_request)
@@ -76,7 +76,7 @@ RSpec.describe 'telephone', type: :request do
 
     context 'with a 403 response' do
       it 'returns a forbidden response' do
-        VCR.use_cassette('vet360/contact_information/post_telephone_status_403') do
+        VCR.use_cassette('va_profile/contact_information/post_telephone_status_403') do
           post('/v0/profile/telephones', params: telephone.to_json, headers: headers)
 
           expect(response).to have_http_status(:forbidden)
@@ -114,25 +114,25 @@ RSpec.describe 'telephone', type: :request do
 
     context 'with a 200 response' do
       it 'matches the telephone schema', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/put_telephone_success') do
           put('/v0/profile/telephones', params: telephone.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
       it 'matches the telephone camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/put_telephone_success') do
           put('/v0/profile/telephones', params: telephone.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
 
       it 'creates a new AsyncTransaction::Vet360::TelephoneTransaction db record' do
-        VCR.use_cassette('vet360/contact_information/put_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/put_telephone_success') do
           expect do
             put('/v0/profile/telephones', params: telephone.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::TelephoneTransaction, :count).from(0).to(1)
@@ -179,22 +179,22 @@ RSpec.describe 'telephone', type: :request do
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_telephone_ignore_eed', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/put_telephone_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
           put('/v0/profile/telephones', params: telephone.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
       it 'effective_end_date is NOT included in the request body when camel-inflected', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_telephone_ignore_eed', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/put_telephone_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
           put('/v0/profile/telephones', params: telephone.to_json, headers: headers_with_camel)
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
     end
@@ -213,22 +213,22 @@ RSpec.describe 'telephone', type: :request do
 
     context 'when the method is DELETE' do
       it 'effective_end_date gets appended to the request body', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/delete_telephone_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/delete_telephone_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/telephones', params: telephone.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
       it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/delete_telephone_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/delete_telephone_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/telephones', params: telephone.to_json, headers: headers_with_camel)
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
     end
