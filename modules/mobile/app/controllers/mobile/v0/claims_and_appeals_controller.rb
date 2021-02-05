@@ -11,7 +11,7 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
-      TMP_BASE_PATH = Rails.root.join 'tmp','uploads','cache'
+      TMP_BASE_PATH = Rails.root.join 'tmp', 'uploads', 'cache'
       TMP_IMG_PATH = "#{TMP_BASE_PATH}tempFile.jpg"
       TMP_PDF_PATH = "#{TMP_BASE_PATH}multifile.pdf"
       before_action { authorize :evss, :access? }
@@ -41,7 +41,7 @@ module Mobile
         status_code = parse_claims(claims_result, full_list = [], error_list = [])
         status_code = parse_appeals(appeals_result, full_list, error_list, status_code)
         adapted_full_list = serialize_list(full_list.flatten)
-        render json: {data: adapted_full_list, meta: {errors: error_list}}, status: status_code
+        render json: { data: adapted_full_list, meta: { errors: error_list } }, status: status_code
       end
 
       def get_claim
@@ -73,48 +73,49 @@ module Mobile
         claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
         jid = evss_claim_service.request_decision(claim)
         Rails.logger.info('Mobile Request', {
-            claim_id: params[:id],
-            job_id: jid
-        })
+                            claim_id: params[:id],
+                            job_id: jid
+                          })
         claim.update(requested_decision: true)
-        render json: {data: {job_id: jid}}, status: :accepted
+        render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_documents
         params.require :file
         claim = claims_scope.find_by(evss_id: params[:id])
         raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+
         file_to_upload = params[:multifile] ? generate_multi_image_pdf(params[:file]) : params[:file]
         document_data = EVSSClaimDocument.new(
-            evss_claim_id: claim.evss_id,
-            file_obj: file_to_upload,
-            uuid: SecureRandom.uuid,
-            file_name: file_to_upload.original_filename,
-            tracked_item_id: params[:tracked_item_id],
-            document_type: params[:document_type],
-            password: params[:password]
+          evss_claim_id: claim.evss_id,
+          file_obj: file_to_upload,
+          uuid: SecureRandom.uuid,
+          file_name: file_to_upload.original_filename,
+          tracked_item_id: params[:tracked_item_id],
+          document_type: params[:document_type],
+          password: params[:password]
         )
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
         jid = evss_claim_service.upload_document(document_data)
         Rails.logger.info('Mobile Request', {
-            claim_id: params[:id],
-            job_id: jid
-        })
-        render json: {data: {job_id: jid}}, status: :accepted
+                            claim_id: params[:id],
+                            job_id: jid
+                          })
+        render json: { data: { job_id: jid } }, status: :accepted
       end
 
       private
 
-      def generate_multi_image_pdf (image_list)
+      def generate_multi_image_pdf(image_list)
         Prawn::Document.generate(TMP_PDF_PATH) do |pdf|
           image_list.each do |img|
-            File.open(TMP_IMG_PATH, "wb") { |f| f.write Base64.decode64(img) }
-            pdf.image TMP_IMG_PATH, :fit => [pdf.bounds.right, pdf.bounds.top]
+            File.open(TMP_IMG_PATH, 'wb') { |f| f.write Base64.decode64(img) }
+            pdf.image TMP_IMG_PATH, fit: [pdf.bounds.right, pdf.bounds.top]
             pdf.start_new_page unless pdf.page_count == image_list.length
           end
         end
-        Rack::Test::UploadedFile.new(TMP_PDF_PATH, "application/pdf")
+        Rack::Test::UploadedFile.new(TMP_PDF_PATH, 'application/pdf')
       end
 
       def parse_claims(claims, full_list, error_list)
