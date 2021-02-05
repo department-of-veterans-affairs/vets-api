@@ -40,17 +40,6 @@ module Mobile
           [responses, errors]
         end
 
-        def put_cancel_appointment(facility_id, params)
-          perform(:put, cancel_appointment_url(facility_id), params, headers)
-        rescue Common::Exceptions::BackendServiceException => e
-          if e.key == 'VAOS_409A' || e.key == 'VAOS_400'
-            log_clinic_details(:cancel, params[:clinicId], params[:facilityId])
-          end
-          raise e
-        rescue Common::Client::Errors::ClientError => e
-          raise_backend_exception('VAOS_502', self.class, e)
-        end
-
         private
 
         def parallel_get(url, params)
