@@ -12,11 +12,12 @@
         "married": { "$ref": "#/definitions/married" },
         "email": { "$ref": "#/definitions/email" },
         "gender": { "$ref": "#/definitions/gender" },
+        "favoriteFood": { "$ref": "#/definitions/favoriteFood" },
         "location": { "$ref": "#/definitions/location" },
         "favoriteFruits": { "$ref":  "#/definitions/favoriteFruits" },
         "requiredField": { "$ref": "#/definitions/requiredField" }
       },
-      "required": ["name", "age", "married", "email", "gender", "location", "requiredField"]
+      "required": ["name", "age", "married", "email", "gender", "favoriteFood", "location", "requiredField"]
     },
     "name": {
       "type": "string",
@@ -43,6 +44,10 @@
         "female",
         "undisclosed"
       ]
+    },
+    "favoriteFood": {
+      "type": "string",
+      "const": "pizza"
     },
     "location": {
       "type": "object",
