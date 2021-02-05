@@ -54,14 +54,11 @@ module Mobile
 
           vaos_appointments_service.put_cancel_appointment(put_params)
         rescue Common::Exceptions::BackendServiceException => e
-          case e.original_status
-          when 409
+          if e.original_status == 409
             raise Common::Exceptions::BackendServiceException, 'MOBL_409_facility_not_supported'
-          when 502
-            raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
-          else
-            raise e
           end
+
+          raise e
         end
 
         private
