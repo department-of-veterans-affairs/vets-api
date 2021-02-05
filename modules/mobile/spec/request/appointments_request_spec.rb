@@ -243,6 +243,24 @@ RSpec.describe 'appointments', type: :request do
           expect(response).to have_http_status(:bad_gateway)
         end
       end
+
+      context 'when the VA endpoint returns a partial response with an error' do
+        before do
+          VCR.use_cassette('appointments/get_appointments_200_with_error', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: params
+            end
+          end
+        end
+
+        it 'returns a 200 response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'has the right CC count' do
+          expect(response.parsed_body['data'].size).to eq(33)
+        end
+      end
     end
   end
 end
