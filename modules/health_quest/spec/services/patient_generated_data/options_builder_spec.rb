@@ -86,8 +86,10 @@ describe HealthQuest::PatientGeneratedData::OptionsBuilder do
         let(:filters) { qr_filter.merge!(subject: '123').with_indifferent_access }
 
         it 'returns a subject hash' do
-          expect(options_builder.to_hash)
-            .to eq({ subject: 'https://sandbox-api.va.gov/services/pgd/v0/r4/NamingSystem/va-appointment-identifier|123' })
+          reference_url =
+            'https://sandbox-api.va.gov/services/pgd/v0/r4/NamingSystem/va-appointment-identifier|123'
+
+          expect(options_builder.to_hash).to eq({ subject: reference_url })
         end
       end
 

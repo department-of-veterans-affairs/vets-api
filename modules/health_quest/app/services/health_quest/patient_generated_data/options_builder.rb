@@ -92,7 +92,7 @@ module HealthQuest
       # @return [String]
       #
       def context_type_value
-        @context_type_value ||= filters&.fetch('context-type-value', nil)
+        @context_type_value ||= filters&.fetch(:'context-type-value', nil)
       end
 
       private
