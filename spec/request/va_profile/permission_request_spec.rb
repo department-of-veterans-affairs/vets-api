@@ -29,7 +29,7 @@ RSpec.describe 'permission', type: :request do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -38,7 +38,7 @@ RSpec.describe 'permission', type: :request do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -98,7 +98,7 @@ RSpec.describe 'permission', type: :request do
           put('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -107,7 +107,7 @@ RSpec.describe 'permission', type: :request do
           put('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -140,7 +140,7 @@ RSpec.describe 'permission', type: :request do
           # So this test ensures that it was stripped out
           put('/v0/profile/permissions', params: permission.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -150,7 +150,7 @@ RSpec.describe 'permission', type: :request do
           # So this test ensures that it was stripped out
           put('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
     end
@@ -175,7 +175,7 @@ RSpec.describe 'permission', type: :request do
           delete('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -186,7 +186,7 @@ RSpec.describe 'permission', type: :request do
           delete('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
     end

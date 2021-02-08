@@ -28,7 +28,7 @@ RSpec.describe 'address', type: :request do
           post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -37,7 +37,7 @@ RSpec.describe 'address', type: :request do
           post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -140,7 +140,7 @@ RSpec.describe 'address', type: :request do
           put('/v0/profile/addresses', params: address.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -149,7 +149,7 @@ RSpec.describe 'address', type: :request do
           put('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -262,7 +262,7 @@ RSpec.describe 'address', type: :request do
           # So this test will not pass if it's missing
           delete('/v0/profile/addresses', params: address.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/transaction_response')
+          expect(response).to match_response_schema('va_profile/transaction_response')
         end
       end
 
@@ -272,7 +272,7 @@ RSpec.describe 'address', type: :request do
           # So this test will not pass if it's missing
           delete('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
           expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('vet360/transaction_response')
+          expect(response).to match_camelized_response_schema('va_profile/transaction_response')
         end
       end
     end
