@@ -26,7 +26,7 @@ RSpec.describe 'transactions', type: :request do
           transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6'
         )
 
-        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+        VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
           get("/v0/profile/status/#{transaction.transaction_id}")
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
@@ -44,7 +44,7 @@ RSpec.describe 'transactions', type: :request do
           transaction_id: 'cb99a754-9fa9-4f3c-be93-ede12c14b68e'
         )
 
-        VCR.use_cassette('vet360/contact_information/email_transaction_status') do
+        VCR.use_cassette('va_profile/contact_information/email_transaction_status') do
           get("/v0/profile/status/#{transaction.transaction_id}")
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
@@ -54,8 +54,8 @@ RSpec.describe 'transactions', type: :request do
     end
 
     context 'cache invalidation' do
-      it 'invalidates the cache for the vet360-contact-info-response Redis key' do
-        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+      it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
+        VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
           transaction = create(
             :address_transaction,
             user_uuid: user.uuid,
@@ -83,7 +83,7 @@ RSpec.describe 'transactions', type: :request do
           user_uuid: user.uuid,
           transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
         )
-        VCR.use_cassette('vet360/contact_information/address_and_email_transaction_status') do
+        VCR.use_cassette('va_profile/contact_information/address_and_email_transaction_status') do
           get('/v0/profile/status/')
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
@@ -98,8 +98,8 @@ RSpec.describe 'transactions', type: :request do
 
     context 'cache invalidation' do
       context 'when transactions exist' do
-        it 'invalidates the cache for the vet360-contact-info-response Redis key' do
-          VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+        it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
+          VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
             create :address_transaction
 
             expect_any_instance_of(Common::RedisStore).to receive(:destroy)
@@ -110,7 +110,7 @@ RSpec.describe 'transactions', type: :request do
       end
 
       context 'when transactions do not exist' do
-        it 'invalidates the cache for the vet360-contact-info-response Redis key' do
+        it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
           allow(AsyncTransaction::Vet360::Base).to receive(:refresh_transaction_statuses).and_return([])
 
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
