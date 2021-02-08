@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'mobile/application_controller'
-require 'vet360/address_validation/service'
+require 'va_profile/address_validation/service'
 
 module Mobile
   module V0
