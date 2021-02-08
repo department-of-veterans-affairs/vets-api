@@ -147,8 +147,7 @@
         "emailAddressText": {
           "type": "string",
           "pattern": ".@.",
-          "maxLength": 44,
-          "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
+          "maxLength": 44
         },
         "timezone": {
           "type": "string",

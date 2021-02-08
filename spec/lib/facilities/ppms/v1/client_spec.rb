@@ -64,7 +64,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
   describe '#provider_locator' do
     it 'returns a list of providers' do
       r = Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
-      expect(r.length).to be 9
+      expect(r.length).to be 10
       expect(r[0]).to have_attributes(
         acc_new_patients: 'true',
         address_city: 'RED BANK',

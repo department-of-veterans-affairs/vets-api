@@ -30,17 +30,17 @@ RSpec.describe Spool10203SubmissionsReportMailer, type: %i[mailer aws_helpers] d
         expect(mail.to).to eq(
           %w[
             Brian.Grubb@va.gov
+            Darrell.Neel@va.gov
+            Delli-Gatti_Michael@bah.com
             Joseph.Preisser@va.gov
-            Lucas.Tickner@va.gov
-            tammy.hurley1@va.gov
-            Ricardo.DaSilva@va.gov
             kyle.pietrosanto@va.gov
             lihan@adhocteam.us
-            Delli-Gatti_Michael@bah.com
-            Darrell.Neel@va.gov
+            Lucas.Tickner@va.gov
             Neel_Darrell@bah.com
+            Ricardo.DaSilva@va.gov
             shawkey_daniel@bah.com
             sonntag_adam@bah.com
+            tammy.hurley1@va.gov
             Turner_Desiree@bah.com
           ]
         )
@@ -58,17 +58,17 @@ RSpec.describe Spool10203SubmissionsReportMailer, type: %i[mailer aws_helpers] d
         expect(mail.to).to eq(
           %w[
             Brian.Grubb@va.gov
-            Joseph.Preisser@va.gov
-            Lucas.Tickner@va.gov
-            tammy.hurley1@va.gov
-            Ricardo.DaSilva@va.gov
-            kyle.pietrosanto@va.gov
-            Joshua.Lashbrook@va.gov
-            shay.norton@va.gov
             dana.kuykendall@va.gov
             Jennifer.Waltz2@va.gov
+            Joseph.Preisser@va.gov
+            Joshua.Lashbrook@va.gov
             kathleen.dalfonso@va.gov
+            kyle.pietrosanto@va.gov
             lihan@adhocteam.us
+            Lucas.Tickner@va.gov
+            Ricardo.DaSilva@va.gov
+            shay.norton@va.gov
+            tammy.hurley1@va.gov
           ]
         )
       end

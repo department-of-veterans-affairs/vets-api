@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-form526-services-web/rest/form526/v1/submit"
+    uri: "<EVSS_BASE_URL>/wss-form526-services-web-v2/rest/form526/v2/submit"
     body:
       encoding: UTF-8
       string: '{"form526":{"veteran":{"emailAddress":"string","alternateEmailAddress":"string","mailingAddress":{"addressLine1":"string","addressLine2":"string","addressLine3":"string","city":"string","state":"IL","zipFirstFive":"11111","zipLastFour":"1111","country":"string","militaryStateCode":"AA","militaryPostOfficeTypeCode":"APO","type":"DOMESTIC"},"forwardingAddress":{"addressLine1":"string","addressLine2":"string","addressLine3":"string","city":"string","state":"IL","zipFirstFive":"11111","zipLastFour":"1111","country":"string","militaryStateCode":"AA","militaryPostOfficeTypeCode":"APO","type":"DOMESTIC","effectiveDate":"2018-03-29T18:50:03.014Z"},"primaryPhone":{"areaCode":"202","phoneNumber":"4561111"},"homelessness":{"hasPointOfContact":false},"serviceNumber":"string"},"attachments":[],"militaryPayments":{"payments":[],"receiveCompensationInLieuOfRetired":false,"receivingInactiveDutyTrainingPay":false,"waveBenifitsToRecInactDutyTraiPay":false},"directDeposit":{"accountType":"CHECKING","accountNumber":"1234","bankName":"string","routingNumber":"123456789"},"serviceInformation":{"servicePeriods":[{"serviceBranch":"string","activeDutyBeginDate":"2018-03-29T18:50:03.015Z","activeDutyEndDate":"2018-03-29T18:50:03.015Z"}],"reservesNationalGuardService":{"title10Activation":{"title10ActivationDate":"2018-03-29T18:50:03.015Z","anticipatedSeparationDate":"2018-03-29T18:50:03.015Z"},"obligationTermOfServiceFromDate":"2018-03-29T18:50:03.015Z","obligationTermOfServiceToDate":"2018-03-29T18:50:03.015Z","unitName":"string","unitPhone":{"areaCode":"202","phoneNumber":"4561111"}},"servedInCombatZone":true,"separationLocationName":"OTHER","separationLocationCode":"SOME
@@ -46,15 +46,15 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 200
-      message: OK
+      code: 503
+      message: Service Unavailable
     headers:
       Date:
       - Mon, 02 Apr 2018 22:46:34 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips
       Content-Type:
-      - application/json
+      - text/html
       Set-Cookie:
       - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
       - WSS-FORM526-SERVICES_JSESSIONID=RPeIimX_DLhskhO20bPzBmWWKGghuW-YlSjLgIX3nN28Adki1xRE!-1392655551;
@@ -66,12 +66,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |-
-        {
-          "claimId" : 600130094,
-          "endProductClaimCode" : "020SUPP",
-          "endProductClaimName" : "eBenefits 526EZ-Supplemental (020)",
-          "inflightDocumentId" : 194300
-        }
+        <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Draft//EN">
+        <HTML>
+        <HEAD>
+        <TITLE>Error 503--Service Unavailable</TITLE>
+        </HEAD>
+        <BODY bgcolor="white">
+        <FONT FACE=Helvetica><BR CLEAR=all>
+        <TABLE border=0 cellspacing=5><TR><TD><BR CLEAR=all>
+        <FONT FACE="Helvetica" COLOR="black" SIZE="3"><H2>Error 503--Service Unavailable</H2>
+        </FONT></TD></TR>
+        </TABLE>
+        <TABLE border=0 width=100% cellpadding=10><TR><TD VALIGN=top WIDTH=100% BGCOLOR=white><FONT FACE="Courier New"><FONT FACE="Helvetica" SIZE="3"><H3>From RFC 2068 <i>Hypertext Transfer Protocol -- HTTP/1.1</i>:</H3>
+        </FONT><FONT FACE="Helvetica" SIZE="3"><H4>10.5.4 503 Service Unavailable</H4>
+        </FONT><P><FONT FACE="Courier New">The server is currently unable to handle the request due to a temporary overloading or maintenance of the server. The implication is that this is a temporary condition which will be alleviated after some delay. If known, the length of the delay may be indicated in a Retry-After header.  If no Retry-After is given, the client SHOULD handle the response as it would for a 500 response.<blockquote>Note: The existence of the 503 status code does not imply that a server must use it when becoming overloaded. Some servers may wish to simply refuse the connection.</blockquote></FONT></P>
+        </FONT></TD></TR>
+        </TABLE>
+
+        </BODY>
+        </HTML>
     http_version:
   recorded_at: Mon, 02 Apr 2018 22:46:34 GMT
 recorded_with: VCR 3.0.3
