@@ -13,7 +13,8 @@ module Mobile
       include IgnoreNotFound
       TMP_BASE_PATH = Rails.root.join 'tmp', 'uploads', 'cache'
       TMP_IMG_PATH = "#{TMP_BASE_PATH}tempFile.jpg"
-      TMP_PDF_PATH = "#{TMP_BASE_PATH}multifile.pdf"
+      TMP_PDF_FILENAME = "multifile.pdf"
+      TMP_PDF_PATH = "#{TMP_BASE_PATH}#{TMP_PDF_FILENAME}"
       before_action { authorize :evss, :access? }
       after_action do
         File.delete(TMP_IMG_PATH) if File.exist?(TMP_IMG_PATH)
@@ -115,7 +116,9 @@ module Mobile
             pdf.start_new_page unless pdf.page_count == image_list.length
           end
         end
-        Rack::Test::UploadedFile.new(TMP_PDF_PATH, 'application/pdf')
+        temp_file = Tempfile.new(TMP_PDF_FILENAME, encoding: 'ASCII-8BIT')
+        temp_file.write(File.read(TMP_PDF_PATH))
+        ActionDispatch::Http::UploadedFile.new(filename: TMP_PDF_FILENAME, type: 'application/pdf', tempfile: temp_file)
       end
 
       def parse_claims(claims, full_list, error_list)
