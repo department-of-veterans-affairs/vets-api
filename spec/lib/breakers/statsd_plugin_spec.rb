@@ -18,18 +18,6 @@ describe Breakers::StatsdPlugin do
         request.url = URI(test_host + '/foo')
         expect(subject.get_tags(request)).to include('endpoint:/foo')
       end
-
-      it 'returns response with status appended' do
-        response.status = :ok
-        expect(subject.get_tags(request, response)).to include('status:ok')
-      end
-
-      context 'response not present' do
-        it 'returns response without status appended' do
-          request.method = :get
-          expect(subject.get_tags(request)).not_to include('status')
-        end
-      end
     end
 
     context 'request is made with id' do
@@ -92,10 +80,9 @@ describe Breakers::StatsdPlugin do
   describe 'send_metric' do
     let(:abstract_service) { Common::Client::Base }
 
-    context 'request env and response env are not null' do
-      it 'builds metrics with request env and response env' do
-        mock = double(Breakers::StatsdPlugin)
-        mock.stub(:get_tags).with('request_env', 'response_env')
+    context 'request env is not null' do
+      it 'builds metrics with request env' do
+        allow_any_instance_of(Breakers::StatsdPlugin).to receive(:get_tags).and_return('request_env')
         allow(response).to receive(:[]).with(:duration).and_return(50)
 
         expect_any_instance_of(StatsD).to receive('increment').and_return({})
@@ -105,9 +92,7 @@ describe Breakers::StatsdPlugin do
       end
 
       it 'builds metrics with request env and does not make StatsD measure call' do
-        mock = double(Breakers::StatsdPlugin)
-        mock.stub(:get_tags).with('request_env')
-        response = nil
+        allow_any_instance_of(Breakers::StatsdPlugin).to receive(:get_tags).and_return('request_env')
 
         expect_any_instance_of(StatsD).to receive('increment').and_return({})
         expect_any_instance_of(StatsD).not_to receive('measure')
