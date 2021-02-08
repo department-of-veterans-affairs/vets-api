@@ -106,17 +106,24 @@ describe HealthQuest::QuestionnaireManager::Factory do
       end
     end
 
-    context 'when patient and appointment and questionnaires exist' do
+    context 'when patient and appointment and questionnaires and questionnaire_responses exist' do
+      let(:fhir_data) { double('FHIR::Bundle', entry: [{}, {}]) }
       let(:appointments) { { data: [{}, {}] } }
       let(:fhir_patient) { double('FHIR::Patient') }
-      let(:fhir_questionnaire_bundle) { double('FHIR::Bundle', entry: [{}, {}]) }
+      let(:fhir_questionnaire_bundle) { fhir_data }
+      let(:fhir_questionnaire_response_bundle) { fhir_data }
       let(:client_reply) { double('FHIR::ClientReply', resource: fhir_patient) }
       let(:questionnaire_client_reply) { double('FHIR::ClientReply', resource: fhir_questionnaire_bundle) }
+      let(:questionnaire_response_client_reply) do
+        double('FHIR::ClientReply', resource: fhir_questionnaire_response_bundle)
+      end
 
       before do
         allow_any_instance_of(subject).to receive(:get_appointments).and_return(appointments)
         allow_any_instance_of(subject).to receive(:get_patient).and_return(client_reply)
         allow_any_instance_of(subject).to receive(:get_questionnaires).and_return(questionnaire_client_reply)
+        allow_any_instance_of(subject)
+          .to receive(:get_questionnaire_responses).and_return(questionnaire_response_client_reply)
       end
 
       it 'returns a WIP hash' do
@@ -133,6 +140,40 @@ describe HealthQuest::QuestionnaireManager::Factory do
         .to receive(:get).with(user.icn).and_return(client_reply)
 
       expect(described_class.manufacture(user).get_patient).to eq(client_reply)
+    end
+  end
+
+  describe '#get_questionnaires' do
+    let(:client_reply) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: [{}])) }
+
+    it 'returns a FHIR::ClientReply' do
+      allow_any_instance_of(HealthQuest::PatientGeneratedData::Questionnaire::MapQuery)
+        .to receive(:search).with(anything).and_return(client_reply)
+      allow_any_instance_of(HealthQuest::QuestionnaireManager::Transformer)
+        .to receive(:get_use_context).with(anything).and_return('venue$583/12345')
+
+      expect(described_class.manufacture(user).get_questionnaires).to eq(client_reply)
+    end
+  end
+
+  describe '#get_questionnaire_responses' do
+    let(:client_reply) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: [{}])) }
+
+    it 'returns a FHIR::ClientReply' do
+      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        .to receive(:search).with(anything).and_return(client_reply)
+
+      expect(described_class.manufacture(user).get_questionnaire_responses).to eq(client_reply)
+    end
+  end
+
+  describe '#get_appointments' do
+    let(:appointments) { { data: [{}, {}] } }
+
+    it 'returns a FHIR::ClientReply' do
+      allow_any_instance_of(HealthQuest::AppointmentService).to receive(:get_appointments).and_return(appointments)
+
+      expect(described_class.manufacture(user).get_appointments).to eq(appointments)
     end
   end
 
