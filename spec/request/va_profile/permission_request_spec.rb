@@ -25,7 +25,7 @@ RSpec.describe 'permission', type: :request do
 
     context 'with a 200 response' do
       it 'matches the permission schema', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/post_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/post_permission_success') do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
@@ -34,7 +34,7 @@ RSpec.describe 'permission', type: :request do
       end
 
       it 'matches the permission camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/post_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/post_permission_success') do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
@@ -43,7 +43,7 @@ RSpec.describe 'permission', type: :request do
       end
 
       it 'creates a new AsyncTransaction::Vet360::PermissionTransaction db record' do
-        VCR.use_cassette('vet360/contact_information/post_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/post_permission_success') do
           expect do
             post('/v0/profile/permissions', params: permission.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::PermissionTransaction, :count).from(0).to(1)
@@ -55,7 +55,7 @@ RSpec.describe 'permission', type: :request do
       it 'matches the errors schema', :aggregate_failures do
         permission.id = 401
 
-        VCR.use_cassette('vet360/contact_information/post_permission_w_id_error') do
+        VCR.use_cassette('va_profile/contact_information/post_permission_w_id_error') do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
           expect(response).to have_http_status(:bad_gateway)
@@ -66,7 +66,7 @@ RSpec.describe 'permission', type: :request do
       it 'matches the errors camel-inflected schema', :aggregate_failures do
         permission.id = 401
 
-        VCR.use_cassette('vet360/contact_information/post_permission_w_id_error') do
+        VCR.use_cassette('va_profile/contact_information/post_permission_w_id_error') do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:bad_gateway)
@@ -78,7 +78,7 @@ RSpec.describe 'permission', type: :request do
     context 'with a 403 response' do
       it 'returns a forbidden response' do
         permission.id = 401
-        VCR.use_cassette('vet360/contact_information/post_permission_status_403') do
+        VCR.use_cassette('va_profile/contact_information/post_permission_status_403') do
           post('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
           expect(response).to have_http_status(:forbidden)
@@ -94,7 +94,7 @@ RSpec.describe 'permission', type: :request do
 
     context 'with a 200 response' do
       it 'matches the permission schema', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/put_permission_success') do
           put('/v0/profile/permissions', params: permission.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
@@ -103,7 +103,7 @@ RSpec.describe 'permission', type: :request do
       end
 
       it 'matches the permission camel-inflected schema', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/put_permission_success') do
           put('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
@@ -112,7 +112,7 @@ RSpec.describe 'permission', type: :request do
       end
 
       it 'creates a new AsyncTransaction::Vet360::PermissionTransaction db record' do
-        VCR.use_cassette('vet360/contact_information/put_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/put_permission_success') do
           expect do
             put('/v0/profile/permissions', params: permission.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::PermissionTransaction, :count).from(0).to(1)
@@ -135,7 +135,7 @@ RSpec.describe 'permission', type: :request do
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_permission_ignore_eed', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/put_permission_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
           put('/v0/profile/permissions', params: permission.to_json, headers: headers)
@@ -145,7 +145,7 @@ RSpec.describe 'permission', type: :request do
       end
 
       it 'effective_end_date is NOT included in the request body when camel-inflected', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/put_permission_ignore_eed', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/put_permission_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
           put('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
@@ -169,7 +169,7 @@ RSpec.describe 'permission', type: :request do
 
     context 'when the method is DELETE' do
       it 'effective_end_date gets appended to the request body', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/delete_permission_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/delete_permission_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/permissions', params: permission.to_json, headers: headers)
@@ -180,7 +180,7 @@ RSpec.describe 'permission', type: :request do
       end
 
       it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
-        VCR.use_cassette('vet360/contact_information/delete_permission_success', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/contact_information/delete_permission_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
           delete('/v0/profile/permissions', params: permission.to_json, headers: headers_with_camel)
