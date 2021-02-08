@@ -54,13 +54,13 @@ class IAMUserIdentity < ::UserIdentity
     Digest::UUID.uuid_v5(@iam_sec_id, @iam_icn)
   end
 
-  private
-
   # Return a single mhv id from a possible comma-separated list value attribute
-  def valid_mhv_id(id_from_profile)
+  def self.valid_mhv_id(id_from_profile)
     # TODO: site login fails if multiple _different_ MHV IDs are present
     # Should this code be doing the same? Or at least logging a warning?
     # see lib/saml/user_attributes/ssoe.rb for example validation
     id_from_profile&.split(',')&.first
   end
+
+  private_class_method :valid_mhv_id
 end
