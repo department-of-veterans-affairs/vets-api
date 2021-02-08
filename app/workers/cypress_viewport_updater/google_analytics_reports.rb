@@ -15,7 +15,7 @@ module CypressViewportUpdater
     def initialize
       msg = "google_analytics_cvu CLIENT ID: #{Settings.google_analytics_cvu.client_id}"
       Rails.logger = Logger.new(STDOUT)
-      config.logger = ActiveSupport::Logger.new(msg)
+      Rails.logger.info(msg)
 
       @analytics = AnalyticsReportingService.new
       @analytics.authorization = ServiceAccountCredentials.make_creds(
