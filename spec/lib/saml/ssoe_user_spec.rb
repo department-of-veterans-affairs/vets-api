@@ -118,7 +118,8 @@ RSpec.describe SAML::User do
           participant_id: nil,
           birls_id: nil,
           icn: nil,
-          common_name: nil
+          common_name: nil,
+          person_types: nil
         )
       end
 
@@ -157,7 +158,8 @@ RSpec.describe SAML::User do
           participant_id: nil,
           birls_id: nil,
           icn: nil,
-          common_name: nil
+          common_name: nil,
+          person_types: nil
         )
       end
 
@@ -194,7 +196,8 @@ RSpec.describe SAML::User do
           participant_id: nil,
           birls_id: nil,
           icn: '1008830476V316605',
-          common_name: 'vets.gov.user+262@example.com'
+          common_name: 'vets.gov.user+262@example.com',
+          person_types: nil
         )
       end
 
@@ -233,7 +236,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: nil,
           multifactor: multifactor,
-          common_name: nil
+          common_name: nil,
+          person_types: nil
         )
       end
 
@@ -274,7 +278,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1013183292V131165',
           multifactor: multifactor,
-          common_name: 'alexmac_0@example.com'
+          common_name: 'alexmac_0@example.com',
+          person_types: nil
         )
       end
     end
@@ -313,7 +318,8 @@ RSpec.describe SAML::User do
           icn: nil,
           participant_id: nil,
           multifactor: true,
-          common_name: nil
+          common_name: nil,
+          person_types: nil
         )
       end
 
@@ -355,7 +361,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1012853550V207686',
           multifactor: multifactor,
-          common_name: 'k+tristan@example.com'
+          common_name: 'k+tristan@example.com',
+          person_types: nil
         )
       end
     end
@@ -398,7 +405,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: nil,
           multifactor: multifactor,
-          common_name: 'k+tristan@example.com'
+          common_name: 'k+tristan@example.com',
+          person_types: nil          
         )
       end
     end
@@ -677,7 +685,8 @@ RSpec.describe SAML::User do
           participant_id: nil,
           birls_id: nil,
           icn: nil,
-          multifactor: multifactor
+          multifactor: multifactor,
+          person_types: nil
         )
       end
     end
@@ -715,7 +724,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1013173963V366678',
           multifactor: false,
-          common_name: 'iam.tester@example.com'
+          common_name: 'iam.tester@example.com',
+          person_types: nil
         )
       end
 
@@ -758,7 +768,8 @@ RSpec.describe SAML::User do
           birls_id: '796123607',
           icn: '1012740600V714187',
           multifactor: multifactor,
-          common_name: 'dslogon10923109@gmail.com'
+          common_name: 'dslogon10923109@gmail.com',
+          person_types: ['PAT', 'VET']
         )
       end
     end
@@ -800,7 +811,8 @@ RSpec.describe SAML::User do
           birls_id: '796123607',
           icn: '1012740600V714187',
           multifactor: multifactor,
-          common_name: 'dslogon10923109@gmail.com'
+          common_name: 'dslogon10923109@gmail.com',
+          person_types: ['PAT', 'VET']
         )
       end
     end
@@ -859,7 +871,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1012779219V964737',
           multifactor: multifactor,
-          common_name: 'SOFIA MCKIBBENS'
+          common_name: 'SOFIA MCKIBBENS',
+          person_types: nil
         )
       end
 
@@ -911,7 +924,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1013062086V794840',
           multifactor: multifactor,
-          common_name: 'mhvzack@mhv.va.gov'
+          common_name: 'mhvzack@mhv.va.gov',
+          person_types: nil
         )
       end
     end
@@ -952,7 +966,8 @@ RSpec.describe SAML::User do
           birls_id: '666271151',
           icn: '1012827134V054550',
           multifactor: multifactor,
-          common_name: 'vets.gov.user+262@gmail.com'
+          common_name: 'vets.gov.user+262@gmail.com',
+          person_types: nil          
         )
       end
     end

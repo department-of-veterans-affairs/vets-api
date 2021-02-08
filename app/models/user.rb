@@ -127,6 +127,7 @@ class User < Common::RedisStore
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
+  delegate :person_types, to: :identity, allow_nil: true
 
   # mpi attributes
   delegate :icn_with_aaid, to: :mpi
