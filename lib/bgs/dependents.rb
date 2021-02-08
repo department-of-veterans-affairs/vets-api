@@ -39,7 +39,10 @@ module BGS
           participant,
           relationship_types[:participant],
           relationship_types[:family],
-          { type: 'death' }
+          {
+            type: 'death',
+            dep_has_income_ind: formatted_info['dependent_income']
+          }
         )
       end
     end
@@ -60,7 +63,8 @@ module BGS
           divorce_country: formatted_info['divorce_country'],
           end_date: formatted_info['end_date'],
           marriage_termination_type_code: formatted_info['marriage_termination_type_code'],
-          type: 'divorce'
+          type: 'divorce',
+          dep_has_income_ind: formatted_info['spouse_income']
         }
       )
     end
