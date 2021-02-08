@@ -20,7 +20,7 @@ RSpec.describe 'address', type: :request do
   end
 
   describe 'POST /v0/profile/addresses' do
-    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
       it 'matches the address schema', :aggregate_failures do
@@ -132,7 +132,7 @@ RSpec.describe 'address', type: :request do
   end
 
   describe 'PUT /v0/profile/addresses' do
-    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
@@ -162,7 +162,7 @@ RSpec.describe 'address', type: :request do
       end
 
       context 'with a validation key' do
-        let(:address) { build(:vet360_address, :override) }
+        let(:address) { build(:va_profile_address, :override) }
         let(:frozen_time) { Time.zone.parse('2020-02-14T00:19:15.000Z') }
 
         before do
@@ -207,7 +207,7 @@ RSpec.describe 'address', type: :request do
 
     context 'when effective_end_date is included' do
       let(:address) do
-        build(:vet360_address,
+        build(:va_profile_address,
               effective_end_date: Time.now.utc.iso8601)
       end
 

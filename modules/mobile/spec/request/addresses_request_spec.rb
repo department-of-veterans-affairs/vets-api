@@ -10,7 +10,7 @@ RSpec.describe 'address', type: :request do
   before { iam_sign_in(user) }
 
   let(:user) { FactoryBot.build(:iam_user) }
-  let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+  let(:address) { build(:va_profile_address, vet360_id: user.vet360_id) }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   describe 'update endpoints' do
@@ -241,7 +241,7 @@ RSpec.describe 'address', type: :request do
     end
 
     context 'with a found address' do
-      let(:multiple_match_address) { build(:vet360_address, :multiple_matches) }
+      let(:multiple_match_address) { build(:va_profile_address, :multiple_matches) }
 
       before do
         VCR.use_cassette(
