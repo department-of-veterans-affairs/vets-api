@@ -12,7 +12,7 @@
       ],
       "properties": {
         "id": {
-          "type": "string"
+          "type": "integer"
         },
         "app_type": {
           "type": "string"

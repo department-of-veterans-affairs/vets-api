@@ -26,7 +26,7 @@ module Apps
       private
 
       def json_format_is_valid?(body, schema_name)
-        schema_path = Rails.root.join('lib', 'forms', 'schemas', "#{schema_name}.json").to_s
+        schema_path = Rails.root.join('lib', 'apps', 'schemas', "#{schema_name}.json").to_s
         JSON::Validator.validate!(schema_path, body, strict: false)
       end
     end

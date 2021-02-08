@@ -25,7 +25,7 @@ module Apps
     #
     def get_all
       with_monitoring do
-        raw_response = perform(:get, 'apps')
+        raw_response = perform(:get, 'directory', nil)
         Apps::Responses::Response.new(raw_response.status, raw_response.body, 'apps')
       end
     rescue => e
@@ -36,7 +36,7 @@ module Apps
     #
     def get_app(name)
       with_monitoring do
-        raw_response = perform(:get, 'apps', query: name)
+        raw_response = perform(:get, 'directory', query: name)
         Apps::Responses::Response.new(raw_response.status, raw_response.body, 'app')
       end
     rescue => e
@@ -47,7 +47,7 @@ module Apps
     #
     def get_scopes(service_category)
       with_monitoring do
-        raw_response = perform(:get, 'scopes', query: service_category)
+        raw_response = perform(:get, 'directory/scopes', query: service_category)
         Apps::Responses::Response.new(raw_response.status, raw_response.body, 'scopes')
       end
     rescue => e

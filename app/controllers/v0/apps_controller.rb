@@ -9,19 +9,19 @@ module V0
     skip_before_action :authenticate
 
     def index
-      response = Forms::Client.new(params[:query]).get_all
+      response = Apps::Client.new(params[:query]).get_all
       render json: response.body,
              status: response.status
     end
 
     def show
-      response = Forms::Client.new(params[:query]).get_app
+      response = Apps::Client.new(params[:query]).get_app
       render json: response.body,
              status: response.status
     end
 
     def scopes
-      response = Forms::Client.new(params[:query]).get_scopes
+      response = Apps::Client.new(params[:query]).get_scopes
       render json: response.body,
              status: response.status
     end
