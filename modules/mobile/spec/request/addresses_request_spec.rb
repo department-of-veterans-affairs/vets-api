@@ -182,7 +182,7 @@ RSpec.describe 'address', type: :request do
 
   describe 'POST /mobile/v0/user/addresses/validate' do
     context 'with an invalid address' do
-      let(:invalid_address) { build(:vet360_validation_address) }
+      let(:invalid_address) { build(:va_profile_validation_address) }
 
       before do
         post '/mobile/v0/user/addresses/validate',
@@ -245,7 +245,7 @@ RSpec.describe 'address', type: :request do
 
       before do
         VCR.use_cassette(
-          'vet360/address_validation/candidate_multiple_matches',
+          'va_profile/address_validation/candidate_multiple_matches',
           VCR::MATCH_EVERYTHING
         ) do
           post '/mobile/v0/user/addresses/validate',
