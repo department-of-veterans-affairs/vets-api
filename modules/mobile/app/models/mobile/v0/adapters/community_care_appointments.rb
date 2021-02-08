@@ -22,6 +22,7 @@ module Mobile
         #
         def parse(appointments)
           appointments_list = appointments[:booked_appointment_collections].first[:booked_cc_appointments]
+          return [] if appointments_list.size.zero?
 
           appointments_list.map do |appointment_hash|
             location = location(
@@ -45,6 +46,7 @@ module Mobile
             id: appointment_hash[:appointment_request_id],
             appointment_type: COMMUNITY_CARE_TYPE,
             comment: appointment_hash[:instructions_to_veteran],
+            clinic_id: nil, # not a VA location
             facility_id: nil, # not a VA location
             healthcare_service: appointment_hash[:provider_practice],
             location: location,

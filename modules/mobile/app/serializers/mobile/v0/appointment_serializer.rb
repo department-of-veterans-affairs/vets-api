@@ -7,6 +7,7 @@ module Mobile
 
       attributes :appointment_type,
                  :comment,
+                 :clinic_id,
                  :facility_id,
                  :healthcare_service,
                  :location,

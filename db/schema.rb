@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_21_161138) do
+ActiveRecord::Schema.define(version: 2021_02_03_204200) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -274,6 +274,7 @@ ActiveRecord::Schema.define(version: 2021_01_21_161138) do
     t.datetime "updated_at", precision: 6, null: false
     t.boolean "poa"
     t.string "encrypted_auth_headers_json"
+    t.string "encrypted_auth_headers_json_iv"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -585,6 +586,9 @@ ActiveRecord::Schema.define(version: 2021_01_21_161138) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "id_type"
+    t.string "loa"
+    t.string "account_type"
   end
 
   create_table "user_preferences", id: :serial, force: :cascade do |t|

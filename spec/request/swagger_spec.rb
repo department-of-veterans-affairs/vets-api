@@ -771,11 +771,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
-          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
-        end
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 400, headers)
+        end
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
         end
       end
 

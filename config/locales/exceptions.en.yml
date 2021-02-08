@@ -208,6 +208,12 @@ en:
           detail: "'%{value}' is not an available option"
           code: 141
           status: 422
+        const:
+          <<: *defaults
+          title: Invalid value
+          detail: "'%{value}' does not match the provided const"
+          code: 148
+          status: 422
         length:
           <<: *defaults
           title: Invalid length

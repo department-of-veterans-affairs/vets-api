@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-form526-services-web/rest/form526/v1/submit"
+    uri: "<EVSS_BASE_URL>/wss-form526-services-web-v2/rest/form526/v2/submit"
     body:
       encoding: UTF-8
       string: '{"form526":{"veteran":{"emailAddress":"string","alternateEmailAddress":"string","mailingAddress":{"addressLine1":"string","addressLine2":"string","addressLine3":"string","city":"string","state":"IL","zipFirstFive":"11111","zipLastFour":"1111","country":"string","militaryStateCode":"AA","militaryPostOfficeTypeCode":"APO","type":"DOMESTIC"},"forwardingAddress":{"addressLine1":"string","addressLine2":"string","addressLine3":"string","city":"string","state":"IL","zipFirstFive":"11111","zipLastFour":"1111","country":"string","militaryStateCode":"AA","militaryPostOfficeTypeCode":"APO","type":"DOMESTIC","effectiveDate":"2018-03-29T18:50:03.014Z"},"primaryPhone":{"areaCode":"202","phoneNumber":"4561111"},"homelessness":{"hasPointOfContact":false},"serviceNumber":"string"},"attachments":[],"militaryPayments":{"payments":[],"receiveCompensationInLieuOfRetired":false,"receivingInactiveDutyTrainingPay":false,"waveBenifitsToRecInactDutyTraiPay":false},"directDeposit":{"accountType":"CHECKING","accountNumber":"1234","bankName":"string","routingNumber":"123456789"},"serviceInformation":{"servicePeriods":[{"serviceBranch":"string","activeDutyBeginDate":"2018-03-29T18:50:03.015Z","activeDutyEndDate":"2018-03-29T18:50:03.015Z"}],"reservesNationalGuardService":{"title10Activation":{"title10ActivationDate":"2018-03-29T18:50:03.015Z","anticipatedSeparationDate":"2018-03-29T18:50:03.015Z"},"obligationTermOfServiceFromDate":"2018-03-29T18:50:03.015Z","obligationTermOfServiceToDate":"2018-03-29T18:50:03.015Z","unitName":"string","unitPhone":{"areaCode":"202","phoneNumber":"4561111"}},"servedInCombatZone":true,"separationLocationName":"OTHER","separationLocationCode":"SOME
@@ -46,15 +46,15 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 401
-      message: Not found
+      code: 502
+      message: Bad Gateway
     headers:
       Date:
       - Mon, 02 Apr 2018 22:46:34 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips
       Content-Type:
-      - application/json
+      - text/html
       Set-Cookie:
       - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
       - WSS-FORM526-SERVICES_JSESSIONID=RPeIimX_DLhskhO20bPzBmWWKGghuW-YlSjLgIX3nN28Adki1xRE!-1392655551;
@@ -66,6 +66,18 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |-
-    http_version: 
+        <!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+        <html><head>
+        <title>502 Proxy Error</title>
+        </head><body>
+        <h1>Proxy Error</h1>
+        <p>The proxy server received an invalid
+        response from an upstream server.<br />
+        The proxy server could not handle the request <em><a href="/wss-form526-services-web-v2/rest/form526/v2/submit">POST&nbsp;/wss-form526-services-web-v2/rest/form526/v2/submit</a></em>.<p>
+        Reason: <strong>Error reading from remote server</strong></p></p>
+        <hr>
+        <address>Apache Server at www.ebenefits.va.gov Port 444</address>
+        </body></html>
+    http_version:
   recorded_at: Mon, 02 Apr 2018 22:46:34 GMT
 recorded_with: VCR 3.0.3

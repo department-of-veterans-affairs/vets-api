@@ -44,6 +44,13 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
         expect(instance.education_benefits_claim.education_stem_automated_decision).not_to be_nil
         expect(instance.education_benefits_claim.education_stem_automated_decision.user_uuid)
           .to eq(user.uuid)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.auth_headers).not_to be_nil
+      end
+
+      it 'saves user auth_headers' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(true)
+        instance.after_submit(user)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.auth_headers).not_to be_nil
       end
 
       it 'does not create education_stem_automated_decision without user' do
