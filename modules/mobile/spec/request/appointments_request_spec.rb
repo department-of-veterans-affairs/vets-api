@@ -7,21 +7,24 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
 
+  before do
+    iam_sign_in
+    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+  end
+
+  before(:all) do
+    @original_cassette_dir = VCR.configure(&:cassette_library_dir)
+    VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+  end
+
+  after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+
   describe 'GET /mobile/v0/appointments' do
     before do
-      iam_sign_in
-      allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
       Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
     end
 
     after { Timecop.return }
-
-    before(:all) do
-      @original_cassette_dir = VCR.configure(&:cassette_library_dir)
-      VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
-    end
-
-    after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
     context 'with a missing params' do
       it 'returns a bad request error' do
@@ -106,6 +109,7 @@ RSpec.describe 'appointments', type: :request do
               'attributes' => {
                 'appointmentType' => 'VA',
                 'comment' => nil,
+                'clinicId' => '308',
                 'facilityId' => '442',
                 'healthcareService' => 'CHY PC KILPATRICK',
                 'location' => {
@@ -147,7 +151,8 @@ RSpec.describe 'appointments', type: :request do
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'COMMUNITY_CARE',
-                'comment' => '',
+                'comment' => 'Test',
+                'clinicId' => nil,
                 'facilityId' => nil,
                 'healthcareService' => 'rtt',
                 'location' => {
@@ -236,6 +241,24 @@ RSpec.describe 'appointments', type: :request do
 
         it 'returns a 502 response' do
           expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+
+      context 'when the VA endpoint returns a partial response with an error' do
+        before do
+          VCR.use_cassette('appointments/get_appointments_200_with_error', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: params
+            end
+          end
+        end
+
+        it 'returns a 200 response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'has the right CC count' do
+          expect(response.parsed_body['data'].size).to eq(33)
         end
       end
     end
