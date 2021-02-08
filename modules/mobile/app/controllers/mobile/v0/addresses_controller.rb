@@ -21,7 +21,7 @@ module Mobile
       end
 
       def validate
-        address = Vet360::Models::ValidationAddress.new(address_params)
+        address = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
         response = validation_service.address_suggestions(address).as_json
@@ -59,7 +59,7 @@ module Mobile
       end
 
       def validation_service
-        Vet360::AddressValidation::Service.new
+        VAProfile::AddressValidation::Service.new
       end
     end
   end

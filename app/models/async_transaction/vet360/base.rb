@@ -53,7 +53,7 @@ module AsyncTransaction
       # @param user [User] the user whose tx data is being updated
       # @param transaction_record [AsyncTransaction::Vet360::Base] the tx record to be checked
       # @param service [VAProfile::ContactInformation::Service] an initialized vet360 client
-      # @return [Vet360::Models::Transaction]
+      # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service)
         case transaction_record
         when AsyncTransaction::Vet360::AddressTransaction

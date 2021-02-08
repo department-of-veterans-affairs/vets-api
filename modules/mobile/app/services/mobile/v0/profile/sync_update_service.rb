@@ -54,7 +54,7 @@ module Mobile
         end
 
         def build_record(type, params)
-          "Vet360::Models::#{type.capitalize}"
+          "VAProfile::Models::#{type.capitalize}"
             .constantize
             .new(params)
             .set_defaults(@user)
