@@ -212,7 +212,7 @@ RSpec.describe 'address', type: :request do
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-        expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:put_address) do |_, address|
+        expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:put_address) do |_, address|
           expect(address.effective_end_date).to eq(nil)
         end
 

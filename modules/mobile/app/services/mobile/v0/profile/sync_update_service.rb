@@ -124,7 +124,7 @@ module Mobile
         end
 
         def contact_information_service
-          Vet360::ContactInformation::Service.new @user
+          VAProfile::ContactInformation::Service.new @user
         end
 
         def raise_timeout_error(elapsed, try)
