@@ -143,8 +143,8 @@ describe Common::Exceptions::DetailedSchemaErrors do
   context 'patterns' do
     it 'has title, detail, and meta' do
       data['pattern'] = Faker::Lorem.sentence
-      expect(subject[:title]).to eq 'Invalid format'
-      expect(subject[:detail]).to eq "'#{data['pattern']}' did not match the defined format"
+      expect(subject[:title]).to eq 'Invalid pattern'
+      expect(subject[:detail]).to eq "'#{data['pattern']}' did not match the defined pattern"
       expect(subject[:meta][:regex]).to eq '.@.'
     end
   end
