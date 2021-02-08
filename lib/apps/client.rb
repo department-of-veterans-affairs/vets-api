@@ -1,0 +1,81 @@
+# frozen_string_literal: true
+
+require 'common/client/base'
+require 'common/client/concerns/monitoring'
+require_relative 'configuration'
+require_relative 'responses/response'
+
+module Apps
+  # Proxy Service for Apps API.
+  class Client < Common::Client::Base
+    include SentryLogging
+    include Common::Client::Concerns::Monitoring
+
+    configuration Apps::Configuration
+
+    STATSD_KEY_PREFIX = 'api.apps'
+
+    attr_reader :search_term
+
+    def initialize(search_term)
+      @search_term = search_term
+    end
+
+    # Get all apps
+    #
+    def get_all
+      with_monitoring do
+        raw_response = perform(:get, 'apps')
+        Apps::Responses::Response.new(raw_response.status, raw_response.body, 'apps')
+      end
+    rescue => e
+      handle_error(e)
+    end
+
+    # Get an individual app
+    #
+    def get_app(name)
+      with_monitoring do
+        raw_response = perform(:get, 'apps', query: name)
+        Apps::Responses::Response.new(raw_response.status, raw_response.body, 'app')
+      end
+    rescue => e
+      handle_error(e)
+    end
+
+    # Get the scopes an app with a given service_category could request
+    #
+    def get_scopes(service_category)
+      with_monitoring do
+        raw_response = perform(:get, 'scopes', query: service_category)
+        Apps::Responses::Response.new(raw_response.status, raw_response.body, 'scopes')
+      end
+    rescue => e
+      handle_error(e)
+    end
+
+    private
+
+    def handle_error(error)
+      case error
+      when Common::Client::Errors::ClientError
+        save_error_details(error)
+        raise_backend_exception('APPS_502', self.class, error)
+      else
+        raise error
+      end
+    end
+
+    def save_error_details(error)
+      Raven.tags_context(
+        external_service: self.class.to_s.underscore
+      )
+
+      Raven.extra_context(
+        url: config.base_path,
+        message: error.message,
+        body: error.body
+      )
+    end
+  end
+end
