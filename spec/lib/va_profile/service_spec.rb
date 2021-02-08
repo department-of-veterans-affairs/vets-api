@@ -136,7 +136,9 @@ describe VAProfile::Service do
   describe '#perform' do
     context 'regarding its reporting' do
       before do
-        allow_any_instance_of(VAProfile::Service).to receive_message_chain(:config, :base_request_headers, :merge) { '' }
+        allow_any_instance_of(VAProfile::Service).to receive_message_chain(
+          :config, :base_request_headers, :merge
+        ) { '' }
         allow_any_instance_of(Common::Client::Base).to receive(:perform).and_return(nil)
       end
 

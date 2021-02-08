@@ -43,7 +43,8 @@ module VAProfile
 
       # POSTs a new address to the VAProfile API
       # @param address [VAProfile::Models::Address] the address to create
-      # @return [VAProfile::ContactInformation::AddressTransactionResponse] response wrapper around an transaction object
+      # @return [VAProfile::ContactInformation::AddressTransactionResponse] response wrapper around
+      #   an transaction object
       def post_address(address)
         post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
       end
@@ -101,7 +102,8 @@ module VAProfile
 
       # GET's the status of a telephone transaction from the VAProfile api
       # @param transaction_id [int] the transaction_id to check
-      # @return [VAProfile::ContactInformation::TelephoneTransactionResponse] response wrapper around a transaction object
+      # @return [VAProfile::ContactInformation::TelephoneTransactionResponse] response wrapper around
+      #   a transaction object
       def get_telephone_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/telephones/status/#{transaction_id}"
         get_transaction_status(route, TelephoneTransactionResponse)
@@ -123,7 +125,8 @@ module VAProfile
 
       # GET's the status of a permission transaction from the VAProfile api
       # @param transaction_id [int] the transaction_id to check
-      # @return [VAProfile::ContactInformation::PermissionTransactionResponse] response wrapper around a transaction object
+      # @return [VAProfile::ContactInformation::PermissionTransactionResponse] response wrapper around
+      #   a transaction object
       def get_permission_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/permissions/status/#{transaction_id}"
         get_transaction_status(route, PermissionTransactionResponse)
