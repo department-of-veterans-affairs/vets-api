@@ -52,6 +52,12 @@
                   "null"
                 ]
               },
+              "clinicId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "facilityId": {
                 "type": [
                   "string",

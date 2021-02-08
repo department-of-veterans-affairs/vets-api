@@ -32,8 +32,8 @@ module Mobile
           errors = { cc: nil, va: nil }
 
           config.parallel_connection.in_parallel do
-            responses[:cc], errors[:cc] = get(cc_url, params)
-            responses[:va], errors[:va] = get(va_url, params)
+            responses[:cc], errors[:cc] = parallel_get(cc_url, params)
+            responses[:va], errors[:va] = parallel_get(va_url, params)
           end
 
           StatsD.increment('mobile.appointments.get_appointments.success')
@@ -42,7 +42,7 @@ module Mobile
 
         private
 
-        def get(url, params)
+        def parallel_get(url, params)
           response = config.parallel_connection.get(url, params, headers)
           [response, nil]
         rescue VAOS::Exceptions::BackendServiceException => e
@@ -62,6 +62,11 @@ module Mobile
         def cc_url
           '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling' \
             "/patient/ICN/#{@user.icn}/booked-cc-appointments"
+        end
+
+        def cancel_appointment_url(facility_id)
+          "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}/patient/ICN/" \
+           "#{@user.icn}/cancel-appointment"
         end
 
         def internal_error(e, url)
@@ -94,6 +99,14 @@ module Mobile
 
           StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
+        end
+
+        def log_clinic_details(action, clinic_id, site_code)
+          Rails.logger.warn(
+            "Clinic does not support VAOS appointment #{action}",
+            clinic_id: clinic_id,
+            site_code: site_code
+          )
         end
       end
     end
