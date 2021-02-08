@@ -27,15 +27,19 @@ module HealthQuest
     # @!attribute user
     #   @return [User]
     class Factory
+      HEALTH_CARE_FORM_PREFIX = 'HC-QSTNR'
+
       attr_reader :appointments,
                   :aggregated_data,
                   :patient,
                   :questionnaires,
                   :questionnaire_responses,
+                  :save_in_progress,
                   :appointment_service,
                   :patient_service,
-                  :questionnaire_service,
                   :questionnaire_response_service,
+                  :questionnaire_service,
+                  :sip_model,
                   :transformer,
                   :user
 
@@ -56,6 +60,7 @@ module HealthQuest
         @patient_service = PatientGeneratedData::Patient::Factory.manufacture(user)
         @questionnaire_service = PatientGeneratedData::Questionnaire::Factory.manufacture(user)
         @questionnaire_response_service = PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(user)
+        @sip_model = InProgressForm
         @transformer = Transformer.build
       end
 
@@ -76,6 +81,7 @@ module HealthQuest
         return default_response if questionnaires.blank?
 
         @questionnaire_responses = get_questionnaire_responses.resource&.entry
+        @save_in_progress = get_save_in_progress
 
         compose
       end
@@ -124,6 +130,18 @@ module HealthQuest
             source: user.icn,
             authored: [date_three_months_ago, date_one_year_from_now]
           )
+      end
+
+      # Gets a list of save in progress forms by the logged in user and a form prefix.
+      #
+      # @return [Array] an array containing the InProgressForm active record objects.
+      #
+      def get_save_in_progress
+        sip_model
+          .select(:form_id)
+          .where('form_id LIKE ?', "%#{HEALTH_CARE_FORM_PREFIX}%")
+          .where(user_uuid: user.uuid)
+          .to_a
       end
 
       ##
