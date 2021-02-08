@@ -44,6 +44,8 @@ Rails.application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
+  config.cache_store = :null_store
+
   # Speed up specs by not writing logs during RSpec runs
   unless ENV.fetch('RAILS_ENABLE_TEST_LOG', false)
     config.logger = Logger.new(nil)

@@ -1381,7 +1381,7 @@ http_interactions:
                 "state" : "MD",
                 "zipCode" : "00000"
               },
-              "instructionsToVeteran" : "",
+              "instructionsToVeteran" : "Test",
               "appointmentTime" : "11/01/2020 16:30:00",
               "timeZone" : "-11:00 EDT"
             }, {

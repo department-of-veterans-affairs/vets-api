@@ -48,21 +48,38 @@ module AppealsApi
       }
     end
 
-    def upstream_healthcheck
+    def appeals_status_upstream_healthcheck
       health_checker = AppealsApi::HealthChecker.new
       time = Time.zone.now.to_formatted_s(:iso8601)
 
       render json: {
         description: 'Appeals API upstream health check',
-        status: health_checker.services_are_healthy? ? 'UP' : 'DOWN',
+        status: health_checker.appeals_services_are_healthy? ? 'UP' : 'DOWN',
         time: time,
         details: {
           name: 'All upstream services',
-          upstreamServices: AppealsApi::HealthChecker::SERVICES.map do |service|
+          upstreamServices: AppealsApi::HealthChecker::APPEALS_SERVICES.map do |service|
                               upstream_service_details(service, health_checker, time)
                             end
         }
-      }, status: health_checker.services_are_healthy? ? 200 : 503
+      }, status: health_checker.appeals_services_are_healthy? ? 200 : 503
+    end
+
+    def decision_reviews_upstream_healthcheck
+      health_checker = AppealsApi::HealthChecker.new
+      time = Time.zone.now.to_formatted_s(:iso8601)
+
+      render json: {
+        description: 'Appeals API upstream health check',
+        status: health_checker.decision_reviews_services_are_healthy? ? 'UP' : 'DOWN',
+        time: time,
+        details: {
+          name: 'All upstream services',
+          upstreamServices: AppealsApi::HealthChecker::DECISION_REVIEWS_SERVICES.map do |service|
+                              upstream_service_details(service, health_checker, time)
+                            end
+        }
+      }, status: health_checker.decision_reviews_services_are_healthy? ? 200 : 503
     end
 
     private

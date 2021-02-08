@@ -14,10 +14,16 @@ module AppealsApi
     def perform(id, retries = 0)
       @retries = retries
       notice_of_disagreement = NoticeOfDisagreement.find(id)
-      notice_of_disagreement.update!(status: 'submitting')
-      stamped_pdf = PdfConstruction::Generator.new(notice_of_disagreement).generate
-      upload_to_central_mail(notice_of_disagreement, stamped_pdf)
-      File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+
+      begin
+        notice_of_disagreement.update!(status: 'submitting')
+        stamped_pdf = PdfConstruction::Generator.new(notice_of_disagreement).generate
+        upload_to_central_mail(notice_of_disagreement, stamped_pdf)
+        File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      rescue => e
+        notice_of_disagreement.update!(status: 'error', code: e.class.to_s, detail: e.message)
+        raise
+      end
     end
 
     def upload_to_central_mail(notice_of_disagreement, pdf_path)
