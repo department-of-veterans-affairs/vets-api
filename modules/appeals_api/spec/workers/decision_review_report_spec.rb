@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe AppealsApi::DecisionReviewReportJob, type: :job do
+describe AppealsApi::DecisionReviewReportDaily, type: :job do
   describe '#perform' do
     it 'sends mail' do
       with_settings(Settings.modules_appeals_api, report_enabled: true) do
@@ -12,7 +12,8 @@ describe AppealsApi::DecisionReviewReportJob, type: :job do
 
         expect(AppealsApi::DecisionReviewMailer).to receive(:build).once.with(
           date_from: date_from,
-          date_to: date_to
+          date_to: date_to,
+          friendly_duration: 'Daily'
         ).and_return(double.tap do |mailer|
           expect(mailer).to receive(:deliver_now).once
         end)
