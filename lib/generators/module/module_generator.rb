@@ -49,7 +49,17 @@ class ModuleGenerator < Rails::Generators::NamedBase
   end
 
   # rubocop:disable Rails/Output
-  def update_spec_and_simplecov_helper
+  def update_spec_helper
+    options_hash = {}
+    options_hash[:regex] = /# Modules(.*)# End Modules/m
+    options_hash[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
+    options_hash[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
+                       "'modules/#{file_name}/'\n"
+
+    module_generator_file_insert('spec/spec_helper.rb', options_hash)
+  end
+
+  def update_simplecov_helper
     # spec and simplecov helper add group
 
     options_hash = {}
@@ -59,14 +69,6 @@ class ModuleGenerator < Rails::Generators::NamedBase
                        "'modules/#{file_name}/'\n"
 
     module_generator_file_insert('spec/simplecov_helper.rb', options_hash)
-
-    options_hash = {}
-    options_hash[:regex] = /# Modules(.*)# End Modules/m
-    options_hash[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
-    options_hash[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
-                       "'modules/#{file_name}/'\n"
-
-    module_generator_file_insert('spec/spec_helper.rb', options_hash)
   end
 
   def update_gemfile
