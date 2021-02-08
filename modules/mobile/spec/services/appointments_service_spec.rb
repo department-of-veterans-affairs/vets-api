@@ -46,6 +46,7 @@ describe Mobile::V0::Appointments::Service do
       it 'has raw appointment data in the va response' do
         expect(responses[:va].body.dig(:data, :appointment_list).first).to eq(
           {
+            id: '202006031600983000030800000000000000',
             start_date: '2020-11-03T16:00:00Z',
             clinic_id: '308',
             clinic_friendly_name: 'Green Team Clinic1',
@@ -81,6 +82,9 @@ describe Mobile::V0::Appointments::Service do
       end
 
       it 'increments the VAOS and Mobile success metrics' do
+        expect(StatsD).to receive(:increment).with(
+          'api.vaos.va_mobile.response.total', any_args
+        ).twice
         expect(StatsD).to receive(:increment).with(
           'api.external_http_request.VAOS.success', any_args
         ).twice

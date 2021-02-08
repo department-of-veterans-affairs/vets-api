@@ -277,7 +277,7 @@ class FormProfile
 
     @vet360_contact_info_retrieved = true
     if Settings.vet360.prefill && user.vet360_id.present?
-      @vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
+      @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     end
     @vet360_contact_info
   end
