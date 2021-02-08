@@ -15,13 +15,21 @@ module HealthQuest
     #   @return [FHIR::Patient]
     # @!attribute questionnaires
     #   @return [Array]
+    # @!attribute questionnaire_responses
+    #   @return [Array]
+    # @!attribute save_in_progress
+    #   @return [Array]
     # @!attribute appointment_service
     #   @return [HealthQuest::AppointmentService]
     # @!attribute patient_service
     #   @return [PatientGeneratedData::Patient::Factory]
+    # @!attribute questionnaire_response_service
+    #   @return [PatientGeneratedData::QuestionnaireResponse::Factory]
     # @!attribute user
     # @!attribute questionnaire_service
     #   @return [PatientGeneratedData::Questionnaire::Factory]
+    # @!attribute sip_model
+    #   @return [InProgressForm]
     # @!attribute transformer
     #   @return [HealthQuest::QuestionnaireManager::Transformer]
     # @!attribute user
@@ -71,19 +79,20 @@ module HealthQuest
       # @return [Hash] an aggregated hash
       #
       def all
-        @patient = get_patient.resource
-        return default_response if patient.blank?
-
         @appointments = get_appointments[:data]
         return default_response if appointments.blank?
 
-        @questionnaires = get_questionnaires.resource&.entry
-        return default_response if questionnaires.blank?
-
-        @questionnaire_responses = get_questionnaire_responses.resource&.entry
-        @save_in_progress = get_save_in_progress
+        concurrent_pgd_requests
+        return default_response if patient.blank? || questionnaires.blank?
 
         compose
+      end
+
+      def concurrent_pgd_requests
+        @patient = get_patient.resource
+        @questionnaires = get_questionnaires.resource&.entry
+        @questionnaire_responses = get_questionnaire_responses.resource&.entry
+        @save_in_progress = get_save_in_progress
       end
 
       ##
