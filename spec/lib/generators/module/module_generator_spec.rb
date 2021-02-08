@@ -98,48 +98,60 @@ MESSAGES
   end
 
   describe 'file insertion methods' do
+    let(:module_name) { 'foo' }
+
     it 'inserts to the simplecov helper' do
+      options = {
+        insert_matcher: "add_group 'Foo', 'modules/foo/'",
+        new_entry: "\tadd_group 'Foo','modules/foo/'\n",
+        regex: /# Modules(.*)end/m
+      }
       allow_any_instance_of(ModuleGenerator).to(
-        receive(:update_spec_and_simplecov_helper).and_return('stub module insertion')
+        receive(:module_generator_file_insert).with('spec/simplecov_helper.rb', options).and_return('stub insertion')
       )
-      allow_any_instance_of(ModuleGenerator).to(
-        receive(:module_generator_file_insert).with('spec/simplecov_helper.rb', {}).and_return('stub helper method')
-      )
-      simplecov_updater = ModuleGenerator.new([module_name]).update_spec_and_simplecov_helper
-      expect(simplecov_updater).to eq('stub module insertion')
+      simplecov_updater = ModuleGenerator.new([module_name]).update_simplecov_helper
+      expect(simplecov_updater).to eq('stub insertion')
     end
 
     it 'inserts to the  spec helper' do
+      options = {
+        insert_matcher: "add_group 'Foo', 'modules/foo/'",
+        new_entry: "\tadd_group 'Foo','modules/foo/'\n",
+        regex: /# Modules(.*)# End Modules/m
+      }
+
       allow_any_instance_of(ModuleGenerator).to(
-        receive(:update_spec_and_simplecov_helper).and_return('stub module insertion')
+        receive(:module_generator_file_insert).with('spec/spec_helper.rb', options).and_return('stub insertion')
       )
-      allow_any_instance_of(ModuleGenerator).to(
-        receive(:module_generator_file_insert).with('spec/spec_helper.rb', {}).and_return('stub helper method')
-      )
-      spec_updater = ModuleGenerator.new([module_name]).update_spec_and_simplecov_helper
-      expect(spec_updater).to eq('stub module insertion')
+      spec_updater = ModuleGenerator.new([module_name]).update_spec_helper
+      expect(spec_updater).to eq('stub insertion')
     end
 
     it 'inserts to the gemfile' do
+      options = {
+        insert_matcher: "gem '#{module_name}'",
+        new_entry: "\tgem '#{module_name}'\n"
+      }
+
       allow_any_instance_of(ModuleGenerator).to(
-        receive(:update_gemfile).and_return('stub module insertion')
-      )
-      allow_any_instance_of(ModuleGenerator).to(
-        receive(:module_generator_file_insert).with('Gemfile', {}).and_return('stub helper method')
+        receive(:module_generator_file_insert).with('Gemfile', options).and_return('stub insertion')
       )
       gemfile_updater = ModuleGenerator.new([module_name]).update_gemfile
-      expect(gemfile_updater).to eq('stub module insertion')
+      expect(gemfile_updater).to eq('stub insertion')
     end
 
     it 'inserts to the routes file' do
+      options = {
+        insert_matcher: "mount Foo::Engine, at: '/foo'",
+        new_entry: "\tmount Foo::Engine, at: '/foo'\n",
+        regex: /# Modules(.*)# End Modules/m
+      }
+
       allow_any_instance_of(ModuleGenerator).to(
-        receive(:update_routes_file).and_return('stub module insertion')
-      )
-      allow_any_instance_of(ModuleGenerator).to(
-        receive(:module_generator_file_insert).with('config/routes.rb', {}).and_return('stub helper method')
+        receive(:module_generator_file_insert).with('config/routes.rb', options).and_return('stub insertion')
       )
       routes_updater = ModuleGenerator.new([module_name]).update_routes_file
-      expect(routes_updater).to eq('stub module insertion')
+      expect(routes_updater).to eq('stub insertion')
     end
 
     it 'bundle installs' do
