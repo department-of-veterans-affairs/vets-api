@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 require 'common/exceptions/detailed_schema_errors'
 
 describe Common::Exceptions::DetailedSchemaErrors do
