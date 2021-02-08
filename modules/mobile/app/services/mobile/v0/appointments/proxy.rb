@@ -4,6 +4,11 @@ module Mobile
   module V0
     module Appointments
       class Proxy
+        CANCEL_CODE = 'PC'
+        CANCEL_ASSIGNING_AUTHORITY = 'ICN'
+        UNABLE_TO_KEEP_APPOINTMENT = '5'
+        VALID_CANCEL_CODES = %w[4 5 6].freeze
+
         def initialize(user)
           @user = user
         end
@@ -31,10 +36,37 @@ module Mobile
           [appointments, errors]
         end
 
+        def put_cancel_appointment(params)
+          cancel_reasons = get_facility_cancel_reasons(params[:facilityId])
+          cancel_reason = extract_valid_reason(cancel_reasons.map(&:number))
+
+          raise Common::Exceptions::BackendServiceException, 'MOBL_404_cancel_reason_not_found' if cancel_reason.nil?
+
+          put_params = {
+            appointment_time: DateTime.parse(params[:appointmentTime]).strftime('%m/%d/%Y %H:%M:%S'),
+            clinic_id: params[:clinicId],
+            cancel_reason: cancel_reason,
+            cancel_code: CANCEL_CODE,
+            clinic_name: params['healthcareService'],
+            facility_id: params[:facilityId],
+            remarks: ''
+          }
+
+          vaos_appointments_service.put_cancel_appointment(put_params)
+        rescue Common::Exceptions::BackendServiceException => e
+          if e.original_status == 409
+            raise Common::Exceptions::BackendServiceException, 'MOBL_409_facility_not_supported'
+          end
+
+          raise e
+        end
+
         private
 
         def va_appointments_with_facilities(appointments_from_response)
           appointments, facility_ids = va_appointments_adapter.parse(appointments_from_response)
+          return [] if appointments.nil?
+
           get_appointment_facilities(appointments, facility_ids) if appointments.size.positive?
         end
 
@@ -45,8 +77,32 @@ module Mobile
           va_facilities_adapter.map_appointments_to_facilities(appointments, facilities)
         end
 
+        def extract_valid_reason(cancel_reason_codes)
+          valid_codes = cancel_reason_codes & VALID_CANCEL_CODES
+          return nil if valid_codes.empty?
+          return UNABLE_TO_KEEP_APPOINTMENT if unable_to_keep_appointment?(valid_codes)
+
+          valid_codes.first
+        end
+
+        def get_facility_cancel_reasons(facility_id)
+          vaos_systems_service.get_cancel_reasons(facility_id)
+        end
+
+        def unable_to_keep_appointment?(valid_codes)
+          valid_codes.include? UNABLE_TO_KEEP_APPOINTMENT
+        end
+
         def parallel_appointments_service
           Mobile::V0::Appointments::Service.new(@user)
+        end
+
+        def vaos_appointments_service
+          VAOS::AppointmentService.new(@user)
+        end
+
+        def vaos_systems_service
+          VAOS::SystemsService.new(@user)
         end
 
         def facilities_service

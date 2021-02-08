@@ -66,6 +66,8 @@ module Mobile
         def parse(appointments)
           facilities = Set.new
           appointments_list = appointments.dig(:data, :appointment_list)
+          return [nil, nil] if appointments_list.size.zero?
+
           appointments = appointments_list.map do |appointment_hash|
             build_appointment_model(appointment_hash, facilities)
           end

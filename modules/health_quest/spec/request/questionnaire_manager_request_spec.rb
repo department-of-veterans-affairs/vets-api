@@ -38,6 +38,9 @@ RSpec.describe 'health_quest questionnaire_manager', type: :request do
       let(:questionnaire_client_reply) do
         double('FHIR::ClientReply', resource: double('FHIR::ClientReply', entry: [{}]))
       end
+      let(:questionnaire_response_client_reply) do
+        double('FHIR::ClientReply', resource: double('FHIR::ClientReply', entry: [{}, {}]))
+      end
       let(:appointments) { { data: [{}, {}] } }
 
       before do
@@ -49,6 +52,8 @@ RSpec.describe 'health_quest questionnaire_manager', type: :request do
           .to receive(:get).with(anything).and_return(client_reply)
         allow_any_instance_of(HealthQuest::PatientGeneratedData::Questionnaire::MapQuery)
           .to receive(:search).with(anything).and_return(questionnaire_client_reply)
+        allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+          .to receive(:search).with(anything).and_return(questionnaire_response_client_reply)
         allow_any_instance_of(HealthQuest::AppointmentService)
           .to receive(:get_appointments).with(anything, anything).and_return(appointments)
       end

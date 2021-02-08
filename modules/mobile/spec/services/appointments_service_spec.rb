@@ -83,6 +83,9 @@ describe Mobile::V0::Appointments::Service do
 
       it 'increments the VAOS and Mobile success metrics' do
         expect(StatsD).to receive(:increment).with(
+          'api.vaos.va_mobile.response.total', any_args
+        ).twice
+        expect(StatsD).to receive(:increment).with(
           'api.external_http_request.VAOS.success', any_args
         ).twice
         expect(StatsD).to receive(:increment).once.with(
