@@ -13,7 +13,7 @@ module AppealsApi
       body = ERB.new(template).result(binding)
 
       mail(
-        to: Settings.modules_appeals_api.reports.decision_review.recipients,
+        to: recipients,
         subject: "#{@friendly_duration} Decision Review API report (#{@friendly_env})",
         content_type: 'text/html',
         body: body
@@ -30,6 +30,11 @@ module AppealsApi
         'decision_review_mailer',
         'mailer.html.erb'
       )
+    end
+
+    def recipients
+      Settings.dig('modules_appeals_api', 'report_recipients') ||
+        Settings.modules_appeals_api.reports.decision_review.recipients
     end
   end
 end
