@@ -61,10 +61,10 @@ class IAMUser < ::User
   end
 
   # This is not the correct way of determining a VA patient
-  # It should be based on presence of treating facilities like in 
+  # It should be based on presence of treating facilities like in
   # the parent class, which means we need to extract the list of facilities
   # from the IAM introspection payload.
-  # But if we are only going to enable SM for existing premium users then 
+  # But if we are only going to enable SM for existing premium users then
   # this is a safe approach for enabling the pundit policy to succeed.
   def va_patient?
     mhv_correlation_id.present?
