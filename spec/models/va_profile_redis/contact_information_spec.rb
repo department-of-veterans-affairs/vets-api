@@ -2,9 +2,14 @@
 
 require 'rails_helper'
 
-describe Vet360Redis::ContactInformation do
+describe VAProfileRedis::ContactInformation do
   let(:user) { build :user, :loa3 }
-  let(:contact_info) { Vet360Redis::ContactInformation.for_user(user) }
+  let(:person_response) do
+    raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
+
+    Vet360::ContactInformation::PersonResponse.from(raw_response)
+  end
+  let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
   let(:person) { build :person, telephones: telephones, permissions: permissions }
   let(:telephones) do
     [
@@ -23,12 +28,6 @@ describe Vet360Redis::ContactInformation do
 
   before do
     allow(Vet360::Models::Person).to receive(:build_from).and_return(person)
-  end
-
-  let(:person_response) do
-    raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-
-    Vet360::ContactInformation::PersonResponse.from(raw_response)
   end
 
   context 'with a 404 from get_person', skip_vet360: true do
@@ -56,9 +55,9 @@ describe Vet360Redis::ContactInformation do
 
       it 'makes a new request' do
         expect(contact_info.email).to eq(nil)
-        Vet360Redis::Cache.invalidate(user)
+        VAProfileRedis::Cache.invalidate(user)
 
-        expect(Vet360Redis::ContactInformation.for_user(user).email).to eq(nil)
+        expect(VAProfileRedis::ContactInformation.for_user(user).email).to eq(nil)
       end
     end
   end
