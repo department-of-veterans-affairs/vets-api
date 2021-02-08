@@ -35,6 +35,7 @@ module Mobile
       attribute :id, Types::String
       attribute :appointment_type, APPOINTMENT_TYPE
       attribute :comment, Types::String.optional
+      attribute :clinic_id, Types::String.optional
       attribute :facility_id, Types::String.optional
       attribute :healthcare_service, Types::String.optional
       attribute :location, AppointmentLocation

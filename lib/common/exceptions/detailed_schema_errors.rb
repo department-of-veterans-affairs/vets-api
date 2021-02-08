@@ -51,6 +51,13 @@ module Common
         data
       end
 
+      def const(error)
+        data = i18n_interpolated :const, detail: { value: error['data'] }
+        data[:meta] ||= {}
+        data.merge! meta: { required_value: error.dig('schema', 'const') }
+        data
+      end
+
       def length(error)
         data = i18n_interpolated :length, detail: { value: error['data'] }
         data[:meta] ||= {}
