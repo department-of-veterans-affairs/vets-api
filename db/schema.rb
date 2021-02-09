@@ -587,6 +587,9 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.text "services"
+    t.string "id_type"
+    t.string "loa"
+    t.string "account_type"
   end
 
   create_table "user_preferences", id: :serial, force: :cascade do |t|

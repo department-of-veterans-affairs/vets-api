@@ -31,4 +31,36 @@ module StringHelpers
       levenshtein_distance: levenshtein_distance(str_a, str_b)
     }
   end
+
+  def filtered_endpoint_tag(path)
+    # replace identifiers with 'xxx'
+    # this nasty-looking regex attempts to cover:
+    # * (possibly negative) digit identifiers
+    # * uuid's with or without dashes
+    # * institution id's of form 111A2222 or 11A22222
+    digit = /\-?\d+/
+    contact_id = /\d{10}V\d{6}(%5ENI%5E200M%5EUSVHA)*/
+    uuids = /[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}/
+    institution_ids = /[\dA-Z]{8}/
+    provider_ids = /Providers\(\d{10}\)/
+    okta_users = %r{(?<user_path>api\/v1\/users\/)\w*}
+    r = %r{
+      (?<first_slash>\/)
+      (#{okta_users} |#{digit} |#{contact_id} |#{uuids} |#{institution_ids} |#{provider_ids})
+      (?<ending_slash>\/|$)
+    }x
+
+    # replace  ids sent in the endpoint with 'xxx'
+    rslt = path.gsub(r) do
+      "#{$LAST_MATCH_INFO[:first_slash]}#{$LAST_MATCH_INFO[:user_path]}xxx#{$LAST_MATCH_INFO[:ending_slash]}"
+    end
+
+    # for endpoints of type '/cce/v1/patients/xxx/eligibility/<specialty>' replace <specialty> with zzz to provide
+    # better grouping in grafana
+    if rslt =~ %r{/cce/v1/patients/xxx/eligibility/}
+      "#{$LAST_MATCH_INFO}zzz"
+    else
+      rslt
+    end
+  end
 end
