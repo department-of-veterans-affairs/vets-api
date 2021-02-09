@@ -57,7 +57,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
 
   describe '#send_to_vre' do
     context 'successful submission' do
-      before(:each) do
+      before do
         expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
       end
 
