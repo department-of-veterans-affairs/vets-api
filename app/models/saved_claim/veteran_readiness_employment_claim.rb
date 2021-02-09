@@ -30,9 +30,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_to_vre(user)
     prepare_form_data
 
+    upload_to_vbms
     service = VRE::Ch31Form.new(user: user, claim: self)
     service.submit
-    upload_to_vbms
   end
 
   def upload_to_vbms(doc_type: '171')
