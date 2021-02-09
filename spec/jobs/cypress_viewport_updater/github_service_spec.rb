@@ -19,21 +19,25 @@ RSpec.describe CypressViewportUpdater::GithubService do
 
     # the following filter is used on responses from
     # https://api.github.com/app/installations/14176090/access_tokens
-    c.filter_sensitive_data('{"token":"removed","expires_at":"2021-02-02T18:24:37Z","permissions":{"contents":"write","metadata":"read","pull_requests":"write"},"repository_selection":"selected"}') do |interaction|
+    string = '{"token":"removed","expires_at":"2021-02-02T18:24:37Z",'\
+             '"permissions":{"contents":"write","metadata":"read","pull_requests":"write"},'\
+             '"repository_selection":"selected"}'
+    c.filter_sensitive_data(string) do |interaction|
       if (match = interaction.response.body.match(/^{\"token.+/))
         match[0]
       end
     end
   end
 
+  before do
+    allow(OpenSSL::PKey::RSA).to receive(:new).and_return(true)
+    allow(JWT).to receive(:encode).and_return(true)
+    allow_any_instance_of(Octokit::Client).to receive(:create_installation_access_token).and_return(%w[k v])
+  end
+
   describe '#new' do
     it 'returns a new instance' do
-      github = nil
-
-      VCR.use_cassette('cypress_viewport_updater/github_service_new') do
-        github = CypressViewportUpdater::GithubService.new
-      end
-
+      github = CypressViewportUpdater::GithubService.new
       expect(github).to be_an_instance_of(described_class)
     end
   end
