@@ -124,6 +124,7 @@ module AppealsApi::V1
 
                 property :emailAddressText do
                   key :type, :string
+                  key :format, :email
                   key :description, 'Email of the Veteran'
                   key :maxLength, 120
                   key :minLength, 5

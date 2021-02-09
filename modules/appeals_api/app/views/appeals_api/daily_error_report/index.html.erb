@@ -40,25 +40,7 @@
   </head>
 
   <body>
-    <h1><%= @friendly_duration %> <%= @friendly_env %> Decision Review Report from <%= @report.from %> -- <%= @report.to %> </h1>
-
-    <h2><span class="title">HLR submissions by status and count</span></h2>
-    <table>
-      <thead>
-        <tr>
-            <th>Status</th>
-            <th>Count</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @report.hlr_by_status_and_count.each do |status, count| %>
-          <tr>
-            <td class="right-align"><%= status %></td>
-            <td class="right-align"><%= count %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
+    <h1>Daily <%= @friendly_env %> Error Report </h1>
 
     <h2><span class="title">Faulty HLR</span></h2>
     <table>
@@ -92,24 +74,6 @@
 
     <br />
     <hr />
-
-    <h2><span class="title">NOD submissions by status and count</span></h2>
-    <table>
-      <thead>
-        <tr>
-            <th>Status</th>
-            <th>Count</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @report.nod_by_status_and_count.each do |status, count| %>
-          <tr>
-            <td class="right-align"><%= status %></td>
-            <td class="right-align"><%= count %></td>
-          </tr>
-        <% end %>
-      </tbody>
-    </table>
 
     <h2><span class="title">Faulty NOD</span></h2>
     <table>
