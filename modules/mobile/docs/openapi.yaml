@@ -147,6 +147,96 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/appointments/cancel:
+    put:
+      summary: /v0/appointments/cancel
+      description: Cancel an appointment by appointmentTime, clinicId, facilityId, and healthcareService. Note only VA appointments can be cancelled online and some VA facilities do not support online cancellation.
+      operationId: putCancelAppointment
+      security:
+        - Bearer: [ ]
+      requestBody:
+        description: appointmentTime, clinicId, facilityId, and healthcareService for the appointment
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#./schemas/AddressCreate.yml'
+            examples:
+              Using Suggested Address:
+                value:
+                  addressMetaData:
+                    confidenceScore: 100
+                    addressType: Domestic
+                    deliveryPointValidation: CONFIRMED
+                    residentialDeliveryIndicator: RESIDENTIAL
+                  addressLine1: "1493 Martin Luther King Rd"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  addressType: "DOMESTIC"
+                  addressPou: "RESIDENCE/CHOICE"
+              Using Overridden Address:
+                value:
+                  addressLine1: "1493 Martin Luther King Rd"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  addressType: "DOMESTIC"
+                  addressPou: "RESIDENCE/CHOICE"
+                  validationKey: -1206619807
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Appointments.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/military-service-history:
     get:
       summary: /v0/military-service-history
