@@ -13,12 +13,6 @@ module CypressViewportUpdater
     VIEW_ID = '176188361'
 
     def initialize
-      project_id = "NOT CREDSTASH SETTING: project_id: #{Settings.google_analytics_cvu.project_id}"
-      client_id = "CREDSTASH SETTING: client_id: #{Settings.google_analytics_cvu.client_id}"
-      Rails.logger = Logger.new(STDOUT)
-      Rails.logger.info(project_id)
-      Rails.logger.info(client_id)
-
       @analytics = AnalyticsReportingService.new
       @analytics.authorization = ServiceAccountCredentials.make_creds(
         json_key_io: StringIO.new(JSON_CREDENTIALS),
