@@ -33,7 +33,7 @@ RSpec.describe 'claims document upload', type: :request do
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
-    expect(File.exist?(Rails.root.join('tmp', 'uploads', 'cache', 'multifile.pdf'))).to eq(false)
+    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
   end
 
   it 'uploads multiple gif files' do
@@ -45,7 +45,7 @@ RSpec.describe 'claims document upload', type: :request do
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
-    expect(File.exist?(Rails.root.join('tmp', 'uploads', 'cache', 'multifile.pdf'))).to eq(false)
+    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
   end
 
   it 'uploads multiple mixed img files' do
@@ -57,7 +57,7 @@ RSpec.describe 'claims document upload', type: :request do
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
-    expect(File.exist?(Rails.root.join('tmp', 'uploads', 'cache', 'multifile.pdf'))).to eq(false)
+    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
   end
 
   it 'rejects files with invalid document_types' do

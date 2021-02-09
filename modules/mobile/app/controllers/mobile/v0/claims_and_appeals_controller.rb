@@ -6,19 +6,20 @@ require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
 require 'sentry_logging'
 require 'prawn'
+require 'fileutils'
 
 module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
-      TMP_BASE_PATH = Rails.root.join 'tmp', 'uploads', 'cache'
-      TMP_IMG_PATH = "#{TMP_BASE_PATH}tempFile.jpg"
-      TMP_PDF_FILENAME = 'multifile.pdf'
-      TMP_PDF_PATH = "#{TMP_BASE_PATH}#{TMP_PDF_FILENAME}"
+      UUID = SecureRandom.uuid
+      TMP_BASE_PATH = Rails.root.join 'tmp', 'uploads', 'cache', UUID
+      TMP_IMG_PATH = "#{TMP_BASE_PATH}/tempFile.jpg"
+      TMP_PDF_FILENAME = "multifile.pdf"
+      TMP_PDF_PATH = "#{TMP_BASE_PATH}/#{TMP_PDF_FILENAME}"
       before_action { authorize :evss, :access? }
       after_action do
-        File.delete(TMP_IMG_PATH) if File.exist?(TMP_IMG_PATH)
-        File.delete(TMP_PDF_PATH) if File.exist?(TMP_PDF_PATH)
+        FileUtils.rm_rf(TMP_BASE_PATH) if File.exist?(TMP_BASE_PATH)
       end
 
       def index
@@ -109,6 +110,7 @@ module Mobile
       private
 
       def generate_multi_image_pdf(image_list)
+        FileUtils.mkpath TMP_BASE_PATH
         Prawn::Document.generate(TMP_PDF_PATH) do |pdf|
           image_list.each do |img|
             File.open(TMP_IMG_PATH, 'wb') { |f| f.write Base64.decode64(img) }
