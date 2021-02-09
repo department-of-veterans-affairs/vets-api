@@ -88,8 +88,7 @@
 
     "nodCreateEmail": {
       "type": "string",
-      "pattern": ".@.",
-      "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
+      "format": "email"
     },
 
 
