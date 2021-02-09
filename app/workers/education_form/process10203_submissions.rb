@@ -96,12 +96,12 @@ module EducationForm
     # Ignore already processed either by CreateDailySpoolFiles or this job
     def update_automated_decision(submission, status, poa)
       if submission.processed_at.nil? &&
-          submission.education_stem_automated_decision&.automated_decision_state == INIT
+         submission.education_stem_automated_decision&.automated_decision_state == INIT
 
         submission.education_stem_automated_decision.update(
-        automated_decision_state: status,
-        poa: poa
-      )
+          automated_decision_state: status,
+          poa: poa
+        )
       end
     end
 
