@@ -32,7 +32,7 @@ RSpec.describe CypressViewportUpdater::GithubService do
   before do
     allow(OpenSSL::PKey::RSA).to receive(:new).and_return(true)
     allow(JWT).to receive(:encode).and_return(true)
-    allow_any_instance_of(Octokit::Client).to receive(:create_installation_access_token).and_return(%w[k v])
+    allow_any_instance_of(Octokit::Client).to receive(:create_installation_access_token).and_return([%w[k v]])
   end
 
   describe '#new' do
