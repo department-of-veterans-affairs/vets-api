@@ -15,7 +15,7 @@ module Mobile
       UUID = SecureRandom.uuid
       TMP_BASE_PATH = Rails.root.join 'tmp', 'uploads', 'cache', UUID
       TMP_IMG_PATH = "#{TMP_BASE_PATH}/tempFile.jpg"
-      TMP_PDF_FILENAME = "multifile.pdf"
+      TMP_PDF_FILENAME = 'multifile.pdf'
       TMP_PDF_PATH = "#{TMP_BASE_PATH}/#{TMP_PDF_FILENAME}"
       before_action { authorize :evss, :access? }
       after_action do
