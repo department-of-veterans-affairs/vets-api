@@ -30,38 +30,85 @@ RSpec.describe 'health_quest questionnaire_manager', type: :request do
 
     context 'health quest user' do
       let(:current_user) { build(:user, :health_quest) }
-      let(:id) { 'faae134c-9c7b-49d7-8161-10e314da4de1' }
       let(:session_store) { double('SessionStore', token: '123abc') }
-      let(:client_reply) do
-        double('FHIR::ClientReply', response: { body: { 'data' => [] } }, resource: default_client_reply)
+      let(:questionnaire_manager_data) do
+        {
+          data: [
+            {
+              appointment: {
+                id: 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
+                attributes: {
+                  facility_id: '534',
+                  clinic_id: '12975'
+                }
+              },
+              questionnaire: [
+                {
+                  id: 'abc-123-def-455',
+                  title: 'Primary Care',
+                  questionnaire_response: {
+                    id: 'abc-123-def-455',
+                    status: 'completed',
+                    submitted_on: '2021-02-01'
+                  }
+                },
+                {
+                  id: 'ccc-123-ddd-455',
+                  title: 'Donut Intake',
+                  questionnaire_response: {
+                    status: 'in-progress'
+                  }
+                }
+              ]
+            }
+          ]
+        }
       end
-      let(:questionnaire_client_reply) do
-        double('FHIR::ClientReply', resource: double('FHIR::ClientReply', entry: [{}]))
+      let(:output) do
+        {
+          'data' => [
+            {
+              'appointment' => {
+                'id' => 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
+                'attributes' => {
+                  'facility_id' => '534',
+                  'clinic_id' => '12975'
+                }
+              },
+              'questionnaire' => [
+                {
+                  'id' => 'abc-123-def-455',
+                  'title' => 'Primary Care',
+                  'questionnaire_response' => {
+                    'id' => 'abc-123-def-455',
+                    'status' => 'completed',
+                    'submitted_on' => '2021-02-01'
+                  }
+                },
+                {
+                  'id' => 'ccc-123-ddd-455',
+                  'title' => 'Donut Intake',
+                  'questionnaire_response' => {
+                    'status' => 'in-progress'
+                  }
+                }
+              ]
+            }
+          ]
+        }
       end
-      let(:questionnaire_response_client_reply) do
-        double('FHIR::ClientReply', resource: double('FHIR::ClientReply', entry: [{}, {}]))
-      end
-      let(:appointments) { { data: [{}, {}] } }
 
       before do
         sign_in_as(current_user)
         allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
-        allow_any_instance_of(HealthQuest::QuestionnaireManager::Transformer)
-          .to receive(:get_use_context).with(anything).and_return('venue$583/12345')
-        allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
-          .to receive(:get).with(anything).and_return(client_reply)
-        allow_any_instance_of(HealthQuest::PatientGeneratedData::Questionnaire::MapQuery)
-          .to receive(:search).with(anything).and_return(questionnaire_client_reply)
-        allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
-          .to receive(:search).with(anything).and_return(questionnaire_response_client_reply)
-        allow_any_instance_of(HealthQuest::AppointmentService)
-          .to receive(:get_appointments).with(anything, anything).and_return(appointments)
+        allow_any_instance_of(HealthQuest::QuestionnaireManager::Factory).to receive(:all)
+          .and_return(questionnaire_manager_data)
       end
 
-      it 'returns a WIP response' do
+      it 'returns a formatted hash response' do
         get '/health_quest/v0/questionnaire_manager'
 
-        expect(JSON.parse(response.body)).to eq({ 'data' => 'WIP' })
+        expect(JSON.parse(response.body)).to eq(output)
       end
     end
   end

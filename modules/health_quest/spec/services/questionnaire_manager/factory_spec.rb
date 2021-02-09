@@ -109,17 +109,20 @@ describe HealthQuest::QuestionnaireManager::Factory do
         expect(factory.patient).to eq(fhir_patient)
       end
     end
+  end
 
-    context 'when patient and appointment and questionnaires and questionnaire_responses and sip data exist' do
-      let(:fhir_patient) { double('FHIR::Patient') }
-      let(:client_reply) { double('FHIR::ClientReply', resource: fhir_patient) }
-      let(:fhir_questionnaire_bundle) { fhir_data }
+  describe '#get_use_context' do
+    let(:data) do
+      [
+        double('Appointments', facility_id: '123', clinic_id: '54679'),
+        double('Appointments', facility_id: '789', clinic_id: '98741')
+      ]
+    end
 
-      it 'returns a WIP hash' do
-        hash = { data: 'WIP' }
+    it 'returns a formatted use-context string' do
+      allow_any_instance_of(described_class).to receive(:appointments).and_return(data)
 
-        expect(described_class.manufacture(user).all).to eq(hash)
-      end
+      expect(described_class.manufacture(user).get_use_context).to eq('venue$123/54679,venue$789/98741')
     end
   end
 
@@ -138,8 +141,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
     it 'returns a FHIR::ClientReply' do
       allow_any_instance_of(HealthQuest::PatientGeneratedData::Questionnaire::MapQuery)
         .to receive(:search).with(anything).and_return(client_reply)
-      allow_any_instance_of(HealthQuest::QuestionnaireManager::Transformer)
-        .to receive(:get_use_context).with(anything).and_return('venue$583/12345')
+      allow_any_instance_of(described_class).to receive(:get_use_context).and_return('venue$583/12345')
 
       expect(described_class.manufacture(user).get_questionnaires).to eq(client_reply)
     end
@@ -167,14 +169,6 @@ describe HealthQuest::QuestionnaireManager::Factory do
   describe '#get_save_in_progress' do
     it 'returns an empty array when user does not exist' do
       expect(described_class.manufacture(user).get_save_in_progress).to eq([])
-    end
-  end
-
-  describe '#compose' do
-    it 'returns a WIP hash' do
-      hash = { data: 'WIP' }
-
-      expect(described_class.manufacture(user).compose).to eq(hash)
     end
   end
 end
