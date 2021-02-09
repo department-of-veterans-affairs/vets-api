@@ -80,6 +80,7 @@ module EducationForm
     # Retrieve EVSS gi_bill_status data for a user
     def get_gi_bill_status(auth_headers)
       return {} if auth_headers.nil?
+
       service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
       service.get_gi_bill_status(auth_headers)
     rescue => e
@@ -90,6 +91,7 @@ module EducationForm
     # Retrieve poa status fromEVSS VSOSearch for a user
     def get_user_poa_status(auth_headers)
       return nil if auth_headers.nil?
+
       service = EVSS::VSOSearch::Service.new(nil, auth_headers)
       service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
