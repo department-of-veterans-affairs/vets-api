@@ -208,6 +208,12 @@ en:
           detail: "'%{value}' is not an available option"
           code: 141
           status: 422
+        const:
+          <<: *defaults
+          title: Invalid value
+          detail: "'%{value}' does not match the provided const"
+          code: 148
+          status: 422
         length:
           <<: *defaults
           title: Invalid length
@@ -216,8 +222,8 @@ en:
           status: 422
         pattern:
           <<: *defaults
-          title: Invalid format
-          detail: "'%{value}' did not match the defined format"
+          title: Invalid pattern
+          detail: "'%{value}' did not match the defined pattern"
           code: 143
           status: 422
         range:
@@ -243,6 +249,12 @@ en:
           title: Invalid array
           detail: "The %{size} items provided did not match the definition"
           code: 147
+          status: 422
+        format:
+          <<: *defaults
+          title: Invalid format
+          detail: "'%{value}' did not match the defined format"
+          code: 149
           status: 422
 
 # EXTERNAL EXCEPTIONS
