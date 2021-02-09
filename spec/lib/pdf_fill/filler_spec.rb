@@ -154,7 +154,9 @@ describe PdfFill::Filler, type: :model do
 
                 File.delete(extras_path)
               end
-
+              unless pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+                binding.pry
+              end
               expect(
                 pdfs_fields_match?(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)

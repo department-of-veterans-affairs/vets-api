@@ -239,7 +239,8 @@ module PdfFill
           ssn = ssn.delete('-')
           veteran_information['ssn'] = split_ssn(ssn)
           va_file_number = veteran_information['VAFileNumber']
-          veteran_information['vaFileNumber'] = '' if ssn == va_file_number
+
+          veteran_information['VAFileNumber'] = '' if ssn == va_file_number
         end
 
         # extract birth date
@@ -277,7 +278,7 @@ module PdfFill
       end
 
       def merge_preferences_helpers
-        @form_data['useEva'] = @form_data['use_eva'] ? 'Yes' : 'No'
+        @form_data['useEva'] = @form_data['useEva'] ? 'Yes' : 'No'
         @form_data['useTelecounseling'] = @form_data['useTelecounseling'] ? 'Yes' : 'No'
         @form_data['appointmentTimePreferences'] = set_appointment_time_preferences
       end
@@ -285,12 +286,12 @@ module PdfFill
       def set_appointment_time_preferences
         times = @form_data['appointmentTimePreferences'] # ex. {'morning'=>true, 'mid_day'=>false, 'afternoon'=>false}
         counseling_hours = {
-          'morning' => 'Mornings 6:00 to 10:00 a.m.',
-          'midday' => 'Midday 10:00 a.m. to 2:00 p.m.',
-          'afternoon' => 'Afternoons 2:00 to 6:00 p.m.'
+          'morning' => "Mornings 6:00 to 10:00 a.m.\n",
+          'midday' => "Midday 10:00 a.m. to 2:00 p.m.\n",
+          'afternoon' => "Afternoons 2:00 to 6:00 p.m.\n"
         }
 
-        times.map { |time| counseling_hours[time] }.join("\n")
+        times.map { |time| counseling_hours[time] }.join('')
       end
     end
   end
