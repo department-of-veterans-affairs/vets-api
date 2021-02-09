@@ -10,6 +10,8 @@ module ClaimsApi
             security [{ bearer_token: [] }]
           end
           post '/' do
+            status 202
+
             raise 'NotImplemented'
           end
         end

@@ -60,22 +60,30 @@ module ClaimsApi
         end
 
         resource 'forms/526' do
-          desc 'Submit a claim.', body_name: 'post_body' do
+          desc 'Submit a claim.' do
             body_name 'data'
-            success ClaimsApi::Entities::V2::ClaimSubmittedEntity
+            success code: 202, model: ClaimsApi::Entities::V2::ClaimSubmittedEntity
+            failure [
+              [401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity'],
+              [400, 'Bad Request', 'ClaimsApi::Entities::V2::ErrorsEntity']
+            ]
             tags ['Disability']
             security [{ bearer_token: [] }]
           end
           params do
-            optional :type, type: String, documentation: { param_type: 'body' }
-            requires :attributes, type: Hash do
-              requires :veteran, type: Hash do
-                requires :currentlyVAEmployee, type: Boolean
-                # TODO: define necessary schema here
+            requires :data, type: Hash do
+              optional :type, type: String, documentation: { param_type: 'body' }
+              requires :attributes, type: Hash do
+                requires :veteran, type: Hash do
+                  requires :currentlyVAEmployee, type: Boolean
+                  # TODO: define necessary schema here
+                end
               end
             end
           end
           post '/' do
+            status 202
+
             auto_claim = ClaimsApi::AutoEstablishedClaim.create(
               status: ClaimsApi::AutoEstablishedClaim::PENDING,
               auth_headers: auth_headers,
