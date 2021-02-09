@@ -20,6 +20,17 @@ module V0
       render(json: claim.education_benefits_claim)
     end
 
+    def application_status
+      current_applications = []
+      load_user
+
+      if !user.nil?
+
+      end
+
+      render(json: current_applications)
+    end
+
     private
 
     def form_type
