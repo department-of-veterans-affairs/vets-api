@@ -29,23 +29,20 @@ RSpec.describe CypressViewportUpdater::GoogleAnalyticsReports do
     end
   end
 
+  before do
+    allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds) { true }
+  end
+
   describe '#new' do
     it 'returns a new instance' do
-      google_analytics = nil
-
-      VCR.use_cassette('cypress_viewport_updater/google_analytics_new') do
-        google_analytics = CypressViewportUpdater::GoogleAnalyticsReports.new
-      end
-
+      google_analytics = CypressViewportUpdater::GoogleAnalyticsReports.new
       expect(google_analytics).to be_an_instance_of(described_class)
     end
   end
 
   describe 'before #request_report is called' do
     before do
-      VCR.use_cassette('cypress_viewport_updater/google_analytics_new') do
-        @google_analytics = CypressViewportUpdater::GoogleAnalyticsReports.new
-      end
+      @google_analytics = CypressViewportUpdater::GoogleAnalyticsReports.new
     end
 
     describe '#user_report' do
