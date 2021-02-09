@@ -33,7 +33,10 @@ RSpec.describe CypressViewportUpdater::ViewportPresetJsFile do
 
     # the following filter is used on responses from
     # https://api.github.com/app/installations/14176090/access_tokens
-    c.filter_sensitive_data('{"token":"removed","expires_at":"2021-02-02T18:24:37Z","permissions":{"contents":"write","metadata":"read","pull_requests":"write"},"repository_selection":"selected"}') do |interaction|
+    string = '{"token":"removed","expires_at":"2021-02-02T18:24:37Z",'\
+             '"permissions":{"contents":"write","metadata":"read","pull_requests":"write"},'\
+             '"repository_selection":"selected"}'
+    c.filter_sensitive_data(string) do |interaction|
       if (match = interaction.response.body.match(/^{\"token.+/))
         match[0]
       end
@@ -48,6 +51,14 @@ RSpec.describe CypressViewportUpdater::ViewportPresetJsFile do
 
   describe '#update' do
     before do
+      # stub method in GoogleAnalyticsReports#new
+      allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds).and_return(true)
+
+      # stub methods in GithubService#new
+      allow(OpenSSL::PKey::RSA).to receive(:new).and_return(true)
+      allow(JWT).to receive(:encode).and_return(true)
+      allow_any_instance_of(Octokit::Client).to receive(:create_installation_access_token).and_return([%w[k v]])
+
       google = VCR.use_cassette('cypress_viewport_updater/google_analytics_after_request_report') do
         CypressViewportUpdater::GoogleAnalyticsReports
           .new
