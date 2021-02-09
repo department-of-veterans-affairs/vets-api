@@ -130,6 +130,11 @@ AppealsApi::DecisionReviewReportWeekly:
   class: AppealsApi::DecisionReviewReportWeekly
   description: "Weekly report of appeals submissions"
 
+AppealsApi::DailyErrorReport:
+  cron: "0 0 * * MON-FRI America/New_York"
+  class: AppealsApi::DailyErrorReport
+  description: "Daily report of appeals errors"
+
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
   every: ['24h', first_in: '45m']
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
