@@ -4,7 +4,7 @@ module CypressViewportUpdater
   class GithubService
     include SentryLogging
 
-    PRIVATE_KEY = OpenSSL::PKey::RSA.new(Settings.github_cvu.private_pem].gsub('\n', "\n"))
+    PRIVATE_KEY = OpenSSL::PKey::RSA.new(Settings.github_cvu.private_pem.gsub('\n', "\n"))
     INSTALLATION_ID = Settings.github_cvu.installation_id
     INTEGRATION_ID = Settings.github_cvu.integration_id
     REPO = 'department-of-veterans-affairs/vets-website'
