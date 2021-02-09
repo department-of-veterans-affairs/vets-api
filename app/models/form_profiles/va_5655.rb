@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'debt_management_center/models/va_awards_composite'
+require 'debt_management_center/payments_service'
 
 ##
 # Form Profile for VA Form 5655, the Financial Status Report Form
@@ -27,7 +28,7 @@ class FormProfiles::VA5655 < FormProfile
   # @return [Hash]
   #
   def prefill
-    @va_awards_composite = init_va_awards
+    @payments = init_payments
     super
   end
 
@@ -40,13 +41,13 @@ class FormProfiles::VA5655 < FormProfile
     )&.last(4)
   end
 
-  def init_va_awards
-    awards = BGS::AwardsService.new(user)
+  def init_payments
+    payments = DebtManagementCenter::Payments.new(user)
 
-    DebtManagementCenter::VaAwardsComposite.new(
-      name: 'VA Benefits',
-      amount: awards.gross_amount,
-      veteran_or_spouse: 'VETERAN'
-    )
+    {
+      veteran_or_spouse: 'VETERAN',
+      compensation_amount: payments.compensation_and_pension.last['payment_amount'],
+      education_amount: payments.education.last['payment_amount']
+    }
   end
 end
