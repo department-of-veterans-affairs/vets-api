@@ -57,12 +57,12 @@ unless ENV['NOCOVERAGE']
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
     add_group 'Swagger', 'app/swagger'
-    add_group 'Uploaders', 'app/uploaders'
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
+    add_group 'Uploaders', 'app/uploaders'
+    add_group 'VAOS', 'modules/vaos/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
-    add_group 'VAOS', 'modules/vaos/'
     # End Modules
 
     SimpleCov.minimum_coverage_by_file 90 unless ENV['CIRCLE_JOB']
