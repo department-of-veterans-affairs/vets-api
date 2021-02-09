@@ -4,16 +4,16 @@ module CypressViewportUpdater
   class GithubService
     include SentryLogging
 
-    PRIVATE_KEY = OpenSSL::PKey::RSA.new(Settings.github_cvu.private_pem.gsub('\n', "\n"))
-    INSTALLATION_ID = Settings.github_cvu.installation_id
-    INTEGRATION_ID = Settings.github_cvu.integration_id
     REPO = 'department-of-veterans-affairs/vets-website'
 
     attr_reader :client, :feature_branch_name
 
     def initialize
+      @private_key = OpenSSL::PKey::RSA.new(Settings.github_cvu.private_pem&.gsub('\n', "\n"))
+      @installation_id = Settings.github_cvu.installation_id
+      @integration_id = Settings.github_cvu.integration_id
       @client = Octokit::Client.new(bearer_token: new_jwt_token)
-      response = @client.create_installation_access_token(INSTALLATION_ID,
+      response = @client.create_installation_access_token(@installation_id,
                                                           accept: 'application/vnd.github.v3+json')
       @client.bearer_token = response.to_h[:token]
     end
@@ -73,10 +73,10 @@ module CypressViewportUpdater
         # JWT expiration time (10 minute maximum)
         exp: Time.now.to_i + (10 * 60),
         # GitHub App's identifier
-        iss: INTEGRATION_ID
+        iss: @integration_id
       }
 
-      JWT.encode(payload, PRIVATE_KEY, 'RS256')
+      JWT.encode(payload, @private_key, 'RS256')
     end
 
     def set_feature_branch_name
