@@ -30,7 +30,7 @@ RSpec.describe CypressViewportUpdater::GoogleAnalyticsReports do
   end
 
   before do
-    allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds) { true }
+    allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds).and_return(true)
   end
 
   describe '#new' do
