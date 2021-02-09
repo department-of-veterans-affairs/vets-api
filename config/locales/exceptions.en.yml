@@ -222,8 +222,8 @@ en:
           status: 422
         pattern:
           <<: *defaults
-          title: Invalid format
-          detail: "'%{value}' did not match the defined format"
+          title: Invalid pattern
+          detail: "'%{value}' did not match the defined pattern"
           code: 143
           status: 422
         range:
@@ -249,6 +249,12 @@ en:
           title: Invalid array
           detail: "The %{size} items provided did not match the definition"
           code: 147
+          status: 422
+        format:
+          <<: *defaults
+          title: Invalid format
+          detail: "'%{value}' did not match the defined format"
+          code: 149
           status: 422
 
 # EXTERNAL EXCEPTIONS
