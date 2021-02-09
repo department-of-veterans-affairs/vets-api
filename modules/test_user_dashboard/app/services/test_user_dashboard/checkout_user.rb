@@ -9,7 +9,7 @@ module TestUserDashboard
     end
 
     def call
-      tud_account.update!(checkout_time: Time.current)
+      tud_account&.update!(checkout_time: Time.current)
     end
   end
 end
