@@ -17,6 +17,7 @@ module Mobile
       TMP_IMG_PATH = "#{TMP_BASE_PATH}/tempFile.jpg"
       TMP_PDF_FILENAME = 'multifile.pdf'
       TMP_PDF_PATH = "#{TMP_BASE_PATH}/#{TMP_PDF_FILENAME}"
+      STATSD_UPLOAD_LATENCY = 'mobile.api.claims.upload.latency'
       before_action { authorize :evss, :access? }
       after_action do
         FileUtils.rm_rf(TMP_BASE_PATH) if File.exist?(TMP_BASE_PATH)
@@ -83,27 +84,23 @@ module Mobile
       end
 
       def upload_documents
+        start_timer = Time.zone.now
         params.require :file
-        claim = claims_scope.find_by(evss_id: params[:id])
-        raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+        id = params[:id]
+        file = params[:file]
+        claim = claims_scope.find_by(evss_id: id)
+        raise Common::Exceptions::RecordNotFound, id unless claim
 
-        file_to_upload = params[:multifile] ? generate_multi_image_pdf(params[:file]) : params[:file]
-        document_data = EVSSClaimDocument.new(
-          evss_claim_id: claim.evss_id,
-          file_obj: file_to_upload,
-          uuid: SecureRandom.uuid,
-          file_name: file_to_upload.original_filename,
-          tracked_item_id: params[:tracked_item_id],
-          document_type: params[:document_type],
-          password: params[:password]
-        )
+        file_to_upload = params[:multifile] ? generate_multi_image_pdf(file) : file
+        document_data = EVSSClaimDocument.new(evss_claim_id: id, file_obj: file_to_upload,
+                                              uuid: SecureRandom.uuid, file_name: file_to_upload.original_filename,
+                                              tracked_item_id: params[:tracked_item_id],
+                                              document_type: params[:document_type], password: params[:password])
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
         jid = evss_claim_service.upload_document(document_data)
-        Rails.logger.info('Mobile Request', {
-                            claim_id: params[:id],
-                            job_id: jid
-                          })
+        Rails.logger.info('Mobile Request', { claim_id: id, job_id: jid })
+        StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ["is_multifile:#{params[:multifile]}"])
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
