@@ -66,13 +66,17 @@ module V0
       Rails.logger.info(
         'Creating 526 submission', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id
       )
-      Form526Submission.create_with_birls_ids!(
-        user_uuid: @current_user.uuid,
-        saved_claim_id: saved_claim.id,
-        auth_headers_json: auth_headers.to_json,
-        birls_ids: @current_user.mpi&.profile&.birls_ids,
-        form_json: saved_claim.to_submission_data(@current_user)
-      )
+      ActiveRecord::Base.transaction do
+        submission = Form526Submission.create!(
+          user_uuid: @current_user.uuid,
+          saved_claim_id: saved_claim.id,
+          auth_headers_json: auth_headers.to_json,
+          form_json: saved_claim.to_submission_data(@current_user)
+        )
+        submission.add_birls_ids @current_user.mpi&.profile&.birls_ids
+        save!
+        submission
+      end
     rescue PG::NotNullViolation => e
       Rails.logger.error(
         'Creating 526 submission: PG::NotNullViolation', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id

@@ -47,36 +47,7 @@ class Form526Submission < ApplicationRecord
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
-
-  class << self
-    def create_with_birls_ids!(*args, **kwargs)
-      ActiveRecord::Base.transaction do
-        raise Error, 'does not support blocks' if block_given?
-
-        key = birls_ids_key(kwargs)
-        return create!(*args, **kwargs) if key.blank?
-
-        birls_ids = Array.wrap kwargs[key]
-        kwargs = kwargs.except key
-        return create!(*args, **kwargs) if birls_ids.blank?
-
-        submission = create!(*args, **kwargs)
-        submission.multiple_birls = true if birls_ids.length > 1
-        submission.birls_ids_tried ||= {}
-        birls_ids.each { |id| submission.birls_ids_tried[id] ||= [] }
-
-        raise Error, 'failed to save' unless save!
-
-        submission
-      end
-    end
-
-    def birls_ids_key(hash)
-      raise Error, 'both "birls_ids" and :birls_ids present' if hash.key?(:birls_ids) && hash.key?('birls_ids')
-      return :birls_ids if hash.key?(:birls_ids)
-      return 'birls_ids' if hash.key?('birls_ids')
-    end
-  end
+  BIRLS_KEY = 'va_eauth_birlsfilenumber'
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
@@ -162,7 +133,7 @@ class Form526Submission < ApplicationRecord
 
   # allows auth_headers to raise an exception (JSON.parse nil)
   def birls_id!
-    auth_headers['va_eauth_birlsfilenumber']
+    auth_headers[BIRLS_KEY]
   end
 
   def birls_id
@@ -171,21 +142,33 @@ class Form526Submission < ApplicationRecord
 
   def birls_id=(value)
     headers = JSON.parse auth_headers_json
-    headers['va_eauth_birlsfilenumber'] = value
+    headers[BIRLS_KEY] = value
     self.auth_headers_json = headers.to_json
     @auth_headers_hash = nil # reset cache
   end
 
-  def mark_birls_id_as_tried(id = birls_id!, timestamp_string: Time.zone.now.iso8601.to_s)
+  # this method can be used to set up the birls_ids_tried hash
+  #
+  def add_birls_ids(ids)
     self.birls_ids_tried ||= {}
-    self.birls_ids_tried[id] ||= []
+    Array.wrap(ids).each { |id| self.birls_ids_tried[id] ||= [] }
+    self.multiple_birls = true if birls_ids.length > 1
+    ids
+  end
+
+  def birls_ids
+    [*self.birls_ids_tried&.keys, birls_id].compact.uniq
+  end
+
+  def mark_birls_id_as_tried(id = birls_id!, timestamp_string: Time.zone.now.iso8601.to_s)
+    add_birls_ids id
     self.birls_ids_tried[id] << timestamp_string
-    self.multiple_birls = true if birls_ids_tried.keys.length > 1
     timestamp_string
   end
 
   def birls_ids_that_havent_been_tried_yet
-    (birls_ids_tried || {}).select { |_, timestamps| timestamps.blank? }.keys
+    add_birls_ids birls_id if birls_id
+    (birls_ids_tried || {}).select { |_id, timestamps| timestamps.blank? }.keys
   end
 
   # The workflow batch success handler
