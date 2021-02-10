@@ -436,58 +436,11 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe '#all_birls_ids_for_veteran' do
-    before { Settings.mvi.edipi_search = true }
-
-    it 'returns all BIRLS IDs for the veteran' do
-      VCR.use_cassette('mpi/find_candidate/multiple_birls') do
-        expect(subject.send(:all_birls_ids_for_veteran).length).to be > 1
-      end
-    end
-  end
-
-  describe '#mpi_profile' do
-    before { Settings.mvi.edipi_search = true }
-
-    it 'looks up the veteran' do
-      VCR.use_cassette('mpi/find_candidate/valid') do
-        expect(subject.send(:mpi_profile)).to be_truthy
-      end
-    end
-  end
-
-  describe '#edipi' do
-    it('returns the edipi') { expect(subject.send(:edipi)).to be_truthy }
-
-    context 'no auth_headers' do
-      it('returns nil') { expect(Form526Submission.new.send(:edipi)).to be_nil }
-    end
-  end
-
   describe '#birls_id' do
     it('returns the birls_id') { expect(subject.send(:birls_id)).to be_truthy }
 
     context 'no auth_headers' do
       it('returns nil') { expect(Form526Submission.new.send(:birls_id)).to be_nil }
-    end
-  end
-
-  describe '#icn' do
-    it 'returns the icn by looking up the account' do
-      icn = '1234433455'
-      create :account, edipi: subject.send(:edipi), icn: icn
-      expect(subject.send(:icn)).to eq(icn)
-    end
-
-    it 'returns an icn even if multiple accounts match (as long as they all have the same icn)' do
-      icn = '1234433455'
-      create_list :account, 2, edipi: subject.send(:edipi), icn: icn
-      expect(subject.send(:icn)).to eq(icn)
-    end
-
-    it 'throws an error when multiple unique icns are found for the edipi' do
-      2.times { |i| create :account, edipi: subject.send(:edipi), icn: i }
-      expect { subject.send(:icn) }.to raise_error Form526Submission::Error
     end
   end
 end
