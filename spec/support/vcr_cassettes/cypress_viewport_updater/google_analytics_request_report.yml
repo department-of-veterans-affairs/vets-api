@@ -5,7 +5,7 @@ http_interactions:
     uri: https://www.googleapis.com/oauth2/v4/token
     body:
       encoding: ASCII-8BIT
-      string: removed
+      string: grant_type
     headers:
       User-Agent:
       - Faraday v0.17.0
@@ -27,7 +27,7 @@ http_interactions:
       - Referer
       - X-Origin
       Date:
-      - Wed, 03 Feb 2021 13:44:37 GMT
+      - Wed, 10 Feb 2021 18:52:26 GMT
       Server:
       - scaffolding on HTTPServer2
       Cache-Control:
@@ -46,7 +46,7 @@ http_interactions:
     body:
       encoding: ASCII-8BIT
       string: '{"access_token":"removed","expires_in":3599,"token_type":"Bearer"}'
-  recorded_at: Wed, 03 Feb 2021 13:44:37 GMT
+  recorded_at: Wed, 10 Feb 2021 18:52:26 GMT
 - request:
     method: post
     uri: https://analyticsreporting.googleapis.com/v4/reports:batchGet
@@ -61,7 +61,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Wed, 03 Feb 2021 13:44:37 GMT
+      - Wed, 10 Feb 2021 18:52:26 GMT
       X-Goog-Api-Client:
       - gl-ruby/2.6.6 gdcl/0.52.0
       Content-Type:
@@ -82,7 +82,7 @@ http_interactions:
       Content-Encoding:
       - gzip
       Date:
-      - Wed, 03 Feb 2021 13:44:37 GMT
+      - Wed, 10 Feb 2021 18:52:26 GMT
       Server:
       - ESF
       Cache-Control:
@@ -1503,5 +1503,5 @@ http_interactions:
             }
           ]
         }
-  recorded_at: Wed, 03 Feb 2021 13:44:37 GMT
+  recorded_at: Wed, 10 Feb 2021 18:52:26 GMT
 recorded_with: VCR 6.0.0
