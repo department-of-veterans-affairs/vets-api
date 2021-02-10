@@ -5,16 +5,19 @@ module V0
     include IgnoreNotFound
 
     def index
+binding.pry
       # :unaltered prevents the keys from being deeply transformed, which might corrupt some keys
       # see https://github.com/department-of-veterans-affairs/va.gov-team/issues/17595 for more details
       render json: InProgressForm.where(user_uuid: @current_user.uuid), key_transform: :unaltered
     end
 
     def show
+binding.pry
       render json: form_for_user&.data_and_metadata || camelized_prefill_for_user
     end
 
     def update
+binding.pry
       form = InProgressForm.where(form_id: form_id, user_uuid: @current_user.uuid).first_or_initialize
       form.update!(form_data: params[:form_data] || params[:formData], metadata: params[:metadata])
       render json: form, key_transform: :unaltered

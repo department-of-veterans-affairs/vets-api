@@ -26,5 +26,7 @@ module BGS
     rescue => e
       report_error(e)
     end
+
+    private
   end
 end
