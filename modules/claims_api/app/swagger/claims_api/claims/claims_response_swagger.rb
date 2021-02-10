@@ -301,10 +301,10 @@ module ClaimsApi
                 '"Claim received"',
                 '"Complete"',
                 '"Initial review"',
-                '"Errored"',
                 '"Evidence gathering, review, and decision"',
-                '"Pending"',
-                '"Preparation for notification"'
+                '"Preparation for notification"',
+                '"errored"',
+                '"pending"'
               ]
             end
           end
