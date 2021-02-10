@@ -26,12 +26,20 @@ describe Mobile::V0::Adapters::VAAppointments do
   context 'with a booked VA appointment' do
     let(:booked_va) { adapted_appointments[0] }
 
+    it 'has an id' do
+      expect(booked_va[:id]).to eq('202006031600983000030800000000000000')
+    end
+
     it 'has a type of VA' do
       expect(booked_va[:appointment_type]).to eq('VA')
     end
 
     it 'has a comment' do
       expect(booked_va[:comment]).to eq('RP test')
+    end
+
+    it 'has a clinic_id' do
+      expect(booked_va[:clinic_id]).to eq('308')
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -89,12 +97,20 @@ describe Mobile::V0::Adapters::VAAppointments do
   context 'with a cancelled VA appointment' do
     let(:cancelled_va) { adapted_appointments[1] }
 
+    it 'has an id' do
+      expect(cancelled_va[:id]).to eq('202006032020983000030800000000000000')
+    end
+
     it 'has a type of VA' do
       expect(cancelled_va[:appointment_type]).to eq('VA')
     end
 
     it 'does not have comment' do
       expect(cancelled_va[:comment]).to be_nil
+    end
+
+    it 'has a clinic_id' do
+      expect(cancelled_va[:clinic_id]).to eq('308')
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -152,12 +168,20 @@ describe Mobile::V0::Adapters::VAAppointments do
   context 'with a booked home video appointment' do
     let(:booked_video_home) { adapted_appointments[7] }
 
+    it 'has an id' do
+      expect(booked_video_home[:id]).to eq('202006111600983000045500000000000000')
+    end
+
     it 'has a type of VA_VIDEO_CONNECT_HOME' do
       expect(booked_video_home[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
     end
 
     it 'does not have comment' do
       expect(booked_video_home[:comment]).to be_nil
+    end
+
+    it 'does not have a clinic_id' do
+      expect(booked_video_home[:clinic_id]).to be_nil
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -215,12 +239,20 @@ describe Mobile::V0::Adapters::VAAppointments do
   context 'with a booked atlas appointment' do
     let(:booked_video_atlas) { adapted_appointments[8] }
 
+    it 'has an id' do
+      expect(booked_video_atlas[:id]).to eq('202006141600983000094500000000000000')
+    end
+
     it 'has a type of VA' do
       expect(booked_video_atlas[:appointment_type]).to eq('VA_VIDEO_CONNECT_ATLAS')
     end
 
     it 'has no comment' do
       expect(booked_video_atlas[:comment]).to be_nil
+    end
+
+    it 'has a clinic_id' do
+      expect(booked_video_atlas[:clinic_id]).to eq('1234')
     end
 
     it 'has a facility_id that matches the parent facility id' do
@@ -278,12 +310,20 @@ describe Mobile::V0::Adapters::VAAppointments do
   context 'with a booked video appointment on VA furnished equipment' do
     let(:booked_video_gfe) { adapted_appointments[9] }
 
+    it 'has an id' do
+      expect(booked_video_gfe[:id]).to eq('202006151200984000118400000000000000')
+    end
+
     it 'has a type of VA' do
       expect(booked_video_gfe[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
     end
 
     it 'has a comment' do
       expect(booked_video_gfe[:comment]).to eq('Medication Review')
+    end
+
+    it 'has does not have a clinic_id' do
+      expect(booked_video_gfe[:clinic_id]).to be_nil
     end
 
     it 'has a facility_id that matches the parent facility id' do

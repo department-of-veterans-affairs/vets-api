@@ -4,6 +4,7 @@ required:
   - countryCode
   - phoneNumber
   - phoneType
+  - extension
 properties:
   id:
     type: integer
@@ -21,3 +22,6 @@ properties:
     type: string
     enum: [ "HOME", "FAX", "MOBILE", "WORK" ]
     example: "HOME"
+  extension:
+    type: string
+    example: "4567"

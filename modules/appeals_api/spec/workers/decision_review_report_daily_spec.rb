@@ -5,7 +5,7 @@ require 'rails_helper'
 describe AppealsApi::DecisionReviewReportDaily, type: :job do
   describe '#perform' do
     it 'sends mail' do
-      with_settings(Settings.modules_appeals_api, report_enabled: true) do
+      with_settings(Settings.modules_appeals_api.reports.decision_review, enabled: true) do
         Timecop.freeze
         date_to = Time.zone.now
         date_from = date_to.monday? ? 3.days.ago : 1.day.ago

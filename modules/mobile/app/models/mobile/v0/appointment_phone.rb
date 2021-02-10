@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-p # frozen_string_literal: true
-
 require 'common/models/resource'
 
 module Mobile
