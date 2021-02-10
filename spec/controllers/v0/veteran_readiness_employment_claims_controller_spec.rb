@@ -20,9 +20,13 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
   end
 
   describe 'POST create' do
+    before(:each) do
+      allow(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
+    end
     context 'logged in ' do
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+
           sign_in_as(loa3_user)
 
           form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
