@@ -24,12 +24,12 @@ module DebtManagementCenter
                'Education'
              end
 
-      @payments.select { |payment| payment['payment_type'] == type }
+      selected_payments = @payments.select { |payment| payment['payment_type'] == type }
 
-      if @payments.empty?
+      if selected_payments.empty?
         nil
       else
-        @payments.sort { |a, b| a['payment_date'] <=> b['payment_date'] }
+        selected_payments.sort { |a, b| a['payment_date'] <=> b['payment_date'] }
       end
     end
   end
