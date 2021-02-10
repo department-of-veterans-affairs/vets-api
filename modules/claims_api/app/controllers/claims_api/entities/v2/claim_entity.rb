@@ -8,12 +8,6 @@ module ClaimsApi
                     } do |instance, _options|
           valid_identifier(instance)
         end
-        expose :self, documentation: {
-                        type: String,
-                        example: 'https://api.va.gov/services/claims/v2/claims/6dca620c-e737-4168-a9d1-5aac85fec915'
-                      } do |instance, options|
-          "#{options[:base_url]}/services/claims/v2/claims/#{valid_identifier(instance)}"
-        end
         expose :status, documentation: {
                           type: String,
                           example: 'pending'
@@ -31,6 +25,13 @@ module ClaimsApi
               instance.list_data['status_type']
             end
           end
+        end
+        expose '@links', using: ClaimsApi::Entities::V2::LinkEntity do |instance, options|
+          [
+            { rel: 'self',
+              type: 'GET',
+              url: "#{options[:base_url]}/services/claims/v2/claims/#{valid_identifier(instance)}" }
+          ]
         end
 
         private

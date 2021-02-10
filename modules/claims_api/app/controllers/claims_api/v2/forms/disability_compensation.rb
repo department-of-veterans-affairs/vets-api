@@ -62,7 +62,7 @@ module ClaimsApi
         resource 'forms/526' do
           desc 'Submit a claim.' do
             body_name 'data'
-            success code: 202, model: ClaimsApi::Entities::V2::ClaimSubmittedEntity
+            success code: 202, model: ClaimsApi::Entities::V2::DisabilityClaimSubmittedEntity
             failure [
               [401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity'],
               [400, 'Bad Request', 'ClaimsApi::Entities::V2::ErrorsEntity']
@@ -103,7 +103,27 @@ module ClaimsApi
 
             ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
-            present auto_claim, with: ClaimsApi::Entities::V2::ClaimSubmittedEntity, base_url: request.base_url
+            present auto_claim, with: ClaimsApi::Entities::V2::DisabilityClaimSubmittedEntity, base_url: request.base_url
+          end
+
+          desc 'Submit a claim attachment.' do
+            success code: 202, model: ClaimsApi::Entities::V2::DisabilityClaimSubmittedEntity
+            failure [
+              [401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity'],
+              [400, 'Bad Request', 'ClaimsApi::Entities::V2::ErrorsEntity']
+            ]
+            tags ['Disability']
+            security [{ bearer_token: [] }]
+          end
+          params do
+            requires :id, type: String, desc: 'Unique claim identifier.'
+          end
+          route_param :id do
+            post :attachments do
+              status 202
+
+              raise 'NotImplemented'
+            end
           end
         end
       end
