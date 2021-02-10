@@ -40,7 +40,6 @@ class Form526Submission < ApplicationRecord
 
   validates(:auth_headers_json, presence: true)
 
-  class Error < StandardError; end
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
   FORM_4142 = 'form4142'
