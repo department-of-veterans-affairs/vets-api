@@ -53,7 +53,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     options_hash = {}
     options_hash[:regex] = /# Modules(.*)# End Modules/m
     options_hash[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
-    options_hash[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
+    options_hash[:new_entry] = "\tadd_group '#{file_name.camelize}', " \
                        "'modules/#{file_name}/'\n"
 
     module_generator_file_insert('spec/spec_helper.rb', options_hash)
@@ -65,7 +65,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     options_hash = {}
     options_hash[:regex] = /# Modules(.*)end/m
     options_hash[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
-    options_hash[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
+    options_hash[:new_entry] = "\tadd_group '#{file_name.camelize}', " \
                        "'modules/#{file_name}/'\n"
 
     module_generator_file_insert('spec/simplecov_helper.rb', options_hash)
