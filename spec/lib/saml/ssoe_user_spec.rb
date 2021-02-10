@@ -406,7 +406,7 @@ RSpec.describe SAML::User do
           icn: nil,
           multifactor: multifactor,
           common_name: 'k+tristan@example.com',
-          person_types: nil          
+          person_types: nil
         )
       end
     end
@@ -769,7 +769,7 @@ RSpec.describe SAML::User do
           icn: '1012740600V714187',
           multifactor: multifactor,
           common_name: 'dslogon10923109@gmail.com',
-          person_types: ['PAT', 'VET']
+          person_types: %w[PAT VET]
         )
       end
     end
@@ -812,7 +812,7 @@ RSpec.describe SAML::User do
           icn: '1012740600V714187',
           multifactor: multifactor,
           common_name: 'dslogon10923109@gmail.com',
-          person_types: ['PAT', 'VET']
+          person_types: %w[PAT VET]
         )
       end
     end
@@ -967,7 +967,7 @@ RSpec.describe SAML::User do
           icn: '1012827134V054550',
           multifactor: multifactor,
           common_name: 'vets.gov.user+262@gmail.com',
-          person_types: nil          
+          person_types: nil
         )
       end
     end

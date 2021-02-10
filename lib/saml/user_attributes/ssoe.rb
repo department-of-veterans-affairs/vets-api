@@ -11,7 +11,8 @@ module SAML
       include SentryLogging
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
-                                   dslogon_edipi loa sign_in multifactor participant_id birls_id icn person_types].freeze
+                                   dslogon_edipi loa sign_in multifactor participant_id birls_id icn
+                                   person_types].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :warnings
@@ -82,7 +83,7 @@ module SAML
 
       # Returns an array beause a person can have multipe types.
       def person_types
-        safe_attr('va_eauth_persontype')&.split("|")
+        safe_attr('va_eauth_persontype')&.split('|')
       end
 
       ### Identifiers
