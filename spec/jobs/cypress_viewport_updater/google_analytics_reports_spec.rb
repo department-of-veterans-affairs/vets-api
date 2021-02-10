@@ -32,7 +32,7 @@ RSpec.describe CypressViewportUpdater::GoogleAnalyticsReports do
     end
   end
 
-  describe 'before #request_report is called' do
+  context 'before #request_report is called' do
     before do
       @google_analytics = CypressViewportUpdater::GoogleAnalyticsReports.new
     end
@@ -52,7 +52,7 @@ RSpec.describe CypressViewportUpdater::GoogleAnalyticsReports do
     end
   end
 
-  describe 'after #request_report is called' do
+  context 'after #request_report is called' do
     before do
       VCR.use_cassette('cypress_viewport_updater/google_analytics_request_report') do
         @request_report = CypressViewportUpdater::GoogleAnalyticsReports
