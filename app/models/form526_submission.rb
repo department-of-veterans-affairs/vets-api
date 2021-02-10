@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
-require 'mpi/service'
 require 'sentry_logging'
 
 class Form526Submission < ApplicationRecord
@@ -147,11 +146,32 @@ class Form526Submission < ApplicationRecord
     @auth_headers_hash = nil # reset cache
   end
 
-  # this method can be used to set up the birls_ids_tried hash
-  #
-  def add_birls_ids(ids)
+  # this method is for queuing up BIRLS ids in the birls_ids_tried hash,
+  # and can also be used for initializing birls_ids_tried.
+  # birls_ids_tried has this shape:
+  # {
+  #   birls_id => [timestamp, timestamp, ...],
+  #   birls_id => [timestamp, timestamp, ...], # in practice, will be only 1 timestamp
+  #   ...
+  # }
+  # where each timestamp notes when a submissison job (start) was started 
+  # with that BIRLS id (birls_id_tried keeps track of which BIRLS id
+  # have been tried so far).
+  # add_birls_ids does not overwrite birls_ids_tried.
+  # example:
+  # > sub.birls_ids_tried = { '111' => ['2021-01-01T0000Z'] }
+  # > sub.add_birls_ids ['111', '222', '333']
+  # > pp sub.birls_ids_tried
+  #    {
+  #      '111' => ['2021-01-01T0000Z'], # a tried BIRLS ID
+  #      '222' => [],  # an untried BIRLS ID
+  #      '333' => []   # an untried BIRLS ID
+  #    }
+  # NOTE: '111' was not cleared
+  def add_birls_ids(id_or_ids)
+    ids = Array.wrap id_or_ids
     self.birls_ids_tried ||= {}
-    Array.wrap(ids).each { |id| self.birls_ids_tried[id] ||= [] }
+    ids.each { |id| self.birls_ids_tried[id] ||= [] }
     self.multiple_birls = true if birls_ids.length > 1
     ids
   end
