@@ -52,7 +52,7 @@ module AppealsApi
           end
 
           describe '#preferred_email' do
-            it { expect(form_data.preferred_email).to eq('a@a.a') }
+            it { expect(form_data.preferred_email).to eq('user@example.com') }
           end
 
           describe '#direct_review' do

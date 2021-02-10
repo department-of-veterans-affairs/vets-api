@@ -8,6 +8,13 @@ module EVSS
       # retry for one day
       sidekiq_options retry: 14
 
+      # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
+      # :nocov:
+      sidekiq_retries_exhausted do |msg, _ex|
+        job_exhausted(msg, STATSD_KEY_PREFIX)
+      end
+      # :nocov:
+
       # Submits a BDD instruction PDF in to EVSS
       #
       # @param submission_id [Integer] The {Form526Submission} id
