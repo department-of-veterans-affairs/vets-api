@@ -146,7 +146,7 @@
         "phone":   { "$ref": "#/definitions/hlrCreatePhone" },
         "emailAddressText": {
           "type": "string",
-          "pattern": ".@.",
+          "format": "email",
           "maxLength": 44
         },
         "timezone": {

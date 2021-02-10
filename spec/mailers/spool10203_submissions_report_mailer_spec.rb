@@ -67,6 +67,7 @@ RSpec.describe Spool10203SubmissionsReportMailer, type: %i[mailer aws_helpers] d
             lihan@adhocteam.us
             Lucas.Tickner@va.gov
             Ricardo.DaSilva@va.gov
+            robert.shinners@va.gov
             shay.norton@va.gov
             tammy.hurley1@va.gov
           ]
