@@ -27,7 +27,7 @@ module EducationForm
         saved_claims: {
           form_id: '22-10203'
         }
-      )
+      ).order("created_at")
     )
       return false unless Flipper.enabled?(:stem_automated_decision) && evss_is_healthy?
 
