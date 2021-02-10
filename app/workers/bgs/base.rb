@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+
+
+
 module BGS
   class Base
     def in_progress_form_copy(in_progress_form)
