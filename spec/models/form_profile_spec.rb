@@ -596,7 +596,7 @@ RSpec.describe FormProfile, type: :model do
       'income' => [
         {
           'veteranOrSpouse' => 'VETERAN',
-          "compensationAndPension" => "3444.7"
+          'compensationAndPension' => '3444.7'
         }
       ]
     }
