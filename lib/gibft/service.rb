@@ -11,7 +11,7 @@ module Gibft
     SIGNING_KEY_PATH = Settings['salesforce-gibft'].signing_key_path
     SALESFORCE_USERNAMES = {
       'prod' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov',
-      'uat' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.uat',
+      'reg' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.reg',
       'dev' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.vacoedusit'
     }.freeze
     SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings['salesforce-gibft'].env]

@@ -3,6 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
+  describe '::auditor' do
+    it 'is an instance of Form1010cg::Auditor' do
+      expect(described_class::AUDITOR).to be_an_instance_of(Form1010cg::Auditor)
+    end
+
+    it 'is using Rails.logger' do
+      expect(described_class::AUDITOR.logger).to eq(Rails.logger)
+    end
+  end
+
   it 'inherits from ActionController::API' do
     expect(described_class.ancestors).to include(ActionController::API)
   end
@@ -103,8 +113,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   describe '#create' do
     it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :create do
       before do
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+        expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
+        expect(described_class::AUDITOR).to receive(:record).with(
           :submission_failure_client_data,
           errors: ['param is missing or the value is empty: caregivers_assistance_claim']
         )
@@ -113,8 +123,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
     it_behaves_like '10-10CG request with missing param: form', :create do
       before do
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+        expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
+        expect(described_class::AUDITOR).to receive(:record).with(
           :submission_failure_client_data,
           errors: ['param is missing or the value is empty: form']
         )
@@ -127,8 +137,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         # mocked claim that is passed into the src code for testing
         expected_errors = build(:caregivers_assistance_claim, form: form_data).tap(&:valid?).errors.messages
 
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+        expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
+        expect(described_class::AUDITOR).to receive(:record).with(
           :submission_failure_client_data,
           claim_guid: claim.guid,
           errors: expected_errors
@@ -158,8 +168,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
       expect(service).to receive(:process_claim!).and_return(submission)
 
-      expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
-      expect(Form1010cg::Auditor.instance).to receive(:record).with(
+      expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
+      expect(described_class::AUDITOR).to receive(:record).with(
         :submission_success,
         claim_guid: claim.guid,
         carma_case_id: submission.carma_case_id,
@@ -197,8 +207,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
 
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+        expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
+        expect(described_class::AUDITOR).to receive(:record).with(
           :submission_failure_client_qualification,
           claim_guid: claim.guid
         )
@@ -252,8 +262,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
 
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(:submission_attempt)
-        expect(Form1010cg::Auditor.instance).to receive(:record).with(
+        expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
+        expect(described_class::AUDITOR).to receive(:record).with(
           :submission_failure_client_qualification,
           claim_guid: claim.guid
         )
@@ -295,7 +305,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       )
 
       expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
-      expect(Form1010cg::Auditor.instance).to receive(:record).with(:pdf_download)
+
+      expect(described_class::AUDITOR).to receive(:record).with(:pdf_download)
 
       post :download_pdf, params: params
 

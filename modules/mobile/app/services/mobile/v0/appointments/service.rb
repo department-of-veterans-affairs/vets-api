@@ -32,34 +32,27 @@ module Mobile
           errors = { cc: nil, va: nil }
 
           config.parallel_connection.in_parallel do
-            responses[:cc], errors[:cc] = get(cc_url, params)
-            responses[:va], errors[:va] = get(va_url, params)
+            responses[:cc], errors[:cc] = parallel_get(cc_url, params)
+            responses[:va], errors[:va] = parallel_get(va_url, params)
           end
 
-          if errors.values.any? { |e| !e.nil? }
-            Rails.logger.error('mobile get va appointments call failed') if errors[:va]
-            Rails.logger.error('mobile get community care appointments call failed') if errors[:cc]
-            raise Common::Exceptions::BackendServiceException, 'VAOS_502'
-          end
-
-          responses
+          StatsD.increment('mobile.appointments.get_appointments.success')
+          [responses, errors]
         end
 
         private
 
-        def get(url, params)
+        def parallel_get(url, params)
           response = config.parallel_connection.get(url, params, headers)
           [response, nil]
+        rescue VAOS::Exceptions::BackendServiceException => e
+          vaos_error(e, url)
         rescue => e
-          [nil, e]
+          internal_error(e, url)
         end
 
         def config
           Mobile::V0::Appointments::Configuration.instance
-        end
-
-        def responses_ok?(responses)
-          responses[:cc]&.status == 200 && responses[:va]&.status == 200
         end
 
         def va_url
@@ -69,6 +62,51 @@ module Mobile
         def cc_url
           '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling' \
             "/patient/ICN/#{@user.icn}/booked-cc-appointments"
+        end
+
+        def cancel_appointment_url(facility_id)
+          "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}/patient/ICN/" \
+           "#{@user.icn}/cancel-appointment"
+        end
+
+        def internal_error(e, url)
+          Rails.logger.error(
+            'mobile appointments internal exception',
+            { url: url, error: e.message, backtrace: e.backtrace }
+          )
+          error = {
+            status: '500',
+            source: url == va_url ? 'VA Service' : 'Community Care Service',
+            title: 'Internal Server Error',
+            detail: e.message
+          }
+
+          StatsD.increment('mobile.appointments.get_appointments.failure')
+          [nil, error]
+        end
+
+        def vaos_error(e, url)
+          Rails.logger.error(
+            'mobile appointments backend service exception',
+            { url: url, error: e.message, backtrace: e.backtrace }
+          )
+          error = {
+            status: '502',
+            source: url == va_url ? 'VA Service' : 'Community Care Service',
+            title: 'Backend Service Exception',
+            detail: e.response_values[:detail]
+          }
+
+          StatsD.increment('mobile.appointments.get_appointments.failure')
+          [nil, error]
+        end
+
+        def log_clinic_details(action, clinic_id, site_code)
+          Rails.logger.warn(
+            "Clinic does not support VAOS appointment #{action}",
+            clinic_id: clinic_id,
+            site_code: site_code
+          )
         end
       end
     end

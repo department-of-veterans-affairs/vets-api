@@ -29,4 +29,9 @@ FactoryBot.define do
       detail { 'Upload rejected' }
     end
   end
+
+  factory :upload_submission_large_detail, class: 'VBADocuments::UploadSubmission', parent: :upload_submission do
+    detail { 'abc' * 500 }
+    guid { '60719ee0-44fe-40ca-9b03-755fdb8c7884' }
+  end
 end

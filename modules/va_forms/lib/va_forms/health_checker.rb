@@ -2,7 +2,7 @@
 
 require 'central_mail/service'
 
-module VaForms
+module VAForms
   class HealthChecker
     module Constants
       HEALTH_DESCRIPTION = 'VA Forms API Health Check'
@@ -27,7 +27,7 @@ module VaForms
       when CMS_SERVICE.upcase
         cms_is_healthy?
       else
-        raise "VaForms::HealthChecker doesn't recognize #{service}"
+        raise "VAForms::HealthChecker doesn't recognize #{service}"
       end
     end
 
@@ -36,7 +36,7 @@ module VaForms
     def cms_is_healthy?
       return @cms_healthy unless @cms_healthy.nil?
 
-      @cms_healthy = VaForms::Form.count.positive?
+      @cms_healthy = VAForms::Form.count.positive?
     end
   end
 end

@@ -2,7 +2,7 @@
 
 require 'sidekiq'
 
-module VaForms
+module VAForms
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
@@ -10,6 +10,7 @@ module VaForms
     FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
+      Rails.logger.info('VAForms::FormReloader is being called.')
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
       body = { query: query }
       response = connection.post('graphql', body.to_json)
@@ -24,6 +25,8 @@ module VaForms
         )
         next
       end
+    rescue => e
+      Rails.logger.error('VAForms::FormReloader failed to run!', e)
     end
 
     def connection
@@ -51,7 +54,7 @@ module VaForms
     end
 
     def build_and_save_form(form)
-      va_form = VaForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
+      va_form = VAForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
       attrs = init_attributes(form)
       url = form['fieldVaFormUrl']['uri']
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)

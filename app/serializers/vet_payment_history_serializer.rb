@@ -14,7 +14,7 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
     @formatted_payments = []
     @returned_payments = []
 
-    process_all_payments(object[:payments][:payment]) if object[:payments].present?
+    process_all_payments(object[:payments][:payment]) if object.dig(:payments, :payment).present?
     super
   end
 

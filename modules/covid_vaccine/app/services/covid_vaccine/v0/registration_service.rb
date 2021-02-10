@@ -99,10 +99,22 @@ module CovidVaccine
         end
       end
 
-      # if user_type == loa3, then we already had the information from their
-      # authenticated session and added it to the raw form data
+      ## Guard around MPI query
+      # 1. If user_type == loa3, we already have their information from MPI in the
+      # authenticated session
+      # 2. If not all of the required MPI query keys are present, we can't query MPI
+      # 3. If a partial, unparseable date of birth was submitted, we can't query MPI
+      #
       def should_query_mpi?(form_data, user_type)
-        user_type != 'loa3' && (REQUIRED_QUERY_TRAITS & form_data.keys).size == REQUIRED_QUERY_TRAITS.size
+        return false if user_type == 'loa3'
+        return false unless (REQUIRED_QUERY_TRAITS & form_data.keys).size == REQUIRED_QUERY_TRAITS.size
+
+        begin
+          Date.parse(form_data['birth_date'])
+        rescue ArgumentError
+          return false
+        end
+        true
       end
     end
   end

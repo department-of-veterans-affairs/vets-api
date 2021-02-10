@@ -16,14 +16,14 @@ module ClaimsApi
 
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
-      flashes = auto_claim.flashes
 
       response = service(auth_headers).submit_form526(form_data)
       auto_claim.evss_id = response.claim_id
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ESTABLISHED
-      auto_claim.save
+      auto_claim.save!
 
-      queue_flash_updater(auth_headers, flashes, auto_claim_id) if flashes.present?
+      queue_flash_updater(auth_headers, auto_claim.flashes, auto_claim_id)
+      queue_special_issues_updater(auth_headers, auto_claim.special_issues, auto_claim)
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
@@ -38,19 +38,32 @@ module ClaimsApi
 
     private
 
+    def queue_special_issues_updater(auth_headers, special_issues_per_disability, auto_claim)
+      return if special_issues_per_disability.blank?
+
+      special_issues_per_disability.each do |disability|
+        contention_id = {
+          claim_id: auto_claim.evss_id,
+          code: disability['code'],
+          name: disability['name']
+        }
+        ClaimsApi::SpecialIssueUpdater.perform_async(bgs_user(auth_headers),
+                                                     contention_id,
+                                                     disability['special_issues'])
+      end
+    end
+
     def queue_flash_updater(auth_headers, flashes, auto_claim_id)
+      return if flashes.blank?
+
       ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes, auto_claim_id: auto_claim_id)
     end
 
     def service(auth_headers)
       if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
-        ClaimsApi::DisabilityCompensation::MockOverrideService.new(
-          auth_headers
-        )
+        ClaimsApi::DisabilityCompensation::MockOverrideService.new(auth_headers)
       else
-        EVSS::DisabilityCompensationForm::Service.new(
-          auth_headers
-        )
+        EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       end
     end
 

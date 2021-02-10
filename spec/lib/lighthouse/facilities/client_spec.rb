@@ -78,6 +78,7 @@ RSpec.describe Lighthouse::Facilities::Client do
       active_status: 'A',
       visn: '21',
       operating_status: { 'code' => 'NORMAL' },
+      operational_hours_special_instructions: nil,
       facility_type_prefix: 'vha',
       unique_id: '358'
     }
@@ -108,6 +109,11 @@ RSpec.describe Lighthouse::Facilities::Client do
     it 'returns a facility' do
       r = facilities_client.get_by_id('vha_358')
       expect(r).to have_attributes(vha_358_attributes)
+    end
+
+    it 'has operational_hours_special_instructions' do
+      r = facilities_client.get_by_id('vc_0617V')
+      expect(r[:operational_hours_special_instructions]).to be_nil
     end
 
     it 'returns a 404 error' do

@@ -267,26 +267,28 @@ RSpec.describe 'address', type: :request do
             'addressLine1' => '37 N 1st St',
             'addressLine2' => nil,
             'addressLine3' => nil,
-            'addressPou' => nil,
+            'addressPou' => 'RESIDENCE/CHOICE',
             'addressType' => 'DOMESTIC',
             'city' => 'Brooklyn',
             'countryCodeIso3' => 'USA',
             'internationalPostalCode' => nil,
             'province' => nil,
             'stateCode' => 'NY',
-            'validationKey' => nil,
             'zipCode' => '11249',
             'zipCodeSuffix' => '3939'
           }
         )
       end
 
-      it 'includes the confidence score for the address' do
+      it 'includes meta data for the address' do
         expect(response.parsed_body['data'][0]['meta']).to eq(
           {
-            'confidenceScore' => 100.0,
-            'addressType' => 'Domestic',
-            'deliveryPointValidation' => 'UNDELIVERABLE'
+            'address' => {
+              'confidenceScore' => 100.0,
+              'addressType' => 'Domestic',
+              'deliveryPointValidation' => 'UNDELIVERABLE'
+            },
+            'validationKey' => -646_932_106
           }
         )
       end

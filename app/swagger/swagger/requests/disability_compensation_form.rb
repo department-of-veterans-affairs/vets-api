@@ -8,6 +8,9 @@ module Swagger
       swagger_path '/v0/disability_compensation_form/rated_disabilities' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::BadGatewayError
+          extend Swagger::Responses::BadRequestError
+          extend Swagger::Responses::ForbiddenError
 
           key :description, 'Get a list of previously rated disabilities for a veteran'
           key :operationId, 'getRatedDisabilities'
@@ -55,6 +58,8 @@ module Swagger
       swagger_path '/v0/disability_compensation_form/submit_all_claim' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
+          extend Swagger::Responses::ValidationError
 
           key :description, 'Submit the disability compensation v2 application for a veteran'
           key :operationId, 'postSubmitFormV2'
@@ -84,6 +89,8 @@ module Swagger
       swagger_path '/v0/disability_compensation_form/submission_status/{job_id}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
+          extend Swagger::Responses::RecordNotFoundError
 
           key :description, 'Check the status of a submission job'
           key :operationId, 'getSubmissionStatus'
@@ -111,6 +118,7 @@ module Swagger
       swagger_path '/v0/disability_compensation_form/rating_info' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
 
           key :description, 'Get the total combined disability rating for a veteran'
           key :operationId, 'getRatingInfo'
@@ -130,6 +138,8 @@ module Swagger
       swagger_path '/v0/disability_compensation_form/separation_locations' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::BadGatewayError
+          extend Swagger::Responses::ForbiddenError
 
           key :description, 'Get the separation locations from EVSS'
           key :operationId, 'getIntakeSites'

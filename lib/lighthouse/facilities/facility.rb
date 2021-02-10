@@ -22,6 +22,7 @@ module Lighthouse
       attribute :mobile, Boolean
       attribute :name, String
       attribute :operating_status, Object
+      attribute :operational_hours_special_instructions, String
       attribute :phone, Object
       attribute :services, Object
       attribute :type, String

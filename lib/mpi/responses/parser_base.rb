@@ -10,6 +10,10 @@ module MPI
         invalid_request: 'AE'
       }.freeze
 
+      def initialize(code = nil)
+        @code = code
+      end
+
       # MVI returns failed or invalid codes if the request is malformed or MVI throws an internal error.
       #
       # @return [Boolean] has failed or invalid code?
@@ -32,34 +36,17 @@ module MPI
       end
 
       def sanitize_edipi(edipi)
-        return if edipi.nil?
+        return unless edipi.present? && edipi.is_a?(String)
 
-        # Get rid of invalid values like 'UNK'
-        sanitized_result = edipi.match(/\d{10}/)&.to_s
-        Rails.logger.info "Edipi sanitized was: '#{edipi}' now: '#{sanitized_result}'." unless sanitized_result == edipi
-        sanitized_result
+        # Remove non-digit characters from input, and match the first contiguous 10 digits found
+        edipi.match(/\d{10}/)&.to_s
       end
 
-      def sanitize_participant_id(participant_id)
-        return if participant_id.nil?
+      def sanitize_id(id)
+        return unless id.present? && id.is_a?(String)
 
-        # Get rid of non-digit characters like 'UNK'/'ASKU'
-        sanitized_result = participant_id.match(/\d+/)&.to_s
-        if sanitized_result != participant_id
-          Rails.logger.info "Participant id sanitized, was: '#{participant_id}' now: '#{sanitized_result}'."
-        end
-        sanitized_result
-      end
-
-      def sanitize_birls_id(birls_id)
-        return if birls_id.nil?
-
-        # Get rid of non-digit characters like 'UNK'/'ASKU'
-        sanitized_result = birls_id.match(/\d+/)&.to_s
-        if sanitized_result != birls_id
-          Rails.logger.info "Birls id sanitized, was: '#{birls_id}' now: '#{sanitized_result}'."
-        end
-        sanitized_result
+        # Remove non-digit characters from input
+        id.match(/\d+/)&.to_s
       end
 
       def locate_element(el, path)
@@ -67,7 +54,7 @@ module MPI
       end
 
       def locate_elements(el, path)
-        return nil unless el
+        return nil unless el.present? && el.is_a?(Ox::Element)
 
         el.locate(path)
       end

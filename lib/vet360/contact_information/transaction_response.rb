@@ -66,8 +66,42 @@ module Vet360
         log_exception_to_sentry(e)
       end
     end
+
+    class PersonTransactionResponse < TransactionResponse
+      NOT_FOUND_IN_MPI_CODE = 'MVI201'
+
+      def self.from(raw_response, user)
+        return_val = super(raw_response)
+        @user = user
+
+        log_mpi_error if @user.va_profile_status == Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok]
+
+        return_val
+      end
+
+      def self.log_mpi_error
+        if error?
+          @response_body['tx_messages'].each do |tx_message|
+            if tx_message['code'] == NOT_FOUND_IN_MPI_CODE
+              return log_message_to_sentry(
+                'va profile mpi not found',
+                :error,
+                {
+                  icn: @user.icn,
+                  edipi: @user.edipi,
+                  response_body: @response_body
+                },
+                error: :va_profile
+              )
+            end
+          end
+        end
+      rescue => e
+        log_exception_to_sentry(e)
+      end
+    end
+
     class EmailTransactionResponse < TransactionResponse; end
-    class PersonTransactionResponse < TransactionResponse; end
     class TelephoneTransactionResponse < TransactionResponse; end
     class PermissionTransactionResponse < TransactionResponse; end
   end

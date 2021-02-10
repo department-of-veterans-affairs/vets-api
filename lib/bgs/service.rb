@@ -140,7 +140,7 @@ module BGS
 
     def update_manual_proc(proc_id)
       service.vnp_proc_v2.vnp_proc_update(
-        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual', vnp_proc_type_cd: 'DEPCHG' }.merge(bgs_auth)
+        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'MANUAL_VAGOV', vnp_proc_type_cd: 'DEPCHG' }.merge(bgs_auth)
       )
     rescue => e
       notify_of_service_exception(e, __method__)
@@ -166,6 +166,29 @@ module BGS
 
     def user_ssn
       { ssn: @user.ssn }
+    end
+
+    def get_ch33_dd_eft_info
+      find_ch33_dd_eft_res = find_ch33_dd_eft.body[:find_ch33_dd_eft_response][:return]
+      routing_number = find_ch33_dd_eft_res[:routng_trnsit_nbr]
+
+      find_ch33_dd_eft_res.slice(
+        :dposit_acnt_nbr,
+        :dposit_acnt_type_nm,
+        :routng_trnsit_nbr
+      ).merge(
+        financial_institution_name: lambda do
+          return if routing_number.blank?
+
+          begin
+            res = service.ddeft.find_bank_name_by_routng_trnsit_nbr(routing_number)
+            res[:find_bank_name_by_routng_trnsit_nbr_response][:return][:bank_name]
+          rescue => e
+            log_exception_to_sentry(e, { routing_number: routing_number }, { error: 'ch33_dd' })
+            nil
+          end
+        end.call
+      )
     end
 
     def find_ch33_dd_eft

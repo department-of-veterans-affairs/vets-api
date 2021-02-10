@@ -1,10 +1,17 @@
 # frozen_string_literal: true
 
 Mobile::Engine.routes.draw do
-  get '/', to: 'discovery#index'
+  get '/', to: 'discovery#welcome'
+  post '/', to: 'discovery#index'
 
   namespace :v0 do
+    get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
+    get '/appointments', to: 'appointments#index'
+    put '/appointments/cancel', to: 'appointments#cancel'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
+    get '/claim/:id', to: 'claims_and_appeals#get_claim'
+    post '/claim/:id/documents', to: 'claims_and_appeals#upload_documents'
+    post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
@@ -13,10 +20,9 @@ Mobile::Engine.routes.draw do
     put '/payment-information/benefits', to: 'payment_information#update'
     get '/user', to: 'users#show'
     get '/user/logout', to: 'users#logout'
-    post '/user/addresses/validate', to: 'addresses#validate'
     post '/user/addresses', to: 'addresses#create'
-    post '/user/addresses/validate', to: 'addresses#validate'
     put '/user/addresses', to: 'addresses#update'
+    post '/user/addresses/validate', to: 'addresses#validate'
     post '/user/emails', to: 'emails#create'
     put '/user/emails', to: 'emails#update'
     post '/user/phones', to: 'phones#create'

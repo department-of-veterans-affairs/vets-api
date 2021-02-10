@@ -742,12 +742,12 @@ RSpec.describe FormProfile, type: :model do
   let(:v28_8832_expected) do
     {
       'claimantAddress' => {
-        'addressLine1' => street_check[:street],
-        'addressLine2' => street_check[:street2],
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
-        'stateCode' => user.va_profile[:address][:state],
-        'countryName' => user.va_profile[:address][:country],
-        'zipCode' => user.va_profile[:address][:postal_code][0..4]
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postalCode' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhoneNumber' => us_phone,
       'claimantEmailAddress' => user.pciu_email
@@ -937,7 +937,7 @@ RSpec.describe FormProfile, type: :model do
           stub_methods_for_emis_data
           Settings.vet360.prefill = true
 
-          v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+          v22_1990_expected['email'] = VAProfileRedis::ContactInformation.for_user(user).email.email_address
           v22_1990_expected['homePhone'] = '3035551234'
           v22_1990_expected['mobilePhone'] = '3035551234'
           v22_1990_expected['veteranAddress'] = {
@@ -1108,7 +1108,8 @@ RSpec.describe FormProfile, type: :model do
             before do
               Settings.vet360.prefill = true
               expected_veteran_info = v21_526_ez_expected['veteran']
-              expected_veteran_info['emailAddress'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+              expected_veteran_info['emailAddress'] =
+                VAProfileRedis::ContactInformation.for_user(user).email.email_address
               expected_veteran_info['primaryPhone'] = '3035551234'
             end
 
@@ -1139,6 +1140,27 @@ RSpec.describe FormProfile, type: :model do
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
+      end
+
+      context 'without address' do
+        let(:v21_p_530_expected) do
+          {
+            'claimantFullName' => {
+              'first' => user.first_name&.capitalize,
+              'last' => user.last_name&.capitalize,
+              'suffix' => user.va_profile[:suffix]
+            }
+          }
+        end
+
+        before do
+          allow_any_instance_of(FormProfiles::VA21p530)
+            .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
+        end
+
+        it "doesn't throw an exception" do
+          expect_prefilled('21P-530')
+        end
       end
     end
 

@@ -2,17 +2,13 @@
 
 class FailedClaimsReportMailer < ApplicationMailer
   RECIPIENTS = %w[
-    lihan@adhocteam.us
+    anna@adhocteam.us
+    ed.mangimelli@adhocteam.us
   ].freeze
 
   def build(failed_uploads)
     opt = {}
-    opt[:to] =
-      if FeatureFlipper.staging_email?
-        'lihan@adhocteam.us'
-      else
-        RECIPIENTS.clone
-      end
+    opt[:to] = RECIPIENTS.clone
 
     @failed_uploads = failed_uploads
     template = File.read('app/mailers/views/failed_claims_report.erb')

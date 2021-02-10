@@ -4,6 +4,7 @@ require_dependency 'mobile/application_controller'
 require_relative '../../../models/mobile/v0/adapters/claims_overview'
 require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
+require 'sentry_logging'
 
 module Mobile
   module V0
@@ -33,6 +34,66 @@ module Mobile
         status_code = parse_appeals(appeals_result, full_list, error_list, status_code)
         adapted_full_list = serialize_list(full_list.flatten)
         render json: { data: adapted_full_list, meta: { errors: error_list } }, status: status_code
+      end
+
+      def get_claim
+        claim = claims_scope.find_by(evss_id: params[:id])
+        if claim
+          raw_claim = claims_service.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
+          claim.update(data: raw_claim)
+          claim_detail = EVSSClaimDetailSerializer.new(claim)
+          render json: Mobile::V0::ClaimSerializer.new(claim_detail)
+        else
+          raise Common::Exceptions::RecordNotFound, params[:id]
+        end
+      end
+
+      def get_appeal
+        appeals = appeals_service.get_appeals(@current_user).body['data']
+        appeal = appeals.select { |entry| entry.dig('id') == params[:id] }[0]
+        if appeal
+          serializable_resource = OpenStruct.new(appeal['attributes'])
+          serializable_resource[:id] = appeal['id']
+          serializable_resource[:type] = appeal['type']
+          render json: Mobile::V0::AppealSerializer.new(serializable_resource)
+        else
+          raise Common::Exceptions::RecordNotFound, params[:id]
+        end
+      end
+
+      def request_decision
+        claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
+        jid = evss_claim_service.request_decision(claim)
+        Rails.logger.info('Mobile Request', {
+                            claim_id: params[:id],
+                            job_id: jid
+                          })
+        claim.update(requested_decision: true)
+        render json: { data: { job_id: jid } }, status: :accepted
+      end
+
+      def upload_documents
+        params.require :file
+        claim = claims_scope.find_by(evss_id: params[:id])
+        raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+
+        document_data = EVSSClaimDocument.new(
+          evss_claim_id: claim.evss_id,
+          file_obj: params[:file],
+          uuid: SecureRandom.uuid,
+          file_name: params[:file].original_filename,
+          tracked_item_id: params[:tracked_item_id],
+          document_type: params[:document_type],
+          password: params[:password]
+        )
+        raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+
+        jid = evss_claim_service.upload_document(document_data)
+        Rails.logger.info('Mobile Request', {
+                            claim_id: params[:id],
+                            job_id: jid
+                          })
+        render json: { data: { job_id: jid } }, status: :accepted
       end
 
       private
@@ -82,7 +143,11 @@ module Mobile
       end
 
       def claims_scope
-        EVSSClaim.for_user(@current_user)
+        @claims_scope ||= EVSSClaim.for_user(@current_user)
+      end
+
+      def evss_claim_service
+        @evss_claim_service ||= EVSSClaimService.new(@current_user)
       end
 
       def create_or_update_claim(raw_claim)

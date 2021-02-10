@@ -60,6 +60,13 @@ RSpec.describe VeteranConfirmation::StatusService do
       response
     end
 
+    let(:empty_veteran_status_response) do
+      response = double
+      allow(response).to receive(:items).and_return([])
+      allow(response).to receive(:error?).and_return(false)
+      response
+    end
+
     let(:emis_error) { EMIS::Responses::ErrorResponse.new('Failed in eMIS') }
 
     context 'when betamocks emis passed valid attributes' do
@@ -111,6 +118,18 @@ RSpec.describe VeteranConfirmation::StatusService do
 
         expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status)
           .and_return(emis_error)
+
+        result = subject.get_by_attributes(valid_attributes)
+
+        expect(result).to eq('not confirmed')
+      end
+
+      it 'does not confirm if EMIS returns an empty response' do
+        expect_any_instance_of(MPI::AttrService).to receive(:find_profile)
+          .and_return(mvi_profile)
+
+        expect_any_instance_of(EMIS::VeteranStatusService).to receive(:get_veteran_status)
+          .and_return(empty_veteran_status_response)
 
         result = subject.get_by_attributes(valid_attributes)
 

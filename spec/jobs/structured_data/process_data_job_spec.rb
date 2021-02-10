@@ -25,7 +25,7 @@ RSpec.describe StructuredData::ProcessDataJob, uploader_helpers: true do
       job.perform(claim.id)
     end
 
-    xit 'calls Central Mail processing job' do
+    it 'calls Central Mail processing job' do
       expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async)
       job.perform(claim.id)
     end

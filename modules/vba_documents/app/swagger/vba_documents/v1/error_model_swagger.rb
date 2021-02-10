@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VbaDocuments
+module VBADocuments
   module V1
     class ErrorModelSwagger
       include Swagger::Blocks
@@ -19,7 +19,7 @@ module VbaDocuments
 
           property :detail do
             key :type, :string
-            key :example, 'DOC104 - Upload rejected by upstream system.'
+            key :example, 'DOC104 - Upload rejected by upstream system. Processing failed and upload must be resubmitted'
             key :description, 'A more detailed message about why an error occurred'
           end
         end

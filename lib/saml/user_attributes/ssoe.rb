@@ -11,14 +11,15 @@ module SAML
       include SentryLogging
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
-                                   dslogon_edipi loa sign_in multifactor participant_id birls_id].freeze
+                                   dslogon_edipi loa sign_in multifactor participant_id birls_id icn].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :warnings
 
-      def initialize(saml_attributes, authn_context)
+      def initialize(saml_attributes, authn_context, saml_settings = nil)
         @attributes = saml_attributes # never default this to {}
         @authn_context = authn_context
+        @saml_settings = saml_settings
         @warnings = []
       end
 
@@ -40,11 +41,15 @@ module SAML
       end
 
       def participant_id
-        MPI::Responses::ParserBase.new.sanitize_participant_id(mvi_ids[:vba_corp_id])
+        MPI::Responses::ParserBase.new.sanitize_id(mvi_ids[:vba_corp_id])
       end
 
       def birls_id
-        MPI::Responses::ParserBase.new.sanitize_birls_id(mvi_ids[:birls_id])
+        MPI::Responses::ParserBase.new.sanitize_id(mvi_ids[:birls_id])
+      end
+
+      def icn
+        mvi_ids[:icn]
       end
 
       def zip
@@ -186,7 +191,7 @@ module SAML
 
       # Raise any fatal exceptions due to validation issues
       def validate!
-        unless idme_uuid
+        if should_raise_idme_uuid_error
           data = SAML::UserAttributeError::ERRORS[:idme_uuid_missing].merge({ identifier: mhv_icn })
           raise SAML::UserAttributeError, data
         end
@@ -196,6 +201,17 @@ module SAML
       end
 
       private
+
+      def should_raise_idme_uuid_error
+        return false if idme_uuid
+
+        @saml_settings.nil? || auth_context_is_v1_and_not_inbound
+      end
+
+      def auth_context_is_v1_and_not_inbound
+        @saml_settings.assertion_consumer_service_url =~ %r{/v1/} &&
+          @authn_context != INBOUND_AUTHN_CONTEXT
+      end
 
       def mvi_ids
         return @mvi_ids if @mvi_ids

@@ -117,6 +117,7 @@ class Form526Submission < ApplicationRecord
       submit_form_4142 if form[FORM_4142].present?
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
+      upload_bdd_instructions if bdd?
       cleanup
     end
   end
@@ -160,8 +161,13 @@ class Form526Submission < ApplicationRecord
     EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(60.seconds, id, form[FORM_526_UPLOADS])
   end
 
+  def upload_bdd_instructions
+    # send BDD instructions
+    EVSS::DisabilityCompensationForm::UploadBddInstructions.perform_in(60.seconds, id)
+  end
+
   def submit_form_4142
-    # CentralMail::SubmitForm4142Job.perform_async(id)
+    CentralMail::SubmitForm4142Job.perform_async(id)
   end
 
   def submit_form_0781

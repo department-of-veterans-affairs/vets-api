@@ -104,7 +104,9 @@ module V1
 
     def raise_saml_error(form)
       code = form.error_code
-      code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code] if code == '005' && validate_session
+      if code == SAML::Responses::Base::AUTH_TOO_LATE_ERROR_CODE && validate_session
+        code = UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
+      end
       raise SAML::FormError.new(form, code)
     end
 
@@ -260,12 +262,7 @@ module V1
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
-        code = if error
-                 error.code || '007'
-               else
-                 '007'
-               end
-        tags_and_error_code = tags << "error:#{code}"
+        tags_and_error_code = tags << "error:#{error&.code || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
         Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
       end
@@ -296,14 +293,14 @@ module V1
 
     # rubocop:disable Metrics/ParameterLists
     def handle_callback_error(exc, status, response, level = :error, context = {},
-                              code = '007', tag = nil)
+                              code = SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE, tag = nil)
       # replaces bundled Sentry error message with specific XML messages
       message = if response.normalized_errors.count > 1 && response.status_detail
                   response.status_detail
                 else
                   exc.message
                 end
-      log_message_to_sentry(message, level, extra_context: context)
+      conditional_log_message_to_sentry(message, level, context, code)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)
@@ -316,6 +313,18 @@ module V1
       )
     end
     # rubocop:enable Metrics/ParameterLists
+
+    def conditional_log_message_to_sentry(message, level, context, code)
+      # If our error is that we have multiple mhv ids, this is a case where we won't log in the user,
+      # but we give them a path to resolve this. So we don't want to throw an error, and we don't want
+      # to pollute Sentry with this condition, but we will still log in case we want metrics in
+      # Cloudwatch or any other log aggregator
+      if code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE
+        Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
+      else
+        log_message_to_sentry(message, level, extra_context: context)
+      end
+    end
 
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
@@ -335,7 +344,11 @@ module V1
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
-        log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mpi: additional_context)
+        log_message_to_sentry(
+          'SessionsController version:v1 message:SSN from MPI Lookup does not match UserIdentity cache',
+          :warn,
+          identity_compared_with_mpi: additional_context
+        )
       end
     end
 

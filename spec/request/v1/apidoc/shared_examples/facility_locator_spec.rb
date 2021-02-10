@@ -30,29 +30,14 @@ RSpec.shared_examples 'V1 Facility Locator' do
     it { is_expected.to validate(:get, '/v1/facilities/va/{id}', 404, 'id' => 'nca_9999999') }
   end
 
-  describe 'facilities/ccp bbox', team: :facilities, vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms') do
-    let(:params) do
-      {
-        '_query_string' => {
-          address: 'South Gilbert Road, Chandler, Arizona 85286, United States',
-          bbox: ['-112.54', '32.53', '-111.04', '34.03'],
-          type: 'provider',
-          specialties: ['213E00000X']
-        }.to_query
-      }
-    end
-
-    it { is_expected.to validate(:get, '/v1/facilities/ccp', 200, params) }
-  end
-
   describe 'facilities/ccp lat/long', team: :facilities,
                                       vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms') do
     let(:params) do
       {
         '_query_string' => {
-          latitude: 33.28,
-          longitude: -111.79,
-          radius: 104,
+          latitude: 40.415217,
+          longitude: -74.057114,
+          radius: 200,
           type: 'provider',
           specialties: ['213E00000X']
         }.to_query

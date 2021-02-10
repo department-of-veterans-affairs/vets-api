@@ -146,6 +146,10 @@ class User < Common::RedisStore
     identity.sec_id || va_profile&.sec_id
   end
 
+  def icn
+    identity&.icn || mpi&.icn
+  end
+
   def birls_id
     identity&.birls_id || mpi&.birls_id
   end
@@ -275,7 +279,7 @@ class User < Common::RedisStore
   def vet360_contact_info
     return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
+    @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
   end
 
   def all_emails

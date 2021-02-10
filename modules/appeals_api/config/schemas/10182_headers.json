@@ -15,10 +15,6 @@
         "X-VA-Veteran-SSN":             { "$ref": "#/definitions/nodCreateHeadersSsn" },
         "X-VA-Veteran-File-Number":     { "$ref": "#/definitions/nodCreateHeadersFileNumber" },
         "X-VA-Veteran-Birth-Date":      { "$ref": "#/definitions/nodCreateHeadersBirthDate" },
-        "X-VA-Claimant-First-Name":     { "$ref": "#/definitions/nodCreateHeadersFirstName" },
-        "X-VA-Claimant-Middle-Initial": { "$ref": "#/definitions/nodCreateHeadersMiddleInitial" },
-        "X-VA-Claimant-Last-Name":      { "$ref": "#/definitions/nodCreateHeadersLastName" },
-        "X-VA-Claimant-Birth-Date":     { "$ref": "#/definitions/nodCreateHeadersBirthDate" },
         "X-Consumer-Username":          { "$ref": "#/definitions/nodCreateHeadersConsumerUsername"}
       },
       "required": [
@@ -33,7 +29,7 @@
     "nodCreateHeadersSsn": {
       "allOf": [
         { "description": "social security number" },
-        { "type": "string", "pattern": "^[0-9]{9}$" }
+        { "type": "string", "minLength": 0, "maxLength": 9, "pattern": "^[0-9]{9}$" }
       ]
     },
 
@@ -43,7 +39,8 @@
         { "description": "first name" },
         {
           "type": "string",
-          "$comment": "can be whitespace, to accomodate those with 1 legal name"
+          "maxLength": 16,
+          "$comment": "can be whitespace, to accommodate those with 1 legal name"
         }
       ]
     },
@@ -60,6 +57,7 @@
     "nodCreateHeadersLastName": {
       "allOf": [
         { "description": "last name" },
+        { "maxLength": 36 },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },
@@ -68,6 +66,8 @@
     "nodCreateHeadersBirthDate": {
       "allOf": [
         { "description": "birth date" },
+        { "minLength": 10 },
+        { "maxLength": 10 },
         { "$ref": "#/definitions/nodCreateHeadersDate" }
       ]
     },
@@ -76,6 +76,7 @@
     "nodCreateHeadersFileNumber": {
       "allOf": [
         { "description": "VA file number (c-file / css)" },
+        { "maxLength": 9 },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },

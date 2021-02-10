@@ -68,7 +68,8 @@ dmc:
   client_secret: "secret"
   mock_debts: false
   mock_fsr: false
-  url: "https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465"
+  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
+  debts_endpoint: debt-letter/get
 
 fsr:
   prefill: true
@@ -110,7 +111,7 @@ pension_burial:
 central_mail:
   upload:
     enabled: true
-    host: "icmhs-api-test.csrarad.com"
+    host: "test2.domaonline.com/EmmsAPI"
     token: "<PENSIONS_TOKEN>"
 
 # Settings for BIP Services
@@ -155,7 +156,29 @@ decision_review:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
+  documentation:
+    notice_of_disagreements_v1: false
+  higher_level_review_pii_expunge_enabled: true
   higher_level_review_updater_enabled: true
+  notice_of_disagreement_pii_expunge_enabled: true
+  notice_of_disagreement_updater_enabled: true
+  reports:
+    decision_review:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
+    daily_error:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
   schema_dir: config/schemas
 
 vre_counseling:
@@ -391,6 +414,8 @@ redis:
     # secondary_url: redis://localhost:6378
   sidekiq:
     url: redis://localhost:6379
+  rails_cache:
+    url: redis://localhost:6379
 
 # Settings for GovDelivery (email delivery)
 govdelivery:
@@ -406,6 +431,96 @@ reports:
     bucket: ~
     region: ~
     secret_access_key: ~
+  spool10203_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - robert.shinners@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Darrell.Neel@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Neel_Darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - Turner_Desiree@bah.com
+  spool_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Darrell.Neel@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Neel_Darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - Turner_Desiree@bah.com
+  year_to_date_report:
+    emails:
+      - 222A.VBAVACO@va.gov
+      - 224B.VBAVACO@va.gov
+      - 224C.VBAVACO@va.gov
+      - Brandon.Scott2@va.gov
+      - Brian.Grubb@va.gov
+      - Christina.DiTucci@va.gov
+      - John.McNeal@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - Lucas.Tickner@va.gov
+      - michele.mendola@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - matthew.ziolkowski@va.gov
+      - Michael.Johnson19@va.gov
+      - neel_darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - turner_desiree@bah.com
 
 oidc:
   auth_server_metadata_url: ~
@@ -484,6 +599,14 @@ search:
   mock_search: true
   url: https://search.usa.gov/api/v2
 
+  # Settings for search-click-tracking
+search_click_tracking:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  module_code: I14Y
+  mock: false
+  url: https://api.gsa.gov/technology/searchgov/v2
+
 flipper:
   admin_user_emails:
     - adewitt@thoughtworks.com
@@ -495,6 +618,8 @@ flipper:
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
+    - draju@governmentcio.com
+    - ed.mangimelli@adhocteam.us
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
@@ -548,7 +673,9 @@ flipper:
     - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
+    - tze@adhocteam.us
     - zurbergram@gmail.com
+    - zmorel@governmentcio.com
     - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
@@ -581,6 +708,15 @@ hqva_mobile:
   key_path: /srv/vets-api/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
+  lighthouse:
+    url: "https://sandbox-api.va.gov"
+    pgd_path: "/services/pgd/v0/r4"
+    host: "sandbox-api.va.gov"
+    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    redis_session_prefix: "healthquest_lighthouse"
+    mock: false
+    key_path: /srv/vets-api/secret/health-quest.lighthouse.key
 
 lighthouse:
   api_key: fake_key
@@ -645,3 +781,22 @@ veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
   auth_endpoint: ~
+
+# Settings for connecting to the va.gov Google Analytics for the Cypress Viewport Updater
+google_analytics_cvu:
+  type: service_account
+  project_id: vsp-analytics-and-insights
+  private_key_id: ~
+  private_key: ~
+  client_email: va-gov-top-user-viewports@vsp-analytics-and-insights.iam.gserviceaccount.com
+  client_id: ~
+  auth_uri: https://accounts.google.com/o/oauth2/auth
+  token_uri: https://oauth2.googleapis.com/token
+  auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+  client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/va-gov-top-user-viewports%40vsp-analytics-and-insights.iam.gserviceaccount.com
+
+# Settings for connecting to the cypress-viewport-updater-bot GitHub app
+github_cvu:
+  installation_id: ~
+  integration_id: ~
+  private_pem: ~
