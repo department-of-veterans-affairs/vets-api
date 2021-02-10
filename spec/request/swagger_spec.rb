@@ -3186,6 +3186,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'veteran readiness employment claims' do
       it 'supports adding veteran readiness employment claim' do
         VCR.use_cassette('veteran_readiness_employment/send_to_vre') do
+          allow(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
           expect(subject).to validate(
             :post,
             '/v0/veteran_readiness_employment_claims',
