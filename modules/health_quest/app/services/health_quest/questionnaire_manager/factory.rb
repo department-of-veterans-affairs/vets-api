@@ -15,13 +15,21 @@ module HealthQuest
     #   @return [FHIR::Patient]
     # @!attribute questionnaires
     #   @return [Array]
+    # @!attribute questionnaire_responses
+    #   @return [Array]
+    # @!attribute save_in_progress
+    #   @return [Array]
     # @!attribute appointment_service
     #   @return [HealthQuest::AppointmentService]
     # @!attribute patient_service
     #   @return [PatientGeneratedData::Patient::Factory]
+    # @!attribute questionnaire_response_service
+    #   @return [PatientGeneratedData::QuestionnaireResponse::Factory]
     # @!attribute user
     # @!attribute questionnaire_service
     #   @return [PatientGeneratedData::Questionnaire::Factory]
+    # @!attribute sip_model
+    #   @return [InProgressForm]
     # @!attribute transformer
     #   @return [HealthQuest::QuestionnaireManager::Transformer]
     # @!attribute user
@@ -34,6 +42,7 @@ module HealthQuest
                   :patient,
                   :questionnaires,
                   :questionnaire_responses,
+                  :request_threads,
                   :save_in_progress,
                   :appointment_service,
                   :patient_service,
@@ -60,6 +69,7 @@ module HealthQuest
         @patient_service = PatientGeneratedData::Patient::Factory.manufacture(user)
         @questionnaire_service = PatientGeneratedData::Questionnaire::Factory.manufacture(user)
         @questionnaire_response_service = PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(user)
+        @request_threads = []
         @sip_model = InProgressForm
         @transformer = Transformer.build
       end
@@ -71,19 +81,35 @@ module HealthQuest
       # @return [Hash] an aggregated hash
       #
       def all
-        @patient = get_patient.resource
-        return default_response if patient.blank?
-
         @appointments = get_appointments[:data]
         return default_response if appointments.blank?
 
-        @questionnaires = get_questionnaires.resource&.entry
-        return default_response if questionnaires.blank?
-
-        @questionnaire_responses = get_questionnaire_responses.resource&.entry
-        @save_in_progress = get_save_in_progress
+        concurrent_pgd_requests
+        return default_response if patient.blank? || questionnaires.blank?
 
         compose
+      end
+
+      ##
+      # Multi-Threaded and independent requests to the PGD and vets-api to cut down on network call times.
+      # Sets the patient, questionnaires, questionnaire_responses and save_in_progress instance variables
+      # independently by calling the separate endpoints through different threads. Any exception raised
+      # during the execution of a thread will abort the current set of threads and bubble up the exception
+      # to the main thread as well as return execution to it.
+      #
+      # @return [Array] an array of dead threads that have finished executing their tasks
+      #
+      def concurrent_pgd_requests
+        Thread.abort_on_exception = true
+
+        # rubocop:disable ThreadSafety/NewThread
+        request_threads << Thread.new { @patient = get_patient.resource }
+        request_threads << Thread.new { @questionnaires = get_questionnaires.resource&.entry }
+        request_threads << Thread.new { @questionnaire_responses = get_questionnaire_responses.resource&.entry }
+        request_threads << Thread.new { @save_in_progress = get_save_in_progress }
+        # rubocop:enable ThreadSafety/NewThread
+
+        request_threads.each(&:join)
       end
 
       ##
@@ -155,7 +181,8 @@ module HealthQuest
           @aggregated_data = transformer.combine(
             appointments: appointments,
             questionnaires: questionnaires,
-            questionnaire_responses: questionnaire_responses
+            questionnaire_responses: questionnaire_responses,
+            save_in_progress: save_in_progress
           )
         end
       end
