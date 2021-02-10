@@ -10,6 +10,7 @@ module VAForms
     FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
+      Rails.logger.info('VAForms::FormReloader is being called.')
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
       body = { query: query }
       response = connection.post('graphql', body.to_json)
@@ -24,6 +25,8 @@ module VAForms
         )
         next
       end
+    rescue => e
+      Rails.logger.error('VAForms::FormReloader failed to run!', e)
     end
 
     def connection

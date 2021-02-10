@@ -96,6 +96,7 @@ FactoryBot.define do
           },
           'school_information' => {
             'name' => 'My Great School',
+            'school_type' => 'HighSch',
             'training_program' => 'Something amazing',
             'address' => {
               'country_name' => 'USA',

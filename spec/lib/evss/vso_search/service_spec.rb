@@ -33,5 +33,33 @@ describe EVSS::VSOSearch::Service do
       expect(service).to receive(:perform).with(:post, 'getCurrentInfo', '', headers).and_return(response)
       service.send(*[:get_current_info, response.body].compact)
     end
+
+    it 'overrides the request header ssn' do
+      headers =
+        {
+          'va_eauth_pnid' => '222334567'
+        }
+
+      merged_headers = {
+        'ssn' => '222334567',
+        'Authorization' => 'Token token=PUBLICDEMO123',
+        'Content-Type' => 'application/json',
+        'va_eauth_pnid' => '222334567'
+      }
+
+      expect(service).to receive(:perform).with(:post, 'getCurrentInfo', '', merged_headers).and_return(response)
+      service.send(*[:get_current_info, headers].compact)
+    end
+
+    it 'does not override header ssn without additional_headers' do
+      merged_headers = {
+        'ssn' => '796043735',
+        'Authorization' => 'Token token=PUBLICDEMO123',
+        'Content-Type' => 'application/json'
+      }
+
+      expect(service).to receive(:perform).with(:post, 'getCurrentInfo', '', merged_headers).and_return(response)
+      service.send(*[:get_current_info].compact)
+    end
   end
 end
