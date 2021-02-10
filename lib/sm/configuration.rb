@@ -43,7 +43,8 @@ module SM
     # @return [Faraday::Connection] a Faraday connection instance
     #
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+      options = { proxy: { uri: URI.parse("socks5h://localhost:2001") } }
+      Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: {verify: false}) do |conn|
         conn.use :breakers
         conn.request :camelcase
         conn.request :multipart_request
@@ -62,7 +63,8 @@ module SM
         conn.response :mhv_xml_html_errors
         conn.response :json_parser
 
-        conn.adapter Faraday.default_adapter
+
+        conn.adapter (Rails.env.production? ? Faraday.default_adapter : :net_http_socks)
       end
     end
   end
