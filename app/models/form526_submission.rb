@@ -48,6 +48,36 @@ class Form526Submission < ApplicationRecord
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
 
+  class << self
+    def create_with_birls_ids!(*args, **kwargs)
+      ActiveRecord::Base.transaction do
+        raise Error, 'does not support blocks' if block_given?
+
+        key = birls_ids_key(kwargs)
+        return create!(*args, **kwargs) if key.blank?
+
+        birls_ids = Array.wrap kwargs[key]
+        kwargs = kwargs.except key
+        return create!(*args, **kwargs) if birls_ids.blank?
+
+        submission = create!(*args, **kwargs)
+        submission.multiple_birls = true if birls_ids.length > 1
+        submission.birls_ids_tried ||= {}
+        birls_ids.each { |id| submission.birls_ids_tried[id] ||= [] }
+
+        raise Error, 'failed to save' unless save!
+
+        submission
+      end
+    end
+
+    def birls_ids_key(hash)
+      raise Error, 'both "birls_ids" and :birls_ids present' if hash.key?(:birls_ids) && hash.key?('birls_ids')
+      return :birls_ids if hash.key?(:birls_ids)
+      return 'birls_ids' if hash.key?('birls_ids')
+    end
+  end
+
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
   # one (cleanup job) or more ancillary jobs such as uploading supporting evidence or submitting ancillary forms.
@@ -66,14 +96,10 @@ class Form526Submission < ApplicationRecord
       EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(id)
     end
 
-    mark_current_birls_id_as_tried
+    mark_birls_id_as_tried
+    save!
 
     jids.first
-  end
-
-  def lookup_all_active_birls_ids_and_start!
-    lookup_all_active_birls_ids_and_initialize_birls_ids_tried!
-    start
   end
 
   # Runs the start method above but first looks to see if the veteran has BIRLS IDs that previous start
@@ -92,7 +118,6 @@ class Form526Submission < ApplicationRecord
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
     return unless untried_birls_id
 
-    self.multiple_birls = true
     self.birls_id = untried_birls_id
     save!
     start
@@ -133,6 +158,34 @@ class Form526Submission < ApplicationRecord
   #
   def auth_headers
     @auth_headers_hash ||= JSON.parse(auth_headers_json)
+  end
+
+  # allows auth_headers to raise an exception (JSON.parse nil)
+  def birls_id!
+    auth_headers['va_eauth_birlsfilenumber']
+  end
+
+  def birls_id
+    birls_id! if auth_headers_json
+  end
+
+  def birls_id=(value)
+    headers = JSON.parse auth_headers_json
+    headers['va_eauth_birlsfilenumber'] = value
+    self.auth_headers_json = headers.to_json
+    @auth_headers_hash = nil # reset cache
+  end
+
+  def mark_birls_id_as_tried(id = birls_id!, timestamp_string: Time.zone.now.iso8601.to_s)
+    self.birls_ids_tried ||= {}
+    self.birls_ids_tried[id] ||= []
+    self.birls_ids_tried[id] << timestamp_string
+    self.multiple_birls = true if birls_ids_tried.keys.length > 1
+    timestamp_string
+  end
+
+  def birls_ids_that_havent_been_tried_yet
+    (birls_ids_tried || {}).select { |_, timestamps| timestamps.blank? }.keys
   end
 
   # The workflow batch success handler
@@ -227,74 +280,5 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
-  end
-
-  def lookup_all_active_birls_ids_and_initialize_birls_ids_tried!
-    lookup_all_active_birls_ids_and_initialize_birls_ids_tried
-    save!
-    birls_ids_tried
-  end
-
-  def lookup_all_active_birls_ids_and_initialize_birls_ids_tried
-    self.birls_ids_tried ||= {}
-    (all_birls_ids_for_veteran || []).each do |birls_id|
-      self.birls_ids_tried[birls_id] ||= []
-    end
-    birls_ids_tried
-  end
-
-  def mark_current_birls_id_as_tried
-    raise Error, "can't retrieve current birls_id --no auth_headers" unless auth_headers
-
-    self.birls_ids_tried ||= {}
-    self.birls_ids_tried[birls_id] ||= []
-    self.birls_ids_tried[birls_id] << Time.zone.now.iso8601
-  end
-
-  def birls_ids_that_havent_been_tried_yet
-    return [] unless birls_ids_tried
-
-    birls_ids_tried.select { |_, timestamps| timestamps.blank? }.keys
-  end
-
-  def all_birls_ids_for_veteran
-    mpi_profile.birls_ids
-  end
-
-  def mpi_profile
-    find_profile_response = MPI::Service.new.find_profile user_identity
-    raise find_profile_response.error if find_profile_response.error
-
-    find_profile_response.profile
-  end
-
-  def user_identity
-    OpenStruct.new mhv_icn: icn, dslogon_edipi: edipi
-  end
-
-  def edipi
-    auth_headers['va_eauth_dodedipnid'] if auth_headers_json
-  end
-
-  def birls_id
-    auth_headers['va_eauth_birlsfilenumber'] if auth_headers_json
-  end
-
-  def birls_id=(value)
-    raise Error, "can't set birls_id --no auth_headers" unless auth_headers
-
-    auth_headers['va_eauth_birlsfilenumber'] = value
-    self.auth_headers_json = auth_headers.to_json
-  end
-
-  # @return [String] the icn for the veteran
-  # @return [NilClass] the account(s) where edipi has a nil icn
-  def icn
-    raise Error, 'no edipi' unless edipi
-
-    icns = Account.where(edipi: edipi).pluck :icn
-    raise Error, 'multiple icns' if icns.uniq.length > 1
-
-    icns.first
   end
 end

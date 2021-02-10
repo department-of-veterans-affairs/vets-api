@@ -40,7 +40,7 @@ module V0
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
 
-      jid = submission.lookup_all_active_birls_ids_and_start!
+      jid = submission.start
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok
@@ -66,10 +66,11 @@ module V0
       Rails.logger.info(
         'Creating 526 submission', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id
       )
-      Form526Submission.create(
+      Form526Submission.create_with_birls_ids!(
         user_uuid: @current_user.uuid,
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
+        birls_ids: @current_user.mpi&.profile&.birls_ids,
         form_json: saved_claim.to_submission_data(@current_user)
       )
     rescue PG::NotNullViolation => e
