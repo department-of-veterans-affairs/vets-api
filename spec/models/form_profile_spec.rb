@@ -584,7 +584,7 @@ RSpec.describe FormProfile, type: :model do
     {
       'personalIdentification' => {
         'ssn' => user.ssn.last(4),
-        'fileNumber' => '7890'
+        'fileNumber' => '3735'
       },
       'personalData' => {
         'fullName' => full_name,
@@ -596,10 +596,7 @@ RSpec.describe FormProfile, type: :model do
       'income' => [
         {
           'veteranOrSpouse' => 'VETERAN',
-          'otherIncome' => {
-            'name' => 'VA Benefits',
-            'amount' => '541.83'
-          }
+          "compensationAndPension" => "3444.7"
         }
       ]
     }
@@ -861,18 +858,15 @@ RSpec.describe FormProfile, type: :model do
     context 'with a user that can prefill financial status report' do
       before do
         allow_any_instance_of(BGS::PeopleService).to(
-          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '796043735' })
         )
         allow_any_instance_of(User).to(
-          receive(:participant_id).and_return('111111')
-        )
-        allow_any_instance_of(User).to(
-          receive(:icn).and_return('999999')
+          receive(:participant_id).and_return('600061742')
         )
       end
 
       it 'returns a prefilled 5655 form' do
-        VCR.use_cassette('bgs/awards_service/get_awards') do
+        VCR.use_cassette('bgs/payment_service/payment_history') do
           expect_prefilled('5655')
         end
       end

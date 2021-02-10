@@ -45,8 +45,8 @@ class FormProfiles::VA5655 < FormProfile
     payments = DebtManagementCenter::Payments.new(user)
 
     DebtManagementCenter::Payment.new(
-      education_amount: payments.education&.last&.[]('payment_amount'),
-      compensation_amount: payments.compensation_and_pension&.last&.[]('payment_amount'),
+      education_amount: payments.education&.last&.[](:payment_amount),
+      compensation_amount: payments.compensation_and_pension&.last&.[](:payment_amount),
       veteran_or_spouse: 'VETERAN'
     )
   end
