@@ -8,6 +8,13 @@ module EVSS
       include Sidekiq::Worker
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_cleanup'
 
+      # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
+      # :nocov:
+      sidekiq_retries_exhausted do |msg, _ex|
+        job_exhausted(msg, STATSD_KEY_PREFIX)
+      end
+      # :nocov:
+
       # Cleans up a 526 submission by removing its {InProgressForm} and deleting the
       # active Intent to File record (via EVSS)
       #

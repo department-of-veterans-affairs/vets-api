@@ -2,6 +2,7 @@
 
 require_dependency 'mobile/application_controller'
 require 'lighthouse/facilities/client'
+require 'mobile/v0/exceptions/validation_errors'
 
 module Mobile
   module V0
@@ -16,6 +17,14 @@ module Mobile
         }
 
         render json: Mobile::V0::AppointmentSerializer.new(appointments, options)
+      end
+
+      def cancel
+        validation_result = Mobile::V0::Contracts::CancelAppointment.new.call(cancel_params)
+        raise Mobile::V0::Exceptions::ValidationErrors, validation_result if validation_result.failure?
+
+        appointments_proxy.put_cancel_appointment(cancel_params)
+        head :no_content
       end
 
       private
@@ -34,6 +43,10 @@ module Mobile
         DateTime.parse(params[:endDate])
       rescue ArgumentError, TypeError
         raise Common::Exceptions::InvalidFieldValue.new('endDate', params[:endDate])
+      end
+
+      def cancel_params
+        params.permit(:appointmentTime, :clinicId, :facilityId, :healthcareService)
       end
     end
   end

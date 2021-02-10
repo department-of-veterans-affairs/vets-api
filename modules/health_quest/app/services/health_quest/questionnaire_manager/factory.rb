@@ -5,7 +5,7 @@ module HealthQuest
     ##
     # A service object for isolating dependencies from the questionnaire_manager controller.
     # An aggregator which collects and combines data from the health_quest services, those which
-    # interact with appointments and patient generated data in particular
+    # interact with appointments and patient generated data in particular.
     #
     # @!attribute appointments
     #   @return [Array]
@@ -15,25 +15,40 @@ module HealthQuest
     #   @return [FHIR::Patient]
     # @!attribute questionnaires
     #   @return [Array]
+    # @!attribute questionnaire_responses
+    #   @return [Array]
+    # @!attribute save_in_progress
+    #   @return [Array]
     # @!attribute appointment_service
     #   @return [HealthQuest::AppointmentService]
     # @!attribute patient_service
     #   @return [PatientGeneratedData::Patient::Factory]
+    # @!attribute questionnaire_response_service
+    #   @return [PatientGeneratedData::QuestionnaireResponse::Factory]
     # @!attribute user
     # @!attribute questionnaire_service
     #   @return [PatientGeneratedData::Questionnaire::Factory]
+    # @!attribute sip_model
+    #   @return [InProgressForm]
     # @!attribute transformer
     #   @return [HealthQuest::QuestionnaireManager::Transformer]
     # @!attribute user
     #   @return [User]
     class Factory
+      HEALTH_CARE_FORM_PREFIX = 'HC-QSTNR'
+
       attr_reader :appointments,
                   :aggregated_data,
                   :patient,
                   :questionnaires,
+                  :questionnaire_responses,
+                  :request_threads,
+                  :save_in_progress,
                   :appointment_service,
                   :patient_service,
+                  :questionnaire_response_service,
                   :questionnaire_service,
+                  :sip_model,
                   :transformer,
                   :user
 
@@ -53,30 +68,52 @@ module HealthQuest
         @appointment_service = AppointmentService.new(user)
         @patient_service = PatientGeneratedData::Patient::Factory.manufacture(user)
         @questionnaire_service = PatientGeneratedData::Questionnaire::Factory.manufacture(user)
+        @questionnaire_response_service = PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(user)
+        @request_threads = []
+        @sip_model = InProgressForm
         @transformer = Transformer.build
       end
 
       ##
       # Interacts with and invokes functionality on the PGD and appointment health_quest services.
-      # Invokes the `compose` method in the end to stitch all the data together for the controller
+      # Invokes the `compose` method in the end to stitch all the data together for the controller.
       #
       # @return [Hash] an aggregated hash
       #
       def all
-        @patient = get_patient.resource
-        return default_response if patient.blank?
-
         @appointments = get_appointments[:data]
         return default_response if appointments.blank?
 
-        @questionnaires = get_questionnaires.resource&.entry
-        return default_response if questionnaires.blank?
+        concurrent_pgd_requests
+        return default_response if patient.blank? || questionnaires.blank?
 
         compose
       end
 
       ##
-      # Gets a patient resource from the PGD
+      # Multi-Threaded and independent requests to the PGD and vets-api to cut down on network call times.
+      # Sets the patient, questionnaires, questionnaire_responses and save_in_progress instance variables
+      # independently by calling the separate endpoints through different threads. Any exception raised
+      # during the execution of a thread will abort the current set of threads and bubble up the exception
+      # to the main thread as well as return execution to it.
+      #
+      # @return [Array] an array of dead threads that have finished executing their tasks
+      #
+      def concurrent_pgd_requests
+        Thread.abort_on_exception = true
+
+        # rubocop:disable ThreadSafety/NewThread
+        request_threads << Thread.new { @patient = get_patient.resource }
+        request_threads << Thread.new { @questionnaires = get_questionnaires.resource&.entry }
+        request_threads << Thread.new { @questionnaire_responses = get_questionnaire_responses.resource&.entry }
+        request_threads << Thread.new { @save_in_progress = get_save_in_progress }
+        # rubocop:enable ThreadSafety/NewThread
+
+        request_threads.each(&:join)
+      end
+
+      ##
+      # Gets a patient resource from the PGD.
       #
       # @return [FHIR::Patient::ClientReply] an instance of ClientReply
       #
@@ -85,7 +122,7 @@ module HealthQuest
       end
 
       ##
-      # Gets a patients appointments by a default date range
+      # Gets a patients appointments by a default date range.
       #
       # @return [Hash] a hash containing appointment data and meta data
       #
@@ -94,7 +131,7 @@ module HealthQuest
       end
 
       ##
-      # Gets a list of Questionnaires from the PGD
+      # Gets a list of Questionnaires from the PGD.
       #
       # @return [FHIR::Bundle] an object containing the
       # entries for FHIR::Questionnaire objects
@@ -103,24 +140,62 @@ module HealthQuest
         @get_questionnaires ||= begin
           use_context = transformer.get_use_context(appointments)
 
-          questionnaire_service.search(use_context: use_context)
+          questionnaire_service.search('context-type-value': use_context)
         end
       end
 
       ##
+      # Gets a list of QuestionnaireResponses from the PGD.
+      #
+      # @return [FHIR::Bundle] an object containing the
+      # entries for FHIR::QuestionnaireResponse objects
+      #
+      def get_questionnaire_responses
+        @get_questionnaire_responses ||=
+          questionnaire_response_service.search(
+            source: user.icn,
+            authored: [date_three_months_ago, date_one_year_from_now]
+          )
+      end
+
+      # Gets a list of save in progress forms by the logged in user and a form prefix.
+      #
+      # @return [Array] an array containing the InProgressForm active record objects.
+      #
+      def get_save_in_progress
+        sip_model
+          .select(:form_id)
+          .where('form_id LIKE ?', "%#{HEALTH_CARE_FORM_PREFIX}%")
+          .where(user_uuid: user.uuid)
+          .to_a
+      end
+
+      ##
       # Calls the `combine` transformer object method and passes the appointment,
-      # questionnaire_response, questionnaire and SIP data as key/value arguments
+      # questionnaire_response, questionnaire and SIP data as key/value arguments.
       #
       # @return [Hash] the final aggregated data structure for the UI/FE
       #
       def compose
         @compose ||= begin
-          @aggregated_data =
-            transformer.combine(appointments: appointments, questionnaires: questionnaires)
+          @aggregated_data = transformer.combine(
+            appointments: appointments,
+            questionnaires: questionnaires,
+            questionnaire_responses: questionnaire_responses,
+            save_in_progress: save_in_progress
+          )
         end
       end
 
       private
+
+      def date_three_months_ago
+        (DateTime.now.in_time_zone.to_date - 3.months).to_s
+      end
+
+      def date_one_year_from_now
+        (DateTime.now.in_time_zone.to_date + 12.months).to_s
+      end
 
       def three_months_ago
         3.months.ago.in_time_zone
