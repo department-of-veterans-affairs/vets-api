@@ -7,6 +7,7 @@ require_relative '../../../models/mobile/v0/claim_overview'
 require 'sentry_logging'
 require 'prawn'
 require 'fileutils'
+require 'mini_magick'
 
 module Mobile
   module V0
@@ -111,7 +112,12 @@ module Mobile
         Prawn::Document.generate(TMP_PDF_PATH) do |pdf|
           image_list.each do |img|
             File.open(TMP_IMG_PATH, 'wb') { |f| f.write Base64.decode64(img) }
-            pdf.image TMP_IMG_PATH, fit: [pdf.bounds.right, pdf.bounds.top]
+            img = MiniMagick::Image.open(TMP_IMG_PATH)
+            if img.height > pdf.bounds.top || img.width > pdf.bounds.right
+              pdf.image TMP_IMG_PATH, fit: [pdf.bounds.right, pdf.bounds.top]
+            else
+              pdf.image TMP_IMG_PATH
+            end
             pdf.start_new_page unless pdf.page_count == image_list.length
           end
         end
