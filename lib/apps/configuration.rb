@@ -26,7 +26,7 @@ module Apps
     # @return [Boolean] Should the service use mock data in lower environments.
     #
     def mock_enabled?
-      Settings.forms.mock || false
+      Settings.apps.mock || false
     end
 
     ##
@@ -47,7 +47,7 @@ module Apps
     # @return [String] Service name to use in breakers and metrics.
     #
     def service_name
-      'Apps'
+      'APPS'
     end
   end
 end
