@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DebtManagementCenter
-  class Payments
+  class PaymentsService
     def initialize(current_user)
       @person = BGS::PeopleService.new(current_user).find_person_by_participant_id
       @payments = BGS::PaymentService.new(current_user).payment_history(@person)[:payments][:payment]

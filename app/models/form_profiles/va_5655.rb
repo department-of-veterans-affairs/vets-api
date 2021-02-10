@@ -42,7 +42,7 @@ class FormProfiles::VA5655 < FormProfile
   end
 
   def init_payments
-    payments = DebtManagementCenter::Payments.new(user)
+    payments = DebtManagementCenter::PaymentsService.new(user)
 
     DebtManagementCenter::Payment.new(
       education_amount: payments.education&.last&.[](:payment_amount),
