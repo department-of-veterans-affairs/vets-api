@@ -19,7 +19,8 @@ module Apps
       attribute :status, Integer
 
       def initialize(status, body, schema_name)
-        self.body = body if json_format_is_valid?(body, schema_name)
+        result = json_format_is_valid?(body, schema_name) ? body : {}
+        self.body = result
         self.status = status
       end
 

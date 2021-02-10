@@ -4,6 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require_relative 'configuration'
 require_relative 'responses/response'
+require 'cgi'
 
 module Apps
   # Proxy Service for Apps API.
@@ -17,7 +18,7 @@ module Apps
 
     attr_reader :search_term
 
-    def initialize(search_term)
+    def initialize(search_term = nil)
       @search_term = search_term
     end
 
@@ -34,9 +35,10 @@ module Apps
 
     # Get an individual app
     #
-    def get_app(name)
+    def get_app
       with_monitoring do
-        raw_response = perform(:get, 'directory', query: name)
+        uri = CGI.escape("directory/#{@search_term}")
+        raw_response = perform(:get, uri, nil)
         Apps::Responses::Response.new(raw_response.status, raw_response.body, 'app')
       end
     rescue => e
@@ -45,9 +47,9 @@ module Apps
 
     # Get the scopes an app with a given service_category could request
     #
-    def get_scopes(service_category)
+    def get_scopes
       with_monitoring do
-        raw_response = perform(:get, 'directory/scopes', query: service_category)
+        raw_response = perform(:get, "directory/scopes/#{@search_term}", nil)
         Apps::Responses::Response.new(raw_response.status, raw_response.body, 'scopes')
       end
     rescue => e

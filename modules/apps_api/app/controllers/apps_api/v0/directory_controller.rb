@@ -2,7 +2,7 @@
 
 # dependencies
 require_dependency 'apps_api/application_controller'
-require 'okta/directory_service.rb'
+require 'okta/directory_service'
 module AppsApi
   module V0
     class DirectoryController < ApplicationController
@@ -59,8 +59,8 @@ module AppsApi
           render json: {
             data: parsed_scopes
           }
-           rescue
-             head :no_content
+        rescue
+          head :no_content
         end
         end
       end
