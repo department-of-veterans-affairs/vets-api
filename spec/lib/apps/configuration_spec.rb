@@ -9,4 +9,11 @@ describe Apps::Configuration do
       expect(described_class.instance.service_name).to eq('APPS')
     end
   end
+
+  describe '#base_path' do
+    it 'returns the base path for the given environment' do
+      allow(Settings.directory).to receive(:url).and_return('boop')
+      expect(described_class.instance.base_path).to eq('boop')
+    end
+  end
 end

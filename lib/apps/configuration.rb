@@ -15,18 +15,10 @@ module Apps
         faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
 
-        faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json, content_type: /\bjson/ # ensures only json content types parsed
         faraday.adapter Faraday.default_adapter
       end
-    end
-
-    ##
-    # @return [Boolean] Should the service use mock data in lower environments.
-    #
-    def mock_enabled?
-      Settings.apps.mock || false
     end
 
     ##
