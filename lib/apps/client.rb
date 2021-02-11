@@ -37,8 +37,8 @@ module Apps
     #
     def get_app
       with_monitoring do
-        uri = CGI.escape("directory/#{@search_term}")
-        raw_response = perform(:get, uri, nil)
+        escaped_code = CGI.escape(@search_term)
+        raw_response = perform(:get, "directory/#{escaped_code}", nil)
         Apps::Responses::Response.new(raw_response.status, raw_response.body, 'app')
       end
     rescue => e
