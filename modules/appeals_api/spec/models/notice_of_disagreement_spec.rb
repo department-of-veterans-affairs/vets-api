@@ -22,6 +22,28 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  describe 'status updates' do
+    it '#submitting!' do
+      notice_of_disagreement.submitting!
+
+      expect(notice_of_disagreement.status).to eq('submitting')
+    end
+
+    it '#submitted!' do
+      notice_of_disagreement.submitted!
+
+      expect(notice_of_disagreement.status).to eq('submitted')
+    end
+
+    it '#error!' do
+      notice_of_disagreement.error!(code: 'error code', detail: 'error detail')
+
+      expect(notice_of_disagreement.status).to eq('error')
+      expect(notice_of_disagreement.code).to eq('error code')
+      expect(notice_of_disagreement.detail).to eq('error detail')
+    end
+  end
+
   # rubocop:disable Layout/LineLength
   describe 'validations' do
     describe '#validate_address' do
