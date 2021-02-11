@@ -9,6 +9,6 @@ class AfterLogoutJob
     account_uuid = opt['account_uuid']
     return if account_uuid.blank?
 
-    TestUserDashboard::CheckinUser.new(account_uuid).call unless Rails.env.production?
+    TestUserDashboard::CheckinUser.new(account_uuid).call
   end
 end
