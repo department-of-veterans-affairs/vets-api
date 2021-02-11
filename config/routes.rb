@@ -36,7 +36,9 @@ Rails.application.routes.draw do
     resources :preferred_facilities, only: %i[index create destroy]
 
     resources :apps, only: %i[index show]
-    get 'apps/scopes/:category', to: 'apps#scopes', defaults: { category: 'unknown_category' }
+    scope_default = { category: 'unknown_category' }
+    get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
+    get 'apps/scopes', to: 'apps#scopes', defaults: scope_default
 
     resources :letters, only: [:index] do
       collection do

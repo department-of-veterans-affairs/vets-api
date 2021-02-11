@@ -24,7 +24,7 @@ describe Apps::Client do
       let(:search_term) { 'iBlueButton' }
 
       it 'returns an app response object' do
-        VCR.use_cassette('apps/200_app_query', match_requests_on: [:path]) do
+        VCR.use_cassette('apps/200_app_query', match_requests_on: %i[method path]) do
           response = subject.get_app
           expect(response).to be_a Apps::Responses::Response
         end
@@ -37,7 +37,7 @@ describe Apps::Client do
       let(:search_term) { 'health' }
 
       it 'returns a scopes response object' do
-        VCR.use_cassette('apps/200_scopes_query', match_requests_on: [:path]) do
+        VCR.use_cassette('apps/200_scopes_query', match_requests_on: %i[method path]) do
           response = subject.get_scopes
           expect(response).to be_a Apps::Responses::Response
         end
@@ -48,7 +48,7 @@ describe Apps::Client do
       let(:search_term) { nil }
 
       it 'returns a 204' do
-        VCR.use_cassette('apps/204_scopes_query', match_requests_on: [:path]) do
+        VCR.use_cassette('apps/204_scopes_query', match_requests_on: %i[method path]) do
           response = subject.get_scopes
           expect(response.status).to be(204)
         end
