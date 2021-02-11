@@ -11,7 +11,7 @@ describe Apps::Client do
   describe '#get_all' do
     context 'with no query' do
       it 'returns an apps response object' do
-        VCR.use_cassette('apps/200_all_apps') do
+        VCR.use_cassette('apps/200_all_apps', match_requests_on: %i[method path]) do
           response = subject.get_all
           expect(response).to be_a Apps::Responses::Response
         end

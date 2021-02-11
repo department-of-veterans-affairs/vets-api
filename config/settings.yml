@@ -691,7 +691,7 @@ bgs:
   ssl_verify_mode: "peer"
 
 directory:
-  url: www.example.com/services/apps/v0
+  url: http://example.com/services/apps/v0/
   apikey: fake_apikey
 
 va_mobile:

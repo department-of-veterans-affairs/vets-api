@@ -58,7 +58,7 @@ account:
   enabled: true
 
 directory:
-  url: www.example.com
+  url: http://example.com/services/apps/v0/
   apikey: <fake_api_key>
 
 search:
