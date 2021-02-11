@@ -13,15 +13,10 @@ module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
-      UUID = SecureRandom.uuid
-      TMP_BASE_PATH = Rails.root.join 'tmp', 'uploads', 'cache', UUID
-      TMP_IMG_PATH = "#{TMP_BASE_PATH}/tempFile.jpg"
-      TMP_PDF_FILENAME = 'multifile.pdf'
-      TMP_PDF_PATH = "#{TMP_BASE_PATH}/#{TMP_PDF_FILENAME}"
       STATSD_UPLOAD_LATENCY = 'mobile.api.claims.upload.latency'
       before_action { authorize :evss, :access? }
       after_action do
-        FileUtils.rm_rf(TMP_BASE_PATH) if File.exist?(TMP_BASE_PATH)
+        (FileUtils.rm_rf(@base_path) if File.exist?(@base_path)) if @base_path
       end
 
       def index
@@ -108,22 +103,26 @@ module Mobile
       private
 
       def generate_multi_image_pdf(image_list)
-        FileUtils.mkpath TMP_BASE_PATH
-        Prawn::Document.generate(TMP_PDF_PATH) do |pdf|
+        @base_path = Rails.root.join 'tmp', 'uploads', 'cache', SecureRandom.uuid
+        img_path = "#{@base_path}/tempFile.jpg"
+        pdf_filename = 'multifile.pdf'
+        pdf_path = "#{@base_path}/#{pdf_filename}"
+        FileUtils.mkpath @base_path
+        Prawn::Document.generate(pdf_path) do |pdf|
           image_list.each do |img|
-            File.open(TMP_IMG_PATH, 'wb') { |f| f.write Base64.decode64(img) }
-            img = MiniMagick::Image.open(TMP_IMG_PATH)
+            File.open(img_path, 'wb') { |f| f.write Base64.decode64(img) }
+            img = MiniMagick::Image.open(img_path)
             if img.height > pdf.bounds.top || img.width > pdf.bounds.right
-              pdf.image TMP_IMG_PATH, fit: [pdf.bounds.right, pdf.bounds.top]
+              pdf.image img_path, fit: [pdf.bounds.right, pdf.bounds.top]
             else
-              pdf.image TMP_IMG_PATH
+              pdf.image img_path
             end
             pdf.start_new_page unless pdf.page_count == image_list.length
           end
         end
-        temp_file = Tempfile.new(TMP_PDF_FILENAME, encoding: 'ASCII-8BIT')
-        temp_file.write(File.read(TMP_PDF_PATH))
-        ActionDispatch::Http::UploadedFile.new(filename: TMP_PDF_FILENAME, type: 'application/pdf', tempfile: temp_file)
+        temp_file = Tempfile.new(pdf_filename, encoding: 'ASCII-8BIT')
+        temp_file.write(File.read(pdf_path))
+        ActionDispatch::Http::UploadedFile.new(filename: pdf_filename, type: 'application/pdf', tempfile: temp_file)
       end
 
       def parse_claims(claims, full_list, error_list)
