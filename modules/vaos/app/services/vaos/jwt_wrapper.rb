@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'formatters/date_formatter'
+
 module VAOS
   class JwtWrapper
     VERSION = 2.1
@@ -34,8 +36,8 @@ module VAOS
         sst: 1.minute.ago.to_i + 50,
         version: VERSION,
         gender: gender,
-        dob: dob,
-        dateOfBirth: dob,
+        dob: parsed_date,
+        dateOfBirth: parsed_date,
         edipid: edipi,
         ssn: ssn
       }
@@ -65,8 +67,8 @@ module VAOS
       end
     end
 
-    def dob
-      user.mpi&.profile&.birth_date
+    def parsed_date
+      Formatters::DateFormatter.format_date(user.birth_date, :number_iso8601)
     end
 
     def edipi
