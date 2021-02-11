@@ -48,7 +48,8 @@ module IAMSSOeOAuth
       if ssl_cert && ssl_key
         {
           client_cert: ssl_cert,
-          client_key: ssl_key
+          client_key: ssl_key,
+          verify: false
         }
       end
     end

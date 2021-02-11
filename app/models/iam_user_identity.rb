@@ -13,6 +13,7 @@ class IAMUserIdentity < ::UserIdentity
   attribute :iam_icn, String
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
+  attribute :iam_mhv_id, String
 
   # Builds an identity instance from the profile returned in the IAM introspect response
   #
@@ -29,7 +30,7 @@ class IAMUserIdentity < ::UserIdentity
       iam_icn: iam_profile[:fediam_mviicn],
       iam_edipi: iam_profile[:fediam_do_dedipn_id],
       iam_sec_id: iam_profile[:fediamsecid],
-      iam_mhv_id: valid_mhv_id(iam_profile[:fediam_mhvien]),
+      iam_mhv_id: valid_mhv_id(iam_profile[:fediam_mhv_ien]),
       last_name: iam_profile[:family_name],
       loa: { current: loa_level, highest: loa_level },
       middle_name: iam_profile[:middle_name]
