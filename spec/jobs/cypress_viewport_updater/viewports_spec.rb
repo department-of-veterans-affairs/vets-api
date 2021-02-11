@@ -14,14 +14,6 @@ RSpec.describe CypressViewportUpdater::Viewports do
       end
     end
 
-    # the following filters are used on requests/responses to
-    # https://www.googleapis.com/oauth2/v4/token
-    c.filter_sensitive_data('removed') do |interaction|
-      if (match = interaction.request.body.match(/^grant_type.+/))
-        match[0]
-      end
-    end
-
     c.filter_sensitive_data('{"access_token":"removed","expires_in":3599,"token_type":"Bearer"}') do |interaction|
       if (match = interaction.response.body.match(/^{\"access_token.+/))
         match[0]
@@ -30,6 +22,8 @@ RSpec.describe CypressViewportUpdater::Viewports do
   end
 
   before do
+    allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds).and_return(true)
+
     VCR.use_cassette('cypress_viewport_updater/google_analytics_after_request_report') do
       @ga = CypressViewportUpdater::GoogleAnalyticsReports
             .new
