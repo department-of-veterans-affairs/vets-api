@@ -40,18 +40,19 @@
       "required": [ "boardReviewOption", "socOptIn" ]
     },
 
-
     "nodCreateVeteran": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
         "homeless":            { "type": "boolean" },
-        "address":             { "$ref": "#/definitions/nodCreateAddress", "minLength": 5, "maxLength": 165 },
+        "address":             { "$ref": "#/definitions/nodCreateAddress" },
         "phone":               { "$ref": "#/definitions/nodCreatePhone" },
         "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail", "minLength": 5, "maxLength": 120 },
         "representativesName": { "type": "string", "maxLength": 120 }
       },
-      "required": [ "homeless", "phone", "emailAddressText" ]
+      "required": ["homeless",  "phone", "emailAddressText"],
+      "if": { "properties": { "homeless": { "const":  false } } },
+      "then": { "required":  ["address"] }
     },
 
 

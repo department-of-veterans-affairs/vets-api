@@ -10,7 +10,8 @@ RSpec.describe BGSDependents::Divorce do
       'birth_date' => '1990-03-03',
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' },
       'location' => { 'state' => 'FL', 'city' => 'Tampa' },
-      'reason_marriage_ended' => 'Divorce'
+      'reason_marriage_ended' => 'Divorce',
+      'spouse_income' => false
     }
   end
   let(:formatted_params_result) do
@@ -27,7 +28,8 @@ RSpec.describe BGSDependents::Divorce do
       'first' => 'Billy',
       'middle' => 'Yohan',
       'last' => 'Johnson',
-      'suffix' => 'Sr.'
+      'suffix' => 'Sr.',
+      'spouse_income' => 'N'
     }
   end
 

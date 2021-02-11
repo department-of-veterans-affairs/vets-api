@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: !ruby/regexp /Providers/
+    uri: https://some.fakesite.com/v1.0/ProviderLocator?address=40.415217,-74.057114&maxResults=11&radius=200&specialtycode1=213E00000X
     body:
       encoding: US-ASCII
       string: ''
