@@ -5,7 +5,7 @@ module V0
     def show
       render json: decision_review_service.get_higher_level_review(params[:id]).body
     rescue => e
-      log_exception_to_personal_information_log e, error_class: "#{self.class.name}#show exception", id: params[:id]
+      log_exception_to_personal_information_log e, error_class: "#{self.class.name}#show exception (HLR)", id: params[:id]
       raise
     end
 
@@ -20,7 +20,7 @@ module V0
                   request_body_debug_data
                 end
 
-      log_exception_to_personal_information_log e, error_class: "#{self.class.name}#create exception", request: request
+      log_exception_to_personal_information_log e, error_class: "#{self.class.name}#create exception (HLR)", request: request
       raise
     end
   end
