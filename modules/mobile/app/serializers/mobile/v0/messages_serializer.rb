@@ -17,7 +17,7 @@ module Mobile
       attribute :recipient_name
       attribute :read_receipt
 
-      link(:self) { v0_message_url(object.id) }
+      link(:self) { Mobile::UrlHelper.new.v0_message_url(object.id) }
     end
   end
 end
