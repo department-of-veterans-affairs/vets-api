@@ -27,5 +27,23 @@ Mobile::Engine.routes.draw do
     put '/user/emails', to: 'emails#update'
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
+
+    scope :messaging do
+      scope :health do
+        resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
+
+        resources :folders, only: %i[index show create destroy], defaults: { format: :json }  do
+          resources :messages, only: [:index], defaults: { format: :json }
+        end
+
+        resources :messages, only: %i[show create destroy], defaults: { format: :json } do
+          get :thread, on: :member
+          get :categories, on: :collection
+          patch :move, on: :member
+          post :reply, on: :member
+          resources :attachments, only: [:show], defaults: { format: :json }
+        end
+      end
+    end
   end
 end
