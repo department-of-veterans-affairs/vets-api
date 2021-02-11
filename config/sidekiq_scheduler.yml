@@ -172,7 +172,7 @@ ExternalServicesStatusJob:
   description: "Checks the current status of all external services through PagerDuty's API"
 
 VAForms::FetchLatest:
-  cron: "0 0 * * * America/New_York"
+  cron: "0 2 * * * America/New_York"
   class: VAForms::FormReloader
   description: "Fetches latest VA Forms"
 
