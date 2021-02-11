@@ -103,7 +103,7 @@ MESSAGES
     it 'inserts to the simplecov helper' do
       options = {
         insert_matcher: "add_group 'Foo', 'modules/foo/'",
-        new_entry: "    add_group 'Foo','modules/foo/'\n",
+        new_entry: "    add_group 'Foo', 'modules/foo/'\n",
         regex: /# Modules(.*)end/m
       }
       allow_any_instance_of(ModuleGenerator).to(
@@ -116,7 +116,7 @@ MESSAGES
     it 'inserts to the  spec helper' do
       options = {
         insert_matcher: "add_group 'Foo', 'modules/foo/'",
-        new_entry: "    add_group 'Foo','modules/foo/'\n",
+        new_entry: "    add_group 'Foo', 'modules/foo/'\n",
         regex: /# Modules(.*)# End Modules/m
       }
 
