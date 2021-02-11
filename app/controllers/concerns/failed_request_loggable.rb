@@ -5,8 +5,23 @@ module FailedRequestLoggable
 
   class_methods do
     def exception_hash(exception)
-      %i[message backtrace key response_values original_status original_body errors status_code sentry_type]
-        .reduce({}) { |hash, key| hash.merge({ key => exception.try(key) }) }
+      hash = {}
+      %i[
+        backtrace
+        errors
+        key
+        message
+        original_body
+        original_status
+        response_values
+        sentry_type
+        status_code
+      ].each do |method|
+        next unless exception.respond_to? method
+
+        hash[method] = exception.try method
+      end
+      hash
     end
   end
 
