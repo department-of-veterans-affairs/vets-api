@@ -46,7 +46,7 @@ module Mobile
       attribute :time_zone, TIME_ZONE_TYPE
 
       def self.toggle_non_prod_id!(id)
-        return id unless %w[442 552 983 984].include? id
+        return id if Settings.hostname == 'www.va.gov' || !%w[442 552 983 984].include?(id)
         return (%w[442 983] - [id]).first if %w[442 983].include? id
         return (%w[552 984] - [id]).first if %w[552 984].include? id
       end
