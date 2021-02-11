@@ -43,7 +43,7 @@ RSpec.describe BGS::Form686c do
     VCR.use_cassette('bgs/form686c/submit') do
       claim = BGS::Form686c.new(user_object)
 
-      expect(claim).to receive(:get_state_type) { 'Started' }
+      expect(claim).to receive(:get_state_type).and_return 'Started'
       expect_any_instance_of(BGS::Service).to receive(:update_proc).with('3831475', { proc_state: 'Ready' })
 
       claim.submit(all_flows_payload)
