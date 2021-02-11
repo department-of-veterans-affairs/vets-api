@@ -14,6 +14,13 @@ describe EVSS::DisabilityCompensationForm::Service do
 
   describe '#get_rated_disabilities' do
     context 'with a valid evss response' do
+      let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+
+      before do
+        allow(Rails).to receive(:cache).and_return(memory_store)
+        Rails.cache.clear
+      end
+
       it 'returns a rated disabilities response object' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
           expect { @response = subject.get_rated_disabilities }.to trigger_statsd_increment(
@@ -21,6 +28,12 @@ describe EVSS::DisabilityCompensationForm::Service do
             times: 1,
             value: 1
           )
+
+          # cached
+          expect { subject.get_rated_disabilities }.not_to trigger_statsd_increment(
+            'api.external_http_request.EVSS/DisabilityCompensationForm.success'
+          )
+
           expect(@response).to be_ok
           expect(@response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
           expect(@response.rated_disabilities.count).to eq 2

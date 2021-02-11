@@ -129,7 +129,6 @@ class User < Common::RedisStore
   delegate :common_name, to: :identity, allow_nil: true
 
   # mpi attributes
-  delegate :icn, to: :mpi
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
@@ -279,7 +278,7 @@ class User < Common::RedisStore
   def vet360_contact_info
     return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
+    @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
   end
 
   def all_emails

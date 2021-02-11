@@ -46,24 +46,24 @@ unless ENV['NOCOVERAGE']
     add_filter 'version.rb'
 
     # Modules
-    add_group 'Policies', 'app/policies'
-    add_group 'Serializers', 'app/serializers'
-    add_group 'Services', 'app/services'
-    add_group 'Swagger', 'app/swagger'
-    add_group 'Uploaders', 'app/uploaders'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
+    add_group 'HealthQuest', 'modules/health_quest/'
+    add_group 'Mobile', 'modules/mobile/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
+    add_group 'Policies', 'app/policies'
+    add_group 'Serializers', 'app/serializers'
+    add_group 'Services', 'app/services'
+    add_group 'Swagger', 'app/swagger'
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
+    add_group 'Uploaders', 'app/uploaders'
+    add_group 'VAOS', 'modules/vaos/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
-    add_group 'OpenidAuth', 'modules/openid_auth/'
-    add_group 'VAOS', 'modules/vaos/'
-    add_group 'HealthQuest', 'modules/health_quest/'
-    add_group 'Mobile', 'modules/mobile/'
+    # End Modules
 
     SimpleCov.minimum_coverage_by_file 90 unless ENV['CIRCLE_JOB']
     SimpleCov.refuse_coverage_drop unless ENV['CIRCLE_JOB']

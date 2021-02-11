@@ -3,11 +3,17 @@
 module EVSS
   module DisabilityCompensationForm
     class SubmitUploads < Job
-      FORM_TYPE = '21-526EZ'
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
 
       # retry for one day
       sidekiq_options retry: 14
+
+      # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
+      # :nocov:
+      sidekiq_retries_exhausted do |msg, _ex|
+        job_exhausted(msg, STATSD_KEY_PREFIX)
+      end
+      # :nocov:
 
       # Recursively submits a file in a new instance of this job for each upload in the uploads list
       #
