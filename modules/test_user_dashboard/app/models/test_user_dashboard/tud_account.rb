@@ -5,6 +5,7 @@ module TestUserDashboard
     ID_PROVIDERS = %w[id_me dslogon mhv].freeze
 
     validates :first_name, :last_name, :email, :gender, presence: true
+    validates :email, uniqueness: true
 
     # uncomment when adding id_provider column information
     # validates :id_provider, presence: true
