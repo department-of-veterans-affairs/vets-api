@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'apps_api/notification_service'
+require 'notifications/client'
 require 'ostruct'
 
 describe AppsApi::NotificationService do
@@ -215,6 +216,17 @@ describe AppsApi::NotificationService do
         }
       }
     )
+  end
+  let(:notification_client) { double('Notifications::Client') }
+
+  before do
+    # in order to not get an error of 'nil is not a valid uuid' when the
+    # notification_client tries in to initialize and looks for valid
+    # api_keys in config.api_key && config.client_url
+    # lib/va_notify/configuration.rb#initialize contains:
+    # @notify_client ||= Notifications::Client.new(api_key, client_url)
+    allow(Notifications::Client).to receive(:new).and_return(notification_client)
+    allow(notification_client).to receive(:send_email)
   end
 
   describe '#initialize' do
