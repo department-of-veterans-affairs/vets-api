@@ -9,14 +9,13 @@ namespace :form526 do
       rake form526:submissions[2021-01-23,2021-01-24]
     Last 30 days:
       rake form526:submissions[]
-    BDD stats mode:
+    BDD stats mode: (argument order doesn't matter)
       rake form526:submissions[bdd]
       rake form526:submissions[bdd,2021-02-11] # this date and beyond
-      rake form526:submissions[2021-02-11,bdd] # "
-      rake form526:submissions[bdd,2021-02-10,2021-02-11] # restricted to date range (inclusive)
-      rake form526:submissions[2021-02-10,2021-02-11,bdd] # "
+      rake form526:submissions[bdd,2021-02-10,2021-02-11]
+      rake form526:submissions[bdd,2021-02-10,2021-02-11,unredacted]
   HEREDOC
-  task :submissions, %i[first second third] => [:environment] do |_, args|
+  task :submissions, %i[first second third fourth] => [:environment] do |_, args|
     # rubocop:disable Style/FormatStringToken
     # This forces string token formatting. Our examples don't match
     # what this style is enforcing
@@ -90,39 +89,30 @@ namespace :form526 do
       )
     end
 
-    def bdd_stats_mode(args)
-      start_date, end_date = bdd_stats_mode_dates_from_args args
-      return nil unless start_date
-
-      redact_participant_id = true
-      separator = ','
-      print_row = lambda do |**fields|
-        puts ROW[:order].map { |key| fields[key].try(:iso8601) || fields[key].inspect }.join(separator)
-      end
-      print_row_with_redacted_participant_id = lambda do |**fields|
-        print_row.call(**fields.merge(p_id: '*****' + fields[:p_id].to_s[5..]))
-      end
-
+    # rubocop:disable Metrics/AbcSize
+    def bdd_stats_mode(args_array)
+      dates = dates_from_array args_array
+      prnt = ->(**fields) { puts ROW[:order].map { |key| fields[key].try(:iso8601) || fields[key].inspect }.join(',') }
       OPTIONS_STRUCT.new(
-        print_header: -> { puts ROW[:order].map { |key| ROW[:headers][key] }.join(separator) },
+        print_header: -> { puts ROW[:order].map { |key| ROW[:headers][key] }.join(',') },
         print_hr: -> { puts },
-        print_row: redact_participant_id ? print_row_with_redacted_participant_id : print_row,
-        print_total: ->(header, total) { puts "#{header.to_s.strip}#{separator}#{total}" },
+        print_row: (
+          if unredacted_flag_present?(args_array)
+            prnt
+          else
+            ->(**fields) { prnt.call(**fields.merge(p_id: '*****' + fields[:p_id].to_s[5..])) }
+          end
+        ),
+        print_total: ->(header, total) { puts "#{header.to_s.strip},#{total}" },
         ignore_submission: ->(submission) { submission.bdd? ? false : submission.id },
-        submissions: Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day]),
+        submissions: Form526Submission.where(created_at: [
+                                               (dates.first || '2020-11-01'.to_date).beginning_of_day..
+                                               (dates.second || Time.zone.now.utc + 1.day).end_of_day
+                                             ]),
         success_failure_totals_header_string: '* Job Success/Failure counts *'
       )
     end
-
-    def bdd_stats_mode_dates_from_args(args)
-      args_array = args.values_at :first, :second, :third
-      return [] unless bdd_flag_present? args_array
-
-      dates = dates_from_array args_array
-      start_date = dates.first || '2020-11-01'.to_date
-      end_date = dates.second || Time.zone.now.utc + 1.day
-      [start_date, end_date]
-    end
+    # rubocop:enable Metrics/AbcSize
 
     def missing_dates_as_zero(hash_with_date_keys)
       dates = hash_with_date_keys.keys.sort
@@ -153,7 +143,15 @@ namespace :form526 do
     end
 
     def bdd_flag_present?(array)
-      array.any? { |value| value&.to_s&.downcase&.include? 'bdd' }
+      flag_present_in_array? 'bdd', array
+    end
+
+    def unredacted_flag_present?(array)
+      flag_present_in_array? 'unr', array
+    end
+
+    def flag_present_in_array?(flag, array)
+      array.any? { |value| value&.to_s&.downcase&.include? flag }
     end
 
     def dates_from_array(array)
@@ -169,7 +167,8 @@ namespace :form526 do
       dates
     end
 
-    options = bdd_stats_mode(args) || date_range_mode(args)
+    args_array = args.values_at(:first, :second, :third, :fourth)
+    options = bdd_flag_present?(args_array) ? bdd_stats_mode(args_array) : date_range_mode(args)
 
     options.print_hr.call
     options.print_header.call
