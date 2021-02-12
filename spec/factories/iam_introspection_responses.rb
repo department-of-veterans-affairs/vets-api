@@ -17,10 +17,25 @@ FactoryBot.define do
     code_challenge { 'A0ZKRGWoD9TTNbO0j5mhDzV41jrLW-RbJZcAJsnjVTo' }
     fediam_street1 { '140 WHITEHAVEN CIR' }
     fediam_do_dedipn_id { '1005079124' }
-    fediam_gc_id { '1012666182V203559^NI^200M^USVHA^P|7187659^PI^987^USVHA^A|0000001012666182V203559000000^PI^200ESR^USVHA^A|0000001012666182V203559000000^PI^553^USVHA^A|600036159^PI^200CORP^USVBA^A|1005079124^NI^200NDZ^2.16.840.1.113883.3.42.10001.100001.13^A|0000027792^PN^200PROV^USDVA^A|14398876^PI^200MHS^USVHA^A|1005079124^NI^200DOD^USDOD^A|1411740^PI^200VETS^USDVA^A|85c50aa76934460c8736f687a6a30546^PN^200VIDM^USDVA^A|796121200^AN^200CORP^USVBA^' }
+    fediam_gc_id {
+      '1012666182V203559^NI^200M^USVHA^P|7187659^PI^987^USVHA^A|0000001012666182V203559000000^PI^200ESR^USVHA^A|' \
+        '0000001012666182V203559000000^PI^553^USVHA^A|600036159^PI^200CORP^USVBA^A|' \
+        '1005079124^NI^200NDZ^2.16.840.1.113883.3.42.10001.100001.13^A|0000027792^PN^200PROV^USDVA^A|' \
+        '14398876^PI^200MHS^USVHA^A|1005079124^NI^200DOD^USDOD^A|1411740^PI^200VETS^USDVA^A|' \
+        '85c50aa76934460c8736f687a6a30546^PN^200VIDM^USDVA^A|796121200^AN^200CORP^USVBA^'
+    }
     active { true }
     fediamauth_n_type { 'DSL' }
-    fediamdmdc_authorization { '{"authorizationResponse":{"id":"796121200" }"idType":"SSN" }"lastName":"ANDERSON" }"firstName":"GREG" }"middleName":"A" }"cadencyName":"" }"deceased":false,"birthDate":"1933-04-05T08:00:00Z" }"gender":"MALE" }"edi":1005079124,"benefits":["21"],"personnels":[{"organization":"21" }"category":"RETIRED_MILITARY" }"serviceBranchClassification":"A" }"rank":"SSG"}],"status":"SPONSOR" }"personAssociatedSet":[{"id":"796121201" }"idType":"SSN" }"lastName":"WHITE" }"firstName":"CONNIE" }"middleName":"A" }"cadencyName":"" }"deceased":false,"birthDate":"1935-07-12T08:00:00Z" }"gender":"FEMALE" }"edi":1005079140,"associationReason":"SPOUSE" }"benefits":["21"],"personnels":[],"status":"DEPENDENT" }"relationshipTypes":["FAMILY"],"permissionTypes":["NON_CLINICAL"]}]}}' }
+    fediamdmdc_authorization {
+      '{"authorizationResponse":{"id":"796121200" }"idType":"SSN" }"lastName":"ANDERSON" }"firstName":"GREG" }' \
+      '"middleName":"A" }"cadencyName":"" }"deceased":false,"birthDate":"1933-04-05T08:00:00Z" }"gender":"MALE" }' \
+      '"edi":1005079124,"benefits":["21"],"personnels":[{"organization":"21" }"category":"RETIRED_MILITARY" }' \
+      '"serviceBranchClassification":"A" }"rank":"SSG"}],"status":"SPONSOR" }"personAssociatedSet":[' \
+      '{"id":"796121201" }"idType":"SSN" }"lastName":"WHITE" }"firstName":"CONNIE" }"middleName":"A" }' \
+      '"cadencyName":"" }"deceased":false,"birthDate":"1935-07-12T08:00:00Z" }"gender":"FEMALE" }' \
+      '"edi":1005079140,"associationReason":"SPOUSE" }"benefits":["21"],"personnels":[],"status":"DEPENDENT" }' \
+      '"relationshipTypes":["FAMILY"],"permissionTypes":["NON_CLINICAL"]}]}}'
+    }
     fediam_not_on_or_after { '2021-02-12T17:47:41Z' }
     aud { 'VAMobile' }
     fediam_mcid { 'WSSOE2102121242404971252931639' }
@@ -78,7 +93,11 @@ FactoryBot.define do
     code_challenge { 'foHWImw_789-f14zzYZj3AX6o-HBEVIbpAi3mvNeHOY' }
     fediam_street1 { 'NOT_FOUND' }
     fediam_do_dedipn_id { 'NOT_FOUND' }
-    fediam_gc_id { '1012853893V362415^NI^200M^USVHA^P|943574^PI^979^USVHA^A|20221^PI^200VETS^USDVA^A|da4ae1e5ef9d479084f66563457a2dc3^PN^200VIDM^USDVA^A|1012853893^PN^200PROV^USDVA^A|12403029^PI^200MH^USVHA^A|12403029^PI^200MHS^USVHA^A|438b7fbd26c5417ab57e0430e366c31d^PN^200VIDM^USDVA^A' }
+    fediam_gc_id {
+      '1012853893V362415^NI^200M^USVHA^P|943574^PI^979^USVHA^A|20221^PI^200VETS^USDVA^A|' \
+      'da4ae1e5ef9d479084f66563457a2dc3^PN^200VIDM^USDVA^A|1012853893^PN^200PROV^USDVA^A|' \
+      '12403029^PI^200MH^USVHA^A|12403029^PI^200MHS^USVHA^A|438b7fbd26c5417ab57e0430e366c31d^PN^200VIDM^USDVA^A'
+    }
     active { true }
     fediamauth_n_type { 'MHV' }
     fediam_not_on_or_after { '2021-02-12T18:06:18Z' }
