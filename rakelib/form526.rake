@@ -501,4 +501,41 @@ namespace :form526 do
       end
     end
   end
+
+  desc 'pretty print MPI profile for submission'
+  task mpi: :environment do |_, args|
+    def puts_mpi_profile(submission)
+      ids = {}
+      ids[:edipi] = edipi submission.auth_headers
+      ids[:icn] = icn ids[:edipi]
+
+      pp mpi_profile(user_identity(**ids)).as_json
+    end
+
+    def mpi_profile(user_identity)
+      find_profile_response = MPI::Service.new.find_profile user_identity
+      raise find_profile_response.error if find_profile_response.error
+
+      find_profile_response.profile
+    end
+
+    def user_identity(icn:, edipi:)
+      OpenStruct.new mhv_icn: icn, dslogon_edipi: edipi
+    end
+
+    def edipi(auth_headers)
+      auth_headers['va_eauth_dodedipnid']
+    end
+
+    def icn(edipi)
+      raise Error, 'no edipi' unless edipi
+
+      icns = Account.where(edipi: edipi).pluck :icn
+      raise Error, 'multiple icns' if icns.uniq.length > 1
+
+      icns.first
+    end
+
+    Form526Submission.where(id: args.extras).each { |sub| puts_mpi_profile sub }
+  end
 end
