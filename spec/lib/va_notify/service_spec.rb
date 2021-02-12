@@ -5,10 +5,11 @@ require 'va_notify/service'
 
 describe VaNotify::Service do
   before do
-    allow_any_instance_of(described_class).to receive(:api_key).and_return(
-      'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
-    )
-    allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return('http://fakeapi.com')
+    @test_api_key = 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
+    @test_base_url = 'http://fakeapi.com'
+    allow_any_instance_of(described_class).to receive(:api_key).and_return(@test_api_key)
+    allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return(@test_base_url)
+    allow_any_instance_of(VaNotify::Configuration).to receive(:api_key).and_return(@test_api_key)
   end
 
   send_email_parameters = {
@@ -18,6 +19,26 @@ describe VaNotify::Service do
       foo: 'bar'
     }
   }
+
+  describe 'default' do
+    let(:notification_client) {double('Notifications::Client')}
+    
+    it 'api key set when initialize without a service name' do
+      parameters = @test_api_key, @test_base_url
+      allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
+      VaNotify::Service.new
+      # expect(notification_client.base_url).to eq(@test_base_url)
+      # expect(notification_client).to have_received(:new).with(@test_api_key, @test_base_url)
+      expect(Notifications::Client).to have_received(:new).with(*parameters)
+    end  
+    
+    xit 'api key based on service name passed to initialize' do
+      # indicate Feature flag enabled
+      Flipper.enable(:vanotify_service_enhancement)
+    # VaNotify::Service.new('test')
+    # assert somehow client was called with 'test' associated key
+    end
+  end
 
   describe '#send_email' do
     let(:notification_client) { double('Notifications::Client') }
