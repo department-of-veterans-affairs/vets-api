@@ -5,6 +5,9 @@
 # introspect endpoint.Adds IAM sourced versions of ICN, EDIPI, and SEC ID to pass to the IAMUser model.
 #
 class IAMUserIdentity < ::UserIdentity
+  PREMIUM_LOAS = [2, 3].freeze
+  UPGRADE_AUTH_TYPES = %w[DSL MHV].freeze
+
   redis_store REDIS_CONFIG[:iam_user_identity][:namespace]
   redis_ttl REDIS_CONFIG[:iam_user_identity][:each_ttl]
   redis_key :uuid
@@ -22,6 +25,8 @@ class IAMUserIdentity < ::UserIdentity
   #
   def self.build_from_iam_profile(iam_profile)
     loa_level = iam_profile[:fediamassur_level].to_i
+    iam_auth_n_type = iam_profile[:fediamauth_n_type]
+    loa_level = 3 if UPGRADE_AUTH_TYPES.include?(iam_auth_n_type) && PREMIUM_LOAS.include?(loa_level)
 
     identity = new(
       email: iam_profile[:email],
