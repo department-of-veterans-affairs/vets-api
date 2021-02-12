@@ -22,8 +22,10 @@ module CypressViewportUpdater
       begin
         file.sha = @client.content(REPO, path: file.github_path).sha
         file.raw_content = @client.content(REPO, path: file.github_path, accept: 'application/vnd.github.V3.raw')
-      rescue Octokit::ClientError, Octokit::UnprocessableEntity, StandardError => e
+      rescue Octokit::ClientError, Octokit::UnprocessableEntity => e
+        # :nocov:
         log_exception_to_sentry(e)
+        # :nocov:
       end
 
       self
@@ -36,8 +38,10 @@ module CypressViewportUpdater
       begin
         sha = @client.ref(REPO, 'heads/master').object.sha
         @client.create_ref(REPO, ref, sha)
-      rescue Octokit::ClientError, Octokit::UnprocessableEntity, StandardError => e
+      rescue Octokit::ClientError, Octokit::UnprocessableEntity => e
+        # :nocov:
         log_exception_to_sentry(e)
+        # :nocov:
       end
     end
 
@@ -48,8 +52,10 @@ module CypressViewportUpdater
                              file.sha,
                              file.updated_content,
                              branch: feature_branch_name)
-    rescue Octokit::ClientError, Octokit::UnprocessableEntity, StandardError => e
+    rescue Octokit::ClientError, Octokit::UnprocessableEntity => e
+      # :nocov:
       log_exception_to_sentry(e)
+      # :nocov:
     end
 
     def submit_pr
@@ -58,8 +64,10 @@ module CypressViewportUpdater
                                   feature_branch_name,
                                   pr_title,
                                   pr_body)
-    rescue Octokit::ClientError, Octokit::UnprocessableEntity, StandardError => e
+    rescue Octokit::ClientError, Octokit::UnprocessableEntity => e
+      # :nocov:
       log_exception_to_sentry(e)
+      # :nocov:
     end
 
     private
