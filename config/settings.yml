@@ -296,6 +296,9 @@ mhv:
     collection_caching_enabled: true
   account:
     mock: false
+mhv_mobile:
+  sm:
+    app_token: fake-app-token
 
 # Settings for Master Veteran Index
 mvi:

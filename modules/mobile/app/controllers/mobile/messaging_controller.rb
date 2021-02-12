@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'mobile/application_controller'
-require 'sm/client'
+require 'mobile/v0/messaging/client'
 
 module Mobile
   class MessagingController < ApplicationController
@@ -13,7 +13,7 @@ module Mobile
     protected
 
     def client
-      @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_id })
+      @client ||= Mobile::V0::Messaging::Client.new(session: { user_id: current_user.mhv_correlation_id })
     end
 
     def authorize
@@ -32,7 +32,7 @@ module Mobile
 
     def pagination_params
       {
-         page: params[:page],
+        page: params[:page],
         per_page: params[:per_page]
       }
     end
