@@ -34,6 +34,7 @@ module CentralMail
     # @param submission_id [Integer] the {Form526Submission} id
     #
     def perform(submission_id)
+      Raven.tags_context(source: '526EZ-all-claims')
       super(submission_id)
       with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
         processor = EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
