@@ -5,6 +5,7 @@ module EVSS
     include Sidekiq::Worker
 
     def perform
+      Raven.tags_context(source: 'claims-status')
       claims = EVSSClaim.where("updated_at < '#{1.day.ago}'")
       logger.info("Deleting #{claims.count} old EVSS claims")
       claims.delete_all
