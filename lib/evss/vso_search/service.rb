@@ -20,17 +20,19 @@ module EVSS
       # @param additional_headers [Hash] Any additional HTTP headers you want to include in the request.
       # @return [Faraday::Response] Faraday response instance
       #
-      def get_current_info(addtional_headers = {})
+      def get_current_info(additional_headers = {})
         with_monitoring_and_error_handling do
-          perform(:post, 'getCurrentInfo', '', request_headers(addtional_headers)).body
+          perform(:post, 'getCurrentInfo', '', request_headers(additional_headers)).body
         end
       end
 
       private
 
       def request_headers(additional_headers)
+        ssn = additional_headers.key?('va_eauth_pnid') ? additional_headers['va_eauth_pnid'] : @user.ssn
+
         {
-          'ssn' => @user.ssn,
+          'ssn' => ssn,
           'Authorization' => "Token token=#{Settings.caseflow.app_token}",
           'Content-Type' => 'application/json'
         }.merge(additional_headers)

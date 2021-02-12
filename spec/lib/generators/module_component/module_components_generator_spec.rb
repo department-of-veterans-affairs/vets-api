@@ -27,7 +27,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
     it 'creates the module controller file' do
       module_generator = ModuleComponentGenerator.new(%w[foo controller])
       module_generator.create_component
-      expect(module_generator.commit_message_methods).to eq(['controller'])
       expect(File).to exist("#{path}/foo/v0/foo_controller.rb")
     end
   end
@@ -44,7 +43,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
     it 'creates the module serializer file' do
       module_generator = ModuleComponentGenerator.new(%w[foo serializer])
       module_generator.create_component
-      expect(module_generator.commit_message_methods).to eq(['serializer'])
       expect(File).to exist("#{path}/foo/v0/foo_serializer.rb")
     end
   end
@@ -61,7 +59,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
     it 'creates the module model file' do
       module_generator = ModuleComponentGenerator.new(%w[foo model])
       module_generator.create_component
-      expect(module_generator.commit_message_methods).to eq(['model'])
       expect(File).to exist("#{path}/foo/v0/foo.rb")
     end
   end
@@ -78,7 +75,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
     it 'creates the module service and configuration files' do
       module_generator = ModuleComponentGenerator.new(%w[foo service])
       module_generator.create_component
-      expect(module_generator.commit_message_methods).to eq(['service'])
       expect(File).to exist("#{path}/foo/v0/foo_service.rb")
       expect(File).to exist("#{path}/foo/v0/configuration.rb")
     end
@@ -97,7 +93,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
     it 'creates the module controller and serializer files' do
       module_generator = ModuleComponentGenerator.new(%w[foo controller serializer])
       module_generator.create_component
-      expect(module_generator.commit_message_methods).to eq(%w[controller serializer])
       expect(File).to exist("#{path}/controllers/foo/v0/foo_controller.rb")
       expect(File).to exist("#{path}/serializers/foo/v0/foo_serializer.rb")
     end
@@ -115,7 +110,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
     it 'does not create the bad_component' do
       module_generator = ModuleComponentGenerator.new(%w[foo bad_component])
       module_generator.create_component
-      expect(module_generator.commit_message_methods).to eq([])
       expect(File).not_to exist("#{path}/foo/v0/foo_bad_component.rb")
     end
   end
@@ -151,7 +145,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
     it 'does not create the bad_component' do
       module_generator = ModuleComponentGenerator.new(%w[foo controller bad_component])
       module_generator.create_component
-      expect(module_generator.commit_message_methods).to eq(['controller'])
       expect(File).not_to exist("#{path}/bad_components/foo/v0/foo_bad_component.rb")
       expect(File).to exist("#{path}/controllers/foo/v0/foo_controller.rb")
     end
@@ -171,83 +164,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
       module_component_generator.create_component
       expect(Dir).to exist(path.to_s)
       expect(File).to exist("#{path}/app/serializers/foo/v0/foo_serializer.rb")
-    end
-  end
-
-  describe 'it calls the create_commit_message method' do
-    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
-
-    let(:path) { Rails.root.join('modules', 'foo') }
-
-    it 'creates the module controller and serializer files' do
-      allow_any_instance_of(
-        ModuleComponentGenerator
-      ).to receive(:create_commit_message).and_return('stub commit method')
-      module_component_generator = ModuleComponentGenerator.new(%w[foo controller])
-      expect(module_component_generator.create_commit_message).to eq('stub commit method')
-    end
-  end
-
-  describe 'it calls the create_commit_message method with non nil commit_message_methods' do
-    before(:all) do
-      ModuleGenerator.new(['foo']).create_directory_structure
-    end
-
-    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
-
-    let(:path) { Rails.root.join('modules', 'foo') }
-
-    it 'creates the module controller and serializer files' do
-      allow_any_instance_of(
-        ModuleComponentGenerator
-      ).to receive(:create_commit_message).and_return('stub commit method')
-
-      module_component_generator = ModuleComponentGenerator.new(%w[foo controller])
-      module_component_generator.create_component
-
-      expect(module_component_generator.commit_message_methods).not_to be_nil
-      expect(module_component_generator.create_commit_message).to eq('stub commit method')
-    end
-  end
-
-  describe 'it calls the create_commit_message method with nil commit_message_methods' do
-    before(:all) do
-      ModuleGenerator.new(['foo']).create_directory_structure
-    end
-
-    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
-
-    let(:path) { Rails.root.join('modules', 'foo') }
-
-    it 'creates the module controller and serializer files' do
-      allow_any_instance_of(
-        ModuleComponentGenerator
-      ).to receive(:create_commit_message).and_return('stub commit method')
-
-      module_component_generator = ModuleComponentGenerator.new(%w[foo bad_component])
-      module_component_generator.create_component
-
-      expect(module_component_generator.commit_message_methods).to eq([])
-      expect(module_component_generator.create_commit_message).to eq('stub commit method')
-    end
-  end
-
-  describe 'it stubs the git commit' do
-    before(:all) do
-      ModuleGenerator.new(['foo']).create_directory_structure
-    end
-
-    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
-
-    let(:path) { Rails.root.join('modules', 'foo') }
-
-    it 'creates the module controller and serializer files' do
-      # stub backtick to create a new module
-      allow_any_instance_of(ModuleComponentGenerator).to receive(:git).and_return('stub commit method')
-      module_component_generator = ModuleComponentGenerator.new(%w[foo controller])
-      module_component_generator.create_component
-      expect(module_component_generator.commit_message_methods).to eq(['controller'])
-      expect(module_component_generator.create_commit_message).to eq('stub commit method')
     end
   end
 end

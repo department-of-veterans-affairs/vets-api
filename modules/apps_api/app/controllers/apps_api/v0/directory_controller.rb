@@ -8,7 +8,6 @@ module AppsApi
     class DirectoryController < ApplicationController
       skip_before_action(:authenticate)
       before_action :set_directory_application, only: %i[show update destroy]
-      before_action :verify_auth, only: %i[create update destroy]
 
       def index
         render json: {
@@ -67,11 +66,6 @@ module AppsApi
       end
 
       private
-
-      def verify_auth
-        # put this secret in settings.local.yml
-        head :unauthorized unless request.authorization == Settings.directory.secret
-      end
 
       def set_directory_application
         @directory_application = DirectoryApplication.find_by(name: params[:id])

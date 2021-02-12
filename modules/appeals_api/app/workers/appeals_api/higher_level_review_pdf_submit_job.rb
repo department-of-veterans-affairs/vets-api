@@ -11,11 +11,19 @@ module AppealsApi
     include Sidekiq::Worker
     include CentralMail::Utilities
 
-    def perform(higher_level_review, retries = 0)
-      @retries = retries
-      stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
-      upload_to_central_mail(higher_level_review, stamped_pdf)
-      File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+    def perform(higher_level_review_id, retries = 0)
+      higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
+
+      begin
+        @retries = retries
+        stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
+        higher_level_review.update!(status: 'submitting')
+        upload_to_central_mail(higher_level_review, stamped_pdf)
+        File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      rescue => e
+        higher_level_review.update!(status: 'error', code: e.class.to_s, detail: e.message)
+        raise
+      end
     end
 
     def upload_to_central_mail(higher_level_review, pdf_path)

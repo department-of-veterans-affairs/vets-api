@@ -127,6 +127,42 @@ RSpec.describe CentralMail::Service do
       end
     end
 
+    context 'with business line metadata' do
+      %w[valid blank missing invalid].each do |action|
+        test_msg = "Returns successfully when a businessLine key is #{action}"
+        resp_msg = 'Request was received successfully'
+        status = 200
+
+        if action.eql?('invalid')
+          test_msg = "Returns a failure when a businessLine key is #{action}"
+          resp_msg = 'Metadata Field Error - Invalid businessLine'
+          status = 412
+        end
+
+        it test_msg do
+          VCR.use_cassette(
+            "central_mail/metadata_business_line_#{action}",
+            match_requests_on: [multipart_request_matcher, :method, :uri]
+          ) do
+            key = 'businessLine'
+            metadata = valid_metadata.call
+
+            if action.eql? 'invalid'
+              metadata[key] = 'INVALID'
+            else
+              metadata[key] = '' if action.eql? 'blank'
+              metadata = metadata.except(key) if action.eql? 'missing'
+            end
+
+            response = upload_form.call(metadata, valid_doc)
+            regex_match = regex_match_expectation.call(resp_msg)
+            expect(response.body.strip).to match(regex_match)
+            expect(response.status).to eq(status)
+          end
+        end
+      end
+    end
+
     context 'with invalid metadata' do
       %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|
         it "Returns a 412 error when #{key} is blank" do

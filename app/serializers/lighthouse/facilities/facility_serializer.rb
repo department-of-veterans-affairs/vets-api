@@ -16,6 +16,7 @@ class Lighthouse::Facilities::FacilitySerializer
               :mobile,
               :name,
               :operating_status,
+              :operational_hours_special_instructions,
               :phone,
               :services,
               :unique_id,

@@ -7,6 +7,7 @@ Mobile::Engine.routes.draw do
   namespace :v0 do
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
     get '/appointments', to: 'appointments#index'
+    put '/appointments/cancel/:id', to: 'appointments#cancel'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_documents'

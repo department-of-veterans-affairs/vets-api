@@ -36,10 +36,6 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
     }
   end
 
-  before do
-    allow(Settings.directory).to receive(:secret).and_return(auth_string)
-  end
-
   describe '#get /services/apps/v0/directory' do
     it 'returns a populated list of applications' do
       get '/services/apps/v0/directory'
@@ -77,15 +73,6 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   end
 
   describe '#destroy /services/apps/v0/directory/:name' do
-    it 'returns unauthorized if the header is invalid' do
-      post '/services/apps/v0/directory',
-           params: { id: 'testing', directory_application: valid_params },
-           headers: valid_headers
-      delete '/services/apps/v0/directory/testing',
-             params: { id: 'testing' },
-             headers: invalid_headers
-      expect(response).to have_http_status(:unauthorized)
-    end
     it 'deletes the app' do
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: valid_params },

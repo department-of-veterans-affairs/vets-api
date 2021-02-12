@@ -48,6 +48,14 @@ describe VAOS::Middleware::VAOSLogging do
     context 'with a failed response' do
       it 'increments statsd and logs additional details in a failure line' do
         VCR.use_cassette('vaos/appointments/get_appointments_500', match_requests_on: %i[method uri]) do
+          expect(Rails.logger).to receive(:info).with(
+            '[StatsD] increment api.vaos.va_mobile.response.total:1 #method:GET '\
+              '#url:/appointments/v1/patients/xxx/appointments #http_status:500'
+          )
+          expect(Rails.logger).to receive(:info).with(
+            '[StatsD] increment api.vaos.va_mobile.response.fail:1 #method:GET '\
+              '#url:/appointments/v1/patients/xxx/appointments #http_status:500'
+          )
           expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.get_appointments.total:1')
           expect(Rails.logger).to receive(:info).with(
             '[StatsD] increment api.vaos.get_appointments.fail:1 '\
