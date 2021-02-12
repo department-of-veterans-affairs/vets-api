@@ -24,6 +24,42 @@ RSpec.describe 'claims document upload', type: :request do
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
   end
 
+  it 'uploads multiple jpeg files' do
+    files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
+             Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
+    params = { file: files, tracked_item_id: tracked_item_id, document_type: document_type, multifile: true }
+    expect do
+      post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
+    end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
+    expect(response.status).to eq(202)
+    expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
+  end
+
+  it 'uploads multiple gif files' do
+    files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
+             Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
+    params = { file: files, tracked_item_id: tracked_item_id, document_type: document_type, multifile: true }
+    expect do
+      post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
+    end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
+    expect(response.status).to eq(202)
+    expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
+  end
+
+  it 'uploads multiple mixed img files' do
+    files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
+             Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
+    params = { file: files, tracked_item_id: tracked_item_id, document_type: document_type, multifile: true }
+    expect do
+      post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
+    end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
+    expect(response.status).to eq(202)
+    expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
+    expect(Dir.empty?(Rails.root.join('tmp', 'uploads', 'cache'))).to eq(true)
+  end
+
   it 'rejects files with invalid document_types' do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: 'invalid type' }
     post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers

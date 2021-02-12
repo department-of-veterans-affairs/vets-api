@@ -114,6 +114,16 @@ namespace :form526 do
     end
     # rubocop:enable Metrics/AbcSize
 
+    def bdd_stats_mode_dates_from_args(args)
+      args_array = args.values_at :first, :second, :third
+      return [] unless bdd_flag_present? args_array
+
+      dates = dates_from_array args_array
+      start_date = dates.first || '2020-11-01'.to_date
+      end_date = dates.second || Time.zone.now.utc + 1.day
+      [start_date, end_date]
+    end
+
     def missing_dates_as_zero(hash_with_date_keys)
       dates = hash_with_date_keys.keys.sort
       return {} if dates.blank?
