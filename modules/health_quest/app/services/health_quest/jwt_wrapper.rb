@@ -34,8 +34,8 @@ module HealthQuest
         sst: 1.minute.ago.to_i + 50,
         version: VERSION,
         gender: gender,
-        dob: dob,
-        dateOfBirth: dob,
+        dob: birth_date,
+        dateOfBirth: birth_date,
         edipid: edipi,
         ssn: ssn
       }
@@ -65,8 +65,8 @@ module HealthQuest
       end
     end
 
-    def dob
-      user.mpi&.profile&.birth_date
+    def birth_date
+      user.birth_date
     end
 
     def edipi

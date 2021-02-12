@@ -578,6 +578,7 @@ maintenance:
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
+    hcq: PWGA814
   aws:
     access_key_id: ~
     bucket: ~

@@ -17,7 +17,8 @@ module BGS
     end
 
     def submit(payload)
-      proc_id = create_proc_id_and_form
+      vnp_proc_state_type_cd = get_state_type(payload)
+      proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user, claim_type: '130DPNEBNADJ').create
 
       process_relationships(proc_id, veteran, payload)
@@ -37,7 +38,8 @@ module BGS
       ).create
 
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-      bgs_service.update_proc(proc_id)
+      proc_state = vnp_proc_state_type_cd == 'MANUAL_VAGOV' ? vnp_proc_state_type_cd : 'Ready'
+      bgs_service.update_proc(proc_id, proc_state: proc_state)
     end
 
     private
@@ -58,14 +60,28 @@ module BGS
       ).create_all
     end
 
-    def create_proc_id_and_form
-      vnp_response = bgs_service.create_proc
+    def create_proc_id_and_form(vnp_proc_state_type_cd)
+      vnp_response = bgs_service.create_proc(proc_state: vnp_proc_state_type_cd)
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
         '21-686c'
       )
 
       vnp_response[:vnp_proc_id]
+    end
+
+    def get_state_type(payload)
+      selectable_options = payload['view:selectable686_options']
+      dependents_app = payload['dependents_application']
+
+      return 'MANUAL_VAGOV' if selectable_options['report_child18_or_older_is_not_attending_school']
+
+      if selectable_options['report_death']
+        relationships = %w[CHILD DEPENDENT_PARENT]
+        return 'MANUAL_VAGOV' if dependents_app['deaths'].any? { |h| relationships.include?(h['dependent_type']) }
+      end
+
+      'Started'
     end
 
     def bgs_service
