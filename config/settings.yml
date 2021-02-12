@@ -691,6 +691,10 @@ bgs:
   mock_responses: ~
   ssl_verify_mode: "peer"
 
+directory:
+  url: http://example.com/services/apps/v0/
+  apikey: fake_apikey
+
 va_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
