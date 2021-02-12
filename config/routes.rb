@@ -71,7 +71,7 @@ Rails.application.routes.draw do
     resource :post911_gi_bill_status, only: [:show]
     resource :vso_appointments, only: [:create]
 
-    resource :education_benefits_claims, only: %i[:create show] do
+    resource :education_benefits_claims, only: %i[create show] do
       collection do
         post(':form_type', action: :create, as: :form_type)
         get(:application_status)

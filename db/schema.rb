@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_03_204200) do
+ActiveRecord::Schema.define(version: 2021_02_11_075723) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -275,6 +275,7 @@ ActiveRecord::Schema.define(version: 2021_02_03_204200) do
     t.boolean "poa"
     t.string "encrypted_auth_headers_json"
     t.string "encrypted_auth_headers_json_iv"
+    t.integer "remaining_entitlement"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end

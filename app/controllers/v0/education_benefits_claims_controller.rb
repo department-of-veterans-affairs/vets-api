@@ -23,18 +23,22 @@ module V0
     def application_status
       current_applications = []
       load_user
+      current_applications = user_stem_automated_decision_claims unless @current_user.nil?
 
-      if !user.nil?
-
-      end
-
-      render(json: current_applications)
+      render json: current_applications, each_serializer: EducationBenefitsClaimSerializer
     end
 
     private
 
     def form_type
       params[:form_type] || '1990'
+    end
+
+    def user_stem_automated_decision_claims
+      EducationBenefitsClaim.joins(:education_stem_automated_decision)
+                            .where(
+                              'education_stem_automated_decisions.user_uuid' => @current_user.uuid
+                            ).to_a
     end
 
     def education_benefits_claim_params
