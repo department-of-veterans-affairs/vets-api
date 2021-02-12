@@ -15,7 +15,7 @@ namespace :form526 do
       rake form526:submissions[bdd,2021-02-10,2021-02-11]
       rake form526:submissions[bdd,2021-02-10,2021-02-11,unredacted]
   HEREDOC
-  task :submissions, %i[first second third fourth] => [:environment] do |_, args|
+  task submissions: :environment do |_, args|
     # rubocop:disable Style/FormatStringToken
     # This forces string token formatting. Our examples don't match
     # what this style is enforcing
@@ -71,9 +71,9 @@ namespace :form526 do
       :success_failure_totals_header_string,
       keyword_init: true
     )
-    def date_range_mode(args)
-      start_date = args[:first]&.to_date || 30.days.ago.utc
-      end_date = args[:second]&.to_date || Time.zone.now.utc
+    def date_range_mode(args_array)
+      start_date = args_array.first&.to_date || 30.days.ago.utc
+      end_date = args_array.second&.to_date || Time.zone.now.utc
       separator = ' '
       printf_string = ROW[:order].map { |key| ROW[:format_strings][key] }.join(separator)
       print_row = ->(**fields) { puts format(printf_string, *ROW[:order].map { |key| fields[key] }) }
@@ -177,8 +177,7 @@ namespace :form526 do
       dates
     end
 
-    args_array = args.values_at(:first, :second, :third, :fourth)
-    options = bdd_flag_present?(args_array) ? bdd_stats_mode(args_array) : date_range_mode(args)
+    options = bdd_flag_present?(args_array) ? bdd_stats_mode(args.extras) : date_range_mode(args.extras)
 
     options.print_hr.call
     options.print_header.call
