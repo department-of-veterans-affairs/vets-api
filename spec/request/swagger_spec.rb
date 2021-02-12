@@ -771,11 +771,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, headers)
         end
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
-          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
-        end
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
           expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 400, headers)
+        end
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 502, headers)
         end
       end
 
@@ -1813,32 +1813,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           create :vha_648A4
           expect(subject).to validate(:get, '/v0/facilities/suggested', 400,
                                       '_query_string' => 'type[]=foo&name_part=por')
-        end
-
-        it 'supports getting a provider by id' do
-          expect_any_instance_of(Facilities::PPMS::V0::Client).to receive(:provider_info)
-            .with('1407842941').and_return(provider)
-          expect_any_instance_of(Facilities::PPMS::V0::Client).to receive(:provider_services)
-            .with('1407842941').and_return([provider_services_response])
-          expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_1407842941')
-        end
-
-        it '400s on improper id' do
-          VCR.use_cassette('facilities/ppms/ppms', match_requests_on: %i[path query]) do
-            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
-          end
-        end
-
-        it '404s if provider is missing' do
-          VCR.use_cassette('facilities/ppms/ppms_nonexistent', match_requests_on: [:method]) do
-            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 404, 'id' => 'ccp_123123')
-          end
-        end
-
-        it 'supports getting the services list' do
-          VCR.use_cassette('facilities/ppms/ppms_specialties', match_requests_on: %i[path query]) do
-            expect(subject).to validate(:get, '/v0/facilities/services', 200)
-          end
         end
       end
     end

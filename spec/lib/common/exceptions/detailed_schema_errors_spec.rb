@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
 require 'common/exceptions/detailed_schema_errors'
 
 describe Common::Exceptions::DetailedSchemaErrors do
@@ -19,10 +19,13 @@ describe Common::Exceptions::DetailedSchemaErrors do
     { 'name' => 'Dom N. Ated',
       'age' => 30,
       'married' => false,
+      'pattern' => 'domn@ed',
       'email' => 'domn@ed.com',
       'gender' => 'male',
       'location' => { 'latitude' => 38.9013369,
                       'longitude' => -77.0316181 },
+      'favoriteFood' => 'pizza',
+      'hungry?' => false,
       'requiredField' => 'exists' }
   end
   let(:pointer) { subject[:source][:pointer] }
@@ -129,12 +132,30 @@ describe Common::Exceptions::DetailedSchemaErrors do
     end
   end
 
+  context 'const' do
+    it 'has title, detail, and meta' do
+      data['favoriteFood'] = Faker::Lorem.sentence
+      expect(subject[:title]).to eq 'Invalid value'
+      expect(subject[:detail]).to eq "'#{data['favoriteFood']}' does not match the provided const"
+      expect(subject[:meta][:required_value]).to eq('pizza')
+    end
+  end
+
   context 'patterns' do
+    it 'has title, detail, and meta' do
+      data['pattern'] = Faker::Lorem.sentence
+      expect(subject[:title]).to eq 'Invalid pattern'
+      expect(subject[:detail]).to eq "'#{data['pattern']}' did not match the defined pattern"
+      expect(subject[:meta][:regex]).to eq '.@.'
+    end
+  end
+
+  context 'email' do
     it 'has title, detail, and meta' do
       data['email'] = Faker::Lorem.sentence
       expect(subject[:title]).to eq 'Invalid format'
       expect(subject[:detail]).to eq "'#{data['email']}' did not match the defined format"
-      expect(subject[:meta][:regex]).to eq '.@.'
+      expect(subject[:meta][:format]).to eq 'email'
     end
   end
 
@@ -185,9 +206,9 @@ describe Common::Exceptions::DetailedSchemaErrors do
     subject { described_class.new(@validator.validate(data).to_a).errors }
 
     it 'displays all errors found for that pointer' do
-      data['email'] = 'A'
+      data['pattern'] = 'A'
       expect(subject.size).to eq 2
-      expect(subject.map { |e| e[:source][:pointer] }).to eq %w[/email /email]
+      expect(subject.map { |e| e[:source][:pointer] }).to eq %w[/pattern /pattern]
       expect(subject.map { |e| e[:code] }).to match_array %w[142 143]
     end
   end
@@ -201,6 +222,15 @@ describe Common::Exceptions::DetailedSchemaErrors do
       expect(error[:title]).to eq 'Validation error'
       expect(error[:code]).to eq '100'
       expect(error[:source][:pointer]).to eq '/married'
+    end
+  end
+
+  context 'respects conditional fields' do
+    it do
+      data['hungry?'] = true
+      expect(subject[:title]).to eq 'Missing required fields'
+      expect(subject[:detail]).to eq 'One or more expected fields were not found'
+      expect(subject[:meta][:missing_fields]).to eq ['dessert']
     end
   end
 end

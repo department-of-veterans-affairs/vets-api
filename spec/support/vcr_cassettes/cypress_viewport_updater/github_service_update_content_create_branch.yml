@@ -1,0 +1,155 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs/heads/master
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 4.20.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Wed, 03 Feb 2021 13:44:51 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+      Status:
+      - 200 OK
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP
+      - Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - W/"ad186048ad8c0356e40039cf0665f9aae3b2ccad95e9e5a275394d9b105b03ab"
+      Last-Modified:
+      - Wed, 03 Feb 2021 13:24:36 GMT
+      X-Poll-Interval:
+      - '300'
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Ratelimit-Limit:
+      - '15000'
+      X-Ratelimit-Remaining:
+      - '14980'
+      X-Ratelimit-Reset:
+      - '1612363475'
+      X-Ratelimit-Used:
+      - '20'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      X-Github-Request-Id:
+      - C2B3:7202:131F316:2BEC201:601AA8D3
+    body:
+      encoding: ASCII-8BIT
+      string: '{"ref":"refs/heads/master","node_id":"MDM6UmVmMzMyMDI2Njc6cmVmcy9oZWFkcy9tYXN0ZXI=","url":"https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs/heads/master","object":{"sha":"a88961fc46104ca8e9f758793eaa3eebc7a0a7a0","type":"commit","url":"https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/commits/a88961fc46104ca8e9f758793eaa3eebc7a0a7a0"}}'
+  recorded_at: Wed, 03 Feb 2021 13:44:51 GMT
+- request:
+    method: post
+    uri: https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs
+    body:
+      encoding: UTF-8
+      string: '{"ref":"refs/heads/02032021134451653_update_cypress_viewport_data","sha":"a88961fc46104ca8e9f758793eaa3eebc7a0a7a0"}'
+    headers:
+      Accept:
+      - application/vnd.github.v3+json
+      User-Agent:
+      - Octokit Ruby Gem 4.20.0
+      Content-Type:
+      - application/json
+      Authorization:
+      - removed
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 201
+      message: Created
+    headers:
+      Server:
+      - GitHub.com
+      Date:
+      - Wed, 03 Feb 2021 13:44:52 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '529'
+      Status:
+      - 201 Created
+      Cache-Control:
+      - private, max-age=60, s-maxage=60
+      Vary:
+      - Accept, Authorization, Cookie, X-GitHub-OTP
+      - Accept-Encoding, Accept, X-Requested-With
+      Etag:
+      - '"02fdff254d013ac1c29979d30401b12a3ce6f6a027de08235f4e74030d0bc09a"'
+      Location:
+      - https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs/heads/02032021134451653_update_cypress_viewport_data
+      X-Github-Media-Type:
+      - github.v3; format=json
+      X-Ratelimit-Limit:
+      - '15000'
+      X-Ratelimit-Remaining:
+      - '14979'
+      X-Ratelimit-Reset:
+      - '1612363475'
+      X-Ratelimit-Used:
+      - '21'
+      Access-Control-Expose-Headers:
+      - ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining,
+        X-RateLimit-Used, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes,
+        X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset
+      Access-Control-Allow-Origin:
+      - "*"
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      X-Frame-Options:
+      - deny
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Referrer-Policy:
+      - origin-when-cross-origin, strict-origin-when-cross-origin
+      Content-Security-Policy:
+      - default-src 'none'
+      X-Github-Request-Id:
+      - C2B4:1F94:1F5DBC8:3647DFE:601AA8D3
+    body:
+      encoding: UTF-8
+      string: '{"ref":"refs/heads/02032021134451653_update_cypress_viewport_data","node_id":"MDM6UmVmMzMyMDI2Njc6cmVmcy9oZWFkcy8wMjAzMjAyMTEzNDQ1MTY1M191cGRhdGVfY3lwcmVzc192aWV3cG9ydF9kYXRh","url":"https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/refs/heads/02032021134451653_update_cypress_viewport_data","object":{"sha":"a88961fc46104ca8e9f758793eaa3eebc7a0a7a0","type":"commit","url":"https://api.github.com/repos/department-of-veterans-affairs/vets-website/git/commits/a88961fc46104ca8e9f758793eaa3eebc7a0a7a0"}}'
+  recorded_at: Wed, 03 Feb 2021 13:44:52 GMT
+recorded_with: VCR 6.0.0

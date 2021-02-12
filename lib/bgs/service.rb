@@ -15,12 +15,12 @@ module BGS
       @user = user
     end
 
-    def create_proc
+    def create_proc(proc_state: 'Started')
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_create(
           {
             vnp_proc_type_cd: 'DEPCHG',
-            vnp_proc_state_type_cd: 'Started',
+            vnp_proc_state_type_cd: proc_state,
             creatd_dt: Time.current.iso8601,
             last_modifd_dt: Time.current.iso8601,
             submtd_dt: Time.current.iso8601
@@ -39,13 +39,13 @@ module BGS
       end
     end
 
-    def update_proc(proc_id)
+    def update_proc(proc_id, proc_state: 'Ready')
       with_multiple_attempts_enabled do
         service.vnp_proc_v2.vnp_proc_update(
           {
             vnp_proc_id: proc_id,
             vnp_proc_type_cd: 'DEPCHG',
-            vnp_proc_state_type_cd: 'Ready',
+            vnp_proc_state_type_cd: proc_state,
             creatd_dt: Time.current.iso8601,
             last_modifd_dt: Time.current.iso8601,
             submtd_dt: Time.current.iso8601
@@ -140,7 +140,7 @@ module BGS
 
     def update_manual_proc(proc_id)
       service.vnp_proc_v2.vnp_proc_update(
-        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'Manual', vnp_proc_type_cd: 'DEPCHG' }.merge(bgs_auth)
+        { vnp_proc_id: proc_id, vnp_proc_state_type_cd: 'MANUAL_VAGOV', vnp_proc_type_cd: 'DEPCHG' }.merge(bgs_auth)
       )
     rescue => e
       notify_of_service_exception(e, __method__)

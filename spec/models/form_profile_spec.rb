@@ -584,7 +584,7 @@ RSpec.describe FormProfile, type: :model do
     {
       'personalIdentification' => {
         'ssn' => user.ssn.last(4),
-        'fileNumber' => '7890'
+        'fileNumber' => '3735'
       },
       'personalData' => {
         'fullName' => full_name,
@@ -596,10 +596,7 @@ RSpec.describe FormProfile, type: :model do
       'income' => [
         {
           'veteranOrSpouse' => 'VETERAN',
-          'otherIncome' => {
-            'name' => 'VA Benefits',
-            'amount' => '541.83'
-          }
+          'compensationAndPension' => '3444.7'
         }
       ]
     }
@@ -861,18 +858,15 @@ RSpec.describe FormProfile, type: :model do
     context 'with a user that can prefill financial status report' do
       before do
         allow_any_instance_of(BGS::PeopleService).to(
-          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '796043735' })
         )
         allow_any_instance_of(User).to(
-          receive(:participant_id).and_return('111111')
-        )
-        allow_any_instance_of(User).to(
-          receive(:icn).and_return('999999')
+          receive(:participant_id).and_return('600061742')
         )
       end
 
       it 'returns a prefilled 5655 form' do
-        VCR.use_cassette('bgs/awards_service/get_awards') do
+        VCR.use_cassette('bgs/payment_service/payment_history') do
           expect_prefilled('5655')
         end
       end
@@ -937,7 +931,7 @@ RSpec.describe FormProfile, type: :model do
           stub_methods_for_emis_data
           Settings.vet360.prefill = true
 
-          v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+          v22_1990_expected['email'] = VAProfileRedis::ContactInformation.for_user(user).email.email_address
           v22_1990_expected['homePhone'] = '3035551234'
           v22_1990_expected['mobilePhone'] = '3035551234'
           v22_1990_expected['veteranAddress'] = {
@@ -1108,7 +1102,8 @@ RSpec.describe FormProfile, type: :model do
             before do
               Settings.vet360.prefill = true
               expected_veteran_info = v21_526_ez_expected['veteran']
-              expected_veteran_info['emailAddress'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+              expected_veteran_info['emailAddress'] =
+                VAProfileRedis::ContactInformation.for_user(user).email.email_address
               expected_veteran_info['primaryPhone'] = '3035551234'
             end
 
@@ -1139,6 +1134,27 @@ RSpec.describe FormProfile, type: :model do
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
         expect_prefilled('21P-530')
+      end
+
+      context 'without address' do
+        let(:v21_p_530_expected) do
+          {
+            'claimantFullName' => {
+              'first' => user.first_name&.capitalize,
+              'last' => user.last_name&.capitalize,
+              'suffix' => user.va_profile[:suffix]
+            }
+          }
+        end
+
+        before do
+          allow_any_instance_of(FormProfiles::VA21p530)
+            .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
+        end
+
+        it "doesn't throw an exception" do
+          expect_prefilled('21P-530')
+        end
       end
     end
 
