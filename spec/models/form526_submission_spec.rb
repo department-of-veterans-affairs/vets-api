@@ -81,6 +81,46 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe '#birls_id!' do
+    it 'returns the BIRLS ID' do
+      expect(subject.birls_id!).to eq(auth_headers[described_class::BIRLS_KEY])
+    end
+
+    context 'auth_headers is nil' do
+      it 'throws an exception' do
+        subject.auth_headers_json = nil
+        expect { subject.birls_id! }.to raise_error TypeError
+      end
+    end
+
+    context 'auth_headers is unparseable' do
+      it 'throws an exception' do
+        subject.auth_headers_json = 'hi!'
+        expect { subject.birls_id! }.to raise_error JSON::ParserError
+      end
+    end
+  end
+
+  describe '#birls_id' do
+    it 'returns the BIRLS ID' do
+      expect(subject.birls_id).to eq(auth_headers[described_class::BIRLS_KEY])
+    end
+
+    context 'auth_headers is nil' do
+      it 'returns nil' do
+        subject.auth_headers_json = nil
+        expect(subject.birls_id).to be_nil
+      end
+    end
+
+    context 'auth_headers is unparseable' do
+      it 'throws an exception' do
+        subject.auth_headers_json = 'hi!'
+        expect { subject.birls_id }.to raise_error JSON::ParserError
+      end
+    end
+  end
+
   describe '#perform_ancillary_jobs_handler' do
     let(:status) { OpenStruct.new(parent_bid: SecureRandom.hex(8)) }
 
