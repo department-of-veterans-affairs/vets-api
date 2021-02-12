@@ -160,10 +160,10 @@ namespace :form526 do
       dates = []
       array.each do |value|
         date = begin
-          value.to_date
+                 value.to_date
                rescue
                  nil
-        end
+               end
         dates << date if date
       end
       dates
