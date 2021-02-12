@@ -16,8 +16,6 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
     set_up do
       user = build_user_and_stub_session
       FactoryBot.create(:covid_vax_registration, :unsubmitted, account_id: user.account_uuid)
-      # or should I not create an unsubmitted registration and
-      # follow this example - line 245, modules/covid_vaccine/spec/request/covid_vaccine/v0/registration_request_spec.rb
     end
 
     tear_down do
@@ -27,7 +25,6 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
   provider_state 'authenticated user submits registration data' do
     set_up do
       build_user_and_stub_session
-      # what to do next?
     end
 
     tear_down do
