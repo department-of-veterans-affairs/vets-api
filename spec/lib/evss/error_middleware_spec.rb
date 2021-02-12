@@ -35,7 +35,7 @@ describe EVSS::ErrorMiddleware do
         </messages>
       </submit686Request>
       XML
-    )
+    ).twice
 
     expect do
       described_class.new.on_complete(env)

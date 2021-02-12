@@ -26,8 +26,11 @@ module AppealsApi
             it { expect(form_data.veteran_dob).to eq('1969-12-31') }
           end
 
-          describe '#mailing_address_number_and_street' do
-            it { expect(form_data.mailing_address_number_and_street).to eq('USE ADDRESS ON FILE') }
+          describe '#mailing_address' do
+            it do
+              expect(form_data.mailing_address)
+                .to eq('123 Main St Suite #1200 Box 4, New York, NY, 30012, United States')
+            end
           end
 
           describe '#homeless' do
@@ -45,11 +48,11 @@ module AppealsApi
           end
 
           describe '#preferred_phone' do
-            it { expect(form_data.preferred_phone).to eq('USE PHONE NUMBER ON FILE') }
+            it { expect(form_data.preferred_phone).to eq('+6-555-800-1111 ext2') }
           end
 
           describe '#preferred_email' do
-            it { expect(form_data.preferred_email).to eq('USE EMAIL ON FILE') }
+            it { expect(form_data.preferred_email).to eq('user@example.com') }
           end
 
           describe '#direct_review' do

@@ -120,10 +120,20 @@ VBADocuments::RunUnsuccessfulSubmissions:
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
-AppealsApi::DecisionReviewReportJob:
+AppealsApi::DecisionReviewReportDaily:
   cron: "0 0 * * MON-FRI America/New_York"
-  class: AppealsApi::DecisionReviewReportJob
+  class: AppealsApi::DecisionReviewReportDaily
   description: "Daily report of appeals submissions"
+
+AppealsApi::DecisionReviewReportWeekly:
+  cron: "0 0 * * MON America/New_York"
+  class: AppealsApi::DecisionReviewReportWeekly
+  description: "Weekly report of appeals submissions"
+
+AppealsApi::DailyErrorReport:
+  cron: "0 0 * * MON-FRI America/New_York"
+  class: AppealsApi::DailyErrorReport
+  description: "Daily report of appeals errors"
 
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
   every: ['24h', first_in: '45m']
@@ -162,7 +172,7 @@ ExternalServicesStatusJob:
   description: "Checks the current status of all external services through PagerDuty's API"
 
 VAForms::FetchLatest:
-  cron: "0 0 * * * America/New_York"
+  cron: "0 2 * * * America/New_York"
   class: VAForms::FormReloader
   description: "Fetches latest VA Forms"
 

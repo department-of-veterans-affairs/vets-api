@@ -19,8 +19,6 @@ module EducationForm
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
-                    unique_for: 30.minutes,
-                    retry: 5,
                     backtrace: true
 
     # Get all 10203 submissions that have a row in education_stem_automated_decisions
@@ -29,7 +27,7 @@ module EducationForm
         saved_claims: {
           form_id: '22-10203'
         }
-      )
+      ).order('education_benefits_claims.created_at')
     )
       return false unless Flipper.enabled?(:stem_automated_decision) && evss_is_healthy?
 
@@ -60,10 +58,11 @@ module EducationForm
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
-      user_submissions.each do |user_uuid, submissions|
-        user = User.find(user_uuid)
-        poa = get_user_poa_status(user)
-        gi_bill_status = get_gi_bill_status(user)
+      user_submissions.each_value do |submissions|
+        auth_headers = submissions.last.education_stem_automated_decision.auth_headers
+        gi_bill_status = get_gi_bill_status(auth_headers)
+        poa = get_user_poa_status(auth_headers)
+
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each do |submission|
             update_automated_decision(submission, PROCESSED, poa)
@@ -77,28 +76,37 @@ module EducationForm
     end
 
     # Retrieve EVSS gi_bill_status data for a user
-    def get_gi_bill_status(user)
-      service = EVSS::GiBillStatus::Service.new(user)
-      service.get_gi_bill_status
+    def get_gi_bill_status(auth_headers)
+      return {} if auth_headers.nil?
+
+      service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
+      service.get_gi_bill_status(auth_headers)
     rescue => e
       Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
       {}
     end
 
     # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(user)
-      service = EVSS::VSOSearch::Service.new(user)
-      service.get_current_info['userPoaInfoAvailable']
+    def get_user_poa_status(auth_headers)
+      return nil if auth_headers.nil?
+
+      service = EVSS::VSOSearch::Service.new(nil, auth_headers)
+      service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
       Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
       nil
     end
 
+    # Ignore already processed either by CreateDailySpoolFiles or this job
     def update_automated_decision(submission, status, poa)
-      submission.education_stem_automated_decision.update(
-        automated_decision_state: status,
-        poa: poa
-      )
+      if submission.processed_at.nil? &&
+         submission.education_stem_automated_decision&.automated_decision_state == INIT
+
+        submission.education_stem_automated_decision.update(
+          automated_decision_state: status,
+          poa: poa
+        )
+      end
     end
 
     # Makes a list of all submissions that have not been processed and have a status of INIT
@@ -138,24 +146,18 @@ module EducationForm
         unprocessed_form.benefit_left == processed_form.benefit_left
     end
 
-    # Ignore already processed either by CreateDailySpoolFiles or this job
-    #
     # Set status to DENIED when isPursuingTeachingCert in form data is 'no' (false)
     #   and isEnrolledStem is 'no' (false)
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status, user_has_poa)
-      if submission.processed_at.nil? &&
-         submission.education_stem_automated_decision&.automated_decision_state == INIT
-
-        submission_form = format_application(submission)
-        status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
-                    more_than_six_months?(gi_bill_status)
-                   DENIED
-                 else
-                   PROCESSED
-                 end
-        update_automated_decision(submission, status, user_has_poa)
-      end
+      submission_form = format_application(submission)
+      status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
+                  more_than_six_months?(gi_bill_status)
+                 DENIED
+               else
+                 PROCESSED
+               end
+      update_automated_decision(submission, status, user_has_poa)
     end
 
     def format_application(data)

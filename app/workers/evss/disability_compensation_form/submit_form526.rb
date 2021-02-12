@@ -26,13 +26,15 @@ module EVSS
       # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
+        Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           service = service(submission.auth_headers)
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
-      rescue Common::Exceptions::GatewayTimeout,
+      rescue Common::Exceptions::BackendServiceException,
+             Common::Exceptions::GatewayTimeout,
              Breakers::OutageException,
              EVSS::DisabilityCompensationForm::ServiceUnavailableException => e
         retryable_error_handler(e)
