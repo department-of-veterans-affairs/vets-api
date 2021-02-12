@@ -103,7 +103,7 @@ MESSAGES
     it 'inserts to the simplecov helper' do
       options = {
         insert_matcher: "add_group 'Foo', 'modules/foo/'",
-        new_entry: "\tadd_group 'Foo','modules/foo/'\n",
+        new_entry: "    add_group 'Foo', 'modules/foo/'\n",
         regex: /# Modules(.*)end/m
       }
       allow_any_instance_of(ModuleGenerator).to(
@@ -116,7 +116,7 @@ MESSAGES
     it 'inserts to the  spec helper' do
       options = {
         insert_matcher: "add_group 'Foo', 'modules/foo/'",
-        new_entry: "\tadd_group 'Foo','modules/foo/'\n",
+        new_entry: "    add_group 'Foo', 'modules/foo/'\n",
         regex: /# Modules(.*)# End Modules/m
       }
 
@@ -130,7 +130,7 @@ MESSAGES
     it 'inserts to the gemfile' do
       options = {
         insert_matcher: "gem '#{module_name}'",
-        new_entry: "\tgem '#{module_name}'\n"
+        new_entry: "  gem '#{module_name}'\n"
       }
 
       allow_any_instance_of(ModuleGenerator).to(
@@ -143,7 +143,7 @@ MESSAGES
     it 'inserts to the routes file' do
       options = {
         insert_matcher: "mount Foo::Engine, at: '/foo'",
-        new_entry: "\tmount Foo::Engine, at: '/foo'\n",
+        new_entry: "  mount Foo::Engine, at: '/foo'\n",
         regex: /# Modules(.*)# End Modules/m
       }
 
