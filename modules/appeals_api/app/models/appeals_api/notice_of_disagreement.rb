@@ -20,7 +20,7 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    validate :validate_hearing_type_selection
+    validate :validate_hearing_type_selection, if: :pii_present?
 
     def pdf_structure(version)
       Object.const_get(
@@ -52,7 +52,35 @@ module AppealsApi
       header_field_as_string 'X-Consumer-ID'
     end
 
-    def veteran_homeless_state
+    def veteran_contact_info
+      form_data&.dig('data', 'attributes', 'veteran')
+    end
+
+    def mailing_address
+      address_combined = [
+        veteran_contact_info.dig('address', 'addressLine1'),
+        veteran_contact_info.dig('address', 'addressLine2'),
+        veteran_contact_info.dig('address', 'addressLine3')
+      ].compact.map(&:strip).join(' ')
+
+      [
+        address_combined,
+        veteran_contact_info.dig('address', 'city'),
+        veteran_contact_info.dig('address', 'stateCode'),
+        veteran_contact_info.dig('address', 'zipCode5'),
+        veteran_contact_info.dig('address', 'countryName')
+      ].compact.map(&:strip).join(', ')
+    end
+
+    def phone
+      AppealsApi::HigherLevelReview::Phone.new(veteran_contact_info&.dig('phone')).to_s
+    end
+
+    def email
+      veteran_contact_info.dig('emailAddressText')
+    end
+
+    def veteran_homeless?
       form_data&.dig('data', 'attributes', 'veteran', 'homeless')
     end
 
@@ -113,6 +141,11 @@ module AppealsApi
 
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
+    end
+
+    # After expunging pii, form_data is nil, update will fail unless validation skipped
+    def pii_present?
+      proc { |a| a.form_data.present? }
     end
   end
 end

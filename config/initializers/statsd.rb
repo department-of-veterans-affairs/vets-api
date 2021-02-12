@@ -196,7 +196,7 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_n
 
     if params['radius']
       tags << "facilities.ppms.radius:#{params['radius']}"
-      tags << "facilities.ppms.results:#{payload[:body].count}"
+      tags << "facilities.ppms.results:#{payload[:body]&.count || 0}"
     end
 
     StatsD.measure(measurement, duration, tags: tags)

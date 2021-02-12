@@ -34,6 +34,7 @@ module Mobile
 
       attribute :id, Types::String
       attribute :appointment_type, APPOINTMENT_TYPE
+      attribute :cancel_id, Types::String.optional
       attribute :comment, Types::String.optional
       attribute :facility_id, Types::String.optional
       attribute :healthcare_service, Types::String.optional
@@ -43,6 +44,12 @@ module Mobile
       attribute :start_date_utc, Types::DateTime
       attribute :status, STATUS_TYPE
       attribute :time_zone, TIME_ZONE_TYPE
+
+      def self.toggle_non_prod_id!(id)
+        return id if Settings.hostname == 'www.va.gov' || !%w[442 552 983 984].include?(id)
+        return (%w[442 983] - [id]).first if %w[442 983].include? id
+        return (%w[552 984] - [id]).first if %w[552 984].include? id
+      end
     end
   end
 end

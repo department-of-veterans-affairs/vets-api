@@ -26,6 +26,7 @@ path 'modules' do
   gem 'veteran_confirmation'
   gem 'veteran_verification'
 end
+# End Modules
 
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.7'

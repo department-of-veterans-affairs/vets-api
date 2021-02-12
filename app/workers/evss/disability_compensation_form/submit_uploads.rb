@@ -8,12 +8,20 @@ module EVSS
       # retry for one day
       sidekiq_options retry: 14
 
+      # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
+      # :nocov:
+      sidekiq_retries_exhausted do |msg, _ex|
+        job_exhausted(msg, STATSD_KEY_PREFIX)
+      end
+      # :nocov:
+
       # Recursively submits a file in a new instance of this job for each upload in the uploads list
       #
       # @param submission_id [Integer] The {Form526Submission} id
       # @param uploads [Array<String>] A list of the upload GUIDs in AWS S3
       #
       def perform(submission_id, uploads)
+        Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
         upload_data = uploads.shift
         guid = upload_data&.dig('confirmationCode')

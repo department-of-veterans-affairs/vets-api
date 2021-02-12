@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/base_headers'
+require 'formatters/date_formatter'
 
 module EVSS
   class DisabilityCompensationAuthHeaders < EVSS::BaseHeaders
@@ -23,7 +24,7 @@ module EVSS
           edi: @user.edipi,
           firstName: @user.first_name,
           lastName: @user.last_name,
-          birthDate: iso8601_birth_date,
+          birthDate: Formatters::DateFormatter.format_date(@user.birth_date, :datetime_iso8601),
           gender: gender
         }
       }.to_json

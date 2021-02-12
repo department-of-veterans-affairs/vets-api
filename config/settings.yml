@@ -162,13 +162,23 @@ modules_appeals_api:
   higher_level_review_updater_enabled: true
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
-  report_enabled: false
-  report_recipients:
-    - drew.fisher@adhocteam.us
-    - jack.schuss@oddball.io
-    - kelly@adhocteam.us
-    - laura.trager@adhocteam.us
-    - nathan.wright@oddball.io
+  reports:
+    decision_review:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
+    daily_error:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
   schema_dir: config/schemas
 
 vre_counseling:
@@ -433,6 +443,7 @@ reports:
       - lihan@adhocteam.us
       - Lucas.Tickner@va.gov
       - Ricardo.DaSilva@va.gov
+      - robert.shinners@va.gov
       - shay.norton@va.gov
       - tammy.hurley1@va.gov
     staging_emails:
@@ -510,7 +521,6 @@ reports:
       - sonntag_adam@bah.com
       - tammy.hurley1@va.gov
       - turner_desiree@bah.com
-
 
 oidc:
   auth_server_metadata_url: ~
@@ -771,3 +781,22 @@ veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
   auth_endpoint: ~
+
+# Settings for connecting to the va.gov Google Analytics for the Cypress Viewport Updater
+google_analytics_cvu:
+  type: service_account
+  project_id: vsp-analytics-and-insights
+  private_key_id: ~
+  private_key: ~
+  client_email: va-gov-top-user-viewports@vsp-analytics-and-insights.iam.gserviceaccount.com
+  client_id: ~
+  auth_uri: https://accounts.google.com/o/oauth2/auth
+  token_uri: https://oauth2.googleapis.com/token
+  auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+  client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/va-gov-top-user-viewports%40vsp-analytics-and-insights.iam.gserviceaccount.com
+
+# Settings for connecting to the cypress-viewport-updater-bot GitHub app
+github_cvu:
+  installation_id: ~
+  integration_id: ~
+  private_pem: ~

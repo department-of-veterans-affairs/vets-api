@@ -25,23 +25,27 @@
             "type": "object",
             "required": [
               "appointmentType",
+              "cancelId",
               "comment",
-              "facilityId",
               "healthcareService",
               "location",
               "minutesDuration",
               "startDateLocal",
               "startDateUtc",
-              "status"
+              "status",
+              "timeZone"
             ],
             "properties": {
               "appointmentType": {
                 "type": "string"
               },
-              "comment": {
-                "type": ["string", "null"]
+              "cancelId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
-              "facilityId": {
+              "comment": {
                 "type": [
                   "string",
                   "null"
@@ -144,7 +148,10 @@
                 }
               },
               "minutesDuration": {
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               },
               "startDateLocal": {
                 "type": "string"
@@ -154,6 +161,12 @@
               },
               "status": {
                 "type": "string"
+              },
+              "timeZone": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           }
