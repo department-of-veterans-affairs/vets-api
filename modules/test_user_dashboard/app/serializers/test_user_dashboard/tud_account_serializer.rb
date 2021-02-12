@@ -4,5 +4,9 @@ module TestUserDashboard
   class TudAccountSerializer < ActiveModel::Serializer
     attributes :id, :account_uuid, :first_name, :middle_name, :last_name, :gender,
                :birth_date, :ssn, :phone, :email, :password, :available, :checkout_time
+
+    def available
+      object.available?
+    end
   end
 end
