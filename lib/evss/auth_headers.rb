@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/base_headers'
+require 'formatters/date_formatter'
 
 module EVSS
   class AuthHeaders < EVSS::BaseHeaders
@@ -26,7 +27,7 @@ module EVSS
         'va_eauth_birlsfilenumber' => @user.birls_id,
         'va_eauth_pid' => @user.participant_id,
         'va_eauth_pnid' => @user.ssn,
-        'va_eauth_birthdate' => iso8601_birth_date,
+        'va_eauth_birthdate' => Formatters::DateFormatter.format_date(@user.birth_date, :datetime_iso8601),
         'va_eauth_authorization' => eauth_json,
         'va_eauth_authenticationauthority' => 'eauth',
         'va_eauth_service_transaction_id' => @transaction_id
@@ -54,7 +55,7 @@ module EVSS
           edi: @user.edipi,
           firstName: @user.first_name,
           lastName: @user.last_name,
-          birthDate: iso8601_birth_date
+          birthDate: Formatters::DateFormatter.format_date(@user.birth_date, :datetime_iso8601)
         }
       }.to_json
     end
