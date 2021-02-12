@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'socket'
+require 'formatters/date_formatter'
 
 module MPI
   module Messages
@@ -44,7 +45,7 @@ module MPI
           'edipi' => user.edipi,
           'first_name' => user.first_name,
           'last_name' => user.last_name,
-          'date_of_birth' => Date.parse(user.birth_date).strftime('%Y%m%d'),
+          'date_of_birth' => Formatters::DateFormatter.format_date(user.birth_date, :number_iso8601),
           'ssn' => user.ssn,
           'current_datetime' => current_time.strftime('%Y-%m-%d %H:%M:%S'),
           'ip_address' => ip_address

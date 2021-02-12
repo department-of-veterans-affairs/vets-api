@@ -60,6 +60,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
       end
     end
 
+    context 'Empty Results', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_empty_search') do
+      it 'responds to GET #index with success even if no providers are found' do
+        get '/v1/facilities/ccp', params: params
+
+        expect(response).to be_successful
+      end
+    end
+
     context 'type=provider' do
       context 'specialties=261QU0200X' do
         let(:params) do
