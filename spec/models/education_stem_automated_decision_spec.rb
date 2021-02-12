@@ -6,7 +6,7 @@ RSpec.describe EducationStemAutomatedDecision, type: :model do
   subject { described_class.new }
 
   describe 'auth_headers' do
-    it 'returns nil for empty auth headers' do
+    it 'returns nil without saved auth_headers' do
       expect(subject.auth_headers).to be_nil
     end
 
