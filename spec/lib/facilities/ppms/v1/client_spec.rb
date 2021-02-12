@@ -44,6 +44,14 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
     end
   end
 
+  context 'with an empty result', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_empty_search') do
+    it 'returns an empty array' do
+      r = described_class.new.provider_locator(params.merge(specialties: ['213E00000X']))
+
+      expect(r).to be_empty
+    end
+  end
+
   context 'Legacy Code, BBOX' do
     it 'Calculates the center and radius from bbox param' do
       bbox = ['-72.60', '41.86', '-75.5', '38.96']
