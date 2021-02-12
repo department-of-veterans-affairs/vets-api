@@ -142,6 +142,10 @@ module DecisionReview
       errors = JSONSchemer.schema(schema).validate(json).to_a
       return if errors.empty?
 
+      PersonalInformationLog.create!(
+        error_class: "#{self.class.name}#validate_against_schema exception",
+        data: { json: json, schema: schema, errors: errors }
+      )
       raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
     end
 

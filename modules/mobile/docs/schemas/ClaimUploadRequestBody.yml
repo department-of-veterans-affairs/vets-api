@@ -5,8 +5,10 @@ required:
   - documentType
 properties:
   file:
-    type: string
-    description: base64 string of file to upload
+    oneOf:
+      - type: string
+      - type: array
+    description: base64 string(s) of file(s) to upload
   trackedItemId:
     type: string
     description: item id from claim eventsTimeline

@@ -1,0 +1,115 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe 'health_quest questionnaire_manager', type: :request do
+  let(:access_denied_message) { 'You do not have access to the health quest service' }
+  let(:questionnaires_id) { '32' }
+  let(:default_client_reply) { double('FHIR::ClientReply') }
+
+  describe 'GET questionnaire_manager' do
+    context 'loa1 user' do
+      before do
+        sign_in_as(current_user)
+      end
+
+      let(:current_user) { build(:user, :loa1) }
+
+      it 'has forbidden status' do
+        get '/health_quest/v0/questionnaire_manager'
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'has access denied message' do
+        get '/health_quest/v0/questionnaire_manager'
+
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq(access_denied_message)
+      end
+    end
+
+    context 'health quest user' do
+      let(:current_user) { build(:user, :health_quest) }
+      let(:session_store) { double('SessionStore', token: '123abc') }
+      let(:questionnaire_manager_data) do
+        {
+          data: [
+            {
+              appointment: {
+                id: 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
+                attributes: {
+                  facility_id: '534',
+                  clinic_id: '12975'
+                }
+              },
+              questionnaire: [
+                {
+                  id: 'abc-123-def-455',
+                  title: 'Primary Care',
+                  questionnaire_response: {
+                    id: 'abc-123-def-455',
+                    status: 'completed',
+                    submitted_on: '2021-02-01'
+                  }
+                },
+                {
+                  id: 'ccc-123-ddd-455',
+                  title: 'Donut Intake',
+                  questionnaire_response: {
+                    status: 'in-progress'
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      end
+      let(:output) do
+        {
+          'data' => [
+            {
+              'appointment' => {
+                'id' => 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
+                'attributes' => {
+                  'facility_id' => '534',
+                  'clinic_id' => '12975'
+                }
+              },
+              'questionnaire' => [
+                {
+                  'id' => 'abc-123-def-455',
+                  'title' => 'Primary Care',
+                  'questionnaire_response' => {
+                    'id' => 'abc-123-def-455',
+                    'status' => 'completed',
+                    'submitted_on' => '2021-02-01'
+                  }
+                },
+                {
+                  'id' => 'ccc-123-ddd-455',
+                  'title' => 'Donut Intake',
+                  'questionnaire_response' => {
+                    'status' => 'in-progress'
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      end
+
+      before do
+        sign_in_as(current_user)
+        allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
+        allow_any_instance_of(HealthQuest::QuestionnaireManager::Factory).to receive(:all)
+          .and_return(questionnaire_manager_data)
+      end
+
+      it 'returns a formatted hash response' do
+        get '/health_quest/v0/questionnaire_manager'
+
+        expect(JSON.parse(response.body)).to eq(output)
+      end
+    end
+  end
+end

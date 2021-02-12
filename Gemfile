@@ -26,6 +26,7 @@ path 'modules' do
   gem 'veteran_confirmation'
   gem 'veteran_verification'
 end
+# End Modules
 
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.7'
@@ -65,6 +66,8 @@ gem 'flipper-active_record'
 gem 'flipper-active_support_cache_store'
 gem 'flipper-ui'
 gem 'foreman'
+gem 'google-api-client'
+gem 'googleauth'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
@@ -84,6 +87,7 @@ gem 'mini_magick', '~> 4.10.1'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.11'
 gem 'notifications-ruby-client', '~> 5.1'
+gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
 gem 'olive_branch'

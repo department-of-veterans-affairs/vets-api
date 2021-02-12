@@ -57,6 +57,10 @@ shrine:
 account:
   enabled: true
 
+directory:
+  url: http://example.com/services/apps/v0/
+  apikey: <fake_api_key>
+
 search:
   access_key: TESTKEY
   affiliate: va

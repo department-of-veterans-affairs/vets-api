@@ -11,8 +11,12 @@ namespace :form526 do
       rake form526:submissions[]
     BDD stats mode:
       rake form526:submissions[bdd]
+      rake form526:submissions[bdd,2021-02-11] # this date and beyond
+      rake form526:submissions[2021-02-11,bdd] # "
+      rake form526:submissions[bdd,2021-02-10,2021-02-11] # restricted to date range (inclusive)
+      rake form526:submissions[2021-02-10,2021-02-11,bdd] # "
   HEREDOC
-  task :submissions, %i[first second] => [:environment] do |_, args|
+  task :submissions, %i[first second third] => [:environment] do |_, args|
     # rubocop:disable Style/FormatStringToken
     # This forces string token formatting. Our examples don't match
     # what this style is enforcing
@@ -79,7 +83,7 @@ namespace :form526 do
         print_header: -> { print_row.call(**ROW[:headers]) },
         print_hr: -> { puts '------------------------------------------------------------' },
         print_row: print_row,
-        print_total: ->(header, total) { puts format("%-20s#{separator}%s", header, total) },
+        print_total: ->(header, total) { puts format("%-20s#{separator}%s", "#{header}:", total) },
         ignore_submission: ->(_) { false },
         submissions: Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day]),
         success_failure_totals_header_string: "* Job Success/Failure counts between #{start_date} - #{end_date} *"
@@ -87,25 +91,37 @@ namespace :form526 do
     end
 
     def bdd_stats_mode(args)
-      return nil unless args[:first]&.downcase&.include? 'bdd'
+      start_date, end_date = bdd_stats_mode_dates_from_args args
+      return nil unless start_date
 
       redact_participant_id = true
       separator = ','
-      print_row = ->(**fields) { puts ROW[:order].map { |key| fields[key].inspect }.join(separator) }
+      print_row = lambda do |**fields|
+        puts ROW[:order].map { |key| fields[key].try(:iso8601) || fields[key].inspect }.join(separator)
+      end
       print_row_with_redacted_participant_id = lambda do |**fields|
         print_row.call(**fields.merge(p_id: '*****' + fields[:p_id].to_s[5..]))
       end
-      start_date = '2020-11-01'
 
       OPTIONS_STRUCT.new(
         print_header: -> { puts ROW[:order].map { |key| ROW[:headers][key] }.join(separator) },
         print_hr: -> { puts },
         print_row: redact_participant_id ? print_row_with_redacted_participant_id : print_row,
-        print_total: ->(header, total) { puts "#{header}#{separator}#{total}" },
+        print_total: ->(header, total) { puts "#{header.to_s.strip}#{separator}#{total}" },
         ignore_submission: ->(submission) { submission.bdd? ? false : submission.id },
-        submissions: Form526Submission.where('created_at >= ?', start_date.to_date.beginning_of_day),
+        submissions: Form526Submission.where(created_at: [start_date.beginning_of_day..end_date.end_of_day]),
         success_failure_totals_header_string: '* Job Success/Failure counts *'
       )
+    end
+
+    def bdd_stats_mode_dates_from_args(args)
+      args_array = args.values_at :first, :second, :third
+      return [] unless bdd_flag_present? args_array
+
+      dates = dates_from_array args_array
+      start_date = dates.first || '2020-11-01'.to_date
+      end_date = dates.second || Time.zone.now.utc + 1.day
+      [start_date, end_date]
     end
 
     def missing_dates_as_zero(hash_with_date_keys)
@@ -134,6 +150,23 @@ namespace :form526 do
 
     def tomorrow(date_string)
       to_date_string date_string.to_date.tomorrow
+    end
+
+    def bdd_flag_present?(array)
+      array.any? { |value| value&.to_s&.downcase&.include? 'bdd' }
+    end
+
+    def dates_from_array(array)
+      dates = []
+      array.each do |value|
+        date = begin
+                 value.to_date
+               rescue
+                 nil
+               end
+        dates << date if date
+      end
+      dates
     end
 
     options = bdd_stats_mode(args) || date_range_mode(args)
@@ -190,23 +223,23 @@ namespace :form526 do
 
     options.print_hr.call
     puts options.success_failure_totals_header_string
-    options.print_total.call('Total Jobs: ', total_jobs)
-    options.print_total.call('Successful Jobs: ', success_jobs_count)
-    options.print_total.call('Failed Jobs: ', fail_jobs)
+    options.print_total.call('Total Jobs', total_jobs)
+    options.print_total.call('Successful Jobs', success_jobs_count)
+    options.print_total.call('Failed Jobs', fail_jobs)
     options.print_total.call('User Success Rate', user_success_rate)
 
     options.print_hr.call
-    options.print_total.call('Total Users Submitted: ', total_users_submitting)
-    options.print_total.call('Total Users Submitted Successfully: ', total_successful_users_submitting)
+    options.print_total.call('Total Users Submitted', total_users_submitting)
+    options.print_total.call('Total Users Submitted Successfully', total_successful_users_submitting)
     options.print_total.call('User Success rate', user_success_rate)
 
     options.print_hr.call
     puts '* Failure Counts for form526 Submission Job (not including uploads/cleanup/etc...) *'
-    options.print_total.call('Outage Failures: ', outage_errors)
-    options.print_total.call('Other Failures: ', other_errors)
+    options.print_total.call('Outage Failures', outage_errors)
+    options.print_total.call('Other Failures', other_errors)
     puts 'Ancillary Job Errors:'
     ancillary_job_errors.each do |class_name, error_count|
-      options.print_total.call "    #{class_name}:", error_count
+      options.print_total.call "    #{class_name}", error_count
     end
 
     options.print_hr.call

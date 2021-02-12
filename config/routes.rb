@@ -35,6 +35,11 @@ Rails.application.routes.draw do
 
     resources :preferred_facilities, only: %i[index create destroy]
 
+    resources :apps, only: %i[index show]
+    scope_default = { category: 'unknown_category' }
+    get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
+    get 'apps/scopes', to: 'apps#scopes', defaults: scope_default
+
     resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
@@ -176,9 +181,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
-      resources :ccp, only: %i[index show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
-      get 'services', to: 'ccp#services'
     end
 
     scope :gi, module: 'gids' do
@@ -353,11 +356,12 @@ Rails.application.routes.draw do
   end
 
   # Modules
-  mount HealthQuest::Engine, at: '/health_quest'
-  mount VAOS::Engine, at: '/vaos'
   mount CovidResearch::Engine, at: '/covid-research'
-  mount Mobile::Engine, at: '/mobile'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
+  mount HealthQuest::Engine, at: '/health_quest'
+  mount Mobile::Engine, at: '/mobile'
+  mount VAOS::Engine, at: '/vaos'
+  # End Modules
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

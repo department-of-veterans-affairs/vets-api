@@ -27,7 +27,7 @@ module BGS
         death = BGSDependents::Death.new(death_info)
         relationship_types = death.relationship_type(death_info)
 
-        next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
+        # next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
 
         formatted_info = death.format_info
         death_info['location']['state_code'] = death_info['location'].delete('state')
@@ -39,7 +39,10 @@ module BGS
           participant,
           relationship_types[:participant],
           relationship_types[:family],
-          { type: 'death' }
+          {
+            type: 'death',
+            dep_has_income_ind: formatted_info['dependent_income']
+          }
         )
       end
     end
@@ -60,7 +63,8 @@ module BGS
           divorce_country: formatted_info['divorce_country'],
           end_date: formatted_info['end_date'],
           marriage_termination_type_code: formatted_info['marriage_termination_type_code'],
-          type: 'divorce'
+          type: 'divorce',
+          dep_has_income_ind: formatted_info['spouse_income']
         }
       )
     end
