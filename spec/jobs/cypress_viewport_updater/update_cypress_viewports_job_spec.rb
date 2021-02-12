@@ -6,6 +6,8 @@ RSpec.describe CypressViewportUpdater::UpdateCypressViewportsJob do
   describe '#perform' do
     let!(:job) { described_class.new }
     let!(:analytics) do
+      allow(Google::Auth::ServiceAccountCredentials).to receive(:make_creds).and_return(true)
+
       instance_double('CypressViewportUpdater::GoogleAnalyticsReports',
                       request_reports: true,
                       user_report: true,
