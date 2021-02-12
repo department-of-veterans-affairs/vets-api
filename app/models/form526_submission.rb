@@ -98,7 +98,7 @@ class Form526Submission < ApplicationRecord
   end
 
   def birls_id=(value)
-    headers = JSON.parse auth_headers_json
+    headers = JSON.parse(auth_headers_json) || {}
     headers[BIRLS_KEY] = value
     self.auth_headers_json = headers.to_json
     @auth_headers_hash = nil # reset cache
