@@ -68,7 +68,11 @@ module DecisionReview
         headers = get_contestable_issues_headers(user)
         response = perform :get, path, nil, headers
         raise_schema_error_unless_200_status response.status
-        validate_against_schema json: response.body, schema: HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA, append_to_error_class: ' (HLR)'
+        validate_against_schema(
+          json: response.body,
+          schema: HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA,
+          append_to_error_class: ' (HLR)'
+        )
         response
       end
     end
