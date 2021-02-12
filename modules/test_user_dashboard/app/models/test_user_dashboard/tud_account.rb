@@ -9,5 +9,8 @@ module TestUserDashboard
     # uncomment when adding id_provider column information
     # validates :id_provider, presence: true
     # validates :id_provider, inclusion: { in: ID_PROVIDERS }
+    def available?
+      checkout_time.nil?
+    end
   end
 end
