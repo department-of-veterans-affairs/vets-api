@@ -587,6 +587,7 @@ ActiveRecord::Schema.define(version: 2021_02_11_075723) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
