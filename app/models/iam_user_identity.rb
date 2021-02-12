@@ -13,6 +13,7 @@ class IAMUserIdentity < ::UserIdentity
   attribute :iam_icn, String
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
+  attribute :iam_mhv_id, String
 
   # Builds an identity instance from the profile returned in the IAM introspect response
   #
@@ -29,6 +30,7 @@ class IAMUserIdentity < ::UserIdentity
       iam_icn: iam_profile[:fediam_mviicn],
       iam_edipi: iam_profile[:fediam_do_dedipn_id],
       iam_sec_id: iam_profile[:fediamsecid],
+      iam_mhv_id: valid_mhv_id(iam_profile[:fediam_mhv_ien]),
       last_name: iam_profile[:family_name],
       loa: { current: loa_level, highest: loa_level },
       middle_name: iam_profile[:middle_name]
@@ -52,4 +54,14 @@ class IAMUserIdentity < ::UserIdentity
   def uuid
     Digest::UUID.uuid_v5(@iam_sec_id, @iam_icn)
   end
+
+  # Return a single mhv id from a possible comma-separated list value attribute
+  def self.valid_mhv_id(id_from_profile)
+    # TODO: site login fails if multiple _different_ MHV IDs are present
+    # Should this code be doing the same? Or at least logging a warning?
+    # see lib/saml/user_attributes/ssoe.rb for example validation
+    id_from_profile&.split(',')&.first
+  end
+
+  private_class_method :valid_mhv_id
 end
