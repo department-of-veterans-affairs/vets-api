@@ -50,7 +50,7 @@ module BB
     # @return [Faraday::Connection] a Faraday connection instance
     #
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: { verify: false }) do |conn|
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
         conn.request :camelcase
         conn.request :json

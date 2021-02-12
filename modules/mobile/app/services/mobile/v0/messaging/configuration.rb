@@ -47,7 +47,7 @@ module Mobile
         #
         def connection
           Faraday.new(base_path, headers: base_request_headers,
-                                 request: request_options, ssl: { verify: false }) do |conn|
+                                 request: request_options) do |conn|
             conn.use :breakers
             conn.request :camelcase
             conn.request :multipart_request
