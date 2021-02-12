@@ -17,8 +17,12 @@ module ClaimsApi
       rescue_from ::Common::Exceptions::Unauthorized do |e|
         error!({ errors: ClaimsApi::Entities::V2::ErrorEntity.represent(e.errors) }, 401)
       end
+      rescue_from Grape::Exceptions::ValidationErrors do |e|
+        base_error = { title: 'Bad Request', detail: e.message, code: '400', status: '400' }
+        error!({ errors: [ClaimsApi::Entities::V2::ErrorEntity.represent(base_error)] }, 400)
+      end
       rescue_from :all do |e|
-        base_error = { title: 'Internal server error', detail: e.message, code: '500', status: '500' }
+        base_error = { title: 'Internal Server Error', detail: e.message, code: '500', status: '500' }
         error!({ errors: [ClaimsApi::Entities::V2::ErrorEntity.represent(base_error)] }, 500)
       end
 
@@ -54,6 +58,7 @@ module ClaimsApi
         end
       end
 
+      mount ClaimsApi::V2::Veterans
       mount ClaimsApi::V2::Claims
       mount ClaimsApi::V2::Forms::DisabilityCompensation
       mount ClaimsApi::V2::Forms::IntentToFile
@@ -71,6 +76,7 @@ module ClaimsApi
           license: 'Creative Commons'
         },
         tags: [
+          { name: 'Veteran Identifiers', description: 'Unique Veteran Identifier' },
           { name: 'Claims', description: 'Benefits Claims' },
           { name: 'Disability', description: '526 Claim Submissions' },
           { name: 'Intent to File', description: '0966 Submissions' },
