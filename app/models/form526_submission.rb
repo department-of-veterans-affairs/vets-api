@@ -129,22 +129,6 @@ class Form526Submission < ApplicationRecord
     @auth_headers_hash ||= JSON.parse(auth_headers_json)
   end
 
-  # allows auth_headers to raise an exception (JSON.parse nil)
-  def birls_id!
-    auth_headers[BIRLS_KEY]
-  end
-
-  def birls_id
-    birls_id! if auth_headers_json
-  end
-
-  def birls_id=(value)
-    headers = JSON.parse auth_headers_json
-    headers[BIRLS_KEY] = value
-    self.auth_headers_json = headers.to_json
-    @auth_headers_hash = nil # reset cache
-  end
-
   # this method is for queuing up BIRLS ids in the birls_ids_tried hash,
   # and can also be used for initializing birls_ids_tried.
   # birls_ids_tried has this shape:
