@@ -15,7 +15,7 @@ Pact.provider_states_for 'Coronavirus Vaccination' do
   provider_state 'registration data does not exist' do
     set_up do
       user = build_user_and_stub_session
-      FactoryBot.create(:covid_vax_registration, :unsubmitted, account_id: user.account_uuid)
+      CovidVaccine::V0::RegistrationSubmission.for_user(user).last
     end
 
     tear_down do
