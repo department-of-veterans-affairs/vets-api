@@ -14,9 +14,14 @@ module AppsApi
       @notify_client = VaNotify::Service.new
       @connection_event = 'app.oauth2.as.consent.grant'
       @disconnection_event = 'app.oauth2.as.token.revoke'
+      @staging_flag = Settings.directory.staging_flag
     end
 
     def handle_event(event_type, template)
+      # @staging_flag is set to false in all environments, except for staging. This will be
+      # removed once all testing has been completed in the staging environment
+      return if @staging_flag == false
+
       logs = get_events(event_type)
       logs.body.each do |event|
         unless event_is_invalid(event)
