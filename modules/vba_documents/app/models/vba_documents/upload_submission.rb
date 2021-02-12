@@ -8,7 +8,6 @@ module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
-
     send(:validates_uniqueness_of, :guid)
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
@@ -18,6 +17,7 @@ module VBADocuments
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 
     after_save :report_errors
+
 
     def self.fake_status(guid)
       empty_submission = OpenStruct.new(guid: guid,
@@ -72,6 +72,11 @@ module VBADocuments
           raise Common::Exceptions::BadGateway
         end
       end
+    end
+
+    def upload_file
+      @upload_file ||= UploadFile.find_by_guid(self.guid)
+      @upload_file
     end
 
     def get_location
