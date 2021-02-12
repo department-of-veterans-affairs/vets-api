@@ -16,7 +16,7 @@ namespace :form526 do
       rake form526:submissions[bdd,2021-02-10,2021-02-11] # restricted to date range (inclusive)
       rake form526:submissions[2021-02-10,2021-02-11,bdd] # "
   HEREDOC
-  task :submissions, %i[first second] => [:environment] do |_, args|
+  task :submissions, %i[first second third] => [:environment] do |_, args|
     # rubocop:disable Style/FormatStringToken
     # This forces string token formatting. Our examples don't match
     # what this style is enforcing
