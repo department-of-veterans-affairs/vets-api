@@ -26,8 +26,12 @@ module VaNotify
       Settings.vanotify.client_url
     end
 
-    def api_key
-      Settings.vanotify.api_key
+    def api_key(vanotify_service_name = nil)
+      if Flipper.enabled?(:vanotify_service_enhancement)
+        Settings.vanotify.services[:"#{vanotify_service_name}"][:api_key]
+      else
+        Settings.vanotify.api_key
+      end
     end
 
     def service_name

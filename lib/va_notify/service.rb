@@ -2,7 +2,7 @@
 
 require 'notifications/client'
 require 'common/client/base'
-require 'va_notify/configuration'
+require_relative 'configuration'
 
 module VaNotify
   class Service < Common::Client::Base
@@ -14,9 +14,9 @@ module VaNotify
 
     attr_reader :notify_client
 
-    def initialize
+    def initialize(vanotify_service_name = nil)
       overwrite_client_networking
-      @notify_client ||= Notifications::Client.new(api_key, client_url)
+      @notify_client ||= Notifications::Client.new(api_key(vanotify_service_name), client_url)
     rescue => e
       handle_error(e)
     end
@@ -47,12 +47,18 @@ module VaNotify
       end
     end
 
+    def instance_service_name(vanotify_service_name)
+      if Flipper.enabled?(:vanotify_service_enhancement, user)
+        Settings.vanotify.services[:"#{vanotify_service_name}"]
+      end
+    end
+
     def client_url
       config.base_path
     end
 
-    def api_key
-      config.api_key
+    def api_key(vanotify_service_name)
+      config.api_key(vanotify_service_name)
     end
 
     def handle_error(error)
