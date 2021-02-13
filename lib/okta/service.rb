@@ -69,7 +69,7 @@ module Okta
         delete_url_with_token("#{USER_API_BASE_PATH}/#{user_id}/grants/#{grant_id}")
       end
     end
-
+    # This can probably go ...
     def metadata(iss)
       proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
       with_monitoring do
