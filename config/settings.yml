@@ -297,6 +297,11 @@ mhv:
   account:
     mock: false
 
+# Settings for alternate MHV integration for mobile app
+mhv_mobile:
+  sm:
+    app_token: fake-app-token
+
 # Settings for Master Veteran Index
 mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
