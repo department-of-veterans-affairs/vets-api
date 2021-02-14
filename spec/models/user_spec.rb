@@ -332,8 +332,8 @@ RSpec.describe User, type: :model do
           expect(user.gender).to be(user.identity.gender)
         end
 
-        it 'fetches birth_date from IDENTITY' do
-          expect(user.birth_date).to be(user.identity.birth_date)
+        it 'fetches properly parsed birth_date from IDENTITY' do
+          expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
 
         it 'fetches zip from IDENTITY' do
@@ -400,8 +400,8 @@ RSpec.describe User, type: :model do
           expect(user.gender).to be(user.va_profile.gender)
         end
 
-        it 'fetches birth_date from MVI' do
-          expect(user.birth_date).to eq(user.va_profile.birth_date.to_date.to_s)
+        it 'fetches properly parsed birth_date from MVI' do
+          expect(user.birth_date).to eq(Date.parse(user.va_profile.birth_date).iso8601)
         end
 
         it 'fetches zip from MVI' do
@@ -470,8 +470,8 @@ RSpec.describe User, type: :model do
           expect(user.gender).to be(user.identity.gender)
         end
 
-        it 'fetches birth_date from IDENTITY' do
-          expect(user.birth_date).to be(user.identity.birth_date)
+        it 'fetches properly parsed birth_date from IDENTITY' do
+          expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
 
         it 'fetches zip from IDENTITY' do
@@ -700,6 +700,57 @@ RSpec.describe User, type: :model do
 
         expect(account.class).to eq Account
         expect(account.idme_uuid).to eq user.uuid
+      end
+    end
+  end
+
+  describe '#birth_date' do
+    let(:user) { subject }
+
+    context 'when birth_date attribute is available on the UserIdentity object' do
+      it 'returns iso8601 parsed date from the UserIdentity birth_date attribute' do
+        expect(user.birth_date).to eq Date.parse(user.identity.birth_date.to_s).iso8601
+      end
+    end
+
+    context 'when birth_date attribute is not available on the UserIdentity object' do
+      before do
+        allow(user.identity).to receive(:birth_date).and_return nil
+      end
+
+      context 'and mhv_icn attribute is available on the UserIdentity object' do
+        let(:user) { described_class.new(build(:user, :mhv, mhv_icn: 'some-mhv-icn')) }
+
+        context 'and MPI Profile birth date does not exist' do
+          before do
+            allow(user.mpi.profile).to receive(:birth_date).and_return nil
+          end
+
+          it 'returns nil' do
+            expect(user.birth_date).to eq nil
+          end
+        end
+
+        context 'and MPI Profile birth date does exist' do
+          it 'returns iso8601 parsed date from the MPI Profile birth_date attribute' do
+            expect(user.birth_date).to eq Date.parse(user.mpi.profile.birth_date.to_s).iso8601
+          end
+        end
+      end
+
+      context 'when birth_date attribute cannot be retrieved from UserIdentity or MPI object' do
+        before do
+          allow(user.identity).to receive(:birth_date).and_return nil
+        end
+
+        it 'logs a cannot find birth date message to Rails logger' do
+          expect(Rails.logger).to receive(:info).with "[User] Cannot find birth date for User with uuid: #{user.uuid}"
+          user.birth_date
+        end
+
+        it 'returns nil' do
+          expect(user.birth_date).to eq nil
+        end
       end
     end
   end

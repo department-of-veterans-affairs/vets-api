@@ -25,6 +25,7 @@ describe Common::Exceptions::DetailedSchemaErrors do
       'location' => { 'latitude' => 38.9013369,
                       'longitude' => -77.0316181 },
       'favoriteFood' => 'pizza',
+      'hungry?' => false,
       'requiredField' => 'exists' }
   end
   let(:pointer) { subject[:source][:pointer] }
@@ -221,6 +222,15 @@ describe Common::Exceptions::DetailedSchemaErrors do
       expect(error[:title]).to eq 'Validation error'
       expect(error[:code]).to eq '100'
       expect(error[:source][:pointer]).to eq '/married'
+    end
+  end
+
+  context 'respects conditional fields' do
+    it do
+      data['hungry?'] = true
+      expect(subject[:title]).to eq 'Missing required fields'
+      expect(subject[:detail]).to eq 'One or more expected fields were not found'
+      expect(subject[:meta][:missing_fields]).to eq ['dessert']
     end
   end
 end

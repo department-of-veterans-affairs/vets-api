@@ -53,7 +53,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     options_hash = {}
     options_hash[:regex] = /# Modules(.*)# End Modules/m
     options_hash[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
-    options_hash[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
+    options_hash[:new_entry] = "    add_group '#{file_name.camelize}', " \
                        "'modules/#{file_name}/'\n"
 
     module_generator_file_insert('spec/spec_helper.rb', options_hash)
@@ -65,7 +65,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     options_hash = {}
     options_hash[:regex] = /# Modules(.*)end/m
     options_hash[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
-    options_hash[:new_entry] = "\tadd_group '#{file_name.camelize}'," \
+    options_hash[:new_entry] = "    add_group '#{file_name.camelize}', " \
                        "'modules/#{file_name}/'\n"
 
     module_generator_file_insert('spec/simplecov_helper.rb', options_hash)
@@ -74,7 +74,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
   def update_gemfile
     options_hash = {}
     options_hash[:insert_matcher] = "gem '#{file_name}'"
-    options_hash[:new_entry] = "\t#{options_hash[:insert_matcher]}\n"
+    options_hash[:new_entry] = "  #{options_hash[:insert_matcher]}\n"
 
     module_generator_file_insert('Gemfile', options_hash)
   end
@@ -83,7 +83,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     options_hash = {}
     options_hash[:regex] = /# Modules(.*)# End Modules/m
     options_hash[:insert_matcher] = "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
-    options_hash[:new_entry] = "\tmount #{file_name.camelize}::Engine, at: '/#{file_name}'\n"
+    options_hash[:new_entry] = "  mount #{file_name.camelize}::Engine, at: '/#{file_name}'\n"
 
     module_generator_file_insert('config/routes.rb', options_hash)
   end
