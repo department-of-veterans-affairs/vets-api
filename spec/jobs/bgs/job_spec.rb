@@ -26,7 +26,6 @@ RSpec.describe BGS::Job, type: :job do
 
   describe '#salvage_save_in_progress_form' do
     it 'returns nil if the in progress form is blank' do
-
       job = described_class.new
 
       in_progress_form = job.salvage_save_in_progress_form('686C-674', user.uuid, nil)
