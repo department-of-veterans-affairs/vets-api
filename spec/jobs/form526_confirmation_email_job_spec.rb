@@ -3,7 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Form526ConfirmationEmailJob, type: :worker do
-  before { Sidekiq::Worker.clear_all }
+  before do
+    Flipper.disable(:vanotify_service_enhancement)
+    Sidekiq::Worker.clear_all
+  end
 
   describe '#perform' do
     let(:notification_client) { double('Notifications::Client') }
