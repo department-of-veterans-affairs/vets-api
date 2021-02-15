@@ -74,11 +74,6 @@ module VBADocuments
       end
     end
 
-    def upload_file
-      @upload_file ||= UploadFile.find_by_guid(self.guid)
-      @upload_file
-    end
-
     def get_location
       rewrite_url(signed_url(guid))
     end

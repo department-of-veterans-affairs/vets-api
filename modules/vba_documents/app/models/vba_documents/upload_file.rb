@@ -1,20 +1,22 @@
 # frozen_string_literal: true
 require_dependency 'vba_documents/multipart_parser'
 module VBADocuments
-  class UploadFile < ApplicationRecord
+  class UploadFile < UploadSubmission
     has_one_attached  :multipart_file
     alias_method :multipart, :multipart_file
     before_save :set_blob_key
     after_save :update_upload_submission
+    after_find :validate_type
 
     def initialize(attributes = nil)
       super
-      setup
+      self.use_active_storage = true
     end
 
-    def upload_submission
-      @submission ||= UploadSubmission.find_by_guid(self.guid)
-      @submission
+    def validate_type
+      if !self.use_active_storage
+        raise TypeError.new("This guid #{self.guid} can only be instantiated as an UploadSubmission!")
+      end
     end
 
     def uploaded?
@@ -27,7 +29,7 @@ module VBADocuments
 
     def remove_from_storage
       self.multipart.purge
-      upload_submission.update(s3_deleted: true)
+      self.update(s3_deleted: true)
     end
 
     # todo have this model only have has_one_attached (always the multipart)
@@ -44,11 +46,6 @@ module VBADocuments
     end
 
     private
-    def setup
-      self.guid= SecureRandom.uuid
-      @submission = VBADocuments::UploadSubmission.new
-      @submission.guid = guid
-    end
 
     def set_blob_key
       if self.multipart.attached?
@@ -57,10 +54,9 @@ module VBADocuments
     end
 
     def update_upload_submission
-      if (upload_submission.status.eql?('pending') && uploaded?)
-        upload_submission.status = 'uploaded'
+      if (self.status.eql?('pending') && uploaded?)
+        self.update(status: 'uploaded')
       end
-      upload_submission.save!
     end
   end
 
@@ -72,15 +68,14 @@ end
 
 include VBADocuments
 f = UploadFile.new
-f.upload_submission
 
-f.multipart.attach(io: StringIO.new("Hello World"), filename: f.guid)
+f.multipart.attach(io: StringIO.new("Hello World\n"), filename: f.guid)
 f.multipart.attached?
 f.save!
 
 n = UploadFile.new
 
-n.multipart.attach(io: StringIO.new("Hello World"), filename: f.guid)
+n.multipart.attach(io: StringIO.new("Hello World\n"), filename: f.guid)
 n.multipart.attached?
 
 =end
