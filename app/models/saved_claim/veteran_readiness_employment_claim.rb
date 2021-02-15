@@ -20,7 +20,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'pid' => user.participant_id,
         'edipi' => user.edipi,
         'vet360ID' => user.vet360_id,
-        'dob' => parsed_date(user.birth_date)
+        'dob' => user.birth_date
       }
     ).except!('vaFileNumber')
 
@@ -64,11 +64,5 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     file_number.presence
   rescue
     nil
-  end
-
-  def parsed_date(date)
-    date.strftime('%Y-%m-%d')
-  rescue
-    date
   end
 end

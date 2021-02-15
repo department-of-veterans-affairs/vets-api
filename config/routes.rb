@@ -35,6 +35,11 @@ Rails.application.routes.draw do
 
     resources :preferred_facilities, only: %i[index create destroy]
 
+    resources :apps, only: %i[index show]
+    scope_default = { category: 'unknown_category' }
+    get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
+    get 'apps/scopes', to: 'apps#scopes', defaults: scope_default
+
     resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
@@ -176,9 +181,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
-      resources :ccp, only: %i[index show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
-      get 'services', to: 'ccp#services'
     end
 
     scope :gi, module: 'gids' do

@@ -254,41 +254,6 @@ RSpec.describe 'VA Facilities Locator - PostGIS', type: :request, team: :facilit
     expect(response).to have_http_status(:bad_request)
   end
 
-  context 'Community Care (PPMS)', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms') do
-    let(:params) do
-      {
-        address: '58 Leonard Ave, Leonardo, NJ 07737',
-        bbox: ['-75.91', '38.55', '-72.19', '42.27']
-      }
-    end
-
-    it 'responds to GET #index with bbox, address, and ccp type' do
-      get '/v0/facilities/va', params: params.merge('type' => 'cc_provider', 'services' => ['213E00000X'])
-      expect(response).to be_successful
-      expect(response.body).to be_a(String)
-      json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(8)
-      provider = json['data'][0]
-      expect(provider['attributes']['address']['city']).to eq('RED BANK')
-      expect(provider['attributes']['phone']).to be_nil
-      expect(provider['attributes']['caresite_phone']).to eq('732-219-6625')
-    end
-
-    it 'responds to GET #index with success even if no providers are found' do
-      VCR.use_cassette(
-        'facilities/ppms/ppms_empty_search',
-        match_requests_on: [:method],
-        allow_playback_repeats: true
-      ) do
-        get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
-        expect(response).to be_successful
-        expect(response.body).to be_a(String)
-        json = JSON.parse(response.body)
-        expect(json['data'].length).to eq(0)
-      end
-    end
-  end
-
   context 'with bad bbox param' do
     it 'returns 400 for nonsense bbox' do
       get '/v0/facilities/va?bbox[]=everywhere'

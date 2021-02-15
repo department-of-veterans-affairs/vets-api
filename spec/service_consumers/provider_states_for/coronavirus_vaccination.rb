@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 Pact.provider_states_for 'Coronavirus Vaccination' do
-  provider_state 'retrieves previously saved submission data for user' do
+  provider_state 'registration data exists' do
     set_up do
       user = build_user_and_stub_session
       submission = CovidVaccine::V0::RegistrationSubmission.for_user(user).last
-      submission || FactoryBot.create(:covid_vax_registration)
+      submission || FactoryBot.create(:covid_vax_registration, account_id: user.account_uuid)
     end
 
     tear_down do
     end
   end
 
-  provider_state 'submission data for user does not exist' do
+  provider_state 'registration data does not exist' do
     set_up do
       user = build_user_and_stub_session
       CovidVaccine::V0::RegistrationSubmission.for_user(user).last

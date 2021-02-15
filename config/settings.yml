@@ -578,6 +578,7 @@ maintenance:
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
+    hcq: PWGA814
   aws:
     access_key_id: ~
     bucket: ~
@@ -689,6 +690,10 @@ bgs:
   mock_response_location: ~
   mock_responses: ~
   ssl_verify_mode: "peer"
+
+directory:
+  url: http://example.com/services/apps/v0/
+  apikey: fake_apikey
 
 va_mobile:
   url: "https://veteran.apps.va.gov"

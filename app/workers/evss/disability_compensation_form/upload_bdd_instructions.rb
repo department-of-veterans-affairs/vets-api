@@ -20,6 +20,7 @@ module EVSS
       # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
+        Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
         with_tracking('Form526 Upload BDD instructions:', submission.saved_claim_id, submission.id) do
           file_body = File.read('lib/evss/disability_compensation_form/bdd_instructions.pdf')

@@ -5,7 +5,7 @@ module FailedRequestLoggable
 
   class_methods do
     def exception_hash(exception)
-      %i[message backtrace key response_values original_status original_body]
+      %i[message backtrace key response_values original_status original_body errors status_code sentry_type]
         .reduce({}) { |hash, key| hash.merge({ key => exception.try(key) }) }
     end
   end
