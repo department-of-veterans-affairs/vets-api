@@ -23,39 +23,47 @@ module AppealsApi
       'Processing Error' => { status: 'error', code: 'DOC202' }
     }.freeze
 
+    CENTRAL_MAIL_STATUS = Struct.new(:id, :status, :error_message) do
+      delegate :present?, to: :id
+    end
+
     def call(appeals)
       return if appeals.empty?
 
-      response = CentralMail::Service.new.status(appeals.pluck(:id))
-      unless response.success?
+      central_mail_response = CentralMail::Service.new.status(appeals.pluck(:id))
+      unless central_mail_response.success?
         log_message_to_sentry(
           'Error getting status from Central Mail',
           :warning,
-          status: response.status,
-          body: response.body
+          status: central_mail_response.status,
+          body: central_mail_response.body
         )
         raise Common::Exceptions::BadGateway
       end
 
-      central_mail_status_objects = parse_central_mail_response(response).select { |struct| struct.id.present? }
-
       ActiveRecord::Base.transaction do
-        central_mail_status_objects.each do |obj|
-          appeal = appeals.find { |h| h.id == obj.id }
-          update_appeal_status(appeal: appeal, status: obj.status, error_message: obj.error_message)
-        end
+        update_appeals!(appeals, central_mail_response)
       end
     end
 
     private
 
-    def parse_central_mail_response(response)
-      JSON.parse(response.body).flatten.map do |hash|
-        Struct.new(:id, :status, :error_message).new(*hash.values_at('uuid', 'status', 'errorMessage'))
+    def update_appeals!(appeals, central_mail_response)
+      parse_central_mail_response(central_mail_response).each do |status_obj|
+        appeal = appeals.find { |a| a.id == status_obj.id }
+        next unless appeal
+
+        update_appeal_status!(appeal, status_obj.status, status_obj.error_message)
       end
     end
 
-    def update_appeal_status(appeal:, status:, error_message:)
+    def parse_central_mail_response(raw_response)
+      JSON.parse(raw_response.body).flatten.map do |hash|
+        CENTRAL_MAIL_STATUS.new(*hash.values_at('uuid', 'status', 'errorMessage'))
+      end
+    end
+
+    def update_appeal_status!(appeal, status, error_message)
       begin
         attributes = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.fetch(status)
       rescue KeyError

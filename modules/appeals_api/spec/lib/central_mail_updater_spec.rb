@@ -93,5 +93,26 @@ describe AppealsApi::CentralMailUpdater do
         expect(appeal_1.detail).to eq('Downstream status: You did a bad')
       end
     end
+
+    context 'it ignores central mail responses without a uuid (invalid or missing)' do
+      before do
+        central_mail_response[1] = {
+          "status": 'In Process',
+          "errorMessage": '',
+          lastUpdated: '2018-04-25 00:02:39'
+        }
+        central_mail_response[2] = {
+          "uuid": '00000000-0000-0000-0000-000000000000',
+          "status": 'In Process',
+          "errorMessage": '',
+          lastUpdated: '2018-04-25 00:02:39'
+        }
+        allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
+      end
+
+      it 'and only changes' do
+        expect { subject.call([appeal_1]) }.not_to raise_error
+      end
+    end
   end
 end
