@@ -26,8 +26,7 @@ module AppealsApi
 
       response = CentralMail::Service.new.status(appeals.pluck(:id))
       unless response.success?
-        # should the appeal know about sentry?
-        appeals[0].log_message_to_sentry(
+        log_message_to_sentry(
           'Error getting status from Central Mail',
           :warning,
           status: response.status,

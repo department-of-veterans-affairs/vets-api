@@ -31,16 +31,17 @@ describe AppealsApi::CentralMailUpdater do
       allow(appeal).to receive(:log_message_to_sentry)
     end
 
+    # rubocop:disable RSpec/SubjectStub
     it 'raises an exception and logs to Sentry' do
+      allow(subject).to receive(:log_message_to_sentry)
+
       expect { subject.call([appeal]) }
         .to raise_error(Common::Exceptions::BadGateway)
 
-      expect(appeal).to have_received(:log_message_to_sentry).with(
-        'Error getting status from Central Mail',
-        :warning,
-        { body: 'error body', status: 'error status' }
-      )
+      expect(subject).to have_received(:log_message_to_sentry)
+        .with('Error getting status from Central Mail', :warning, body: 'error body', status: 'error status')
     end
+    # rubocop:enable RSpec/SubjectStub
   end
 
   context 'when central mail response is successful' do
