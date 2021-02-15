@@ -1,10 +1,14 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 # Subclasses the `UserIdentity` model. Adds a unique redis namespace for IAM user identities.
 # Like the it's base model it acts as an adapter for the attributes from the IAMSSOeOAuth::Service's
 # introspect endpoint.Adds IAM sourced versions of ICN, EDIPI, and SEC ID to pass to the IAMUser model.
 #
 class IAMUserIdentity < ::UserIdentity
+  extend SentryLogging
+
   PREMIUM_LOAS = [2, 3].freeze
   UPGRADE_AUTH_TYPES = %w[DSL MHV].freeze
 
@@ -62,10 +66,15 @@ class IAMUserIdentity < ::UserIdentity
 
   # Return a single mhv id from a possible comma-separated list value attribute
   def self.valid_mhv_id(id_from_profile)
-    # TODO: site login fails if multiple _different_ MHV IDs are present
-    # Should this code be doing the same? Or at least logging a warning?
-    # see lib/saml/user_attributes/ssoe.rb for example validation
-    id_from_profile&.split(',')&.first
+    # TODO: For now, log instances of duplicate MHV ID. 
+    # See issue #19971 for consideration of whether to reject access
+    # to features using this identifier if this happens.
+    mhv_ids = (id_from_profile == 'NOT_FOUND' ? nil : id_from_profile)
+    mhv_ids = mhv_ids&.split(',')&.uniq
+    if mhv_ids&.size.to_i > 1
+      log_message_to_sentry('OAuth: Multiple MHV IDs present', :warn, { mhv_ien: id_from_profile })
+    end
+    mhv_ids&.first
   end
 
   private_class_method :valid_mhv_id
