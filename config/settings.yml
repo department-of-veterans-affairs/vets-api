@@ -534,6 +534,8 @@ oidc:
   base_api_url: https://example.com
   base_api_token: ~
   smart_launch_url: ~
+  metadata_endpoints:
+    - {issuer: ~, metadata: ~ }
 
 sentry:
   dsn: ~

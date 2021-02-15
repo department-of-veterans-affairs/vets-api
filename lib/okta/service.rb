@@ -71,9 +71,9 @@ module Okta
     end
     # This can probably go ...
     def metadata(iss)
-      proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
+      metadata_endpoint = get_metadata_endpoint(iss)
       with_monitoring do
-        get_url_no_token(proxied_iss + '/.well-known/openid-configuration')
+        get_url_no_token(metadata_endpoint)
       end
     end
 
@@ -94,6 +94,11 @@ module Okta
 
     def get_url_no_token(url)
       Okta::Response.new call_no_token('get', url)
+    end
+
+    def get_metadata_endpoint(iss)
+      metadata_endpoint = Settings.oidc.metadata_endpoints.find {|s| iss.downcase.include? s["issuer"].downcase }
+      iss + metadata_endpoint["metadata"]
     end
   end
 end
