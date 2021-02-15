@@ -65,8 +65,8 @@ module CypressViewportUpdater
     end
 
     def date_range
-      start_date = Time.zone.today.prev_month.beginning_of_month
-      end_date = Time.zone.today.prev_month.end_of_month
+      start_date = CypressViewportUpdater::UpdateCypressViewportsJob::START_DATE
+      end_date = CypressViewportUpdater::UpdateCypressViewportsJob::END_DATE
       DateRange.new(start_date: start_date, end_date: end_date)
     end
 
