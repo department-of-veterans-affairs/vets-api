@@ -6,9 +6,10 @@ require 'appeals_api/central_mail_updater'
 describe AppealsApi::CentralMailUpdater do
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:appeal) { create(:notice_of_disagreement) }
+  let(:appeal_1) { create(:notice_of_disagreement) }
+  let(:appeal_2) { create(:notice_of_disagreement) }
   let(:central_mail_response) do
-    [{ "uuid": 'ignored',
+    [{ "uuid": appeal_1.id,
        "status": 'In Process',
        "errorMessage": '',
        "lastUpdated": '2018-04-25 00:02:39' }]
@@ -28,14 +29,13 @@ describe AppealsApi::CentralMailUpdater do
       allow(faraday_response).to receive(:success?).and_return(false)
       allow(faraday_response).to receive(:body).and_return('error body')
       allow(faraday_response).to receive(:status).and_return('error status')
-      allow(appeal).to receive(:log_message_to_sentry)
     end
 
     # rubocop:disable RSpec/SubjectStub
     it 'raises an exception and logs to Sentry' do
       allow(subject).to receive(:log_message_to_sentry)
 
-      expect { subject.call([appeal]) }
+      expect { subject.call([appeal_1]) }
         .to raise_error(Common::Exceptions::BadGateway)
 
       expect(subject).to have_received(:log_message_to_sentry)
@@ -47,22 +47,22 @@ describe AppealsApi::CentralMailUpdater do
   context 'when central mail response is successful' do
     before do
       allow(faraday_response).to receive(:success?).and_return(true)
-      central_mail_response[0][:uuid] = appeal.id
+      central_mail_response[0][:uuid] = appeal_1.id
       allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
     end
 
-    it 'updates appeal attributes' do
-      subject.call([appeal])
-      appeal.reload
-      expect(appeal.status).to eq('processing')
+    it 'only updates appeal attributes for returned records' do
+      subject.call([appeal_1])
+      appeal_1.reload
+      appeal_2.reload
+      expect(appeal_1.status).to eq('processing')
+      expect(appeal_2.status).to eq('pending')
     end
 
     context 'when unknown status passed from central mail' do
-      let(:central_mail_response) do
-        [{ "uuid": 'ignored',
-           "status": 'SOME_UNKNOWN_STATUS',
-           "errorMessage": '',
-           "lastUpdated": '2018-04-25 00:02:39' }]
+      before do
+        central_mail_response[0][:status] = 'SOME_UNKNOWN_STATUS'
+        allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
       end
 
       # rubocop:disable RSpec/SubjectStub
@@ -70,7 +70,7 @@ describe AppealsApi::CentralMailUpdater do
         allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
         allow(subject).to receive(:log_message_to_sentry)
 
-        expect { subject.call([appeal]) }
+        expect { subject.call([appeal_1]) }
           .to raise_error(Common::Exceptions::BadGateway)
         expect(subject).to have_received(:log_message_to_sentry)
           .with('Unknown status value from Central Mail API', :warning, status: 'SOME_UNKNOWN_STATUS')
@@ -79,19 +79,18 @@ describe AppealsApi::CentralMailUpdater do
     end
 
     context 'when appeal object contains an error message' do
-      let(:central_mail_response) do
-        [{ "uuid": 'ignored',
-           "status": 'Error',
-           "errorMessage": 'You did a bad',
-           "lastUpdated": '2018-04-25 00:02:39' }]
+      before do
+        central_mail_response[0][:status] = 'Error'
+        central_mail_response[0][:errorMessage] = 'You did a bad'
+        allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
       end
 
       it 'update appeal details to include error message' do
-        subject.call([appeal])
-        appeal.reload
+        subject.call([appeal_1])
+        appeal_1.reload
 
-        expect(appeal.status).to eq('error')
-        expect(appeal.detail).to eq('Downstream status: You did a bad')
+        expect(appeal_1.status).to eq('error')
+        expect(appeal_1.detail).to eq('Downstream status: You did a bad')
       end
     end
   end
