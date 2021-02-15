@@ -71,26 +71,27 @@ describe VaNotify::Service do
       end
     end
 
-    it 'feature toggle enabled but no service name passed', vanotify_service_enhancement: true do
-      Flipper.enable(:vanotify_service_enhancement)
-      test_service1_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
-      test_base_url = 'https://fakishapi.com'
-      test_service_name = 'test_service1'
-      parameters = test_service1_api_key, test_base_url
-      with_settings(Settings.vanotify,
-                    services: {
-                      test_service1: {
-                        api_key: test_service1_api_key
+    ['non-existance-service', nil].each do |test_service_name|
+      it 'feature toggle enabled but wrong service name passed', vanotify_service_enhancement: true do
+        Flipper.enable(:vanotify_service_enhancement)
+        test_service1_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
+        test_base_url = 'https://fakishapi.com'
+        parameters = test_service1_api_key, test_base_url
+        with_settings(Settings.vanotify,
+                      services: {
+                        test_service1: {
+                          api_key: test_service1_api_key
+                        },
+                        test_service2: {
+                          api_key: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                        }
                       },
-                      test_service2: {
-                        api_key: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-                      }
-                    },
-                    client_url: test_base_url) do
-        allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
-        expect do
-          VaNotify::Service.new(nil)
-        end.to raise_error(/Unable to read service because/)
+                      client_url: test_base_url) do
+          allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
+          expect do
+            VaNotify::Service.new(test_service_name)
+          end.to raise_error(/Unable to read service because/)
+        end
       end
     end
   end
