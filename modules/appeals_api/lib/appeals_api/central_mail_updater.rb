@@ -4,6 +4,8 @@ module AppealsApi
   class CentralMailUpdater
     include SentryLogging
 
+    MAX_UUIDS_PER_REQUEST = 100
+
     STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
 
     CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze

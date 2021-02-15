@@ -9,7 +9,8 @@ module AppealsApi
     sidekiq_options 'retry': true, unique_until: :success
 
     def perform(ids)
-      HigherLevelReview.where(id: ids).find_in_batches(batch_size: 100) do |batch|
+      batch_size = CentralMailUpdater::MAX_UUIDS_PER_REQUEST
+      HigherLevelReview.where(id: ids).find_in_batches(batch_size: batch_size) do |batch|
         HigherLevelReview.refresh_statuses_using_central_mail! batch
       end
     end
