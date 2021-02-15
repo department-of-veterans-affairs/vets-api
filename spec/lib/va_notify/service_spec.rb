@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'va_notify/service'
 
 describe VaNotify::Service do
-  before(:example, :vanotify_service_enhancement => false) do
+  before(:example, vanotify_service_enhancement: false) do
     Flipper.disable(:vanotify_service_enhancement)
     @test_api_key = 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
     @test_base_url = 'http://fakeapi.com'
@@ -24,37 +24,78 @@ describe VaNotify::Service do
   describe 'default' do
     let(:notification_client) { double('Notifications::Client') }
 
-    it 'api key set when initialize without a service name', :vanotify_service_enhancement => false do
+    it 'api key set when initialize without a service name', vanotify_service_enhancement: false do
       parameters = @test_api_key, @test_base_url
       allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
       VaNotify::Service.new
       expect(Notifications::Client).to have_received(:new).with(*parameters)
     end
 
-    it 'api key based on service name passed to initialize', :vanotify_service_enhancement => true do
+    it 'api key based on service name passed to initialize', vanotify_service_enhancement: true do
       Flipper.enable(:vanotify_service_enhancement)
       test_service_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
       test_service_base_url = 'https://fakishapi.com'
       parameters = test_service_api_key, test_service_base_url
-      with_settings(Settings.vanotify, 
-                      services: {
-                        test_service: {
-                          api_key: test_service_api_key
-                        }
-                      },
-                      client_url: test_service_base_url
-                    ) do
+      with_settings(Settings.vanotify,
+                    services: {
+                      test_service: {
+                        api_key: test_service_api_key
+                      }
+                    },
+                    client_url: test_service_base_url) do
         allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
         VaNotify::Service.new('test_service')
         expect(Notifications::Client).to have_received(:new).with(*parameters)
       end
     end
 
-    it 'correct api key based on service name passed to initialize when multiple services are defined' do
+    it 'correct api key based on service name passed'\
+    'to initialize when multiple services are defined', vanotify_service_enhancement: true do
+      Flipper.enable(:vanotify_service_enhancement)
+      test_service1_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
+      test_base_url = 'https://fakishapi.com'
+      parameters = test_service1_api_key, test_base_url
+      with_settings(Settings.vanotify,
+                    services: {
+                      test_service1: {
+                        api_key: test_service1_api_key
+                      },
+                      test_service2: {
+                        api_key: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                      }
+                    },
+                    client_url: test_base_url) do
+        allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
+        VaNotify::Service.new('test_service1')
+        expect(Notifications::Client).to have_received(:new).with(*parameters)
+      end
+    end
+
+    it 'feature toggle enabled but no service name passed', vanotify_service_enhancement: true do
+      Flipper.enable(:vanotify_service_enhancement)
+      test_service1_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
+      test_base_url = 'https://fakishapi.com'
+      test_service_name = 'test_service1'
+      parameters = test_service1_api_key, test_base_url
+      with_settings(Settings.vanotify,
+                    services: {
+                      test_service1: {
+                        api_key: test_service1_api_key
+                      },
+                      test_service2: {
+                        api_key: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+                      }
+                    },
+                    client_url: test_base_url) do
+        allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
+        expect do
+          VaNotify::Service.new(nil)
+        end.to raise_error(/Unable to read service because/)
+      end
     end
   end
 
-  describe '#send_email', :vanotify_service_enhancement => false do
+  describe '#send_email', vanotify_service_enhancement: false do
     let(:notification_client) { double('Notifications::Client') }
 
     it 'calls notifications client' do
@@ -66,7 +107,7 @@ describe VaNotify::Service do
     end
   end
 
-  describe 'error handling', :vanotify_service_enhancement => false do
+  describe 'error handling', vanotify_service_enhancement: false do
     it 'raises a 400 exception' do
       VCR.use_cassette('va_notify/bad_request') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|

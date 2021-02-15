@@ -32,6 +32,8 @@ module VaNotify
       else
         Settings.vanotify.api_key
       end
+    rescue => e
+      raise "Unable to read service because #{e.message}"
     end
 
     def service_name
