@@ -109,6 +109,58 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
   end
 
   describe '.fetch_transaction' do
+    [
+      {
+        factory_name: :address_transaction,
+        service_method: :get_address_transaction_status
+      },
+      {
+        factory_name: :va_profile_address_transaction,
+        service_method: :get_address_transaction_status
+      },
+      {
+        factory_name: :email_transaction,
+        service_method: :get_email_transaction_status
+      },
+      {
+        factory_name: :va_profile_email_transaction,
+        service_method: :get_email_transaction_status
+      },
+      {
+        factory_name: :telephone_transaction,
+        service_method: :get_telephone_transaction_status
+      },
+      {
+        factory_name: :va_profile_telephone_transaction,
+        service_method: :get_telephone_transaction_status
+      },
+      {
+        factory_name: :permission_transaction,
+        service_method: :get_permission_transaction_status
+      },
+      {
+        factory_name: :va_profile_permission_transaction,
+        service_method: :get_permission_transaction_status
+      },
+      {
+        factory_name: :initialize_person_transaction,
+        service_method: :get_person_transaction_status
+      },
+      {
+        factory_name: :va_profile_initialize_person_transaction,
+        service_method: :get_person_transaction_status
+      }
+    ].each do |transaction_test_data|
+      it "given a #{transaction_test_data[:factory_name]} model it calls the #{transaction_test_data[:service_method]} service method" do
+        transaction = create(transaction_test_data[:factory_name])
+        service = double
+
+        expect(service).to receive(transaction_test_data[:service_method]).with(transaction.transaction_id)
+
+        AsyncTransaction::VAProfile::Base.fetch_transaction(transaction, service)
+      end
+    end
+
     it 'raises an error if passed unrecognized transaction' do
       expect do
         AsyncTransaction::VAProfile::Base.fetch_transaction(Struct.new('Surprise'), nil)

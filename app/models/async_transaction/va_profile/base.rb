@@ -55,7 +55,6 @@ module AsyncTransaction
       # @param service [VAProfile::ContactInformation::Service] an initialized VAProfile client
       # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service)
-        # TODO fix
         case transaction_record
         when AsyncTransaction::Vet360::AddressTransaction, AsyncTransaction::VAProfile::AddressTransaction
           service.get_address_transaction_status(transaction_record.transaction_id)
