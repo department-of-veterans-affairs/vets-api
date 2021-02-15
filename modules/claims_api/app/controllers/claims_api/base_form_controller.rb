@@ -123,6 +123,7 @@ module ClaimsApi
       if form_type == 'burial'
         message = "Representative cannot file for type 'burial'"
         raise(::Common::Exceptions::Forbidden, detail: message) if @current_user.blank? && v0?
+
         begin
           @current_user.participant_id
         rescue ArgumentError
