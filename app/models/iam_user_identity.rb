@@ -66,7 +66,7 @@ class IAMUserIdentity < ::UserIdentity
 
   # Return a single mhv id from a possible comma-separated list value attribute
   def self.valid_mhv_id(id_from_profile)
-    # TODO: For now, log instances of duplicate MHV ID. 
+    # TODO: For now, log instances of duplicate MHV ID.
     # See issue #19971 for consideration of whether to reject access
     # to features using this identifier if this happens.
     mhv_ids = (id_from_profile == 'NOT_FOUND' ? nil : id_from_profile)
