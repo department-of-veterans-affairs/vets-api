@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'va_notify/service'
 
 describe VaNotify::Service do
-  before(:example, :old_way => true) do
+  before(:example, :vanotify_service_enhancement => false) do
+    Flipper.disable(:vanotify_service_enhancement)
     @test_api_key = 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
     @test_base_url = 'http://fakeapi.com'
     allow_any_instance_of(described_class).to receive(:api_key).and_return(@test_api_key)
@@ -23,16 +24,15 @@ describe VaNotify::Service do
   describe 'default' do
     let(:notification_client) { double('Notifications::Client') }
 
-    it 'api key set when initialize without a service name', :old_way => true do
-      Flipper.disable(:vanotify_service_enhancement)
+    it 'api key set when initialize without a service name', :vanotify_service_enhancement => false do
       parameters = @test_api_key, @test_base_url
       allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
       VaNotify::Service.new
       expect(Notifications::Client).to have_received(:new).with(*parameters)
     end
 
-    it 'api key based on service name passed to initialize' do
-      Flipper.enabled?(:vanotify_service_enhancement)
+    it 'api key based on service name passed to initialize', :vanotify_service_enhancement => true do
+      Flipper.enable(:vanotify_service_enhancement)
       test_service_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
       test_service_base_url = 'https://fakishapi.com'
       parameters = test_service_api_key, test_service_base_url
@@ -49,9 +49,12 @@ describe VaNotify::Service do
         expect(Notifications::Client).to have_received(:new).with(*parameters)
       end
     end
+
+    it 'correct api key based on service name passed to initialize when multiple services are defined' do
+    end
   end
 
-  describe '#send_email', :old_way => true do
+  describe '#send_email', :vanotify_service_enhancement => false do
     let(:notification_client) { double('Notifications::Client') }
 
     it 'calls notifications client' do
@@ -63,7 +66,7 @@ describe VaNotify::Service do
     end
   end
 
-  describe 'error handling', :old_way => true do
+  describe 'error handling', :vanotify_service_enhancement => false do
     it 'raises a 400 exception' do
       VCR.use_cassette('va_notify/bad_request') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
