@@ -69,7 +69,7 @@ module Okta
         delete_url_with_token("#{USER_API_BASE_PATH}/#{user_id}/grants/#{grant_id}")
       end
     end
-    # This can probably go ...
+
     def metadata(iss)
       metadata_endpoint = get_metadata_endpoint(iss)
       with_monitoring do
@@ -97,8 +97,8 @@ module Okta
     end
 
     def get_metadata_endpoint(iss)
-      metadata_endpoint = Settings.oidc.metadata_endpoints.find {|s| iss.downcase.include? s["issuer"].downcase }
-      iss + metadata_endpoint["metadata"]
+      metadata_endpoint = Settings.oidc.metadata_endpoints.find { |s| iss.downcase.include? s['issuer'].downcase }
+      iss + metadata_endpoint['metadata']
     end
   end
 end
