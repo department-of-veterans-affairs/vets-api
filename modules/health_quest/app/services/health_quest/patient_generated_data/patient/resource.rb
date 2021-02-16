@@ -15,7 +15,7 @@ module HealthQuest
       # @!attribute meta
       #   @return [FHIR::Meta]
       class Resource
-        include PatientGeneratedData::Common::IdentityMetaInfo
+        include Shared::IdentityMetaInfo
         ##
         # Patient resource name use capacity
         #

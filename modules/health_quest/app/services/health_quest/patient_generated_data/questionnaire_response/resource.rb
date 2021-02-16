@@ -21,7 +21,7 @@ module HealthQuest
       # @!attribute questionnaire_reference
       #   @return [FHIR::Reference]
       class Resource
-        include PatientGeneratedData::Common::IdentityMetaInfo
+        include Shared::IdentityMetaInfo
         ##
         # Set the QuestionnaireResponse's status
         #
