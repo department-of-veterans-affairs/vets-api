@@ -66,6 +66,12 @@ RSpec.describe 'Intent to file', type: :request do
       post path, headers: headers
       expect(response.status).to eq(422)
     end
+
+    it "returns a 403 when 'burial' type is provided" do
+      data[:data][:attributes][:type] = 'burial'
+      post path, params: data.to_json, headers: headers
+      expect(response.status).to eq(403)
+    end
   end
 
   describe '#active' do
