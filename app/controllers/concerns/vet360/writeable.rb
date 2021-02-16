@@ -39,7 +39,7 @@ module Vet360
     end
 
     def validate!(record)
-      if !record.valid?
+      unless record.valid?
         PersonalInformationLog.create!(
           data: record.to_h,
           error_class: "#{record.class} ValidationError"
