@@ -8,9 +8,7 @@ describe VaNotify::Service do
     Flipper.disable(:vanotify_service_enhancement)
     @test_api_key = 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
     @test_base_url = 'http://fakeapi.com'
-    allow_any_instance_of(described_class).to receive(:api_key).and_return(@test_api_key)
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return(@test_base_url)
-    allow_any_instance_of(VaNotify::Configuration).to receive(:api_key).and_return(@test_api_key)
   end
 
   send_email_parameters = {
@@ -27,7 +25,7 @@ describe VaNotify::Service do
     it 'api key set when initialize without a service name', vanotify_service_enhancement: false do
       parameters = @test_api_key, @test_base_url
       allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
-      VaNotify::Service.new
+      VaNotify::Service.new(@test_api_key)
       expect(Notifications::Client).to have_received(:new).with(*parameters)
     end
 
@@ -44,7 +42,7 @@ describe VaNotify::Service do
                     },
                     client_url: test_service_base_url) do
         allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
-        VaNotify::Service.new('test_service')
+        VaNotify::Service.new(test_service_api_key)
         expect(Notifications::Client).to have_received(:new).with(*parameters)
       end
     end
@@ -66,37 +64,14 @@ describe VaNotify::Service do
                     },
                     client_url: test_base_url) do
         allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
-        VaNotify::Service.new('test_service1')
+        VaNotify::Service.new(test_service1_api_key)
         expect(Notifications::Client).to have_received(:new).with(*parameters)
-      end
-    end
-
-    ['non-existance-service', nil].each do |test_service_name|
-      it 'feature toggle enabled but wrong service name passed', vanotify_service_enhancement: true do
-        Flipper.enable(:vanotify_service_enhancement)
-        test_service1_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
-        test_base_url = 'https://fakishapi.com'
-        parameters = test_service1_api_key, test_base_url
-        with_settings(Settings.vanotify,
-                      services: {
-                        test_service1: {
-                          api_key: test_service1_api_key
-                        },
-                        test_service2: {
-                          api_key: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-                        }
-                      },
-                      client_url: test_base_url) do
-          allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
-          expect do
-            VaNotify::Service.new(test_service_name)
-          end.to raise_error(/Unable to read service because/)
-        end
       end
     end
   end
 
   describe '#send_email', vanotify_service_enhancement: false do
+    subject { VaNotify::Service.new(@test_api_key) }
     let(:notification_client) { double('Notifications::Client') }
 
     it 'calls notifications client' do
@@ -109,6 +84,8 @@ describe VaNotify::Service do
   end
 
   describe 'error handling', vanotify_service_enhancement: false do
+    subject { VaNotify::Service.new(@test_api_key) }
+    
     it 'raises a 400 exception' do
       VCR.use_cassette('va_notify/bad_request') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|

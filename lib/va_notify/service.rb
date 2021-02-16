@@ -14,9 +14,9 @@ module VaNotify
 
     attr_reader :notify_client
 
-    def initialize(vanotify_service_name = nil)
+    def initialize(api_key)
       overwrite_client_networking
-      @notify_client ||= Notifications::Client.new(api_key(vanotify_service_name), client_url)
+      @notify_client ||= Notifications::Client.new(api_key, client_url)
     rescue => e
       handle_error(e)
     end
@@ -55,10 +55,6 @@ module VaNotify
 
     def client_url
       config.base_path
-    end
-
-    def api_key(vanotify_service_name)
-      config.api_key(vanotify_service_name)
     end
 
     def handle_error(error)
