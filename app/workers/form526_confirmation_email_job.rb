@@ -13,13 +13,15 @@ class Form526ConfirmationEmailJob
 
   def perform(personalization_parameters)
     if Flipper.enabled?(:vanotify_service_enhancement)
-      @notify_client ||= VaNotify::Service.new('va_gov')
+      @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+      @template_id ||= Settings.vanotify.services.va_gov.template_id.form526_confirmation_email
     else
-      @notify_client ||= VaNotify::Service.new
+      @notify_client ||= VaNotify::Service.new(Settings.vanotify.api_key)
+      @template_id ||= Settings.vanotify.template_id.form526_confirmation_email
     end
     @notify_client.send_email(
       email_address: personalization_parameters['email'],
-      template_id: Settings.vanotify.template_id.form526_confirmation_email,
+      template_id: @template_id,
       personalisation: {
         'claim_id' => personalization_parameters['submitted_claim_id'],
         'date_submitted' => personalization_parameters['date_submitted'],
