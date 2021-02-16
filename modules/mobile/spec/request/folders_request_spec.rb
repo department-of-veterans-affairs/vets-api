@@ -112,7 +112,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
     end
 
     describe 'nested resources' do
-      it 'gets messages#index' do
+      xit 'gets messages#index' do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
           get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: iam_headers
         end
