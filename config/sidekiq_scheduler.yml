@@ -172,7 +172,7 @@ ExternalServicesStatusJob:
   description: "Checks the current status of all external services through PagerDuty's API"
 
 VAForms::FetchLatest:
-  cron: "0 0 * * * America/New_York"
+  cron: "0 2 * * * America/New_York"
   class: VAForms::FormReloader
   description: "Fetches latest VA Forms"
 
@@ -186,3 +186,7 @@ EducationForm::Process10203Submissions:
   class: EducationForm::Process10203Submissions
   description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
 
+CypressViewportUpdater::UpdateCypressViewportsJob:
+  cron: "0 12 3 * * America/New_York"
+  class: CypressViewportUpdater::UpdateCypressViewportsJob
+  description: "Updates Cypress files in vets-website with data from Google Analytics."

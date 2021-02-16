@@ -283,9 +283,10 @@ with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as
             property :status do
               key :type, :string
               key :example, 'submitted'
-              key :description, 'Says if the power of attorney is pending, updated or errored'
+              key :description, 'Says if the power of attorney is pending, submitted, updated or errored'
               key :enum, %w[
                 pending
+                submitted
                 updated
                 errored
               ]
