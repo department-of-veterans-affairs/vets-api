@@ -87,29 +87,35 @@ module Swagger
       swagger_schema :EducationStemClaimStatusData do
         key :required, [:data]
 
-        # property :data, type: :array, minItems: 0, uniqueItems: true do
-        #   items do
-        #     property :id, type: :integer, example: 1234, description: 'Unique program ID'
-        #     property :value, type: :string, example: '1X12345', description: 'Program institution facility code'
-        #     property :label, type: :string, example: 'COMPUTER SCIENCE', description: 'Program name'
-        #   end
-        # end
-
         property :data, type: :array, minItems: 0, uniqueItems: true do
           property :id, type: :string
           property :type, type: :string
 
           property :attributes, type: :object do
-            property :is_enrolled_stem, type: :boolean, example: true, description: 'Submitted 10203 `is_enrolled_stem` form value'
-            property :is_pursuing_teaching_cert, type: :boolean, example: true, description: 'Submitted 10203 `is_pursuing_teaching_cert` form value'
-            property :benefit_left, type: :string, example: 'none', description: 'Submitted 10203 `benefit_left` form value'
-            property :remaining_entitlement, type: :integer, example: 127, description: 'EVSS remaining entitlement in days'
-            property :automated_denial, type: :boolean, example: false, description: 'Submitted 10203 `benefit_left` form value'
+            property :is_enrolled_stem,
+                     type: :boolean,
+                     example: true,
+                     description: 'Submitted 10203 `is_enrolled_stem` form value'
+            property :is_pursuing_teaching_cert,
+                     type: :boolean,
+                     example: true,
+                     description: 'Submitted 10203 `is_pursuing_teaching_cert` form value'
+            property :benefit_left,
+                     type: :string,
+                     example: 'none',
+                     description: 'Submitted 10203 `benefit_left` form value'
+            property :remaining_entitlement,
+                     type: :integer,
+                     example: 127,
+                     description: 'EVSS remaining entitlement in days'
+            property :automated_denial,
+                     type: :boolean,
+                     example: false,
+                     description: 'Submitted 10203 `benefit_left` form value'
             property :denied_at, type: :string
             property :submitted_at, type: :string
           end
         end
-
       end
     end
   end
