@@ -74,7 +74,7 @@ Rails.application.routes.draw do
     resource :education_benefits_claims, only: %i[create show] do
       collection do
         post(':form_type', action: :create, as: :form_type)
-        get(:application_status)
+        get(:stem_claim_status)
       end
     end
 

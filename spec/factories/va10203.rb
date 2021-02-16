@@ -119,6 +119,9 @@ FactoryBot.define do
         privacyAgreementAccepted: true
       }.to_json
     }
+
+    trait :with_stem do
+    end
   end
   factory :va10203_full_form do
     form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '10203', 'kitchen_sink.json')) }

@@ -14,7 +14,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
       create(:va10203, education_benefits_claim: create(:education_benefits_claim))
         .after_submit(create(:user, :user_with_no_idme_uuid))
 
-      get(:application_status)
+      get(:stem_claim_status)
 
       body = JSON.parse response.body
       expect(response.content_type).to eq('application/json; charset=utf-8')
@@ -26,7 +26,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
       va10203 = create(:va10203, education_benefits_claim: create(:education_benefits_claim))
       va10203.after_submit(user)
 
-      get(:application_status)
+      get(:stem_claim_status)
 
       body = JSON.parse response.body
       expect(response.content_type).to eq('application/json; charset=utf-8')
@@ -36,7 +36,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
 
   context 'without a user' do
     it 'returns zero results' do
-      get(:application_status)
+      get(:stem_claim_status)
       body = JSON.parse response.body
       expect(response.content_type).to eq('application/json; charset=utf-8')
       expect(body['data']).to eq([])
