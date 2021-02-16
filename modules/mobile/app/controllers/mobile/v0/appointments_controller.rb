@@ -14,9 +14,9 @@ module Mobile
           end_date: params[:endDate],
           use_cache: use_cache
         )
-        
+
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
-        
+
         appointments, errors = appointments_proxy.get_appointments(validated_params.to_h)
 
         options = {
@@ -41,18 +41,6 @@ module Mobile
 
       def appointments_proxy
         Mobile::V0::Appointments::Proxy.new(@current_user)
-      end
-
-      def start_date
-        DateTime.parse(params[:startDate])
-      rescue ArgumentError, TypeError
-        raise Common::Exceptions::InvalidFieldValue.new('startDate', params[:startDate])
-      end
-
-      def end_date
-        DateTime.parse(params[:endDate])
-      rescue ArgumentError, TypeError
-        raise Common::Exceptions::InvalidFieldValue.new('endDate', params[:endDate])
       end
     end
   end
