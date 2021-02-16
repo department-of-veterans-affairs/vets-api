@@ -17,30 +17,6 @@ describe HealthQuest::QuestionnaireManager::Transformer do
     end
   end
 
-  describe 'constants' do
-    before do
-      allow_any_instance_of(subject).to receive(:questionnaires_with_facility_clinic_id).and_return({})
-      allow_any_instance_of(subject).to receive(:questionnaire_responses_with_appointment_id).and_return({})
-      allow_any_instance_of(subject).to receive(:sip_with_appointment_id).and_return({})
-    end
-
-    it 'has a IN_PROGRESS_STATUS' do
-      expect(subject::IN_PROGRESS_STATUS).to eq('in-progress')
-    end
-
-    it 'has a QR_APPOINTMENT_ID_MATCHER' do
-      expect(subject::QR_APPOINTMENT_ID_MATCHER).to eq(/([I2\-a-zA-Z0-9]+)\z/i)
-    end
-
-    it 'has a SIP_APPOINTMENT_ID_MATCHER' do
-      expect(subject::SIP_APPOINTMENT_ID_MATCHER).to eq(/HC-QSTNR_([I2\-a-zA-Z0-9]+)_/i)
-    end
-
-    it 'has a SIP_QUESTIONNAIRE_ID_MATCHER' do
-      expect(subject::SIP_QUESTIONNAIRE_ID_MATCHER).to eq(/_([a-f0-9-]+)\z/i)
-    end
-  end
-
   describe 'attributes' do
     before do
       allow_any_instance_of(subject).to receive(:questionnaires_with_facility_clinic_id).and_return({})
@@ -271,11 +247,19 @@ describe HealthQuest::QuestionnaireManager::Transformer do
           'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000' => [
             double(
               'QuestionnaireResponse',
-              resource: double('Resource', id: 'abc-123-def-455', status: 'completed', authored: '2021-02-01')
+              resource: double('Resource',
+                               id: 'abc-123-def-455',
+                               status: 'completed',
+                               authored: '2021-02-01',
+                               questionnaire: 'Questionnaire/abc-123-def-455')
             ),
             double(
               'QuestionnaireResponse',
-              resource: double('Resource', id: 'abc-321-kju-554', status: 'completed', authored: '2021-02-01')
+              resource: double('Resource',
+                               id: 'abc-321-kju-554',
+                               status: 'completed',
+                               authored: '2021-02-01',
+                               questionnaire: 'Questionnaire/abc-321-kju-554')
             )
           ]
         }
@@ -382,7 +366,11 @@ describe HealthQuest::QuestionnaireManager::Transformer do
           'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000' => [
             double(
               'QuestionnaireResponse',
-              resource: double('Resource', id: 'abc-123-def-455', status: 'completed', authored: '2021-02-01')
+              resource: double('Resource',
+                               id: 'abc-123-def-455',
+                               status: 'completed',
+                               authored: '2021-02-01',
+                               questionnaire: 'Questionnaire/abc-123-def-455')
             )
           ]
         }
