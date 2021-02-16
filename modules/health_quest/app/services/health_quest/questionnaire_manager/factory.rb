@@ -36,6 +36,7 @@ module HealthQuest
     #   @return [User]
     class Factory
       HEALTH_CARE_FORM_PREFIX = 'HC-QSTNR'
+      USE_CONTEXT_DELIMITER = ','
 
       attr_reader :appointments,
                   :aggregated_data,
@@ -71,7 +72,7 @@ module HealthQuest
         @questionnaire_response_service = PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(user)
         @request_threads = []
         @sip_model = InProgressForm
-        @transformer = Transformer.build
+        @transformer = Transformer
       end
 
       ##
@@ -138,9 +139,7 @@ module HealthQuest
       #
       def get_questionnaires
         @get_questionnaires ||= begin
-          use_context = transformer.get_use_context(appointments)
-
-          questionnaire_service.search('context-type-value': use_context)
+          questionnaire_service.search('context-type-value': get_use_context)
         end
       end
 
@@ -178,13 +177,31 @@ module HealthQuest
       #
       def compose
         @compose ||= begin
-          @aggregated_data = transformer.combine(
+          @aggregated_data = transformer.manufacture(
             appointments: appointments,
             questionnaires: questionnaires,
             questionnaire_responses: questionnaire_responses,
             save_in_progress: save_in_progress
           )
+
+          aggregated_data.combine
         end
+      end
+
+      ##
+      # Builds the use context string from a list of appointments
+      #
+      # @return [String] a context-type-value built using facility and clinic IDs
+      #
+      def get_use_context
+        use_context_array =
+          appointments.each_with_object([]) do |apt, accumulator|
+            key_with_venue = "venue$#{apt.facility_id}/#{apt.clinic_id}"
+
+            accumulator << key_with_venue
+          end
+
+        use_context_array.join(USE_CONTEXT_DELIMITER)
       end
 
       private
