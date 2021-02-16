@@ -9,7 +9,7 @@ module VBADocuments
     def perform
       if Settings.vba_documents.report_enabled
         @to = Time.zone.now
-        @from = @to.monday? ? 7.days.ago : 1.days.ago
+        @from = @to.monday? ? 7.days.ago : 1.day.ago
         @consumers = VBADocuments::UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq
         VBADocuments::UnsuccessfulReportMailer.build(totals, stuck, errored, @from, @to).deliver_now
       end
@@ -17,21 +17,25 @@ module VBADocuments
 
     def errored
       VBADocuments::UploadSubmission.where(
-          created_at: @from..@to,
-          status: %w[error expired]
+        created_at: @from..@to,
+        status: %w[error expired]
       ).order(:consumer_name, :status)
     end
 
     def stuck
       VBADocuments::UploadSubmission.where(
-          created_at: @from..@to,
-          status: 'uploaded'
+        created_at: @from..@to,
+        status: 'uploaded'
       ).order(:consumer_name, :status)
     end
 
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/AbcSize
     def totals
       ret_hash = {}
-      sum_hash = VBADocuments::UploadSubmission::RPT_STATUSES.inject({}) {|h,v| h[v] = 0; h }
+      sum_hash = VBADocuments::UploadSubmission::RPT_STATUSES.index_with { |_v| 0; }
 
       @consumers.each do |name|
         counts = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
@@ -40,8 +44,8 @@ module VBADocuments
         expired_rate = counts['expired'] ? (100.0 / totals * counts['expired']).round : 0
 
         # sum the count of success and vbms statuses for the period
-        success_count = (counts['success'] ? counts['success'] : 0) + (counts['vbms'] ? counts['vbms'] : 0)
-        success_rate = success_count > 0 ? (100.0 / totals * success_count).round : 0
+        success_count = (counts['success'] || 0) + (counts['vbms'] || 0)
+        success_rate = success_count.positive? ? (100.0 / totals * success_count).round : 0
 
         if totals.positive?
           ret_hash[name] = counts.merge('totals': totals,
@@ -50,12 +54,13 @@ module VBADocuments
                                         expired_rate: "#{expired_rate}%")
 
           # add the consumer counts to the summary hash for the given status
-          counts.keys.each do |k|
+          counts.each_key do |k|
             sum_hash[k] += counts[k]
           end
         end
       end
 
+      # get the summary total and calculate the percentages for the summary row
       sum_total = sum_hash.sum { |_k, v| v }
 
       if sum_total.positive?
@@ -64,12 +69,13 @@ module VBADocuments
 
         # sum the count of success and vbms statuses for the period
         success_count = sum_hash['success'] + sum_hash['vbms']
-        success_rate = "#{(success_count > 0 ? (100.0 / sum_total * success_count).round : 0)}%"
+        success_rate = "#{(success_count.positive? ? (100.0 / sum_total * success_count).round : 0)}%"
         sum_hash['total'] = sum_total
         sum_hash['success_rate'] = success_rate
         sum_hash['error_rate'] = error_rate
         sum_hash['expired_rate'] = expired_rate
       else
+        # report returned no rows for the given time frame so report zeros
         sum_hash['total'] = 0
         sum_hash['success_rate'] = '0%'
         sum_hash['error_rate'] = '0%'
@@ -80,5 +86,9 @@ module VBADocuments
       ret_hash['summary'] = sum_hash
       ret_hash
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/AbcSize
   end
 end
