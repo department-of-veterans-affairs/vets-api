@@ -4,9 +4,6 @@ module HealthQuest
   module QuestionnaireManager
     ##
     # An object for mixing and blending data for the QuestionnaireManager::Factory
-    # The method implementations are intentionally imperative as to make the data
-    # blending process transparent and highlight the design considerations taken
-    # to reduce time complexity.
     #
     # @!attribute appointments
     #   @return [Array]
@@ -23,11 +20,6 @@ module HealthQuest
     # @!attribute hashed_save_in_progress
     #   @return [Hash]
     class Transformer
-      IN_PROGRESS_STATUS = 'in-progress'
-      QR_APPOINTMENT_ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
-      SIP_APPOINTMENT_ID_MATCHER = /HC-QSTNR_([I2\-a-zA-Z0-9]+)_/i.freeze
-      SIP_QUESTIONNAIRE_ID_MATCHER = /_([a-f0-9-]+)\z/i.freeze
-
       attr_reader :appointments,
                   :questionnaires,
                   :questionnaire_responses,
@@ -64,107 +56,82 @@ module HealthQuest
       # @return [Hash] a combined hash containing appointment, questionnaire_response,
       # questionnaire and SIP data
       #
-      def combine # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+      def combine
         questionnaire_manager_data =
-          appointments_with_questionnaires.each_with_object([]) do |item, accumulator|
-            appointment_id = item[:appointment][:id]
-            qr_responses = hashed_questionnaire_responses[appointment_id]
-            sip_responses = hashed_save_in_progress[appointment_id]
+          appointments_with_questionnaires.each_with_object([]) do |base_structure, accumulator|
+            groups = get_groups(base_structure)
+            return base_data if groups.empty?
 
-            return { data: appointments_with_questionnaires } if qr_responses.blank? && sip_responses.blank?
-
-            appointment_questionnaires =
-              item[:questionnaire].each_with_object({}) do |appointment_questionnaire, acc|
-                questionnaire_id = appointment_questionnaire[:id]
-                acc[questionnaire_id] = appointment_questionnaire
-              end
-
-            qr_responses&.each do |qr|
-              questionnaire_id = qr.resource.id
-              questionnaire = appointment_questionnaires[questionnaire_id]
-              next if questionnaire.blank?
-
-              questionnaire[:questionnaire_response].store(:id, qr.resource.id)
-              questionnaire[:questionnaire_response].store(:status, qr.resource.status)
-              questionnaire[:questionnaire_response].store(:submitted_on, qr.resource.authored)
-            end
-
-            sip_responses&.each do |sip|
-              sip_questionnaire_id = sip.form_id.match(SIP_QUESTIONNAIRE_ID_MATCHER)[1]
-              questionnaire = appointment_questionnaires[sip_questionnaire_id]
-              next if questionnaire.blank?
-
-              questionnaire[:questionnaire_response].store(:status, IN_PROGRESS_STATUS)
-            end
-
-            accumulator << item
+            set_responses_for_base_structure(groups)
+            accumulator << base_structure
           end
 
         { data: questionnaire_manager_data }
       end
 
-      private
+      ##
+      # Builds the basic questionnaire manager hash data structure
+      #
+      # @return [Hash] the base data to return if responses are empty
+      #
+      def base_data
+        { data: appointments_with_questionnaires }
+      end
 
+      ##
+      # Builds the array of items for the basic questionnaire manager data structure
+      #
+      # @return [Array] a list of basic hash structures
+      #
       def appointments_with_questionnaires
         @appointments_with_questionnaires ||=
-          appointments.each_with_object([]) do |appointment, accumulator|
-            context_key = "#{appointment.facility_id}/#{appointment.clinic_id}"
-
-            next unless hashed_questionnaires.key?(context_key)
-
-            questionnaires =
-              hashed_questionnaires[context_key].map do |quest|
-                { id: quest.resource.id, title: quest.resource.title, questionnaire_response: {} }
-              end
-            appointment_questionnaire = { appointment: appointment.to_h, questionnaire: questionnaires }
-
-            accumulator << appointment_questionnaire
-          end
+          BasicQuestionnaireManagerFormatter.build(appointments, hashed_questionnaires).to_a
       end
 
+      ##
+      # Builds the ResponsesGroup object which lets us manage response objects
+      # necessary for building the questionnaire manager data structure
+      #
+      # @return [ResponsesGroup] a helper object for organizing responses
+      #
+      def get_groups(quest)
+        ResponsesGroup.build(quest, hashed_questionnaire_responses, hashed_save_in_progress)
+      end
+
+      ##
+      # Sets the questionnaire response and sip data for a given questionnaire
+      #
+      # @return [QuestionnaireResponseCollector, SaveInProgressCollector] the group classes
+      #
+      def set_responses_for_base_structure(groups)
+        [QuestionnaireResponseCollector, SaveInProgressCollector].each { |col| col.build(groups).collect }
+      end
+
+      ##
+      # Builds the save in progress data hash with appointment_id as keys
+      #
+      # @return [Hash] a hash of SIP key/values
+      #
       def sip_with_appointment_id
-        @sip_with_appointment_id ||=
-          save_in_progress.each_with_object({}) do |sip, accumulator|
-            appointment_id = sip.form_id.match(SIP_APPOINTMENT_ID_MATCHER)[1]
-
-            if accumulator.key?(appointment_id)
-              accumulator[appointment_id] << sip
-            else
-              accumulator[appointment_id] = [sip]
-            end
-          end
+        SaveInProgressFormatter.build(save_in_progress).to_h
       end
 
-      def questionnaires_with_facility_clinic_id
-        @questionnaires_with_facility_clinic_id ||=
-          questionnaires.each_with_object({}) do |questionnaire, accumulator|
-            questionnaire_hash = questionnaire.to_hash
-            use_contexts = questionnaire_hash['resource']['useContext']
-            value_codeable_concepts = use_contexts.map { |c| c['valueCodeableConcept']['coding'] }.flatten
-            codes = value_codeable_concepts.map { |vcc| vcc['code'] }
-
-            codes.each do |code|
-              if accumulator.key?(code)
-                accumulator[code] << questionnaire
-              else
-                accumulator[code] = [questionnaire]
-              end
-            end
-          end
-      end
-
+      ##
+      # Builds the questionnaire responses data hash with appointment_id as keys
+      #
+      # @return [Hash] a hash of questionnaire response key/values
+      #
       def questionnaire_responses_with_appointment_id
-        @questionnaire_responses_with_appointment_id ||=
-          questionnaire_responses.each_with_object({}) do |questionnaire_response, accumulator|
-            appointment_reference = questionnaire_response.subject.reference
-            appointment_id = appointment_reference.match(QR_APPOINTMENT_ID_MATCHER)[1]
+        QuestionnaireResponsesFormatter.build(questionnaire_responses).to_h
+      end
 
-            if accumulator.key?(appointment_id)
-              accumulator[appointment_id] << questionnaire_response
-            else
-              accumulator[appointment_id] = [questionnaire_response]
-            end
-          end
+      ##
+      # Builds the questionnaire data hash with facility plus clinic ids as keys
+      #
+      # @return [Hash] a hash of questionnaire key/values
+      #
+      def questionnaires_with_facility_clinic_id
+        QuestionnaireFormatter.build(questionnaires).to_h
       end
     end
   end
