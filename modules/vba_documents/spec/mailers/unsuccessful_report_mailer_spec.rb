@@ -6,30 +6,43 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
   let(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
   let(:uploaded_upload) { FactoryBot.create(:upload_submission, :status_uploaded) }
   let(:totals) do
-    [
-      {
-        'vetraspec' => {
-          'error' => 1,
-          'expired' => 1,
-          'pending' => 4,
-          'uploaded' => 1,
-          :totals => 7,
-          :error_rate => '14%',
-          :expired_rate => '14%'
-        }
-      },
-      {
-        'vetpro' => {
-          'error' => 2,
-          'expired' => 1,
-          'pending' => 2,
-          'uploaded' => 2,
-          :totals => 7,
-          :error_rate => '29%',
-          :expired_rate => '14%'
-        }
-      }
-    ]
+    {"vetraspec" => {
+        "error"=>1,
+        "expired"=>2,
+        "processing"=>4,
+        "received"=>1,
+        "success"=>1,
+        "uploaded"=>1,
+        "vbms"=>1,
+        :totals=>11,
+        :success_rate=>"18%",
+        :error_rate=>"9%",
+        :expired_rate=>"18%"
+    },
+     "vetpro"=> {
+         "expired"=>1,
+         "success"=>1,
+         "vbms"=>1,
+         :totals=>3,
+         :success_rate=>"67%",
+         :error_rate=>"0%",
+         :expired_rate=>"33%"
+     },
+     "summary" => {
+         "pending"=>0,
+         "uploaded"=>1,
+         "received"=>1,
+         "processing"=>4,
+         "success"=>2,
+         "vbms"=>2,
+         "error"=>1,
+         "expired"=>6,
+         "total"=>17,
+         "success_rate"=>"24%",
+         "error_rate"=>"6%",
+         "expired_rate"=>"35%"
+     }
+    }
   end
 
   describe '#build' do
@@ -83,7 +96,8 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
         let(:env_url) { [k, v] }
 
         it "State the environment #{k.to_s.upcase} in the body" do
-          expect(@email.body.to_s.split("\n").first).to match(/.*#{k.to_s.upcase}.*/)
+          @email.body.to_s =~ /<h1>(.*)?<\/h1>/i
+          expect($1).to match(/.*#{k.to_s.upcase}.*/)
         end
       end
     end
