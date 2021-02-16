@@ -19,17 +19,10 @@ describe VaNotify::Service do
     }
   }
 
-  describe 'default' do
+  describe 'service initialization' do
     let(:notification_client) { double('Notifications::Client') }
 
-    it 'api key set when initialize without a service name', vanotify_service_enhancement: false do
-      parameters = @test_api_key, @test_base_url
-      allow(Notifications::Client).to receive(:new).with(*parameters).and_return(notification_client)
-      VaNotify::Service.new(@test_api_key)
-      expect(Notifications::Client).to have_received(:new).with(*parameters)
-    end
-
-    it 'api key based on service name passed to initialize', vanotify_service_enhancement: true do
+    it 'api key based on service and client is called with expected parameters', vanotify_service_enhancement: true do
       Flipper.enable(:vanotify_service_enhancement)
       test_service_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
       test_service_base_url = 'https://fakishapi.com'
@@ -47,8 +40,8 @@ describe VaNotify::Service do
       end
     end
 
-    it 'correct api key based on service name passed'\
-    'to initialize when multiple services are defined', vanotify_service_enhancement: true do
+    it 'correct api key passed to initialize when'\
+    ' multiple services are defined', vanotify_service_enhancement: true do
       Flipper.enable(:vanotify_service_enhancement)
       test_service1_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
       test_base_url = 'https://fakishapi.com'
