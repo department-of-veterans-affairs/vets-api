@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Mobile
   module Routing
     extend ActiveSupport::Concern
@@ -10,5 +12,3 @@ module Mobile
     end
   end
 end
-
-

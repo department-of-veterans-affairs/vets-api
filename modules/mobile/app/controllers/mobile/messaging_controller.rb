@@ -32,7 +32,7 @@ module Mobile
 
     def pagination_params
       {
-         page: params[:page],
+        page: params[:page],
         per_page: params[:per_page]
       }
     end

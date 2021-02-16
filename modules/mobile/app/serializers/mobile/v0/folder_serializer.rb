@@ -3,7 +3,6 @@
 module Mobile
   module V0
     class FolderSerializer < ActiveModel::Serializer
-
       include Mobile::Engine.routes.url_helpers
 
       attribute :id

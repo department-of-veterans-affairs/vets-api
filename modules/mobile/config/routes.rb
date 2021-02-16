@@ -32,7 +32,7 @@ Mobile::Engine.routes.draw do
       scope :health do
         resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
 
-        resources :folders, only: %i[index show create destroy], defaults: { format: :json }  do
+        resources :folders, only: %i[index show create destroy], defaults: { format: :json } do
           resources :messages, only: [:index], defaults: { format: :json }
         end
 

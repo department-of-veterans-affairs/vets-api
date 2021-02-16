@@ -21,4 +21,3 @@ module Mobile
     end
   end
 end
-
