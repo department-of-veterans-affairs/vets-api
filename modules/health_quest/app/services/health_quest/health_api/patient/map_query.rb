@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module PatientGeneratedData
+  module HealthApi
     module Patient
       ##
       # A service object for querying the PGD for Patient resources.
@@ -17,10 +17,10 @@ module HealthQuest
         attr_reader :access_token, :headers
 
         ##
-        # Builds a PatientGeneratedData::Patient::MapQuery instance from a redis session.
+        # Builds a HealthApi::Patient::MapQuery instance from a redis session.
         #
         # @param session_store [HealthQuest::SessionStore] the users redis session.
-        # @return [PatientGeneratedData::Patient::MapQuery] an instance of this class
+        # @return [HealthApi::Patient::MapQuery] an instance of this class
         #
         def self.build(session_store)
           new(session_store)

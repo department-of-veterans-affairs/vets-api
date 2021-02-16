@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module PatientGeneratedData
+  module HealthApi
     module Patient
       ##
       # An object for generating a FHIR Patient resource for the PGD.
@@ -24,10 +24,10 @@ module HealthQuest
         attr_reader :model, :identifier, :meta, :user
 
         ##
-        # Builds a PatientGeneratedData::Patient::Resource instance from a given User
+        # Builds a HealthApi::Patient::Resource instance from a given User
         #
         # @param user [User] the currently logged in user.
-        # @return [PatientGeneratedData::Patient::Resource] an instance of this class
+        # @return [HealthApi::Patient::Resource] an instance of this class
         #
         def self.manufacture(user)
           new(user)

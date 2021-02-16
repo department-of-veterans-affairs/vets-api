@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::Patient::Resource do
+describe HealthQuest::HealthApi::Patient::Resource do
   subject { described_class }
 
   let(:user) { double('User', icn: '1008596379V859838', first_name: 'Bob', last_name: 'Smith') }
