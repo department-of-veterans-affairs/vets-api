@@ -129,6 +129,12 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+        '422':
+          description: Validation Error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
         '500':
           description: An internal API error occured.
           content:
