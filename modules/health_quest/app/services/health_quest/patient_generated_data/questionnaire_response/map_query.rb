@@ -12,7 +12,7 @@ module HealthQuest
       #   @return [Hash]
       class MapQuery
         include Lighthouse::FHIRClient
-        include PatientGeneratedData::FHIRHeaders
+        include Lighthouse::FHIRHeaders
 
         attr_reader :access_token, :headers
 

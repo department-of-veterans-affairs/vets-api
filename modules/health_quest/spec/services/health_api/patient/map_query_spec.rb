@@ -12,8 +12,8 @@ describe HealthQuest::HealthApi::Patient::MapQuery do
       expect(subject.ancestors).to include(HealthQuest::Lighthouse::FHIRClient)
     end
 
-    it 'includes PatientGeneratedData::FHIRHeaders' do
-      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRHeaders)
+    it 'includes Lighthouse::FHIRHeaders' do
+      expect(subject.ancestors).to include(HealthQuest::Lighthouse::FHIRHeaders)
     end
   end
 

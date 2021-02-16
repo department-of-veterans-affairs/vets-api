@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::FHIRHeaders do
-  include HealthQuest::PatientGeneratedData::FHIRHeaders
+describe HealthQuest::Lighthouse::FHIRHeaders do
+  include HealthQuest::Lighthouse::FHIRHeaders
 
   describe '#auth_header' do
     let(:access_token) { '123abc' }
