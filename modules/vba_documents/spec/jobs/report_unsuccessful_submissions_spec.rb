@@ -18,7 +18,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
         to = Time.zone.now
         from = to.monday? ? 7.days.ago : 1.day.ago
         expect(VBADocuments::UnsuccessfulReportMailer).to receive(:build).once.with(
-            {},
+          {},
           VBADocuments::UploadSubmission.where(
             created_at: from..to,
             status: 'uploaded'
