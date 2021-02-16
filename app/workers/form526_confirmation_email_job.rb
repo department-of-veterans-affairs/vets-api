@@ -12,7 +12,11 @@ class Form526ConfirmationEmailJob
   STATSD_SUCCESS_NAME = 'worker.form526_confirmation_email.success'
 
   def perform(personalization_parameters)
-    @notify_client ||= VaNotify::Service.new
+    if Flipper.enabled?(:vanotify_service_enhancement)
+      @notify_client ||= VaNotify::Service.new('va_gov')
+    else
+      @notify_client ||= VaNotify::Service.new
+    end
     @notify_client.send_email(
       email_address: personalization_parameters['email'],
       template_id: Settings.vanotify.template_id.form526_confirmation_email,
