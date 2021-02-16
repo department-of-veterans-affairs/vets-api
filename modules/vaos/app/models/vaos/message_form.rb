@@ -48,7 +48,7 @@ module VAOS
     end
     # rubocop:enable Naming/PredicateName
 
-    validates :message_text, length: { minimum: 1, maximum: 100 }
+    validates :message_text, presence: true
 
     def params
       raise Common::Exceptions::ValidationErrors, self unless valid?

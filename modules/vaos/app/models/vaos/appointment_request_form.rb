@@ -3,6 +3,7 @@
 require 'active_model'
 require 'common/models/form'
 require 'common/exceptions'
+require 'formatters/date_formatter'
 
 module VAOS
   class AppointmentRequestForm < Common::Form
@@ -84,7 +85,7 @@ module VAOS
         display_name: "#{last_name}, #{first_name}",
         first_name: first_name,
         last_name: last_name,
-        date_of_birth: dob,
+        date_of_birth: birth_date,
         patient_identifier: {
           unique_id: edipi
         },
@@ -140,10 +141,8 @@ module VAOS
       @user.mpi&.profile&.family_name
     end
 
-    def dob
-      Date.parse(@user.mpi.profile.birth_date).strftime('%b %d, %Y')
-    rescue
-      ''
+    def birth_date
+      Formatters::DateFormatter.format_date(@user.birth_date, :month_day_year)
     end
 
     def edipi
