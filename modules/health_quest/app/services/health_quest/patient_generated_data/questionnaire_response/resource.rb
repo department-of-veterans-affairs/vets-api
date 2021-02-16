@@ -21,7 +21,7 @@ module HealthQuest
       # @!attribute questionnaire_reference
       #   @return [FHIR::Reference]
       class Resource
-        include PatientGeneratedData::Common::IdentityMetaInfo
+        include HealthQuest::Shared::IdentityMetaInfo
         ##
         # Set the QuestionnaireResponse's status
         #
@@ -38,11 +38,11 @@ module HealthQuest
         attr_reader :user, :model, :identifier, :meta, :data, :author_reference, :questionnaire_reference
 
         ##
-        # Builds a PatientGeneratedData::Patient::Resource instance from a given User
+        # Builds a HealthApi::Patient::Resource instance from a given User
         #
         # @param data [Hash] questionnaire answers and appointment data hash.
         # @param user [User] the currently logged in user.
-        # @return [PatientGeneratedData::Patient::Resource] an instance of this class
+        # @return [HealthApi::Patient::Resource] an instance of this class
         #
         def self.manufacture(data, user)
           new(data, user)

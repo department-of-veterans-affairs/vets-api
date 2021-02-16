@@ -17,6 +17,37 @@ module HealthQuest
     # @!attribute decoded_token
     #   @return [Hash]
     class Token
+      CLIENT_CREDENTIALS = 'client_credentials'
+      CLIENT_ASSERTION_TYPE = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
+      PGD_TOKEN_PATH = '/oauth2/pgd/v1/token'
+      SCOPE = [
+        'launch/patient',
+        'patient/Appointment.read',
+        'patient/AllergyIntolerance.read',
+        'patient/CommunityCareEligibility.read',
+        'patient/Condition.read',
+        'patient/CoverageEligibilityResponse.read',
+        'patient/Device.read',
+        'patient/DiagnosticReport.read',
+        'patient/Immunization.read',
+        'patient/Location.read',
+        'patient/Medication.read',
+        'patient/MedicationOrder.read',
+        'patient/MedicationRequest.read',
+        'patient/MedicationStatement.read',
+        'patient/Observation.read',
+        'patient/Organization.read',
+        'patient/Patient.read',
+        'patient/Practitioner.read',
+        'patient/PractitionerRole.read',
+        'patient/Procedure.read',
+        'patient/Test.read',
+        'patient/Questionnaire.read',
+        'patient/Questionnaire.write',
+        'patient/QuestionnaireResponse.read',
+        'patient/QuestionnaireResponse.write'
+      ].freeze
+
       attr_reader :user, :request, :claims_token
       attr_accessor :access_token, :decoded_token
 
@@ -45,7 +76,7 @@ module HealthQuest
       # @return [Lighthouse::Token]
       #
       def fetch
-        response = request.post('/oauth2/pgd/v1/token', post_params)
+        response = request.post(PGD_TOKEN_PATH, post_params)
 
         self.access_token = JSON.parse(response.body).fetch('access_token')
         self.decoded_token = JWT.decode(access_token, nil, false).first
@@ -75,10 +106,10 @@ module HealthQuest
 
       def post_params
         hash = {
-          grant_type: 'client_credentials',
-          client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+          grant_type: CLIENT_CREDENTIALS,
+          client_assertion_type: CLIENT_ASSERTION_TYPE,
           client_assertion: claims_token,
-          scope: 'launch/patient patient/Patient.read patient/Questionnaire.read patient/QuestionnaireResponse.read',
+          scope: SCOPE.join(' '),
           launch: user&.icn
         }
 

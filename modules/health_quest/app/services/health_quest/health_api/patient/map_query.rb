@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module PatientGeneratedData
+  module HealthApi
     module Patient
       ##
       # A service object for querying the PGD for Patient resources.
@@ -11,16 +11,16 @@ module HealthQuest
       # @!attribute headers
       #   @return [Hash]
       class MapQuery
-        include PatientGeneratedData::FHIRClient
-        include PatientGeneratedData::FHIRHeaders
+        include Lighthouse::FHIRClient
+        include Lighthouse::FHIRHeaders
 
         attr_reader :access_token, :headers
 
         ##
-        # Builds a PatientGeneratedData::Patient::MapQuery instance from a redis session.
+        # Builds a HealthApi::Patient::MapQuery instance from a redis session.
         #
         # @param session_store [HealthQuest::SessionStore] the users redis session.
-        # @return [PatientGeneratedData::Patient::MapQuery] an instance of this class
+        # @return [HealthApi::Patient::MapQuery] an instance of this class
         #
         def self.build(session_store)
           new(session_store)
@@ -61,6 +61,15 @@ module HealthQuest
         #
         def fhir_model
           FHIR::Patient
+        end
+
+        ##
+        # Returns the health_api_path
+        #
+        # @return [String]
+        #
+        def lighthouse_api_path
+          Settings.hqva_mobile.lighthouse.health_api_path
         end
       end
     end

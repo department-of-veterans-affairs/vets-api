@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::FHIRClient do
-  include HealthQuest::PatientGeneratedData::FHIRClient
+describe HealthQuest::Lighthouse::FHIRClient do
+  include HealthQuest::Lighthouse::FHIRClient
 
   describe '#headers' do
     it 'raises NotImplementedError' do
@@ -11,17 +11,18 @@ describe HealthQuest::PatientGeneratedData::FHIRClient do
     end
   end
 
-  describe '#client' do
-    let(:headers) { { 'X-VAMF-JWT' => 'abc123' } }
-
-    it 'has a fhir_client' do
-      expect(client).to be_an_instance_of(FHIR::Client)
+  describe '#lighthouse_api_path' do
+    it 'raises NotImplementedError' do
+      expect { lighthouse_api_path }.to raise_error(NoMethodError, /NotImplementedError/)
     end
   end
 
-  describe '#url' do
-    it 'has a pgd path' do
-      expect(url).to match(Settings.hqva_mobile.lighthouse.pgd_path)
+  describe '#client' do
+    let(:headers) { { 'X-VAMF-JWT' => 'abc123' } }
+    let(:lighthouse_api_path) { '/lighthouse/api/path' }
+
+    it 'has a fhir_client' do
+      expect(client).to be_an_instance_of(FHIR::Client)
     end
   end
 end

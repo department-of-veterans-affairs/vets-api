@@ -8,6 +8,52 @@ describe HealthQuest::Lighthouse::Token do
   let(:user) { double('User', account_uuid: 'abc123', icn: '1008596379V859838') }
   let(:token) { subject.build(user: user) }
 
+  describe 'constants' do
+    it 'has a CLIENT_CREDENTIALS' do
+      expect(subject::CLIENT_CREDENTIALS).to eq('client_credentials')
+    end
+
+    it 'has a CLIENT_ASSERTION_TYPE' do
+      expect(subject::CLIENT_ASSERTION_TYPE).to eq('urn:ietf:params:oauth:client-assertion-type:jwt-bearer')
+    end
+
+    it 'has a PGD_TOKEN_PATH' do
+      expect(subject::PGD_TOKEN_PATH).to eq('/oauth2/pgd/v1/token')
+    end
+
+    it 'has a SCOPE' do
+      scope_array = [
+        'launch/patient',
+        'patient/Appointment.read',
+        'patient/AllergyIntolerance.read',
+        'patient/CommunityCareEligibility.read',
+        'patient/Condition.read',
+        'patient/CoverageEligibilityResponse.read',
+        'patient/Device.read',
+        'patient/DiagnosticReport.read',
+        'patient/Immunization.read',
+        'patient/Location.read',
+        'patient/Medication.read',
+        'patient/MedicationOrder.read',
+        'patient/MedicationRequest.read',
+        'patient/MedicationStatement.read',
+        'patient/Observation.read',
+        'patient/Organization.read',
+        'patient/Patient.read',
+        'patient/Practitioner.read',
+        'patient/PractitionerRole.read',
+        'patient/Procedure.read',
+        'patient/Test.read',
+        'patient/Questionnaire.read',
+        'patient/Questionnaire.write',
+        'patient/QuestionnaireResponse.read',
+        'patient/QuestionnaireResponse.write'
+      ]
+
+      expect(subject::SCOPE).to eq(scope_array)
+    end
+  end
+
   describe 'attributes' do
     it 'responds to user' do
       expect(token.respond_to?(:user)).to be(true)
