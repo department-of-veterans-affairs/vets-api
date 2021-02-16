@@ -11,7 +11,7 @@ module HealthQuest
       # @!attribute headers
       #   @return [Hash]
       class MapQuery
-        include PatientGeneratedData::FHIRClient
+        include Lighthouse::FHIRClient
         include PatientGeneratedData::FHIRHeaders
 
         attr_reader :access_token, :headers

@@ -6,11 +6,11 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::MapQuery do
   subject { described_class }
 
   let(:session_store) { double('SessionStore', token: '123abc') }
-  let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
+  let(:client) { double('HealthQuest::Lighthouse::FHIRClient') }
 
   describe 'included modules' do
-    it 'includes PatientGeneratedData::FHIRClient' do
-      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRClient)
+    it 'includes Lighthouse::FHIRClient' do
+      expect(subject.ancestors).to include(HealthQuest::Lighthouse::FHIRClient)
     end
 
     it 'includes PatientGeneratedData::FHIRHeaders' do
@@ -68,7 +68,7 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::MapQuery do
 
   describe '#get' do
     context 'with valid id' do
-      let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
+      let(:client) { double('HealthQuest::Lighthouse::FHIRClient') }
       let(:id) { 'faae134c-9c7b-49d7-8161-10e314da4de1' }
 
       before do

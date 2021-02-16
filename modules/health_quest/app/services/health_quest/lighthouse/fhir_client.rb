@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module PatientGeneratedData
+  module Lighthouse
     module FHIRClient
       def url
         "#{lighthouse.url}#{lighthouse.pgd_path}"
