@@ -9,41 +9,76 @@ module VBADocuments
     def perform
       if Settings.vba_documents.report_enabled
         @to = Time.zone.now
-        @from = @to.monday? ? 7.days.ago : 1.day.ago
+        @from = @to.monday? ? 7.days.ago : 1.days.ago
         @consumers = VBADocuments::UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq
-
         VBADocuments::UnsuccessfulReportMailer.build(totals, stuck, errored, @from, @to).deliver_now
       end
     end
 
     def errored
       VBADocuments::UploadSubmission.where(
-        created_at: @from..@to,
-        status: %w[error expired]
+          created_at: @from..@to,
+          status: %w[error expired]
       ).order(:consumer_name, :status)
     end
 
     def stuck
       VBADocuments::UploadSubmission.where(
-        created_at: @from..@to,
-        status: 'uploaded'
+          created_at: @from..@to,
+          status: 'uploaded'
       ).order(:consumer_name, :status)
     end
 
     def totals
-      @consumers.map do |name|
+      ret_hash = {}
+      sum_hash = VBADocuments::UploadSubmission::RPT_STATUSES.inject({}) {|h,v| h[v] = 0; h }
+
+      @consumers.each do |name|
         counts = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
         totals = counts.sum { |_k, v| v }
         error_rate = counts['error'] ? (100.0 / totals * counts['error']).round : 0
         expired_rate = counts['expired'] ? (100.0 / totals * counts['expired']).round : 0
+
+        # sum the count of success and vbms statuses for the period
+        success_count = (counts['success'] ? counts['success'] : 0) + (counts['vbms'] ? counts['vbms'] : 0)
+        success_rate = success_count > 0 ? (100.0 / totals * success_count).round : 0
+
         if totals.positive?
-          {
-            name => counts.merge(totals: totals,
-                                 error_rate: "#{error_rate}%",
-                                 expired_rate: "#{expired_rate}%")
-          }
+          ret_hash[name] = counts.merge('totals': totals,
+                                        success_rate: "#{success_rate}%",
+                                        error_rate: "#{error_rate}%",
+                                        expired_rate: "#{expired_rate}%")
+
+          # add the consumer counts to the summary hash for the given status
+          counts.keys.each do |k|
+            sum_hash[k] += counts[k]
+          end
         end
       end
+
+      sum_total = sum_hash.sum { |_k, v| v }
+
+      if sum_total.positive?
+        error_rate = "#{(100.0 / sum_total * sum_hash['error']).round}%"
+        expired_rate = "#{(100.0 / sum_total * sum_hash['expired']).round}%"
+
+        # sum the count of success and vbms statuses for the period
+        success_count = sum_hash['success'] + sum_hash['vbms']
+        success_rate = "#{(success_count > 0 ? (100.0 / sum_total * success_count).round : 0)}%"
+        sum_hash['total'] = sum_total
+        sum_hash['success_rate'] = success_rate
+        sum_hash['error_rate'] = error_rate
+        sum_hash['expired_rate'] = expired_rate
+      else
+        sum_hash['total'] = 0
+        sum_hash['success_rate'] = '0%'
+        sum_hash['error_rate'] = '0%'
+        sum_hash['expired_rate'] = '0%'
+      end
+
+      # add the summary hash
+      ret_hash['summary'] = sum_hash
+      ret_hash
     end
   end
 end
