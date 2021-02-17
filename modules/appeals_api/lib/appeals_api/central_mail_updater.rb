@@ -21,6 +21,10 @@ module AppealsApi
 
     CENTRAL_MAIL_STATUS = Struct.new(:id, :status, :error_message) do
       delegate :present?, to: :id
+
+      def error?
+        status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message
+      end
     end
 
     def call(appeals)
@@ -45,11 +49,11 @@ module AppealsApi
     private
 
     def update_appeals!(appeals, central_mail_response)
-      parse_central_mail_response(central_mail_response).each do |status_obj|
-        appeal = appeals.find { |a| a.id == status_obj.id }
+      parse_central_mail_response(central_mail_response).each do |status|
+        appeal = appeals.find { |a| a.id == status.id }
         next unless appeal
 
-        update_appeal_status!(appeal, status_obj.status, status_obj.error_message)
+        update_appeal_status!(appeal, status)
       end
     end
 
@@ -59,15 +63,13 @@ module AppealsApi
       end
     end
 
-    def update_appeal_status!(appeal, status, error_message)
-      attributes = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.fetch(status) do
-        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status)
+    def update_appeal_status!(appeal, status)
+      attributes = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.fetch(status.status) do
+        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status.status)
         raise Common::Exceptions::BadGateway
       end
 
-      if status.in?(CENTRAL_MAIL_ERROR_STATUSES) && error_message
-        attributes = attributes.merge(detail: "Downstream status: #{error_message}")
-      end
+      attributes = attributes.merge(detail: "Downstream status: #{status.error_message}") if status.error?
 
       appeal.update! attributes
     end
