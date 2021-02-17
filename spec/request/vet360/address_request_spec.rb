@@ -109,9 +109,21 @@ RSpec.describe 'address', type: :request do
     end
 
     context 'with a validation issue' do
-      it 'matches the errors schema', :aggregate_failures do
+      before do
         address.address_pou = ''
+      end
 
+      it 'creates a PII log for the validation error' do
+        post('/v0/profile/addresses', params: address.to_json, headers: headers)
+
+        log = PersonalInformationLog.last
+        log_data = log.data
+        expect(log_data['address_line1']).to eq(address.address_line1)
+        expect(log_data['address_pou']).to eq(address.address_pou)
+        expect(log.error_class).to eq('Vet360::Models::Address ValidationError')
+      end
+
+      it 'matches the errors schema', :aggregate_failures do
         post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -120,8 +132,6 @@ RSpec.describe 'address', type: :request do
       end
 
       it 'matches the errors camel-inflected schema', :aggregate_failures do
-        address.address_pou = ''
-
         post('/v0/profile/addresses', params: address.to_json, headers: headers_with_camel)
 
         expect(response).to have_http_status(:unprocessable_entity)
