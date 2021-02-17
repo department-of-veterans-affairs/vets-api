@@ -1889,6 +1889,154 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/folders:
+    get:
+      summary: /v0/messaging/health/folders
+      description: List available secure messaging folders
+      operationId: listFolders
+      security: 
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessagingFolders.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/folders/{id}:
+    get:
+      summary: /v0/messaging/health/folders/{id}
+      description: Get a single secure messaging folder
+      operationId: getFolder
+      security: 
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessagingFolder.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/folders/{id}/messages:
+    get:
+      summary: /v0/messaging/health/folders/{id}/messages
+      description: List messages in a secure messaging folder
+      operationId: listFolderMessages
+      security: 
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageList.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages{id}:
+    get:
+      summary: /v0/messaging/health/messages/{id}
+      description: Get a secure message and mark message as read
+      operationId: getMessage
+      security: 
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageDetail.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages/categories:
+    get:
+      summary: /v0/messaging/health/messages/categories
+      description: List available message categories
+      operationId: listMessageCategories
+      security: 
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+               $ref: "./schemas/SecureMessageCategories.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+
+  /v0/messaging/health/recipients:
+    get:
+      summary: /v0/messaging/health/recipients
+      description: List available recipients to which messages may be sent
+      operationId: listRecipients
+      security: 
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessagingRecipients.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+
+
+
 components:
   securitySchemes:
     Bearer:
