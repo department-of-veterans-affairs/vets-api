@@ -56,22 +56,23 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
   end
 
   private
+
   def send_mail_totals
     {
-        "summary" => {
-            "pending" => 0,
-            "uploaded" => 0,
-            "received" => 0,
-            "processing" => 0,
-            "success" => 0,
-            "vbms" => 0,
-            "error" => 0,
-            "expired" => 0,
-            "total" => 0,
-            "success_rate" => "0%",
-            "error_rate" => "0%",
-            "expired_rate" => "0%"
-        }
+      'summary' => {
+        'pending' => 0,
+        'uploaded' => 0,
+        'received' => 0,
+        'processing' => 0,
+        'success' => 0,
+        'vbms' => 0,
+        'error' => 0,
+        'expired' => 0,
+        'total' => 0,
+        'success_rate' => '0%',
+        'error_rate' => '0%',
+        'expired_rate' => '0%'
+      }
     }
   end
 end
