@@ -791,6 +791,8 @@ veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
   auth_endpoint: ~
+  cert: ~
+  key: ~
 
 # Settings for connecting to the va.gov Google Analytics for the Cypress Viewport Updater
 google_analytics_cvu:
