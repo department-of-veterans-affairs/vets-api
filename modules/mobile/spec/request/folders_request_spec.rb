@@ -12,7 +12,6 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
   let(:va_patient) { true }
-  # let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
 
   before do
     allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)

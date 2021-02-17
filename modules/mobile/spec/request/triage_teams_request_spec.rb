@@ -9,7 +9,6 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
   include SchemaMatchers
 
   let(:va_patient) { true }
-  # let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
 
   before do
     allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return(mhv_account_type)
@@ -19,12 +18,6 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
 
   context 'Premium User' do
     let(:mhv_account_type) { 'Premium' }
-
-    context 'not a va patient' do
-      before { get '/mobile/v0/messaging/health/recipients', headers: iam_headers }
-
-      let(:va_patient) { false }
-    end
 
     it 'responds to GET #index' do
       VCR.use_cassette('sm_client/triage_teams/gets_a_collection_of_triage_team_recipients') do
