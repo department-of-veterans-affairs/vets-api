@@ -48,9 +48,9 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
         job.perform
         totals = job.totals
 
-        expect(totals.first.keys).to eq(['test consumer'])
-        expect(totals.first.values.first[:error_rate]).to eq('33%')
-        expect(totals.first.values.first[:expired_rate]).to eq('33%')
+        expect(totals.keys.first).to eq('test consumer')
+        expect(totals['test consumer'][:error_rate]).to eq('33%')
+        expect(totals['test consumer'][:expired_rate]).to eq('33%')
       end
     end
   end
