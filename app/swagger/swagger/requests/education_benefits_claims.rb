@@ -112,8 +112,14 @@ module Swagger
                      type: :boolean,
                      example: false,
                      description: 'Submitted 10203 `benefit_left` form value'
-            property :denied_at, type: :string
-            property :submitted_at, type: :string
+            property :denied_at,
+                     type: :string,
+                     example: '2021-02-12T19:23:49.443Z',
+                     description: 'STEM automated denial date time'
+            property :submitted_at,
+                     type: :string,
+                     example: '2021-02-12T19:15:22.178Z',
+                     description: 'Form submission date time'
           end
         end
       end
