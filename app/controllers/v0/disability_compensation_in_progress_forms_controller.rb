@@ -24,7 +24,7 @@ module V0
       if rated_disabilities_evss.present? &&
          names_arr(prased_form_data.dig('ratedDisabilities')) != names_arr(rated_disabilities_evss.rated_disabilities)
         if prased_form_data['ratedDisabilities'].present? &&
-           prased_form_data.dig("view:claimType","view:claimingIncrease")
+           prased_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
         end
         evss_rated_disabilites = JSON.parse(rated_disabilities_evss.rated_disabilities.to_json)
