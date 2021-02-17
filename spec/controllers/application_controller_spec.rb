@@ -240,7 +240,7 @@ RSpec.describe ApplicationController, type: :controller do
       expect(Raven).to receive(:tags_context).once.with(
         controller_name: 'anonymous',
         sign_in_method: 'not-signed-in',
-        source_app: 'my_testing'
+        source: 'my_testing'
       )
       expect(Raven).to receive(:tags_context).once.with(
         error: 'mhv_session'

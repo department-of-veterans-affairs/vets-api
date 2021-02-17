@@ -162,13 +162,23 @@ modules_appeals_api:
   higher_level_review_updater_enabled: true
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
-  report_enabled: false
-  report_recipients:
-    - drew.fisher@adhocteam.us
-    - jack.schuss@oddball.io
-    - kelly@adhocteam.us
-    - laura.trager@adhocteam.us
-    - nathan.wright@oddball.io
+  reports:
+    decision_review:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
+    daily_error:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
   schema_dir: config/schemas
 
 vre_counseling:
@@ -286,6 +296,11 @@ mhv:
     collection_caching_enabled: true
   account:
     mock: false
+
+# Settings for alternate MHV integration for mobile app
+mhv_mobile:
+  sm:
+    app_token: fake-app-token
 
 # Settings for Master Veteran Index
 mvi:
@@ -433,6 +448,7 @@ reports:
       - lihan@adhocteam.us
       - Lucas.Tickner@va.gov
       - Ricardo.DaSilva@va.gov
+      - robert.shinners@va.gov
       - shay.norton@va.gov
       - tammy.hurley1@va.gov
     staging_emails:
@@ -567,6 +583,7 @@ maintenance:
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
+    hcq: PWGA814
   aws:
     access_key_id: ~
     bucket: ~
@@ -678,6 +695,10 @@ bgs:
   mock_response_location: ~
   mock_responses: ~
   ssl_verify_mode: "peer"
+
+directory:
+  url: http://example.com/services/apps/v0/
+  apikey: fake_apikey
 
 va_mobile:
   url: "https://veteran.apps.va.gov"

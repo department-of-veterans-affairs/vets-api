@@ -52,6 +52,10 @@ features:
     enable_in_development: true
     description: >
       Enables The New My VA Dashboard 2.0
+  facility_locator_show_operational_hours_special_instructions:
+    actor_type: user
+    enable_in_development: true
+    description: Display new field operationalHoursSpecialInstructions for VA facilities
   facility_locator_show_community_cares:
     actor_type: user
     enable_in_development: true
@@ -312,10 +316,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
-  view_payment_history:
-    actor_type: user
-    description: >
-      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
   request_locked_pdf_password:
     actor_type: user
     enable_in_development: true

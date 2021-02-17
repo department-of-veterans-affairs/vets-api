@@ -108,9 +108,8 @@ RSpec.describe 'appointments', type: :request do
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'VA',
+                'cancelId' => 'MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=',
                 'comment' => nil,
-                'clinicId' => '308',
-                'facilityId' => '442',
                 'healthcareService' => 'CHY PC KILPATRICK',
                 'location' => {
                   'name' => 'CHEYENNE VAMC',
@@ -151,9 +150,8 @@ RSpec.describe 'appointments', type: :request do
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'COMMUNITY_CARE',
+                'cancelId' => nil,
                 'comment' => 'Test',
-                'clinicId' => nil,
-                'facilityId' => nil,
                 'healthcareService' => 'rtt',
                 'location' => {
                   'name' => 'rtt',
@@ -266,70 +264,35 @@ RSpec.describe 'appointments', type: :request do
 
   describe 'PUT /mobile/v0/appointments/cancel' do
     context 'when request body params are missing' do
-      let(:request_body) do
-        {
-          appointmentTime: '2019-11-15T20:00:00Z',
-          healthcareService: 'CHY VISUAL FIELD'
-        }
+      let(:cancel_id) do
+        'abc123'
       end
 
       it 'returns a 422 that lists all validation errors' do
         VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
-          put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
+          put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response.body).to match_json_schema('errors')
-          expect(response.parsed_body['errors'].size).to eq(2)
-        end
-      end
-    end
-
-    context 'with an invalid date' do
-      let(:request_body) do
-        {
-          appointmentTime: '2019-13-15T13:00:00Z',
-          clinicId: '437',
-          facilityId: '983',
-          healthcareService: 'CHY VISUAL FIELD'
-        }
-      end
-
-      it 'returns a 422 with a message that it must be a date time' do
-        VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
-          put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response.body).to match_json_schema('errors')
-          expect(response.parsed_body).to eq(
-            {
-              'errors' => [
-                {
-                  'title' => 'Validation Error',
-                  'detail' => 'appointmentTime must be a date time',
-                  'code' => 'MOBL_422_validation_error',
-                  'status' => '422'
-                }
-              ]
-            }
-          )
+          expect(response.parsed_body['errors'].size).to eq(1)
         end
       end
     end
 
     context 'with valid params' do
-      let(:request_body) do
-        {
-          appointmentTime: '2019-11-15T13:00:00Z',
-          clinicId: '437',
-          facilityId: '983',
-          healthcareService: 'CHY VISUAL FIELD'
-        }
+      let(:cancel_id) do
+        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+          start_date_local: DateTime.parse('2019-11-15T13:00:00'),
+          clinic_id: '437',
+          facility_id: '983',
+          healthcare_service: 'CHY VISUAL FIELD'
+        )
       end
 
       context 'when a valid cancel reason is not returned in the list' do
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('appointments/get_cancel_reasons_invalid', match_requests_on: %i[method uri]) do
-            put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
 
             binding.pry
             expect(response).to have_http_status(:not_found)
@@ -343,7 +306,7 @@ RSpec.describe 'appointments', type: :request do
       context 'when cancel reason returns a 500' do
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('appointments/get_cancel_reasons_500', match_requests_on: %i[method uri]) do
-            put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
 
             expect(response).to have_http_status(:bad_gateway)
             expect(response.parsed_body['errors'].first['detail'])
@@ -356,7 +319,7 @@ RSpec.describe 'appointments', type: :request do
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('appointments/put_cancel_appointment_409', match_requests_on: %i[method uri]) do
             VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
-              put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
+              put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
 
               expect(response).to have_http_status(:conflict)
               expect(response.parsed_body['errors'].first['detail'])
@@ -368,19 +331,19 @@ RSpec.describe 'appointments', type: :request do
     end
 
     context 'when appointment can be cancelled' do
-      let(:request_body) do
-        {
-          appointmentTime: '2019-11-15T13:00:00Z',
-          clinicId: '437',
-          facilityId: '983',
-          healthcareService: 'CHY VISUAL FIELD'
-        }
+      let(:cancel_id) do
+        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+          start_date_local: DateTime.parse('2019-11-15T13:00:00'),
+          clinic_id: '437',
+          facility_id: '983',
+          healthcare_service: 'CHY VISUAL FIELD'
+        )
       end
 
       it 'cancels the appointment' do
         VCR.use_cassette('appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
-            put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
 
             expect(response).to have_http_status(:success)
             expect(response.body).to be_an_instance_of(String).and be_empty
@@ -389,19 +352,19 @@ RSpec.describe 'appointments', type: :request do
       end
 
       context 'when appointment can be cancelled but fails' do
-        let(:request_body) do
-          {
-            appointmentTime: '2019-11-20T17:00:00Z',
-            clinicId: '437',
-            facilityId: '983',
-            healthcareService: 'CHY VISUAL FIELD'
-          }
+        let(:cancel_id) do
+          Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+            start_date_local: DateTime.parse('2019-11-20T17:00:00'),
+            clinic_id: '437',
+            facility_id: '983',
+            healthcare_service: 'CHY VISUAL FIELD'
+          )
         end
 
         it 'raises a 502' do
           VCR.use_cassette('appointments/put_cancel_appointment_500', match_requests_on: %i[method uri]) do
             VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
-              put '/mobile/v0/appointments/cancel', headers: iam_headers, params: request_body
+              put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
 
               expect(response).to have_http_status(:bad_gateway)
               expect(response.body).to match_json_schema('errors')
