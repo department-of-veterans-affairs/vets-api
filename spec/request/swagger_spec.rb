@@ -198,8 +198,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       expect(subject).to validate(:get, '/v0/education_benefits_claims/stem_claim_status', 200)
     end
 
-
-
     it 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mpi/find_candidate/valid' do
         VCR.use_cassette 'emis/get_veteran_status/valid' do

@@ -123,7 +123,6 @@ module Swagger
           end
         end
       end
-
     end
   end
 end
