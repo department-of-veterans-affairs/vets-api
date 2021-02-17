@@ -147,13 +147,20 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-  /v0/appointments/cancel:
+  /v0/appointments/cancel/{cancelId}:
     put:
-      summary: /v0/appointments/cancel/:cancelId
+      summary: /v0/appointments/cancel/{cancelId}
       description: Cancel an appointment by cancelId. Note only VA appointments can be cancelled online and some VA facilities do not support online cancellation. Only appointments that can be cancelled will have a cancelId.
       operationId: putCancelAppointment
       security:
         - Bearer: [ ]
+      parameters:
+        - in: path
+          name: cancelId
+          required: true
+          schema:
+            type: string
+          description: The cancel ID hash from an appointment returned in the GET appointments endpoint.
       responses:
         '204':
           description: No Content
