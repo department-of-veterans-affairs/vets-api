@@ -19,12 +19,9 @@ module VBADocuments
       def submit
         upload_model = UploadFile.new
         begin
-          tempfile = Tempfile.create(upload_model.guid, binmode: true)
-          tempfile.write(request.raw_post)
-          tempfile.close
           upload_model.multipart.attach(io: StringIO.new(request.raw_post), filename: upload_model.guid)
           upload_model.save!
-          parts = VBADocuments::MultipartParser.parse(tempfile.path)
+          parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))
           inspector = VBADocuments::PDFInspector.new(pdf: parts)
           validate_parts(parts)
           validate_metadata(parts[META_PART_NAME])
@@ -34,8 +31,6 @@ module VBADocuments
         rescue VBADocuments::UploadError => e
           Rails.logger.warn("UploadError download_and_process for guid #{upload_model.guid}.", e)
           upload_model.update(status: 'error', code: e.code, detail: e.detail)
-        ensure
-          File.delete tempfile
         end
         status = upload_model.status.eql?('error') ? 400 : 200
         render json: upload_model,
