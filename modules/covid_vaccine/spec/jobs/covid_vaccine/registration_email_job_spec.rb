@@ -16,27 +16,27 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
       with_settings(
         Settings.vanotify.services.va_gov, {api_key: test_service_api_key}
       ) do
-        mocked_notification_service = class_double('VaNotify::Service', new: { id: '123456789' })
-        allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
-        expect(mocked_notification_service).to receive(:new).with(test_service_api_key)
-        # allow(mocked_notification_service).to receive(:send_email)
-        described_class.perform_async(email, date, confirmation_id)
-        # expect(mocked_notification_service).to have_received(:new).with(test_service_api_key)
+        instance = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)
+        allow(instance).to receive(:send_email)
+        expect do
+          described_class.perform_async(email, date, confirmation_id)
+        end.to change(described_class.jobs, :size).by(1)
       end
     end
 
-   xit 'the service is initialized with the correct parameters with disabled toggle' do
+    it 'the service is initialized with the correct parameters with disabled toggle' do
       Flipper.disable(:vanotify_service_enhancement)
       test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
       with_settings(
         Settings.vanotify, {api_key: test_service_api_key}
       ) do
-        mocked_notification_service = instance_double('VaNotify::Service')
-        allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
-        allow(mocked_notification_service).to receive(:send_email).and_return(@email_response)
-        test_service_base_url = 'https://test.fake.api.com'
-        described_class.perform_async(email, date, confirmation_id)
-        expect(VaNotify::Service).to have_received(:new).with(test_service_api_key)
+        instance = instance_double(VaNotify::Service)
+        allow(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)
+        allow(instance).to receive(:send_email)
+        expect do
+          described_class.perform_async(email, date, confirmation_id)
+        end.to change(described_class.jobs, :size).by(1)
       end
     end
 
