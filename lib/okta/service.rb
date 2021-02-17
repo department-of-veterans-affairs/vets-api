@@ -70,20 +70,6 @@ module Okta
       end
     end
 
-    def metadata(iss)
-      metadata_endpoint = get_metadata_endpoint(iss)
-      with_monitoring do
-        get_url_no_token(metadata_endpoint)
-      end
-    end
-
-    def oidc_jwks_keys(iss)
-      url = metadata(iss).body['jwks_uri']
-      with_monitoring do
-        get_url_no_token(url)
-      end
-    end
-
     private
 
     %i[get post put delete].each do |http_verb|
@@ -94,11 +80,6 @@ module Okta
 
     def get_url_no_token(url)
       Okta::Response.new call_no_token('get', url)
-    end
-
-    def get_metadata_endpoint(iss)
-      metadata_endpoint = Settings.oidc.metadata_endpoints.find { |s| iss.downcase.include? s['issuer'].downcase }
-      iss + metadata_endpoint['metadata']
     end
   end
 end
