@@ -19,8 +19,6 @@ module EducationForm
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
-                    unique_for: 30.minutes,
-                    retry: 5,
                     backtrace: true
 
     # Get all 10203 submissions that have a row in education_stem_automated_decisions
@@ -29,7 +27,7 @@ module EducationForm
         saved_claims: {
           form_id: '22-10203'
         }
-      )
+      ).order('education_benefits_claims.created_at')
     )
       return false unless Flipper.enabled?(:stem_automated_decision) && evss_is_healthy?
 
@@ -61,7 +59,7 @@ module EducationForm
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
       user_submissions.each_value do |submissions|
-        auth_headers = submissions.first.education_stem_automated_decision.auth_headers
+        auth_headers = submissions.last.education_stem_automated_decision.auth_headers
         gi_bill_status = get_gi_bill_status(auth_headers)
         poa = get_user_poa_status(auth_headers)
 
@@ -99,12 +97,17 @@ module EducationForm
       nil
     end
 
+    # Ignore already processed either by CreateDailySpoolFiles or this job
     def update_automated_decision(submission, status, poa, remaining_entitlement = nil)
-      submission.education_stem_automated_decision.update(
-        automated_decision_state: status,
-        poa: poa,
-        remaining_entitlement: remaining_entitlement
-      )
+      if submission.processed_at.nil? &&
+        submission.education_stem_automated_decision&.automated_decision_state == INIT
+
+        submission.education_stem_automated_decision.update(
+          automated_decision_state: status,
+          poa: poa,
+          remaining_entitlement: remaining_entitlement
+        )
+      end
     end
 
     # Makes a list of all submissions that have not been processed and have a status of INIT
@@ -144,24 +147,18 @@ module EducationForm
         unprocessed_form.benefit_left == processed_form.benefit_left
     end
 
-    # Ignore already processed either by CreateDailySpoolFiles or this job
-    #
     # Set status to DENIED when isPursuingTeachingCert in form data is 'no' (false)
     #   and isEnrolledStem is 'no' (false)
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
     def process_submission(submission, gi_bill_status, user_has_poa)
-      if submission.processed_at.nil? &&
-         submission.education_stem_automated_decision&.automated_decision_state == INIT
-
-        submission_form = format_application(submission)
-        status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
-                    more_than_six_months?(gi_bill_status)
-                   DENIED
-                 else
-                   PROCESSED
-                 end
-        update_automated_decision(submission, status, user_has_poa, remaining_entitlement_days(gi_bill_status))
-      end
+      submission_form = format_application(submission)
+      status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
+                  more_than_six_months?(gi_bill_status)
+                 DENIED
+               else
+                 PROCESSED
+               end
+      update_automated_decision(submission, status, user_has_poa, remaining_entitlement_days(gi_bill_status))
     end
 
     def format_application(data)

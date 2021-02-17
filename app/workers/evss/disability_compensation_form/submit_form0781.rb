@@ -36,6 +36,7 @@ module EVSS
       # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
+        Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
         with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
           parsed_forms = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))

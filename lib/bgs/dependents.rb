@@ -27,7 +27,7 @@ module BGS
         death = BGSDependents::Death.new(death_info)
         relationship_types = death.relationship_type(death_info)
 
-        next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
+        # next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
 
         formatted_info = death.format_info
         death_info['location']['state_code'] = death_info['location'].delete('state')

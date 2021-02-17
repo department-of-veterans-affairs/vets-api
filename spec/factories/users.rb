@@ -28,6 +28,7 @@ FactoryBot.define do
       search_token { nil }
       icn_with_aaid { nil }
       common_name { nil }
+      person_types { [] }
 
       sign_in do
         {
