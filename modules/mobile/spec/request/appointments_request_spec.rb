@@ -30,21 +30,15 @@ RSpec.describe 'appointments', type: :request do
       it 'returns a bad request error' do
         get '/mobile/v0/appointments', headers: iam_headers, params: nil
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq(
           {
             'errors' => [
               {
-                'title' => 'Validation Error',
-                'detail' => 'start_date must be filled',
-                'code' => 'MOBL_422_validation_error',
-                'status' => '422'
-              },
-              {
-                'title' => 'Validation Error',
-                'detail' => 'end_date must be filled',
-                'code' => 'MOBL_422_validation_error',
-                'status' => '422'
+                'title' => 'Invalid field value',
+                'detail' => '"" is not a valid value for "startDate"',
+                'code' => '103',
+                'status' => '400'
               }
             ]
           }
@@ -55,19 +49,20 @@ RSpec.describe 'appointments', type: :request do
     context 'with an invalid date in params' do
       let(:start_date) { 42 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { startDate: start_date, endDate: end_date, useCache: true } }
+      let(:params) { { startDate: start_date, endDate: end_date } }
 
       it 'returns a bad request error' do
         get '/mobile/v0/appointments', headers: iam_headers, params: params
 
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq(
           {
             'errors' => [
               {
-                'title' => 'Validation Error',
-                'detail' => 'start_date must be a date time',
-                'code' => 'MOBL_422_validation_error', 'status' => '422'
+                'title' => 'Invalid field value',
+                'detail' => '"42" is not a valid value for "startDate"',
+                'code' => '103',
+                'status' => '400'
               }
             ]
           }
@@ -78,7 +73,7 @@ RSpec.describe 'appointments', type: :request do
     context 'with valid params' do
       let(:start_date) { Time.now.utc.iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { startDate: start_date, endDate: end_date, useCache: true } }
+      let(:params) { { startDate: start_date, endDate: end_date } }
 
       context 'with a user has mixed upcoming appointments' do
         before do
@@ -184,54 +179,6 @@ RSpec.describe 'appointments', type: :request do
               }
             }
           )
-        end
-      end
-
-      context 'with the cached flag set to false' do
-        let(:start_date) { Time.now.utc.iso8601 }
-        let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-        let(:params) { { startDate: start_date, endDate: end_date, useCache: false } }
-
-        before do
-          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('appointments/get_cc_appointments_cache_false', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('appointments/get_appointments_cache_false', match_requests_on: %i[method uri]) do
-                get '/mobile/v0/appointments', headers: iam_headers, params: params
-              end
-            end
-          end
-        end
-
-        it 'returns an ok response' do
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'matches the expected schema' do
-          expect(response.body).to match_json_schema('appointments')
-        end
-      end
-
-      context 'with no cached flag (defaults to false)' do
-        let(:start_date) { Time.now.utc.iso8601 }
-        let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-        let(:params) { { startDate: start_date, endDate: end_date } }
-
-        before do
-          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('appointments/get_cc_appointments_cache_false', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('appointments/get_appointments_cache_false', match_requests_on: %i[method uri]) do
-                get '/mobile/v0/appointments', headers: iam_headers, params: params
-              end
-            end
-          end
-        end
-
-        it 'returns an ok response' do
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'matches the expected schema' do
-          expect(response.body).to match_json_schema('appointments')
         end
       end
 

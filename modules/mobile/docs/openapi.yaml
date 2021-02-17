@@ -84,12 +84,6 @@ paths:
             type: datetime
           description: The end date for the range of appointments in ISO 8601 UTC format
           example: 2021-11-29T08:00:00.000Z
-        - in: query
-          name: useCache
-          schema:
-            type: boolean
-          description: Whether or not to use the upstream VAOS service's cache of appointments
-          example: 2021-11-29T08:00:00.000Z
       responses:
         '200':
           description: OK
@@ -125,12 +119,6 @@ paths:
                 $ref: "./schemas/Errors.yml"
         '408':
           description: The response from this API timed out.
-          content:
-            application/json:
-              schema:
-                $ref: "./schemas/Errors.yml"
-        '422':
-          description: Validation Error.
           content:
             application/json:
               schema:
