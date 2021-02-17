@@ -20,6 +20,26 @@ describe AppealsApi::CentralMailUpdater do
     allow(client_stub).to receive(:status).and_return(faraday_response)
   end
 
+  context 'when verifying status structures' do
+    let(:appeal_statuses) { AppealsApi::CentralMailStatus::STATUSES }
+
+    it 'fails if one or more CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES keys or values is mismatched' do
+      status_hashes = described_class::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.values
+      status_attr_keys = status_hashes.map(&:keys).flatten
+      status_attr_values = status_hashes.map { |attr| attr[:status] }.uniq
+
+      expect(appeal_statuses).to include(*status_attr_values)
+      expect(status_attr_keys).not_to include(*status_attr_values)
+    end
+
+    it 'fails if error statuses are mismatched' do
+      central_mail_statuses = described_class::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.keys
+      error_statuses = described_class::CENTRAL_MAIL_ERROR_STATUSES
+
+      expect(central_mail_statuses).to include(*error_statuses)
+    end
+  end
+
   it 'returns early when given without any appeals' do
     expect(described_class.new.call([])).to be_nil
   end

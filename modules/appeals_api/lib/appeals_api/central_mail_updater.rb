@@ -6,11 +6,7 @@ module AppealsApi
 
     MAX_UUIDS_PER_REQUEST = 100
 
-    STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
-
     CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
-    RECEIVED_OR_PROCESSING = %w[received processing].freeze
-    COMPLETE_STATUSES = %w[success error].freeze
 
     CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES = {
       'Received' => { status: 'received' },
