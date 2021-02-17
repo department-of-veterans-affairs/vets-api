@@ -10,13 +10,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     1.byte...150.megabytes
   end
 
-  version :converted, if: :tiff? do
-    process(convert: :jpg)
-
-    def full_filename(file)
-      "converted_#{file}.jpg"
-    end
-  end
+  process :convert_to_jpg, if: :tiff?
 
   def initialize(user_uuid, ids)
     # carrierwave allows only 2 arguments, which they will pass onto
@@ -26,26 +20,6 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     @user_uuid = user_uuid
     @ids = ids
     set_storage_options!
-  end
-
-  def converted_exists?
-    converted.present? && converted.file.exists?
-  end
-
-  def final_filename
-    if converted_exists?
-      converted.file.filename
-    else
-      filename
-    end
-  end
-
-  def read_for_upload
-    if converted_exists?
-      converted.read
-    else
-      read
-    end
   end
 
   def store_dir
@@ -80,6 +54,14 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
       )
     else
       self.class.storage = :file
+    end
+  end
+
+  def convert_to_jpg
+    convert :jpg
+
+    define_singleton_method :filename do
+      "converted_#{super()}.jpg" if super()
     end
   end
 end
