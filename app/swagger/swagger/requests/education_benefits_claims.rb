@@ -40,25 +40,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/education_benefits_claims/stem_claim_status' do
-        operation :get do
-          key :description, 'Get a list of user STEM benefit claims'
-          key :operationId, 'getStemClaimStatus'
-          key :tags, %w[
-            benefits_info
-          ]
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
-              key :'$ref', [:EducationStemClaimStatusData]
-            end
-          end
-        end
-      end
-
       swagger_schema :EducationBenefitsClaimInput do
         key :required, [:form]
 
@@ -80,6 +61,25 @@ module Swagger
             property :submitted_at, type: :string
             property :regional_office, type: :string
             property :confirmation_number, type: :string
+          end
+        end
+      end
+
+      swagger_path '/v0/education_benefits_claims/stem_claim_status' do
+        operation :get do
+          key :description, 'Get a list of user STEM benefit claims'
+          key :operationId, 'getStemClaimStatus'
+          key :tags, %w[
+            benefits_info
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :EducationStemClaimStatusData
+            end
           end
         end
       end
@@ -123,6 +123,7 @@ module Swagger
           end
         end
       end
+
     end
   end
 end
