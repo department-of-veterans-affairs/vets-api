@@ -65,6 +65,7 @@ describe VaNotify::Service do
 
   describe '#send_email', vanotify_service_enhancement: false do
     subject { VaNotify::Service.new(@test_api_key) }
+
     let(:notification_client) { double('Notifications::Client') }
 
     it 'calls notifications client' do
@@ -78,7 +79,7 @@ describe VaNotify::Service do
 
   describe 'error handling', vanotify_service_enhancement: false do
     subject { VaNotify::Service.new(@test_api_key) }
-    
+
     it 'raises a 400 exception' do
       VCR.use_cassette('va_notify/bad_request') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|

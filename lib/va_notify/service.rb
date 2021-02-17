@@ -47,12 +47,6 @@ module VaNotify
       end
     end
 
-    def instance_service_name(vanotify_service_name)
-      if Flipper.enabled?(:vanotify_service_enhancement, user)
-        Settings.vanotify.services[:"#{vanotify_service_name}"]
-      end
-    end
-
     def client_url
       config.base_path
     end

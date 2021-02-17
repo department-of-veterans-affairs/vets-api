@@ -35,12 +35,11 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         Flipper.enable(:vanotify_service_enhancement)
         test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
         with_settings(
-          Settings.vanotify.services.va_gov, {api_key: test_service_api_key}
+          Settings.vanotify.services.va_gov, { api_key: test_service_api_key }
         ) do
           mocked_notification_service = instance_double('VaNotify::Service')
           allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
           allow(mocked_notification_service).to receive(:send_email).and_return(@email_response)
-          test_service_base_url = 'https://test.fake.api.com'
           subject.perform('')
           expect(VaNotify::Service).to have_received(:new).with(test_service_api_key)
         end
@@ -50,12 +49,11 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         Flipper.disable(:vanotify_service_enhancement)
         test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
         with_settings(
-          Settings.vanotify, {api_key: test_service_api_key}
+          Settings.vanotify, { api_key: test_service_api_key }
         ) do
           mocked_notification_service = instance_double('VaNotify::Service')
           allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
           allow(mocked_notification_service).to receive(:send_email).and_return(@email_response)
-          test_service_base_url = 'https://test.fake.api.com'
           subject.perform('')
           expect(VaNotify::Service).to have_received(:new).with(test_service_api_key)
         end
@@ -150,5 +148,4 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
       end
     end
   end
-
 end
