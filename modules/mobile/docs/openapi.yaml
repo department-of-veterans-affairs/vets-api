@@ -159,6 +159,71 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/appointments/cancel/{cancelId}:
+    put:
+      summary: /v0/appointments/cancel/{cancelId}
+      description: Cancel an appointment by cancelId. Note only VA appointments can be cancelled online and some VA facilities do not support online cancellation. Only appointments that can be cancelled will have a cancelId.
+      operationId: putCancelAppointment
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: path
+          name: cancelId
+          required: true
+          schema:
+            type: string
+          description: The cancel ID hash from an appointment returned in the GET appointments endpoint.
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/military-service-history:
     get:
       summary: /v0/military-service-history
