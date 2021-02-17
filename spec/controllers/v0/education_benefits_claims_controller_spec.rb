@@ -30,7 +30,7 @@ RSpec.describe V0::EducationBenefitsClaimsController, type: :controller do
 
       body = JSON.parse response.body
       expect(response.content_type).to eq('application/json; charset=utf-8')
-      expect(body['data']).to eq([])
+      expect(body['data'].length).to eq(1)
     end
   end
 
