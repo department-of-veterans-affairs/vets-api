@@ -22,18 +22,6 @@ module AppealsApi
 
     validate :validate_hearing_type_selection, if: :pii_present?
 
-    def submitting!
-      update!(status: 'submitting')
-    end
-
-    def submitted!
-      update!(status: 'submitted')
-    end
-
-    def error!(code:, detail:)
-      update!(status: 'error', code: code, detail: detail)
-    end
-
     def pdf_structure(version)
       Object.const_get(
         "AppealsApi::PdfConstruction::NoticeOfDisagreement::#{version.upcase}::Structure"
