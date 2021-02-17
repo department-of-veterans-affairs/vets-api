@@ -294,7 +294,6 @@ RSpec.describe 'appointments', type: :request do
           VCR.use_cassette('appointments/get_cancel_reasons_invalid', match_requests_on: %i[method uri]) do
             put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
 
-            binding.pry
             expect(response).to have_http_status(:not_found)
             expect(response.parsed_body['errors'].first['detail']).to eq(
               'This appointment can not be cancelled online because a prerequisite cancel reason could not be found'
