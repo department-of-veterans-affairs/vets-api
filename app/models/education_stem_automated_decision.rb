@@ -24,6 +24,8 @@ class EducationStemAutomatedDecision < ApplicationRecord
   # @return [Hash] parsed auth headers
   #
   def auth_headers
+    return nil if auth_headers_json.nil?
+
     @auth_headers_hash ||= JSON.parse(auth_headers_json)
   end
 end

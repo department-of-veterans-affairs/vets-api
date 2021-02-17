@@ -17,17 +17,6 @@ describe VAOS::MessageForm, type: :model do
     it 'raises a Common::Exceptions::ValidationErrors when trying to fetch coerced params' do
       expect { subject.params }.to raise_error(Common::Exceptions::ValidationErrors)
     end
-
-    context 'message_text length > 100' do
-      subject do
-        described_class.new(user, request_id, message_text: Faker::Lorem.characters(number: 101))
-      end
-
-      it 'raises a custom error message' do
-        expect(subject).not_to be_valid
-        expect(subject.errors.full_messages).to eq(['Message text is too long (maximum is 100 characters)'])
-      end
-    end
   end
 
   describe 'valid object' do

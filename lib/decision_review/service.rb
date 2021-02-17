@@ -35,7 +35,7 @@ module DecisionReview
         headers = create_higher_level_review_headers(user)
         response = perform :post, 'higher_level_reviews', request_body, headers
         raise_schema_error_unless_200_status response.status
-        validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA
+        validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA, append_to_error_class: ' (HLR)'
         response
       end
     end
@@ -50,7 +50,7 @@ module DecisionReview
       with_monitoring_and_error_handling do
         response = perform :get, "higher_level_reviews/#{uuid}", nil
         raise_schema_error_unless_200_status response.status
-        validate_against_schema json: response.body, schema: HLR_SHOW_RESPONSE_SCHEMA
+        validate_against_schema json: response.body, schema: HLR_SHOW_RESPONSE_SCHEMA, append_to_error_class: ' (HLR)'
         response
       end
     end
@@ -68,7 +68,11 @@ module DecisionReview
         headers = get_contestable_issues_headers(user)
         response = perform :get, path, nil, headers
         raise_schema_error_unless_200_status response.status
-        validate_against_schema json: response.body, schema: HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA
+        validate_against_schema(
+          json: response.body,
+          schema: HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA,
+          append_to_error_class: ' (HLR)'
+        )
         response
       end
     end
@@ -138,12 +142,12 @@ module DecisionReview
             end
     end
 
-    def validate_against_schema(json:, schema:)
+    def validate_against_schema(json:, schema:, append_to_error_class: '')
       errors = JSONSchemer.schema(schema).validate(json).to_a
       return if errors.empty?
 
       PersonalInformationLog.create!(
-        error_class: "#{self.class.name}#validate_against_schema exception",
+        error_class: "#{self.class.name}#validate_against_schema exception#{append_to_error_class}",
         data: { json: json, schema: schema, errors: errors }
       )
       raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)

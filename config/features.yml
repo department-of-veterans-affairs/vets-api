@@ -316,10 +316,6 @@ features:
     actor_type: user
     description: >
       This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
-  view_payment_history:
-    actor_type: user
-    description: >
-      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
   request_locked_pdf_password:
     actor_type: user
     enable_in_development: true
