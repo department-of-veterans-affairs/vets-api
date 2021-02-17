@@ -60,9 +60,7 @@ module AppealsApi
     end
 
     def update_appeal_status!(appeal, status, error_message)
-      begin
-        attributes = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.fetch(status)
-      rescue KeyError
+      attributes = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.fetch(status) do
         log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status)
         raise Common::Exceptions::BadGateway
       end
