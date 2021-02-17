@@ -18,7 +18,7 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
         to = Time.zone.now
         from = to.monday? ? 7.days.ago : 1.day.ago
         expect(VBADocuments::UnsuccessfulReportMailer).to receive(:build).once.with(
-          {},
+          send_mail_totals,
           VBADocuments::UploadSubmission.where(
             created_at: from..to,
             status: 'uploaded'
@@ -53,5 +53,25 @@ RSpec.describe VBADocuments::ReportUnsuccessfulSubmissions, type: :job do
         expect(totals.first.values.first[:expired_rate]).to eq('33%')
       end
     end
+  end
+
+  private
+  def send_mail_totals
+    {
+        "summary" => {
+            "pending" => 0,
+            "uploaded" => 0,
+            "received" => 0,
+            "processing" => 0,
+            "success" => 0,
+            "vbms" => 0,
+            "error" => 0,
+            "expired" => 0,
+            "total" => 0,
+            "success_rate" => "0%",
+            "error_rate" => "0%",
+            "expired_rate" => "0%"
+        }
+    }
   end
 end
