@@ -13,30 +13,26 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
     it 'the service is initialized with the correct parameters with enabled toggle' do
       Flipper.enable(:vanotify_service_enhancement)
       test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-      with_settings(
+      instance = instance_double(VaNotify::Service)
+      allow(instance).to receive(:send_email)
+    with_settings(
         Settings.vanotify.services.va_gov, {api_key: test_service_api_key}
       ) do
-        instance = instance_double(VaNotify::Service)
-        allow(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)
-        allow(instance).to receive(:send_email)
-        expect do
-          described_class.perform_async(email, date, confirmation_id)
-        end.to change(described_class.jobs, :size).by(1)
+        expect(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)
+        described_class.new.perform(email, date, confirmation_id)
       end
     end
 
     it 'the service is initialized with the correct parameters with disabled toggle' do
       Flipper.disable(:vanotify_service_enhancement)
-      test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
-      with_settings(
-        Settings.vanotify, {api_key: test_service_api_key}
+      test_service_api_key = 'baaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+      instance = instance_double(VaNotify::Service)
+      allow(instance).to receive(:send_email)
+    with_settings(
+      Settings.vanotify, {api_key: test_service_api_key}
       ) do
-        instance = instance_double(VaNotify::Service)
-        allow(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)
-        allow(instance).to receive(:send_email)
-        expect do
-          described_class.perform_async(email, date, confirmation_id)
-        end.to change(described_class.jobs, :size).by(1)
+        expect(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)
+        described_class.new.perform(email, date, confirmation_id)
       end
     end
 
