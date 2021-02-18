@@ -13,7 +13,7 @@ module Sidekiq
     def should_notify?(worker, job)
       # retry_count is incremented after all middlewares are called
 
-      worker.is_a?(Sidekiq::RetryMonitoring::MonitoredWorker) &&
+      worker.is_a?(Sidekiq::MonitoredWorker) &&
         (Integer(job['retry_count']) + 1).in?(worker.retry_limits_for_notification)
     end
   end
