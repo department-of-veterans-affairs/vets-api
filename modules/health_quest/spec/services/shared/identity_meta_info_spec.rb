@@ -54,11 +54,11 @@ describe HealthQuest::Shared::IdentityMetaInfo do
     end
 
     it 'has a META_SYSTEM' do
-      expect(subject::META_SYSTEM).to eq('https://wiki.mobilehealth.va.gov/display/PGDMS/Client+Provenance+Mapping')
+      expect(subject::META_SYSTEM).to eq('https://api.va.gov/services/pgd')
     end
 
     it 'has a META_CODE' do
-      expect(subject::META_CODE).to eq('vagov-a0e116eb-faa1-4703-aafe-1a270128607a')
+      expect(subject::META_CODE).to eq('66a5960c-68ee-4689-88ae-4c7cccf7ca79')
     end
 
     it 'has a META_DISPLAY' do
@@ -71,8 +71,8 @@ describe HealthQuest::Shared::IdentityMetaInfo do
       meta_hash = {
         'tag' => [
           {
-            system: 'https://wiki.mobilehealth.va.gov/display/PGDMS/Client+Provenance+Mapping',
-            code: 'vagov-a0e116eb-faa1-4703-aafe-1a270128607a',
+            system: 'https://api.va.gov/services/pgd',
+            code: '66a5960c-68ee-4689-88ae-4c7cccf7ca79',
             display: 'VA GOV CLIPBOARD'
           }
         ]
