@@ -282,6 +282,22 @@ module ClaimsApi
               end
             end
           end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
+                  end
+                end
+              end
+            end
+          end
         end
 
         operation :get do
@@ -601,22 +617,21 @@ module ClaimsApi
             end
           end
 
-          # REPLACE WITH A PROPER, GENERIC RESPONSE FOR A 422
-          # response 422 do
-          #   key :description, 'Invalid Payload'
-          #   content 'application/json' do
-          #     schema do
-          #       key :type, :object
-          #       key :required, [:errors]
-          #       property :errors do
-          #         key :type, :array
-          #         items do
-          #           key :'$ref', :ErrorModel
-          #         end
-          #       end
-          #     end
-          #   end
-          # end
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
+                  end
+                end
+              end
+            end
+          end
         end
       end
     end
