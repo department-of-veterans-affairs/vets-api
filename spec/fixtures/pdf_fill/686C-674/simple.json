@@ -43,7 +43,7 @@
         "city": "Slawson"
       },
       "type": "OTHER",
-      "type_other": "Some Other type"
+      "type_other": "Other"
     },
     "does_live_with_spouse": {
       "spouse_does_live_with_veteran": false,
