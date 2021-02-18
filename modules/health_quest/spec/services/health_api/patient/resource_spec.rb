@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::Patient::Resource do
+describe HealthQuest::HealthApi::Patient::Resource do
   subject { described_class }
 
   let(:user) { double('User', icn: '1008596379V859838', first_name: 'Bob', last_name: 'Smith') }
@@ -20,8 +20,8 @@ describe HealthQuest::PatientGeneratedData::Patient::Resource do
   end
 
   describe 'included modules' do
-    it 'includes PatientGeneratedData::Common::IdentityMetaInfo' do
-      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::Common::IdentityMetaInfo)
+    it 'includes Shared::IdentityMetaInfo' do
+      expect(subject.ancestors).to include(HealthQuest::Shared::IdentityMetaInfo)
     end
   end
 

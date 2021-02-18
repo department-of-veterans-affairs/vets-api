@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module PatientGeneratedData
+  module HealthApi
     module Patient
       ##
       # A service object for isolating dependencies from any implementing service or controller.
@@ -11,15 +11,15 @@ module HealthQuest
       # @!attribute user
       #   @return [User]
       # @!attribute map_query
-      #   @return [PatientGeneratedData::Patient::MapQuery]
+      #   @return [HealthApi::Patient::MapQuery]
       class Factory
         attr_reader :session_service, :user, :map_query
 
         ##
-        # Builds a PatientGeneratedData::Patient::Factory instance from a given User
+        # Builds a HealthApi::Patient::Factory instance from a given User
         #
         # @param user [User] the currently logged in user.
-        # @return [PatientGeneratedData::Patient::Factory] an instance of this class
+        # @return [HealthApi::Patient::Factory] an instance of this class
         #
         def self.manufacture(user)
           new(user)
@@ -28,7 +28,7 @@ module HealthQuest
         def initialize(user)
           @user = user
           @session_service = HealthQuest::Lighthouse::Session.build(user)
-          @map_query = PatientGeneratedData::Patient::MapQuery.build(session_service.retrieve)
+          @map_query = HealthApi::Patient::MapQuery.build(session_service.retrieve)
         end
 
         ##
