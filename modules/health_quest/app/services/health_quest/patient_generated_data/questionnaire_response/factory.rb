@@ -29,7 +29,7 @@ module HealthQuest
 
         def initialize(user)
           @user = user
-          @session_service = HealthQuest::Lighthouse::Session.build(user)
+          @session_service = HealthQuest::Lighthouse::Session.build(user: user, api: pgd_api)
           @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.retrieve)
           @options_builder = OptionsBuilder
         end
@@ -74,6 +74,12 @@ module HealthQuest
         #
         def resource_name
           { resource_name: 'questionnaire_response' }
+        end
+
+        private
+
+        def pgd_api
+          Settings.hqva_mobile.lighthouse.pgd_api
         end
       end
     end
