@@ -535,7 +535,9 @@ oidc:
   base_api_token: ~
   smart_launch_url: ~
   issuers:
-    - { prefix: "https://example.com/", metadata: "/.well-known/openid-configuration", proxy: "https://example.com/" }
+    - prefix: "https://example.com/"
+      metadata: "/.well-known/openid-configuration"
+      proxy: "https://example.com/"
 
 sentry:
   dsn: ~
