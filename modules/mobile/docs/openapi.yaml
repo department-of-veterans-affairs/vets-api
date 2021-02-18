@@ -1997,6 +1997,40 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages{id}/attachments/{attachment_id}:
+    get:
+      summary: /v0/messaging/health/messages/{id}/attachments/{attachment_id}
+      description: > 
+        Get a secure message attachment content as a direct binary download. 
+        Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
+
+      operationId: getMessageAttachment
+      security: 
+        - Bearer: []
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              schema: 
+                type: string
+              description: >
+                This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/messaging/health/messages/categories:
     get:
       summary: /v0/messaging/health/messages/categories
