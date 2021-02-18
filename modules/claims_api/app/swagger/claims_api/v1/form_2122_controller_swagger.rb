@@ -266,6 +266,22 @@ module ClaimsApi
               end
             end
           end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotFoundModel
+                  end
+                end
+              end
+            end
+          end
         end
 
         operation :get do
@@ -342,19 +358,15 @@ module ClaimsApi
           end
 
           response 404 do
-            key :description, 'POA not found'
+            key :description, 'Resource not found'
             content 'application/json' do
-              key :examples, { default: { value: { errors: [{ status: 404, detail: 'POA not found' }] } } }
               schema do
                 key :type, :object
                 key :required, [:errors]
                 property :errors do
                   key :type, :array
                   items do
-                    key :type, :object
-                    key :required, %i[status detail]
-                    property :status, type: :integer
-                    property :detail, type: :string
+                    key :'$ref', :NotFoundModel
                   end
                 end
               end
