@@ -142,10 +142,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           Form526ConfirmationEmailJob.perform_async(personalization_parameters)
         end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
       end
-
-      it 'feature toggle' do
-        # if Flipper.enabled?(:vanotify_service_enhancement)
-      end
     end
   end
 end
