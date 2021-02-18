@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::Patient::Factory do
+describe HealthQuest::HealthApi::Patient::Factory do
   subject { described_class }
 
   let(:user) { double('User', icn: '1008596379V859838') }
@@ -16,7 +16,7 @@ describe HealthQuest::PatientGeneratedData::Patient::Factory do
 
   describe '#get' do
     it 'returns a ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
+      allow_any_instance_of(HealthQuest::HealthApi::Patient::MapQuery)
         .to receive(:get).with(user.icn).and_return(client_reply)
 
       expect(subject.new(user).get).to eq(client_reply)
@@ -25,7 +25,7 @@ describe HealthQuest::PatientGeneratedData::Patient::Factory do
 
   describe '#create' do
     it 'returns a ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
+      allow_any_instance_of(HealthQuest::HealthApi::Patient::MapQuery)
         .to receive(:create).with(user).and_return(client_reply)
 
       expect(subject.new(user).create).to eq(client_reply)

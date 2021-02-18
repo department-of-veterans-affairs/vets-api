@@ -2,18 +2,18 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
+describe HealthQuest::HealthApi::Patient::MapQuery do
   subject { described_class }
 
   let(:session_store) { double('SessionStore', token: '123abc') }
 
   describe 'included modules' do
-    it 'includes PatientGeneratedData::FHIRClient' do
-      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRClient)
+    it 'includes Lighthouse::FHIRClient' do
+      expect(subject.ancestors).to include(HealthQuest::Lighthouse::FHIRClient)
     end
 
-    it 'includes PatientGeneratedData::FHIRHeaders' do
-      expect(subject.ancestors).to include(HealthQuest::PatientGeneratedData::FHIRHeaders)
+    it 'includes Lighthouse::FHIRHeaders' do
+      expect(subject.ancestors).to include(HealthQuest::Lighthouse::FHIRHeaders)
     end
   end
 
@@ -37,7 +37,7 @@ describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
 
   describe '#get' do
     context 'with valid id' do
-      let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
+      let(:client) { double('HealthQuest::Lighthouse::FHIRClient') }
 
       before do
         allow_any_instance_of(subject).to receive(:client).and_return(client)
@@ -61,9 +61,9 @@ describe HealthQuest::PatientGeneratedData::Patient::MapQuery do
   end
 
   describe '#create' do
-    let(:client) { double('HealthQuest::PatientGeneratedData::FHIRClient') }
+    let(:client) { double('HealthQuest::Lighthouse::FHIRClient') }
     let(:user) { double('User', icn: '1008596379V859838', first_name: 'Bob', last_name: 'Smith') }
-    let(:patient) { HealthQuest::PatientGeneratedData::Patient::Resource.manufacture(user).prepare }
+    let(:patient) { HealthQuest::HealthApi::Patient::Resource.manufacture(user).prepare }
 
     before do
       allow_any_instance_of(subject).to receive(:client).and_return(client)

@@ -128,7 +128,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
   describe '#get_patient' do
     it 'returns a FHIR::ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
+      allow_any_instance_of(HealthQuest::HealthApi::Patient::MapQuery)
         .to receive(:get).with(user.icn).and_return(client_reply)
 
       expect(described_class.manufacture(user).get_patient).to eq(client_reply)

@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::Common::IdentityMetaInfo do
-  include HealthQuest::PatientGeneratedData::Common::IdentityMetaInfo
+describe HealthQuest::Shared::IdentityMetaInfo do
+  include HealthQuest::Shared::IdentityMetaInfo
 
   subject { described_class }
 

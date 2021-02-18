@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HealthQuest
-  module PatientGeneratedData
+  module Lighthouse
     module FHIRHeaders
       def auth_header
         {
