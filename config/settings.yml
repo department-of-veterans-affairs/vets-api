@@ -769,7 +769,7 @@ coronavirus_chatbot:
 vanotify:
   client_url: http://fakeapi.com
   services:
-    va_gov:
+    va-gov:
       api_key: fake_secret
       template_id:
         form526_confirmation_email: fake_template_id

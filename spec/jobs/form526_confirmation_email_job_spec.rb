@@ -35,7 +35,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         Flipper.enable(:vanotify_service_enhancement)
         test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
         with_settings(
-          Settings.vanotify.services.va_gov, { api_key: test_service_api_key }
+          Settings.vanotify.services.va-gov, { api_key: test_service_api_key }
         ) do
           mocked_notification_service = instance_double('VaNotify::Service')
           allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
