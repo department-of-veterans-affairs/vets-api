@@ -94,7 +94,7 @@ RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
       context 'environments' do
         let(:env_url) { [k, v] }
 
-        it "State the environment #{k.to_s.upcase} in the body" do
+        it "states the environment #{k.to_s.upcase} in the body" do
           @email.body.to_s =~ %r{<h1>(.*)?</h1>}i
           expect(Regexp.last_match(1)).to match(/.*#{k.to_s.upcase}.*/)
         end
