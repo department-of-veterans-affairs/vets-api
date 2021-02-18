@@ -46,12 +46,14 @@
       "additionalProperties": false,
       "properties": {
         "homeless":            { "type": "boolean" },
-        "address":             { "$ref": "#/definitions/nodCreateAddress", "minLength": 5, "maxLength": 165 },
+        "address":             { "$ref": "#/definitions/nodCreateAddress" },
         "phone":               { "$ref": "#/definitions/nodCreatePhone" },
         "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail", "minLength": 5, "maxLength": 120 },
         "representativesName": { "type": "string", "maxLength": 120 }
       },
-      "required": [ "homeless", "phone", "emailAddressText" ]
+      "required": ["homeless",  "phone", "emailAddressText"],
+      "if": { "properties": { "homeless": { "const":  false } } },
+      "then": { "required":  ["address"] }
     },
 
 
@@ -88,8 +90,7 @@
 
     "nodCreateEmail": {
       "type": "string",
-      "pattern": ".@.",
-      "$comment": "TODO: use draft 7 feature [format: idn-email] or [format: email] over pattern (when there is broader support)"
+      "format": "email"
     },
 
 

@@ -697,7 +697,7 @@ FactoryBot.define do
        '1306e31273604dd4a12aa67609a63bfe^PN^200VIDM^USDVA^A|'\
        '796123607^AN^200CORP^USVBA^']
     }
-    va_eauth_persontype { ['PAT'] }
+    va_eauth_persontype { ['PAT|VET'] }
     va_eauth_multifactor { ['true'] }
     va_eauth_street1 { ['811 Vermont Ave NW'] }
     va_eauth_mhv_ien { ['14384899'] }

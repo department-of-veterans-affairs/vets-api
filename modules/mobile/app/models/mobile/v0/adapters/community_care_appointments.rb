@@ -45,9 +45,9 @@ module Mobile
           {
             id: appointment_hash[:appointment_request_id],
             appointment_type: COMMUNITY_CARE_TYPE,
+            cancel_id: nil,
             comment: appointment_hash[:instructions_to_veteran],
-            clinic_id: nil, # not a VA location
-            facility_id: nil, # not a VA location
+            facility_id: nil,
             healthcare_service: appointment_hash[:provider_practice],
             location: location,
             minutes_duration: 60, # not in raw data, matches va.gov default for cc appointments

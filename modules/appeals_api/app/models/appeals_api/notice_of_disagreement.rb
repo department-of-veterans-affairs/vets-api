@@ -20,11 +20,7 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    validate(
-      :validate_hearing_type_selection,
-      :validate_address_unless_homeless,
-      if: proc { |a| a.form_data.present? }
-    )
+    validate :validate_hearing_type_selection, if: :pii_present?
 
     def pdf_structure(version)
       Object.const_get(
@@ -101,7 +97,8 @@ module AppealsApi
     end
 
     def zip_code_5
-      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+      # schema already validated address presence if not homeless
+      veteran_contact_info&.dig('address', 'zipCode5') || '00000'
     end
 
     def lob
@@ -109,12 +106,6 @@ module AppealsApi
     end
 
     private
-
-    def validate_address_unless_homeless
-      return if veteran_homeless?
-
-      errors.add :form_data, I18n.t('appeals_api.errors.not_homeless_address_missing') if mailing_address.blank?
-    end
 
     def validate_hearing_type_selection
       return if board_review_hearing_selected? && includes_hearing_type_preference?
@@ -151,6 +142,11 @@ module AppealsApi
 
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
+    end
+
+    # After expunging pii, form_data is nil, update will fail unless validation skipped
+    def pii_present?
+      proc { |a| a.form_data.present? }
     end
   end
 end

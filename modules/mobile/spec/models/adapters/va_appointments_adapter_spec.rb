@@ -30,20 +30,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_va[:id]).to eq('202006031600983000030800000000000000')
     end
 
+    it 'has a cancel id of the cancel params' do
+      expect(booked_va[:cancel_id]).to eq('MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=')
+    end
+
     it 'has a type of VA' do
       expect(booked_va[:appointment_type]).to eq('VA')
     end
 
     it 'has a comment' do
       expect(booked_va[:comment]).to eq('RP test')
-    end
-
-    it 'has a clinic_id' do
-      expect(booked_va[:clinic_id]).to eq('308')
-    end
-
-    it 'has a facility_id that matches the parent facility id' do
-      expect(booked_va[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -101,20 +97,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(cancelled_va[:id]).to eq('202006032020983000030800000000000000')
     end
 
+    it 'does not have a cancel id' do
+      expect(cancelled_va[:cancel_id]).to be_nil
+    end
+
     it 'has a type of VA' do
       expect(cancelled_va[:appointment_type]).to eq('VA')
     end
 
     it 'does not have comment' do
       expect(cancelled_va[:comment]).to be_nil
-    end
-
-    it 'has a clinic_id' do
-      expect(cancelled_va[:clinic_id]).to eq('308')
-    end
-
-    it 'has a facility_id that matches the parent facility id' do
-      expect(cancelled_va[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -172,20 +164,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_home[:id]).to eq('202006111600983000045500000000000000')
     end
 
+    it 'does not have a cancel id' do
+      expect(booked_video_home[:cancel_id]).to be_nil
+    end
+
     it 'has a type of VA_VIDEO_CONNECT_HOME' do
       expect(booked_video_home[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
     end
 
     it 'does not have comment' do
       expect(booked_video_home[:comment]).to be_nil
-    end
-
-    it 'does not have a clinic_id' do
-      expect(booked_video_home[:clinic_id]).to be_nil
-    end
-
-    it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_home[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -243,20 +231,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_atlas[:id]).to eq('202006141600983000094500000000000000')
     end
 
+    it 'does not have a cancel id' do
+      expect(booked_video_atlas[:cancel_id]).to be_nil
+    end
+
     it 'has a type of VA' do
       expect(booked_video_atlas[:appointment_type]).to eq('VA_VIDEO_CONNECT_ATLAS')
     end
 
     it 'has no comment' do
       expect(booked_video_atlas[:comment]).to be_nil
-    end
-
-    it 'has a clinic_id' do
-      expect(booked_video_atlas[:clinic_id]).to eq('1234')
-    end
-
-    it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_atlas[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -314,20 +298,16 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_video_gfe[:id]).to eq('202006151200984000118400000000000000')
     end
 
+    it 'does not have a cancel id' do
+      expect(booked_video_gfe[:cancel_id]).to be_nil
+    end
+
     it 'has a type of VA' do
       expect(booked_video_gfe[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
     end
 
     it 'has a comment' do
       expect(booked_video_gfe[:comment]).to eq('Medication Review')
-    end
-
-    it 'has does not have a clinic_id' do
-      expect(booked_video_gfe[:clinic_id]).to be_nil
-    end
-
-    it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_gfe[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -396,7 +376,6 @@ describe Mobile::V0::Adapters::VAAppointments do
         {
           appointment_type: 'VA',
           comment: 'Follow-up/Routine: sasdfasdf',
-          facility_id: '442',
           healthcare_service: 'FTC CPAP',
           minutes_duration: 60,
           start_date_local: DateTime.parse('2021-01-14 13:00:00.000 MST -07:00'),
