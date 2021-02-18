@@ -185,8 +185,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -194,7 +194,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
                   end
                 end
               end
