@@ -40,22 +40,6 @@ module ClaimsApi
               end
             end
           end
-
-          response :default do
-            key :description, 'unexpected error'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:errors]
-                property :errors do
-                  key :type, :array
-                  items do
-                    key :'$ref', :ErrorModel
-                  end
-                end
-              end
-            end
-          end
         end
 
         operation :post do
@@ -210,22 +194,21 @@ module ClaimsApi
             end
           end
 
-          # REPLACE WITH A PROPER, GENERIC RESPONSE FOR A 422
-          # response :default do
-          #   key :description, 'unexpected error'
-          #   content 'application/json' do
-          #     schema do
-          #       key :type, :object
-          #       key :required, [:errors]
-          #       property :errors do
-          #         key :type, :array
-          #         items do
-          #           key :'$ref', :ErrorModel
-          #         end
-          #       end
-          #     end
-          #   end
-          # end
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
+                  end
+                end
+              end
+            end
+          end
         end
       end
 
@@ -327,8 +310,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 422 do
+            key :description, 'Unprocessable entity'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -336,7 +319,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
@@ -415,7 +398,7 @@ module ClaimsApi
           end
 
           response 422 do
-            key :description, 'Invalid Payload'
+            key :description, 'Unprocessable entity'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -423,7 +406,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
