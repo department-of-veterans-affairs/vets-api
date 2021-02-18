@@ -9,6 +9,7 @@ HealthQuest::Engine.routes.draw do
     resources :questionnaire_responses, only: %i[index show create]
 
     get 'questionnaire_manager', to: 'questionnaire_manager#index'
+    post 'questionnaire_manager', to: 'questionnaire_manager#create'
     get 'signed_in_patient', to: 'patients#signed_in_patient'
     get 'apidocs', to: 'apidocs#index'
   end

@@ -56,7 +56,7 @@ module HealthQuest
         #
         # @param data [Hash] questionnaire answers and appointment data hash.
         # @param user [User] the current user.
-        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
+        # @return [FHIR::ClientReply] an instance of ClientReply
         #
         def create(data, user)
           headers.merge!(content_type_header)
