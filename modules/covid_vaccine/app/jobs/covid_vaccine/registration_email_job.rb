@@ -14,8 +14,8 @@ module CovidVaccine
 
     def perform(email, date, sid)
       if Flipper.enabled?(:vanotify_service_enhancement)
-        @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va-gov.api_key)
-        @template_id ||= Settings.vanotify.services.va-gov.template_id.covid_vaccine_registration
+        @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+        @template_id ||= Settings.vanotify.services.va_gov.template_id.covid_vaccine_registration
       else
         @notify_client ||= VaNotify::Service.new(Settings.vanotify.api_key)
         @template_id ||= Settings.vanotify.template_id.covid_vaccine_registration
