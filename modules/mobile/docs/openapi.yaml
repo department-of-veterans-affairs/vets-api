@@ -1916,7 +1916,7 @@ paths:
   /v0/messaging/health/folders/{id}:
     get:
       summary: /v0/messaging/health/folders/{id}
-      description: Get a single secure messaging folder
+      description: Get a secure messaging folder
       operationId: getFolder
       security: 
         - Bearer: []
