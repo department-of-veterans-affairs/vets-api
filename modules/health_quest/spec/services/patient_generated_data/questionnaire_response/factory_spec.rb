@@ -7,11 +7,13 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory do
 
   let(:user) { double('User', icn: '1008596379V859838') }
   let(:session_store) { double('SessionStore', token: '123abc') }
-  let(:session_service) { double('HealthQuest::Lighthouse::Session', user: user, retrieve: session_store) }
+  let(:session_service) do
+    double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)
+  end
   let(:client_reply) { double('FHIR::ClientReply') }
 
   before do
-    allow(HealthQuest::Lighthouse::Session).to receive(:build).with(user).and_return(session_service)
+    allow(HealthQuest::Lighthouse::Session).to receive(:build).and_return(session_service)
   end
 
   describe 'object initialization' do
