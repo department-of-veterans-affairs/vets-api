@@ -60,7 +60,7 @@
       </tbody>
     </table>
 
-    <h2><span class="title">HLR Errors</span></h2>
+    <h2><span class="title">Faulty HLR</span></h2>
     <table>
       <thead>
         <tr>
@@ -75,7 +75,7 @@
         </tr>
       </thead>
       <tbody>
-        <% @report.hlr_with_errors.each do |hlr| %>
+        <% @report.faulty_hlr.each do |hlr| %>
           <tr>
             <td>HLR</td>
             <td class="right-align"><%= hlr.id %></td>
@@ -111,7 +111,7 @@
       </tbody>
     </table>
 
-    <h2><span class="title">NOD Errors</span></h2>
+    <h2><span class="title">Faulty NOD</span></h2>
     <table>
       <thead>
         <tr>
@@ -126,7 +126,7 @@
         </tr>
       </thead>
       <tbody>
-        <% @report.nod_with_errors.each do |nod| %>
+        <% @report.faulty_nod.each do |nod| %>
           <tr>
             <td>NOD</td>
             <td class="right-align"><%= nod.id %></td>

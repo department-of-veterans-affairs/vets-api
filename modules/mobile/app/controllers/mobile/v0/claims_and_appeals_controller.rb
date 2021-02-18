@@ -5,12 +5,19 @@ require_relative '../../../models/mobile/v0/adapters/claims_overview'
 require_relative '../../../models/mobile/v0/adapters/claims_overview_errors'
 require_relative '../../../models/mobile/v0/claim_overview'
 require 'sentry_logging'
+require 'prawn'
+require 'fileutils'
+require 'mini_magick'
 
 module Mobile
   module V0
     class ClaimsAndAppealsController < ApplicationController
       include IgnoreNotFound
+      STATSD_UPLOAD_LATENCY = 'mobile.api.claims.upload.latency'
       before_action { authorize :evss, :access? }
+      after_action do
+        (FileUtils.rm_rf(@base_path) if File.exist?(@base_path)) if @base_path
+      end
 
       def index
         get_all_claims = lambda {
@@ -73,30 +80,50 @@ module Mobile
       end
 
       def upload_documents
+        start_timer = Time.zone.now
         params.require :file
-        claim = claims_scope.find_by(evss_id: params[:id])
-        raise Common::Exceptions::RecordNotFound, params[:id] unless claim
+        id = params[:id]
+        file = params[:file]
+        claim = claims_scope.find_by(evss_id: id)
+        raise Common::Exceptions::RecordNotFound, id unless claim
 
-        document_data = EVSSClaimDocument.new(
-          evss_claim_id: claim.evss_id,
-          file_obj: params[:file],
-          uuid: SecureRandom.uuid,
-          file_name: params[:file].original_filename,
-          tracked_item_id: params[:tracked_item_id],
-          document_type: params[:document_type],
-          password: params[:password]
-        )
+        file_to_upload = params[:multifile] ? generate_multi_image_pdf(file) : file
+        document_data = EVSSClaimDocument.new(evss_claim_id: id, file_obj: file_to_upload,
+                                              uuid: SecureRandom.uuid, file_name: file_to_upload.original_filename,
+                                              tracked_item_id: params[:tracked_item_id],
+                                              document_type: params[:document_type], password: params[:password])
         raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
         jid = evss_claim_service.upload_document(document_data)
-        Rails.logger.info('Mobile Request', {
-                            claim_id: params[:id],
-                            job_id: jid
-                          })
+        Rails.logger.info('Mobile Request', { claim_id: id, job_id: jid })
+        StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ["is_multifile:#{params[:multifile]}"])
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       private
+
+      def generate_multi_image_pdf(image_list)
+        @base_path = Rails.root.join 'tmp', 'uploads', 'cache', SecureRandom.uuid
+        img_path = "#{@base_path}/tempFile.jpg"
+        pdf_filename = 'multifile.pdf'
+        pdf_path = "#{@base_path}/#{pdf_filename}"
+        FileUtils.mkpath @base_path
+        Prawn::Document.generate(pdf_path) do |pdf|
+          image_list.each do |img|
+            File.open(img_path, 'wb') { |f| f.write Base64.decode64(img) }
+            img = MiniMagick::Image.open(img_path)
+            if img.height > pdf.bounds.top || img.width > pdf.bounds.right
+              pdf.image img_path, fit: [pdf.bounds.right, pdf.bounds.top]
+            else
+              pdf.image img_path
+            end
+            pdf.start_new_page unless pdf.page_count == image_list.length
+          end
+        end
+        temp_file = Tempfile.new(pdf_filename, encoding: 'ASCII-8BIT')
+        temp_file.write(File.read(pdf_path))
+        ActionDispatch::Http::UploadedFile.new(filename: pdf_filename, type: 'application/pdf', tempfile: temp_file)
+      end
 
       def parse_claims(claims, full_list, error_list)
         if claims[1]

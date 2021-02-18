@@ -39,7 +39,13 @@ module Vet360
     end
 
     def validate!(record)
-      raise Common::Exceptions::ValidationErrors, record unless record.valid?
+      return if record.valid?
+
+      PersonalInformationLog.create!(
+        data: record.to_h,
+        error_class: "#{record.class} ValidationError"
+      )
+      raise Common::Exceptions::ValidationErrors, record
     end
 
     def service

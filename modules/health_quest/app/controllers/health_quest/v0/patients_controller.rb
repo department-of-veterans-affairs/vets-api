@@ -14,7 +14,7 @@ module HealthQuest
       private
 
       def factory
-        @factory ||= PatientGeneratedData::Patient::Factory.manufacture(current_user)
+        @factory ||= HealthApi::Patient::Factory.manufacture(current_user)
       end
     end
   end
