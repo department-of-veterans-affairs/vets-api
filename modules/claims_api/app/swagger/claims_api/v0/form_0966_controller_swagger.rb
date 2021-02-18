@@ -194,8 +194,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 403 do
+            key :description, 'Forbidden'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -203,12 +203,29 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :ForbiddenModel
                   end
                 end
               end
             end
           end
+
+          # REPLACE WITH A PROPER, GENERIC RESPONSE FOR A 422
+          # response :default do
+          #   key :description, 'unexpected error'
+          #   content 'application/json' do
+          #     schema do
+          #       key :type, :object
+          #       key :required, [:errors]
+          #       property :errors do
+          #         key :type, :array
+          #         items do
+          #           key :'$ref', :ErrorModel
+          #         end
+          #       end
+          #     end
+          #   end
+          # end
         end
       end
 
