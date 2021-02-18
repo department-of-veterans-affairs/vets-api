@@ -9,6 +9,7 @@ require 'pdf_info'
 module AppealsApi
   class HigherLevelReviewPdfSubmitJob
     include Sidekiq::Worker
+    include Sidekiq::RetryMonitoring::MonitoredWorker
     include CentralMail::Utilities
 
     def perform(higher_level_review_id, retries = 0)
@@ -24,6 +25,16 @@ module AppealsApi
         higher_level_review.update!(status: 'error', code: e.class.to_s, detail: e.message)
         raise
       end
+    end
+
+    private
+
+    def retry_limits_for_notification
+      [6, 10]
+    end
+
+    def notify(job_id, param)
+      SlackNotifier.new("HigherLevelReviewPdfSubmitJob has hit a retry threshold.")
     end
 
     def upload_to_central_mail(higher_level_review, pdf_path)

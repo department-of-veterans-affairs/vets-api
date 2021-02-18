@@ -1,0 +1,20 @@
+module Sidekiq
+  class RetryMonitoring
+    def call(worker, params, _queue)
+      worker.notify(params['jid'], *params['args']) if should_notify?(worker, params)
+    rescue StandardError => e
+      Rails.logger.error e
+    ensure
+      yield
+    end
+
+    private
+
+    def should_notify?(worker, job)
+      # retry_count is incremented after all middlewares are called
+
+      worker.is_a?(Sidekiq::RetryMonitoring::MonitoredWorker) &&
+        (Integer(job['retry_count']) + 1).in?(worker.retry_limits_for_notification)
+    end
+  end
+end
