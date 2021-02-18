@@ -7,7 +7,7 @@ require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/payload_manager'
 require_dependency 'vba_documents/upload_validator'
 require_dependency 'vba_documents/multipart_parser'
-load('/srv/vets-api/src/modules/vba_documents/lib/vba_documents/upload_validator.rb')
+load('/srv/vets-api/src/modules/vba_documents/lib/vba_documents/upload_validator.rb') #todo remove line
 require 'common/exceptions'
 
 module VBADocuments
@@ -20,7 +20,7 @@ module VBADocuments
         upload_model = UploadFile.new
         begin
           upload_model.multipart.attach(io: StringIO.new(request.raw_post), filename: upload_model.guid)
-          upload_model.save!
+          upload_model.save! #todo force network outage handle the failure
           parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))
           inspector = VBADocuments::PDFInspector.new(pdf: parts)
           validate_parts(parts)
@@ -32,10 +32,9 @@ module VBADocuments
           Rails.logger.warn("UploadError download_and_process for guid #{upload_model.guid}.", e)
           upload_model.update(status: 'error', code: e.code, detail: e.detail)
         end
-        status = upload_model.status.eql?('error') ? 400 : 200
+        status = upload_model.status.eql?('error') ? 400 : 200 #todo Should we do 200 OK or 202 accepted?
         render json: upload_model,
-               serializer: VBADocuments::V1::UploadSerializer,
-               render_location: false, status: status
+               serializer: VBADocuments::V2::UploadSerializer, status: status
       end
     end
   end

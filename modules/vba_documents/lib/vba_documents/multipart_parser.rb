@@ -5,6 +5,7 @@ require 'vba_documents/upload_error'
 module VBADocuments
   class MultipartParser
     LINE_BREAK = "\r\n"
+    CARRIAGE_RETURN = "\r"
 
     def self.parse(infile)
       if base64_encoded(infile)
@@ -135,7 +136,7 @@ module VBADocuments
                                                 detail: 'Unexpected end of payload')
           end
           linechomp = line.chomp(LINE_BREAK)
-          if linechomp == "#{separator}--"
+          if ((linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}"))
             return tf.string, false
           elsif linechomp == separator
             return tf.string, true
@@ -157,7 +158,7 @@ module VBADocuments
                                               detail: 'Unexpected end of payload')
         end
         linechomp = line.chomp(LINE_BREAK)
-        if linechomp == "#{separator}--"
+        if ((linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}"))
           tf.rewind
           return tf, false
         elsif linechomp == separator

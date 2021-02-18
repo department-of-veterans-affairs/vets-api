@@ -34,9 +34,9 @@ Rails.application.configure do
   config.cache_store = :redis_cache_store, { url: Settings.redis.rails_cache.url, expires_in: 30.minutes }
 
   # Store files locally.
-  # config.active_storage.service = :local
+   config.active_storage.service = :local
   # store files in aws
-  config.active_storage.service = :amazon
+  # config.active_storage.service = :amazon
 
   # Debug mode disables concatenation and preprocessing of assets.
   # This option may cause significant delays in view rendering with a large
