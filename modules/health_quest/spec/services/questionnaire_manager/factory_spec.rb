@@ -7,13 +7,15 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
   let(:user) { double('User', icn: '1008596379V859838', account_uuid: 'abc123', uuid: '789defg') }
   let(:session_store) { double('SessionStore', token: '123abc') }
-  let(:session_service) { double('HealthQuest::Lighthouse::Session', user: user, retrieve: session_store) }
+  let(:session_service) do
+    double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)
+  end
   let(:client_reply) { double('FHIR::ClientReply') }
   let(:default_appointments) { { data: [] } }
   let(:appointments) { { data: [{}, {}] } }
 
   before do
-    allow(HealthQuest::Lighthouse::Session).to receive(:build).with(user).and_return(session_service)
+    allow(HealthQuest::Lighthouse::Session).to receive(:build).and_return(session_service)
   end
 
   describe 'object initialization' do
@@ -128,7 +130,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
   describe '#get_patient' do
     it 'returns a FHIR::ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
+      allow_any_instance_of(HealthQuest::HealthApi::Patient::MapQuery)
         .to receive(:get).with(user.icn).and_return(client_reply)
 
       expect(described_class.manufacture(user).get_patient).to eq(client_reply)

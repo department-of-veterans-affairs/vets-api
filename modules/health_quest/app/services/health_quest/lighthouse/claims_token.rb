@@ -10,13 +10,20 @@ module HealthQuest
       SIGNING_ALGORITHM = 'RS512'
       TOKEN_PATH = '/v1/token'
 
+      attr_reader :api
+
       ##
       # Builds a Lighthouse::ClaimsToken instance
       #
+      # @param api [String] the Lighthouse api
       # @return [Lighthouse::ClaimsToken] an instance of this class
       #
-      def self.build
-        new
+      def self.build(api:)
+        new(api: api)
+      end
+
+      def initialize(opts)
+        @api = opts[:api]
       end
 
       ##
@@ -28,11 +35,14 @@ module HealthQuest
         JWT.encode(claims, rsa_key, signing_algorithm)
       end
 
-      private
-
+      ##
+      # Builds the claims hash for the `sign_assertion` method
+      #
+      # @return [Hash]
+      #
       def claims
         {
-          aud: aud,
+          aud: aud[api],
           iss: iss,
           sub: sub,
           jti: random_uuid,
@@ -46,7 +56,10 @@ module HealthQuest
       end
 
       def aud
-        "#{lighthouse.aud_claim_url}#{TOKEN_PATH}"
+        {
+          'pgd_api' => "#{lighthouse.pgd_aud_claim_url}#{TOKEN_PATH}",
+          'health_api' => "#{lighthouse.health_aud_claim_url}#{TOKEN_PATH}"
+        }
       end
 
       def iss

@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::FHIRClient do
-  include HealthQuest::PatientGeneratedData::FHIRClient
+describe HealthQuest::Lighthouse::FHIRClient do
+  include HealthQuest::Lighthouse::FHIRClient
 
   describe '#headers' do
     it 'raises NotImplementedError' do
