@@ -10,7 +10,7 @@ module Mobile
                              id: entry['evss_id'].to_s,
                              type: 'claim',
                              subtype: entry['list_data']['status_type'],
-                             completed: entry['list_data']['status'] != 'COMPLETE',
+                             completed: entry['list_data']['status'] == 'COMPLETE',
                              date_filed: Date.strptime(entry['list_data']['date'], '%m/%d/%Y').iso8601,
                              updated_at: entry['updated_at'].to_time.iso8601
                            }

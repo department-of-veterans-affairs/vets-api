@@ -20,6 +20,18 @@ RSpec.describe 'claims and appeals overview', type: :request do
             parsed_response_contents = response.parsed_body.dig('data')
             expect(parsed_response_contents[0].dig('type')).to eq('claim')
             expect(parsed_response_contents.last.dig('type')).to eq('appeal')
+            open_claim = parsed_response_contents.select{|entry| entry.dig('id') == '600114693'}[0]
+            closed_claim = parsed_response_contents.select{|entry| entry.dig('id') == '600023098'}[0]
+            open_appeal = parsed_response_contents.select{|entry| entry.dig('id') == '3294289'}[0]
+            closed_appeal = parsed_response_contents.select{|entry| entry.dig('id') == '2348605'}[0]
+            expect(open_claim.dig('attributes', 'completed')).to eq(false)
+            expect(closed_claim.dig('attributes', 'completed')).to eq(true)
+            expect(open_appeal.dig('attributes', 'completed')).to eq(false)
+            expect(closed_appeal.dig('attributes', 'completed')).to eq(true)
+            expect(open_claim.dig('type')).to eq('claim')
+            expect(closed_claim.dig('type')).to eq('claim')
+            expect(open_appeal.dig('type')).to eq('appeal')
+            expect(closed_appeal.dig('type')).to eq('appeal')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
@@ -43,9 +55,18 @@ RSpec.describe 'claims and appeals overview', type: :request do
         VCR.use_cassette('evss/claims/claims_with_errors') do
           VCR.use_cassette('caseflow/appeals') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
+            parsed_response_contents = response.parsed_body.dig('data')
+            expect(parsed_response_contents[0].dig('type')).to eq('appeal')
+            expect(parsed_response_contents.last.dig('type')).to eq('appeal')
             expect(response).to have_http_status(:multi_status)
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
+            open_appeal = parsed_response_contents.select{|entry| entry.dig('id') == '3294289'}[0]
+            closed_appeal = parsed_response_contents.select{|entry| entry.dig('id') == '2348605'}[0]
+            expect(open_appeal.dig('attributes', 'completed')).to eq(false)
+            expect(closed_appeal.dig('attributes', 'completed')).to eq(true)
+            expect(open_appeal.dig('type')).to eq('appeal')
+            expect(closed_appeal.dig('type')).to eq('appeal')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
@@ -56,8 +77,17 @@ RSpec.describe 'claims and appeals overview', type: :request do
           VCR.use_cassette('caseflow/server_error') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
             expect(response).to have_http_status(:multi_status)
+            parsed_response_contents = response.parsed_body.dig('data')
+            expect(parsed_response_contents[0].dig('type')).to eq('claim')
+            expect(parsed_response_contents.last.dig('type')).to eq('claim')
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('appeals')
+            open_claim = parsed_response_contents.select{|entry| entry.dig('id') == '600114693'}[0]
+            closed_claim = parsed_response_contents.select{|entry| entry.dig('id') == '600023098'}[0]
+            expect(open_claim.dig('attributes', 'completed')).to eq(false)
+            expect(closed_claim.dig('attributes', 'completed')).to eq(true)
+            expect(open_claim.dig('type')).to eq('claim')
+            expect(closed_claim.dig('type')).to eq('claim')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
