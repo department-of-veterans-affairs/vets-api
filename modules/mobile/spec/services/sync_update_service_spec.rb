@@ -17,7 +17,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   describe '#save_and_await_response' do
-    let(:params) { build(:vet360_address, vet360_id: user.vet360_id, validation_key: nil) }
+    let(:params) { build(:va_profile_address, vet360_id: user.vet360_id, validation_key: nil) }
 
     context 'when it succeeds after one incomplete status check' do
       let(:transaction) do
