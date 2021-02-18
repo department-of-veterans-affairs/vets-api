@@ -51,7 +51,7 @@ module Vet360
     end
 
     def render_new_transaction!(type, response)
-      transaction = "AsyncTransaction::Vet360::#{type.capitalize}Transaction".constantize.start(@current_user, response)
+      transaction = "AsyncTransaction::VAProfile::#{type.capitalize}Transaction".constantize.start(@current_user, response)
 
       render json: transaction, serializer: AsyncTransaction::BaseSerializer
     end
