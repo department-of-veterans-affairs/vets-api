@@ -39,7 +39,8 @@ FactoryBot.define do
     factory :va_profile_permission_transaction, class: AsyncTransaction::VAProfile::PermissionTransaction do
     end
 
-    factory :va_profile_initialize_person_transaction, class: AsyncTransaction::VAProfile::InitializePersonTransaction do
+    factory :va_profile_initialize_person_transaction,
+            class: AsyncTransaction::VAProfile::InitializePersonTransaction do
       trait :init_vet360_id do
         source_id { nil }
       end

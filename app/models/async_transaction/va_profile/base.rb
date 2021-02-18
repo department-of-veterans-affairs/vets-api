@@ -22,7 +22,8 @@ module AsyncTransaction
       # @param user [User] The user associated with the transaction
       # @param response [VAProfile::ContactInformation::TransactionResponse] An instance of
       #   a VAProfile::ContactInformation::TransactionResponse class, be it Email, Address, etc.
-      # @return [AsyncTransaction::VAProfile::Base] A AsyncTransaction::VAProfile::Base record, be it Email, Address, etc.
+      # @return [AsyncTransaction::VAProfile::Base] A AsyncTransaction::VAProfile::Base record,
+      #   be it Email, Address, etc.
       #
       def self.start(user, response)
         create(
@@ -64,7 +65,8 @@ module AsyncTransaction
           service.get_telephone_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::Vet360::PermissionTransaction, AsyncTransaction::VAProfile::PermissionTransaction
           service.get_permission_transaction_status(transaction_record.transaction_id)
-        when AsyncTransaction::Vet360::InitializePersonTransaction, AsyncTransaction::VAProfile::InitializePersonTransaction
+        when AsyncTransaction::Vet360::InitializePersonTransaction,
+             AsyncTransaction::VAProfile::InitializePersonTransaction
           service.get_person_transaction_status(transaction_record.transaction_id)
         else
           # Unexpected transaction type means something went sideways
