@@ -12,7 +12,16 @@ RSpec.describe AppsApi::FetchConnections, type: :worker do
   let(:time) { (Time.zone.today + 1.hour).to_datetime }
   let(:scheduled_job) { described_class.perform_in(time, 'FetchConnections', true) }
 
+  let(:notification_client) { double('Notifications::Client') }
+
   before do
+    # in order to not get an error of 'nil is not a valid uuid' when the
+    # notification_client tries in to initialize and looks for valid
+    # api_keys in config.api_key && config.client_url
+    # lib/va_notify/configuration.rb#initialize contains:
+    # @notify_client ||= Notifications::Client.new(api_key, client_url)
+    allow(Notifications::Client).to receive(:new).and_return(notification_client)
+    allow(notification_client).to receive(:send_email)
     Sidekiq::Worker.clear_all
   end
 
