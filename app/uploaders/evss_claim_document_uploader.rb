@@ -38,6 +38,21 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     false
   end
 
+  class StoreCalledTwiceError < StandardError
+    def message
+      'EVSSClaimDocumentUploaders are one-time use.'
+    end
+  end
+
+  def store!(*args, **kwargs, &block)
+    raise StoreCalledTwiceError if @this_evss_claim_document_uploader_has_been_used
+    @this_evss_claim_document_uploader_has_been_used = true
+
+    return super(*args, &block) unless kwargs.present?
+
+    super(*args, **kwargs, &block)
+  end
+
   private
 
   def tiff?(file)

@@ -5,17 +5,22 @@ require 'rails_helper'
 RSpec.describe EVSSClaimDocumentUploader do
   subject { document_uploader }
 
-  let(:document_uploader) { described_class.new('1234', ['11', nil]) }
+  def document_uploader
+    described_class.new('1234', ['11', nil])
+  end
+
   let(:uploader_with_tiff) do
     f = Rack::Test::UploadedFile.new('spec/fixtures/evss_claim/image.TIF', 'image/tiff')
-    document_uploader.store!(f)
-    document_uploader
+    uploader = document_uploader
+    uploader.store!(f)
+    uploader
   end
 
   let(:uploader_with_jpg) do
     f = Rack::Test::UploadedFile.new('spec/fixtures/evss_claim/converted_image.TIF.jpg', 'image/jpeg')
-    document_uploader.store!(f)
-    document_uploader
+    uploader = document_uploader
+    uploader.store!(f)
+    uploader
   end
 
   describe 'initialize' do
@@ -49,55 +54,25 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
   end
 
-  describe '#read_for_upload' do
-    let(:converted) { double }
-
-    before do
-      allow(subject).to receive(:converted).and_return(converted)
-    end
-
-    context 'with a converted image' do
-      before do
-        expect(converted).to receive(:present?).and_return(true)
-        expect(converted).to receive(:file).and_return(OpenStruct.new(exists?: true))
-      end
-
-      it 'reads from converted' do
-        expect(converted).to receive(:read)
-        subject.read_for_upload
-      end
-    end
-
-    context 'with no converted image' do
-      before do
-        expect(converted).to receive(:present?).and_return(true)
-        expect(converted).to receive(:file).and_return(OpenStruct.new(exists?: false))
-      end
-
-      it 'reads from the base file' do
-        expect(subject).to receive(:read)
-        subject.read_for_upload
-      end
-    end
-  end
-
-  describe '#final_filename' do
+  describe '#filename' do
     it 'returns the right filename' do
       [uploader_with_tiff, uploader_with_jpg].each do |uploader|
-        expect(uploader.final_filename).to eq('converted_image.TIF.jpg')
+        expect(uploader.filename).to eq('converted_image.TIF.jpg')
       end
     end
   end
 
-  describe 'converted version' do
+  describe 'converts file' do
     it 'converts tiff files to jpg' do
-      expect(MimeMagic.by_magic(uploader_with_tiff.converted.file.read).type).to eq(
+      expect(MimeMagic.by_magic(uploader_with_tiff.file.read).type).to eq(
         'image/jpeg'
       )
     end
 
     it 'shouldnt convert if the file isnt tiff' do
-      expect(uploader_with_jpg.converted_exists?).to eq(false)
+      expect(MimeMagic.by_magic(uploader_with_jpg.file.read).type).to eq(
+        'image/jpeg'
+      )
     end
   end
 
@@ -116,6 +91,16 @@ RSpec.describe EVSSClaimDocumentUploader do
       uuid = SecureRandom.uuid
       subject = described_class.new('1234abc', [nil, uuid])
       expect(subject.store_dir).to eq("evss_claim_documents/1234abc/#{uuid}")
+    end
+  end
+
+  describe '#store!' do
+    it 'stores the file' do
+      expect(uploader_with_tiff.file.present?).to be true
+    end
+
+    it 'throws an error if you try to store twice to the same uploader' do
+      expect { uploader_with_tiff.store! }.to raise_error EVSSClaimDocumentUploader::StoreCalledTwiceError
     end
   end
 end
