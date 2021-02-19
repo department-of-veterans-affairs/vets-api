@@ -22,7 +22,7 @@ module HealthQuest
     # @!attribute appointment_service
     #   @return [HealthQuest::AppointmentService]
     # @!attribute patient_service
-    #   @return [PatientGeneratedData::Patient::Factory]
+    #   @return [HealthApi::Patient::Factory]
     # @!attribute questionnaire_response_service
     #   @return [PatientGeneratedData::QuestionnaireResponse::Factory]
     # @!attribute user
@@ -67,7 +67,7 @@ module HealthQuest
         @aggregated_data = default_response
         @user = user
         @appointment_service = AppointmentService.new(user)
-        @patient_service = PatientGeneratedData::Patient::Factory.manufacture(user)
+        @patient_service = HealthApi::Patient::Factory.manufacture(user)
         @questionnaire_service = PatientGeneratedData::Questionnaire::Factory.manufacture(user)
         @questionnaire_response_service = PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(user)
         @request_threads = []
@@ -89,6 +89,17 @@ module HealthQuest
         return default_response if patient.blank? || questionnaires.blank?
 
         compose
+      end
+
+      ##
+      # Create a QuestionnaireResponse resource by calling the
+      # questionnaire response factory service.
+      #
+      # @param data [Hash] questionnaire answers and appointment data hash.
+      # @return [FHIR::ClientReply] an instance of ClientReply
+      #
+      def create_questionnaire_response(data)
+        questionnaire_response_service.create(data)
       end
 
       ##
