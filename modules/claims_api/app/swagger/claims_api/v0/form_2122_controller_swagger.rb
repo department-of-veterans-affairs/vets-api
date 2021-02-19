@@ -36,6 +36,22 @@ module ClaimsApi
               end
             end
           end
+
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
         end
 
         operation :post do
@@ -125,6 +141,22 @@ module ClaimsApi
                 key :required, [:data]
                 property :data do
                   key :'$ref', :Form2122Output
+                end
+              end
+            end
+          end
+
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
                 end
               end
             end
@@ -254,6 +286,22 @@ module ClaimsApi
             end
           end
 
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
           response 404 do
             key :description, 'Resource not found'
             content 'application/json' do
@@ -369,6 +417,22 @@ module ClaimsApi
             end
           end
 
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
           response 404 do
             key :description, 'Resource not found'
             content 'application/json' do
@@ -456,6 +520,22 @@ module ClaimsApi
                 key :required, [:data]
                 property :data do
                   key :'$ref', :Form2122Output
+                end
+              end
+            end
+          end
+
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
                 end
               end
             end
@@ -555,6 +635,22 @@ module ClaimsApi
                   property :attributes do
                     key :type, :object
                     property :status, type: :string
+                  end
+                end
+              end
+            end
+          end
+
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
                   end
                 end
               end
