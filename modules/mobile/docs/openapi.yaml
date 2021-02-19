@@ -67,7 +67,7 @@ paths:
   /v0/appointments:
     get:
       summary: /v0/appointments
-      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 3 months and + 6 months from the beginning of today's UTC date.
       operationId: getAppointments
       security:
         - Bearer: []
