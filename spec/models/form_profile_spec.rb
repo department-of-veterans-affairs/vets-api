@@ -926,7 +926,7 @@ RSpec.describe FormProfile, type: :model do
 
       # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
-      context 'with vets360 prefill on' do
+      context 'with va profile prefill on' do
         before do
           stub_methods_for_emis_data
           Settings.vet360.prefill = true
@@ -1168,12 +1168,12 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(BGS::PeopleService).to(
           receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
         )
-        allow_any_instance_of(Vet360::Models::Address).to(
+        allow_any_instance_of(VAProfile::Models::Address).to(
           receive(:address_line3).and_return('suite 500')
         )
       end
 
-      it 'street3 returns Vet360 address_line3' do
+      it 'street3 returns VAProfile address_line3' do
         expect(form_profile.send(:vet360_mailing_address)&.address_line3).to eq form_profile.send :street3
       end
 

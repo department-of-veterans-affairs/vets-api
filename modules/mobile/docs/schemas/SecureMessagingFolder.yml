@@ -1,0 +1,45 @@
+type: object
+required:
+  - id
+  - type
+  - attributes
+  - links
+properties:
+  id:
+    type: string
+    example: "0"
+  type:
+    type: string
+    example: "folders"
+  attributes:
+    type: object
+    required:
+      - folderId
+      - name
+      - count
+      - unreadCount
+      - systemFolder
+    properties:
+      folderId:
+        type: integer
+        example: 0
+      name:
+        type: string
+        example: Inbox
+      count:
+        type: integer
+        example: 15
+      unreadCount:
+        type: integer
+        example: 2
+      systemFolder:
+        type: boolean
+        example: true
+  links:
+    type: object
+    required:
+      - self
+    properties:
+      self:
+        type: string
+        example: https://api.va.gov/mobile/v0/messaging/health/folders/0

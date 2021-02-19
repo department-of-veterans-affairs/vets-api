@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vet360/person/service'
+require 'va_profile/person/service'
 
 module V0
   module Profile
@@ -10,7 +10,7 @@ module V0
       after_action :invalidate_mpi_cache
 
       def initialize_vet360_id
-        response    = Vet360::Person::Service.new(@current_user).init_vet360_id
+        response    = VAProfile::Person::Service.new(@current_user).init_vet360_id
         transaction = AsyncTransaction::Vet360::InitializePersonTransaction.start(@current_user, response)
 
         render json: transaction, serializer: AsyncTransaction::BaseSerializer
