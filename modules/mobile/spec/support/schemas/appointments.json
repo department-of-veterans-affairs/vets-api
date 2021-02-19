@@ -25,9 +25,8 @@
             "type": "object",
             "required": [
               "appointmentType",
+              "cancelId",
               "comment",
-              "clinicId",
-              "facilityId",
               "healthcareService",
               "location",
               "minutesDuration",
@@ -40,25 +39,13 @@
               "appointmentType": {
                 "type": "string"
               },
+              "cancelId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
               "comment": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "clinicId": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "clinicId": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
-              "facilityId": {
                 "type": [
                   "string",
                   "null"

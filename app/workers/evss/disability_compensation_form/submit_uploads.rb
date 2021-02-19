@@ -21,6 +21,7 @@ module EVSS
       # @param uploads [Array<String>] A list of the upload GUIDs in AWS S3
       #
       def perform(submission_id, uploads)
+        Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
         upload_data = uploads.shift
         guid = upload_data&.dig('confirmationCode')

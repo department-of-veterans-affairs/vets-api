@@ -13,8 +13,8 @@ require 'saml/user'
 require 'stats_d_metric'
 require 'search/service'
 require 'search_click_tracking/service'
-require 'vet360/exceptions/parser'
-require 'vet360/service'
+require 'va_profile/exceptions/parser'
+require 'va_profile/service'
 require 'va_notify/service'
 
 host = Settings.statsd.host
@@ -110,14 +110,14 @@ StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
 StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
 
 # init Vet360
-Vet360::Exceptions::Parser.instance.known_keys.each do |key|
-  StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ["exception:#{key}"])
+VAProfile::Exceptions::Parser.instance.known_keys.each do |key|
+  StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ["exception:#{key}"])
 end
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.total_operations", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.failure", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.success", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.total_operations", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.success", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.failure", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.init_vet360_id.success", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure", 0)
 
 # init eMIS
 StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", 0, tags: ['present:true', 'present:false'])
@@ -196,7 +196,7 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_n
 
     if params['radius']
       tags << "facilities.ppms.radius:#{params['radius']}"
-      tags << "facilities.ppms.results:#{payload[:body].count}"
+      tags << "facilities.ppms.results:#{payload[:body]&.count || 0}"
     end
 
     StatsD.measure(measurement, duration, tags: tags)

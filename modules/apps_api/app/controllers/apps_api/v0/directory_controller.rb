@@ -2,7 +2,7 @@
 
 # dependencies
 require_dependency 'apps_api/application_controller'
-require 'okta/directory_service.rb'
+require 'okta/directory_service'
 module AppsApi
   module V0
     class DirectoryController < ApplicationController
@@ -55,13 +55,12 @@ module AppsApi
       def scopes
         directory_service = Okta::DirectoryService.new
         parsed_scopes = directory_service.scopes(params[:category])
-        if parsed_scopes.any? do
+        if parsed_scopes.any?
           render json: {
             data: parsed_scopes
           }
-           rescue
-             head :no_content
-        end
+        else
+          head :no_content
         end
       end
 

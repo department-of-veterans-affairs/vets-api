@@ -7,13 +7,15 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
   let(:user) { double('User', icn: '1008596379V859838', account_uuid: 'abc123', uuid: '789defg') }
   let(:session_store) { double('SessionStore', token: '123abc') }
-  let(:session_service) { double('HealthQuest::Lighthouse::Session', user: user, retrieve: session_store) }
+  let(:session_service) do
+    double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)
+  end
   let(:client_reply) { double('FHIR::ClientReply') }
   let(:default_appointments) { { data: [] } }
   let(:appointments) { { data: [{}, {}] } }
 
   before do
-    allow(HealthQuest::Lighthouse::Session).to receive(:build).with(user).and_return(session_service)
+    allow(HealthQuest::Lighthouse::Session).to receive(:build).and_return(session_service)
   end
 
   describe 'object initialization' do
@@ -109,23 +111,26 @@ describe HealthQuest::QuestionnaireManager::Factory do
         expect(factory.patient).to eq(fhir_patient)
       end
     end
+  end
 
-    context 'when patient and appointment and questionnaires and questionnaire_responses and sip data exist' do
-      let(:fhir_patient) { double('FHIR::Patient') }
-      let(:client_reply) { double('FHIR::ClientReply', resource: fhir_patient) }
-      let(:fhir_questionnaire_bundle) { fhir_data }
+  describe '#get_use_context' do
+    let(:data) do
+      [
+        double('Appointments', facility_id: '123', clinic_id: '54679'),
+        double('Appointments', facility_id: '789', clinic_id: '98741')
+      ]
+    end
 
-      it 'returns a WIP hash' do
-        hash = { data: 'WIP' }
+    it 'returns a formatted use-context string' do
+      allow_any_instance_of(described_class).to receive(:appointments).and_return(data)
 
-        expect(described_class.manufacture(user).all).to eq(hash)
-      end
+      expect(described_class.manufacture(user).get_use_context).to eq('venue$123/54679,venue$789/98741')
     end
   end
 
   describe '#get_patient' do
     it 'returns a FHIR::ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::Patient::MapQuery)
+      allow_any_instance_of(HealthQuest::HealthApi::Patient::MapQuery)
         .to receive(:get).with(user.icn).and_return(client_reply)
 
       expect(described_class.manufacture(user).get_patient).to eq(client_reply)
@@ -138,8 +143,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
     it 'returns a FHIR::ClientReply' do
       allow_any_instance_of(HealthQuest::PatientGeneratedData::Questionnaire::MapQuery)
         .to receive(:search).with(anything).and_return(client_reply)
-      allow_any_instance_of(HealthQuest::QuestionnaireManager::Transformer)
-        .to receive(:get_use_context).with(anything).and_return('venue$583/12345')
+      allow_any_instance_of(described_class).to receive(:get_use_context).and_return('venue$583/12345')
 
       expect(described_class.manufacture(user).get_questionnaires).to eq(client_reply)
     end
@@ -170,11 +174,25 @@ describe HealthQuest::QuestionnaireManager::Factory do
     end
   end
 
-  describe '#compose' do
-    it 'returns a WIP hash' do
-      hash = { data: 'WIP' }
+  describe '#create_questionnaire_response' do
+    let(:data) do
+      {
+        appointment: {
+          id: 'abc123'
+        },
+        questionnaire: {
+          id: 'abcd-1234',
+          title: 'test'
+        },
+        item: []
+      }
+    end
 
-      expect(described_class.manufacture(user).compose).to eq(hash)
+    it 'returns a ClientReply' do
+      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        .to receive(:create).with(anything, anything).and_return(client_reply)
+
+      expect(described_class.new(user).create_questionnaire_response(data)).to eq(client_reply)
     end
   end
 end
