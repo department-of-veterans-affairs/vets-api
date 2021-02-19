@@ -26,16 +26,16 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     context 'with component_name' do
       it 'creates a module controller file with different name from module' do
-        module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'controller','component_name' => 'bar'}])
-        module_generator.create_component
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'controller', 'component_name' => 'bar' }])
+        module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/bar_controller.rb")
       end
     end
 
     context 'without component_name' do
       it 'creates a module controller file with same name as module' do
-        module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'controller'}])
-        module_generator.create_component
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'controller' }])
+        module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/foo_controller.rb")
       end
     end
@@ -52,16 +52,16 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     context 'with component_name' do
       it 'creates a module serializer file with different name from module' do
-        module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'serializer','component_name' => 'bar'}])
-        module_generator.create_component
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'serializer', 'component_name' => 'bar' }])
+        module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/bar_serializer.rb")
       end
     end
 
     context 'without component_name' do
       it 'creates a module serializer file with same name as module' do
-        module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'serializer'}])
-        module_generator.create_component
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'serializer' }])
+        module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/foo_serializer.rb")
       end
     end
@@ -78,16 +78,16 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     context 'with component_name' do
       it 'creates a module model file with different name from module' do
-        module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'model','component_name' => 'bar'}])
-        module_generator.create_component
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'model', 'component_name' => 'bar' }])
+        module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/bar.rb")
       end
     end
 
     context 'without component_name' do
       it 'creates a module model file with same name as module' do
-        module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'model'}])
-        module_generator.create_component
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'model' }])
+        module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/foo.rb")
       end
     end
@@ -104,8 +104,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     context 'with component_name' do
       it 'creates a module service file with different name from module and a configuration file' do
-        module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'service','component_name' => 'bar'}])
-        module_generator.create_component
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'service', 'component_name' => 'bar' }])
+        module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/bar_service.rb")
         expect(File).to exist("#{path}/foo/v0/configuration.rb")
         FileUtils.rm_f(Dir[Rails.root.join('modules', 'foo', 'app', 'services', 'foo', 'v0', 'configuration.rb')])
@@ -114,8 +114,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     context 'without component_name' do
       it 'creates a module service file with same name as module and a configuration file' do
-        module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'service'}])
-        module_generator.create_component
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'service' }])
+        module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/foo_service.rb")
         expect(File).to exist("#{path}/foo/v0/configuration.rb")
       end
@@ -132,8 +132,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'bad_components') }
 
     it 'does not create the bad_component' do
-      module_generator = ModuleComponentGenerator.new(['foo',{'method' => 'bad_component'}])
-      module_generator.create_component
+      module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'bad_component' }])
+      module_gen.create_component
       expect(File).not_to exist("#{path}/foo/v0/foo_bad_component.rb")
     end
   end
@@ -151,7 +151,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
       expected_stdout = "\nbad_component is not a known generator command.Commands allowed " \
         "are controller, model, serializer and service\n"
       expect do
-        ModuleComponentGenerator.new(['foo',{'method' => 'bad_component'}]).create_component
+        ModuleComponentGenerator.new(['foo', { 'method' => 'bad_component' }]).create_component
       end.to output(expected_stdout).to_stdout
       expect(File).not_to exist("#{path}/foo/v0/foo_bad_component.rb")
     end
@@ -166,7 +166,7 @@ RSpec.describe 'ModuleComponent', type: :generator do
       # stub backtick to create a new module
       allow_any_instance_of(ModuleComponentGenerator).to receive(:`).and_return('stub module creation')
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
-      module_component_generator = ModuleComponentGenerator.new(['foo',{'method' => 'controller'}])
+      module_component_generator = ModuleComponentGenerator.new(['foo', { 'method' => 'controller' }])
       module_component_generator.prompt_user
       module_component_generator.create_component
       expect(Dir).to exist(path.to_s)

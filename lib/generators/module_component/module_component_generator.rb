@@ -19,13 +19,13 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
     # and create the corresponding files within the module for each arg
     path = "modules/#{file_name}/app"
     methods_hash = methods.to_h
-    method = methods_hash["method"]
-    component_name = methods_hash["component_name"] || file_name
+    method = methods_hash['method']
+    component_name = methods_hash['component_name'] || file_name
 
     if COMPONENT_TYPES.include? method
       template_name = method == 'model' ? "#{component_name}.rb" : "#{component_name}_#{method}.rb"
       template "app/#{method.pluralize}/#{method}.rb.erb",
-                File.join(path, method.pluralize.to_s, file_name, 'v0', template_name.to_s), comp_name
+               File.join(path, method.pluralize.to_s, file_name, 'v0', template_name.to_s), comp_name
 
       if method == 'service'
         template "app/#{method.pluralize}/configuration.rb.erb",
@@ -41,6 +41,6 @@ class ModuleComponentGenerator < Rails::Generators::NamedBase
 
   def comp_name
     methods_hash = methods.to_h
-    @comp_name = methods_hash["component_name"] || file_name
+    @comp_name = methods_hash['component_name'] || file_name
   end
 end
