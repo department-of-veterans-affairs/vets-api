@@ -8,9 +8,14 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
   let(:user) { double('User', icn: '1008596379V859838', first_name: 'Bob', last_name: 'Smith') }
   let(:data) do
     {
-      appointment_id: 'abc123',
-      questionnaire_response: [],
-      questionnaire_id: subject::DEFAULT_QUESTIONNAIRE_ID
+      appointment: {
+        id: 'abc123'
+      },
+      questionnaire: {
+        id: subject::DEFAULT_QUESTIONNAIRE_ID,
+        title: subject::DEFAULT_QUESTIONNAIRE_TITLE
+      },
+      item: []
     }
   end
   let(:identifier_hash) do
@@ -40,7 +45,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
 
   describe 'object initialization' do
     it 'has attributes' do
-      %i[user model identifier meta data author_reference questionnaire_reference].each do |attribute|
+      %i[user model identifier meta data source_reference subject_reference].each do |attribute|
         expect(subject.manufacture(data, user).respond_to?(attribute)).to eq(true)
       end
     end
@@ -57,20 +62,20 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
       expect(subject.manufacture(data, user).data).to be_an_instance_of(Hash)
     end
 
-    it 'has an instance of a FHIR::Identifier' do
+    it 'has an identifier' do
       expect(subject.manufacture(data, user).identifier).to be_an_instance_of(FHIR::Identifier)
+    end
+
+    it 'has a source_reference' do
+      expect(subject.manufacture(data, user).source_reference).to be_an_instance_of(FHIR::Reference)
+    end
+
+    it 'has a subject_reference' do
+      expect(subject.manufacture(data, user).subject_reference).to be_an_instance_of(FHIR::Reference)
     end
 
     it 'has an instance of a FHIR::Meta' do
       expect(subject.manufacture(data, user).meta).to be_an_instance_of(FHIR::Meta)
-    end
-
-    it 'has an instance of a FHIR::Reference' do
-      expect(subject.manufacture(data, user).author_reference).to be_an_instance_of(FHIR::Reference)
-    end
-
-    it 'has an a second instance of a FHIR::Reference' do
-      expect(subject.manufacture(data, user).questionnaire_reference).to be_an_instance_of(FHIR::Reference)
     end
   end
 
@@ -122,17 +127,20 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
       expect(subject.manufacture(data, user).prepare.authored).to eq(Time.zone.today.to_s)
     end
 
-    it 'has an author' do
-      expect(subject.manufacture(data, user).prepare.author).to eq('Patient/1008596379V859838')
+    it 'has a subject' do
+      url = Settings.hqva_mobile.lighthouse.url
+      health_api_path = Settings.hqva_mobile.lighthouse.health_api_path
+      appt_reference = "#{url}#{health_api_path}/Appointment/abc123"
+
+      expect(subject.manufacture(data, user).prepare.subject).to eq(appt_reference)
     end
 
-    it 'has a subject' do
-      subject_hash = {
-        use: subject::SUBJECT_USE,
-        value: "#{Settings.hqva_mobile.url}/appointments/v1/patients/1008596379V859838/Appointment/abc123"
-      }
+    it 'has a source' do
+      url = Settings.hqva_mobile.lighthouse.url
+      health_api_path = Settings.hqva_mobile.lighthouse.health_api_path
+      patient_reference = "#{url}#{health_api_path}/Patient/1008596379V859838"
 
-      expect(subject.manufacture(data, user).prepare.subject).to eq(subject_hash)
+      expect(subject.manufacture(data, user).prepare.source).to eq(patient_reference)
     end
 
     it 'has a questionnaire' do

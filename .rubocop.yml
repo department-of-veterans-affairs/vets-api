@@ -278,7 +278,7 @@ RSpec/MessageChain:
   Exclude:
     - 'modules/veteran_verification/spec/requests/service_history_request_spec.rb'
     - 'modules/veteran_verification/spec/requests/veteran_status_request_spec.rb'
-    - 'spec/lib/vet360/service_spec.rb'
+    - 'spec/lib/va_profile/service_spec.rb'
     - 'spec/request/service_history_request_spec.rb'
     - 'spec/request/swagger_spec.rb'
 
