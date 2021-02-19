@@ -3,6 +3,29 @@
 require 'rails_helper'
 
 RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
+  describe '.find_transaction!' do
+    let(:va_profile_transaction) do
+      create(:va_profile_address_transaction)
+    end
+    let(:vet360_transaction) do
+      create(:address_transaction)
+    end
+
+    it 'works with a va profile transaction' do
+      id = va_profile_transaction.id
+      expect(described_class.find_transaction!(va_profile_transaction.user_uuid, va_profile_transaction.transaction_id).id).to eq(
+        id
+      )
+    end
+
+    it 'works with a vet360 transaction' do
+      id = vet360_transaction.id
+      expect(described_class.find_transaction!(vet360_transaction.user_uuid, vet360_transaction.transaction_id).id).to eq(
+        id
+      )
+    end
+  end
+
   describe '.refresh_transaction_status()' do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
@@ -166,6 +189,40 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
       expect do
         AsyncTransaction::VAProfile::Base.fetch_transaction(Struct.new('Surprise'), nil)
       end.to raise_exception(RuntimeError)
+    end
+  end
+
+  describe '.last_ongoing_transactions_for_user' do
+    let(:user) { build(:user, :loa3) }
+
+    def last_transactions_by_class
+      described_class.last_ongoing_transactions_for_user(user).map { |t| t.class }
+    end
+
+    it 'works with vet360 and va profile transactions' do
+      create(:va_profile_address_transaction, user_uuid: user.uuid)
+      create(:email_transaction, user_uuid: user.uuid)
+
+      expect(
+        last_transactions_by_class
+      ).to eq([AsyncTransaction::VAProfile::AddressTransaction, AsyncTransaction::Vet360::EmailTransaction])
+    end
+
+    it 'prioritizes va profile transactions' do
+      create(:va_profile_address_transaction, user_uuid: user.uuid)
+      create(:address_transaction, user_uuid: user.uuid)
+
+      expect(
+        last_transactions_by_class
+      ).to eq([AsyncTransaction::VAProfile::AddressTransaction])
+    end
+
+    it 'only returns passed in user\'s transactions' do
+      create(:va_profile_address_transaction)
+
+      expect(
+        last_transactions_by_class
+      ).to eq([])
     end
   end
 

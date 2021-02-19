@@ -12,10 +12,28 @@ module AsyncTransaction
       REQUESTED = 'requested'
       COMPLETED = 'completed'
 
-      scope :for_user, ->(user) { where(user_uuid: user.uuid) }
-      scope :last_requested, -> { where(status: Base::REQUESTED).order(created_at: :desc).limit(1) }
-
       validates :source_id, presence: true, unless: :initialize_person?
+
+      # Get most recent requested transaction for a user
+      #
+      # @param user [User] The user associated with the transaction
+      # @return [AsyncTransaction::VAProfile::Base] A AsyncTransaction::VAProfile::Base record,
+      #   be it Email, Address, etc.
+      #
+      def self.last_requested_for_user(user)
+        transactions = where(
+          status: Base::REQUESTED,
+          user_uuid: user.uuid
+        ).order(
+          created_at: :desc
+        ).limit(1)
+
+        if transactions.blank?
+          return self.to_s.gsub('VAProfile', 'Vet360').constantize.last_requested.for_user(user)
+        end
+
+        transactions
+      end
 
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
@@ -79,7 +97,8 @@ module AsyncTransaction
       # @param transaction_id [String] the transaction UUID
       # @return [AddressTransaction, EmailTransaction, TelephoneTransaction]
       def self.find_transaction!(user_uuid, transaction_id)
-        Base.find_by!(user_uuid: user_uuid, transaction_id: transaction_id)
+        Base.find_by(user_uuid: user_uuid, transaction_id: transaction_id) ||
+          AsyncTransaction::Vet360::Base.find_by!(user_uuid: user_uuid, transaction_id: transaction_id)
       end
 
       def self.update_transaction_from_api(transaction_record, api_response)
@@ -117,10 +136,16 @@ module AsyncTransaction
       # @return [Array] an array of any outstanding transactions
       def self.last_ongoing_transactions_for_user(user)
         ongoing_transactions = []
-        ongoing_transactions += AddressTransaction.last_requested.for_user(user)
-        ongoing_transactions += EmailTransaction.last_requested.for_user(user)
-        ongoing_transactions += TelephoneTransaction.last_requested.for_user(user)
-        ongoing_transactions += PermissionTransaction.last_requested.for_user(user)
+
+        %w[
+          Address
+          Email
+          Telephone
+          Permission
+        ].each do |transaction_type|
+          ongoing_transactions += "AsyncTransaction::VAProfile::#{transaction_type}Transaction".constantize.last_requested_for_user(user)
+        end
+
         ongoing_transactions
       end
 
