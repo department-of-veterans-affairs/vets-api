@@ -12,38 +12,20 @@ describe AppsApi::NotificationService do
     {
       'actor' => {
         'id' => '1234',
-        'type' => 'User',
-        'alternateId' => '',
         'displayName' => 'John Doe',
         'detailEntry' => nil
       },
-      'client' => {},
-      'authenticationContext' => {},
-      'displayMessage' => 'Consent granted',
       'eventType' => 'app.oauth2.as.consent.grant',
       'outcome' => {
-        'result' => 'FAILED',
-        'reason' => ''
+        'result' => 'FAILED'
       },
-
       'published' => '2020-10-01T17:37:49.538Z',
-      'securityContext' => {},
-      'severity' => 'INFO',
-      'debugContext' => {},
-      'legacyEventType' => 'app.oauth2.as.consent.grant_success',
-      'transaction' => {},
-      'uuid' => '{event_id}',
-      'version' => '0',
-      'request' => {},
       'target' => [
         {
           'id' => 'oagke4gvwYHTncxlI2p6',
-          'type' => 'ConsentGrant',
-          'alternateId' => nil,
           'displayName' => 'veteran_status.read',
           'detailEntry' => {
             'publicclientapp' => '{app_id}',
-            'authorizationserver' => '{auth_server_id}',
             'user' => '{user_id}'
           }
         }
@@ -55,37 +37,20 @@ describe AppsApi::NotificationService do
     {
       'actor' => {
         'id' => '1234',
-        'type' => 'User',
-        'alternateId' => '',
         'displayName' => 'John Doe',
         'detailEntry' => nil
       },
-      'client' => {},
-      'authenticationContext' => {},
-      'displayMessage' => 'Consent granted',
       'eventType' => 'app.oauth2.as.consent.grant',
       'outcome' => {
-        'result' => 'SUCCESS',
-        'reason' => ''
+        'result' => 'SUCCESS'
       },
       'published' => '2020-10-01T17:37:49.538Z',
-      'securityContext' => {},
-      'severity' => 'INFO',
-      'debugContext' => {},
-      'legacyEventType' => 'app.oauth2.as.consent.grant_success',
-      'transaction' => {},
-      'uuid' => '{event_id}',
-      'version' => '0',
-      'request' => {},
       'target' => [
         {
           'id' => 'oagke4gvwYHTncxlI2p6',
-          'type' => 'ConsentGrant',
-          'alternateId' => nil,
           'displayName' => 'veteran_status.read',
           'detailEntry' => {
             'publicclientapp' => '{app_id}',
-            'authorizationserver' => '{auth_server_id}',
             'user' => '{user_id}'
           }
         }
@@ -97,32 +62,17 @@ describe AppsApi::NotificationService do
       'actor' => {
         'id' => '{app_id}',
         'type' => 'PublicClientApp',
-        'alternateId' => '',
-        'displayName' => 'LibertyITCrochet-2020-05-18T14=>48=>22.744Z',
-        'detailEntry' => nil
+        'displayName' => 'LibertyITCrochet-2020-05-18T14=>48=>22.744Z'
       },
-      'client' => {},
-      'authenticationContext' => {},
-      'displayMessage' => 'OAuth2 token revocation request',
       'eventType' => 'app.oauth2.as.token.revoke',
       'outcome' => {
-        'result' => 'SUCCESS',
-        'reason' => nil
+        'result' => 'SUCCESS'
       },
       'published' => '2020-10-08T18=>08=>41.204Z',
-      'securityContext' => {},
-      'severity' => 'INFO',
-      'debugContext' => {},
-      'legacyEventType' => 'app.oauth2.as.token.revoke_success',
-      'transaction' => {},
-      'uuid' => 'XXYYZZ',
-      'version' => '0',
-      'request' => {},
       'target' => [
         {
           'id' => '{token_id}',
           'type' => 'access_token',
-          'alternateId' => nil,
           'displayName' => 'Access Token',
           'detailEntry' => {
             'expires' => '2020-10-08T19:04:32.000Z',
@@ -138,35 +88,19 @@ describe AppsApi::NotificationService do
       'actor' => {
         'id' => '{app_id}',
         'type' => 'PublicClientApp',
-        'alternateId' => '',
-        'displayName' => 'test',
-        'detailEntry' => nil
+        'displayName' => 'test'
       },
-      'client' => {},
-      'authenticationContext' => {},
-      'displayMessage' => 'OAuth2 token revocation request',
       'eventType' => 'app.oauth2.as.token.revoke',
       'outcome' => {
-        'result' => 'SUCCESS',
-        'reason' => nil
+        'result' => 'SUCCESS'
       },
       'published' => '2020-10-08T18=>08=>41.204Z',
-      'securityContext' => {},
-      'severity' => 'INFO',
-      'debugContext' => {},
-      'legacyEventType' => 'app.oauth2.as.token.revoke_success',
-      'transaction' => {},
-      'uuid' => 'XXYYZZ',
-      'version' => '0',
-      'request' => {},
       'target' => [
         {
           'id' => '{token_id}',
           'type' => 'access_token',
-          'alternateId' => nil,
           'displayName' => 'Access Token',
           'detailEntry' => {
-            'expires' => '2020-10-08T19:04:32.000Z',
             'subject' => '00u7wxd79anps3KjF2p7',
             'hash' => ''
           }
@@ -176,15 +110,7 @@ describe AppsApi::NotificationService do
   end
   let(:user) do
     # only using the portion of the user response needed in the method
-    {
-      body: {
-        'profile' => {
-          'firstName' => 'John',
-          'lastName' => 'Doe',
-          'email' => 'johndoe@email.com'
-        }
-      }
-    }
+    { body: { 'profile' => { 'firstName' => 'John', 'lastName' => 'Doe', 'email' => 'johndoe@email.com' } } }
   end
 
   # creating an OpenStruct from a hash to mock an Okta::Response with
@@ -208,14 +134,8 @@ describe AppsApi::NotificationService do
     )
   end
   let(:directory_app_struct) do
-    OpenStruct.new(
-      # only using the portion of the app response needed in the method
-      {
-        body: {
-          'label' => 'test_label'
-        }
-      }
-    )
+    # only using the portion of the app response needed in the method
+    OpenStruct.new({ body: { 'label' => 'test_label' } })
   end
   let(:notification_client) { double('Notifications::Client') }
 
@@ -268,15 +188,13 @@ describe AppsApi::NotificationService do
       allow_any_instance_of(Okta::Service).to receive(:app).and_return(directory_app_struct)
     end
 
-    it 'calls Okta::Service.user' do
-      VCR.use_cassette('okta/user', match_requests_on: %i[method path]) do
+    VCR.use_cassette('okta/user', match_requests_on: %i[method path]) do
+      it 'calls Okta::Service.user' do
         expect_any_instance_of(Okta::Service).to receive(:user)
         subject.parse_event(valid_connection_event)
       end
-    end
 
-    it 'invokes create_hash' do
-      VCR.use_cassette('okta/user', match_requests_on: %i[method path]) do
+      it 'invokes create_hash' do
         expect_any_instance_of(AppsApi::NotificationService).to receive(:create_hash)
         subject.parse_event(valid_disconnection_event)
       end
