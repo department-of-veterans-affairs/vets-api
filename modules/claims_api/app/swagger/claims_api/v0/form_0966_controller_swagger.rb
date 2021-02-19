@@ -40,6 +40,22 @@ module ClaimsApi
               end
             end
           end
+
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
         end
 
         operation :post do
@@ -178,6 +194,22 @@ module ClaimsApi
             end
           end
 
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
           response 403 do
             key :description, 'Forbidden'
             content 'application/json' do
@@ -310,6 +342,22 @@ module ClaimsApi
             end
           end
 
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
           response 422 do
             key :description, 'Unprocessable entity'
             content 'application/json' do
@@ -391,6 +439,22 @@ module ClaimsApi
                   property :attributes do
                     key :type, :object
                     property :status, type: :string
+                  end
+                end
+              end
+            end
+          end
+
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
                   end
                 end
               end
