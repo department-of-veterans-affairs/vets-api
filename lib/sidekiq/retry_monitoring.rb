@@ -1,7 +1,7 @@
 module Sidekiq
   class RetryMonitoring
     def call(worker, params, _queue)
-      worker.notify(params['jid'], *params['args']) if should_notify?(worker, params)
+      worker.notify(params) if should_notify?(worker, params)
     rescue StandardError => e
       Rails.logger.error e
     ensure

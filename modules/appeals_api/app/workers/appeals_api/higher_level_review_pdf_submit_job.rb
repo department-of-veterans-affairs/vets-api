@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'appeals_api/upload_error'
+require 'appeals_api/sidekiq_retry_notifier'
 require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_info'
@@ -32,8 +33,8 @@ module AppealsApi
       [6, 10]
     end
 
-    def notify(job_id, param)
-      # SlackNotifier.new("HigherLevelReviewPdfSubmitJob has hit a retry threshold.")
+    def notify(retry_params)
+      SidekiqRetryNotifier.notify!(retry_params)
     end
 
     private
