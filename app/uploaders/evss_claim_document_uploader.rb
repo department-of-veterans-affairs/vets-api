@@ -46,9 +46,10 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   def store!(*args, **kwargs, &block)
     raise StoreCalledTwiceError if @this_evss_claim_document_uploader_has_been_used
+
     @this_evss_claim_document_uploader_has_been_used = true
 
-    return super(*args, &block) unless kwargs.present?
+    return super(*args, &block) if kwargs.blank?
 
     super(*args, **kwargs, &block)
   end
