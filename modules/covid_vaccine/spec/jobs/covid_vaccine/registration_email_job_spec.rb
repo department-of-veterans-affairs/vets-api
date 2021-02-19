@@ -25,7 +25,7 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
 
     it 'the service is initialized with the correct parameters with disabled toggle' do
       Flipper.disable(:vanotify_service_enhancement)
-      test_service_api_key = 'baaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+      test_service_api_key = 'baaaaaaa-1111-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
       instance = instance_double(VaNotify::Service)
       allow(instance).to receive(:send_email)
       with_settings(
