@@ -173,4 +173,26 @@ describe HealthQuest::QuestionnaireManager::Factory do
       expect(described_class.manufacture(user).get_save_in_progress).to eq([])
     end
   end
+
+  describe '#create_questionnaire_response' do
+    let(:data) do
+      {
+        appointment: {
+          id: 'abc123'
+        },
+        questionnaire: {
+          id: 'abcd-1234',
+          title: 'test'
+        },
+        item: []
+      }
+    end
+
+    it 'returns a ClientReply' do
+      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        .to receive(:create).with(anything, anything).and_return(client_reply)
+
+      expect(described_class.new(user).create_questionnaire_response(data)).to eq(client_reply)
+    end
+  end
 end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vet360/models/telephone'
+require 'va_profile/models/telephone'
 
 module Swagger
   module Schemas
@@ -15,7 +15,7 @@ module Swagger
                    example: '303',
                    minLength: 3,
                    maxLength: 3,
-                   pattern: ::Vet360::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
+                   pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
                    number.'
           property :country_code,
@@ -55,13 +55,13 @@ module Swagger
                    example: '5551212',
                    minLength: 1,
                    maxLength: 14,
-                   pattern: ::Vet360::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect,
+                   pattern: ::VAProfile::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect,
                    description: 'Number that follows an area code for a North American phone number, or a country code
                    for a non-North American phone number.'
           property :phone_type,
                    type: :string,
-                   enum: ::Vet360::Models::Telephone::PHONE_TYPES,
-                   example: ::Vet360::Models::Telephone::MOBILE,
+                   enum: ::VAProfile::Models::Telephone::PHONE_TYPES,
+                   example: ::VAProfile::Models::Telephone::MOBILE,
                    description: 'Describes specific type of phone number.'
           property :source_date,
                    type: :string,
@@ -85,7 +85,7 @@ module Swagger
                    example: '303',
                    minLength: 3,
                    maxLength: 3,
-                   pattern: ::Vet360::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
+                   pattern: ::VAProfile::Models::Telephone::VALID_AREA_CODE_REGEX.inspect,
                    description: 'The three-digit code that begins a North American (the U.S., Canada and Mexico) phone
                    number.'
           property :country_code,
@@ -125,13 +125,13 @@ module Swagger
                    example: '5551212',
                    minLength: 1,
                    maxLength: 14,
-                   pattern: ::Vet360::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect,
+                   pattern: ::VAProfile::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect,
                    description: 'Number that follows an area code for a North American phone number, or a country code
                    for a non-North American phone number.'
           property :phone_type,
                    type: :string,
-                   enum: ::Vet360::Models::Telephone::PHONE_TYPES,
-                   example: ::Vet360::Models::Telephone::MOBILE,
+                   enum: ::VAProfile::Models::Telephone::PHONE_TYPES,
+                   example: ::VAProfile::Models::Telephone::MOBILE,
                    description: 'Describes specific type of phone number.'
           property :source_date,
                    type: :string,

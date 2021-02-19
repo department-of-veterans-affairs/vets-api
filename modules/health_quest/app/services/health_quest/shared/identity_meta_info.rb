@@ -14,11 +14,11 @@ module HealthQuest
       ##
       # Operation Resource meta tag for the FHIR::Meta object
       #   VA URI
-      META_SYSTEM = 'https://wiki.mobilehealth.va.gov/display/PGDMS/Client+Provenance+Mapping'
+      META_SYSTEM = 'https://api.va.gov/services/pgd'
       ##
       # Operation Resource meta tag for the FHIR::Meta object
       #   VA identifier
-      META_CODE = 'vagov-a0e116eb-faa1-4703-aafe-1a270128607a'
+      META_CODE = '66a5960c-68ee-4689-88ae-4c7cccf7ca79'
       ##
       # Operation Resource meta tag for the FHIR::Meta object
       #   VA application identifier

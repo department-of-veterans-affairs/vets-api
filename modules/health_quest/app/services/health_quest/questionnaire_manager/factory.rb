@@ -92,6 +92,17 @@ module HealthQuest
       end
 
       ##
+      # Create a QuestionnaireResponse resource by calling the
+      # questionnaire response factory service.
+      #
+      # @param data [Hash] questionnaire answers and appointment data hash.
+      # @return [FHIR::ClientReply] an instance of ClientReply
+      #
+      def create_questionnaire_response(data)
+        questionnaire_response_service.create(data)
+      end
+
+      ##
       # Multi-Threaded and independent requests to the PGD and vets-api to cut down on network call times.
       # Sets the patient, questionnaires, questionnaire_responses and save_in_progress instance variables
       # independently by calling the separate endpoints through different threads. Any exception raised
