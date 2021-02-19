@@ -36,7 +36,7 @@ RSpec.describe 'appointments', type: :request do
           end
         end
       end
-      
+
       it 'defaults to a range of -3 months and + 6 months' do
         expect(response).to have_http_status(:ok)
       end
