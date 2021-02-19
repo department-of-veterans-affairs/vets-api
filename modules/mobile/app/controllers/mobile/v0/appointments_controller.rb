@@ -9,9 +9,12 @@ module Mobile
     class AppointmentsController < ApplicationController
       def index
         use_cache = params[:useCache] || false
+        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 3.months).iso8601
+        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 6.months).iso8601
+        
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
-          start_date: params[:startDate],
-          end_date: params[:endDate],
+          start_date: start_date,
+          end_date: end_date,
           use_cache: use_cache
         )
 

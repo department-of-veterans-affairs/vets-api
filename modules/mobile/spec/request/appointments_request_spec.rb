@@ -27,28 +27,18 @@ RSpec.describe 'appointments', type: :request do
     after { Timecop.return }
 
     context 'with a missing params' do
-      it 'returns a bad request error' do
-        get '/mobile/v0/appointments', headers: iam_headers, params: nil
-
-        expect(response).to have_http_status(:unprocessable_entity)
-        expect(response.parsed_body).to eq(
-          {
-            'errors' => [
-              {
-                'title' => 'Validation Error',
-                'detail' => 'start_date must be filled',
-                'code' => 'MOBL_422_validation_error',
-                'status' => '422'
-              },
-              {
-                'title' => 'Validation Error',
-                'detail' => 'end_date must be filled',
-                'code' => 'MOBL_422_validation_error',
-                'status' => '422'
-              }
-            ]
-          }
-        )
+      before do
+        VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: nil
+            end
+          end
+        end
+      end
+      
+      it 'defaults to a range of -3 months and + 6 months' do
+        expect(response).to have_http_status(:ok)
       end
     end
 
