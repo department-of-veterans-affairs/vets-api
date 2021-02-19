@@ -9,6 +9,9 @@ require_dependency 'vba_documents/multipart_parser'
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures
 
+  #need a larger limit for sending raw data (base_64 for example)
+  Rack::Utils.key_space_limit = 65536*5
+  SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
 
   describe '#submit /v2/uploads/submit' do
 
@@ -30,8 +33,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
                                              true)}
     end
 
-    it 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do
-      post '/services/vba_documents/v2/uploads/submit',
+    xit 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do
+      post SUBMIT_ENDPOINT,
       params: {}.merge(valid_metadata).merge(valid_content).merge(valid_attachments)
       expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
@@ -42,6 +45,18 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
       expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(false)
       expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+    end
+
+    it 'processes base64 requests' do
+      post SUBMIT_ENDPOINT, params: get_fixture('base_64').read
+      expect(response).to have_http_status(:bad_request)
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']).to have_key('guid')
+      expect(json['data']['attributes']['status']).to eq('error')
+      expect(json['data']['attributes']['uploaded_pdf']).to have_key('total_documents')
+      expect(json['data']['attributes']['uploaded_pdf']).to have_key('total_pages')
+      expect(json['data']['attributes']['uploaded_pdf']).to have_key('content')
+      expect(json['data']['attributes']['uploaded_pdf']['content']['dimensions']['oversized_pdf']).to be_truthy
     end
   end
 end
