@@ -8,7 +8,8 @@ VBADocuments::Engine.routes.draw do
   match '/v1/upstream_healthcheck', to: 'metadata#upstream_healthcheck', via: [:get]
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
-  if Settings.vba_documents.features.include?('v2_upload-endpoint')
+
+  if Settings.vba_documents.v2_upload_endpoint_enabled
     match '/v2/uploads/submit', to: 'v2/uploads#submit', via: [:get, :post]
     # todo eliminate get from route
   end
