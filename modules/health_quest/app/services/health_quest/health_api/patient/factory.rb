@@ -27,7 +27,7 @@ module HealthQuest
 
         def initialize(user)
           @user = user
-          @session_service = HealthQuest::Lighthouse::Session.build(user)
+          @session_service = HealthQuest::Lighthouse::Session.build(user: user, api: health_api)
           @map_query = HealthApi::Patient::MapQuery.build(session_service.retrieve)
         end
 
@@ -47,6 +47,12 @@ module HealthQuest
         #
         def create
           map_query.create(user)
+        end
+
+        private
+
+        def health_api
+          Settings.hqva_mobile.lighthouse.health_api
         end
       end
     end
