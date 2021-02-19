@@ -33,7 +33,7 @@ module OIDC
     end
 
     def get_metadata_endpoint(iss)
-      metadata_endpoint = Settings.oidc.issuers.find { |s| iss.downcase.include? s['prefix'].downcase }
+      metadata_endpoint = Settings.oidc.issuers.find { |s| iss.downcase.start_with? s['prefix'].downcase }
       proxied_iss = iss.gsub(metadata_endpoint['prefix'], metadata_endpoint['proxy'])
       proxied_iss + metadata_endpoint['metadata']
     end
