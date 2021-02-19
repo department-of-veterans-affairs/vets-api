@@ -2,15 +2,24 @@
 
 module ClaimsApi
   class SpecialIssueMapper
-    SPECIAL_ISSUES = [
+    EVSS_SPECIAL_ISSUES = [
       { name: 'ALS', code: 'ALS' },
       { name: 'HEPC', code: 'HEPC' },
       { name: 'POW', code: 'POW' },
-      { name: 'PTSD/1', code: 'PTSD/1' },
-      { name: 'PTSD/2', code: 'PTSD/2' },
-      { name: 'PTSD/3', code: 'PTSD/3' },
-      { name: 'PTSD/4', code: 'PTSD/4' },
+      { name: 'PTSD/1', codes: ['PTSD/1', 'PTSD_1'] },
+      { name: 'PTSD/2', codes: ['PTSD/2', 'PTSD_2'] },
+      { name: 'PTSD/3', codes: ['PTSD/3', 'PTSD_3'] },
+      { name: 'PTSD/4', codes: ['PTSD/4', 'PTSD_4'] },
       { name: 'MST', code: 'MST' },
+      { name: 'Amyotrophic Lateral Sclerosis (ALS)', code: 'ALS' },
+      { name: 'Hepatitis C', code: 'HEPC' },
+      { name: 'PTSD - Combat', codes: ['PTSD/1', 'PTSD_1'] },
+      { name: 'PTSD - Non-Combat', codes: ['PTSD/2', 'PTSD_2'] },
+      { name: 'PTSD - Personal Trauma', codes: ['PTSD/3', 'PTSD_3'] },
+      { name: 'Non-PTSD Personal Trauma', codes: ['PTSD/4', 'PTSD_4'] },
+      { name: 'Military Sexual Trauma (MST)', code: 'MST' }
+    ].freeze
+    BGS_SPECIAL_ISSUES = [
       { name: '38 USC 1151', code: '38USC1151' },
       { name: 'ABA Election', code: 'AE' },
       { name: 'Abandoned VDC Claim', code: 'AVC' },
@@ -20,7 +29,6 @@ module ClaimsApi
       { name: 'Agent Orange - Vietnam', code: 'AOIV' },
       { name: 'Agent Orange - outside Vietnam or unknown', code: 'AOOV' },
       { name: 'AMA SOC/SSOC Opt-In', code: 'ASSOI' },
-      { name: 'Amyotrophic Lateral Sclerosis (ALS)', code: 'ALS' },
       { name: 'Annual Eligibility Report', code: 'ELIGIBILITY' },
       { name: 'Asbestos', code: 'ASB' },
       { name: 'AutoEstablish', code: 'AE1' },
@@ -82,7 +90,6 @@ module ClaimsApi
       { name: 'Fully Developed Claim', code: 'FDC' },
       { name: 'Gulf War Presumptive', code: 'GWP' },
       { name: 'HIV', code: 'HIV' },
-      { name: 'Hepatitis C', code: 'HEPC' },
       { name: 'Hospital Adjustment Action Plan FY 18/19', code: 'HA' },
       { name: 'IDES Deferral', code: 'ID' },
       { name: 'JSRRC Request', code: 'JSSRCRQST' },
@@ -91,7 +98,6 @@ module ClaimsApi
       { name: 'Local Quality Review', code: 'LQR' },
       { name: 'Local Quality Review IPR', code: 'LQRIPR' },
       { name: 'Medical Foster Home', code: 'MFH' },
-      { name: 'Military Sexual Trauma (MST)', code: 'MST' },
       { name: 'MQAS Separation and Severance Pay Audit', code: 'MSSPA' },
       { name: 'Mustard Gas', code: 'MG' },
       { name: 'National Quality Review', code: 'NATNLQUALREV' },
@@ -99,12 +105,7 @@ module ClaimsApi
       { name: 'Nehmer Phase II', code: 'NP' },
       { name: 'Non-ADL Notification Letter', code: 'NANL' },
       { name: 'Non-Nehmer AO Peripheral Neuropathy', code: 'NNAPN' },
-      { name: 'Non-PTSD Personal Trauma', code: 'PTSD/4' },
       { name: 'Potential Under/Overpayment', code: 'PUO' },
-      { name: 'POW', code: 'POW' },
-      { name: 'PTSD - Combat', code: 'PTSD/1' },
-      { name: 'PTSD - Non-Combat', code: 'PTSD/2' },
-      { name: 'PTSD - Personal Trauma', code: 'PTSD/3' },
       { name: 'RO Special issue 1', code: 'ROSI1' },
       { name: 'RO Special issue 2', code: 'ROSI2' },
       { name: 'RO Special Issue 3', code: 'ROSPISTHR' },
@@ -163,26 +164,41 @@ module ClaimsApi
       { name: 'WARTAC', code: 'WARTAC' },
       { name: 'WARTAC Trainee', code: 'WT' }
     ].freeze
+    SPECIAL_ISSUES = (EVSS_SPECIAL_ISSUES + BGS_SPECIAL_ISSUES).freeze
     BGS_WSDL = "#{Settings.bgs.url}/VetRecordServiceBean/VetRecordWebService?WSDL"
 
+    # Convert to name from code of special issue.
+    #
+    # @param code [String] Short code of special issue
+    # @return [String] Verbose name of special issue
     def name_from_code(code)
       from_code(code)[:name]
     end
 
-    def code_from_name(name)
-      from_name(name)[:code]
+    # Convert to code from name of special issue.
+    #
+    # @param name [String] Verbose name of special issue
+    # @param source [Symbol] default: :bgs, :bgs or :evss, determines what version of the code will be returned
+    # @return [String] Short code of special issue
+    def code_from_name(name, source: :bgs)
+      raise ::Common::Exceptions::InvalidFieldValue.new('source', source) unless [:bgs, :evss].include?(source)
+
+      special_issue = from_name(name)
+      special_issue[:code] || (source == :bgs ? special_issue[:codes].first : special_issue[:codes].last)
     end
 
+    private
+
     def from_code(code)
-      special_issue = SPECIAL_ISSUES.find { |si| si[:code] == code }
-      raise Common::Exceptions::InvalidFieldValue.new('special_issue', code) if special_issue.blank?
+      special_issue = SPECIAL_ISSUES.find { |si| si[:code].present? ? si[:code] == code : si[:codes].include?(code) }
+      raise ::Common::Exceptions::InvalidFieldValue.new('special_issue', code) if special_issue.blank?
 
       special_issue
     end
 
     def from_name(name)
       special_issue = SPECIAL_ISSUES.find { |si| si[:name] == name }
-      raise Common::Exceptions::InvalidFieldValue.new('special_issue', name) if special_issue.blank?
+      raise ::Common::Exceptions::InvalidFieldValue.new('special_issue', name) if special_issue.blank?
 
       special_issue
     end
