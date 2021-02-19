@@ -28,8 +28,8 @@ describe Mobile::V0::Appointments::Service do
 
     context 'when both va and cc appointments return 200s' do
       let(:responses) do
-        VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('appointments/get_appointments_cache_false', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_cache_false', match_requests_on: %i[method uri]) do
             service.get_appointments(start_date, end_date).first
           end
         end
@@ -93,7 +93,7 @@ describe Mobile::V0::Appointments::Service do
         )
         VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
-            service.get_appointments(start_date, end_date)
+            service.get_appointments(start_date, end_date, true)
           end
         end
       end
@@ -107,7 +107,7 @@ describe Mobile::V0::Appointments::Service do
               'mobile appointments backend service exception',
               hash_including(url: '/appointments/v1/patients/24811694708759028/appointments')
             ).once
-            service.get_appointments(start_date, end_date)
+            service.get_appointments(start_date, end_date, true)
           end
         end
       end
@@ -124,7 +124,7 @@ describe Mobile::V0::Appointments::Service do
                   '/patient/ICN/24811694708759028/booked-cc-appointments'
               )
             ).once
-            service.get_appointments(start_date, end_date)
+            service.get_appointments(start_date, end_date, true)
           end
         end
       end
@@ -137,7 +137,7 @@ describe Mobile::V0::Appointments::Service do
             expect(Rails.logger).to receive(:error).with(
               'mobile appointments backend service exception', any_args
             ).twice
-            service.get_appointments(start_date, end_date)
+            service.get_appointments(start_date, end_date, true)
           end
         end
       end
