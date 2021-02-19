@@ -31,6 +31,8 @@ module VBADocuments
         rescue VBADocuments::UploadError => e
           Rails.logger.warn("UploadError download_and_process for guid #{upload_model.guid}.", e)
           upload_model.update(status: 'error', code: e.code, detail: e.detail)
+        rescue Seahorse::Client::NetworkingError => ne
+          upload_model.update(status: 'error', code: 'DOC104', detail: ne.message)
         end
         status = upload_model.status.eql?('error') ? 400 : 200 #todo Should we do 200 OK or 202 accepted?
         render json: upload_model,
