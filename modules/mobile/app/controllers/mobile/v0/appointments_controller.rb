@@ -8,19 +8,19 @@ module Mobile
   module V0
     class AppointmentsController < ApplicationController
       def index
-        use_cache = params[:useCache] || false
+        use_vaos_cache = params[:useCache] || false
         start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 3.months).iso8601
         end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 6.months).iso8601
 
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
           start_date: start_date,
           end_date: end_date,
-          use_cache: use_cache
+          use_cache: use_vaos_cache
         )
-
+        
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
 
-        appointments, errors = appointments_proxy.get_appointments(validated_params.to_h)
+        appointments, errors = cached_or_fetch_appointments(@current_user, validated_params.to_h)
 
         options = {
           meta: {
@@ -44,6 +44,13 @@ module Mobile
 
       def appointments_proxy
         Mobile::V0::Appointments::Proxy.new(@current_user)
+      end
+      
+      def cached_or_fetch_appointments(user, validated_params)
+        appointments = Mobile::V0::Appointment.get_cached_appointments(validated_params.merge(user: user))
+        return [appointments, nil] if appointments
+        
+        appointments_proxy.get_appointments(validated_params.to_h)
       end
     end
   end

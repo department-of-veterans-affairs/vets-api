@@ -54,6 +54,22 @@ module Mobile
         return id.sub(match[0], (%w[442 983] - [id]).first) if %w[442 983].include? match[0]
         return id.sub(match[0], (%w[552 984] - [id]).first) if %w[552 984].include? match[0]
       end
+      
+      def self.get_cached_appointments(user:, start_date:, end_date:)
+        redis = Redis::Namespace.new(REDIS_CONFIG[:mobile_app_appointments_store][:namespace], redis: Redis.current)
+        key = "#{user.uuid}:#{start_date}:#{end_date}"
+        json = redis.get(key)
+        return nil unless json
+        appointments = JSON.parse(json).deep_symbolize_keys
+        appointments.map { |appointment| Mobile::V0::Appointment.new(appointment) }
+      end
+      
+      def self.set_cached_appointments(user:, start_date:, end_date:, appointments:)
+        redis = Redis::Namespace.new(REDIS_CONFIG[:mobile_app_appointments_store][:namespace], redis: Redis.current)
+        key = "#{user.uuid}:#{start_date}:#{end_date}"
+        json = appointments.to_json
+        redis.set(key, json)
+      end
     end
   end
 end
