@@ -1889,7 +1889,7 @@ module PdfFill
         # income question when reporting a divorce
         spouse_name = combine_full_name(@form_data.dig('dependents_application', 'report_divorce', 'full_name'))
         spouse_income = @form_data.dig('dependents_application', 'report_divorce', 'spouse_income')
-        add_dependent_income(spouse_name, spouse_income)
+        addendum_text += add_dependent_income(spouse_name, spouse_income)
 
         # income questions when reporting deaths
         deaths = @form_data.dig('dependents_application', 'deaths')
@@ -1904,9 +1904,9 @@ module PdfFill
       end
 
       def add_dependent_income(dependent_name, dependent_income)
-        if dependent_name.present?
-          "\n\nDid #{dependent_name} have an income in the last 365 days? " + format_boolean(dependent_income)
-        end
+        return '' if dependent_name.blank?
+
+        "\n\nDid #{dependent_name} have an income in the last 365 days? " + format_boolean(dependent_income)
       end
 
       def add_dependents(dependents_hash, income_attr)
