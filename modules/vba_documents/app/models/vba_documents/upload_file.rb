@@ -3,6 +3,7 @@ require_dependency 'vba_documents/multipart_parser'
 module VBADocuments
   class UploadFile < UploadSubmission
     has_one_attached  :multipart_file
+    has_many_attached :parsed_files #see parse_and_upload! below (this field is generally unused).
     alias_method :multipart, :multipart_file
     before_save :set_blob_key
     after_save :update_upload_submission
@@ -32,17 +33,21 @@ module VBADocuments
       self.update(s3_deleted: true)
     end
 
-    # todo have this model only have has_one_attached (always the multipart)
-    # have another model use has_many_attached and eat this model with this method as a class method to use for
-    # debugging
+    # Useful in the rails console during forensic analysis
+    # Calling parses and uploads the PDFs / metadata.
     def parse_and_upload!
-      parsed = self.files.last.open do |file|
+      parsed = self.multipart.open do |file|
         VBADocuments::MultipartParser.parse(file.path)
       end
-      self.files.attach(io: parsed['content'], filename: self.guid + '_' + 'content.pdf') #todo change filename to guid
-      self.files.attach(io: parsed['attachment1'], filename: self.guid + '_' + 'attachment1.pdf') #todo change filename to guid
-      self.files.attach(io: parsed['attachment2'], filename: self.guid + '_' + 'attachment2.pdf') #todo change filename to guid
+      self.parsed_files.attach(io: StringIO.new(parsed['metadata'].to_s), filename: self.guid + '_' + "metadata.json")
+      pdf_keys = parsed.keys - ['metadata']
+      pdf_keys.each do |k|
+        self.parsed_files.attach(io: File.open(parsed[k]), filename: self.guid + '_' + "#{k}.pdf")
+      end
       save!
+      puts "Your files have been uploaded!"
+      puts "Don't forget to cleanup when done by running:"
+      puts "UploadFile.find_by_guid(\'#{self.guid}\').parsed_files.purge"
     end
 
     private
@@ -50,6 +55,11 @@ module VBADocuments
     def set_blob_key
       if self.multipart.attached?
         self.multipart.blob.key = self.guid.to_s
+      end
+      if self.parsed_files.attached?
+        self.parsed_files.each do |file|
+          file.blob.key = file.blob.filename.to_s
+        end
       end
     end
 
@@ -77,5 +87,7 @@ n = UploadFile.new
 
 n.multipart.attach(io: StringIO.new("Hello World\n"), filename: f.guid)
 n.multipart.attached?
-
+      parsed = uf.multipart.open do |file|
+        VBADocuments::MultipartParser.parse(file.path)
+      end
 =end
