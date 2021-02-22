@@ -3,6 +3,7 @@
 require 'sidekiq'
 
 module VAForms
+  # rubocop:disable Metrics/MethodLength
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
@@ -13,7 +14,11 @@ module VAForms
       Rails.logger.info('VAForms::FormReloader is being called.')
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
       body = { query: query }
-      response = connection.post('graphql', body.to_json)
+      response = connection.post do |req|
+        req.path = 'graphql'
+        req.body = body.to_json
+        req.options.timeout = 300
+      end
       forms_data = JSON.parse(response.body)
       forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
         build_and_save_form(form)
@@ -127,4 +132,5 @@ module VAForms
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
   end
+  # rubocop:enable Metrics/MethodLength
 end
