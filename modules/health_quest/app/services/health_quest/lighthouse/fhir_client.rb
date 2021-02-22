@@ -4,7 +4,7 @@ module HealthQuest
   module Lighthouse
     module FHIRClient
       def url
-        "#{lighthouse.url}#{lighthouse.pgd_path}"
+        "#{lighthouse.url}#{api_query_path}"
       end
 
       def client
@@ -19,6 +19,10 @@ module HealthQuest
 
       def headers
         raise NotImplementedError "#{self.class} should have implemented headers ..."
+      end
+
+      def api_query_path
+        raise NotImplementedError "#{self.class} should have implemented api_query_path ..."
       end
 
       private
