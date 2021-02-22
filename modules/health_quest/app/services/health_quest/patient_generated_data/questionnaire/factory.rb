@@ -15,7 +15,7 @@ module HealthQuest
       # @!attribute map_query
       #   @return [PatientGeneratedData::Questionnaire::MapQuery]
       # @!attribute options_builder
-      #   @return [PatientGeneratedData::Questionnaire::OptionsBuilder]
+      #   @return [Shared::OptionsBuilder]
       class Factory
         attr_reader :session_service, :user, :map_query, :options_builder
 
@@ -33,7 +33,7 @@ module HealthQuest
           @user = user
           @session_service = HealthQuest::Lighthouse::Session.build(user: user, api: pgd_api)
           @map_query = PatientGeneratedData::Questionnaire::MapQuery.build(session_service.retrieve)
-          @options_builder = OptionsBuilder
+          @options_builder = Shared::OptionsBuilder
         end
 
         ##
