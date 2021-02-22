@@ -177,7 +177,7 @@ namespace :form526 do
       dates
     end
 
-    options = bdd_flag_present?(args_array) ? bdd_stats_mode(args.extras) : date_range_mode(args.extras)
+    options = bdd_flag_present?(args.extras) ? bdd_stats_mode(args.extras) : date_range_mode(args.extras)
 
     options.print_hr.call
     options.print_header.call
