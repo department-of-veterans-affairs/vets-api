@@ -11,5 +11,10 @@ describe AppealsApi::AppealStatus, type: :concern do
 
       expect(local_statuses).to include(*additional_statuses)
     end
+
+    it 'includes the expected statuses' do
+      statuses = %w[pending submitting submitted received success processing error vbms]
+      expect(described_class::STATUSES).to eq(statuses)
+    end
   end
 end

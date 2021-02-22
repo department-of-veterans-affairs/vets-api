@@ -16,8 +16,12 @@ module AppealsApi
       'Processing Success' => { status: 'processing' },
 
       'Error' => { status: 'error', code: 'DOC202' },
-      'Processing Error' => { status: 'error', code: 'DOC202' }
+      'Processing Error' => { status: 'error', code: 'DOC202' },
+
+      'VBMS Complete' => { status: 'vbms' }
     }.freeze
+
+    CENTRAL_MAIL_STATUSES = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.uniq.freeze
 
     CENTRAL_MAIL_STATUS = Struct.new(:id, :status, :error_message) do
       delegate :present?, to: :id
