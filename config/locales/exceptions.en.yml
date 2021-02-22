@@ -190,10 +190,10 @@ en:
         status: 401
       open_id_service_error:
         <<: *defaults
-        title: Open  Id Service Error
+        title: Open Id Service Error
         detail: "%{detail}"
-        code: 401
-        status: 401
+        code: "%{code}"
+        status: "%{status}"
       no_query_params_allowed:
         <<: *defaults
         title: No query params allowed
