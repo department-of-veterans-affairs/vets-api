@@ -34,7 +34,7 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::Factory do
 
   describe '#search' do
     let(:filters) { { resource_name: 'questionnaire', appointment_id: nil }.with_indifferent_access }
-    let(:options_builder) { HealthQuest::PatientGeneratedData::OptionsBuilder.manufacture(user, filters) }
+    let(:options_builder) { HealthQuest::Shared::OptionsBuilder.manufacture(user, filters) }
 
     it 'returns a ClientReply' do
       allow_any_instance_of(FHIR::Client).to receive(:search).with(anything, anything).and_return(client_reply)
