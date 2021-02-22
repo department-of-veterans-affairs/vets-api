@@ -50,8 +50,7 @@ class Token
   def valid_issuer?
     decoded_token = JWT.decode(@token_string, nil, false, algorithm: 'RS256')
     iss = decoded_token[0]['iss']
-    metadata_endpoint = Settings.oidc.issuers.find { |s| iss.downcase.start_with? s['prefix'].downcase }
-    !metadata_endpoint.nil? && !metadata_endpoint['prefix'].nil?
+    !iss.nil? && iss.match?(%r{^#{Regexp.escape(Settings.oidc.issuer_prefix)}/\w+$})
   rescue JWT::DecodeError => e
     raise error_klass(e.message)
   end
