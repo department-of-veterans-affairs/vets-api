@@ -34,7 +34,7 @@ Rails.application.configure do
   config.cache_store = :redis_cache_store, { url: Settings.redis.rails_cache.url, expires_in: 30.minutes }
 
   # Store files locally.
-   config.active_storage.service = :local
+  config.active_storage.service = :local
   # store files in aws
   # config.active_storage.service = :amazon
 

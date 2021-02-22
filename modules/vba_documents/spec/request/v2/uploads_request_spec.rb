@@ -9,33 +9,32 @@ require_dependency 'vba_documents/multipart_parser'
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures
 
-  #need a larger limit for sending raw data (base_64 for example)
-  Rack::Utils.key_space_limit = 65536 * 5
+  # need a larger limit for sending raw data (base_64 for example)
+  Rack::Utils.key_space_limit = 65_536 * 5
   SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
 
   describe '#submit /v2/uploads/submit' do
     let(:valid_attachments) do
-      {attachment1: Rack::Test::UploadedFile.new(get_fixture('valid_doc.pdf').path, 'application/pdf',
-                                                 true),
-       attachment2: Rack::Test::UploadedFile.new(get_fixture('valid_doc.pdf').path, 'application/pdf',
-                                                 true)
-      }
+      { attachment1: Rack::Test::UploadedFile.new(get_fixture('valid_doc.pdf').path, 'application/pdf',
+                                                  true),
+        attachment2: Rack::Test::UploadedFile.new(get_fixture('valid_doc.pdf').path, 'application/pdf',
+                                                  true) }
     end
 
     let(:valid_metadata) do
-      {metadata: Rack::Test::UploadedFile.new(get_fixture('valid_metadata.json').path, 'application/json',
-                                              false)}
+      { metadata: Rack::Test::UploadedFile.new(get_fixture('valid_metadata.json').path, 'application/json',
+                                               false) }
     end
 
     let(:valid_content) do
-      {content: Rack::Test::UploadedFile.new(get_fixture('valid_doc.pdf').path, 'application/pdf',
-                                             true)}
+      { content: Rack::Test::UploadedFile.new(get_fixture('valid_doc.pdf').path, 'application/pdf',
+                                              true) }
     end
 
-    after(:each) do
+    after do
       guid = @attributes['guid']
-      upload = VBADocuments::UploadFile.find_by_guid(guid)
-      expect(upload.uploaded?).to be_truthy
+      upload = VBADocuments::UploadFile.find_by(guid: guid)
+      expect(upload).to be_uploaded
     end
 
     it 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do
