@@ -87,6 +87,15 @@ module HealthQuest
             }
           }
         end
+
+        ##
+        # Returns the PGD api path
+        #
+        # @return [String]
+        #
+        def api_query_path
+          Settings.hqva_mobile.lighthouse.pgd_path
+        end
       end
     end
   end

@@ -62,6 +62,15 @@ module HealthQuest
         def fhir_model
           FHIR::Patient
         end
+
+        ##
+        # Returns the health api path
+        #
+        # @return [String]
+        #
+        def api_query_path
+          Settings.hqva_mobile.lighthouse.health_api_path
+        end
       end
     end
   end
