@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::Questionnaire::Factory do
+describe HealthQuest::HealthApi::Appointment::Factory do
   subject { described_class }
 
   let(:user) { double('User', icn: '1008596379V859838') }
@@ -29,28 +29,6 @@ describe HealthQuest::PatientGeneratedData::Questionnaire::Factory do
   describe '.manufacture' do
     it 'returns an instance of the described class' do
       expect(described_class.manufacture(user)).to be_an_instance_of(described_class)
-    end
-  end
-
-  describe '#search' do
-    let(:filters) { { resource_name: 'questionnaire', appointment_id: nil }.with_indifferent_access }
-    let(:options_builder) { HealthQuest::Shared::OptionsBuilder.manufacture(user, filters) }
-
-    it 'returns a ClientReply' do
-      allow_any_instance_of(FHIR::Client).to receive(:search).with(anything, anything).and_return(client_reply)
-
-      expect(subject.new(user).search(filters)).to eq(client_reply)
-    end
-  end
-
-  describe '#get' do
-    let(:id) { 'faae134c-9c7b-49d7-8161-10e314da4de1' }
-
-    it 'returns a ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::Questionnaire::MapQuery)
-        .to receive(:get).with(id).and_return(client_reply)
-
-      expect(subject.new(user).get(id)).to eq(client_reply)
     end
   end
 end
