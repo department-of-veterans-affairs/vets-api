@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'mobile/application_controller'
-require 'vet360/address_validation/service'
+require 'va_profile/address_validation/service'
 
 module Mobile
   module V0
@@ -21,7 +21,7 @@ module Mobile
       end
 
       def validate
-        address = Vet360::Models::ValidationAddress.new(address_params)
+        address = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
         response = validation_service.address_suggestions(address).as_json
@@ -59,7 +59,7 @@ module Mobile
       end
 
       def validation_service
-        Vet360::AddressValidation::Service.new
+        VAProfile::AddressValidation::Service.new
       end
     end
   end
