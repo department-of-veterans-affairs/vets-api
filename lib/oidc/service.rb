@@ -3,6 +3,8 @@
 require 'common/client/concerns/monitoring'
 require 'oidc/configuration'
 require 'oidc/response'
+require 'common/exceptions/service_error'
+
 module OIDC
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
@@ -22,6 +24,8 @@ module OIDC
       metadata_endpoint = get_metadata_endpoint(iss)
       with_monitoring do
         OIDC::Response.new call_no_token('get', metadata_endpoint)
+      rescue => e
+        raise Common::Exceptions::OidcServiceError.new(detail: e.message)
       end
     end
 
