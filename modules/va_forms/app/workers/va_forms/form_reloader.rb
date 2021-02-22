@@ -3,7 +3,6 @@
 require 'sidekiq'
 
 module VAForms
-  # rubocop:disable ClassLength
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
