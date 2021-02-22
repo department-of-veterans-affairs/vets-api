@@ -3,7 +3,7 @@
 require 'common/client/concerns/monitoring'
 require 'oidc/configuration'
 require 'oidc/response'
-require 'common/exceptions/service_error'
+require 'common/exceptions/oidc_service_error'
 
 module OIDC
   class Service < Common::Client::Base
@@ -25,7 +25,7 @@ module OIDC
       with_monitoring do
         OIDC::Response.new call_no_token('get', metadata_endpoint)
       rescue => e
-        raise Common::Exceptions::OidcServiceError.new(detail: e.message)
+        raise Common::Exceptions::OpenIdServiceError.new(detail: e.message)
       end
     end
 
@@ -38,7 +38,9 @@ module OIDC
 
     def get_metadata_endpoint(iss)
       metadata_endpoint = Settings.oidc.issuers.find { |s| iss.downcase.start_with? s['prefix'].downcase }
-      raise error_klass('Invalid issuer') unless valid_metadata_config?(metadata_endpoint)
+      unless valid_metadata_config?(metadata_endpoint)
+        raise Common::Exceptions::OpenIdServiceError.new(detail: 'Invalid issuer')
+      end
 
       proxied_iss = iss.gsub(metadata_endpoint['prefix'], metadata_endpoint['proxy'])
       proxied_iss + metadata_endpoint['metadata']
