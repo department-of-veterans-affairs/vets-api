@@ -25,27 +25,40 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     metadata[key] = value
     metadata.delete(key) if delete_key
     Rack::Test::UploadedFile.new(
-        StringIO.new(metadata.to_json),'application/json', false, original_filename: 'metadata.json')
+      StringIO.new(metadata.to_json), 'application/json', false, original_filename: 'metadata.json'
+    )
   end
 
   describe '#submit /v2/uploads/submit' do
     let(:valid_content) do
-      {content: build_fixture('valid_doc.pdf')}
+      { content: build_fixture('valid_doc.pdf') }
     end
 
     let(:valid_attachments) do
-      {attachment1: build_fixture('valid_doc.pdf'),
-       attachment2: build_fixture('valid_doc.pdf')
-      }
+      { attachment1: build_fixture('valid_doc.pdf'),
+        attachment2: build_fixture('valid_doc.pdf') }
     end
 
     let(:valid_metadata) do
-      {metadata: build_fixture('valid_metadata.json', true)}
+      { metadata: build_fixture('valid_metadata.json', true) }
     end
 
-    after(:each) do
+    let(:invalid_attachment_oversized) do
+      { attachment1: build_fixture('18x22.pdf'),
+        attachment2: build_fixture('valid_doc.pdf') }
+    end
+
+    let(:invalid_content_missing) do
+      { content: nil }
+    end
+
+    let(:invalid_attachment_missing) do
+      { attachment1: nil }
+    end
+
+    after do
       guid = @attributes['guid']
-      upload = VBADocuments::UploadFile.find_by_guid(guid)
+      upload = VBADocuments::UploadFile.find_by(guid: guid)
       expect(upload).to be_uploaded
     end
 
@@ -77,11 +90,48 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(@attributes['uploaded_pdf']['content']['dimensions']['oversized_pdf']).to be_truthy
     end
 
+    it 'returns a UUID with status of error when an attachment is oversized' do
+      post SUBMIT_ENDPOINT,
+           params: {}.merge(valid_metadata).merge(valid_content).merge(invalid_attachment_oversized)
+      expect(response).to have_http_status(:bad_request)
+      json = JSON.parse(response.body)
+      @attributes = json['data']['attributes']
+      expect(@attributes).to have_key('guid')
+      expect(@attributes['status']).to eq('error')
+      uploaded_pdf = @attributes['uploaded_pdf']
+      expect(uploaded_pdf['total_documents']).to eq(3)
+      expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
+      expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
+      expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+    end
+
+    it 'returns an error when a content is missing' do
+      post SUBMIT_ENDPOINT,
+           params: {}.merge(valid_metadata).merge(invalid_content_missing).merge(valid_attachments)
+      expect(response).to have_http_status(:bad_request)
+      json = JSON.parse(response.body)
+      @attributes = json['data']['attributes']
+      expect(@attributes['status']).to eq('error')
+      expect(@attributes['code']).to eq('DOC101')
+      expect(@attributes['detail']).to eq("Missing content-type header")
+    end
+
+    it 'returns an error when an attachment is missing' do
+      post SUBMIT_ENDPOINT,
+           params: {}.merge(valid_metadata).merge(valid_content).merge(invalid_attachment_missing)
+      expect(response).to have_http_status(:bad_request)
+      json = JSON.parse(response.body)
+      @attributes = json['data']['attributes']
+      expect(@attributes['status']).to eq('error')
+      expect(@attributes['code']).to eq('DOC101')
+      expect(@attributes['detail']).to eq("Missing content-type header")
+    end
+
     context 'with invalid metadata' do
       %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|
         it "Returns a 400 error when #{key} is nil" do
           # set key to be nil in metadata
-          metadata = {metadata: invalidate_metadata(key)}
+          metadata = { metadata: invalidate_metadata(key) }
           post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
           expect(response).to have_http_status(:bad_request)
           json = JSON.parse(response.body)
@@ -93,7 +143,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
         it "Returns a 400 error when #{key} is missing" do
           # remove the key from metadata
-          metadata = {metadata: invalidate_metadata(key, '', true)}
+          metadata = { metadata: invalidate_metadata(key, '', true) }
           post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
           expect(response).to have_http_status(:bad_request)
           json = JSON.parse(response.body)
@@ -106,7 +156,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         if key.eql?('fileNumber')
           it "Returns an error when #{key} is not a string" do
             # make fileNumber a non-string value
-            metadata = {metadata: invalidate_metadata(key, 123456789)}
+            metadata = { metadata: invalidate_metadata(key, 123_456_789) }
             post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
             expect(response).to have_http_status(:bad_request)
             json = JSON.parse(response.body)
