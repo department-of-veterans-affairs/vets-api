@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module Sidekiq
   class RetryMonitoring
     def call(worker, params, _queue)
       worker.notify(params) if should_notify?(worker, params)
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error e
     ensure
       yield
