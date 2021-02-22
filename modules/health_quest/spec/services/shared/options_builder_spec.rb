@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe HealthQuest::PatientGeneratedData::OptionsBuilder do
+describe HealthQuest::Shared::OptionsBuilder do
   subject { described_class }
 
   let(:user) { double('User', icn: '1008596379V859838') }
