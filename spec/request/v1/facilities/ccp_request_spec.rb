@@ -69,6 +69,34 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
     end
 
     context 'type=provider' do
+      context 'Missing specialties param' do
+        let(:params) do
+          {
+            latitude: 40.415217,
+            longitude: -74.057114,
+            radius: 200,
+            type: 'provider'
+          }
+        end
+
+        it 'requires a specialty code' do
+          get '/v1/facilities/ccp', params: params
+
+          bod = JSON.parse(response.body)
+
+          expect(bod).to include(
+            'errors' => [{
+              'title' => 'Missing parameter',
+              'detail' => 'The required parameter "specialties", is missing',
+              'code' => '108',
+              'status' => '400'
+            }]
+          )
+
+          expect(response).not_to be_successful
+        end
+      end
+
       context 'specialties=261QU0200X' do
         let(:params) do
           {
