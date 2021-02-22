@@ -10,19 +10,19 @@ module AppealsApi
       end
 
       def validate
-        # TODO: log anything here if errors raised or log in the controller if fails validation?
         raise UploadValidationError, non_pdf_error unless document_is_pdf?
         raise UploadValidationError, max_dimension_error unless valid_page_dimensions?
         raise UploadValidationError, file_size_error unless valid_file_size?
       end
 
       def document_is_pdf?
-        contents = File.read(@document)
-        contents.include?('%PDF-')
+        @pdf_metadata = PdfInfo::Metadata.read(@document)
+      rescue PdfInfo::MetadataReadError => e
+        raise UploadValidationError, e
       end
 
       def valid_page_dimensions?
-        dimensions = PdfInfo::Metadata.read(@document).page_size_inches
+        dimensions = @pdf_metadata.page_size_inches
         dimensions[:height] <= 11 && dimensions[:width] <= 11
       end
 
