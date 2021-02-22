@@ -13,8 +13,8 @@ module Mobile
           @user = user
         end
 
-        def get_appointments(start_date, end_date)
-          responses, errors = parallel_appointments_service.get_appointments(start_date, end_date)
+        def get_appointments(start_date:, end_date:, use_cache: false)
+          responses, errors = parallel_appointments_service.get_appointments(start_date, end_date, use_cache)
 
           va_appointments = []
           cc_appointments = []
@@ -37,18 +37,20 @@ module Mobile
         end
 
         def put_cancel_appointment(params)
-          cancel_reasons = get_facility_cancel_reasons(params[:facilityId])
+          facility_id = Mobile::V0::Appointment.toggle_non_prod_id!(params[:facilityId])
+
+          cancel_reasons = get_facility_cancel_reasons(facility_id)
           cancel_reason = extract_valid_reason(cancel_reasons.map(&:number))
 
           raise Common::Exceptions::BackendServiceException, 'MOBL_404_cancel_reason_not_found' if cancel_reason.nil?
 
           put_params = {
-            appointment_time: DateTime.parse(params[:appointmentTime]).strftime('%m/%d/%Y %H:%M:%S'),
+            appointment_time: params[:appointmentTime].strftime('%m/%d/%Y %H:%M:%S'),
             clinic_id: params[:clinicId],
             cancel_reason: cancel_reason,
             cancel_code: CANCEL_CODE,
             clinic_name: params['healthcareService'],
-            facility_id: params[:facilityId],
+            facility_id: facility_id,
             remarks: ''
           }
 

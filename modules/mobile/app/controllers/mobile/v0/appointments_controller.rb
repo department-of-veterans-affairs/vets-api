@@ -8,7 +8,16 @@ module Mobile
   module V0
     class AppointmentsController < ApplicationController
       def index
-        appointments, errors = appointments_proxy.get_appointments(start_date, end_date)
+        use_cache = params[:useCache] || false
+        validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
+          start_date: params[:startDate],
+          end_date: params[:endDate],
+          use_cache: use_cache
+        )
+
+        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
+
+        appointments, errors = appointments_proxy.get_appointments(validated_params.to_h)
 
         options = {
           meta: {
@@ -20,10 +29,11 @@ module Mobile
       end
 
       def cancel
-        validation_result = Mobile::V0::Contracts::CancelAppointment.new.call(cancel_params)
-        raise Mobile::V0::Exceptions::ValidationErrors, validation_result if validation_result.failure?
+        decoded_cancel_params = Mobile::V0::Contracts::CancelAppointment.decode_cancel_id(params[:id])
+        contract = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
+        raise Mobile::V0::Exceptions::ValidationErrors, contract if contract.failure?
 
-        appointments_proxy.put_cancel_appointment(cancel_params)
+        appointments_proxy.put_cancel_appointment(decoded_cancel_params)
         head :no_content
       end
 
@@ -31,22 +41,6 @@ module Mobile
 
       def appointments_proxy
         Mobile::V0::Appointments::Proxy.new(@current_user)
-      end
-
-      def start_date
-        DateTime.parse(params[:startDate])
-      rescue ArgumentError, TypeError
-        raise Common::Exceptions::InvalidFieldValue.new('startDate', params[:startDate])
-      end
-
-      def end_date
-        DateTime.parse(params[:endDate])
-      rescue ArgumentError, TypeError
-        raise Common::Exceptions::InvalidFieldValue.new('endDate', params[:endDate])
-      end
-
-      def cancel_params
-        params.permit(:appointmentTime, :clinicId, :facilityId, :healthcareService)
       end
     end
   end

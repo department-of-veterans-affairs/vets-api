@@ -14,7 +14,8 @@
         "X-VA-File-Number": { "$ref": "#/definitions/X-VA-File-Number" },
         "X-VA-Service-Number": { "$ref": "#/definitions/X-VA-Service-Number" },
         "X-VA-Insurance-Policy-Number": { "$ref": "#/definitions/X-VA-Insurance-Policy-Number" },
-        "X-Consumer-Username": { "$ref": "#/definitions/X-Consumer-Username" }
+        "X-Consumer-Username": { "$ref": "#/definitions/X-Consumer-Username" },
+        "X-Consumer-ID":       { "$ref": "#/definitions/X-Consumer-ID"}
       },
       "additionalProperties": false,
       "required": [
@@ -79,6 +80,12 @@
     "X-Consumer-Username": {
       "allOf": [
         { "description": "Consumer User Name (passed from Kong)" },
+        { "$ref": "#/definitions/nonBlankString" }
+      ]
+    },
+    "X-Consumer-ID": {
+      "allOf": [
+        { "description": "Consumer GUID" },
         { "$ref": "#/definitions/nonBlankString" }
       ]
     },

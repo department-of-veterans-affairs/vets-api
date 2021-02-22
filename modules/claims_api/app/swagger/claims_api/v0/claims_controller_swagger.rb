@@ -28,7 +28,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
-            key :description, 'SSN of Veteran to fetch'
+            key :description, 'SSN of Veteran being represented'
             key :example, '123121234'
             key :required, true
             key :type, :string
@@ -37,7 +37,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-First-Name'
             key :in, :header
-            key :description, 'First Name of Veteran to fetch'
+            key :description, 'First Name of Veteran being represented'
             key :example, 'John'
             key :required, true
             key :type, :string
@@ -46,7 +46,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Last-Name'
             key :in, :header
-            key :description, 'Last Name of Veteran to fetch'
+            key :description, 'Last Name of Veteran being represented'
             key :example, 'Doe'
             key :required, true
             key :type, :string
@@ -55,7 +55,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Birth-Date'
             key :in, :header
-            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :example, '1954-12-15'
             key :required, true
             key :type, :string
@@ -64,7 +64,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-EDIPI'
             key :in, :header
-            key :description, 'EDIPI Number of Veteran to fetch'
+            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -133,7 +133,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
-            key :description, 'SSN of Veteran to fetch'
+            key :description, 'SSN of Veteran being represented'
             key :example, '123121234'
             key :required, true
             key :type, :string
@@ -142,7 +142,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-First-Name'
             key :in, :header
-            key :description, 'First Name of Veteran to fetch'
+            key :description, 'First Name of Veteran being represented'
             key :example, 'John'
             key :required, true
             key :type, :string
@@ -151,7 +151,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Last-Name'
             key :in, :header
-            key :description, 'Last Name of Veteran to fetch'
+            key :description, 'Last Name of Veteran being represented'
             key :example, 'Doe'
             key :required, true
             key :type, :string
@@ -160,7 +160,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Birth-Date'
             key :in, :header
-            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :example, '1954-12-15'
             key :required, true
             key :type, :string
@@ -169,7 +169,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-EDIPI'
             key :in, :header
-            key :description, 'EDIPI Number of Veteran to fetch'
+            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end

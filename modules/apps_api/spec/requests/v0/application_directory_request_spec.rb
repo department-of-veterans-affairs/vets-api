@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../app/controllers/apps_api/v0/directory_controller.rb'
+require_relative '../../../app/controllers/apps_api/v0/directory_controller'
 
 RSpec.describe 'Application Directory Endpoint', type: :request do
   let(:auth_string) { 'blah' }
