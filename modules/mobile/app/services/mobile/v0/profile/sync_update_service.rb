@@ -43,6 +43,15 @@ module Mobile
           end
         end
 
+        def await_vet360_account_link
+          initial_transaction = V0::Profile::PersonsController.new.initialize_vet360_id
+          return initial_transaction unless initial_transaction.transaction_status == TRANSACTION_RECEIVED
+
+          poll_with_backoff do
+            check_transaction_status!(initial_transaction.transaction_id)
+          end
+        end
+
         private
 
         def save!(http_method, resource_type, params)

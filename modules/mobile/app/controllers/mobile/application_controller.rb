@@ -45,6 +45,8 @@ module Mobile
 
       session_manager = IAMSSOeOAuth::SessionManager.new(access_token)
       @current_user = session_manager.find_or_create_user
+      link_user_with_vets360 unless user.vet360_id.present?
+      @current_user
     end
 
     def access_token
@@ -53,6 +55,27 @@ module Mobile
 
     def raise_unauthorized(detail)
       raise Common::Exceptions::Unauthorized.new(detail: detail)
+    end
+
+    def link_user_with_vets360
+      account_uuid = @current_user.account_uuid
+      unless vet360_link_locked?(account_uuid)
+        lock_vets360_link(account_uuid)
+        Mobile::Vets360LinkingJob.perform_async(@current_user)
+      end
+    end
+
+    def vets360_link_lock
+      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:mobile_vets360_account_link][:namespace], redis: Redis.current)
+    end
+
+    def lock_vets360_link(account_uuid)
+      vets360_link_lock.set(account_uuid, 1)
+      vets360_link_lock.expire(account_uuid, REDIS_CONFIG[:mobile_vets360_account_link][:each_ttl])
+    end
+
+    def vet360_link_locked?(account_uuid)
+      !vets360_link_lock.get(account_uuid).nil?
     end
   end
 end

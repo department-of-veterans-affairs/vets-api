@@ -117,7 +117,9 @@ development: &defaults
   iam_user_identity:
     namespace: iam-user-identity
     each_ttl: 1800
-
+  mobile_vets360_account_link:
+    namespace: mobile-vets360-account-link
+    each_ttl: 180
 test:
   <<: *defaults
   redis:
