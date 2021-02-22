@@ -9,8 +9,8 @@ require_dependency 'vba_documents/multipart_parser'
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures
 
-  #need a larger limit for sending raw data (base_64 for example)
-  Rack::Utils.key_space_limit = 65536 * 5
+  # need a larger limit for sending raw data (base_64 for example)
+  Rack::Utils.key_space_limit = 65_536 * 5
   SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
 
   def build_fixture(fixture, is_metadata = false)
@@ -46,7 +46,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     after(:each) do
       guid = @attributes['guid']
       upload = VBADocuments::UploadFile.find_by_guid(guid)
-      expect(upload.uploaded?).to be_truthy
+      expect(upload).to be_uploaded
     end
 
     it 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do

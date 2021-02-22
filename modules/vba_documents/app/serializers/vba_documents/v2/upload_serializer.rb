@@ -10,7 +10,6 @@ module VBADocuments
         attrs.delete(:location)
         attrs
       end
-
     end
   end
 end

@@ -84,6 +84,5 @@ module VBADocuments
         map_error(response.status, response.body, VBADocuments::UploadError)
       end
     end
-
   end
 end

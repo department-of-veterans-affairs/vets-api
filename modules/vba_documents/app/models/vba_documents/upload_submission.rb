@@ -19,7 +19,6 @@ module VBADocuments
 
     after_save :report_errors
 
-
     def self.fake_status(guid)
       empty_submission = OpenStruct.new(guid: guid,
                                         status: 'error',
