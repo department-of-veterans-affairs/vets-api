@@ -3,7 +3,7 @@
 require 'sidekiq'
 
 module VAForms
-  # rubocop:disable Metrics/MethodLength
+  # rubocop:disable ClassLength
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
@@ -25,8 +25,7 @@ module VAForms
       rescue => e
         log_message_to_sentry(
           "#{form['fieldVaFormNumber']} failed to import into forms database",
-          :error,
-          body: e.message
+          :error, body: e.message
         )
         next
       end
@@ -132,5 +131,4 @@ module VAForms
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
     end
   end
-  # rubocop:enable Metrics/MethodLength
 end
