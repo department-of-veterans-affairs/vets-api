@@ -5,8 +5,7 @@ require 'common/exceptions/serializable_error'
 
 module Common
   module Exceptions
-    # Validation Error - an ActiveModel having validation errors, can be sent to this exception
-    class OidcServiceError < BaseError
+    class OpenIdServiceError < BaseError
       attr_reader :detail
 
       def initialize(options = {})
