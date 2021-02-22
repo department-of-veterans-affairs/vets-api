@@ -16,9 +16,11 @@ class IAMUser < ::User
   attribute :iam_icn, String
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
+  attribute :iam_mhv_id, String
 
   # MPI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
   alias mhv_icn iam_icn
+  alias mhv_correlation_id iam_mhv_id
 
   # Builds an user instance from a IAMUserIdentity
   #
@@ -52,6 +54,18 @@ class IAMUser < ::User
 
   def sec_id
     identity.iam_sec_id || va_profile&.sec_id
+  end
+
+  def mhv_account_type
+    MHVAccountTypeService.new(self).mhv_account_type
+  end
+
+  # This is not the correct way of determining VA patient status,
+  # but it works for authorizing access for existing MHV premium users
+  # If we are going to enable account creation/upgrade, then we'll need
+  # to  derive the list of facilities from the IAM introspection payload.
+  def va_patient?
+    mhv_correlation_id.present?
   end
 
   def set_expire

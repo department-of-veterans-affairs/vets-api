@@ -45,6 +45,7 @@ class Form526Submission < ApplicationRecord
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
+  BIRLS_KEY = 'va_eauth_birlsfilenumber'
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
@@ -136,7 +137,7 @@ class Form526Submission < ApplicationRecord
   #   birls_id => [timestamp, timestamp, ...], # in practice, will be only 1 timestamp
   #   ...
   # }
-  # where each timestamp notes when a submissison job (start) was started 
+  # where each timestamp notes when a submissison job (start) was started
   # with that BIRLS id (birls_id_tried keeps track of which BIRLS id
   # have been tried so far).
   # add_birls_ids does not overwrite birls_ids_tried.
@@ -171,6 +172,21 @@ class Form526Submission < ApplicationRecord
   def birls_ids_that_havent_been_tried_yet
     add_birls_ids birls_id if birls_id
     (birls_ids_tried || {}).select { |_id, timestamps| timestamps.blank? }.keys
+  end
+
+  def birls_id!
+    auth_headers[BIRLS_KEY]
+  end
+
+  def birls_id
+    birls_id! if auth_headers_json
+  end
+
+  def birls_id=(value)
+    headers = JSON.parse(auth_headers_json) || {}
+    headers[BIRLS_KEY] = value
+    self.auth_headers_json = headers.to_json
+    @auth_headers_hash = nil # reset cache
   end
 
   # The workflow batch success handler
