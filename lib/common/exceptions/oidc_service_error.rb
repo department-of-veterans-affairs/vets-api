@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 require 'common/exceptions/base_error'
