@@ -34,8 +34,17 @@ module OIDC
 
     def get_metadata_endpoint(iss)
       metadata_endpoint = Settings.oidc.issuers.find { |s| iss.downcase.start_with? s['prefix'].downcase }
+      raise error_klass('Invalid issuer') unless valid_metadata_config?(metadata_endpoint)
+
       proxied_iss = iss.gsub(metadata_endpoint['prefix'], metadata_endpoint['proxy'])
       proxied_iss + metadata_endpoint['metadata']
+    end
+
+    private
+
+    def valid_metadata_config?(metadata_endpoint)
+      !metadata_endpoint.nil? && !metadata_endpoint['prefix'].nil? &&
+        !metadata_endpoint['metadata'].nil? && !metadata_endpoint['proxy'].nil?
     end
   end
 end
