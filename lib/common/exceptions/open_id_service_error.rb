@@ -8,14 +8,18 @@ module Common
     # Validation Error - an ActiveModel having validation errors, can be sent to this exception
     class OpenIdServiceError < BaseError
       attr_reader :detail
+      attr_reader :code
+      attr_reader :status
 
       def initialize(options = {})
         @detail = options[:detail]
+        @code = options[:code]
+        @status = options[:status]
         @source = options[:source]
       end
 
       def errors
-        Array(SerializableError.new(i18n_data.merge(detail: @detail, source: @source)))
+        Array(SerializableError.new(i18n_data.merge(detail: @detail, code: @code, status: @status, source: @source)))
       end
     end
   end
