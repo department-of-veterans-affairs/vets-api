@@ -8,7 +8,7 @@ shared_examples 'a monitored worker' do |_options|
   end
 
   it 'requires a parameter for notify' do
-    expect{ described_class.new.notify }
+    expect { described_class.new.notify }
       .to raise_error(ArgumentError, 'wrong number of arguments (given 0, expected 1)')
   end
 
