@@ -113,7 +113,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       @attributes = json['data']['attributes']
       expect(@attributes['status']).to eq('error')
       expect(@attributes['code']).to eq('DOC101')
-      expect(@attributes['detail']).to eq("Missing content-type header")
+      expect(@attributes['detail']).to eq('Missing content-type header')
     end
 
     it 'returns an error when an attachment is missing' do
@@ -124,7 +124,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       @attributes = json['data']['attributes']
       expect(@attributes['status']).to eq('error')
       expect(@attributes['code']).to eq('DOC101')
-      expect(@attributes['detail']).to eq("Missing content-type header")
+      expect(@attributes['detail']).to eq('Missing content-type header')
     end
 
     context 'with invalid metadata' do
