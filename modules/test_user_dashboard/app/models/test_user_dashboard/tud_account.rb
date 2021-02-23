@@ -15,5 +15,41 @@ module TestUserDashboard
     def available?
       checkout_time.nil?
     end
+
+    def services
+      profile.services
+    end
+
+    private
+
+    def uuid
+      1234
+    end
+
+    def user_identity
+      unless identity = UserIdentity.find(uuid)
+        identity = UserIdentity.create(uuid:       1234,
+                                       email:      email,
+                                       first_name: first_name,
+                                       last_name:  last_name,
+                                       gender:     gender,
+                                       birth_date: birth_date.to_s(:iso_8601),
+                                       ssn:        ssn,
+                                       loa:        {lowest: 1, highest: 3})
+      end
+      identity
+    end
+
+    def user
+      User.new(uuid: uuid)
+    end
+
+    def profile
+      Users::Profile.new(user).pre_serialize
+    end
+
+    def mpi_profile
+      MPI::Service.new.find_profile(user_identity).profile
+    end
   end
 end
