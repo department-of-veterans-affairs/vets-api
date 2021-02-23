@@ -16,33 +16,39 @@ module HealthQuest
       #   @return [FHIR::Meta]
       # @!attribute data
       #   @return [Hash]
-      # @!attribute author_reference
+      # @!attribute source_reference
       #   @return [FHIR::Reference]
-      # @!attribute questionnaire_reference
+      # @!attribute subject_reference
       #   @return [FHIR::Reference]
       class Resource
-        include PatientGeneratedData::Common::IdentityMetaInfo
+        include Shared::IdentityMetaInfo
         ##
         # Set the QuestionnaireResponse's status
         #
         COMPLETED_STATUS = 'completed'
         ##
-        # Set the QuestionnaireResponse's subject use
-        #
-        SUBJECT_USE = 'usual'
-        ##
         # Set the default Questionnaire ID
         #
         DEFAULT_QUESTIONNAIRE_ID = '1776c749-91b8-4f33-bece-a5a72f3bb09b'
+        ##
+        # Set the default Questionnaire Title if one is not present
+        #
+        DEFAULT_QUESTIONNAIRE_TITLE = 'Pre-Visit Questionnaire'
 
-        attr_reader :user, :model, :identifier, :meta, :data, :author_reference, :questionnaire_reference
+        attr_reader :user,
+                    :model,
+                    :identifier,
+                    :meta,
+                    :data,
+                    :source_reference,
+                    :subject_reference
 
         ##
-        # Builds a PatientGeneratedData::Patient::Resource instance from a given User
+        # Builds a HealthApi::Patient::Resource instance from a given User
         #
         # @param data [Hash] questionnaire answers and appointment data hash.
         # @param user [User] the currently logged in user.
-        # @return [PatientGeneratedData::Patient::Resource] an instance of this class
+        # @return [HealthApi::Patient::Resource] an instance of this class
         #
         def self.manufacture(data, user)
           new(data, user)
@@ -54,8 +60,8 @@ module HealthQuest
           @user = user
           @identifier = FHIR::Identifier.new
           @meta = FHIR::Meta.new
-          @author_reference = FHIR::Reference.new
-          @questionnaire_reference = FHIR::Reference.new
+          @source_reference = FHIR::Reference.new
+          @subject_reference = FHIR::Reference.new
         end
 
         ##
@@ -65,15 +71,15 @@ module HealthQuest
         #
         def prepare
           model.tap do |p|
-            p.identifier = set_identifiers
-            p.meta = set_meta
-            p.text = set_text
-            p.status = COMPLETED_STATUS
             p.authored = set_date
-            p.author = set_author
-            p.subject = set_subject
-            p.questionnaire = set_questionnaire
+            p.identifier = set_identifiers
             p.item = set_item
+            p.meta = set_meta
+            p.questionnaire = set_questionnaire
+            p.source = set_source
+            p.subject = set_subject
+            p.status = set_status
+            p.text = set_text
           end
         end
 
@@ -85,51 +91,58 @@ module HealthQuest
         def set_text
           {
             status: 'generated',
-            div: '<div><h1>Pre-Visit Questionnaire</h1></div>'
+            div: "<div><h1>#{questionnaire_title}</h1></div>"
           }
         end
 
         ##
-        # Sets the author reference for the FHIR::Reference object.
+        # Builds the subject reference.
         #
-        # @return [FHIR::Reference] a reference for the author
-        #
-        def set_author
-          author_reference.reference = "Patient/#{user.icn}"
-        end
-
-        ##
-        # Builds the subject hash attribute for the FHIR::QuestionnaireResponse object.
-        #
-        # @return [Hash] subject information
+        # @return [FHIR::Reference]
         #
         def set_subject
-          url = Settings.hqva_mobile.url
-          icn = user.icn
-          appointment_id = data[:appointment_id]
-
-          {
-            use: SUBJECT_USE,
-            value: "#{url}/appointments/v1/patients/#{icn}/Appointment/#{appointment_id}"
-          }
+          appointment_id = data.dig(:appointment, :id)
+          subject_reference.reference = "#{health_api_url_path}/Appointment/#{appointment_id}"
+          subject_reference
         end
 
         ##
-        # Sets the questionnaire reference for the FHIR::Reference object.
+        # Builds the source reference.
         #
-        # @return [FHIR::Reference] a reference for the questionnaire
+        # @return [FHIR::Reference]
+        #
+        def set_source
+          source_reference.reference = "#{health_api_url_path}/Patient/#{user.icn}"
+          source_reference
+        end
+
+        ##
+        # Builds the questionnaire id.
+        #
+        # @return [String]
         #
         def set_questionnaire
-          questionnaire_reference.reference = "Questionnaire/#{DEFAULT_QUESTIONNAIRE_ID}"
+          questionnaire_id = data.dig(:questionnaire, :id) || DEFAULT_QUESTIONNAIRE_ID
+
+          "Questionnaire/#{questionnaire_id}"
         end
 
         ##
         # Builds the item array attribute for the FHIR::QuestionnaireResponse object.
         #
-        # @return [Array] item information
+        # @return [Array]
         #
         def set_item
           data[:item]
+        end
+
+        ##
+        # Returns the questionnaire's title.
+        #
+        # @return [String]
+        #
+        def questionnaire_title
+          data.dig(:questionnaire, :title) || DEFAULT_QUESTIONNAIRE_TITLE
         end
 
         ##
@@ -139,6 +152,15 @@ module HealthQuest
         #
         def set_date
           Time.zone.today.to_s
+        end
+
+        ##
+        # Returns the completed status.
+        #
+        # @return [String]
+        #
+        def set_status
+          COMPLETED_STATUS
         end
 
         ##
@@ -157,6 +179,15 @@ module HealthQuest
         #
         def identifier_code
           'QuestionnaireResponseID'
+        end
+
+        private
+
+        def health_api_url_path
+          url = Settings.hqva_mobile.lighthouse.url
+          health_api_path = Settings.hqva_mobile.lighthouse.health_api_path
+
+          "#{url}#{health_api_path}"
         end
       end
     end
