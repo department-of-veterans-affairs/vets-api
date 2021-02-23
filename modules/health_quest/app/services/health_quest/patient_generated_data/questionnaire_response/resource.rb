@@ -102,8 +102,8 @@ module HealthQuest
         #
         def set_subject
           appointment_id = data.dig(:appointment, :id)
-
           subject_reference.reference = "#{health_api_url_path}/Appointment/#{appointment_id}"
+          subject_reference
         end
 
         ##
@@ -113,6 +113,7 @@ module HealthQuest
         #
         def set_source
           source_reference.reference = "#{health_api_url_path}/Patient/#{user.icn}"
+          source_reference
         end
 
         ##
