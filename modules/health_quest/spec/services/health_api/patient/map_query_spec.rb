@@ -35,6 +35,12 @@ describe HealthQuest::HealthApi::Patient::MapQuery do
     end
   end
 
+  describe '#api_query_path' do
+    it 'returns the health api path' do
+      expect(subject.new(session_store).api_query_path).to eq('/services/fhir/v0/r4')
+    end
+  end
+
   describe '#get' do
     context 'with valid id' do
       let(:client) { double('HealthQuest::Lighthouse::FHIRClient') }
