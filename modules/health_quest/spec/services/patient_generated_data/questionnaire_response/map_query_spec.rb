@@ -36,6 +36,12 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery do
     end
   end
 
+  describe '#api_query_path' do
+    it 'returns the pgd api path' do
+      expect(subject.new(session_store).api_query_path).to eq('/services/pgd/v0/r4')
+    end
+  end
+
   describe '#search' do
     context 'with valid options' do
       let(:options) do
