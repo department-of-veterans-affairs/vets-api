@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+require 'appeals_api/sidekiq_retry_notifier'
+
+module AppealsApi
+  RSpec.describe SidekiqRetryNotifier do
+    describe '.notify!' do
+      let(:params) do
+        {
+          'class' => 'HigherLevelReviewPdfSubmitJob',
+          'retry_count' => 2,
+          'error_class' => 'RuntimeError',
+          'error_message' => '',
+          'failed_at' => 1613670737.966083,
+          'retried_at' => 1613680062.5507782
+        }
+      end
+      it 'sends a network request' do
+        text = SidekiqRetryNotifier.message_text(params)
+
+        allow(Faraday).to receive(:post).with(SidekiqRetryNotifier::WEBHOOK_URL, text)
+
+        SidekiqRetryNotifier.notify!(params)
+
+        expect(Faraday).to have_received(:post).with(SidekiqRetryNotifier::WEBHOOK_URL, text)
+      end
+    end
+  end
+end

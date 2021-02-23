@@ -4,7 +4,7 @@ require 'common/client/base'
 
 module AppealsApi
   class SidekiqRetryNotifier
-    WEBHOOK_URL = 'https://hooks.slack.com/services/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'
+    WEBHOOK_URL = "https://hooks.slack.com/services/#{Settings.modules_appeals_api.slack_sidekiq_webhook_creds}"
 
     def self.notify!(params)
       Faraday.post(WEBHOOK_URL, message_text(params))
