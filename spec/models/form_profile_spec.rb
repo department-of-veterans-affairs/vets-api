@@ -9,7 +9,7 @@ RSpec.describe FormProfile, type: :model do
 
   before do
     user.va_profile.suffix = 'Jr.'
-    user.va_profile.address.country = 'USA'
+    user.address.country = 'USA'
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -52,10 +52,10 @@ RSpec.describe FormProfile, type: :model do
     {
       'street' => street_check[:street],
       'street2' => street_check[:street2],
-      'city' => user.va_profile[:address][:city],
-      'state' => user.va_profile[:address][:state],
-      'country' => user.va_profile[:address][:country],
-      'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      'city' => user.address.city,
+      'state' => user.address.state,
+      'country' => user.address.country,
+      'postal_code' => user.address.postal_code[0..4]
     }
   end
 

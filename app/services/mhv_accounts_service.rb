@@ -94,13 +94,13 @@ class MHVAccountsService
   end
 
   def address_params
-    if user.va_profile&.address.present?
+    if user.address.present?
       {
-        address1: user.va_profile.address.street,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        zip: user.va_profile.address.postal_code,
-        country: user.va_profile.address.country
+        address1: user.address.street,
+        city: user.address.city,
+        state: user.address.state,
+        zip: user.address.postal_code,
+        country: user.address.country
       }
     else
       {}

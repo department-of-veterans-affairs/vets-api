@@ -404,6 +404,10 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to eq(Date.parse(user.va_profile.birth_date).iso8601)
         end
 
+        it 'fetches address from MPI' do
+          expect(user.address).to eq(user.va_profile.address)
+        end
+
         it 'fetches zip from MVI' do
           expect(user.zip).to be(user.va_profile.address.postal_code)
         end

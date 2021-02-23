@@ -107,6 +107,10 @@ class User < Common::RedisStore
     Formatters::DateFormatter.format_date(birth_date)
   end
 
+  def address
+    mpi.profile&.address
+  end
+
   def zip
     identity.zip || (mhv_icn.present? ? mpi&.profile&.address&.postal_code : nil)
   end
