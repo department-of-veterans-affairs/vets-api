@@ -2,7 +2,7 @@
 
 require 'appeals_api/sidekiq_retry_notifier'
 
-shared_examples 'a monitored worker' do |options|
+shared_examples 'a monitored worker' do |_options|
   it 'defines #notify' do
     expect(described_class.new.respond_to?(:notify)).to eq(true)
   end
