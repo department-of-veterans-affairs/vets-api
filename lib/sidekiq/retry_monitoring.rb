@@ -5,7 +5,7 @@ module Sidekiq
     def call(worker, params, _queue)
       worker.notify(params) if should_notify?(worker, params)
     rescue => e
-      Rails.logger.error e
+      ::Rails.logger.error e
     ensure
       yield
     end

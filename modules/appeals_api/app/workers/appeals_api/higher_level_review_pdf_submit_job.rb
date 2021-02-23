@@ -34,7 +34,7 @@ module AppealsApi
     end
 
     def notify(retry_params)
-      SidekiqRetryNotifier.notify!(retry_params)
+      AppealsApi::SidekiqRetryNotifier.notify!(retry_params)
     end
 
     private
