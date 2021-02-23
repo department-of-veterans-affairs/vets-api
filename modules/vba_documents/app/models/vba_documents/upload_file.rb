@@ -43,7 +43,6 @@ module VBADocuments
 
     # Useful in the rails console during forensic analysis
     # Calling parses and uploads the PDFs / metadata.
-    # rubocop:disable Rails/Output
     def parse_and_upload!
       parsed = multipart.open do |file|
         VBADocuments::MultipartParser.parse(file.path)
@@ -54,11 +53,7 @@ module VBADocuments
         parsed_files.attach(io: File.open(parsed[k]), filename: guid + '_' + "#{k}.pdf")
       end
       save!
-      puts 'Your files have been uploaded!'
-      puts "Don't forget to cleanup when done by running:"
-      puts "UploadFile.find_by_guid(\'#{guid}\').parsed_files.purge"
     end
-    # rubocop:enable Rails/Output
 
     private
 
