@@ -217,4 +217,34 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
   end
+
+  context 'Isolated Issuers Corner Cases' do
+    before do
+      allow(JWT).to receive(:decode).and_return(jwt)
+      Session.create(token: token, uuid: user.uuid)
+      user.save
+    end
+
+    it 'invalid prefix' do
+      with_okta_configured do
+        with_settings(Settings.oidc.issuers.first, prefix: 'https://example.bad.com/') do
+          post '/internal/auth/v1/validation', params: nil, headers: auth_header
+          expect(response).to have_http_status(:unauthorized)
+          expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+          expect(JSON.parse(response.body)['errors'].first['status']).to eq '401'
+        end
+      end
+    end
+
+    it 'invalid proxy' do
+      with_okta_configured do
+        with_settings(Settings.oidc.issuers.first, proxy: 'https://example.bad.com/') do
+          post '/internal/auth/v1/validation', params: nil, headers: auth_header
+          expect(response).to have_http_status(:not_found)
+          expect(JSON.parse(response.body)['errors'].first['code']).to eq '404'
+          expect(JSON.parse(response.body)['errors'].first['status']).to eq '404'
+        end
+      end
+    end
+  end
 end
