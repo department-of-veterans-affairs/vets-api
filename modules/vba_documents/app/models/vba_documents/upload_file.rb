@@ -25,6 +25,17 @@ module VBADocuments
       uploaded
     end
 
+    def save!(*, **)
+      if Settings.vba_documents.instrument
+        t1 = Time.zone.now
+        super
+        t2 = Time.zone.now
+        Rails.logger.info("I took #{t2 - t1} seconds for guid #{guid}")
+      else
+        super
+      end
+    end
+
     def remove_from_storage
       multipart.purge
       update(s3_deleted: true)
