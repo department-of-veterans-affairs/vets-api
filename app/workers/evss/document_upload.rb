@@ -12,7 +12,7 @@ class EVSS::DocumentUpload
     client = EVSS::DocumentsService.new(auth_headers)
     uploader = EVSSClaimDocumentUploader.new(user_uuid, document.uploader_ids)
     uploader.retrieve_from_store!(document.file_name)
-    file_body = uploader.read_for_upload
+    file_body = uploader.read
     client.upload(file_body, document)
     uploader.remove!
   end

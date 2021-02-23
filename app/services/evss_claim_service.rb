@@ -45,8 +45,8 @@ class EVSSClaimService
   def upload_document(evss_claim_document)
     uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.uploader_ids)
     uploader.store!(evss_claim_document.file_obj)
-    # the uploader sanitizes the filename before storing, so set our doc to match
-    evss_claim_document.file_name = uploader.final_filename
+    # the uploader may change the filename (see EVSSClaimDocumentUploader#fix_file_extension_and_convert_tiff_to_jpg)
+    evss_claim_document.file_name = uploader.filename
     EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
   rescue CarrierWave::IntegrityError => e
     log_exception_to_sentry(e, nil, nil, 'warn')

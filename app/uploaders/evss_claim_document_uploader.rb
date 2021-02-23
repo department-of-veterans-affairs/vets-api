@@ -10,13 +10,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     1.byte...150.megabytes
   end
 
-  version :converted, if: :tiff? do
-    process(convert: :jpg)
-
-    def full_filename(file)
-      "converted_#{file}.jpg"
-    end
-  end
+  process :fix_file_extension_and_convert_tiff_to_jpg
 
   def initialize(user_uuid, ids)
     # carrierwave allows only 2 arguments, which they will pass onto
@@ -26,26 +20,6 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     @user_uuid = user_uuid
     @ids = ids
     set_storage_options!
-  end
-
-  def converted_exists?
-    converted.present? && converted.file.exists?
-  end
-
-  def final_filename
-    if converted_exists?
-      converted.file.filename
-    else
-      filename
-    end
-  end
-
-  def read_for_upload
-    if converted_exists?
-      converted.read
-    else
-      read
-    end
   end
 
   def store_dir
@@ -66,10 +40,6 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   private
 
-  def tiff?(file)
-    file.content_type == 'image/tiff'
-  end
-
   def set_storage_options!
     if Settings.evss.s3.uploads_enabled
       set_aws_config(
@@ -81,5 +51,37 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     else
       self.class.storage = :file
     end
+  end
+
+  def fix_file_extension_and_convert_tiff_to_jpg
+    file_metadata = file_metadata_from_binary_inspection
+
+    string_to_append_to_filename = if file_metadata&.type == file_metadata_from_filename&.type
+                                     nil
+                                   else
+                                     extension = file_metadata&.extensions&.type
+                                     ".#{extension}" if extension
+                                   end
+
+    if file_metadata&.type == 'image/tiff'
+      convert :jpg
+      string_to_append_to_filename = '.jpg'
+    end
+
+    define_singleton_method :filename do
+      "#{super()}#{string_to_append_to_filename}" if super()
+    end
+  end
+
+  def file_metadata_from_filename
+    MimeMagic.by_path path if path
+  end
+
+  def file_metadata_from_binary_inspection
+    file_obj = file&.to_file
+
+    MimeMagic.by_magic file_obj if file_obj
+  ensure
+    file_obj&.close
   end
 end
