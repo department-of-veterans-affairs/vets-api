@@ -18,11 +18,11 @@ describe AppealsApi::Uploads::DocumentValidation do
 
     context 'when unsupported file type uploaded' do
       it 'raises an error when non-pdf file type' do
-        expect { described_class.new(non_pdf).validate }.to raise_error AppealsApi::Uploads::DocumentValidation::UploadValidationError
+        expect { described_class.new(non_pdf).validate }.to raise_error PdfInfo::MetadataReadError
       end
 
       it 'raises an exception if pdf extension but wrong type' do
-        expect { described_class.new(pretend_pdf).validate }.to raise_error AppealsApi::Uploads::DocumentValidation::UploadValidationError
+        expect { described_class.new(pretend_pdf).validate }.to raise_error PdfInfo::MetadataReadError
       end
     end
 

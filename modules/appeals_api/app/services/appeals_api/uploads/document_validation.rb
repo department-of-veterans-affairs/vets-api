@@ -10,28 +10,25 @@ module AppealsApi
       end
 
       def validate
-        raise UploadValidationError, non_pdf_error unless document_is_pdf?
-        raise UploadValidationError, max_dimension_error unless valid_page_dimensions?
+        pdf_metadata_present?
         raise UploadValidationError, file_size_error unless valid_file_size?
+        raise UploadValidationError, max_dimension_error unless valid_page_dimensions?
       end
 
-      def document_is_pdf?
+      private
+
+      def pdf_metadata_present?
         @pdf_metadata = PdfInfo::Metadata.read(@document)
-      rescue PdfInfo::MetadataReadError => e
-        raise UploadValidationError, e
-      end
-
-      def valid_page_dimensions?
-        dimensions = @pdf_metadata.page_size_inches
-        dimensions[:height] <= 11 && dimensions[:width] <= 11
+        @pdf_metadata.present?
       end
 
       def valid_file_size?
         File.size(@document) <= 100.megabytes
       end
 
-      def non_pdf_error
-        I18n.t('appeals_api.uploads.non_pdf_error')
+      def valid_page_dimensions?
+        dimensions = @pdf_metadata.page_size_inches
+        dimensions[:height] <= 11 && dimensions[:width] <= 11
       end
 
       def max_dimension_error

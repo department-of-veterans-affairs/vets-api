@@ -9,4 +9,3 @@ en:
       uploads:
         max_dimensions_error: "File exceeds the maximum page dimensions of %{max_dimensions}"
         max_file_size_error: "File cannot exceed a file size of %{max_file_size}"
-        non_pdf_error: "File must be in PDF format"
