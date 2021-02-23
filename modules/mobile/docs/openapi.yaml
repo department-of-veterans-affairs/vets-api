@@ -84,6 +84,12 @@ paths:
             type: datetime
           description: The end date for the range of appointments in ISO 8601 UTC format
           example: 2021-11-29T08:00:00.000Z
+        - in: query
+          name: useCache
+          schema:
+            type: boolean
+          description: Whether or not to use the upstream VAOS service's cache of appointments
+          example: 2021-11-29T08:00:00.000Z
       responses:
         '200':
           description: OK
@@ -119,6 +125,12 @@ paths:
                 $ref: "./schemas/Errors.yml"
         '408':
           description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Validation Error.
           content:
             application/json:
               schema:
@@ -1961,7 +1973,7 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-  /v0/messaging/health/messages{id}:
+  /v0/messaging/health/messages/{id}:
     get:
       summary: /v0/messaging/health/messages/{id}
       description: Get a secure message and mark message as read
@@ -1974,6 +1986,40 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/SecureMessageDetail.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages/{id}/attachments/{attachment_id}:
+    get:
+      summary: /v0/messaging/health/messages/{id}/attachments/{attachment_id}
+      description: > 
+        Get a secure message attachment content as a direct binary download. 
+        Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
+
+      operationId: getMessageAttachment
+      security: 
+        - Bearer: []
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              schema: 
+                type: string
+              description: >
+                This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
         '401':
           content:
             application/json:

@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+
 require_dependency 'vba_documents/multipart_parser'
 module VBADocuments
   class UploadFile < UploadSubmission
     has_one_attached  :multipart_file
-    has_many_attached :parsed_files #see parse_and_upload! below (this field is generally unused).
-    alias_method :multipart, :multipart_file
+    has_many_attached :parsed_files # see parse_and_upload! below (this field is generally unused).
+    alias multipart multipart_file
     before_save :set_blob_key
     after_save :update_upload_submission
     after_find :validate_type
@@ -15,28 +16,13 @@ module VBADocuments
     end
 
     def validate_type
-      if !use_active_storage
-        raise TypeError.new("This guid #{guid} can only be instantiated as an UploadSubmission!")
-      end
+      raise TypeError, "This guid #{guid} can only be instantiated as an UploadSubmission!" unless use_active_storage
     end
 
     def uploaded?
       uploaded = false
-      if(multipart.attached?)
-        uploaded = !multipart.blob.id.nil?
-      end
+      uploaded = !multipart.blob.id.nil? if multipart.attached?
       uploaded
-    end
-
-    def save!(*, **)
-      if Settings.vba_documents.instrument
-        t1 = Time.zone.now
-        super
-        t2 = Time.zone.now
-        Rails.logger.info("I took #{t2 - t1} seconds for guid #{guid}")
-      else
-        super
-      end
     end
 
     def remove_from_storage
@@ -46,6 +32,7 @@ module VBADocuments
 
     # Useful in the rails console during forensic analysis
     # Calling parses and uploads the PDFs / metadata.
+    # rubocop:disable Rails/Output
     def parse_and_upload!
       parsed = multipart.open do |file|
         VBADocuments::MultipartParser.parse(file.path)
@@ -60,13 +47,12 @@ module VBADocuments
       puts "Don't forget to cleanup when done by running:"
       puts "UploadFile.find_by_guid(\'#{guid}\').parsed_files.purge"
     end
+    # rubocop:enable Rails/Output
 
     private
 
     def set_blob_key
-      if multipart.attached?
-        multipart.blob.key = guid.to_s
-      end
+      multipart.blob.key = guid.to_s if multipart.attached?
       if parsed_files.attached?
         parsed_files.each do |file|
           file.blob.key = file.blob.filename.to_s
@@ -75,30 +61,7 @@ module VBADocuments
     end
 
     def update_upload_submission
-      if (status.eql?('pending') && uploaded?)
-        update(status: 'uploaded')
-      end
+      update(status: 'uploaded') if status.eql?('pending') && uploaded?
     end
   end
-
 end
-
-=begin
- load('./modules/vba_documents/app/models/vba_documents/upload_file.rb')
- load('./modules/vba_documents/app/models/vba_documents/upload_submission.rb')
-
-include VBADocuments
-f = UploadFile.new
-
-f.multipart.attach(io: StringIO.new("Hello World\n"), filename: f.guid)
-f.multipart.attached?
-f.save!
-
-n = UploadFile.new
-
-n.multipart.attach(io: StringIO.new("Hello World\n"), filename: f.guid)
-n.multipart.attached?
-      parsed = uf.multipart.open do |file|
-        VBADocuments::MultipartParser.parse(file.path)
-      end
-=end

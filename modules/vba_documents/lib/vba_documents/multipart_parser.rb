@@ -15,15 +15,15 @@ module VBADocuments
       end
     end
 
-
+    # rubocop:disable Metrics/MethodLength
     def self.parse_file(infile)
       parts = {}
       begin
-        if infile.is_a? String
-          input = File.open(infile, 'rb')
-        else 
-          input = infile
-        end
+        input = if infile.is_a? String
+                  File.open(infile, 'rb')
+                else
+                  infile
+                end
         validate_size(input)
         lines = input.each_line(LINE_BREAK).lazy.each_with_index
         separator = lines.next[0].chomp(LINE_BREAK)
@@ -38,8 +38,9 @@ module VBADocuments
       ensure
         input.close
       end
-        parts
+      parts
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.base64_encoded(infile)
       if infile.is_a? StringIO
@@ -56,7 +57,7 @@ module VBADocuments
       if infile.is_a? String
         contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile}`
       else
-        #We are a stringio and are in memory.
+        # We are a stringio and are in memory.
         content = infile.read
         infile.rewind
         contents = content.sub %r{data:((multipart)/.{3,}),}, ''
@@ -136,7 +137,7 @@ module VBADocuments
                                                 detail: 'Unexpected end of payload')
           end
           linechomp = line.chomp(LINE_BREAK)
-          if ((linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}"))
+          if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")
             return tf.string, false
           elsif linechomp == separator
             return tf.string, true
@@ -158,7 +159,7 @@ module VBADocuments
                                               detail: 'Unexpected end of payload')
         end
         linechomp = line.chomp(LINE_BREAK)
-        if ((linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}"))
+        if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")
           tf.rewind
           return tf, false
         elsif linechomp == separator

@@ -1,6 +1,3 @@
-# This migration comes from active_storage (originally 20170806125915)
-# todo this file must be removed from this branch and tied to the branch for this ticket
-# todo https://vajira.max.gov/browse/API-5142.  This file is generated via: bin/rails active_storage:install
 class CreateActiveStorageTables < ActiveRecord::Migration[5.2]
   def change
     create_table :active_storage_blobs do |t|

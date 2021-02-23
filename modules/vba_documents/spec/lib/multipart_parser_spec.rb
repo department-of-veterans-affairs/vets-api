@@ -15,18 +15,15 @@ RSpec.describe VBADocuments::MultipartParser do
 
         def fetch(fixture, type)
           r_val = fixture.path
-          if type.eql? :stringio
-            r_val = StringIO.new File.open(r_val, 'rb').read
-          end
+          r_val = StringIO.new File.open(r_val, 'rb').read if type.eql? :stringio
           r_val
         end
       end
 
-      @data_type = [:file, :stringio]
+      @data_type = %i[file stringio]
     end
 
     context 'multipart_data_type' do
-
       FixtureHelper.data_type.each do |file_or_stringio|
         it "parses a valid multipart payload #{file_or_stringio}" do
           valid_doc = FixtureHelper.fetch(get_fixture('valid_multipart_pdf.blob'), file_or_stringio)
@@ -133,9 +130,9 @@ RSpec.describe VBADocuments::MultipartParser do
     doc_hash = data[valid_doc]
 
     check_keys = {
-        pdf_keys: [%i[source doc_type total_documents total_pages content], doc_hash],
-        content_keys: [%i[page_count dimensions attachments], doc_hash[:content]],
-        dimension_keys: [%i[height width oversized_pdf], doc_hash[:content][:dimensions]]
+      pdf_keys: [%i[source doc_type total_documents total_pages content], doc_hash],
+      content_keys: [%i[page_count dimensions attachments], doc_hash[:content]],
+      dimension_keys: [%i[height width oversized_pdf], doc_hash[:content][:dimensions]]
     }
 
     check_keys.each_key do |key|
