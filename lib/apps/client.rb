@@ -4,7 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require_relative 'configuration'
 require_relative 'responses/response'
-require 'cgi'
+require 'erb'
 
 module Apps
   # Proxy Service for Apps API.
@@ -37,7 +37,7 @@ module Apps
     #
     def get_app
       with_monitoring do
-        escaped_code = CGI.escape(@search_term)
+        escaped_code = ERB::Util.url_encode(@search_term)
         raw_response = perform(:get, "directory/#{escaped_code}", nil)
         Apps::Responses::Response.new(raw_response.status, raw_response.body, 'app')
       end
