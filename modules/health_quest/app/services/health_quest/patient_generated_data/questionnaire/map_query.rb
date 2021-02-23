@@ -11,8 +11,8 @@ module HealthQuest
       # @!attribute headers
       #   @return [Hash]
       class MapQuery
-        include PatientGeneratedData::FHIRClient
-        include PatientGeneratedData::FHIRHeaders
+        include Lighthouse::FHIRClient
+        include Lighthouse::FHIRHeaders
 
         attr_reader :access_token, :headers
 
@@ -72,6 +72,15 @@ module HealthQuest
               parameters: options
             }
           }
+        end
+
+        ##
+        # Returns the PGD api path
+        #
+        # @return [String]
+        #
+        def api_query_path
+          Settings.hqva_mobile.lighthouse.pgd_path
         end
       end
     end
