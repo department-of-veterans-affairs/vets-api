@@ -9,6 +9,9 @@ require_dependency 'vba_documents/multipart_parser'
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures
 
+  Settings.vba_documents.v2_upload_endpoint_enabled = true
+  load('./modules/vba_documents/config/routes.rb')
+
   # need a larger limit for sending raw data (base_64 for example)
   Rack::Utils.key_space_limit = 65_536 * 5
   SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
