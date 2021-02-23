@@ -13,14 +13,22 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
 
     it 'works with a va profile transaction' do
       id = va_profile_transaction.id
-      expect(described_class.find_transaction!(va_profile_transaction.user_uuid, va_profile_transaction.transaction_id).id).to eq(
+      expect(
+        described_class.find_transaction!(
+          va_profile_transaction.user_uuid, va_profile_transaction.transaction_id
+        ).id
+      ).to eq(
         id
       )
     end
 
     it 'works with a vet360 transaction' do
       id = vet360_transaction.id
-      expect(described_class.find_transaction!(vet360_transaction.user_uuid, vet360_transaction.transaction_id).id).to eq(
+      expect(
+        described_class.find_transaction!(
+          vet360_transaction.user_uuid, vet360_transaction.transaction_id
+        ).id
+      ).to eq(
         id
       )
     end
@@ -196,7 +204,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
     let(:user) { build(:user, :loa3) }
 
     def last_transactions_by_class
-      described_class.last_ongoing_transactions_for_user(user).map { |t| t.class }
+      described_class.last_ongoing_transactions_for_user(user).map(&:class)
     end
 
     it 'works with vet360 and va profile transactions' do

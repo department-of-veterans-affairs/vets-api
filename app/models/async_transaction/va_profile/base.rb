@@ -28,9 +28,7 @@ module AsyncTransaction
           created_at: :desc
         ).limit(1)
 
-        if transactions.blank?
-          return self.to_s.gsub('VAProfile', 'Vet360').constantize.last_requested.for_user(user)
-        end
+        return to_s.gsub('VAProfile', 'Vet360').constantize.last_requested.for_user(user) if transactions.blank?
 
         transactions
       end
@@ -143,7 +141,9 @@ module AsyncTransaction
           Telephone
           Permission
         ].each do |transaction_type|
-          ongoing_transactions += "AsyncTransaction::VAProfile::#{transaction_type}Transaction".constantize.last_requested_for_user(user)
+          ongoing_transactions += "AsyncTransaction::VAProfile::#{transaction_type}Transaction"
+                                  .constantize
+                                  .last_requested_for_user(user)
         end
 
         ongoing_transactions
