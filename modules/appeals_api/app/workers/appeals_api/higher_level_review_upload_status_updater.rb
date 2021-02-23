@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-include 'sidekiq/monitored_worker'
-include 'appeals_api/sidekiq_retry_notifier'
+require 'sidekiq/monitored_worker'
+require 'appeals_api/sidekiq_retry_notifier'
 
 module AppealsApi
   class HigherLevelReviewUploadStatusUpdater
