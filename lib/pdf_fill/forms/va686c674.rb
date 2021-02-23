@@ -1900,13 +1900,13 @@ module PdfFill
 
       def add_household_income
         net_worth = @form_data.dig('dependents_application', 'household_income')
-        'Did the household have a net worth greater than $130,773 in the last tax year? ' + format_boolean(net_worth)
+        "Did the household have a net worth greater than $130,773 in the last tax year? #{format_boolean(net_worth)}"
       end
 
       def add_dependent_income(dependent_name, dependent_income)
         return '' if dependent_name.blank?
 
-        "\n\nDid #{dependent_name} have an income in the last 365 days? " + format_boolean(dependent_income)
+        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_boolean(dependent_income)}"
       end
 
       def add_dependents(dependents_hash, income_attr)
