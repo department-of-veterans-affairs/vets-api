@@ -21,7 +21,7 @@ describe AppealsApi::CentralMailUpdater do
   end
 
   context 'when verifying status structures' do
-    let(:appeal_statuses) { AppealsApi::CentralMailStatus::STATUSES }
+    let(:appeal_statuses) { AppealsApi::AppealStatus::STATUSES }
 
     it 'fails if one or more CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES keys or values is mismatched' do
       status_hashes = described_class::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.values

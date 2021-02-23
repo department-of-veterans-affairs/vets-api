@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe AppealsApi::CentralMailStatus, type: :concern do
+describe AppealsApi::AppealStatus, type: :concern do
   context 'when verifying model status structures' do
     let(:local_statuses) { subject::STATUSES }
 
