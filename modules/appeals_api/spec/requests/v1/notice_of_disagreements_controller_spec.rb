@@ -71,6 +71,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       it 'returns error objects in JSON API 1.0 ErrorObject format' do
         expected_keys = %w[code detail meta source status title]
         expect(parsed['errors'].first.keys).to include(*expected_keys)
+        expect(parsed['errors'][0]['meta']['missing_fields']).to eq ['address']
         expect(parsed['errors'][0]['source']['pointer']).to eq '/data/attributes/veteran'
       end
     end

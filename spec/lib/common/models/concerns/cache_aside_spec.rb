@@ -8,12 +8,12 @@ describe Common::CacheAside do
   let(:person) { build :person }
 
   before do
-    allow(Vet360::Models::Person).to receive(:build_from).and_return(person)
+    allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
   end
 
   describe '#do_cached_with' do
     let(:person_response) do
-      Vet360::ContactInformation::PersonResponse.from(
+      VAProfile::ContactInformation::PersonResponse.from(
         OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
       )
     end

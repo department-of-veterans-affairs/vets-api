@@ -7,7 +7,7 @@ describe VAProfileRedis::ContactInformation do
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
 
-    Vet360::ContactInformation::PersonResponse.from(raw_response)
+    VAProfile::ContactInformation::PersonResponse.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
   let(:person) { build :person, telephones: telephones, permissions: permissions }
@@ -27,7 +27,7 @@ describe VAProfileRedis::ContactInformation do
   end
 
   before do
-    allow(Vet360::Models::Person).to receive(:build_from).and_return(person)
+    allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
   end
 
   context 'with a 404 from get_person', skip_vet360: true do
@@ -37,11 +37,11 @@ describe VAProfileRedis::ContactInformation do
       allow(Settings.vet360.contact_information).to receive(:cache_enabled).and_return(true)
 
       service = double
-      allow(Vet360::ContactInformation::Service).to receive(:new).with(user).and_return(service)
+      allow(VAProfile::ContactInformation::Service).to receive(:new).with(user).and_return(service)
       expect(service).to receive(:get_person).public_send(
         get_person_calls
       ).and_return(
-        Vet360::ContactInformation::PersonResponse.new(404, person: nil)
+        VAProfile::ContactInformation::PersonResponse.new(404, person: nil)
       )
     end
 
@@ -72,11 +72,11 @@ describe VAProfileRedis::ContactInformation do
     context 'when the cache is empty' do
       it 'caches and return the response', :aggregate_failures do
         allow_any_instance_of(
-          Vet360::ContactInformation::Service
+          VAProfile::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
 
         expect(contact_info.redis_namespace).to receive(:set).once if Settings.vet360.contact_information.cache_enabled
-        expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).twice
+        expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).twice
         expect(contact_info.status).to eq 200
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
@@ -86,7 +86,7 @@ describe VAProfileRedis::ContactInformation do
       it 'returns the cached data', :aggregate_failures do
         contact_info.cache(user.uuid, person_response)
 
-        expect_any_instance_of(Vet360::ContactInformation::Service).not_to receive(:get_person)
+        expect_any_instance_of(VAProfile::ContactInformation::Service).not_to receive(:get_person)
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
     end
@@ -95,95 +95,95 @@ describe VAProfileRedis::ContactInformation do
   describe 'contact information attributes' do
     context 'with a successful response' do
       before do
-        allow(Vet360::Models::Person).to receive(:build_from).and_return(person)
+        allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
         allow_any_instance_of(
-          Vet360::ContactInformation::Service
+          VAProfile::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
       end
 
       describe '#email' do
         it 'returns the users email address object', :aggregate_failures do
           expect(contact_info.email).to eq person.emails.first
-          expect(contact_info.email.class).to eq Vet360::Models::Email
+          expect(contact_info.email.class).to eq VAProfile::Models::Email
         end
       end
 
       describe '#residential_address' do
         it 'returns the users residential address object', :aggregate_failures do
-          residence = address_for Vet360::Models::Address::RESIDENCE
+          residence = address_for VAProfile::Models::Address::RESIDENCE
 
           expect(contact_info.residential_address).to eq residence
-          expect(contact_info.residential_address.class).to eq Vet360::Models::Address
+          expect(contact_info.residential_address.class).to eq VAProfile::Models::Address
         end
       end
 
       describe '#mailing_address' do
         it 'returns the users mailing address object', :aggregate_failures do
-          residence = address_for Vet360::Models::Address::CORRESPONDENCE
+          residence = address_for VAProfile::Models::Address::CORRESPONDENCE
 
           expect(contact_info.mailing_address).to eq residence
-          expect(contact_info.mailing_address.class).to eq Vet360::Models::Address
+          expect(contact_info.mailing_address.class).to eq VAProfile::Models::Address
         end
       end
 
       describe '#home_phone' do
         it 'returns the users home phone object', :aggregate_failures do
-          phone = phone_for Vet360::Models::Telephone::HOME
+          phone = phone_for VAProfile::Models::Telephone::HOME
 
           expect(contact_info.home_phone).to eq phone
-          expect(contact_info.home_phone.class).to eq Vet360::Models::Telephone
+          expect(contact_info.home_phone.class).to eq VAProfile::Models::Telephone
         end
       end
 
       describe '#mobile_phone' do
         it 'returns the users mobile phone object', :aggregate_failures do
-          phone = phone_for Vet360::Models::Telephone::MOBILE
+          phone = phone_for VAProfile::Models::Telephone::MOBILE
 
           expect(contact_info.mobile_phone).to eq phone
-          expect(contact_info.mobile_phone.class).to eq Vet360::Models::Telephone
+          expect(contact_info.mobile_phone.class).to eq VAProfile::Models::Telephone
         end
       end
 
       describe '#work_phone' do
         it 'returns the users work phone object', :aggregate_failures do
-          phone = phone_for Vet360::Models::Telephone::WORK
+          phone = phone_for VAProfile::Models::Telephone::WORK
 
           expect(contact_info.work_phone).to eq phone
-          expect(contact_info.work_phone.class).to eq Vet360::Models::Telephone
+          expect(contact_info.work_phone.class).to eq VAProfile::Models::Telephone
         end
       end
 
       describe '#temporary_phone' do
         it 'returns the users temporary phone object', :aggregate_failures do
-          phone = phone_for Vet360::Models::Telephone::TEMPORARY
+          phone = phone_for VAProfile::Models::Telephone::TEMPORARY
 
           expect(contact_info.temporary_phone).to eq phone
-          expect(contact_info.temporary_phone.class).to eq Vet360::Models::Telephone
+          expect(contact_info.temporary_phone.class).to eq VAProfile::Models::Telephone
         end
       end
 
       describe '#fax_number' do
         it 'returns the users FAX object', :aggregate_failures do
-          phone = phone_for Vet360::Models::Telephone::FAX
+          phone = phone_for VAProfile::Models::Telephone::FAX
 
           expect(contact_info.fax_number).to eq phone
-          expect(contact_info.fax_number.class).to eq Vet360::Models::Telephone
+          expect(contact_info.fax_number.class).to eq VAProfile::Models::Telephone
         end
       end
 
       describe '#text_permission' do
         it 'returns the users text permission object', :aggregate_failures do
-          permission = permission_for Vet360::Models::Permission::TEXT
+          permission = permission_for VAProfile::Models::Permission::TEXT
 
           expect(contact_info.text_permission).to eq permission
-          expect(contact_info.text_permission.class).to eq Vet360::Models::Permission
+          expect(contact_info.text_permission.class).to eq VAProfile::Models::Permission
         end
       end
     end
 
     context 'with an error response' do
       before do
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException
         )
       end
@@ -265,13 +265,13 @@ describe VAProfileRedis::ContactInformation do
       let(:empty_response) do
         raw_response = OpenStruct.new(status: 500, body: nil)
 
-        Vet360::ContactInformation::PersonResponse.from(raw_response)
+        VAProfile::ContactInformation::PersonResponse.from(raw_response)
       end
 
       before do
-        allow(Vet360::Models::Person).to receive(:build_from).and_return(nil)
+        allow(VAProfile::Models::Person).to receive(:build_from).and_return(nil)
         allow_any_instance_of(
-          Vet360::ContactInformation::Service
+          VAProfile::ContactInformation::Service
         ).to receive(:get_person).and_return(empty_response)
       end
 

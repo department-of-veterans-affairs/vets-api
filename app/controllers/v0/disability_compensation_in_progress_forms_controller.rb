@@ -23,11 +23,8 @@ module V0
       # If EVSS's list of rated disabilties does not match our prefilled rated disabilites
       if rated_disabilities_evss.present? &&
          names_arr(prased_form_data.dig('ratedDisabilities')) != names_arr(rated_disabilities_evss.rated_disabilities)
-        # If the user has viewed the rated disabiltiy page the form data ratedDisabilities will have a "view:selected"
-        # key if they've gotten to the ratedDisabilities page or further send them back to the ratedDisabilities page
-        # when the list of rated disabilities is updated.
         if prased_form_data['ratedDisabilities'].present? &&
-           prased_form_data['ratedDisabilities'][0].keys.include?('view:selected')
+           prased_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
         end
         evss_rated_disabilites = JSON.parse(rated_disabilities_evss.rated_disabilities.to_json)

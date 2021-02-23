@@ -54,7 +54,7 @@ module Mobile
         end
 
         def build_record(type, params)
-          "Vet360::Models::#{type.capitalize}"
+          "VAProfile::Models::#{type.capitalize}"
             .constantize
             .new(params)
             .set_defaults(@user)
@@ -124,7 +124,7 @@ module Mobile
         end
 
         def contact_information_service
-          Vet360::ContactInformation::Service.new @user
+          VAProfile::ContactInformation::Service.new @user
         end
 
         def raise_timeout_error(elapsed, try)
