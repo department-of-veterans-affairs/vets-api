@@ -14,6 +14,7 @@ module ClaimsApi
           ClaimsApi::Forms::Form0966ResponseSwagger,
           ClaimsApi::Forms::Form2122ResponseSwagger,
           ClaimsApi::Common::Authorization::NotAuthorizedSwagger,
+          ClaimsApi::Common::Authorization::ForbiddenSwagger,
           ClaimsApi::Common::NotFoundSwagger,
           ClaimsApi::Common::UnprocessableEntitySwagger,
           ClaimsApi::V1::ClaimsControllerSwagger,
