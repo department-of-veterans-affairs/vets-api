@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'vet360/contact_information/service'
-require 'vet360/exceptions/builder'
-require 'vet360/models/email'
-require 'vet360/models/telephone'
-require 'vet360/person/service'
+require 'va_profile/contact_information/service'
+require 'va_profile/exceptions/builder'
+require 'va_profile/models/email'
+require 'va_profile/models/telephone'
+require 'va_profile/person/service'
 
 namespace :vet360 do
   ###########
@@ -18,7 +18,7 @@ namespace :vet360 do
   desc 'Request Vet360 person contact information'
   task :get_person, [:vet360_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
-    person = Vet360::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
+    person = VAProfile::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
     pp person.to_h
   end
 
@@ -26,7 +26,7 @@ namespace :vet360 do
   task :get_email_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = Vet360::ContactInformation::Service
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_email_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -36,7 +36,7 @@ namespace :vet360 do
   task :get_address_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = Vet360::ContactInformation::Service
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_address_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -46,7 +46,7 @@ namespace :vet360 do
   task :get_telephone_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = Vet360::ContactInformation::Service
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_telephone_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -56,7 +56,7 @@ namespace :vet360 do
   task :get_permission_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-    trx = Vet360::ContactInformation::Service
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_permission_transaction_status(args[:tx_audit_id])
     pp trx.to_h
@@ -82,8 +82,8 @@ namespace :vet360 do
     vet360_id = data.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    email = Vet360::Models::Email.build_from(data)
-    trx = Vet360::ContactInformation::Service
+    email = VAProfile::Models::Email.build_from(data)
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_email(email)
     pp trx.to_h
@@ -106,8 +106,8 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    telephone = Vet360::Models::Telephone.build_from(body)
-    trx = Vet360::ContactInformation::Service
+    telephone = VAProfile::Models::Telephone.build_from(body)
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_telephone(telephone)
     pp trx.to_h
@@ -132,8 +132,8 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    address = Vet360::Models::Address.build_from(body)
-    trx = Vet360::ContactInformation::Service
+    address = VAProfile::Models::Address.build_from(body)
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_address(address)
     pp trx.to_h
@@ -155,8 +155,8 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    permission = Vet360::Models::Permission.build_from(body)
-    trx = Vet360::ContactInformation::Service
+    permission = VAProfile::Models::Permission.build_from(body)
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_permission(permission)
     pp trx.to_h
@@ -181,8 +181,8 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    email = Vet360::Models::Email.build_from(body)
-    trx = Vet360::ContactInformation::Service
+    email = VAProfile::Models::Email.build_from(body)
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_email(email)
     pp trx.to_h
@@ -207,8 +207,8 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    telephone = Vet360::Models::Telephone.build_from(body)
-    trx = Vet360::ContactInformation::Service
+    telephone = VAProfile::Models::Telephone.build_from(body)
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_telephone(telephone)
     pp trx.to_h
@@ -231,8 +231,8 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    address = Vet360::Models::Address.build_from(body)
-    trx = Vet360::ContactInformation::Service
+    address = VAProfile::Models::Address.build_from(body)
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_address(address)
     pp trx.to_h
@@ -254,8 +254,8 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    permission = Vet360::Models::Permission.build_from(body)
-    trx = Vet360::ContactInformation::Service
+    permission = VAProfile::Models::Permission.build_from(body)
+    trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_permission(permission)
     pp trx.to_h
@@ -273,7 +273,7 @@ namespace :vet360 do
     Note: There *cannot* be any spaces around the commas (i.e. [123456, 1312312, 134234234, 4234234])
   DESCRIPTION
   task :init_vet360_id, [:icns] => [:environment] do |_, args|
-    service = Vet360::Person::Service.new('rake_user')
+    service = VAProfile::Person::Service.new('rake_user')
     icns    = args.extras.prepend(args[:icns])
     results = []
 
@@ -336,7 +336,7 @@ namespace :vet360 do
     9. Delete test.yml
   DESCRIPTION
   task prep_error_codes: :environment do
-    Vet360::Exceptions::Builder.new.construct_exceptions_from_csv
+    VAProfile::Exceptions::Builder.new.construct_exceptions_from_csv
   end
 
   def ensure_data_var

@@ -97,7 +97,8 @@ module AppealsApi
     end
 
     def zip_code_5
-      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+      # schema already validated address presence if not homeless
+      veteran_contact_info&.dig('address', 'zipCode5') || '00000'
     end
 
     def lob
