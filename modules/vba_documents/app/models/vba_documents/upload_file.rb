@@ -15,8 +15,8 @@ module VBADocuments
     end
 
     def validate_type
-      if !self.use_active_storage
-        raise TypeError.new("This guid #{self.guid} can only be instantiated as an UploadSubmission!")
+      if !use_active_storage
+        raise TypeError.new("This guid #{guid} can only be instantiated as an UploadSubmission!")
       end
     end
 
@@ -28,44 +28,55 @@ module VBADocuments
       uploaded
     end
 
+    def save!(*, **)
+      if Settings.vba_documents.instrument
+        t1 = Time.zone.now
+        super
+        t2 = Time.zone.now
+        Rails.logger.info("I took #{t2 - t1} seconds for guid #{guid}")
+      else
+        super
+      end
+    end
+
     def remove_from_storage
-      self.multipart.purge
-      self.update(s3_deleted: true)
+      multipart.purge
+      update(s3_deleted: true)
     end
 
     # Useful in the rails console during forensic analysis
     # Calling parses and uploads the PDFs / metadata.
     def parse_and_upload!
-      parsed = self.multipart.open do |file|
+      parsed = multipart.open do |file|
         VBADocuments::MultipartParser.parse(file.path)
       end
-      self.parsed_files.attach(io: StringIO.new(parsed['metadata'].to_s), filename: self.guid + '_' + "metadata.json")
+      parsed_files.attach(io: StringIO.new(parsed['metadata'].to_s), filename: guid + '_' + 'metadata.json')
       pdf_keys = parsed.keys - ['metadata']
       pdf_keys.each do |k|
-        self.parsed_files.attach(io: File.open(parsed[k]), filename: self.guid + '_' + "#{k}.pdf")
+        parsed_files.attach(io: File.open(parsed[k]), filename: guid + '_' + "#{k}.pdf")
       end
       save!
-      puts "Your files have been uploaded!"
+      puts 'Your files have been uploaded!'
       puts "Don't forget to cleanup when done by running:"
-      puts "UploadFile.find_by_guid(\'#{self.guid}\').parsed_files.purge"
+      puts "UploadFile.find_by_guid(\'#{guid}\').parsed_files.purge"
     end
 
     private
 
     def set_blob_key
-      if self.multipart.attached?
-        self.multipart.blob.key = self.guid.to_s
+      if multipart.attached?
+        multipart.blob.key = guid.to_s
       end
-      if self.parsed_files.attached?
-        self.parsed_files.each do |file|
+      if parsed_files.attached?
+        parsed_files.each do |file|
           file.blob.key = file.blob.filename.to_s
         end
       end
     end
 
     def update_upload_submission
-      if (self.status.eql?('pending') && uploaded?)
-        self.update(status: 'uploaded')
+      if (status.eql?('pending') && uploaded?)
+        update(status: 'uploaded')
       end
     end
   end
