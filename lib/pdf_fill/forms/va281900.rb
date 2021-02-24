@@ -8,8 +8,8 @@ module PdfFill
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
-        'veteran_information' => {
-          'full_name' => {
+        'veteranInformation' => {
+          'fullName' => {
             'first' => {
               key: 'VBA281900[0].#subform[0].VeteransFirstName[0]',
               limit: 12,
@@ -31,7 +31,7 @@ module PdfFill
               question_suffix: 'C',
               question_text: 'NAME OF CLAIMANT'
             }
-          }, # end full_name
+          }, # end fullName
           'ssn' => {
             'first' => {
               key: 'VBA281900[0].#subform[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]',
@@ -55,14 +55,14 @@ module PdfFill
               question_text: 'SOCIAL SECURITY NUMBER'
             }
           },
-          'va_file_number' => {
+          'VAFileNumber' => {
             key: 'VBA281900[0].#subform[0].VAFileNumber[0]',
             limit: 8,
             question_num: 3,
             question_suffix: 'A',
             question_text: 'VA FILE NUMBER'
           },
-          'birth_date' => {
+          'dob' => {
             'month' => {
               key: 'VBA281900[0].#subform[0].DOBmonth[0]',
               limit: 2,
@@ -86,22 +86,22 @@ module PdfFill
             }
           }
         }, # end veteran_information
-        'veteran_address' => {
-          'address_line1' => {
+        'veteranAddress' => {
+          'addressLine1' => {
             key: 'VBA281900[0].#subform[0].Address1[1]',
             limit: 30,
             question_num: 5,
             question_suffix: 'A',
             question_text: 'MAILING ADDRESS'
           },
-          'address_line2' => {
+          'addressLine2' => {
             key: 'VBA281900[0].#subform[0].Address2[1]',
             limit: 30,
             question_num: 5,
             question_suffix: 'B',
             question_text: 'MAILING ADDRESS'
           },
-          'address_line3' => {
+          'addressLine3' => {
             key: 'VBA281900[0].#subform[0].Address3[1]',
             limit: 30,
             question_num: 5,
@@ -109,7 +109,7 @@ module PdfFill
             question_text: 'MAILING ADDRESS'
           }
         }, # end veteran_address
-        'main_phone' => {
+        'mainPhone' => {
           'phone_area_code' => {
             key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[1]',
             limit: 3,
@@ -139,7 +139,7 @@ module PdfFill
           question_suffix: 'A',
           question_text: 'E-MAIL ADDRESS OF CLAIMANT'
         },
-        'cell_phone' => {
+        'cellPhone' => {
           'phone_area_code' => {
             key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[0]',
             limit: 3,
@@ -162,22 +162,22 @@ module PdfFill
             question_text: 'CELL PHONE NUMBER'
           }
         },
-        'new_address' => {
-          'address_line1' => {
+        'newAddress' => {
+          'addressLine1' => {
             key: 'VBA281900[0].#subform[0].Address1[0]',
             limit: 30,
             question_num: 9,
             question_suffix: 'A',
             question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
           },
-          'address_line2' => {
+          'addressLine2' => {
             key: 'VBA281900[0].#subform[0].Address2[0]',
             limit: 30,
             question_num: 9,
             question_suffix: 'B',
             question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
           },
-          'address_line3' => {
+          'addressLine3' => {
             key: 'VBA281900[0].#subform[0].Address3[0]',
             limit: 30,
             question_num: 9,
@@ -185,7 +185,7 @@ module PdfFill
             question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
           }
         }, # end new_address
-        'years_of_education' => {
+        'yearsOfEducation' => {
           key: 'VBA281900[0].#subform[0].EducationYR[0]',
           limit: 2,
           question_num: 10,
@@ -206,13 +206,13 @@ module PdfFill
             key: 'VBA281900[0].#subform[0].DOByear[1]'
           }
         }, # end date_signed
-        'use_eva' => {
+        'useEva' => {
           key: 'useEva'
         },
-        'use_telecounseling' => {
+        'useTelecounseling' => {
           key: 'useTelecounseling'
         },
-        'appointment_time_preferences' => {
+        'appointmentTimePreferences' => {
           key: 'appointmentTimePreferences'
         }
       }.freeze
@@ -222,32 +222,32 @@ module PdfFill
         merge_address_helpers
         merge_preferences_helpers
 
-        expand_signature(@form_data['veteran_information']['full_name'])
+        expand_signature(@form_data['veteranInformation']['fullName'])
         @form_data['date_signed'] = split_date(@form_data['signatureDate'])
 
         @form_data
       end
 
       def merge_veteran_helpers
-        veteran_information = @form_data['veteran_information']
-
+        veteran_information = @form_data['veteranInformation']
         # extract middle initial
-        veteran_information['full_name'] = extract_middle_i(veteran_information, 'full_name')
+        veteran_information['fullName'] = extract_middle_i(veteran_information, 'fullName')
 
         # extract ssn
         ssn = veteran_information['ssn']
         if ssn.present?
           ssn = ssn.delete('-')
           veteran_information['ssn'] = split_ssn(ssn)
-          va_file_number = veteran_information['va_file_number']
-          veteran_information['va_file_number'] = '' if ssn == va_file_number
+          va_file_number = veteran_information['VAFileNumber']
+
+          veteran_information['VAFileNumber'] = '' if ssn == va_file_number
         end
 
         # extract birth date
-        veteran_information['birth_date'] = split_date(veteran_information['birth_date'])
+        veteran_information['dob'] = split_date(veteran_information['dob'])
 
-        expand_phone_number('main_phone')
-        expand_phone_number('cell_phone')
+        expand_phone_number('mainPhone')
+        expand_phone_number('cellPhone')
       end
 
       def expand_phone_number(phone_type)
@@ -263,8 +263,8 @@ module PdfFill
       end
 
       def merge_address_helpers
-        format_address(@form_data['veteran_address'])
-        format_address(@form_data['new_address']) if @form_data['is_moving']
+        format_address(@form_data['veteranAddress'])
+        format_address(@form_data['newAddress']) if @form_data['isMoving']
       end
 
       def format_address(address)
@@ -272,29 +272,26 @@ module PdfFill
         street3 = address['street3'] || ''
         state = address['state'] || ''
 
-        address['address_line1'] = address['street'] + ' ' + street2 + ' ' + street3
-        address['address_line2'] = address['city'] + ' ' + state + ' ' + address['postal_code']
-        address['address_line3'] = address['country']
+        address['addressLine1'] = address['street'] + ' ' + street2 + ' ' + street3
+        address['addressLine2'] = address['city'] + ' ' + state + ' ' + address['postalCode']
+        address['addressLine3'] = address['country']
       end
 
       def merge_preferences_helpers
-        @form_data['use_eva'] = @form_data['use_eva'] ? 'Yes' : 'No'
-        @form_data['use_telecounseling'] = @form_data['use_telecounseling'] ? 'Yes' : 'No'
-        @form_data['appointment_time_preferences'] = set_appointment_time_preferences
+        @form_data['useEva'] = @form_data['useEva'] ? 'Yes' : 'No'
+        @form_data['useTelecounseling'] = @form_data['useTelecounseling'] ? 'Yes' : 'No'
+        @form_data['appointmentTimePreferences'] = set_appointment_time_preferences
       end
 
       def set_appointment_time_preferences
-        times = @form_data['appointment_time_preferences'] # ex. {'morning'=>true, 'mid_day'=>false, 'afternoon'=>false}
+        times = @form_data['appointmentTimePreferences'] # ex. {'morning'=>true, 'mid_day'=>false, 'afternoon'=>false}
         counseling_hours = {
           'morning' => "Mornings 6:00 to 10:00 a.m.\n",
-          'mid_day' => "Midday 10:00 a.m. to 2:00 p.m.\n",
+          'midday' => "Midday 10:00 a.m. to 2:00 p.m.\n",
           'afternoon' => "Afternoons 2:00 to 6:00 p.m.\n"
         }
-        time_preferences = ''
-        times.each do |time, does_prefer|
-          time_preferences += counseling_hours[time] if does_prefer
-        end
-        time_preferences
+
+        times.map { |time| counseling_hours[time] }.join('')
       end
     end
   end
