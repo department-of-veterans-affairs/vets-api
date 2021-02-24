@@ -5,7 +5,7 @@ require 'claims_api/form_schemas'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'bgs/auth_headers'
-require 'claims_api/special_issue_mapper'
+require 'claims_api/special_issue_mappers/bgs'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
@@ -70,7 +70,7 @@ module ClaimsApi
       end
       special_issues = primary_special_issues + secondary_special_issues
 
-      mapper = ClaimsApi::SpecialIssueMapper.new
+      mapper = ClaimsApi::SpecialIssueMappers::Bgs.new
       {
         code: disability['diagnosticCode'],
         name: disability['name'],
