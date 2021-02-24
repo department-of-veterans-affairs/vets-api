@@ -1404,6 +1404,7 @@ module PdfFill
           }
           # @TODO remarks
         },
+        'addendum' => { key: 'addendum' },
         'veteran_ssn' => {
           'ssn1' => {
             'first' => { key: 'form1[0].#subform[18].Veterans_SocialSecurityNumber_FirstThreeNumbers[1]' },
@@ -1487,6 +1488,8 @@ module PdfFill
       }.freeze
 
       def merge_fields(_options = {})
+        merge_addendum_helpers
+
         merge_veteran_helpers
         merge_spouse_helpers
 
@@ -1869,6 +1872,54 @@ module PdfFill
         8.times do |i|
           @form_data['veteran_ssn']['ssn' + (i + 1).to_s] = veteran_ssn
         end
+      end
+
+      def merge_addendum_helpers
+        addendum_text = add_household_income
+
+        # income question when adding spouse
+        spouse_name = combine_full_name(@form_data.dig('dependents_application', 'spouse_information', 'full_name'))
+        spouse_income = @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_income')
+        addendum_text += add_dependent_income(spouse_name, spouse_income)
+
+        # income questions when adding children
+        children_to_add = @form_data.dig('dependents_application', 'children_to_add')
+        addendum_text += add_dependents(children_to_add, 'child_income')
+
+        # income question when reporting a divorce
+        spouse_name = combine_full_name(@form_data.dig('dependents_application', 'report_divorce', 'full_name'))
+        spouse_income = @form_data.dig('dependents_application', 'report_divorce', 'spouse_income')
+        addendum_text += add_dependent_income(spouse_name, spouse_income)
+
+        # income questions when reporting deaths
+        deaths = @form_data.dig('dependents_application', 'deaths')
+        addendum_text += add_dependents(deaths, 'dependent_income')
+
+        @form_data['addendum'] = addendum_text
+      end
+
+      def add_household_income
+        net_worth = @form_data.dig('dependents_application', 'household_income')
+        "Did the household have a net worth greater than $130,773 in the last tax year? #{format_boolean(net_worth)}"
+      end
+
+      def add_dependent_income(dependent_name, dependent_income)
+        return '' if dependent_name.blank?
+
+        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_boolean(dependent_income)}"
+      end
+
+      def add_dependents(dependents_hash, income_attr)
+        return '' if dependents_hash.blank?
+
+        dependent_text = ''
+        dependents_hash.each do |dependent|
+          dependent_name = combine_full_name(dependent.dig('full_name'))
+          dependent_income = dependent.dig(income_attr)
+          dependent_text += add_dependent_income(dependent_name, dependent_income)
+        end
+
+        dependent_text
       end
     end
   end
