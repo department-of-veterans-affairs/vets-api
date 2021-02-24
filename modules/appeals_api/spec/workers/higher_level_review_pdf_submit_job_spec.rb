@@ -79,13 +79,12 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       submit_job_worker = described_class.new
       allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
 
-      begin
+      expect do
         submit_job_worker.perform(higher_level_review.id)
-      rescue
-        expect(higher_level_review.reload.status).to eq('error')
-        expect(higher_level_review.reload.code).to eq('RuntimeError')
-        expect(higher_level_review.reload.detail).to eq('runtime error!')
-      end
+      end.to raise_error(RuntimeError, 'runtime error!')
+
+      higher_level_review.reload
+      expect(higher_level_review.status).to eq('error')
     end
   end
 
