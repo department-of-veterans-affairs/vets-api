@@ -10,8 +10,8 @@ module TestUserDashboard
     end
 
     def call
-      test_user_account.uuid     = test_user_account.user.account.uuid
-      test_user_account.services = test_user_account.profile.services)
+      test_user_account.mpi_uuid = test_user_account.user.account.uuid
+      test_user_account.services = test_user_account.profile.services
       test_user_account.save!
       test_user_account
     end
