@@ -74,7 +74,7 @@ module ClaimsApi
       {
         code: disability['diagnosticCode'],
         name: disability['name'],
-        special_issues: special_issues.map { |special_issue| mapper.code_from_name(special_issue) }
+        special_issues: special_issues.map { |special_issue| mapper.code_from_name!(special_issue) }
       }
     end
 

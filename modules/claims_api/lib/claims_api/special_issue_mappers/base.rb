@@ -7,16 +7,28 @@ module ClaimsApi
       #
       # @param code [String] Short code of special issue
       # @return [String] Verbose name of special issue
-      def name_from_code(code)
+      def name_from_code!(code)
         from_code(code)[:name]
+      end
+
+      def name_from_code(code)
+        name_from_code!(code)
+      rescue
+        nil
       end
 
       # Convert to code from name of special issue.
       #
       # @param name [String] Verbose name of special issue
       # @return [String] Short code of special issue
-      def code_from_name(name)
+      def code_from_name!(name)
         from_name(name)[:code]
+      end
+
+      def code_from_name(name)
+        code_from_name!(name)
+      rescue
+        nil
       end
 
       protected

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
+require 'claims_api/special_issue_mappers/evss'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
@@ -52,6 +53,20 @@ module ClaimsApi
     def to_internal
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       form_data['claimSubmissionSource'] = 'Lighthouse'
+
+      mapper = ClaimsApi::SpecialIssueMappers::Evss.new
+      form_data['disabilities'].each do |disability|
+        disability['specialIssues'] = disability['specialIssues'].map do |special_issue|
+          mapper.code_from_name(special_issue)
+        end.reject(&:blank?)
+
+        disability['secondaryDisabilities'].each do |secondary_disability|
+          secondary_disability['specialIssues'] = secondary_disability['specialIssues'].map do |special_issue|
+            mapper.code_from_name(special_issue)
+          end.reject(&:blank?)
+        end
+      end
+
       {
         "form526": form_data
       }.to_json
