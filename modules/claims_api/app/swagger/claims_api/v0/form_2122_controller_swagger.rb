@@ -468,7 +468,8 @@ module ClaimsApi
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran being represented'
-            key :required, false
+            key :required, true
+            key :example, '123121234'
             key :type, :string
           end
 
@@ -476,7 +477,8 @@ module ClaimsApi
             key :name, 'X-VA-First-Name'
             key :in, :header
             key :description, 'First Name of Veteran being represented'
-            key :required, false
+            key :example, 'John'
+            key :required, true
             key :type, :string
           end
 
@@ -484,7 +486,8 @@ module ClaimsApi
             key :name, 'X-VA-Last-Name'
             key :in, :header
             key :description, 'Last Name of Veteran being represented'
-            key :required, false
+            key :example, 'Doe'
+            key :required, true
             key :type, :string
           end
 
@@ -492,15 +495,8 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
+            key :example, '1954-12-15'
+            key :required, true
             key :type, :string
           end
 
@@ -508,7 +504,17 @@ module ClaimsApi
             key :name, 'X-VA-User'
             key :in, :header
             key :description, 'VA username of the person making the request'
-            key :required, false
+            key :example, 'lighthouse'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
             key :type, :string
           end
 
@@ -535,6 +541,22 @@ module ClaimsApi
                   key :type, :array
                   items do
                     key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotFoundModel
                   end
                 end
               end
