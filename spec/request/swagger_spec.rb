@@ -3127,6 +3127,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'dependents verifications' do
+      it 'supports getting dependent information' do
+        expect(subject).to validate(:get, '/v0/dependents_verificaitons', 401)
+        VCR.use_cassette('bgs/diaries/read') do
+          expect(subject).to validate(:get, '/v0/dependents_verificaitons', 200, headers)
+        end
+      end
+    end
+
     describe 'education career counseling claims' do
       it 'supports adding a career counseling claim' do
         expect(subject).to validate(
