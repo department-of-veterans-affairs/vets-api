@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/monitored_worker'
 
 describe Sidekiq::RetryMonitoring do
-  class TestJob
+  class RetryTestJob
     include Sidekiq::Worker
     include Sidekiq::MonitoredWorker
 
@@ -36,8 +36,8 @@ describe Sidekiq::RetryMonitoring do
   it 'calls notify after retry limit is hit' do
     params['retry_count'] = 3
 
-    TestJob.perform_async
-    worker = TestJob.new
+    RetryTestJob.perform_async
+    worker = RetryTestJob.new
     allow(worker).to receive(:notify).and_return(true)
 
     middleware.call(worker, params, nil) {}
