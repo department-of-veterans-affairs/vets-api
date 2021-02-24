@@ -305,6 +305,7 @@ RSpec.describe 'appointments', type: :request do
 
       context 'when there are cached appointments' do
         let(:user) { FactoryBot.build(:iam_user) }
+        let(:params) { { useCache: true } }
 
         before do
           va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json')

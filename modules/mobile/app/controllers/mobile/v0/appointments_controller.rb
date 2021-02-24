@@ -8,14 +8,14 @@ module Mobile
   module V0
     class AppointmentsController < ApplicationController
       def index
-        use_vaos_cache = params[:useCache] || false
+        use_cache = params[:useCache] || false
         start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 3.months).iso8601
         end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 6.months).iso8601
 
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
           start_date: start_date,
           end_date: end_date,
-          use_cache: use_vaos_cache
+          use_cache: use_cache
         )
 
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
@@ -35,8 +35,10 @@ module Mobile
       private
 
       def cached_or_fetch_appointments(validated_params)
-        json = Mobile::V0::Appointment.get_cached_appointments(@current_user)
+        json = Mobile::V0::Appointment.get_cached_appointments(@current_user) if validated_params[:use_cache]
 
+        # if JSON has been retrieved from redis, delete the cached version and return recovered appointments
+        # otherwise fetch appointments from the upstream service
         if json
           Mobile::V0::Appointment.delete_cached_appointments(@current_user)
           json
