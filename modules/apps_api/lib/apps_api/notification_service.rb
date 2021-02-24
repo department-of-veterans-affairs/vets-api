@@ -9,8 +9,8 @@ module AppsApi
       @okta_service = Okta::Service.new
       # should match the timing of the AppsApi::FetchConnections job
       @time_period = 60.minutes.ago.utc.iso8601
-      @connection_template = Settings.vanotify.template_id.connection_template
-      @disconnection_template = Settings.vanotify.template_id.disconnection_template
+      @connection_template = Settings.vanotify.services.lighthouse.template_id.connection_template
+      @disconnection_template = Settings.vanotify.services.lighthouse.template_id.disconnection_template
       @notify_client = VaNotify::Service.new(Settings.vanotify.services.lighthouse.api_key)
       @connection_event = 'app.oauth2.as.consent.grant'
       @disconnection_event = 'app.oauth2.as.token.revoke'
