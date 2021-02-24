@@ -5,6 +5,7 @@ require 'vba_documents/upload_error'
 module VBADocuments
   class MultipartParser
     LINE_BREAK = "\r\n"
+    CARRIAGE_RETURN = "\r"
 
     def self.parse(infile)
       if base64_encoded(infile)
@@ -14,14 +15,18 @@ module VBADocuments
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def self.parse_file(infile)
-      File.open(infile, 'rb') do |input|
+      parts = {}
+      begin
+        input = if infile.is_a? String
+                  File.open(infile, 'rb')
+                else
+                  infile
+                end
         validate_size(input)
         lines = input.each_line(LINE_BREAK).lazy.each_with_index
-
-        parts = {}
         separator = lines.next[0].chomp(LINE_BREAK)
-
         loop do
           headers = consume_headers(lines, separator)
           partname = get_partname(headers)
@@ -30,18 +35,33 @@ module VBADocuments
           parts[partname] = body
           break unless moreparts
         end
-        parts
+      ensure
+        input.close
       end
+      parts
     end
+    # rubocop:enable Metrics/MethodLength
 
     def self.base64_encoded(infile)
-      content = File.read(infile)
+      if infile.is_a? StringIO
+        content = infile.read
+        infile.rewind
+      else
+        content = File.read(infile)
+      end
       content.start_with?('data:multipart/form-data;base64,')
     end
 
     def self.create_file_from_base64(infile)
       FileUtils.mkdir_p '/tmp/vets-api'
-      contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile}`
+      if infile.is_a? String
+        contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile}`
+      else
+        # We are a stringio and are in memory.
+        content = infile.read
+        infile.rewind
+        contents = content.sub %r{data:((multipart)/.{3,}),}, ''
+      end
       decoded_data = Base64.decode64(contents)
       filename = "temp_upload_#{Time.zone.now.to_i}"
 
@@ -117,7 +137,7 @@ module VBADocuments
                                                 detail: 'Unexpected end of payload')
           end
           linechomp = line.chomp(LINE_BREAK)
-          if linechomp == "#{separator}--"
+          if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")
             return tf.string, false
           elsif linechomp == separator
             return tf.string, true
@@ -139,7 +159,7 @@ module VBADocuments
                                               detail: 'Unexpected end of payload')
         end
         linechomp = line.chomp(LINE_BREAK)
-        if linechomp == "#{separator}--"
+        if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")
           tf.rewind
           return tf, false
         elsif linechomp == separator

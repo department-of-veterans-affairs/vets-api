@@ -9,6 +9,8 @@ VBADocuments::Engine.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 
+  match '/v2/uploads/submit', to: 'v2/uploads#submit', via: [:post] if Settings.vba_documents.v2_upload_endpoint_enabled
+
   namespace :v0, defaults: { format: 'json' } do
     resources :uploads, only: %i[create show] do
       get 'download', to: 'uploads#download'
