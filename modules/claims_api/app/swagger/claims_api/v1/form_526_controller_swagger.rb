@@ -41,8 +41,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -50,7 +50,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
                   end
                 end
               end
@@ -151,8 +151,9 @@ module ClaimsApi
               end
             end
           end
-          response :default do
-            key :description, 'unexpected error'
+
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -160,7 +161,23 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
@@ -284,8 +301,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -293,7 +310,39 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotFoundModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
@@ -406,7 +455,7 @@ module ClaimsApi
           end
 
           response 422 do
-            key :description, 'Invalid Payload'
+            key :description, 'Unprocessable entity'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -414,15 +463,15 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -430,7 +479,23 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
@@ -540,8 +605,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -549,7 +614,39 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotFoundModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end

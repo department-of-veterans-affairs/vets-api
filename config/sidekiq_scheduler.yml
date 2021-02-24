@@ -176,10 +176,10 @@ VAForms::FetchLatest:
   class: VAForms::FormReloader
   description: "Fetches latest VA Forms"
 
-AppsApi::LoadApplications:
-  in: '1m'
-  class: AppsApi::DirectoryLoader
-  description: "Populates directory_applications table"
+AppsApi::FetchConnections:
+  every: "60m"
+  class: AppsApi::FetchConnections
+  description: "Fetches and handles notifications for recent application connections and disconnections"
 
 EducationForm::Process10203Submissions:
   cron: "0 6-18 * * * America/New_York"

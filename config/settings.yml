@@ -699,6 +699,7 @@ bgs:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
+  staging_flag: ~
 
 va_mobile:
   url: "https://veteran.apps.va.gov"
@@ -806,8 +807,13 @@ vanotify:
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+    connection_template: fake_template_id
+    disconnection_template: fake_template_id
     covid_vaccine_registration: fake_template_id
   mock: false
+  links:
+    connected_applications: https://www.va.gov/profile/connected-applications
+    password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
