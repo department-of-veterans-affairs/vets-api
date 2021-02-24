@@ -31,7 +31,6 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC103',
                                             detail: 'Incorrect content-type for document part')
       end
-      # TODO: validate type and sequential naming of attachment parts
     end
 
     def validate_metadata(metadata_input)
