@@ -3129,9 +3129,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'dependents verifications' do
       it 'supports getting dependent information' do
-        expect(subject).to validate(:get, '/v0/dependents_verificaitons', 401)
+        expect(subject).to validate(:get, '/v0/dependents_verifications', 401)
         VCR.use_cassette('bgs/diaries/read') do
-          expect(subject).to validate(:get, '/v0/dependents_verificaitons', 200, headers)
+          expect(subject).to validate(:get, '/v0/dependents_verifications', 200, headers)
         end
       end
     end

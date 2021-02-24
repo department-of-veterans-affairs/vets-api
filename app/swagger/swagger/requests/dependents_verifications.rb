@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Swagger
-  module Schemas
+  module Requests
     class DependentsVerifications
       include Swagger::Blocks
 
@@ -18,7 +18,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :DependentsVerifications
+              key :'$ref', :DependentsVerificationsSchema
             end
           end
         end
