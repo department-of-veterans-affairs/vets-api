@@ -17,18 +17,10 @@ module Mobile
           end_date: end_date,
           use_cache: use_vaos_cache
         )
-        
+
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
 
-        appointments, errors = cached_or_fetch_appointments(@current_user, validated_params.to_h)
-
-        options = {
-          meta: {
-            errors: errors.size.positive? ? errors : nil
-          }
-        }
-
-        render json: Mobile::V0::AppointmentSerializer.new(appointments, options)
+        render json: cached_or_fetch_appointments(validated_params)
       end
 
       def cancel
@@ -42,15 +34,26 @@ module Mobile
 
       private
 
+      def cached_or_fetch_appointments(validated_params)
+        json = Mobile::V0::Appointment.get_cached_appointments(@current_user)
+
+        if json
+          Mobile::V0::Appointment.delete_cached_appointments(@current_user)
+          json
+        else
+          appointments, errors = appointments_proxy.get_appointments(validated_params.to_h)
+          options = {
+            meta: {
+              errors: errors.size.positive? ? errors : nil
+            }
+          }
+
+          Mobile::V0::AppointmentSerializer.new(appointments, options)
+        end
+      end
+
       def appointments_proxy
         Mobile::V0::Appointments::Proxy.new(@current_user)
-      end
-      
-      def cached_or_fetch_appointments(user, validated_params)
-        appointments = Mobile::V0::Appointment.get_cached_appointments(validated_params.merge(user: user))
-        return [appointments, nil] if appointments
-        
-        appointments_proxy.get_appointments(validated_params.to_h)
       end
     end
   end
