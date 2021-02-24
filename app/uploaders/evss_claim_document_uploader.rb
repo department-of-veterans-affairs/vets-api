@@ -10,7 +10,21 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     1.byte...150.megabytes
   end
 
-  process :fix_file_extension_and_convert_tiff_to_jpg
+  version :converted, if: :tiff_or_incorrect_extension? do
+    metadata = file_metadata_from_binary_inspection
+
+    process convert: :jpg, if: :tiff?(metadata)
+
+    new_ext = if binary_content_does_not_match_file_extension?(metadata)
+      file_metadata&.extensions&.first&.then {|ext| ".#{ext}"}
+    else
+      nil
+    end
+
+    def full_filename(file)
+      "converted_#{file}#{new_ext}"
+    end
+  end
 
   def initialize(user_uuid, ids)
     # carrierwave allows only 2 arguments, which they will pass onto
@@ -20,6 +34,26 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     @user_uuid = user_uuid
     @ids = ids
     set_storage_options!
+  end
+
+  def converted_exists?
+    converted.present? && converted.file.exists?
+  end
+
+  def final_filename
+    if converted_exists?
+      converted.file.filename
+    else
+      filename
+    end
+  end
+
+  def read_for_upload
+    if converted_exists?
+      converted.read
+    else
+      read
+    end
   end
 
   def store_dir
@@ -40,37 +74,17 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   private
 
-  def set_storage_options!
-    if Settings.evss.s3.uploads_enabled
-      set_aws_config(
-        Settings.evss.s3.aws_access_key_id,
-        Settings.evss.s3.aws_secret_access_key,
-        Settings.evss.s3.region,
-        Settings.evss.s3.bucket
-      )
-    else
-      self.class.storage = :file
-    end
+  def tiff?(mime_magic_object)
+    mime_magic_object&.type == 'image/tiff'
   end
 
-  def fix_file_extension_and_convert_tiff_to_jpg
-    file_metadata = file_metadata_from_binary_inspection
+  def binary_content_does_not_match_file_extension?(binary_metadata)
+    binary_metadata&.type != file_metadata_from_filename&.type
+  end
 
-    string_to_append_to_filename = if file_metadata&.type == file_metadata_from_filename&.type
-                                     nil
-                                   else
-                                     extension = file_metadata&.extensions&.type
-                                     ".#{extension}" if extension
-                                   end
-
-    if file_metadata&.type == 'image/tiff'
-      convert :jpg
-      string_to_append_to_filename = '.jpg'
-    end
-
-    define_singleton_method :filename do
-      "#{super()}#{string_to_append_to_filename}" if super()
-    end
+  def tiff_or_incorrect_extension?
+    metadata = file_metadata_from_binary_inspection
+    tiff?(metadata) || binary_content_does_not_match_file_extension?(metadata)
   end
 
   def file_metadata_from_filename
@@ -83,5 +97,18 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     MimeMagic.by_magic file_obj if file_obj
   ensure
     file_obj&.close
+  end
+
+  def set_storage_options!
+    if Settings.evss.s3.uploads_enabled
+      set_aws_config(
+        Settings.evss.s3.aws_access_key_id,
+        Settings.evss.s3.aws_secret_access_key,
+        Settings.evss.s3.region,
+        Settings.evss.s3.bucket
+      )
+    else
+      self.class.storage = :file
+    end
   end
 end
