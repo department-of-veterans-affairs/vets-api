@@ -281,6 +281,122 @@ http_interactions:
               },
               "id": "2348605",
               "type": "legacyAppeal"
+            },
+            {
+              "id": "HLR2423",
+              "type": "higherLevelReview",
+              "attributes": {
+                "appealIds": [
+                  "HLR2423"
+                ],
+                "updated": "2021-02-24T13:48:12-05:00",
+                "incompleteHistory": false,
+                "active": true,
+                "description": "7 compensation issues",
+                "location": "aoj",
+                "aoj": "vba",
+                "programArea": "compensation",
+                "status": {
+                  "type": "hlr_received",
+                  "details": {}
+                },
+                "alerts": [],
+                "issues": [
+                  {
+                    "active": true,
+                    "lastAction": null,
+                    "date": null,
+                    "description": "Compensation issue",
+                    "diagnosticCode": null
+                  },
+                  {
+                    "active": true,
+                    "lastAction": null,
+                    "date": null,
+                    "description": "Compensation issue",
+                    "diagnosticCode": null
+                  },
+                  {
+                    "active": true,
+                    "lastAction": null,
+                    "date": null,
+                    "description": "Compensation issue",
+                    "diagnosticCode": null
+                  },
+                  {
+                    "active": true,
+                    "lastAction": null,
+                    "date": null,
+                    "description": "Compensation issue",
+                    "diagnosticCode": null
+                  },
+                  {
+                    "active": true,
+                    "lastAction": null,
+                    "date": null,
+                    "description": "Compensation issue",
+                    "diagnosticCode": null
+                  },
+                  {
+                    "active": true,
+                    "lastAction": null,
+                    "date": null,
+                    "description": "Compensation issue",
+                    "diagnosticCode": null
+                  },
+                  {
+                    "active": true,
+                    "lastAction": null,
+                    "date": null,
+                    "description": "Compensation issue",
+                    "diagnosticCode": null
+                  }
+                ],
+                "events": [
+                  {
+                    "type": "hlr_request",
+                    "date": "2020-05-01"
+                  }
+                ],
+                "evidence": []
+              }
+            },
+            {
+              "id": "SC1678",
+              "type": "supplementalClaim",
+              "attributes": {
+                "appealIds": [
+                  "SC1678"
+                ],
+                "updated": "2021-02-24T13:48:12-05:00",
+                "incompleteHistory": false,
+                "active": true,
+                "description": "Post-traumatic stress disorder",
+                "location": "aoj",
+                "aoj": "vba",
+                "programArea": "compensation",
+                "status": {
+                  "type": "sc_recieved",
+                  "details": {}
+                },
+                "alerts": [],
+                "issues": [
+                  {
+                    "active": true,
+                    "lastAction": null,
+                    "date": null,
+                    "description": "Post-traumatic stress disorder",
+                    "diagnosticCode": "9411"
+                  }
+                ],
+                "events": [
+                  {
+                    "type": "sc_request",
+                    "date": "2020-09-23"
+                  }
+                ],
+                "evidence": []
+              }
             }
           ]
         }

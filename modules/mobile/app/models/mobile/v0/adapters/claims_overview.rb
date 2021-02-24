@@ -15,12 +15,14 @@ module Mobile
                              updated_at: entry['updated_at'].to_time.iso8601
                            }
                          else
+                           subtype = entry['type']
+                           filed_index = subtype == 'legacyAppeal' ? 1 : 0
                            {
                              id: entry['id'],
                              type: 'appeal',
-                             subtype: entry['type'],
+                             subtype: subtype,
                              completed: !entry['attributes']['active'],
-                             date_filed: entry['attributes']['events'][1]['date'],
+                             date_filed: entry['attributes']['events'][filed_index]['date'],
                              updated_at: entry['attributes']['updated'].to_time.iso8601
                            }
                          end
