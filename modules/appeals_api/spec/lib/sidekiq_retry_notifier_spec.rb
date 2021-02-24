@@ -11,10 +11,11 @@ module AppealsApi
           'retry_count' => 2,
           'error_class' => 'RuntimeError',
           'error_message' => '',
-          'failed_at' => 1613670737.966083,
-          'retried_at' => 1613680062.5507782
+          'failed_at' => 1_613_670_737.966083,
+          'retried_at' => 1_613_680_062.5507782
         }
       end
+
       it 'sends a network request' do
         text = SidekiqRetryNotifier.message_text(params)
 
