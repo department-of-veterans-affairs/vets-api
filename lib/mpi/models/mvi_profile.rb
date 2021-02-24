@@ -32,6 +32,7 @@ module MPI
       attribute :search_token, String
       attribute :cerner_facility_ids, Array[String]
       attribute :cerner_id, String
+      attribute :relationships, Array[MviProfile]
 
       def mhv_correlation_id
         @active_mhv_ids&.first
