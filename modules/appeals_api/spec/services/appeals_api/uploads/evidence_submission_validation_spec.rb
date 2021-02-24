@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe AppealsApi::Uploads::DocumentValidation do
+describe AppealsApi::Uploads::EvidenceSubmissionValidation do
   describe '#validate' do
     # rubocop:disable Layout/LineLength
     let(:valid_pdf) { { 'document': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/appeals_api/spec/fixtures/expected_10182_extra.pdf") } }

@@ -4,7 +4,7 @@ require 'pdf_info'
 
 module AppealsApi
   module Uploads
-    class DocumentValidation
+    class EvidenceSubmissionValidation
       include SentryLogging
 
       def initialize(upload)
@@ -13,10 +13,14 @@ module AppealsApi
 
       def validate
         return file_type_error unless pdf_metadata_present?
-        return file_size_error unless valid_file_size?
-        return max_dimension_error unless valid_page_dimensions?
 
-        successful_validation_message
+        if valid_file_size? && valid_page_dimensions?
+          successful_validation_message
+        elsif valid_file_size?
+          max_dimension_error
+        else
+          file_size_error
+        end
       end
 
       private
