@@ -348,7 +348,23 @@ class User < Common::RedisStore
     email&.downcase || account_uuid
   end
 
+  def relationships
+    @relationships ||= mpi.profile.relationships.collect { |relationship| relationship_hash(relationship) }
+  end
+
   private
+
+  def relationship_hash(mpi_relationship)
+    {
+      first_name: mpi_relationship.given_names.first,
+      last_name: mpi_relationship.family_name,
+      birth_date: mpi_relationship.birth_date,
+      ssn: mpi_relationship.ssn,
+      participant_id: mpi_relationship.participant_id,
+      birls_id: mpi_relationship.birls_id,
+      edipi: mpi_relationship.edipi
+    }
+  end
 
   def mpi_profile
     return nil unless mpi
