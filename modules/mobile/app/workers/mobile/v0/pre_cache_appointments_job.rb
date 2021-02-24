@@ -18,10 +18,13 @@ module Mobile
           use_cache: false
         )
 
-        unless errors.size.positive?
+        if !errors.size.positive?
           options = { meta: { errors: nil } }
           json = Mobile::V0::AppointmentSerializer.new(appointments, options).serialized_json
           Mobile::V0::Appointment.set_cached_appointments(user, json)
+          Rails.logger.info('mobile appointments pre-cache set succeeded', user_uuid: uuid)
+        else
+          Rails.logger.warn('mobile appointments pre-cache set failed', user_uuid: uuid, errors: errors)
         end
       end
 

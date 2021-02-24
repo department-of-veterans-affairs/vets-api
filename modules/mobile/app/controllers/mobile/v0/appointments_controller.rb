@@ -20,7 +20,7 @@ module Mobile
 
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
 
-        render json: cached_or_fetch_appointments(validated_params)
+        render json: fetch_cached_or_service(validated_params)
       end
 
       def cancel
@@ -34,15 +34,17 @@ module Mobile
 
       private
 
-      def cached_or_fetch_appointments(validated_params)
+      def fetch_cached_or_service(validated_params)
         json = Mobile::V0::Appointment.get_cached_appointments(@current_user) if validated_params[:use_cache]
 
         # if JSON has been retrieved from redis, delete the cached version and return recovered appointments
         # otherwise fetch appointments from the upstream service
         if json
+          Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
           Mobile::V0::Appointment.delete_cached_appointments(@current_user)
           json
         else
+          Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
           appointments, errors = appointments_proxy.get_appointments(validated_params.to_h)
           options = {
             meta: {
