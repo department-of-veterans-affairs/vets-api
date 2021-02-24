@@ -100,6 +100,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :dependents_verifications, only: :index
+
     if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]

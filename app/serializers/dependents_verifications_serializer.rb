@@ -1,17 +1,24 @@
 # frozen_string_literal: true
 
-class DependentsSerializer < ActiveModel::Serializer
-  type :dependents
+class DependentsVerificationsSerializer < ActiveModel::Serializer
+  type :dependency_decs
 
-  attribute :persons
+  attribute :dependency_verifications
 
   def id
     nil
   end
 
-  def persons
-    return [object[:persons]] if object[:persons].class == Hash
+  def dependency_verifications
+    formatted_payload(object[:dependency_decs])
+  end
 
-    object[:persons]
+  def formatted_payload(dependency_decs)
+    ensured_array = dependency_decs.class == Hash ? [dependency_decs] : dependency_decs
+
+    ensured_array.map do |hash|
+      hash.delete(:social_security_number)
+      hash
+    end
   end
 end
