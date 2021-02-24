@@ -9,15 +9,23 @@ describe ClaimsApi::SpecialIssueMappers::Evss do
     { name: 'PTSD/1', code: 'PTSD_1' }
   ].each do |special_issue|
     it "returns correct code for name: #{special_issue[:name]}" do
-      expect(ClaimsApi::SpecialIssueMappers::Evss.new.code_from_name!(special_issue[:name])).to eq(special_issue[:code])
+      expect(subject.code_from_name!(special_issue[:name])).to eq(special_issue[:code])
     end
+  end
+
+  it 'returns nil for invalid name' do
+    expect(subject.code_from_name('invalid-name')).to eq(nil)
   end
 
   [
     { name: 'PTSD/3', code: 'PTSD_3' }
   ].each do |special_issue|
     it "returns correct name for code: #{special_issue[:code]}" do
-      expect(ClaimsApi::SpecialIssueMappers::Evss.new.name_from_code!(special_issue[:code])).to eq(special_issue[:name])
+      expect(subject.name_from_code!(special_issue[:code])).to eq(special_issue[:name])
     end
+  end
+
+  it 'returns nil for invalid code' do
+    expect(subject.name_from_code('invalid-code')).to eq(nil)
   end
 end
