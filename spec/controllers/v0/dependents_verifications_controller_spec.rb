@@ -11,7 +11,7 @@ RSpec.describe V0::DependentsVerificationsController do
 
   describe '#index' do
     context 'with a valid bgs response' do
-      it 'returns a list of dependents' do
+      it 'returns a list of dependency verifications' do
         VCR.use_cassette('bgs/diaries/read') do
           get(:index)
           expect(response.code).to eq('200')
