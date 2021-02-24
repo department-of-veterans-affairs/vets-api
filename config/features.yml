@@ -389,3 +389,8 @@ features:
     enable_in_development: true
     description: >
       Allow consumer to use service specific VaNotify client. Owned by va-notify team.
+  subform_8940_4192:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Form 526 subforms for unemployability & connected employment information
