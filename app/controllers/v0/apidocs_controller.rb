@@ -187,6 +187,7 @@ module V0
       Swagger::Schemas::Countries,
       Swagger::Schemas::ConnectedApplications,
       Swagger::Schemas::Dependents,
+      Swagger::Schemas::DependentsVerifications,
       Swagger::Schemas::DismissedStatus,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
