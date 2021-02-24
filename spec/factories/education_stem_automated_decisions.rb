@@ -11,6 +11,7 @@ FactoryBot.define do
     end
 
     trait :denied do
+      remaining_entitlement { 181 }
       automated_decision_state { 'denied' }
     end
 
