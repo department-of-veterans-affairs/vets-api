@@ -13,12 +13,12 @@ module AppsApi
       # process all connection events
       notif_service.handle_event(
         'app.oauth2.as.consent.grant',
-        Settings.vanotify.services.lighthouse.template_id.connection_template
+        Settings.vanotify.template_id.connection_template
       )
       # process all disconnection events
       notif_service.handle_event(
         'app.oauth2.as.token.revoke',
-        Settings.vanotify.services.lighthouse.template_id.disconnection_template
+        Settings.vanotify.template_id.disconnection_template
       )
     end
   end
