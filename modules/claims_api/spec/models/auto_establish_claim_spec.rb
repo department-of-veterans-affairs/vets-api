@@ -54,6 +54,12 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       payload = JSON.parse(pending_record.to_internal)
       expect(payload['form526']['claimSubmissionSource']).to eq('Lighthouse')
     end
+
+    it 'converts special issues to EVSS codes' do
+      payload = JSON.parse(pending_record.to_internal)
+      expect(payload['form526']['disabilities'].first['specialIssues']).to eq(['PTSD_2'])
+      expect(payload['form526']['disabilities'].first['secondaryDisabilities'].first['specialIssues']).to eq([])
+    end
   end
 
   describe 'evss_id_by_token' do

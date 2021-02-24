@@ -55,13 +55,13 @@ module ClaimsApi
       form_data['claimSubmissionSource'] = 'Lighthouse'
 
       mapper = ClaimsApi::SpecialIssueMappers::Evss.new
-      form_data['disabilities'].each do |disability|
-        disability['specialIssues'] = disability['specialIssues'].map do |special_issue|
+      (form_data['disabilities'] || []).each do |disability|
+        disability['specialIssues'] = (disability['specialIssues'] || []).map do |special_issue|
           mapper.code_from_name(special_issue)
         end.reject(&:blank?)
 
-        disability['secondaryDisabilities'].each do |secondary_disability|
-          secondary_disability['specialIssues'] = secondary_disability['specialIssues'].map do |special_issue|
+        (disability['secondaryDisabilities'] || []).each do |secondary_disability|
+          secondary_disability['specialIssues'] = (secondary_disability['specialIssues'] || []).map do |special_issue|
             mapper.code_from_name(special_issue)
           end.reject(&:blank?)
         end
