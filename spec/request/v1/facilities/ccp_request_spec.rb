@@ -36,14 +36,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'id' => '6d4644e7db7491635849b23e20078f74cfcd2d0aeee6a77aca921f5540d03f33',
             'type' => 'provider',
             'attributes' => {
-              'acc_new_patients' => 'true',
+              'accNewPatients' => 'true',
               'address' => {
                 'street' => '176 RIVERSIDE AVE',
                 'city' => 'RED BANK',
                 'state' => 'NJ',
                 'zip' => '07701-1063'
               },
-              'caresite_phone' => '732-219-6625',
+              'caresitePhone' => '732-219-6625',
               'email' => nil,
               'fax' => nil,
               'gender' => 'Female',
@@ -51,9 +51,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'long' => -74.07492,
               'name' => 'GESUALDI, AMY',
               'phone' => nil,
-              'pos_codes' => nil,
-              'pref_contact' => nil,
-              'unique_id' => '1154383230'
+              'posCodes' => nil,
+              'prefContact' => nil,
+              'uniqueId' => '1154383230'
             }
           }
         )
@@ -92,14 +92,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'id' => sha256,
               'type' => 'provider',
               'attributes' => {
-                'acc_new_patients' => 'false',
+                'accNewPatients' => 'false',
                 'address' => {
                   'street' => '5024 5TH AVE',
                   'city' => 'BROOKLYN',
                   'state' => 'NY',
                   'zip' => '11220-1909'
                 },
-                'caresite_phone' => '718-571-9251',
+                'caresitePhone' => '718-571-9251',
                 'email' => nil,
                 'fax' => nil,
                 'gender' => 'NotSpecified',
@@ -107,9 +107,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
                 'long' => -74.011055,
                 'name' => 'CITY MD URGENT CARE',
                 'phone' => nil,
-                'pos_codes' => '20',
-                'pref_contact' => nil,
-                'unique_id' => '1487993564'
+                'posCodes' => '20',
+                'prefContact' => nil,
+                'uniqueId' => '1487993564'
               }
             }
           )
@@ -184,14 +184,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'id' => '6d4644e7db7491635849b23e20078f74cfcd2d0aeee6a77aca921f5540d03f33',
             'type' => 'provider',
             'attributes' => {
-              'acc_new_patients' => 'true',
+              'accNewPatients' => 'true',
               'address' => {
                 'street' => '176 RIVERSIDE AVE',
                 'city' => 'RED BANK',
                 'state' => 'NJ',
                 'zip' => '07701-1063'
               },
-              'caresite_phone' => '732-219-6625',
+              'caresitePhone' => '732-219-6625',
               'email' => nil,
               'fax' => nil,
               'gender' => 'Female',
@@ -199,9 +199,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'long' => -74.07492,
               'name' => 'GESUALDI, AMY',
               'phone' => nil,
-              'pos_codes' => nil,
-              'pref_contact' => nil,
-              'unique_id' => '1154383230'
+              'posCodes' => nil,
+              'prefContact' => nil,
+              'uniqueId' => '1154383230'
             }
           }
         )
@@ -230,14 +230,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'id' => '1a2ec66b370936eccc980db2fcf4b094fc61a5329aea49744d538f6a9bab2569',
             'type' => 'provider',
             'attributes' => {
-              'acc_new_patients' => 'false',
+              'accNewPatients' => 'false',
               'address' => {
                 'street' => '2 BAYSHORE PLZ',
                 'city' => 'ATLANTIC HIGHLANDS',
                 'state' => 'NJ',
                 'zip' => '07716'
               },
-              'caresite_phone' => '732-291-2900',
+              'caresitePhone' => '732-291-2900',
               'email' => nil,
               'fax' => nil,
               'gender' => 'NotSpecified',
@@ -245,9 +245,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'long' => -74.041849,
               'name' => 'BAYSHORE PHARMACY',
               'phone' => nil,
-              'pos_codes' => nil,
-              'pref_contact' => nil,
-              'unique_id' => '1225028293'
+              'posCodes' => nil,
+              'prefContact' => nil,
+              'uniqueId' => '1225028293'
             }
           }
         )
@@ -278,14 +278,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'id' => sha256,
             'type' => 'provider',
             'attributes' => {
-              'acc_new_patients' => 'false',
+              'accNewPatients' => 'false',
               'address' => {
                 'street' => '5024 5TH AVE',
                 'city' => 'BROOKLYN',
                 'state' => 'NY',
                 'zip' => '11220-1909'
               },
-              'caresite_phone' => '718-571-9251',
+              'caresitePhone' => '718-571-9251',
               'email' => nil,
               'fax' => nil,
               'gender' => 'NotSpecified',
@@ -293,9 +293,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
               'long' => -74.011055,
               'name' => 'CITY MD URGENT CARE',
               'phone' => nil,
-              'pos_codes' => '20',
-              'pref_contact' => nil,
-              'unique_id' => '1487993564'
+              'posCodes' => '20',
+              'prefContact' => nil,
+              'uniqueId' => '1487993564'
             }
           }
         )
@@ -326,14 +326,14 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
           'id' => '1225028293',
           'type' => 'provider',
           'attributes' => {
-            'acc_new_patients' => nil,
+            'accNewPatients' => nil,
             'address' => {
               'street' => '2 BAYSHORE PLZ',
               'city' => 'ATLANTIC HIGHLANDS',
               'state' => 'NJ',
               'zip' => '07716'
             },
-            'caresite_phone' => nil,
+            'caresitePhone' => nil,
             'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
             'fax' => nil,
             'gender' => nil,
@@ -341,9 +341,9 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'long' => -74.041849,
             'name' => 'BAYSHORE PHARMACY',
             'phone' => nil,
-            'pos_codes' => nil,
-            'pref_contact' => nil,
-            'unique_id' => '1225028293'
+            'posCodes' => nil,
+            'prefContact' => nil,
+            'uniqueId' => '1225028293'
           }
         }
       )
@@ -365,8 +365,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
             'grouping' => 'Behavioral Health & Social Service Providers',
             'name' => 'Counselor',
             'specialization' => nil,
-            'specialty_code' => '101Y00000X',
-            'specialty_description' => 'A provider who is trained and educated in the performance of behavior ' \
+            'specialtyCode' => '101Y00000X',
+            'specialtyDescription' => 'A provider who is trained and educated in the performance of behavior ' \
          'health services through interpersonal communications and analysis. ' \
          'Training and education at the specialty level usually requires a ' \
          'master\'s degree and clinical experience and supervision for licensure ' \
@@ -381,8 +381,8 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
              'grouping' => 'Behavioral Health & Social Service Providers',
              'name' => 'Counselor - Addiction (Substance Use Disorder)',
              'specialization' => 'Addiction (Substance Use Disorder)',
-             'specialty_code' => '101YA0400X',
-             'specialty_description' => 'Definition to come...'
+             'specialtyCode' => '101YA0400X',
+             'specialtyDescription' => 'Definition to come...'
            }
          }]
       )
