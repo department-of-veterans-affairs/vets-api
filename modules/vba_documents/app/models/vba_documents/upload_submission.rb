@@ -8,7 +8,6 @@ module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
-
     send(:validates_uniqueness_of, :guid)
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
