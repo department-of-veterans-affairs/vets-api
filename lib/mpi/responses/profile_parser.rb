@@ -143,6 +143,7 @@ module MPI
         parsed_mvi_ids = MPI::Responses::IdParser.new.parse(relationship_holder.locate('id'))
         log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
         MPI::Models::MviProfile.new(
+          person_type_code: locate_element(relationship, 'code').attributes[:code],
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
@@ -150,7 +151,7 @@ module MPI
           birth_date: locate_element(relationship_holder, DOB_XPATH),
           ssn: parse_ssn(locate_element(relationship_holder, SSN_XPATH)),
           address: nil,
-          home_phone: locate_element(relationship, 'personalRelationship' + PHONE) | nil,
+          home_phone: locate_element(relationship, PHONE).attributes[:value],
           full_mvi_ids: full_mvi_ids,
           icn: parsed_mvi_ids[:icn],
           mhv_ids: parsed_mvi_ids[:mhv_ids],

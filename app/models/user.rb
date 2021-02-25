@@ -362,6 +362,7 @@ class User < Common::RedisStore
       ssn: mpi_relationship.ssn,
       participant_id: mpi_relationship.participant_id,
       birls_id: mpi_relationship.birls_id,
+      person_type_code: mpi_relationship.person_type_code,
       edipi: mpi_relationship.edipi
     }
   end
