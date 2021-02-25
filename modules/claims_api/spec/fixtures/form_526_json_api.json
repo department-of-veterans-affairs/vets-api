@@ -17,7 +17,15 @@
         },
         "homelessness": {
           "currentlyHomeless": {
-            "homelessSituationType": "fleeing"
+            "homelessSituationType": "fleeing",
+            "otherLivingSituation": "none"
+          },
+          "pointOfContact": {
+            "pointOfContactName": "Firstname Lastname",
+            "primaryPhone": {
+              "areaCode": "123",
+              "phoneNumber": "5551234"
+            }
           }
         }
       },
