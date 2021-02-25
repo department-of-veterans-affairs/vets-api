@@ -13,7 +13,7 @@ module HealthQuest
       # @!attribute map_query
       #   @return [PatientGeneratedData::QuestionnaireResponse::MapQuery]
       # @!attribute options_builder
-      #   @return [PatientGeneratedData::QuestionnaireResponse::OptionsBuilder]
+      #   @return [Shared::OptionsBuilder]
       class Factory
         attr_reader :session_service, :user, :map_query, :options_builder
 
@@ -29,9 +29,9 @@ module HealthQuest
 
         def initialize(user)
           @user = user
-          @session_service = HealthQuest::Lighthouse::Session.build(user)
+          @session_service = HealthQuest::Lighthouse::Session.build(user: user, api: pgd_api)
           @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.retrieve)
-          @options_builder = OptionsBuilder
+          @options_builder = Shared::OptionsBuilder
         end
 
         ##
@@ -48,7 +48,7 @@ module HealthQuest
         # Gets Questionnaire Responses from a given set of OptionsBuilder
         #
         # @param filters [Hash] the set of query options.
-        # @return [FHIR::QuestionnaireResponse::ClientReply] an instance of ClientReply
+        # @return [FHIR::ClientReply] an instance of ClientReply
         #
         def search(filters = {})
           filters.merge!(resource_name)
@@ -74,6 +74,12 @@ module HealthQuest
         #
         def resource_name
           { resource_name: 'questionnaire_response' }
+        end
+
+        private
+
+        def pgd_api
+          Settings.hqva_mobile.lighthouse.pgd_api
         end
       end
     end

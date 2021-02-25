@@ -105,8 +105,8 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                         page: 2
                       },
                       %w[
-                        vc_0102V vc_0857MVC vc_0110V nca_808 vha_526
-                        vha_526QA vc_0109V vha_561GD vc_0132V vha_630A4
+                        vc_0102V vc_0857MVC vc_0110V nca_808 nca_947 vha_526
+                        vha_526QA vc_0109V vha_561GD vc_0132V
                       ]
 
       it_behaves_like 'paginated request from params with expected IDs',
@@ -171,8 +171,8 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                         page: 2
                       },
                       %w[
-                        vc_0102V vc_0110V nca_808 vha_526
-                        vc_0109V vha_561GD vc_0132V vha_630A4
+                        vc_0102V vc_0110V nca_808 nca_947 vha_526
+                        vc_0109V vha_561GD vc_0132V
                       ]
 
       it_behaves_like 'paginated request from params with expected IDs',
@@ -204,36 +204,36 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
             attributes: {
               access: {
                 health: [
-                  { service: 'Audiology',        new: 55.40625,  established: 54.988095 },
-                  { service: 'Dermatology',      new: 41.826086, established: 14.304347 },
-                  { service: 'MentalHealthCare', new: 14.888888, established: 0.865256 },
-                  { service: 'Ophthalmology',    new: 35.0,      established: 5.923076 },
-                  { service: 'Optometry',        new: 15.615384, established: 9.194656 },
-                  { service: 'PrimaryCare',      new: 10.383928, established: 7.072874 },
-                  { service: 'SpecialtyCare',    new: 22.0,      established: 14.042572 }
+                  { service: 'Audiology',        new: 33.475,     established: 40.906593 },
+                  { service: 'Dermatology',      new: 35.789473,  established: 36.096774 },
+                  { service: 'MentalHealthCare', new: 10.210526,  established: 1.122651 },
+                  { service: 'Ophthalmology',    new: nil,        established: 2.575 },
+                  { service: 'Optometry',        new: 40.522727,  established: 26.938144 },
+                  { service: 'PrimaryCare',      new: 8.354545,   established: 3.209895 },
+                  { service: 'SpecialtyCare',    new: 29.722488,  established: 20.944935 }
                 ],
-                effective_date: '2020-09-14'
+                effectiveDate: '2021-01-25'
               },
-              active_status: 'A',
+              activeStatus: 'A',
               address: {
                 mailing: {},
                 physical: {
                   zip: '98661-3753',
                   city: 'Vancouver',
                   state: 'WA',
-                  address_1: '1601 East 4th Plain Boulevard',
-                  address_2: nil,
-                  address_3: nil
+                  address1: '1601 East 4th Plain Boulevard',
+                  address2: nil,
+                  address3: nil
                 }
               },
               classification: 'VA Medical Center (VAMC)',
-              facility_type: 'va_health_facility',
+              facilityType: 'va_health_facility',
               feedback: {
                 health: {
-                  primary_care_urgent: 0.8100000023841858,
-                  primary_care_routine: 0.9200000166893005
+                  primaryCareUrgent: 0.8100000023841858,
+                  primaryCareRoutine: 0.9200000166893005
                 },
-                effective_date: '2020-04-16'
+                effectiveDate: '2020-04-16'
               },
               hours: {
                 monday: '730AM-430PM',
@@ -249,18 +249,19 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
               long: -122.65538544,
               mobile: false,
               name: 'Portland VA Medical Center-Vancouver',
-              operating_status: {
+              operatingStatus: {
                 code: 'NORMAL'
               },
-              operational_hours_special_instructions: nil,
+              operationalHoursSpecialInstructions: 'Expanded or Nontraditional hours are available for some ' \
+                'services on a routine and or requested basis. Please call our main phone number for details. |',
               phone: {
                 fax: '360-690-0864',
                 main: '360-759-1901',
                 pharmacy: '503-273-5183',
-                after_hours: '360-696-4061',
-                patient_advocate: '503-273-5308',
-                mental_health_clinic: '503-273-5187',
-                enrollment_coordinator: '503-273-5069'
+                afterHours: '360-696-4061',
+                patientAdvocate: '503-273-5308',
+                mentalHealthClinic: '503-273-5187',
+                enrollmentCoordinator: '503-273-5069'
               },
               services: {
                 other: [],
@@ -276,9 +277,9 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   PrimaryCare
                   SpecialtyCare
                 ],
-                last_updated: '2020-09-14'
+                lastUpdated: '2021-01-25'
               },
-              unique_id: '648A4',
+              uniqueId: '648A4',
               visn: '20',
               website: 'https://www.portland.va.gov/locations/vancouver.asp'
             }

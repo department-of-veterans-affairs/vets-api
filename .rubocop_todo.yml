@@ -173,8 +173,8 @@ ThreadSafety/InstanceVariableInClassMethod:
     - 'lib/common/models/redis_store.rb'
     - 'lib/oidc/key_service.rb'
     - 'lib/saml/settings_service.rb'
-    - 'lib/vet360/contact_information/person_response.rb'
-    - 'lib/vet360/contact_information/transaction_response.rb'
+    - 'lib/va_profile/contact_information/person_response.rb'
+    - 'lib/va_profile/contact_information/transaction_response.rb'
     - 'lib/vic/url_helper.rb'
 
 # Offense count: 1

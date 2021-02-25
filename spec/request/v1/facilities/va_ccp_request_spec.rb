@@ -69,7 +69,7 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
             'data' => [
               {
                 'id' => '927d31eb-11fd-43c2-ac29-11c1a4128819',
-                'type' => 'provider_facility',
+                'type' => 'providerFacility',
                 'relationships' => {
                   'providers' => {
                     'data' => [
@@ -194,9 +194,9 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                         'established' => 2.166666
                       }
                     ],
-                    'effective_date' => '2020-11-30'
+                    'effectiveDate' => '2020-11-30'
                   },
-                  'active_status' => 'A',
+                  'activeStatus' => 'A',
                   'address' => {
                     'mailing' => {
                     },
@@ -204,21 +204,21 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                       'zip' => '07018-1023',
                       'city' => 'East Orange',
                       'state' => 'NJ',
-                      'address_1' => '385 Tremont Avenue',
-                      'address_2' => nil,
-                      'address_3' => nil
+                      'address1' => '385 Tremont Avenue',
+                      'address2' => nil,
+                      'address3' => nil
                     }
                   },
                   'classification' => 'VA Medical Center (VAMC)',
-                  'facility_type' => 'va_health_facility',
+                  'facilityType' => 'va_health_facility',
                   'feedback' => {
                     'health' => {
-                      'primary_care_urgent' => 0.7400000095367432,
-                      'primary_care_routine' => 0.7699999809265137,
-                      'specialty_care_urgent' => 0.800000011920929,
-                      'specialty_care_routine' => 0.8999999761581421
+                      'primaryCareUrgent' => 0.7400000095367432,
+                      'primaryCareRoutine' => 0.7699999809265137,
+                      'specialtyCareUrgent' => 0.800000011920929,
+                      'specialtyCareRoutine' => 0.8999999761581421
                     },
-                    'effective_date' => '2020-04-16'
+                    'effectiveDate' => '2020-04-16'
                   },
                   'hours' => {
                     'friday' => '24/7',
@@ -234,18 +234,18 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -74.23432989,
                   'mobile' => false,
                   'name' => 'East Orange VA Medical Center',
-                  'operating_status' => {
+                  'operatingStatus' => {
                     'code' => 'NORMAL'
                   },
-                  'operational_hours_special_instructions' => nil,
+                  'operationalHoursSpecialInstructions' => nil,
                   'phone' => {
                     'fax' => '973-676-4226',
                     'main' => '973-676-1000',
                     'pharmacy' => '800-480-5590',
-                    'after_hours' => '973-676-1000',
-                    'patient_advocate' => '973-676-1000 x3399',
-                    'mental_health_clinic' => '973-676-1000 x 1421',
-                    'enrollment_coordinator' => '973-676-1000 x3044'
+                    'afterHours' => '973-676-1000',
+                    'patientAdvocate' => '973-676-1000 x3399',
+                    'mentalHealthClinic' => '973-676-1000 x 1421',
+                    'enrollmentCoordinator' => '973-676-1000 x3044'
                   },
                   'services' => {
                     'other' => [],
@@ -268,9 +268,9 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                       UrgentCare
                       Urology
                     ],
-                    'last_updated' => '2020-11-30'
+                    'lastUpdated' => '2020-11-30'
                   },
-                  'unique_id' => '561',
+                  'uniqueId' => '561',
                   'visn' => '2',
                   'website' => 'https://www.newjersey.va.gov/locations/directions.asp'
                 }
@@ -279,14 +279,14 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                 'id' => 'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '5024 5TH AVE',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11220-1909'
                   },
-                  'caresite_phone' => '718-571-9251',
+                  'caresitePhone' => '718-571-9251',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -294,23 +294,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -74.011055,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               },
               {
                 'id' => '4fd8291ae0bb51e568eb29d215ed5a784f9171b9f98f9963a706a5fc387a24c5',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '2175 86TH ST',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11214-3205'
                   },
-                  'caresite_phone' => '646-828-6401',
+                  'caresitePhone' => '646-828-6401',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -318,23 +318,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.993869,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               },
               {
                 'id' => 'a0cfafe8986a6893bfc651244ce6e9fee21dfd3e7c4b82c33062d31281b8989c',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '418 5TH AVE # 420',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11215-3316'
                   },
-                  'caresite_phone' => '718-965-2273',
+                  'caresitePhone' => '718-965-2273',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -342,23 +342,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.98545,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               },
               {
                 'id' => '30f247acf7bd6635760a6398043bf0235030e8299aad5390a210f24a3b4684c4',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '712 BRIGHTON BEACH AVE',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11235-6412'
                   },
-                  'caresite_phone' => '718-571-9291',
+                  'caresitePhone' => '718-571-9291',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -366,23 +366,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.960225,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               },
               {
                 'id' => '73f57df2aeda3424246aa1526d91a4eb2e27a6828bb646898a77e87b88b2bab9',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '1305 KINGS HWY',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11229-1903'
                   },
-                  'caresite_phone' => '718-280-5172',
+                  'caresitePhone' => '718-280-5172',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -390,23 +390,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.959851,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               },
               {
                 'id' => 'dfa50f5b6bf7a5ffc36f11f636ef8d51ee1303c102c4fd9c6925ca1c2c433fa7',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '874 FLATBUSH AVE',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11226-3102'
                   },
-                  'caresite_phone' => '718-571-9372',
+                  'caresitePhone' => '718-571-9372',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -414,23 +414,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.959134,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               },
               {
                 'id' => 'a9e664cb35c5705a371962fca74ea7c2f6b277aa75446673b8795b3afe7f29a1',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '288 FLATBUSH AVE',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11217-2812'
                   },
-                  'caresite_phone' => '718-656-1290',
+                  'caresitePhone' => '718-656-1290',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -438,23 +438,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.97373,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               },
               {
                 'id' => 'a01a12227953e3b4e538e1ad1eea8a49c8f789ca587e849c13894529553e49b5',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '2125 NOSTRAND AVE',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11210-3001'
                   },
-                  'caresite_phone' => '718-489-3557',
+                  'caresitePhone' => '718-489-3557',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -462,23 +462,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.947402,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               },
               {
                 'id' => 'f6c97daea4f94f7e5c3ed73840ec3f61832da018c2d5e43a884c297dd94019f1',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'true',
+                  'accNewPatients' => 'true',
                   'address' => {
                     'street' => '256 UTICA AVE',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11213-4029'
                   },
-                  'caresite_phone' => '718-240-2644',
+                  'caresitePhone' => '718-240-2644',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -486,23 +486,23 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.931422,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1326229022'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1326229022'
                 }
               },
               {
                 'id' => '9a90ec56691c18bfe3a05fa99e44a3a8299700a07b02c1da65aefdaea1d9987c',
                 'type' => 'provider',
                 'attributes' => {
-                  'acc_new_patients' => 'false',
+                  'accNewPatients' => 'false',
                   'address' => {
                     'street' => '256 UTICA AVE',
                     'city' => 'BROOKLYN',
                     'state' => 'NY',
                     'zip' => '11213-4029'
                   },
-                  'caresite_phone' => '718-571-9355',
+                  'caresitePhone' => '718-571-9355',
                   'email' => nil,
                   'fax' => nil,
                   'gender' => 'NotSpecified',
@@ -510,9 +510,9 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                   'long' => -73.931422,
                   'name' => 'CITY MD URGENT CARE',
                   'phone' => nil,
-                  'pos_codes' => '20',
-                  'pref_contact' => nil,
-                  'unique_id' => '1487993564'
+                  'posCodes' => '20',
+                  'prefContact' => nil,
+                  'uniqueId' => '1487993564'
                 }
               }
             ]

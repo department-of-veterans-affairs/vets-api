@@ -92,8 +92,7 @@ module Common
       end
 
       def schema(_error)
-        data = i18n_interpolated :schema
-        data
+        i18n_interpolated :schema
       end
 
       def array_items(error)
