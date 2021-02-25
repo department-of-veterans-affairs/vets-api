@@ -51,11 +51,11 @@ module AppealsApi
         extension = File.extname(@document)
         pdf_ext_error = I18n.t('appeals_api.evidence_submission.pdf_extension_message')
         { document: {
-            status: 'error',
-            filename:  @document.original_filename,
-            detail: I18n.t('appeals_api.evidence_submission.unsupported_file_type'),
-            content_type: content_type,
-            file_extension: extension == '.pdf' ? pdf_ext_error : extension
+          status: 'error',
+          filename:  @document.original_filename,
+          detail: I18n.t('appeals_api.evidence_submission.unsupported_file_type'),
+          content_type: content_type,
+          file_extension: extension == '.pdf' ? pdf_ext_error : extension
         }}
       end
 
@@ -63,14 +63,14 @@ module AppealsApi
         msg = I18n.t('appeals_api.evidence_submission.max_dimensions_error', max_dimensions: '11 inches x 11 inches')
         log_exception_to_sentry(UploadValidationError.new(msg), {}, {}, :warn)
         { document: {
-            status: 'error',
-            filename:  @document.original_filename,
-            pages: @pdf_metadata.pages,
-            detail: msg,
-            file_dimensions: {
-              "height": @dimensions[:height],
-              "width": @dimensions[:width]
-            }
+          status: 'error',
+          filename:  @document.original_filename,
+          pages: @pdf_metadata.pages,
+          detail: msg,
+          file_dimensions: {
+            "height": @dimensions[:height],
+            "width": @dimensions[:width]
+          }
         }}
       end
 
@@ -78,25 +78,25 @@ module AppealsApi
         msg = I18n.t('appeals_api.evidence_submission.max_file_size_error', max_file_size: '100 megabytes')
         log_exception_to_sentry(UploadValidationError.new(msg), {}, {}, :warn)
         { document: {
-            status: 'error',
-            filename:  @document.original_filename,
-            pages: @pdf_metadata.pages,
-            detail: msg,
-            file_size: "#{current_file_size} MB"
+          status: 'error',
+          filename:  @document.original_filename,
+          pages: @pdf_metadata.pages,
+          detail: msg,
+          file_size: "#{current_file_size} MB"
         }}
       end
 
       def successful_validation_message
         msg = I18n.t('appeals_api.evidence_submission.successful_validation')
         { document: {
-            status: 'accepted',
-            filename:  @document.original_filename,
-            pages: @pdf_metadata.pages,
-            detail: msg,
-            file_dimensions: {
-              "height": @dimensions[:height],
-              "width": @dimensions[:width]
-            }
+          status: 'accepted',
+          filename:  @document.original_filename,
+          pages: @pdf_metadata.pages,
+          detail: msg,
+          file_dimensions: {
+            "height": @dimensions[:height],
+            "width": @dimensions[:width]
+          }
         }}
       end
       # rubocop:enable Layout/SpaceInsideHashLiteralBraces
