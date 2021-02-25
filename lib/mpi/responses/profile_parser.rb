@@ -131,7 +131,7 @@ module MPI
       end
 
       def parse_relationships(relationships_array)
-        relationships_array.collect { |relationship| build_relationship_mvi_profile(relationship) }
+        relationships_array.map { |relationship| build_relationship_mvi_profile(relationship) }
       end
 
       # rubocop:disable Metrics/MethodLength

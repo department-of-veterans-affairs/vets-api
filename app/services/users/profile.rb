@@ -54,6 +54,7 @@ module Users
       scaffold.prefills_available = prefills_available
       scaffold.services = services
       scaffold.session = session_data
+      scaffold.relationships = relationships
     end
 
     def account
@@ -79,6 +80,16 @@ module Users
         sign_in: user.identity.sign_in,
         authn_context: user.authn_context
       }
+    end
+
+    def relationships
+      user.relationships.map do |relationship|
+        {
+          first_name: relationship[:first_name],
+          last_name: relationship[:last_name],
+          birth_date: relationship[:birth_date]
+        }
+      end
     end
 
     def vet360_contact_information

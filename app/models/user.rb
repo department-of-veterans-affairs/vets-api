@@ -349,7 +349,7 @@ class User < Common::RedisStore
   end
 
   def relationships
-    @relationships ||= mpi.profile.relationships.collect { |relationship| relationship_hash(relationship) }
+    @relationships ||= mpi.profile.relationships.map { |relationship| relationship_hash(relationship) }
   end
 
   private
