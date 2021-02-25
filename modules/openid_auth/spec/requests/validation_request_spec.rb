@@ -102,6 +102,10 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
   let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
 
+  after do
+    OIDC::KeyService.reset!
+  end
+
   context 'with valid responses' do
     before do
       allow(JWT).to receive(:decode).and_return(jwt)
