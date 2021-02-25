@@ -8,7 +8,7 @@ module HealthQuest
       end
 
       def show
-        render json: {}
+        render json: factory.get(params[:id]).response[:body]
       end
 
       private
