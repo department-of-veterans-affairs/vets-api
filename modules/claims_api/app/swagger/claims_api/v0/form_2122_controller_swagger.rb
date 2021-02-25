@@ -351,7 +351,7 @@ module ClaimsApi
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran being represented'
-            key :example, '123121234'
+            key :example, '796130115'
             key :required, true
             key :type, :string
           end
@@ -360,7 +360,7 @@ module ClaimsApi
             key :name, 'X-VA-First-Name'
             key :in, :header
             key :description, 'First Name of Veteran being represented'
-            key :example, 'John'
+            key :example, 'Tamara'
             key :required, true
             key :type, :string
           end
@@ -369,7 +369,7 @@ module ClaimsApi
             key :name, 'X-VA-Last-Name'
             key :in, :header
             key :description, 'Last Name of Veteran being represented'
-            key :example, 'Doe'
+            key :example, 'Ellis'
             key :required, true
             key :type, :string
           end
@@ -378,7 +378,7 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :example, '1954-12-15'
+            key :example, '1967-06-19'
             key :required, true
             key :type, :string
           end
@@ -466,7 +466,7 @@ module ClaimsApi
             key :in, :header
             key :description, 'SSN of Veteran being represented'
             key :required, true
-            key :example, '123121234'
+            key :example, '796130115'
             key :type, :string
           end
 
@@ -474,7 +474,7 @@ module ClaimsApi
             key :name, 'X-VA-First-Name'
             key :in, :header
             key :description, 'First Name of Veteran being represented'
-            key :example, 'John'
+            key :example, 'Tamara'
             key :required, true
             key :type, :string
           end
@@ -483,7 +483,7 @@ module ClaimsApi
             key :name, 'X-VA-Last-Name'
             key :in, :header
             key :description, 'Last Name of Veteran being represented'
-            key :example, 'Doe'
+            key :example, 'Ellis'
             key :required, true
             key :type, :string
           end
@@ -492,7 +492,7 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :example, '1954-12-15'
+            key :example, '1967-06-19'
             key :required, true
             key :type, :string
           end
