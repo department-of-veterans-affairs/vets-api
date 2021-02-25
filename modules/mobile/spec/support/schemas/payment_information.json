@@ -34,6 +34,9 @@
                 },
                 "notDeceasedIndicator": {
                   "type": "boolean"
+                },
+                "canUpdatePayment": {
+                  "type": "boolean"
                 }
               },
               "type": "object"
