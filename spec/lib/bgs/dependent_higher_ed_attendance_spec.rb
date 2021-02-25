@@ -22,7 +22,7 @@ RSpec.describe BGS::DependentHigherEdAttendance do
             {
               vnp_participant_id: '151598',
               participant_relationship_type_name: 'Child',
-              family_relationship_type_name: 'Other',
+              family_relationship_type_name: 'Biological',
               type: '674'
             }
           )

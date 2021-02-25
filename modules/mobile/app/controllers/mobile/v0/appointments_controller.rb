@@ -8,7 +8,19 @@ module Mobile
   module V0
     class AppointmentsController < ApplicationController
       def index
-        appointments, errors = appointments_proxy.get_appointments(start_date, end_date)
+        use_cache = params[:useCache] || false
+        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 3.months).iso8601
+        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 6.months).iso8601
+
+        validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
+          start_date: start_date,
+          end_date: end_date,
+          use_cache: use_cache
+        )
+
+        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
+
+        appointments, errors = appointments_proxy.get_appointments(validated_params.to_h)
 
         options = {
           meta: {
@@ -21,8 +33,8 @@ module Mobile
 
       def cancel
         decoded_cancel_params = Mobile::V0::Contracts::CancelAppointment.decode_cancel_id(params[:id])
-        validation_result = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
-        raise Mobile::V0::Exceptions::ValidationErrors, validation_result if validation_result.failure?
+        contract = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
+        raise Mobile::V0::Exceptions::ValidationErrors, contract if contract.failure?
 
         appointments_proxy.put_cancel_appointment(decoded_cancel_params)
         head :no_content
@@ -32,18 +44,6 @@ module Mobile
 
       def appointments_proxy
         Mobile::V0::Appointments::Proxy.new(@current_user)
-      end
-
-      def start_date
-        DateTime.parse(params[:startDate])
-      rescue ArgumentError, TypeError
-        raise Common::Exceptions::InvalidFieldValue.new('startDate', params[:startDate])
-      end
-
-      def end_date
-        DateTime.parse(params[:endDate])
-      rescue ArgumentError, TypeError
-        raise Common::Exceptions::InvalidFieldValue.new('endDate', params[:endDate])
       end
     end
   end

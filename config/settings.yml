@@ -699,6 +699,7 @@ bgs:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
+  staging_flag: ~
 
 va_mobile:
   url: "https://veteran.apps.va.gov"
@@ -721,12 +722,34 @@ hqva_mobile:
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"
+    pgd_token_path: "/oauth2/pgd/v1/token"
+    health_api_path: "/services/fhir/v0/r4"
+    health_token_path: "/oauth2/health/system/v1/token"
     host: "sandbox-api.va.gov"
-    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    pgd_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    health_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7"
     claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     redis_session_prefix: "healthquest_lighthouse"
+    health_api: "health_api"
+    pgd_api: "pgd_api"
     mock: false
     key_path: /srv/vets-api/secret/health-quest.lighthouse.key
+    pgd_api_scopes:
+      - "launch/patient"
+      - "patient/Observation.read"
+      - "patient/Observation.write"
+      - "patient/Questionnaire.read"
+      - "patient/Questionnaire.write"
+      - "patient/QuestionnaireResponse.read"
+      - "patient/QuestionnaireResponse.write"
+    health_api_scopes:
+      - "launch/patient"
+      - "patient/Appointment.read"
+      - "patient/Location.read"
+      - "patient/Organization.read"
+      - "patient/Patient.read"
 
 lighthouse:
   api_key: fake_key
@@ -768,11 +791,29 @@ coronavirus_chatbot:
 # Settings for notifications client
 vanotify:
   client_url: http://fakeapi.com
+  services:
+    va_gov:
+      api_key: fake_secret
+      template_id:
+        form526_confirmation_email: fake_template_id
+        covid_vaccine_registration: fake_template_id
+    lighthouse:
+      api_key: fake_secret
+      template_id:
+        disconnection_template: fake_template_id
+        connection_template: fake_template_id
+
+  # will be removed once the vanotify_service_enhancement feature toggle is removed
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+    connection_template: fake_template_id
+    disconnection_template: fake_template_id
     covid_vaccine_registration: fake_template_id
   mock: false
+  links:
+    connected_applications: https://www.va.gov/profile/connected-applications
+    password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
 
 # Settings to connect to the drupal forms graphql api
 va_forms:

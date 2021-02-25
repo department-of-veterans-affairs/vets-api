@@ -110,7 +110,21 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   describe '#zip_code_5' do
-    it { expect(notice_of_disagreement.zip_code_5).to eq '30012' }
+    context 'when address present' do
+      it { expect(notice_of_disagreement.zip_code_5).to eq '30012' }
+    end
+
+    context 'when homeless and no address' do
+      before do
+        veteran_data = default_form_data['data']['attributes']['veteran']
+        veteran_data['homeless'] = true
+        veteran_data.delete('address')
+      end
+
+      it do
+        expect(notice_of_disagreement.zip_code_5).to eq '00000'
+      end
+    end
   end
 
   describe '#lob' do

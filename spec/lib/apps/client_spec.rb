@@ -30,6 +30,17 @@ describe Apps::Client do
         end
       end
     end
+
+    context 'with a query that includes whitespace' do
+      let(:search_term) { 'Apple Health' }
+
+      it 'returns an app response object' do
+        VCR.use_cassette('apps/200_apple_health_query', match_requests_on: %i[method path]) do
+          response = subject.get_app
+          expect(response).to be_a Apps::Responses::Response
+        end
+      end
+    end
   end
 
   describe '#get_scopes' do

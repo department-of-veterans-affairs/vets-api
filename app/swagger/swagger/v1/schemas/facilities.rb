@@ -27,7 +27,7 @@ class Swagger::V1::Schemas::Facilities
           end
         end
       end
-      property :active_status, type: %i[string null], example: 'A'
+      property :activeStatus, type: %i[string null], example: 'A'
       property :address, type: %i[object null] do
         key :description, 'Physical and mailing addresses for facilities'
         property :physical do
@@ -44,12 +44,12 @@ class Swagger::V1::Schemas::Facilities
       property :feedback, type: :object do
         property :health, type: :object do
           key :description, 'Patient satisfaction scores for health facilities'
-          property :primary_care_routine, type: :number, format: :float, example: 95.2
-          property :primary_care_urgent, type: :number, format: :float, example: 89.1
-          property :specialty_care_routine, type: :number, format: :float, example: 78
-          property :specialty_care_urgent, type: :number, format: :float, example: 75.3
+          property :primaryCareRoutine, type: :number, format: :float, example: 95.2
+          property :primaryCareUrgent, type: :number, format: :float, example: 89.1
+          property :specialtyCareRoutine, type: :number, format: :float, example: 78
+          property :specialtyCareUrgent, type: :number, format: :float, example: 75.3
         end
-        property :effective_date, type: :string, format: :date, example: '2017-07-01'
+        property :effectiveDate, type: :string, format: :date, example: '2017-07-01'
       end
 
       property :hours, type: :object do
@@ -69,21 +69,21 @@ class Swagger::V1::Schemas::Facilities
       property :mobile, type: %i[boolean null], example: false
       property :name, type: :string, example: 'Example VAMC'
 
-      property :operating_status, type: :object do
+      property :operatingStatus, type: :object do
         key :description, 'Current status of facility operations.'
         property :code, type: :string, example: 'NORMAL'
-        property :additional_info, type: :string, example: 'Additional information about the operating status.'
+        property :additionalInfo, type: :string, example: 'Additional information about the operating status.'
       end
 
       property :phone, type: :object do
         key :description, 'Telephone numbers for facilities'
         property :main, type: %i[string null], example: '212-555-1212'
         property :fax, type: %i[string null], example: '212-555-1212'
-        property :after_hours, type: %i[string null], example: '212-555-1212'
-        property :patient_advocate, type: %i[string null], example: '212-555-1212'
-        property :enrollment_coordinator, type: %i[string null], example: '212-555-1212'
+        property :afterHours, type: %i[string null], example: '212-555-1212'
+        property :patientAdvocate, type: %i[string null], example: '212-555-1212'
+        property :enrollmentCoordinator, type: %i[string null], example: '212-555-1212'
         property :pharmacy, type: %i[string null], example: '212-555-1212'
-        property :mental_health_clinic, type: %i[string null], example: '212-555-1212 x 123'
+        property :mentalHealthClinic, type: %i[string null], example: '212-555-1212 x 123'
       end
 
       property :services, type: :object do
@@ -95,7 +95,7 @@ class Swagger::V1::Schemas::Facilities
         end
       end
 
-      property :unique_id, type: :string, example: '999'
+      property :uniqueId, type: :string, example: '999'
       property :visn, type: %i[string null], example: 17
       property :website, type: %i[string null], example: 'http://www.example.com'
     end
