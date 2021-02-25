@@ -65,15 +65,20 @@ RSpec.describe 'Lighthouse appointments', type: :request do
 
     context 'health quest user' do
       let(:current_user) { build(:user, :health_quest) }
+      let(:session_store) { double('SessionStore', token: '123abc') }
+      let(:client_reply) { double('FHIR::ClientReply', response: { body: { 'resourceType' => 'Bundle' } }) }
 
       before do
         sign_in_as(current_user)
+        allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
+        allow_any_instance_of(HealthQuest::HealthApi::Appointment::MapQuery)
+          .to receive(:search).with(anything).and_return(client_reply)
       end
 
-      it 'returns an empty appointment list' do
+      it 'returns a FHIR Bundle ' do
         get '/health_quest/v0/lighthouse_appointments?test=1234'
 
-        expect(JSON.parse(response.body)).to eq({ 'data' => [] })
+        expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'Bundle' })
       end
     end
   end
