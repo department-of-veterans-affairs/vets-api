@@ -8,7 +8,7 @@ module AppealsApi::V1
       swagger_component do
         schema :nodStatus do
           key :type, :string
-          key :enum, AppealsApi::CentralMailStatus::STATUSES
+          key :enum, AppealsApi::AppealStatus::STATUSES
           key :example, 'submitted'
         end
 

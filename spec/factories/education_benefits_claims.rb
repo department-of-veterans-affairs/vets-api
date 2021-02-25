@@ -23,5 +23,13 @@ FactoryBot.define do
     after(:build) do |education_benefits_claim|
       education_benefits_claim.saved_claim ||= build(:va10203)
     end
+
+    trait :with_stem do
+      education_stem_automated_decision { build(:education_stem_automated_decision) }
+    end
+
+    trait :with_denied_stem do
+      education_stem_automated_decision { build(:education_stem_automated_decision, :denied) }
+    end
   end
 end
