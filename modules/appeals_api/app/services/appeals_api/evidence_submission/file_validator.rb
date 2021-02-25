@@ -4,11 +4,16 @@ require 'pdf_info'
 
 module AppealsApi
   module EvidenceSubmission
-    class UploadValidator
+    class FileValidator
       include SentryLogging
 
-      def initialize(upload)
-        @document = upload[:document]
+      class UploadValidationError < StandardError; end
+
+      MAX_PAGE_SIZE = { width: 11, height: 11 }
+      MAX_FILE_SIZE = 100.megabytes
+
+      def initialize(file)
+        @file = file
       end
 
       def call
@@ -22,7 +27,7 @@ module AppealsApi
       private
 
       def pdf_metadata_present?
-        @pdf_metadata = PdfInfo::Metadata.read(@document)
+        @pdf_metadata = PdfInfo::Metadata.read(@file)
       rescue PdfInfo::MetadataReadError => e
         @pdf_error = I18n.t('appeals_api.evidence_submission.pdf_read_error')
         log_exception_to_sentry(e, {}, {}, :warn)
@@ -31,32 +36,28 @@ module AppealsApi
       end
 
       def valid_file_size?
-        current_file_size <= 100.megabytes
+        current_file_size <= MAX_FILE_SIZE
+      end
+
+      def current_file_size
+        @file_size ||= @file.size
       end
 
       def valid_page_dimensions?
         @dimensions = @pdf_metadata.page_size_inches
-        @dimensions[:height] <= 11 && @dimensions[:width] <= 11
+        @dimensions[:height] <= MAX_PAGE_SIZE[:height] && @dimensions[:width] <= MAX_PAGE_SIZE[:width]
       end
 
-      def current_file_size
-        # TODO: need to figure this out
-        @file_size ||= @document.try(:length) || @document.try(:size)
-      end
-
-      # rubocop:disable Layout/SpaceInsideHashLiteralBraces
       # rubocop:disable Layout/HashAlignment
       def file_type_error
-        content_type = @document.content_type
-        extension = File.extname(@document)
+        extension = File.extname(@file)
         pdf_ext_error = I18n.t('appeals_api.evidence_submission.pdf_extension_message')
         { document: {
           status: 'error',
-          filename:  @document.original_filename,
+          filename:  File.basename(@file),
           detail: I18n.t('appeals_api.evidence_submission.unsupported_file_type'),
-          content_type: content_type,
           file_extension: extension == '.pdf' ? pdf_ext_error : extension
-        }}
+        } }
       end
 
       def max_dimension_error
@@ -64,14 +65,14 @@ module AppealsApi
         log_exception_to_sentry(UploadValidationError.new(msg), {}, {}, :warn)
         { document: {
           status: 'error',
-          filename:  @document.original_filename,
+          filename:  File.basename(@file),
           pages: @pdf_metadata.pages,
           detail: msg,
           file_dimensions: {
             "height": @dimensions[:height],
             "width": @dimensions[:width]
           }
-        }}
+        } }
       end
 
       def file_size_error
@@ -79,30 +80,27 @@ module AppealsApi
         log_exception_to_sentry(UploadValidationError.new(msg), {}, {}, :warn)
         { document: {
           status: 'error',
-          filename:  @document.original_filename,
+          filename:  File.basename(@file),
           pages: @pdf_metadata.pages,
           detail: msg,
           file_size: "#{current_file_size} MB"
-        }}
+        } }
       end
 
       def successful_validation_message
         msg = I18n.t('appeals_api.evidence_submission.successful_validation')
         { document: {
           status: 'accepted',
-          filename:  @document.original_filename,
+          filename:  File.basename(@file),
           pages: @pdf_metadata.pages,
           detail: msg,
           file_dimensions: {
             "height": @dimensions[:height],
             "width": @dimensions[:width]
           }
-        }}
+        } }
       end
-      # rubocop:enable Layout/SpaceInsideHashLiteralBraces
       # rubocop:enable Layout/HashAlignment
-
-      class UploadValidationError < StandardError; end
     end
   end
 end
