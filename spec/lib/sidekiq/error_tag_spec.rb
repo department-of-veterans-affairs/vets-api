@@ -23,7 +23,7 @@ describe Sidekiq::ErrorTag do
   it 'tags raven before each sidekiq job' do
     TestJob.perform_async
     expect(Raven).to receive(:tags_context).with(job: 'TestJob', request_id: '123')
-    expect(Raven).to receive(:user_context).with(:id => "N/A", :remote_ip => "99.99.99.99", :user_agent => "banana")
+    expect(Raven).to receive(:user_context).with(id: 'N/A', remote_ip: '99.99.99.99', user_agent: 'banana')
     TestJob.drain
   end
 
