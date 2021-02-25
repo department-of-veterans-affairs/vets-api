@@ -12,7 +12,6 @@ module Mobile
 
       def index
         payment_information = service.get_payment_information.responses[0]
-
         render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.id,
                                                                   payment_information.payment_account,
                                                                   payment_information.control_information)
