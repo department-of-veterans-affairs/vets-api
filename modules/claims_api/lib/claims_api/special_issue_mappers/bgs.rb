@@ -1,14 +1,21 @@
 # frozen_string_literal: true
 
-require 'claims_api/special_issue_mappers/evss'
+require 'claims_api/special_issue_mappers/base'
 
 module ClaimsApi
   module SpecialIssueMappers
-    class Bgs < ClaimsApi::SpecialIssueMappers::Evss
+    class Bgs < ClaimsApi::SpecialIssueMappers::Base
       protected
 
       def special_issues # rubocop:disable Metrics/MethodLength
-        ([
+        [
+          { name: 'ALS', code: 'ALS' },
+          { name: 'HEPC', code: 'HEPC' },
+          { name: 'POW', code: 'POW' },
+          { name: 'MST', code: 'MST' },
+          { name: 'Amyotrophic Lateral Sclerosis (ALS)', code: 'ALS' },
+          { name: 'Hepatitis C', code: 'HEPC' },
+          { name: 'Military Sexual Trauma (MST)', code: 'MST' },
           { name: 'PTSD/1', code: 'PTSD/1' },
           { name: 'PTSD/2', code: 'PTSD/2' },
           { name: 'PTSD/3', code: 'PTSD/3' },
@@ -160,7 +167,7 @@ module ClaimsApi
           { name: 'VONAPP Direct Connect', code: 'VDC' },
           { name: 'WARTAC', code: 'WARTAC' },
           { name: 'WARTAC Trainee', code: 'WT' }
-        ] + super).uniq { |special_issue| special_issue[:name] }
+        ].freeze
       end
     end
   end
