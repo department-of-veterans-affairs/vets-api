@@ -7,7 +7,7 @@ module ClaimsApi
     class Bgs < ClaimsApi::SpecialIssueMappers::Evss
       protected
 
-      def special_issues # rubocop:disable Metrics/MethodLength
+      def items # rubocop:disable Metrics/MethodLength
         ([
           { name: 'PTSD/1', code: 'PTSD/1' },
           { name: 'PTSD/2', code: 'PTSD/2' },

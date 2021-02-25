@@ -2,6 +2,7 @@
 
 require 'json_marshal/marshaller'
 require 'claims_api/special_issue_mappers/evss'
+require 'claims_api/homelessness_situation_type_mapper'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
@@ -54,18 +55,8 @@ module ClaimsApi
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       form_data['claimSubmissionSource'] = 'Lighthouse'
 
-      mapper = ClaimsApi::SpecialIssueMappers::Evss.new
-      (form_data['disabilities'] || []).each do |disability|
-        disability['specialIssues'] = (disability['specialIssues'] || []).map do |special_issue|
-          mapper.code_from_name(special_issue)
-        end.reject(&:blank?)
-
-        (disability['secondaryDisabilities'] || []).each do |secondary_disability|
-          secondary_disability['specialIssues'] = (secondary_disability['specialIssues'] || []).map do |special_issue|
-            mapper.code_from_name(special_issue)
-          end.reject(&:blank?)
-        end
-      end
+      resolve_special_issue_mappings!
+      resolve_homelessness_situation_type_mappings!
 
       {
         "form526": form_data
@@ -106,6 +97,30 @@ module ClaimsApi
     end
 
     private
+
+    def resolve_special_issue_mappings!
+      mapper = ClaimsApi::SpecialIssueMappers::Evss.new
+      (form_data['disabilities'] || []).each do |disability|
+        disability['specialIssues'] = (disability['specialIssues'] || []).map do |special_issue|
+          mapper.code_from_name(special_issue)
+        end.compact
+
+        (disability['secondaryDisabilities'] || []).each do |secondary_disability|
+          secondary_disability['specialIssues'] = (secondary_disability['specialIssues'] || []).map do |special_issue|
+            mapper.code_from_name(special_issue)
+          end.compact
+        end
+      end
+    end
+
+    def resolve_homelessness_situation_type_mappings!
+      return if form_data['veteran']['homelessness'].blank?
+      return if form_data['veteran']['homelessness']['currentlyHomeless'].blank?
+
+      mapper = ClaimsApi::HomelessnessSituationTypeMapper.new
+      name = form_data['veteran']['homelessness']['currentlyHomeless']['homelessSituationType']
+      form_data['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] = mapper.code_from_name(name)
+    end
 
     def log_flashes
       Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following flashes - #{flashes}") if flashes.present?

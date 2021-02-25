@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-require 'claims_api/special_issue_mappers/base'
+require 'claims_api/field_mapper_base'
 
 module ClaimsApi
   module SpecialIssueMappers
-    class Evss < ClaimsApi::SpecialIssueMappers::Base
+    class Evss < ClaimsApi::FieldMapperBase
       protected
 
-      def special_issues
+      def items
         [
           { name: 'ALS', code: 'ALS' },
           { name: 'HEPC', code: 'HEPC' },
