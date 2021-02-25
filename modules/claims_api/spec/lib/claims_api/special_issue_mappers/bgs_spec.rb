@@ -17,6 +17,10 @@ describe ClaimsApi::SpecialIssueMappers::Bgs do
     expect(subject.code_from_name('invalid-name')).to eq(nil)
   end
 
+  it 'raises exception for invalid name' do
+    expect { subject.code_from_name!('invalid-name') }.to raise_error(::Common::Exceptions::InvalidFieldValue)
+  end
+
   [
     { name: 'Radiation', code: 'RDN' },
     { name: 'PTSD/3', code: 'PTSD/3' }
@@ -28,5 +32,9 @@ describe ClaimsApi::SpecialIssueMappers::Bgs do
 
   it 'returns nil for invalid code' do
     expect(subject.name_from_code('invalid-code')).to eq(nil)
+  end
+
+  it 'raises exception for invalid name' do
+    expect { subject.name_from_code!('invalid-code') }.to raise_error(::Common::Exceptions::InvalidFieldValue)
   end
 end
