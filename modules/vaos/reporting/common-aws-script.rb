@@ -10,19 +10,21 @@ require 'net/http'
 require 'uri'
 require 'csv'
 
+require './redis-test'
+
 AWS_LOG_PATH = "dsva-vagov-prod/srv/vets-api/src/log/vets-api-server.log"
 
 # In the future we can use OptionsParser to make this accept arguments
 DEFAULT_OPTIONS = {
-  start_date: Date.new(2021, 2, 14),
+  start_date: Date.new(2020, 9, 28),
   end_date: Date.today - 1,
-  filter_pattern:  '{ ($.message = “VAOS service call*“) }',
+  filter_pattern:  '{ ($.message = “VAOS service call*“) && ($.named_tags.request_id="72ab412a-1a73-48ce-bf7a-24c9ea5914e5")}',
   path: 'logs'
 }
 
 def ranges(start_date, end_date)
   (start_date..end_date).map do |day|
-    [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 23, 59, 59, 0).iso8601]
+    [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 00, 59, 59, 0).iso8601]
   end
 end
 
@@ -47,6 +49,16 @@ def fetch_data(options)
         stdout_str = stdout.read
         stderr_str = stderr.read
         status = wait_thr.value
+
+        stdout_arr = stdout_str.split("|")
+        stdout_arr = stdout_arr[1..-1]
+
+        stdout_arr.each do |log|
+          log = log.split("\n").first
+          json_log = JSON.parse(log)
+          save(json_log['named_tags']['request_id'], json_log)
+        end
+
         if status.success?
           File.open(path, 'w') do |file|
             file.write stdout_str
