@@ -75,13 +75,6 @@ module Okta
       end
     end
 
-    def oidc_jwks_keys(iss)
-      url = metadata(iss).body['jwks_uri']
-      with_monitoring do
-        get_url_no_token(url)
-      end
-    end
-
     private
 
     %i[get post put delete].each do |http_verb|
