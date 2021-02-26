@@ -72,9 +72,9 @@ RSpec.describe 'Upload supporting evidence', type: :request do
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'
         expect(err['detail']).to eq(
-          I18n.t('errors.messages.extension_whitelist_error',
+          I18n.t('errors.messages.extension_allowlist_error',
                  extension: '"crt"',
-                 allowed_types: SupportingEvidenceAttachmentUploader.new('a').extension_whitelist.join(', '))
+                 allowed_types: SupportingEvidenceAttachmentUploader.new('a').extension_allowlist.join(', '))
         )
       end
 
