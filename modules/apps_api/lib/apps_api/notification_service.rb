@@ -2,6 +2,7 @@
 
 require 'active_support/time'
 require 'okta/service'
+require 'time'
 
 module AppsApi
   class NotificationService < Common::Client::Base
@@ -56,7 +57,7 @@ module AppsApi
         'options' => {
           'first_name' => user.body['profile']['firstName'],
           'application' => app_record ? app_record['name'] : nil,
-          'time' => published,
+          'time' => Time.parse(published).strftime("%m/%d/%Y at %T:%M%p"),
           'privacy_policy' => app_record ? app_record['privacy_url'] : nil,
           'password_reset' => Settings.vanotify.links.password_reset,
           'connected_applications_link' => Settings.vanotify.links.connected_applications

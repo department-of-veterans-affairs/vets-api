@@ -125,7 +125,7 @@ describe AppsApi::NotificationService do
                                 tos_url: '123.com')
   end
 
-  let(:published) { '2020-10-08T18=>08=>41.204' }
+  let(:published) { '2020-11-29T00:23:39.508Z' }
   let(:returned_hash) do
     subject.create_hash(
       app_record: directory_app,
@@ -250,7 +250,7 @@ describe AppsApi::NotificationService do
       expect(returned_hash['user_email']).to eq('johndoe@email.com')
       expect(returned_hash['options'].size).to eq(6)
       expect(returned_hash['options']['first_name']).to eq('John')
-      expect(returned_hash['options']['time']).to eq('2020-10-08T18=>08=>41.204')
+      expect(returned_hash['options']['time']).to eq('11/29/2020 at 00:23:39:23AM')
       expect(returned_hash['options']['privacy_policy']).to eq('123.com')
     end
   end
