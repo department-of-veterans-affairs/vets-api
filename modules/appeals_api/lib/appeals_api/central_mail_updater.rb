@@ -8,7 +8,7 @@ module AppealsApi
 
     CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
 
-    CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES = {
+    NOD_CENTRAL_STATUS_ATTRIBUTES = {
       'Received' => { status: 'received' },
       'Success' => { status: 'success' },
 
@@ -21,7 +21,18 @@ module AppealsApi
       'VBMS Complete' => { status: 'vbms' }
     }.freeze
 
-    CENTRAL_MAIL_STATUSES = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.uniq.freeze
+    CENTRAL_MAIL_STATUSES = NOD_CENTRAL_STATUS_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.uniq.freeze
+
+    HLR_CENTRAL_STATUS_ATTRIBUTES = {
+      'Received' => { status: 'received' },
+      'Success' => { status: 'success' },
+
+      'In Process' => { status: 'processing' },
+      'Processing Success' => { status: 'processing' },
+
+      'Error' => { status: 'error', code: 'DOC202' },
+      'Processing Error' => { status: 'error', code: 'DOC202' }
+    }.freeze
 
     CENTRAL_MAIL_STATUS = Struct.new(:id, :status, :error_message) do
       delegate :present?, to: :id
@@ -68,7 +79,7 @@ module AppealsApi
     end
 
     def update_appeal_status!(appeal, status)
-      attributes = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.fetch(status.status) do
+      attributes = central_mail_status_lookup(appeal).fetch(status.status) do
         log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status.status)
         raise Common::Exceptions::BadGateway
       end
@@ -76,6 +87,13 @@ module AppealsApi
       attributes = attributes.merge(detail: "Downstream status: #{status.error_message}") if status.error?
 
       appeal.update! attributes
+    end
+
+    def central_mail_status_lookup(appeal)
+      case appeal
+      when AppealsApi::NoticeOfDisagreement then NOD_CENTRAL_STATUS_ATTRIBUTES
+      when AppealsApi::HigherLevelReview then HLR_CENTRAL_STATUS_ATTRIBUTES
+      end
     end
   end
 end

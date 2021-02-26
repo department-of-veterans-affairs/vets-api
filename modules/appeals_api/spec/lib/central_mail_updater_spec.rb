@@ -21,10 +21,10 @@ describe AppealsApi::CentralMailUpdater do
   end
 
   context 'when verifying status structures' do
-    let(:appeal_statuses) { AppealsApi::AppealStatus::STATUSES }
+    let(:appeal_statuses) { AppealsApi::NodStatus::STATUSES }
 
-    it 'fails if one or more CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES keys or values is mismatched' do
-      status_hashes = described_class::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.values
+    it 'fails if one or more NOD_CENTRAL_STATUS_ATTRIBUTES keys or values is mismatched' do
+      status_hashes = described_class::NOD_CENTRAL_STATUS_ATTRIBUTES.values
       status_attr_keys = status_hashes.map(&:keys).flatten
       status_attr_values = status_hashes.map { |attr| attr[:status] }.uniq
 
@@ -33,7 +33,7 @@ describe AppealsApi::CentralMailUpdater do
     end
 
     it 'fails if error statuses are mismatched' do
-      central_mail_statuses = described_class::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.keys
+      central_mail_statuses = described_class::NOD_CENTRAL_STATUS_ATTRIBUTES.keys
       error_statuses = described_class::CENTRAL_MAIL_ERROR_STATUSES
 
       expect(central_mail_statuses).to include(*error_statuses)

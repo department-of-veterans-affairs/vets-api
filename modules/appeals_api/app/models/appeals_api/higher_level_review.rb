@@ -5,7 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
-    include AppealStatus
+    include HlrStatus
 
     def self.past?(date)
       date < Time.zone.today

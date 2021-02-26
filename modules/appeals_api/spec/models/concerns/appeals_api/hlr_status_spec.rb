@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe AppealsApi::AppealStatus, type: :concern do
+describe AppealsApi::HlrStatus, type: :concern do
   context 'when verifying model status structures' do
     let(:local_statuses) { subject::STATUSES }
 
@@ -13,7 +13,7 @@ describe AppealsApi::AppealStatus, type: :concern do
     end
 
     it 'includes the expected statuses' do
-      statuses = %w[pending submitting submitted received success processing error vbms]
+      statuses = %w[pending submitting submitted processing error uploaded received success expired]
       expect(described_class::STATUSES).to eq(statuses)
     end
   end
