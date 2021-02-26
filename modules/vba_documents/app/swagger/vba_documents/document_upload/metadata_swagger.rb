@@ -54,7 +54,7 @@ module VBADocuments
             key :enum, %i[CMP PMC INS EDU VRE BVA FID LOG MED BUR OTH DROC]
             key :description,
 <<DESCRIPTION
-On optional parameter.  The values are:<br>
+On optional parameter (can be missing or empty).  The values are:<br>
 CMP - Compensation<br>
 PMC - Pension<br>
 INS - Insurance<br>
