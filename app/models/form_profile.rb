@@ -287,15 +287,16 @@ class FormProfile
   end
 
   def user_address_hash
-    user.address &&
-      {
-        street: user.address.street,
-        street2: nil,
-        city: user.address.city,
-        state: user.address.state,
-        country: user.address.country,
-        postal_code: user.address.postal_code
-      }
+    return unless user.address
+
+    {
+      street: user.address.street,
+      street2: nil,
+      city: user.address.city,
+      state: user.address.state,
+      country: user.address.country,
+      postal_code: user.address.postal_code
+    }
   end
 
   def format_for_schema_compatibility(opt)

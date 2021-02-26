@@ -55,7 +55,7 @@ RSpec.describe FormProfile, type: :model do
       'city' => user.address.city,
       'state' => user.address.state,
       'country' => user.address.country,
-      'postal_code' => user.address.postal_code[0..4]
+      'postal_code' => user.address.postal_code.slice(0, 5)
     }
   end
 

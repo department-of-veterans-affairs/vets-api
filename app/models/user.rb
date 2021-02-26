@@ -108,7 +108,14 @@ class User < Common::RedisStore
   end
 
   def address
-    mpi.profile&.address
+    address = mpi_profile&.address
+    {
+      street: address&.street,
+      city: address&.city,
+      state: address&.state,
+      country: address&.country,
+      zip: address&.zip
+    }
   end
 
   def zip
