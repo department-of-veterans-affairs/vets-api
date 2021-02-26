@@ -13,8 +13,8 @@ module HealthQuest
 
       private
 
-      def appointments_params
-        params.permit!
+      def appointment_params
+        params.permit(:id)
       end
 
       def factory
