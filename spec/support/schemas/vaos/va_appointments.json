@@ -13,7 +13,7 @@
     },
     "meta": {
       "type": "object",
-      "required": ["pagination"],
+      "required": ["pagination", "errors"],
       "properties": {
         "pagination": {
           "type": "object",
@@ -23,6 +23,20 @@
             "per_page": { "type": "integer" },
             "total_pages": { "type": "integer" },
             "total_entries": { "type": "integer" }
+          }
+        },
+        "errors": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": false,
+          "items": {
+            "type": "object",
+            "required": ["code", "source", "summary"],
+            "properties": {
+              "code": { "type": "integer" },
+              "source": { "type": "string" },
+              "summary": { "type": "string" }
+            }
           }
         }
       }
