@@ -31,4 +31,21 @@ describe HealthQuest::HealthApi::Appointment::Factory do
       expect(described_class.manufacture(user)).to be_an_instance_of(described_class)
     end
   end
+
+  describe '#resource_name' do
+    it 'returns the resource name hash' do
+      expect(described_class.manufacture(user).resource_name).to eq({ resource_name: 'appointment' })
+    end
+  end
+
+  describe '#search' do
+    let(:filters) { { resource_name: 'appointment', patient: user.icn }.with_indifferent_access }
+    let(:options_builder) { HealthQuest::Shared::OptionsBuilder.manufacture(user, filters) }
+
+    it 'returns a ClientReply' do
+      allow_any_instance_of(FHIR::Client).to receive(:search).with(anything, anything).and_return(client_reply)
+
+      expect(described_class.manufacture(user).search(options_builder.to_hash)).to eq(client_reply)
+    end
+  end
 end
