@@ -29,7 +29,9 @@ module Mobile
 
         render json: response,
                serializer: Mobile::V0::MessageSerializer,
-               include: 'attachments',
+               include: {
+                 attachments: { serializer: Mobile::V0::AttachmentSerializer }
+               },
                meta: response.metadata
       end
 

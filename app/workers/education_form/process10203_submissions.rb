@@ -98,13 +98,14 @@ module EducationForm
     end
 
     # Ignore already processed either by CreateDailySpoolFiles or this job
-    def update_automated_decision(submission, status, poa)
+    def update_automated_decision(submission, status, poa, remaining_entitlement = nil)
       if submission.processed_at.nil? &&
          submission.education_stem_automated_decision&.automated_decision_state == INIT
 
         submission.education_stem_automated_decision.update(
           automated_decision_state: status,
-          poa: poa
+          poa: poa,
+          remaining_entitlement: remaining_entitlement
         )
       end
     end
@@ -132,7 +133,7 @@ module EducationForm
       unprocessed_submissions.each do |submission|
         unprocessed_form = format_application(submission)
         if repeat_form?(unprocessed_form, processed_form)
-          update_automated_decision(submission, PROCESSED, user_has_poa)
+          update_automated_decision(submission, PROCESSED, user_has_poa, remaining_entitlement_days(gi_bill_status))
         else
           process_submission(submission, gi_bill_status, user_has_poa)
         end
@@ -157,7 +158,7 @@ module EducationForm
                else
                  PROCESSED
                end
-      update_automated_decision(submission, status, user_has_poa)
+      update_automated_decision(submission, status, user_has_poa, remaining_entitlement_days(gi_bill_status))
     end
 
     def format_application(data)
@@ -175,14 +176,17 @@ module EducationForm
       nil
     end
 
+    def remaining_entitlement_days(gi_bill_status)
+      months = gi_bill_status.remaining_entitlement.months
+      days = gi_bill_status.remaining_entitlement.days
+      months * 30 + days
+    end
+
     # Inverse of less than six months check performed in EducationForm::SendSchoolCertifyingOfficialsEmail
     def more_than_six_months?(gi_bill_status)
       return true if gi_bill_status.remaining_entitlement.blank?
 
-      months = gi_bill_status.remaining_entitlement.months
-      days = gi_bill_status.remaining_entitlement.days
-
-      ((months * 30) + days) > 180
+      remaining_entitlement_days(gi_bill_status) > 180
     end
 
     def inform_on_error(claim, error = nil)

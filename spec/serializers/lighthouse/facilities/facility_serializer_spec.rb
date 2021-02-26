@@ -19,7 +19,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, te
   end
 
   it 'includes facility_type' do
-    expect(data['attributes']['facility_type']).to eq('va_health_facility')
+    expect(data['attributes']['facilityType']).to eq('va_health_facility')
   end
 
   it 'includes classification' do
@@ -42,9 +42,9 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, te
         'zip' => '98661-3753',
         'city' => 'Vancouver',
         'state' => 'WA',
-        'address_1' => '1601 East 4th Plain Boulevard',
-        'address_2' => nil,
-        'address_3' => nil
+        'address1' => '1601 East 4th Plain Boulevard',
+        'address2' => nil,
+        'address3' => nil
       }
     }
     expect(data['attributes']['address']).to eq(expected_address)
@@ -55,10 +55,10 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, te
       'fax' => '360-690-0864',
       'main' => '360-759-1901',
       'pharmacy' => '503-273-5183',
-      'after_hours' => '360-696-4061',
-      'patient_advocate' => '503-273-5308',
-      'mental_health_clinic' => '503-273-5187',
-      'enrollment_coordinator' => '503-273-5069'
+      'afterHours' => '360-696-4061',
+      'patientAdvocate' => '503-273-5308',
+      'mentalHealthClinic' => '503-273-5187',
+      'enrollmentCoordinator' => '503-273-5069'
     }
     expect(data['attributes']['phone']).to eq(expected_phone)
   end
@@ -81,7 +81,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, te
   end
 
   it 'includes active_status' do
-    expect(data['attributes']['active_status']).to eq('A')
+    expect(data['attributes']['activeStatus']).to eq('A')
   end
 
   it 'includes visn' do
@@ -91,10 +91,10 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, te
   it 'includes feedback' do
     expected_satisfaction = {
       'health' => {
-        'primary_care_urgent' => a_kind_of(Float),
-        'primary_care_routine' => a_kind_of(Float)
+        'primaryCareUrgent' => a_kind_of(Float),
+        'primaryCareRoutine' => a_kind_of(Float)
       },
-      'effective_date' => a_kind_of(Date)
+      'effectiveDate' => a_kind_of(Date)
     }
     expect(data['attributes']['feedback']).to match(expected_satisfaction)
   end
@@ -110,7 +110,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, te
         { 'service' => 'PrimaryCare',      'new' => a_kind_of(Float), 'established' => a_kind_of(Float) },
         { 'service' => 'SpecialtyCare',    'new' => a_kind_of(Float), 'established' => a_kind_of(Float) }
       ],
-      'effective_date' => a_kind_of(Date)
+      'effectiveDate' => a_kind_of(Date)
     }
     expect(data['attributes']['access']).to include(expected_wait_times)
   end

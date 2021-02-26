@@ -122,6 +122,12 @@ module PdfFill
       def select_checkbox(value)
         value ? 1 : 'Off'
       end
+
+      def format_boolean(bool_attribute)
+        return '' if bool_attribute.nil?
+
+        bool_attribute ? 'Yes' : 'No'
+      end
     end
   end
 end

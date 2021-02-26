@@ -3,7 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Form526ConfirmationEmailJob, type: :worker do
-  before { Sidekiq::Worker.clear_all }
+  before do
+    Sidekiq::Worker.clear_all
+  end
 
   describe '#perform' do
     let(:notification_client) { double('Notifications::Client') }
@@ -27,6 +29,34 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           },
           'uri': 'url'
         }
+      end
+
+      it 'the service is initialized with the correct parameters with enabled toggle' do
+        Flipper.enable(:vanotify_service_enhancement)
+        test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+        with_settings(
+          Settings.vanotify.services.va_gov, { api_key: test_service_api_key }
+        ) do
+          mocked_notification_service = instance_double('VaNotify::Service')
+          allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
+          allow(mocked_notification_service).to receive(:send_email).and_return(@email_response)
+          subject.perform('')
+          expect(VaNotify::Service).to have_received(:new).with(test_service_api_key)
+        end
+      end
+
+      it 'the service is initialized with the correct parameters with disabled toggle' do
+        Flipper.disable(:vanotify_service_enhancement)
+        test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+        with_settings(
+          Settings.vanotify, { api_key: test_service_api_key }
+        ) do
+          mocked_notification_service = instance_double('VaNotify::Service')
+          allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
+          allow(mocked_notification_service).to receive(:send_email).and_return(@email_response)
+          subject.perform('')
+          expect(VaNotify::Service).to have_received(:new).with(test_service_api_key)
+        end
       end
 
       it 'sends a confirmation email' do

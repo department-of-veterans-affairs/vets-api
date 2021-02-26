@@ -3,6 +3,8 @@
 class PPMS::ProviderSerializer
   include FastJsonapi::ObjectSerializer
 
+  set_key_transform :camel_lower
+
   attribute :acc_new_patients
 
   attribute :address do |object|
