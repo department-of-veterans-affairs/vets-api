@@ -7,7 +7,7 @@ RSpec.describe SupportingEvidenceAttachmentUploader do
 
   let(:guid) { '1234' }
 
-  it 'allow image, pdf, and text files' do
+  it 'allows image, pdf, and text files' do
     expect(subject.extension_allowlist).to match_array %w[pdf png gif tiff tif jpeg jpg bmp txt]
   end
 
