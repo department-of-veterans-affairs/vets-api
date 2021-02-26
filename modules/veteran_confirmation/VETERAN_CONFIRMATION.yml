@@ -26,8 +26,8 @@ info:
 
     Check out some of our [sample apps](https://github.com/department-of-veterans-affairs/vets-api-clients). Please visit our VA Lighthouse [Support portal](https://developer.va.gov/support) should you need further assistance.
 
-    ### 4. Show us a quick demo and get access to the Production environment
-    After building your app, we ask that you give us a quick demo before we set you up with production credentials. Please see the [Path to Production](https://developer.va.gov/go-live) page for more details.
+    ### 4. Show us a demo and get access to the Production environment
+    After building your app, we ask that you give us a demo before we set you up with production credentials. Please see the [Path to Production](https://developer.va.gov/go-live) page for more details.
 
     ## Authorization
     This API requires an API key in combination with identifiable information for the person being confirmed listed below. API requests are authorized through a symmetric API token provided in an HTTP header with name `apikey`. Including more information has a better chance of making a match and returning a Confirmed status.

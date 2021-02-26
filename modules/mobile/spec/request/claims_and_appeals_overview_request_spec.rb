@@ -25,8 +25,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body.dig('data')
-            expect(parsed_response_contents[0].dig('type')).to eq('claim')
-            expect(parsed_response_contents.last.dig('type')).to eq('appeal')
             open_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600114693' }[0]
             closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600023098' }[0]
             open_appeal = parsed_response_contents.select { |entry| entry.dig('id') == '3294289' }[0]
