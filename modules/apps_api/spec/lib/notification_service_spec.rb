@@ -20,6 +20,7 @@ describe AppsApi::NotificationService do
         'result' => 'FAILED'
       },
       'published' => '2020-10-01T17:37:49.538Z',
+      'uuid' => '1234fakeuuid',
       'target' => [
         {
           'id' => 'oagke4gvwYHTncxlI2p6',
@@ -45,6 +46,7 @@ describe AppsApi::NotificationService do
         'result' => 'SUCCESS'
       },
       'published' => '2020-10-01T17:37:49.538Z',
+      'uuid' => '5678fakeuuid',
       'target' => [
         {
           'id' => 'oagke4gvwYHTncxlI2p6',
@@ -130,7 +132,8 @@ describe AppsApi::NotificationService do
     subject.create_hash(
       app_record: directory_app,
       user: user_struct,
-      published: published
+      published: published,
+      uuid: '1234fakeuuid'
     )
   end
   let(:directory_app_struct) do
@@ -242,6 +245,17 @@ describe AppsApi::NotificationService do
         expect(subject.event_is_invalid(valid_disconnection_event)).to be(false)
       end
     end
+
+    context 'when the event has already been processed' do
+      it 'does not process an event that has already been processed' do
+        subject.instance_variable_set(:@handled_events, ['1234fakeuuid'])
+        expect(subject.event_is_invalid(invalid_connection_event)).to be(true)
+      end
+
+      it 'ignores events that have not been processed' do
+        expect(subject.event_is_invalid(valid_connection_event)).to be(false)
+      end
+    end
   end
 
   describe 'create_hash' do
@@ -252,6 +266,7 @@ describe AppsApi::NotificationService do
       expect(returned_hash['options']['first_name']).to eq('John')
       expect(returned_hash['options']['time']).to eq('11/29/2020 at 00:23:39:23AM')
       expect(returned_hash['options']['privacy_policy']).to eq('123.com')
+      expect(returned_hash['uuid']).to eq('1234fakeuuid')
     end
   end
 
@@ -261,7 +276,8 @@ describe AppsApi::NotificationService do
         subject.create_hash(
           app_record: nil,
           user: user_struct,
-          published: '2020-10-08T18=>08=>41.204'
+          published: '2020-10-08T18=>08=>41.204',
+          uuid: '1234fakeuuid'
         )
       end
 

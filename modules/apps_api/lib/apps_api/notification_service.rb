@@ -16,6 +16,7 @@ module AppsApi
       @connection_event = 'app.oauth2.as.consent.grant'
       @disconnection_event = 'app.oauth2.as.token.revoke'
       @staging_flag = Settings.directory.staging_flag
+      @handled_events = []
     end
 
     def handle_event(event_type, template)
@@ -47,17 +48,18 @@ module AppsApi
         app_record = DirectoryApplication.find_by(name: event['actor']['displayName'])
       end
       user = @okta_service.user(user_id)
-      create_hash(app_record: app_record, user: user, published: event['published'])
+      create_hash(app_record: app_record, user: user, published: event['published'], uuid: event['uuid'])
     end
 
-    def create_hash(app_record:, user:, published:)
+    def create_hash(app_record:, user:, published:, uuid:)
       {
+        'uuid' => uuid,
         'app_record' => app_record,
         'user_email' => user.body['profile']['email'],
         'options' => {
           'first_name' => user.body['profile']['firstName'],
           'application' => app_record ? app_record['name'] : nil,
-          'time' => Time.parse(published).strftime("%m/%d/%Y at %T:%M%p"),
+          'time' => Time.zone.parse(published).strftime('%m/%d/%Y at %T:%M%p'),
           'privacy_policy' => app_record ? app_record['privacy_url'] : nil,
           'password_reset' => Settings.vanotify.links.password_reset,
           'connected_applications_link' => Settings.vanotify.links.connected_applications
@@ -66,9 +68,12 @@ module AppsApi
     end
 
     def event_is_invalid(event)
-      event['outcome']['result'] != 'SUCCESS' ||
+      # checking if the event is unable to be processed,
+      # or has already been processed.
+      @handled_events.include?(event['uuid']) ||
+        event['outcome']['result'] != 'SUCCESS' ||
         (event['eventType'] == @disconnection_event &&
-          event['target'][0]['detailEntry']['subject'].nil?)
+         event['target'][0]['detailEntry']['subject'].nil?)
     end
 
     def send_email(hash:, template:)
@@ -76,6 +81,7 @@ module AppsApi
       if hash['app_record'].nil?
         false
       else
+        @handled_events << hash['uuid']
         @notify_client.send_email(
           email_address: hash['user_email'],
           template_id: template,
