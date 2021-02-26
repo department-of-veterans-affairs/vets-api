@@ -253,6 +253,17 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'no jwks' do
       with_okta_configured do
+        VCR.use_cassette('okta/metadata-no-jwks') do
+          post '/internal/auth/v1/validation', params: nil, headers: auth_header
+          expect(response).to have_http_status(:not_found)
+          expect(JSON.parse(response.body)['errors'].first['code']).to eq '404'
+          expect(JSON.parse(response.body)['errors'].first['status']).to eq '404'
+        end
+      end
+    end
+
+    it 'bad jwks' do
+      with_okta_configured do
         VCR.use_cassette('okta/metadata-bad') do
           post '/internal/auth/v1/validation', params: nil, headers: auth_header
           expect(response).to have_http_status(:not_found)
