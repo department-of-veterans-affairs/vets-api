@@ -13,10 +13,6 @@ module HealthQuest
 
       private
 
-      def appointment_params
-        params.permit(:id)
-      end
-
       def factory
         @factory =
           HealthQuest::HealthApi::Appointment::Factory.manufacture(current_user)
