@@ -94,17 +94,13 @@ class MHVAccountsService
   end
 
   def address_params
-    if user.address.present?
-      {
-        address1: user.address.street,
-        city: user.address.city,
-        state: user.address.state,
-        zip: user.address.postal_code,
-        country: user.address.country
-      }
-    else
-      {}
-    end
+    {
+      address1: user.address.street,
+      city: user.address.city,
+      state: user.address.state,
+      zip: user.address.postal_code,
+      country: user.address.country
+    }
   end
 
   def params_for_registration

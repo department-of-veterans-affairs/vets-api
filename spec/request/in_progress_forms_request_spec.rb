@@ -212,7 +212,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               'city' => user.address.city,
               'state' => user.address.state,
               'country' => user.address.country,
-              'postalCode' => user.address.postal_code[0..4]
+              'postalCode' => user.address.postal_code.slice(0, 5)
             },
             'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
           }

@@ -287,8 +287,6 @@ class FormProfile
   end
 
   def user_address_hash
-    return unless user.address
-
     {
       street: user.address.street,
       street2: nil,
