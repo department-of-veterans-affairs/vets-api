@@ -22,9 +22,6 @@ module OIDC
 
     def metadata(iss)
       metadata_endpoint = get_metadata_endpoint(iss)
-      if metadata_endpoint.nil?
-        raise Common::Exceptions::OpenIdServiceError.new(detail: 'Issuer not found', code: 404, status: 404)
-      end
 
       with_monitoring do
         OIDC::Response.new call_no_token('get', metadata_endpoint)
@@ -35,6 +32,10 @@ module OIDC
 
     def oidc_jwks_keys(iss)
       url = metadata(iss).body['jwks_uri']
+      if url.nil?
+        raise Common::Exceptions::OpenIdServiceError.new(detail: 'Issuer keys not found', code: 404, status: 404)
+      end
+
       with_monitoring do
         call_no_token('get', url)
       end
