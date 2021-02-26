@@ -19,7 +19,7 @@ describe AppsApi::NotificationService do
       'outcome' => {
         'result' => 'FAILED'
       },
-      'published' => '2020-10-01T17:37:49.538Z',
+      'published' => '2020-11-29T00:23:39.508Z',
       'uuid' => '1234fakeuuid',
       'target' => [
         {
@@ -45,7 +45,7 @@ describe AppsApi::NotificationService do
       'outcome' => {
         'result' => 'SUCCESS'
       },
-      'published' => '2020-10-01T17:37:49.538Z',
+      'published' => '2020-11-29T00:23:39.508Z',
       'uuid' => '5678fakeuuid',
       'target' => [
         {
@@ -70,7 +70,7 @@ describe AppsApi::NotificationService do
       'outcome' => {
         'result' => 'SUCCESS'
       },
-      'published' => '2020-10-08T18=>08=>41.204Z',
+      'published' => '2020-11-29T00:23:39.508Z',
       'target' => [
         {
           'id' => '{token_id}',
@@ -96,7 +96,7 @@ describe AppsApi::NotificationService do
       'outcome' => {
         'result' => 'SUCCESS'
       },
-      'published' => '2020-10-08T18=>08=>41.204Z',
+      'published' => '2020-11-29T00:23:39.508Z',
       'target' => [
         {
           'id' => '{token_id}',
@@ -276,7 +276,7 @@ describe AppsApi::NotificationService do
         subject.create_hash(
           app_record: nil,
           user: user_struct,
-          published: '2020-10-08T18=>08=>41.204',
+          published: '2020-11-29T00:23:39.508Z',
           uuid: '1234fakeuuid'
         )
       end
