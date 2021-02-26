@@ -190,7 +190,7 @@ en:
         status: 401
       open_id_service_error:
         <<: *defaults
-        title: Open Id Service Error
+        title: OpenId Service Error
         detail: "%{detail}"
         code: "%{code}"
         status: "%{status}"
