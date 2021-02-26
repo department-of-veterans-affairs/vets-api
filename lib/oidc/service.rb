@@ -22,6 +22,10 @@ module OIDC
 
     def metadata(iss)
       metadata_endpoint = get_metadata_endpoint(iss)
+      if metadata_endpoint.nil?
+        raise Common::Exceptions::OpenIdServiceError.new(detail: 'Issuer not found', code: 404, status: 404)
+      end
+
       with_monitoring do
         OIDC::Response.new call_no_token('get', metadata_endpoint)
       rescue
