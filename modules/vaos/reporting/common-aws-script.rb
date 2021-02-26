@@ -18,13 +18,17 @@ AWS_LOG_PATH = "dsva-vagov-prod/srv/vets-api/src/log/vets-api-server.log"
 DEFAULT_OPTIONS = {
   start_date: Date.new(2020, 9, 28),
   end_date: Date.today - 1,
-  filter_pattern:  '{ ($.message = “VAOS service call*“) && ($.named_tags.request_id="72ab412a-1a73-48ce-bf7a-24c9ea5914e5")}',
+  filter_pattern:  '{ ($.message = “VAOS service call*“) }',
   path: 'logs'
 }
 
+def request_by_id(id)
+  "{$.named_tags.request_id=\"#{id}\"}"
+end
+
 def ranges(start_date, end_date)
   (start_date..end_date).map do |day|
-    [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 00, 59, 59, 0).iso8601]
+    [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 00, 04, 59, 0).iso8601]
   end
 end
 
@@ -50,11 +54,11 @@ def fetch_data(options)
         stderr_str = stderr.read
         status = wait_thr.value
 
-        stdout_arr = stdout_str.split("|")
+        stdout_arr = stdout_str.split(/dsva-vagov-prod\/srv\/vets-api\/src\/log\/vets-api-server.log[^|]+\| /)
         stdout_arr = stdout_arr[1..-1]
+        puts stdout_arr
 
         stdout_arr.each do |log|
-          log = log.split("\n").first
           json_log = JSON.parse(log)
           save(json_log['named_tags']['request_id'], json_log)
         end

@@ -5,7 +5,7 @@ def cc_requests
     start_date: Date.new(2021, 2, 25),
     end_date: Date.today - 1,
     path: 'logs',
-    filter_pattern: "{($.payload.url='*booked-cc-appointments*')}"
+    filter_pattern: request_by_id('4790572a-ce76-4a52-9a52-12e128810629')
   )
   puts "\nProcessing CommunityCareRequest Report"
   #pp data
