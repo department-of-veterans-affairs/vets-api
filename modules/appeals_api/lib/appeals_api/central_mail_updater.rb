@@ -18,7 +18,7 @@ module AppealsApi
       'Error' => { status: 'error', code: 'DOC202' },
       'Processing Error' => { status: 'error', code: 'DOC202' },
 
-      'VBMS Complete' => { status: 'vbms' }
+      'VBMS Complete' => { status: 'caseflow' }
     }.freeze
 
     CENTRAL_MAIL_STATUSES = NOD_CENTRAL_STATUS_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.uniq.freeze

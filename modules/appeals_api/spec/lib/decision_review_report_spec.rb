@@ -65,7 +65,7 @@ describe AppealsApi::DecisionReviewReport do
       'submitted' => 0,
       'submitting' => 0,
       'success' => 2,
-      'vbms' => 0
+      'caseflow' => 0
     })
   end
   # rubocop:enable Layout/FirstHashElementIndentation
