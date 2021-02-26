@@ -16,8 +16,8 @@ In order to understand where your appeal submission is in the process, the Show 
 The statuses returned for an appeal submission (HLR, NOD, or SC) follow this pattern:
 
 1. **pending** - Initial status, indicates no document package has been uploaded yet
-1. **submitting** -
-1. **submitted** -
+1. **submitting** - Indicates that the transfer of data has begun but not yet completed
+1. **submitted** - Indicates that the data has been sent to upstream systems
 1. **received** - Indicates document package has been received upstream of the API, but is not yet in processing. Date of Receipt is set when this status is achieved. (This is also the final status in the sandbox environment.)
 1. **processing** - Indicates intake has begun, Conversion and Mail Handling Services (ICMHS) is processing the document package.
 1. **success** - Indicates document package has been received by Digital Mail Handling System (DHMS, aka the Centralized Mail portal).
@@ -28,5 +28,3 @@ If there is a problem during the process,
 - **error** - Indicates that there was an error. See the code and message for further information.
 
 ### Upload Statuses
-
-...
