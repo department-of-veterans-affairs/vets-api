@@ -38,6 +38,8 @@ module OIDC
 
       with_monitoring do
         call_no_token('get', url)
+      rescue
+        raise Common::Exceptions::OpenIdServiceError.new(detail: 'JWKS not found', code: 404, status: 404)
       end
     end
 
