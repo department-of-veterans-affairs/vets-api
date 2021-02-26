@@ -33,6 +33,7 @@ describe Sidekiq::ErrorTag do
       expect($named_tags[:request_id]).to eq('123')
       expect($named_tags[:remote_ip]).to eq('99.99.99.99')
       expect($named_tags[:user_agent]).to eq('banana')
+      expect($named_tags[:user_uuid]).to eq('N/A')
     end
   end
   # rubocop:enable Style/GlobalVars
