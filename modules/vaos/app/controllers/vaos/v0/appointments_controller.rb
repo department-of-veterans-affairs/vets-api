@@ -8,7 +8,7 @@ module VAOS
       before_action :validate_params, only: :index
 
       def index
-        if appointments[:meta][:errors].any?
+        if appointments[:meta][:errors]&.any?
           render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: 207
         else
           render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: 200

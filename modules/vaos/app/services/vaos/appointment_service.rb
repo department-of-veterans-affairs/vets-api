@@ -95,7 +95,7 @@ module VAOS
     end
 
     def partial_errors(response)
-      if response.status == 200 && response.body[:errors]
+      if response.status == 200 && response.body[:errors]&.any?
         log_message_to_sentry(
           'VAOS::AppointmentService#get_appointments has response errors.',
           :info,
