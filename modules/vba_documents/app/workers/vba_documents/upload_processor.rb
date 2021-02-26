@@ -64,6 +64,9 @@ module VBADocuments
     end
 
     def submit(metadata, parts)
+      # puts '*************************************'
+      # puts metadata
+      # puts '*************************************'
       parts[DOC_PART_NAME].rewind
       body = {
         META_PART_NAME => metadata.to_json,

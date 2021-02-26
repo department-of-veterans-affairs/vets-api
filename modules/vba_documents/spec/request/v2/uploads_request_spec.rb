@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require  './lib/central_mail/utilities'
 require_relative '../../support/vba_document_fixtures'
 
 require_dependency 'vba_documents/object_store'
@@ -130,7 +131,42 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(@attributes['detail']).to eq('Missing content-type header')
     end
 
+    CentralMail::Utilities::VALID_LOB.keys.each do |key|
+      it "consumes the valid line of business #{key}" do
+        fixture = get_fixture('valid_metadata.json')
+        metadata = JSON.parse(File.read(fixture))
+        metadata['businessLine'] = key
+        metadata_file = {metadata: Rack::Test::UploadedFile.new(
+            StringIO.new(metadata.to_json), 'application/json', false,
+            original_filename: 'metadata.json'
+        )}
+        post SUBMIT_ENDPOINT, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        @attributes = json['data']['attributes']
+        expect(@attributes['status']).to eq('uploaded')
+      end
+    end
+
     context 'with invalid metadata' do
+
+      it "Returns a 400 error when an invalid line of business is submitted" do
+        fixture = get_fixture('valid_metadata.json')
+        metadata = JSON.parse(File.read(fixture))
+        metadata['businessLine'] = 'BAD'
+        metadata_file = {metadata: Rack::Test::UploadedFile.new(
+            StringIO.new(metadata.to_json), 'application/json', false,
+            original_filename: 'metadata.json'
+        )}
+        post SUBMIT_ENDPOINT, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
+        expect(response).to have_http_status(:bad_request)
+        json = JSON.parse(response.body)
+        @attributes = json['data']['attributes']
+        expect(@attributes['status']).to eq('error')
+        expect(@attributes['code']).to eq('DOC102')
+        expect(@attributes['detail']).to start_with("Invalid businessLine provided")
+      end
+
       %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|
         it "Returns a 400 error when #{key} is nil" do
           # set key to be nil in metadata
