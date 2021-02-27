@@ -20,6 +20,30 @@ describe AppealsApi::CentralMailUpdater do
     allow(client_stub).to receive(:status).and_return(faraday_response)
   end
 
+  context 'uses different statuses/attributes matching for nod and hlr' do
+    before do
+      allow(faraday_response).to receive(:success?).and_return(true)
+      central_mail_response[0][:status] = 'VBMS Complete'
+    end
+
+    it 'nod accepts VBMS Complete' do
+      allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
+
+      subject.call([appeal_1])
+      appeal_1.reload
+      expect(appeal_1.status).to eq('caseflow')
+    end
+
+    it 'hlr does not accept VBMS Complete' do
+      hlr = create(:higher_level_review)
+      central_mail_response[0][:uuid] = hlr.id
+      allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
+
+      expect { subject.call([hlr]) }
+        .to raise_error(Common::Exceptions::BadGateway)
+    end
+  end
+
   context 'when verifying status structures' do
     let(:appeal_statuses) { AppealsApi::NodStatus::STATUSES }
 
