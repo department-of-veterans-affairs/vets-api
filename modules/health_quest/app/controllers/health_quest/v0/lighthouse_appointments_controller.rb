@@ -8,14 +8,10 @@ module HealthQuest
       end
 
       def show
-        render json: {}
+        render json: factory.get(params[:id]).response[:body]
       end
 
       private
-
-      def appointment_params
-        params.permit(:id)
-      end
 
       def factory
         @factory =

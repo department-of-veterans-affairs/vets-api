@@ -48,4 +48,15 @@ describe HealthQuest::HealthApi::Appointment::Factory do
       expect(described_class.manufacture(user).search(options_builder.to_hash)).to eq(client_reply)
     end
   end
+
+  describe '#get' do
+    let(:id) { 'I2-ABC1234' }
+
+    it 'returns a ClientReply' do
+      allow_any_instance_of(HealthQuest::HealthApi::Appointment::MapQuery)
+        .to receive(:get).with(id).and_return(client_reply)
+
+      expect(described_class.manufacture(user).get(id)).to eq(client_reply)
+    end
+  end
 end

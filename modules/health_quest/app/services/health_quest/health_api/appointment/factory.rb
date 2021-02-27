@@ -35,6 +35,16 @@ module HealthQuest
         end
 
         ##
+        # Gets the appointment from it's unique ID
+        #
+        # @param id [String] a unique string value
+        # @return [FHIR::ClientReply]
+        #
+        def get(id) # rubocop:disable Rails/Delegate
+          map_query.get(id)
+        end
+
+        ##
         # Gets appointments from a given set of query parameters
         #
         # @param filters [Hash] the set of query options.

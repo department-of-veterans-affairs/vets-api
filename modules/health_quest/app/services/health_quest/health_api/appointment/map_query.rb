@@ -32,6 +32,16 @@ module HealthQuest
         end
 
         ##
+        # Gets an appointment by it's ID
+        #
+        # @param id [String] the appointment ID.
+        # @return [FHIR::ClientReply] an instance of ClientReply
+        #
+        def get(id)
+          client.read(fhir_model, id)
+        end
+
+        ##
         # Gets appointments from the provided options
         #
         # @param options [Hash] the search options.
