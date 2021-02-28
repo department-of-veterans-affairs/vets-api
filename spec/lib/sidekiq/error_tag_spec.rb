@@ -22,8 +22,8 @@ describe Sidekiq::ErrorTag do
 
   it 'tags raven before each sidekiq job' do
     TestJob.perform_async
-    expect(Raven).to receive(:tags_context).with(request_id: '123')
-    expect(Raven).to receive(:tags_context).with(job: 'TestJob')
+    expect(Raven).to receive(:tags_context).with(job: 'TestJob', request_id: '123')
+    expect(Raven).to receive(:user_context).with(id: 'N/A', remote_ip: '99.99.99.99', user_agent: 'banana')
     TestJob.drain
   end
 
@@ -33,6 +33,7 @@ describe Sidekiq::ErrorTag do
       expect($named_tags[:request_id]).to eq('123')
       expect($named_tags[:remote_ip]).to eq('99.99.99.99')
       expect($named_tags[:user_agent]).to eq('banana')
+      expect($named_tags[:user_uuid]).to eq('N/A')
     end
   end
   # rubocop:enable Style/GlobalVars
