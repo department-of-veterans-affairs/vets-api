@@ -1,6 +1,6 @@
 require 'redis'
 
-REDIS_CONNECTION = Redis.new(host: "localhost")
+REDIS_CONNECTION = Redis.new(host: "localhost", port: ENV["REDIS_PORT"] || "6379")
 
 def start_server
   system("redis-server")
