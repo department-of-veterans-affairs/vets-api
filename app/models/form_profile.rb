@@ -288,12 +288,12 @@ class FormProfile
 
   def user_address_hash
     {
-      street: user.address.street,
+      street: user.address[:street],
       street2: nil,
-      city: user.address.city,
-      state: user.address.state,
-      country: user.address.country,
-      postal_code: user.address.postal_code
+      city: user.address[:city],
+      state: user.address[:state],
+      country: user.address[:country],
+      postal_code: user.address[:zip]
     }
   end
 

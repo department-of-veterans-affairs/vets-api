@@ -95,11 +95,11 @@ class MHVAccountsService
 
   def address_params
     {
-      address1: user.address.street,
-      city: user.address.city,
-      state: user.address.state,
-      zip: user.address.postal_code,
-      country: user.address.country
+      address1: user.address[:street],
+      city: user.address[:city],
+      state: user.address[:state],
+      zip: user.address[:zip],
+      country: user.address[:country]
     }
   end
 

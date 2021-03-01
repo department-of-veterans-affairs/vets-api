@@ -114,7 +114,7 @@ class User < Common::RedisStore
       city: address&.city,
       state: address&.state,
       country: address&.country,
-      zip: address&.zip
+      zip: address&.postal_code
     }
   end
 
