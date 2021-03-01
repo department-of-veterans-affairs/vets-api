@@ -13,7 +13,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   version :converted, if: :tiff_or_incorrect_extension? do
     metadata = file_metadata_from_binary_inspection
 
-    process convert: :jpg, if: :tiff?(metadata)
+    process convert: :jpg, if: :tiff?
 
     new_ext = if binary_content_does_not_match_file_extension?(metadata)
       file_metadata&.extensions&.first&.then {|ext| ".#{ext}"}
@@ -74,12 +74,17 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   private
 
-  def tiff?(mime_magic_object)
-    mime_magic_object&.type == 'image/tiff'
+  def tiff?(carrier_wave_sanitized_file)
+    file_obj = carrier_wave_sanitized_file&.to_file
+
+    file_obj && MimeMagic.by_magic(file_obj)&.type == 'image/tiff'
+  ensure
+    file_obj&.close
   end
 
-  def binary_content_does_not_match_file_extension?(binary_metadata)
-    binary_metadata&.type != file_metadata_from_filename&.type
+  def binary_content_does_not_match_file_extension?(carrier_wave_sanitized_file)
+    file_metadata_from_binary_inspection(carrier_wave_sanitized_file)&.type !=
+      file_metadata_from_filename(carrier_wave_sanitized_file)&.type
   end
 
   def tiff_or_incorrect_extension?
@@ -87,16 +92,16 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     tiff?(metadata) || binary_content_does_not_match_file_extension?(metadata)
   end
 
-  def file_metadata_from_filename
-    MimeMagic.by_path path if path
+  def file_metadata_from_filename(carrier_wave_sanitized_file)
+    MimeMagic.by_path carrier_wave_sanitized_file.path if carrier_wave_sanitized_file.path
   end
 
-  def file_metadata_from_binary_inspection
-    file_obj = file&.to_file
+  def file_metadata_from_binary_inspection(carrier_wave_sanitized_file)
+    file = carrier_wave_sanitized_file&.to_file
 
-    MimeMagic.by_magic file_obj if file_obj
+    MimeMagic.by_magic file if file
   ensure
-    file_obj&.close
+    file&.close
   end
 
   def set_storage_options!
