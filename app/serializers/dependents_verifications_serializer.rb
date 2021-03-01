@@ -22,9 +22,6 @@ class DependentsVerificationsSerializer < ActiveModel::Serializer
     dependency_decs = object[:dependency_decs]
     ensured_array = dependency_decs.class == Hash ? [dependency_decs] : dependency_decs
 
-    @formatted_payload ||= ensured_array.map do |hash|
-      hash.delete(:social_security_number)
-      hash
-    end
+    @formatted_payload ||= ensured_array.map { |hash| hash.except(:social_security_number) }
   end
 end
