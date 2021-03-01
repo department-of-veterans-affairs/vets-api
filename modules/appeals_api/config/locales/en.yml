@@ -7,8 +7,6 @@ en:
         nod_not_found: "NoticeOfDisagreement with uuid %{id} not found."
         not_homeless_address_missing: "If not homeless, address must be provided: '/data/attributes/veteran/address'"
       evidence_submission:
-        max_dimensions_error: "%{filename} exceeds the maximum page dimensions of %{max_dimensions}"
-        max_file_size_error: "%{filename} exceeds the max-file-size of %{max_size}"
-        pdf_read_error: "PdfInfo::MetadataReadError: Syntax Warning: %{filename} may not be a PDF file"
-        successful_validation: "%{filename} validated"
-        unsupported_file_type: "%{filename} must be in PDF format"
+        max_dimensions_error: "File exceeds the maximum page dimensions."
+        max_file_size_error: "File is too large."
+        pdf_read_error: "File must be in PDF format."
