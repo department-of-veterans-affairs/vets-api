@@ -258,7 +258,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    it "sets error status for invalid line of business in the metadata" do
+    it 'sets error status for invalid line of business in the metadata' do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         v = valid_parts
         hash = JSON.parse(v['metadata'])
@@ -270,7 +270,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to start_with("Invalid businessLine provided")
+      expect(updated.detail).to start_with('Invalid businessLine provided')
     end
 
     context 'with locked pdf' do

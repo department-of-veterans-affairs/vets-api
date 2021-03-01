@@ -49,6 +49,7 @@ module VBADocuments
       if (FILE_NUMBER_REGEX =~ metadata['fileNumber']).nil?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
+
       validate_line_of_business(metadata['businessLine'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
@@ -56,6 +57,7 @@ module VBADocuments
 
     def validate_line_of_business(lob)
       return if lob.to_s.empty?
+
       unless VALID_LOB.keys.include?(lob)
         msg = "Invalid businessLine provided, valid values are: #{VALID_LOB.keys.join(',')}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
@@ -81,7 +83,7 @@ module VBADocuments
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
-      metadata['businessLine'] = VALID_LOB[metadata['businessLine']] if metadata.has_key? 'businessLine'
+      metadata['businessLine'] = VALID_LOB[metadata['businessLine']] if metadata.key? 'businessLine'
       metadata
     end
 

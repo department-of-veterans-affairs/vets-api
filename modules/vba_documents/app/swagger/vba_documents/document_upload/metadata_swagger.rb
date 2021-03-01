@@ -53,22 +53,22 @@ module VBADocuments
             key :example, 'CMP'
             key :enum, %i[CMP PMC INS EDU VRE BVA FID LOG MED BUR OTH DROC]
             key :description,
-<<DESCRIPTION
-On optional parameter (can be missing or empty).  The values are:<br>
-CMP - Compensation<br>
-PMC - Pension<br>
-INS - Insurance<br>
-EDU - Education<br>
-VRE - VRE<br>
-BVA - BVA<br>
-FID - Fiduciary<br><br>
-Future values (These values, if used, will be treated as CMP.):<br>
-LOG – Loan_Guaranty<br>
-MED – Medical<br>
-BUR – Burial<br>
-OTH – Other<br>
-DROC - Decision Review Operations Center
-DESCRIPTION
+                <<~DESCRIPTION
+                  Optional parameter (can be missing or empty).  The values are:<br>
+                  CMP - Compensation<br>
+                  PMC - Pension<br>
+                  INS - Insurance<br>
+                  EDU - Education<br>
+                  VRE - VRE<br>
+                  BVA - BVA<br>
+                  FID - Fiduciary<br><br>
+                  Future values (These values, if used, will be treated as CMP.):<br>
+                  LOG – Loan_Guaranty<br>
+                  MED – Medical<br>
+                  BUR – Burial<br>
+                  OTH – Other<br>
+                  DROC - Decision Review Operations Center
+                DESCRIPTION
           end
         end
       end
