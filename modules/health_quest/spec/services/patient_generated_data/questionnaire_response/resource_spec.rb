@@ -132,7 +132,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
       health_api_path = Settings.hqva_mobile.lighthouse.health_api_path
       appt_reference = "#{url}#{health_api_path}/Appointment/abc123"
 
-      expect(subject.manufacture(data, user).prepare.subject).to eq(appt_reference)
+      expect(subject.manufacture(data, user).prepare.subject.reference).to eq(appt_reference)
     end
 
     it 'has a source' do
@@ -140,7 +140,7 @@ describe HealthQuest::PatientGeneratedData::QuestionnaireResponse::Resource do
       health_api_path = Settings.hqva_mobile.lighthouse.health_api_path
       patient_reference = "#{url}#{health_api_path}/Patient/1008596379V859838"
 
-      expect(subject.manufacture(data, user).prepare.source).to eq(patient_reference)
+      expect(subject.manufacture(data, user).prepare.source.reference).to eq(patient_reference)
     end
 
     it 'has a questionnaire' do
