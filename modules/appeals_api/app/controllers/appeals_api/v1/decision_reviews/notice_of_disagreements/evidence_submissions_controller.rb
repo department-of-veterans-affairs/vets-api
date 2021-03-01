@@ -7,7 +7,7 @@ module AppealsApi::V1
         def show
           submissions = AppealsApi::EvidenceSubmission.where(
             supportable_id: params[:id],
-            supportable_type: "AppealsApi::NoticeOfDisagremeent"
+            supportable_type: 'AppealsApi::NoticeOfDisagremeent'
           )
 
           render json: submissions, serializer: AppealsApi::V1::EvidenceSubmissionSerializer
