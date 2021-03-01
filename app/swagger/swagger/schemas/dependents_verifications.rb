@@ -10,6 +10,7 @@ module Swagger
 
         property :data, type: :object do
           key :required, [:attributes]
+          property :prompt_renewal, type: :boolean, example: true
           property :dependency_verifications, type: :array, example: [
             {
               "award_effective_date": '2016-06-01T00:00:00.000-05:00',
