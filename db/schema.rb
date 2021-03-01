@@ -58,7 +58,7 @@ ActiveRecord::Schema.define(version: 2021_02_25_160010) do
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
     t.string "status", default: "pending", null: false
     t.string "supportable_type"
-    t.bigint "supportable_id"
+    t.string "supportable_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
