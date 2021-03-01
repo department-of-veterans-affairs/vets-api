@@ -625,7 +625,7 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.string "loa"
     t.string "account_type"
     t.text "services"
-    t.string "idme_uuid"
+    t.uuid "idme_uuid"
   end
 
   create_table "user_preferences", id: :serial, force: :cascade do |t|
