@@ -66,7 +66,7 @@ RSpec.describe CypressViewportUpdater::Viewport do
 
   describe '#percentTrafficPeriod' do
     it 'returns the correct value' do
-      expect(@viewport.percentTrafficPeriod).to eq('From: 01/01/2021, To: 01/31/2021')
+      expect(@viewport.percentTrafficPeriod).to eq('From: 02/01/2021, To: 02/28/2021')
     end
   end
 

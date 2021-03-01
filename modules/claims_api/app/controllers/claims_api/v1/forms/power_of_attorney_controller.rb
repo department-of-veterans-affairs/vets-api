@@ -8,7 +8,9 @@ module ClaimsApi
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
         include ClaimsApi::DocumentValidations
 
-        before_action { permit_scopes %w[claim.write] }
+        before_action except: %i[schema] do
+          permit_scopes %w[claim.write]
+        end
         before_action :validate_json_schema, only: %i[submit_form_2122 validate]
         before_action :validate_documents_content_type, only: %i[upload]
         before_action :validate_documents_page_size, only: %i[upload]

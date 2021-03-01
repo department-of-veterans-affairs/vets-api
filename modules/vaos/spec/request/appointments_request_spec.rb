@@ -140,7 +140,18 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments', params: params
 
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].first['id']).to eq('202006031600983000030800000000000000')
+            expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
+          end
+        end
+
+        it 'has access and returns va appointments having partial errors' do
+          VCR.use_cassette('vaos/appointments/get_appointments_200_partial_error', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments', params: params
+
+            expect(response).to have_http_status(:multi_status)
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data'].first['id']).to eq('202006031600983000030800000000000000')
             expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
@@ -151,7 +162,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments', params: params, headers: inflection_header
 
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_camelized_response_schema('vaos/va_appointments', { strict: false })
           end
@@ -162,7 +173,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         it 'returns single appointment based on appointment id' do
           VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments/va/202006031600983000030800000000000000', params: params
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['id']).to eq('202006031600983000030800000000000000')
             expect(response).to match_response_schema('vaos/va_appointment', { strict: false })
@@ -174,7 +185,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             get '/vaos/v0/appointments/va/202006031600983000030800000000000000',
                 params: params,
                 headers: inflection_header
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data']['id']).to eq('202006031600983000030800000000000000')
             expect(response).to match_camelized_response_schema('vaos/va_appointment', { strict: false })
@@ -186,7 +197,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         it 'has access and returns cc appointments' do
           VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments', params: params.merge(type: 'cc')
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('vaos/cc_appointments')
           end
@@ -195,7 +206,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         it 'has access and returns cc appointments when camel-inflected' do
           VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments', params: params.merge(type: 'cc'), headers: inflection_header
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_camelized_response_schema('vaos/cc_appointments')
           end
@@ -206,7 +217,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         it 'returns an empty list' do
           VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments', params: params
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(
               'data' => [],
               'meta' => {
@@ -215,7 +226,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
                   'per_page' => 0,
                   'total_entries' => 0,
                   'total_pages' => 0
-                }
+                },
+                'errors' => []
               }
             )
             expect(response).to match_response_schema('vaos/va_appointments')
@@ -225,7 +237,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         it 'returns an empty list when camel-inflected' do
           VCR.use_cassette('vaos/appointments/get_appointments_empty', match_requests_on: %i[method uri]) do
             get '/vaos/v0/appointments', params: params, headers: inflection_header
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(
               'data' => [],
               'meta' => {
@@ -234,7 +246,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
                   'perPage' => 0,
                   'totalEntries' => 0,
                   'totalPages' => 0
-                }
+                },
+                'errors' => []
               }
             )
             expect(response).to match_camelized_response_schema('vaos/va_appointments')
@@ -247,7 +260,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/appointments/get_appointments_map_error',
                            match_requests_on: %i[method uri], tag: :force_utf8) do
             get '/vaos/v0/appointments', params: params
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('vaos/va_appointments', { strict: false })
           end
         end
@@ -256,7 +269,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/appointments/get_appointments_map_error',
                            match_requests_on: %i[method uri], tag: :force_utf8) do
             get '/vaos/v0/appointments', params: params, headers: inflection_header
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('vaos/va_appointments', { strict: false })
           end
         end
@@ -329,7 +342,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/appointments/post_appointment', match_requests_on: %i[method uri]) do
             post '/vaos/v0/appointments', params: request_body
 
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:no_content)
             expect(response.body).to be_an_instance_of(String).and be_empty
           end
         end
@@ -408,7 +421,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           VCR.use_cassette('vaos/appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
             put '/vaos/v0/appointments/cancel', params: request_body
 
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(:no_content)
             expect(response.body).to be_an_instance_of(String).and be_empty
           end
         end
