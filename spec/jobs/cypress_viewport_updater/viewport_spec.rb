@@ -73,7 +73,7 @@ RSpec.describe CypressViewportUpdater::Viewport do
       expect(@viewport.percentTrafficPeriod).to include(beginning_of_month)
     end
   end
- 
+
   describe '#viewportPreset' do
     it 'returns the correct value' do
       expect(@viewport.viewportPreset).to eq('va-top-desktop-1')
