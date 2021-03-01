@@ -26,5 +26,3 @@ The statuses returned for an appeal submission (HLR, NOD, or SC) follow this pat
 If there is a problem during the process,
 
 - **error** - Indicates that there was an error. See the code and message for further information.
-
-### Upload Statuses
