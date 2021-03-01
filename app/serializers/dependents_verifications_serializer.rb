@@ -15,7 +15,7 @@ class DependentsVerificationsSerializer < ActiveModel::Serializer
   end
 
   def prompt_renewal
-    formatted_payload.any? { |diary| diary[:award_effective_date] + 1.year < Date.current }
+    formatted_payload.any? { |diary| diary[:award_effective_date] + 1.year > Date.current }
   end
 
   def formatted_payload
