@@ -14,4 +14,6 @@ def load(key)
   REDIS_CONNECTION.get(key)
 end
 
-#start_server
+def keys(prefix)
+  REDIS_CONNECTION.keys(prefix)
+end
