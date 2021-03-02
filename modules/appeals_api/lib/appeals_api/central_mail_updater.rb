@@ -78,13 +78,19 @@ module AppealsApi
       end
     end
 
-    def update_appeal_status!(appeal, status)
-      attributes = central_mail_status_lookup(appeal).fetch(status.status) do
-        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status.status)
+    def update_appeal_status!(appeal, central_mail_status)
+      attributes = central_mail_status_lookup(appeal).fetch(central_mail_status.status) do
+        log_message_to_sentry(
+          'Unknown status value from Central Mail API',
+          :warning,
+          status: central_mail_status.status
+        )
         raise Common::Exceptions::BadGateway
       end
 
-      attributes = attributes.merge(detail: "Downstream status: #{status.error_message}") if status.error?
+      if central_mail_status.error?
+        attributes = attributes.merge(detail: "Downstream status: #{central_mail_status.error_message}")
+      end
 
       appeal.update! attributes
     end
