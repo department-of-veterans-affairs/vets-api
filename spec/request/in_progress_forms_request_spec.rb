@@ -209,10 +209,10 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             'veteranAddress' => {
               'street' => street_check[:street],
               'street2' => street_check[:street2],
-              'city' => user.va_profile.address.city,
-              'state' => user.va_profile.address.state,
-              'country' => user.va_profile.address.country,
-              'postalCode' => user.va_profile.address.postal_code[0..4]
+              'city' => user.address[:city],
+              'state' => user.address[:state],
+              'country' => user.address[:country],
+              'postalCode' => user.address[:zip].slice(0, 5)
             },
             'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
           }
