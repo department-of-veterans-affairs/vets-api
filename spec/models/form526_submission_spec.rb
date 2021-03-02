@@ -81,6 +81,204 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe '#add_birls_ids' do
+    subject do
+      headers = JSON.parse auth_headers.to_json
+      Form526Submission.new(
+        user_uuid: user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: headers.to_json,
+        form_json: form_json,
+        birls_ids_tried: birls_ids_tried.to_json
+      )
+    end
+
+    context 'birls_ids_tried nil' do
+      let(:birls_ids_tried) { nil }
+
+      it 'has no default' do
+        expect(subject.birls_ids_tried).to eq 'null'
+      end
+
+      context 'using nil as an id' do
+        it 'results in an empty hash' do
+          subject.add_birls_ids nil
+          expect(JSON.parse(subject.birls_ids_tried)).to be_a Hash
+        end
+      end
+
+      context 'single id' do
+        it 'initializes with an empty array' do
+          subject.add_birls_ids 'a'
+          expect(subject.birls_ids_tried_hash).to eq 'a' => []
+        end
+      end
+
+      context 'an array of ids' do
+        it 'initializes with an empty arrays' do
+          subject.add_birls_ids(%w[a b c])
+          expect(subject.birls_ids_tried_hash).to eq 'a' => [], 'b' => [], 'c' => []
+        end
+      end
+    end
+
+    context 'birls_ids_tried already has values' do
+      let(:birls_ids_tried) { { 'a' => ['2021-02-01T14:28:33Z'] } }
+
+      context 'using nil as an id' do
+        it 'results in an empty hash' do
+          subject.add_birls_ids nil
+          expect(subject.birls_ids_tried_hash).to eq birls_ids_tried
+        end
+      end
+
+      context 'single id that is already present' do
+        it 'does nothing' do
+          subject.add_birls_ids 'a'
+          expect(subject.birls_ids_tried_hash).to eq birls_ids_tried
+        end
+      end
+
+      context 'single id that is not already present' do
+        it 'does nothing' do
+          subject.add_birls_ids 'b'
+          expect(subject.birls_ids_tried_hash).to eq birls_ids_tried.merge('b' => [])
+        end
+      end
+
+      context 'an array of ids' do
+        it 'initializes with an empty arrays, for ids that area not already present' do
+          subject.add_birls_ids(['a', :b, :c])
+          expect(subject.birls_ids_tried_hash).to eq birls_ids_tried.merge('b' => [], 'c' => [])
+        end
+      end
+
+      context 'an array of ids persisted' do
+        it 'persists' do
+          subject.add_birls_ids(['a', :b, :c])
+          subject.save
+          subject.reload
+          expect(subject.birls_ids_tried_hash).to eq birls_ids_tried.merge('b' => [], 'c' => [])
+        end
+      end
+    end
+  end
+
+  describe '#birls_ids' do
+    subject do
+      headers = JSON.parse auth_headers.to_json
+      headers['va_eauth_birlsfilenumber'] = birls_id
+      Form526Submission.new(
+        user_uuid: user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: headers.to_json,
+        form_json: form_json,
+        birls_ids_tried: birls_ids_tried.to_json
+      )
+    end
+
+    let(:birls_id) { 'a' }
+    let(:birls_ids_tried) { { b: [], c: ['2021-02-01T14:28:33Z'] } }
+
+    context 'birls_ids_tried present and auth_headers present' do
+      it 'lists all birls ids' do
+        expect(subject.birls_ids).to contain_exactly 'c', 'b', 'a'
+      end
+
+      it 'persists' do
+        subject.save
+        subject.reload
+        expect(subject.birls_ids).to contain_exactly 'b', 'c', 'a'
+      end
+    end
+
+    context 'only birls_ids_tried present' do
+      subject do
+        Form526Submission.new(
+          user_uuid: user.uuid,
+          saved_claim_id: saved_claim.id,
+          form_json: form_json,
+          birls_ids_tried: birls_ids_tried.to_json
+        )
+      end
+
+      it 'lists birls ids from birls_ids_tried only' do
+        expect(subject.birls_ids).to contain_exactly 'b', 'c'
+      end
+    end
+
+    context 'only auth_headers present' do
+      let(:birls_ids_tried) { nil }
+
+      it 'lists birls ids from auth_headers only' do
+        expect(subject.birls_ids).to contain_exactly 'a'
+      end
+    end
+  end
+
+  describe '#mark_birls_id_as_tried' do
+    subject do
+      headers = JSON.parse auth_headers.to_json
+      headers['va_eauth_birlsfilenumber'] = birls_id
+      Form526Submission.new(
+        user_uuid: user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: headers.to_json,
+        form_json: form_json,
+        birls_ids_tried: birls_ids_tried.to_json
+      )
+    end
+
+    let(:birls_id) { 'a' }
+
+    context 'nil birls_ids_tried' do
+      let(:birls_ids_tried) { nil }
+
+      it 'adds the current birls id to birls_ids_tried' do
+        expect(JSON.parse(subject.birls_ids_tried)).to eq birls_ids_tried
+        subject.mark_birls_id_as_tried
+        expect(subject.birls_ids_tried_hash.keys).to contain_exactly 'a'
+        subject.save
+        subject.reload
+        expect(subject.birls_ids_tried_hash.keys).to contain_exactly 'a'
+      end
+    end
+
+    context 'previous attempts' do
+      let(:birls_ids_tried) { { 'b' => ['2021-02-01T14:28:33Z'] } }
+
+      it 'adds the current BIRLS ID to birls_ids_tried array (turns birls_ids_tried into an array if nil)' do
+        expect(JSON.parse(subject.birls_ids_tried)).to eq birls_ids_tried
+        subject.mark_birls_id_as_tried
+        expect(subject.birls_ids_tried_hash.keys).to match_array [birls_id, *birls_ids_tried.keys]
+        subject.save
+        subject.reload
+        expect(subject.birls_ids_tried_hash.keys).to match_array [birls_id, *birls_ids_tried.keys]
+      end
+    end
+  end
+
+  describe '#birls_ids_that_havent_been_tried_yet' do
+    subject do
+      headers = JSON.parse auth_headers.to_json
+      headers['va_eauth_birlsfilenumber'] = birls_id
+      Form526Submission.new(
+        user_uuid: user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: headers.to_json,
+        form_json: form_json,
+        birls_ids_tried: birls_ids_tried.to_json
+      )
+    end
+
+    let(:birls_id) { 'a' }
+    let(:birls_ids_tried) { { b: [], c: ['2021-02-01T14:28:33Z'], d: nil } }
+
+    it 'does not include birls ids that have already been tried' do
+      expect(subject.birls_ids_that_havent_been_tried_yet).to contain_exactly('a', 'b', 'd')
+    end
+  end
+
   describe '#birls_id!' do
     it 'returns the BIRLS ID' do
       expect(subject.birls_id!).to eq(auth_headers[described_class::BIRLS_KEY])
