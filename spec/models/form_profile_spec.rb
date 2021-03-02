@@ -587,10 +587,10 @@ RSpec.describe FormProfile, type: :model do
         'fileNumber' => '3735'
       },
       'personalData' => {
-        'fullName' => full_name,
+        'veteranFullName' => full_name,
         'address' => address,
-        'phone' => us_phone,
-        'email' => user.pciu_email,
+        'telephoneNumber' => us_phone,
+        'emailAddress' => user.pciu_email,
         'dateOfBirth' => user.birth_date
       },
       'income' => [
