@@ -35,8 +35,10 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
 
   describe '#upload' do
-    let(:path) { base_path 'upload'}
-    let(:upload_params) { { document: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/appeals_api/spec/fixtures/expected_10182_extra.pdf") } }
+    let(:path) { base_path 'upload' }
+    let(:fixtures_path) { '/modules/appeals_api/spec/fixtures/' }
+    let(:file) { 'expected_10182_extra.pdf' }
+    let(:upload_params) { { document: Rack::Test::UploadedFile.new("#{::Rails.root}#{fixtures_path}#{file}") } }
 
     it 'successfully responds to document upload' do
       post(path, params: upload_params)
