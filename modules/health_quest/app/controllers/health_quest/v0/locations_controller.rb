@@ -7,6 +7,10 @@ module HealthQuest
         render json: factory.search(request.query_parameters).response[:body]
       end
 
+      def show
+        render json: factory.get(params[:id]).response[:body]
+      end
+
       private
 
       def factory

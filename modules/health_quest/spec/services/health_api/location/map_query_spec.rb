@@ -71,4 +71,30 @@ describe HealthQuest::HealthApi::Location::MapQuery do
       end
     end
   end
+
+  describe '#get' do
+    context 'with valid id' do
+      let(:client) { double('HealthQuest::Lighthouse::FHIRClient') }
+      let(:id) { 'I2-ABC123' }
+
+      before do
+        allow_any_instance_of(subject).to receive(:client).and_return(client)
+      end
+
+      it 'receives `read` one time exactly' do
+        expect(client).to receive(:read).with(FHIR::Location, id).exactly(1).time
+
+        subject.build(session_store).get(id)
+      end
+
+      it 'has request headers' do
+        allow(client).to receive(:read).with(FHIR::Location, id).and_return(anything)
+
+        map_query = subject.build(session_store)
+        map_query.get(id)
+
+        expect(map_query.headers).to eq({ 'Authorization' => 'Bearer 123abc' })
+      end
+    end
+  end
 end
