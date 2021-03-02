@@ -137,8 +137,10 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           expect(response).to have_http_status(:ok)
         end
 
-        it 'calls async linking job' do
+        it 'calls async linking job on first call and does not on second after redis lock is in place' do
           expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
+          get :index
+          expect(Mobile::V0::Vet360LinkingJob).not_to receive(:perform_async)
           get :index
         end
       end
