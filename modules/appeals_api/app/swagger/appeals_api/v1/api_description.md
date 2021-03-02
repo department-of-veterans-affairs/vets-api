@@ -10,10 +10,10 @@ Because this application is designed to allow third-parties to request informati
 ### Authorization and Access
 To gain access to the decision reviews API you must [request an API Key](/apply). API requests are authorized through a symmetric API token which is provided in an HTTP header named `apikey`.
 
-### Submission Statuses
+### Submission Statuses (for NODs only at this time)
 
 In order to understand where your appeal submission is in the process, the Show endpoint (ex: GET /higher_level_reviews/{uuid}) can be called which will return the status for that appeal submission.  Please note this is the status of the appeal submission to VA, NOT the status of the appeal within the AMA process.
-The statuses returned for an appeal submission (HLR, NOD, or SC) follow this pattern:
+The statuses returned for an appeal submission (NOD only at this time) follow this pattern:
 
 1. **pending** - Initial status, indicates no document package has been uploaded yet
 1. **submitting** - Indicates that the transfer of data has begun but not yet completed
