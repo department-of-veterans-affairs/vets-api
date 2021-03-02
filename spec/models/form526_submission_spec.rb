@@ -485,7 +485,7 @@ RSpec.describe Form526Submission do
         expect(subject.get_first_name).to eql(test_param[:expected])
       end
     end
-  end      
+  end
 
   describe '#workflow_complete_handler' do
     let(:options) do
