@@ -464,7 +464,7 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe "#get_first_name" do
+  describe '#get_first_name' do
     [
       {
         input: 'Joe',
@@ -485,17 +485,17 @@ RSpec.describe Form526Submission do
         expect(subject.get_first_name).to eql(test_param[:expected])
       end
     end
-  end           
+  end      
 
   describe '#workflow_complete_handler' do
-    let(:options) do 
+    let(:options) do
       {
         'submission_id' => subject.id,
         'full_name' => 'some name',
         'first_name' => 'firstname'
       }
     end
-      
+
     context 'with a single successful job' do
       subject { create(:form526_submission, :with_one_succesful_job) }
 
