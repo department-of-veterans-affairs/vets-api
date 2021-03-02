@@ -1,0 +1,93 @@
+<%= render partial: 'vba_documents/common/table_styling' %>
+<h1><%= @last_month_start.strftime("%B") %> <%= @last_month_start.strftime("%Y") %> Monthly Upload Submission Report (<%= @environment.to_s.upcase %>)</h1>
+<h2><%= @last_month_start.strftime("%B") %> <%= @last_month_start.strftime("%Y") %> Submissions Per Consumer and Status</h2>
+<table>
+  <thead>
+  <tr>
+    <th>CONSUMER</th>
+    <th>EXPIRED</th>
+    <th>ERRORED</th>
+    <th>PROCESSING *</th>
+    <th>SUCCESS</th>
+    <th>VBMS</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @monthly_totals.each do |row| %>
+    <tr>
+      <td><%= row['consumer_name'] %></td>
+      <td style="text-align: right"><%= row['expired'] %></td>
+      <td style="text-align: right"><%= row['errored'] %></td>
+      <td style="text-align: right"><%= row['processing'] %></td>
+      <td style="text-align: right"><%= row['success'] %></td>
+      <td style="text-align: right"><%= row['vbms'] %></td>
+    </tr>
+  <% end if @monthly_totals %>
+  </tbody>
+  <tfoot>
+  <% if @monthly_totals %>
+    <tr style="background-color: darkblue">
+      <td>Summary Totals</td>
+      <td style="text-align: right"><%= @summary_totals['expired'] %></td>
+      <td style="text-align: right"><%= @summary_totals['errored'] %></td>
+      <td style="text-align: right"><%= @summary_totals['processing'] %></td>
+      <td style="text-align: right"><%= @summary_totals['success'] %></td>
+      <td style="text-align: right"><%= @summary_totals['vbms'] %></td>
+    </tr>
+  <% end %>
+  </tfoot>
+</table>
+<h5>* Processing statuses include: uploaded, received, and processing</h5>
+<br>
+<br>
+<h2>Prior Twelve Months - Average Time to Completion (Success/VBMS)</h2>
+<table>
+  <thead>
+  <tr>
+    <th>YEAR</th>
+    <th>MONTH</th>
+    <th>COUNT</th>
+    <th>AVERAGE TIME TO COMPLETE</th>
+  </tr>
+  </thead>
+  <tbody>
+  <% @avg_processing_time.each do |row| %>
+    <tr>
+      <td><%= row['yyyy'] %></td>
+      <td><%= Date::MONTHNAMES[row['mm']] %></td>
+      <td style="text-align: right"><%= row['count'] %></td>
+      <td style="text-align: right"><%= row['avg_time'] %></td>
+    </tr>
+  <% end if @avg_processing_time %>
+  </tbody>
+</table>
+<br>
+<br>
+<h2>Submissions Still Processing Prior to <%= @two_months_ago_start.strftime("%B") %> <%= @two_months_ago_start.strftime("%Y") %>:</h2>
+<h3>Count <%= @last_month_still_processing.count %></h3>
+<% if @last_month_still_processing.count > 0 %>
+  <table>
+    <thead>
+    <tr>
+      <th>CONSUMER</th>
+      <th>GUID</th>
+      <th>STATUS</th>
+      <th>CREATED AT</th>
+      <th>LAST UPDATED</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% @last_month_still_processing.each do |row| %>
+      <tr>
+        <td><%= row['consumer_name'] %></td>
+        <td><%= row['guid'] %></td>
+        <td><%= row['status'] %></td>
+        <td><%= row['created_at'] %></td>
+        <td><%= row['updated_at'] %></td>
+      </tr>
+    <% end if @last_month_still_processing %>
+    </tbody>
+  </table>
+  <% end %>
+<br>
+<br>

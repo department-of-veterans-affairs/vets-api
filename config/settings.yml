@@ -385,6 +385,7 @@ preneeds:
 # Settings for VBA Document upload service module
 vba_documents:
   report_enabled: false
+  monthly_report_enabled: false
   location:
     prefix: http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
