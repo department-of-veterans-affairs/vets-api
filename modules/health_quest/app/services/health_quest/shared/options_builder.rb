@@ -41,7 +41,8 @@ module HealthQuest
       end
 
       ##
-      # The registry which holds the return value for the `to_hash` method.
+      # The registry which holds the return value for the `to_hash`
+      # method based on which controller and resource is being accessed.
       #
       # @return [Hash]
       #
@@ -51,6 +52,9 @@ module HealthQuest
             patient: user.icn,
             date: appointment_dates,
             location: clinic_id
+          },
+          location: {
+            _id: location_ids
           },
           questionnaire_response: {
             subject: appointment_reference,
@@ -107,6 +111,15 @@ module HealthQuest
       #
       def resource_created_date
         @resource_created_date ||= filters&.fetch(:authored, nil)
+      end
+
+      ##
+      # Get the string of location ids from the filters.
+      #
+      # @return [String]
+      #
+      def location_ids
+        @location_ids ||= filters&.fetch(:_id, nil)
       end
 
       ##
