@@ -32,9 +32,9 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:path) { '/services/claims/v1/forms/526' }
     let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
 
-    it 'returns a successful get response with json schema' do
-      with_okta_user(scopes) do |auth_header|
-        get path, headers: headers.merge(auth_header)
+    describe 'schema' do
+      it 'returns a successful get response with json schema' do
+        get path
         json_schema = JSON.parse(response.body)['data'][0]
         expect(json_schema).to eq(JSON.parse(schema))
       end

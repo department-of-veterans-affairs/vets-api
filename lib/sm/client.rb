@@ -296,7 +296,7 @@ module SM
       path = "message/#{message_id}/attachment/#{attachment_id}"
 
       response = perform(:get, path, nil, token_headers)
-      filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '')
+      filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
       { body: response.body, filename: filename }
     end
     # @!endgroup
