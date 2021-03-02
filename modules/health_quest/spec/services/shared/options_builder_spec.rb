@@ -8,6 +8,7 @@ describe HealthQuest::Shared::OptionsBuilder do
   let(:user) { double('User', icn: '1008596379V859838') }
   let(:options_builder) { subject.manufacture(user, filters) }
   let(:qr_filter) { { resource_name: 'questionnaire_response' } }
+  let(:appt_filter) { { resource_name: 'appointment' } }
   let(:q_filter) { { resource_name: 'questionnaire' } }
   let(:lighthouse) { Settings.hqva_mobile.lighthouse }
 
@@ -33,6 +34,22 @@ describe HealthQuest::Shared::OptionsBuilder do
 
     it 'has an appointment_id' do
       expect(options_builder.appointment_id).to eq('123')
+    end
+  end
+
+  describe '#clinic_id' do
+    let(:filters) { appt_filter.merge!(location: 'abcd').with_indifferent_access }
+
+    it 'has a clinic_id' do
+      expect(options_builder.clinic_id).to eq('abcd')
+    end
+  end
+
+  describe '#appointment_dates' do
+    let(:filters) { appt_filter.merge!(date: '2021-12-26').with_indifferent_access }
+
+    it 'has an appointment_dates' do
+      expect(options_builder.appointment_dates).to eq('2021-12-26')
     end
   end
 
@@ -62,6 +79,15 @@ describe HealthQuest::Shared::OptionsBuilder do
   end
 
   describe '#registry' do
+    context 'when resource is appointment' do
+      let(:filters) { appt_filter.merge!(patient: '123').with_indifferent_access }
+
+      it 'has relevant keys' do
+        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys)
+          .to eq(%i[patient date location])
+      end
+    end
+
     context 'when resource is questionnaire_response' do
       let(:filters) { qr_filter.merge!(subject: '123').with_indifferent_access }
 
