@@ -128,6 +128,20 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           end.to trigger_statsd_increment('mobile.authentication.success', times: 1)
         end
       end
+
+      context 'with a user without vet360 id' do
+        before { iam_sign_in(FactoryBot.build(:iam_user, :no_vet360_id)) }
+
+        it 'returns returns ok' do
+          get :index
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'calls async linking job' do
+          expect(Mobile::V0::Vet360LinkingJob).to receive(:perform_async)
+          get :index
+        end
+      end
     end
   end
 end

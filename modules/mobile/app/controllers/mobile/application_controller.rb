@@ -45,7 +45,7 @@ module Mobile
 
       session_manager = IAMSSOeOAuth::SessionManager.new(access_token)
       @current_user = session_manager.find_or_create_user
-      link_user_with_vets360 unless user.vet360_id.present?
+      link_user_with_vets360 unless @current_user.vet360_id.present?
       @current_user
     end
 
@@ -59,9 +59,11 @@ module Mobile
 
     def link_user_with_vets360
       account_uuid = @current_user.account_uuid
+
       unless vet360_link_locked?(account_uuid)
         lock_vets360_link(account_uuid)
-        Mobile::Vets360LinkingJob.perform_async(@current_user)
+        jid = Mobile::V0::Vet360LinkingJob.perform_async(@current_user)
+        Rails.logger.info('Mobile Vet360 account link job id', { job_id: jid })
       end
     end
 
