@@ -6,6 +6,7 @@ require 'date'
 module VBADocuments
   class ReportMonthlySubmissions
     include Sidekiq::Worker
+    attr_reader :monthly_counts
 
     MONTHLY_COUNT_SQL = %q(
       select
@@ -31,7 +32,7 @@ module VBADocuments
       order by a.consumer_name asc
     )
 
-    AVG_TIME_TO_COMPLETE_OR_ERROR = %q(
+    AVG_TIME_TO_COMPLETE_OR_ERROR_SQL = %q(
       select
       date_part('year', a.created_at)::INTEGER as yyyy,
       date_part('month', a.created_at)::INTEGER as mm,
@@ -55,7 +56,7 @@ module VBADocuments
         # execute SQL for monthly counts
         @monthly_counts = run_sql(MONTHLY_COUNT_SQL, last_month_start, last_month_end)
         last_month_still_processing = run_sql(PROCESSING_SQL, two_months_ago_start)
-        avg_processing_time = run_sql(AVG_TIME_TO_COMPLETE_OR_ERROR, last_month_start)
+        avg_processing_time = run_sql(AVG_TIME_TO_COMPLETE_OR_ERROR_SQL, last_month_start)
         avg_processing_time = format_avg_time(avg_processing_time) if avg_processing_time.size > 0
 
         # @monthly_counts = temp_monthly_counts
@@ -113,7 +114,7 @@ module VBADocuments
       sum_hash
     end
 
-    private
+    #private
 
     def run_sql(sql, *args)
       ActiveRecord::Base.connection_pool.with_connection do |c|
