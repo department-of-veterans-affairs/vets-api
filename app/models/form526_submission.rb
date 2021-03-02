@@ -64,14 +64,14 @@ class Form526Submission < ApplicationRecord
     jids.first
   end
 
-  def get_first_name
-    user = User.find(user_uuid)
-    user&.first_name&.capitalize
-  end
-
   def get_full_name
     user = User.find(user_uuid)
     user&.full_name_normalized&.values&.compact&.join(' ')&.upcase
+  end
+
+  def get_first_name
+    user = User.find(user_uuid)
+    user&.first_name&.upcase
   end
 
   # @return [Hash] parsed version of the form json
@@ -171,7 +171,9 @@ class Form526Submission < ApplicationRecord
   def perform_ancillary_jobs_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     # Only run ancillary jobs if submission succeeded
-    submission.perform_ancillary_jobs(options['full_name'], options['first_name']) if submission.form526_job_statuses.all?(&:success?)
+    if submission.form526_job_statuses.all?(&:success?)
+      submission.perform_ancillary_jobs(options['full_name'], options['first_name'])
+    end
   end
 
   # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
