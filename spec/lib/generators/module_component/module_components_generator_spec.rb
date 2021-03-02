@@ -24,10 +24,20 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'controllers') }
 
-    it 'creates the module controller file' do
-      module_generator = ModuleComponentGenerator.new(%w[foo controller])
-      module_generator.create_component
-      expect(File).to exist("#{path}/foo/v0/foo_controller.rb")
+    context 'with component_name' do
+      it 'creates a module controller file with different name from module' do
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'controller', 'component_name' => 'bar' }])
+        module_gen.create_component
+        expect(File).to exist("#{path}/foo/v0/bar_controller.rb")
+      end
+    end
+
+    context 'without component_name' do
+      it 'creates a module controller file with same name as module' do
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'controller' }])
+        module_gen.create_component
+        expect(File).to exist("#{path}/foo/v0/foo_controller.rb")
+      end
     end
   end
 
@@ -40,10 +50,20 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'serializers') }
 
-    it 'creates the module serializer file' do
-      module_generator = ModuleComponentGenerator.new(%w[foo serializer])
-      module_generator.create_component
-      expect(File).to exist("#{path}/foo/v0/foo_serializer.rb")
+    context 'with component_name' do
+      it 'creates a module serializer file with different name from module' do
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'serializer', 'component_name' => 'bar' }])
+        module_gen.create_component
+        expect(File).to exist("#{path}/foo/v0/bar_serializer.rb")
+      end
+    end
+
+    context 'without component_name' do
+      it 'creates a module serializer file with same name as module' do
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'serializer' }])
+        module_gen.create_component
+        expect(File).to exist("#{path}/foo/v0/foo_serializer.rb")
+      end
     end
   end
 
@@ -56,10 +76,20 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'models') }
 
-    it 'creates the module model file' do
-      module_generator = ModuleComponentGenerator.new(%w[foo model])
-      module_generator.create_component
-      expect(File).to exist("#{path}/foo/v0/foo.rb")
+    context 'with component_name' do
+      it 'creates a module model file with different name from module' do
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'model', 'component_name' => 'bar' }])
+        module_gen.create_component
+        expect(File).to exist("#{path}/foo/v0/bar.rb")
+      end
+    end
+
+    context 'without component_name' do
+      it 'creates a module model file with same name as module' do
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'model' }])
+        module_gen.create_component
+        expect(File).to exist("#{path}/foo/v0/foo.rb")
+      end
     end
   end
 
@@ -72,29 +102,23 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'services') }
 
-    it 'creates the module service and configuration files' do
-      module_generator = ModuleComponentGenerator.new(%w[foo service])
-      module_generator.create_component
-      expect(File).to exist("#{path}/foo/v0/foo_service.rb")
-      expect(File).to exist("#{path}/foo/v0/configuration.rb")
-    end
-  end
-
-  describe 'creates multiple components' do
-    before(:all) do
-      ModuleGenerator.new(['foo']).create_directory_structure
-      ModuleComponentGenerator.new(%w[foo controller serializer]).create_component
+    context 'with component_name' do
+      it 'creates a module service file with different name from module and a configuration file' do
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'service', 'component_name' => 'bar' }])
+        module_gen.create_component
+        expect(File).to exist("#{path}/foo/v0/bar_service.rb")
+        expect(File).to exist("#{path}/foo/v0/configuration.rb")
+        FileUtils.rm_f(Dir[Rails.root.join('modules', 'foo', 'app', 'services', 'foo', 'v0', 'configuration.rb')])
+      end
     end
 
-    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
-
-    let(:path) { Rails.root.join('modules', 'foo', 'app') }
-
-    it 'creates the module controller and serializer files' do
-      module_generator = ModuleComponentGenerator.new(%w[foo controller serializer])
-      module_generator.create_component
-      expect(File).to exist("#{path}/controllers/foo/v0/foo_controller.rb")
-      expect(File).to exist("#{path}/serializers/foo/v0/foo_serializer.rb")
+    context 'without component_name' do
+      it 'creates a module service file with same name as module and a configuration file' do
+        module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'service' }])
+        module_gen.create_component
+        expect(File).to exist("#{path}/foo/v0/foo_service.rb")
+        expect(File).to exist("#{path}/foo/v0/configuration.rb")
+      end
     end
   end
 
@@ -108,8 +132,8 @@ RSpec.describe 'ModuleComponent', type: :generator do
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'bad_components') }
 
     it 'does not create the bad_component' do
-      module_generator = ModuleComponentGenerator.new(%w[foo bad_component])
-      module_generator.create_component
+      module_gen = ModuleComponentGenerator.new(['foo', { 'method' => 'bad_component' }])
+      module_gen.create_component
       expect(File).not_to exist("#{path}/foo/v0/foo_bad_component.rb")
     end
   end
@@ -127,26 +151,9 @@ RSpec.describe 'ModuleComponent', type: :generator do
       expected_stdout = "\nbad_component is not a known generator command.Commands allowed " \
         "are controller, model, serializer and service\n"
       expect do
-        ModuleComponentGenerator.new(%w[foo bad_component]).create_component
+        ModuleComponentGenerator.new(['foo', { 'method' => 'bad_component' }]).create_component
       end.to output(expected_stdout).to_stdout
       expect(File).not_to exist("#{path}/foo/v0/foo_bad_component.rb")
-    end
-  end
-
-  describe 'does not create an invalid component but does create a valid one' do
-    before(:all) do
-      ModuleGenerator.new(['foo']).create_directory_structure
-    end
-
-    after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
-
-    let(:path) { Rails.root.join('modules', 'foo', 'app') }
-
-    it 'does not create the bad_component' do
-      module_generator = ModuleComponentGenerator.new(%w[foo controller bad_component])
-      module_generator.create_component
-      expect(File).not_to exist("#{path}/bad_components/foo/v0/foo_bad_component.rb")
-      expect(File).to exist("#{path}/controllers/foo/v0/foo_controller.rb")
     end
   end
 
@@ -155,15 +162,15 @@ RSpec.describe 'ModuleComponent', type: :generator do
 
     let(:path) { Rails.root.join('modules', 'foo') }
 
-    it 'creates the module controller and serializer files' do
+    it 'creates the module controller file' do
       # stub backtick to create a new module
       allow_any_instance_of(ModuleComponentGenerator).to receive(:`).and_return('stub module creation')
       allow_any_instance_of(ModuleComponentGenerator).to receive(:yes?).and_return(true)
-      module_component_generator = ModuleComponentGenerator.new(%w[foo controller serializer])
+      module_component_generator = ModuleComponentGenerator.new(['foo', { 'method' => 'controller' }])
       module_component_generator.prompt_user
       module_component_generator.create_component
       expect(Dir).to exist(path.to_s)
-      expect(File).to exist("#{path}/app/serializers/foo/v0/foo_serializer.rb")
+      expect(File).to exist("#{path}/app/controllers/foo/v0/foo_controller.rb")
     end
   end
 end
