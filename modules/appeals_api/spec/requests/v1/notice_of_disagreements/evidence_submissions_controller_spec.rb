@@ -20,7 +20,10 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
       get "#{path}#{notice_of_disagreement.id}"
 
-      expect(response.body).to eq(submissions.to_json)
+      body = JSON.parse(response.body)['data']
+      serialized = JSON.parse(submissions[:data].to_json)
+
+      expect(body).to match_array(serialized)
     end
   end
 end
