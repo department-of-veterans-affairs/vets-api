@@ -9,7 +9,9 @@ module ClaimsApi
       class IntentToFileController < BaseFormController
         include ClaimsApi::PoaVerification
 
-        before_action { permit_scopes %w[claim.write] }
+        before_action except: %i[schema] do
+          permit_scopes %w[claim.write]
+        end
         before_action :validate_json_schema, only: %i[submit_form_0966 validate]
         before_action :check_for_type, only: %i[active]
 

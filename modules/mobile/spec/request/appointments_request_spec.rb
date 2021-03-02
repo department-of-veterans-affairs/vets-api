@@ -302,6 +302,44 @@ RSpec.describe 'appointments', type: :request do
           expect(response.parsed_body['data'].size).to eq(33)
         end
       end
+
+      context 'when there are cached appointments' do
+        let(:user) { FactoryBot.build(:iam_user) }
+        let(:params) { { useCache: true } }
+
+        before do
+          va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json')
+          cc_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'cc_appointments.json')
+          va_json = File.read(va_path)
+          cc_json = File.read(cc_path)
+          va_appointments = Mobile::V0::Adapters::VAAppointments.new.parse(
+            JSON.parse(va_json, symbolize_names: true)
+          )[0]
+          cc_appointments = Mobile::V0::Adapters::CommunityCareAppointments.new.parse(
+            JSON.parse(cc_json, symbolize_names: true)
+          )
+
+          appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
+          options = { meta: { errors: nil } }
+          json = Mobile::V0::AppointmentSerializer.new(appointments, options).serialized_json
+
+          Mobile::V0::Appointment.set_cached_appointments(user, json)
+        end
+
+        after { Timecop.return }
+
+        it 'retrieves the cached appointments rather than hitting the service' do
+          expect_any_instance_of(Mobile::V0::Appointments::Proxy).not_to receive(:get_appointments)
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'clears the cache' do
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+          expect(Mobile::V0::Appointment.get_cached_appointments(user)).to be_nil
+          expect(response).to have_http_status(:ok)
+        end
+      end
     end
   end
 

@@ -13,8 +13,7 @@ module AppealsApi
     private
 
     def enabled?
-      Settings.dig('modules_appeals_api', 'report_enabled') ||
-        Settings.modules_appeals_api.reports.decision_review.enabled
+      Settings.modules_appeals_api.reports.decision_review.enabled
     end
   end
 end

@@ -33,8 +33,7 @@ module AppealsApi
     end
 
     def recipients
-      Settings.dig('modules_appeals_api', 'report_recipients') ||
-        Settings.modules_appeals_api.reports.decision_review.recipients
+      Settings.modules_appeals_api.reports.decision_review.recipients
     end
   end
 end
