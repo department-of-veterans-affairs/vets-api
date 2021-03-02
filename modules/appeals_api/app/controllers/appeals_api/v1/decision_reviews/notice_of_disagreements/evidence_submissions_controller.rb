@@ -5,6 +5,7 @@ module AppealsApi::V1
     module NoticeOfDisagreements
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
         skip_before_action :authenticate
+
         def show
           submissions = AppealsApi::EvidenceSubmission.where(
             supportable_id: params[:id],
@@ -14,6 +15,10 @@ module AppealsApi::V1
           serialized = AppealsApi::EvidenceSubmissionSerializer.new(submissions)
 
           render json: serialized.serializable_hash
+        end
+
+        def upload
+          render json: { message: 'Good work.', document: params[:document], uuid: params[:uuid] }
         end
       end
     end
