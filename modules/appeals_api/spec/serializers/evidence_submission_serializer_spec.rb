@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::V1::EvidenceSubmissionSerializer do
+describe AppealsApi::EvidenceSubmissionSerializer do
   let(:evidence_submission) { create(:evidence_submission) }
   let(:rendered_hash) { described_class.new(evidence_submission).serializable_hash }
 
@@ -14,7 +14,7 @@ describe AppealsApi::V1::EvidenceSubmissionSerializer do
           type: :evidenceSubmission,
           id: evidence_submission.id.to_s,
           attributes: {
-            status: evidence_submission.status,
+            status: evidence_submission.status
           }
         }
       }

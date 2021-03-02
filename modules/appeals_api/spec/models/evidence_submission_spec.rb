@@ -9,15 +9,15 @@ describe AppealsApi::EvidenceSubmission, type: :model do
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:evidence_submission) { notice_of_disagreement.evidence_submissions.create! }
 
-  it 'should respond to status' do
+  it 'responds to status' do
     expect(evidence_submission.respond_to?(:status)).to eq(true)
   end
 
-  it 'should respond to supportable' do
+  it 'responds to supportable' do
     expect(evidence_submission.respond_to?(:supportable)).to eq(true)
   end
 
-  it 'should have an association with the supportable' do
+  it 'has an association with the supportable' do
     expect(evidence_submission.supportable).to eq(notice_of_disagreement)
   end
 end

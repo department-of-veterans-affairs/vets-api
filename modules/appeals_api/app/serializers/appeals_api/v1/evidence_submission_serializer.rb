@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'fast_jsonapi'
+
 module AppealsApi
   module V1
     class EvidenceSubmissionSerializer
