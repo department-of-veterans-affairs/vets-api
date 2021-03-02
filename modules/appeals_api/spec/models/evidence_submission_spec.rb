@@ -4,8 +4,6 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::EvidenceSubmission, type: :model do
-  include FixtureHelpers
-
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:evidence_submission) { notice_of_disagreement.evidence_submissions.create! }
 
