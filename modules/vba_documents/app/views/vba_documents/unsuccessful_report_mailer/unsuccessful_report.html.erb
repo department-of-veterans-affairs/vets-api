@@ -1,45 +1,18 @@
-<style type="text/css">
-    table{
-        width:100%;
-        border-collapse:collapse;
-    }
-    table td{
-        padding:7px; border:#4e95f4 1px solid;
-    }
-
-    /* provide some minimal visual accommodation for IE8 and below */
-    table th{
-        background: lightblue;
-        border: #4e95f4 1px solid;
-    }
-    /*  Define the background color for all the ODD background rows  */
-    table tr:nth-child(odd){
-        background: white;
-    }
-    /*  Define the background color for all the EVEN background rows  */
-    table tr:nth-child(even){
-        background: whitesmoke;
-    }
-
-    table tfoot tr{
-        color: white;
-    }
-</style>
-
+<%= render partial: 'vba_documents/common/table_styling' %>
 <h1>From <%= @date_from %> -- <%= @date_to %> (<%= @environment.to_s.upcase %>)</h1>
 <h2>Per Consumer Status Counts</h2>
 
 <table>
   <thead>
   <tr>
-    <th>consumer</th>
+    <th>CONSUMER</th>
     <% VBADocuments::UploadSubmission::RPT_STATUSES.each do |status| %>
       <th><%= status %></th>
     <% end %>
-    <th>totals</th>
-    <th>success rate</th>
-    <th>errored rate</th>
-    <th>expired rate</th>
+    <th>TOTALS</th>
+    <th>SUCCESS RATE</th>
+    <th>ERRORED RATE</th>
+    <th>EXPIRED RATE</th>
   </tr>
   </thead>
   <tbody>
@@ -62,7 +35,7 @@
   <% if @consumer_totals %>
     <% sum_hash = @consumer_totals['summary'] %>
     <tr style="background-color: darkblue">
-      <td>Summary Totals</td>
+      <td>SUMMARY TOTALS</td>
       <% VBADocuments::UploadSubmission::RPT_STATUSES.each do |status| %>
         <td style="text-align: right"><%= sum_hash[status] %></td>
       <% end %>
