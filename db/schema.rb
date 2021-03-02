@@ -10,11 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-<<<<<<< HEAD
-ActiveRecord::Schema.define(version: 2021_02_25_160010) do
-=======
 ActiveRecord::Schema.define(version: 2021_02_26_193901) do
->>>>>>> adds idme_uuid column to tud_accounts table
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
