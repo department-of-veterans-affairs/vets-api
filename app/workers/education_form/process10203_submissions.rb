@@ -150,10 +150,13 @@ module EducationForm
     # Set status to DENIED when isPursuingTeachingCert in form data is 'no' (false)
     #   and isEnrolledStem is 'no' (false)
     #   or EVSS data for a user shows there is more than 6 months of remaining_entitlement
+    #
+    # This is only checking EVSS data until form questions that affect setting to DENIED have been reviewed
     def process_submission(submission, gi_bill_status, user_has_poa)
-      submission_form = format_application(submission)
-      status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
-                  more_than_six_months?(gi_bill_status)
+      # submission_form = format_application(submission)
+      # status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
+      #             more_than_six_months?(gi_bill_status)
+      status = if more_than_six_months?(gi_bill_status)
                  DENIED
                else
                  PROCESSED
