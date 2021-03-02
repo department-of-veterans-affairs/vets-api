@@ -886,7 +886,13 @@ RSpec.describe FormProfile, type: :model do
 
     context 'user without an address' do
       it 'prefills properly' do
-        expect(user.va_profile).to receive(:address).and_return(nil)
+        expect(user).to receive(:address).exactly(5).times.and_return(
+          street: nil,
+          city: nil,
+          state: nil,
+          country: nil,
+          zip: nil
+        )
         described_class.for(form_id: '22-1990e', user: user).prefill
       end
     end
