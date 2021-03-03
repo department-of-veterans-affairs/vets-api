@@ -5,10 +5,6 @@ require 'evss/vso_search/service'
 require 'sentry_logging'
 
 module EducationForm
-  DENIED = 'denied'
-  PROCESSED = 'processed'
-  INIT = 'init'
-
   class FormattingError < StandardError
   end
 
@@ -65,7 +61,7 @@ module EducationForm
 
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each do |submission|
-            update_automated_decision(submission, PROCESSED, poa)
+            update_automated_decision(submission, EducationStemAutomatedDecision::PROCESSED, poa)
           end
         elsif submissions.count > 1
           check_previous_submissions(submissions, gi_bill_status, poa)
@@ -100,7 +96,7 @@ module EducationForm
     # Ignore already processed either by CreateDailySpoolFiles or this job
     def update_automated_decision(submission, status, poa, remaining_entitlement = nil)
       if submission.processed_at.nil? &&
-         submission.education_stem_automated_decision&.automated_decision_state == INIT
+         submission.education_stem_automated_decision&.automated_decision_state == EducationStemAutomatedDecision::INIT
 
         submission.education_stem_automated_decision.update(
           automated_decision_state: status,
@@ -121,10 +117,12 @@ module EducationForm
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def check_previous_submissions(submissions, gi_bill_status, user_has_poa)
       unprocessed_submissions = submissions.find_all do |ebc|
-        ebc.processed_at.nil? && ebc.education_stem_automated_decision&.automated_decision_state == INIT
+        ebc.processed_at.nil? &&
+          ebc.education_stem_automated_decision&.automated_decision_state == EducationStemAutomatedDecision::INIT
       end
       most_recent_processed = submissions.find_all do |ebc|
-        ebc.processed_at.present? && ebc.education_stem_automated_decision&.automated_decision_state != INIT
+        ebc.processed_at.present? &&
+          ebc.education_stem_automated_decision&.automated_decision_state != EducationStemAutomatedDecision::INIT
       end
                                          .max_by(&:processed_at)
 
@@ -133,7 +131,8 @@ module EducationForm
       unprocessed_submissions.each do |submission|
         unprocessed_form = format_application(submission)
         if repeat_form?(unprocessed_form, processed_form)
-          update_automated_decision(submission, PROCESSED, user_has_poa, remaining_entitlement_days(gi_bill_status))
+          update_automated_decision(submission, EducationStemAutomatedDecision::PROCESSED,
+                                    user_has_poa, remaining_entitlement_days(gi_bill_status))
         else
           process_submission(submission, gi_bill_status, user_has_poa)
         end
@@ -154,9 +153,9 @@ module EducationForm
       submission_form = format_application(submission)
       status = if (!submission_form.enrolled_stem && !submission_form.pursuing_teaching_cert) ||
                   more_than_six_months?(gi_bill_status)
-                 DENIED
+                 EducationStemAutomatedDecision::DENIED
                else
-                 PROCESSED
+                 EducationStemAutomatedDecision::PROCESSED
                end
       update_automated_decision(submission, status, user_has_poa, remaining_entitlement_days(gi_bill_status))
     end
