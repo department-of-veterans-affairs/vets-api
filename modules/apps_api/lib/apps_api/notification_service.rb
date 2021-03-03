@@ -59,7 +59,7 @@ module AppsApi
         'options' => {
           'first_name' => user.body['profile']['firstName'],
           'application' => app_record ? app_record['name'] : nil,
-          'time' => Time.zone.parse(published).strftime('%m/%d/%Y at %T:%M%p'),
+          'time' => format_published_time(published),
           'privacy_policy' => app_record ? app_record['privacy_url'] : nil,
           'password_reset' => Settings.vanotify.links.password_reset,
           'connected_applications_link' => Settings.vanotify.links.connected_applications
@@ -67,11 +67,24 @@ module AppsApi
       }
     end
 
+    def format_published_time(published)
+      # Formats iso8601 time stamp into readable language
+      # 2020-11-29T00:23:39.508Z -> 11/29/2020 at 00:23:39:23AM
+      Time.zone.parse(published).strftime('%m/%d/%Y at %T:%M%p')
+    end
+
     def event_is_invalid(event)
       # checking if the event is unable to be processed,
       # or has already been processed.
-      @handled_events.include?(event['uuid']) ||
-        event['outcome']['result'] != 'SUCCESS' ||
+      event_has_been_handled(event['uuid']) || event_unsuccessful(event)
+    end
+
+    def event_has_been_handled(uuid)
+      @handled_events.include?(uuid)
+    end
+
+    def event_unsuccessful(event)
+      event['outcome']['result'] != 'SUCCESS' ||
         (event['eventType'] == @disconnection_event &&
          event['target'][0]['detailEntry']['subject'].nil?)
     end

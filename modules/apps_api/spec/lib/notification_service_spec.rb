@@ -258,6 +258,25 @@ describe AppsApi::NotificationService do
     end
   end
 
+  describe 'event_has_been_handled' do
+    it 'correctly checks if an event uuid has been processed' do
+      subject.instance_variable_set(:@handled_events, ['1234fakeuuid'])
+      expect(subject.event_has_been_handled(invalid_connection_event['uuid'])).to be(true)
+    end
+  end
+
+  describe 'event_unsuccessful' do
+    it 'parses connection events as expected' do
+      expect(subject.event_unsuccessful(valid_connection_event)).to be(false)
+      expect(subject.event_unsuccessful(invalid_connection_event)).to be(true)
+    end
+
+    it 'handles disconnection events as expected' do
+      expect(subject.event_unsuccessful(valid_disconnection_event)).to be(false)
+      expect(subject.event_unsuccessful(invalid_connection_event)).to be(true)
+    end
+  end
+
   describe 'create_hash' do
     it 'creates the hash in the correct schema' do
       expect(returned_hash['app_record']).not_to be(nil)
@@ -267,6 +286,12 @@ describe AppsApi::NotificationService do
       expect(returned_hash['options']['time']).to eq('11/29/2020 at 00:23:39:23AM')
       expect(returned_hash['options']['privacy_policy']).to eq('123.com')
       expect(returned_hash['uuid']).to eq('1234fakeuuid')
+    end
+  end
+
+  describe 'format_published_time' do
+    it 'parses the published time correctly' do
+      expect(subject.format_published_time(published)).to eq('11/29/2020 at 00:23:39:23AM')
     end
   end
 
