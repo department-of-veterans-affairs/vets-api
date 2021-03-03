@@ -22,7 +22,7 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
       expect(faraday_response).to receive(:body).at_least(:once).and_return([in_process_element].to_json)
 
       with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do
-        expect { AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([upload]) }.not_to raise_error
+        AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([upload])
         upload.reload
         expect(upload.status).to eq('processing')
       end
