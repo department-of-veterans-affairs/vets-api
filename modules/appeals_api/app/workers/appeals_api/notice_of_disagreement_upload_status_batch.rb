@@ -7,7 +7,7 @@ module AppealsApi
     include Sidekiq::Worker
 
     # No need to retry since the schedule will run this every hour
-    sidekiq_options retry: false, unique_until: :success
+    sidekiq_options retry: false
 
     def perform
       return unless enabled? && notice_of_disagreement_ids.present?
