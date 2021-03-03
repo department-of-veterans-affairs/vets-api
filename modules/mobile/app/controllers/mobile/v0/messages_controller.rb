@@ -36,6 +36,7 @@ module Mobile
       end
 
       def create
+        binding.pry
         message = Message.new(message_params.merge(upload_params))
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
@@ -105,7 +106,10 @@ module Mobile
       private
 
       def message_params
-        @message_params ||= params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+        #@message_params ||= params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+        # TODO: Recreate above validation without strongparams, since
+        # Rails is passing the :message part as a string instead of JSON
+        @message_params ||= JSON.parse(params[:message])
       end
 
       def upload_params
