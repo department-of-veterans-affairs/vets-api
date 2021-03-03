@@ -38,7 +38,7 @@ RSpec.describe 'health_quest questionnaire_responses', type: :request do
       before do
         sign_in_as(current_user)
         allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
-        allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        allow_any_instance_of(HealthQuest::FHIR::Query)
           .to receive(:get).with(anything).and_return(client_reply)
       end
 
@@ -79,7 +79,7 @@ RSpec.describe 'health_quest questionnaire_responses', type: :request do
       before do
         sign_in_as(current_user)
         allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
-        allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        allow_any_instance_of(HealthQuest::FHIR::Query)
           .to receive(:search).with(anything).and_return(client_reply)
       end
 
@@ -129,7 +129,7 @@ RSpec.describe 'health_quest questionnaire_responses', type: :request do
       before do
         sign_in_as(current_user)
         allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
-        allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+        allow_any_instance_of(HealthQuest::FHIR::Query)
           .to receive(:create).with(anything, anything).and_return(client_reply)
       end
 

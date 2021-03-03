@@ -8,7 +8,7 @@ module HealthQuest
       end
 
       def client
-        FHIR::Client.new(url).tap do |client|
+        ::FHIR::Client.new(url).tap do |client|
           client.use_r4
           client.default_json
           client.additional_headers = headers

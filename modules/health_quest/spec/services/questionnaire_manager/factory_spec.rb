@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 describe HealthQuest::QuestionnaireManager::Factory do
+  include HealthQuest::QuestionnaireManager::FactoryTypes
+
   subject { described_class }
 
   let(:user) { double('User', icn: '1008596379V859838', account_uuid: 'abc123', uuid: '789defg') }
@@ -130,7 +132,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
   describe '#get_patient' do
     it 'returns a FHIR::ClientReply' do
-      allow_any_instance_of(HealthQuest::HealthApi::Patient::MapQuery)
+      allow_any_instance_of(HealthQuest::FHIR::Factory)
         .to receive(:get).with(user.icn).and_return(client_reply)
 
       expect(described_class.manufacture(user).get_patient).to eq(client_reply)
@@ -141,7 +143,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
     let(:client_reply) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: [{}])) }
 
     it 'returns a FHIR::ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::Questionnaire::MapQuery)
+      allow_any_instance_of(HealthQuest::FHIR::Factory)
         .to receive(:search).with(anything).and_return(client_reply)
       allow_any_instance_of(described_class).to receive(:get_use_context).and_return('venue$583/12345')
 
@@ -153,7 +155,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
     let(:client_reply) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: [{}])) }
 
     it 'returns a FHIR::ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
+      allow_any_instance_of(HealthQuest::FHIR::Factory)
         .to receive(:search).with(anything).and_return(client_reply)
 
       expect(described_class.manufacture(user).get_questionnaire_responses).to eq(client_reply)
@@ -189,8 +191,8 @@ describe HealthQuest::QuestionnaireManager::Factory do
     end
 
     it 'returns a ClientReply' do
-      allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
-        .to receive(:create).with(anything, anything).and_return(client_reply)
+      allow_any_instance_of(HealthQuest::FHIR::Factory)
+        .to receive(:create).with(anything).and_return(client_reply)
 
       expect(described_class.new(user).create_questionnaire_response(data)).to eq(client_reply)
     end
