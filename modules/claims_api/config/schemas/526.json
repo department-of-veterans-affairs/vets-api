@@ -372,7 +372,7 @@
   "properties": {
     "veteran": {
       "type": "object",
-      "required": ["currentMailingAddress"],
+      "required": ["currentMailingAddress", "currentlyVAEmployee"],
       "properties": {
         "flashes": {
           "$ref": "#/definitions/flashes"
@@ -382,6 +382,7 @@
         },
         "currentMailingAddress": {
           "type": "object",
+          "required": ["country", "type", "addressLine1"],
           "properties": {
             "addressLine1": {
               "$ref": "#/definitions/addressLine"
