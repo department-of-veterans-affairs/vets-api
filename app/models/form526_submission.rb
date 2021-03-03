@@ -54,7 +54,8 @@ class Form526Submission < ApplicationRecord
       :success,
       'Form526Submission#perform_ancillary_jobs_handler',
       'submission_id' => id,
-      'full_name' => get_full_name
+      'full_name' => get_full_name,
+      'first_name' => get_first_name
     )
     jids = workflow_batch.jobs do
       EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(id)
@@ -66,6 +67,11 @@ class Form526Submission < ApplicationRecord
   def get_full_name
     user = User.find(user_uuid)
     user&.full_name_normalized&.values&.compact&.join(' ')&.upcase
+  end
+
+  def get_first_name
+    user = User.find(user_uuid)
+    user&.first_name&.upcase
   end
 
   # @return [Hash] parsed version of the form json
@@ -165,7 +171,9 @@ class Form526Submission < ApplicationRecord
   def perform_ancillary_jobs_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     # Only run ancillary jobs if submission succeeded
-    submission.perform_ancillary_jobs(options['full_name']) if submission.form526_job_statuses.all?(&:success?)
+    if submission.form526_job_statuses.all?(&:success?)
+      submission.perform_ancillary_jobs(options['full_name'], options['first_name'])
+    end
   end
 
   # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
@@ -173,13 +181,14 @@ class Form526Submission < ApplicationRecord
   # @param full_name [String] the full name of the user that submitted Form526
   # @return [String] the workflow batch id
   #
-  def perform_ancillary_jobs(full_name)
+  def perform_ancillary_jobs(full_name, first_name)
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
       'Form526Submission#workflow_complete_handler',
       'submission_id' => id,
-      'full_name' => full_name
+      'full_name' => full_name,
+      'first_name' => first_name
     )
     workflow_batch.jobs do
       submit_uploads if form[FORM_526_UPLOADS].present?
@@ -201,20 +210,21 @@ class Form526Submission < ApplicationRecord
     if submission.form526_job_statuses.all?(&:success?)
       user = User.find(submission.user_uuid)
       if Flipper.enabled?(:form526_confirmation_email, user)
-        submission.send_form526_confirmation_email(options['full_name'])
+        submission.send_form526_confirmation_email(options['full_name'], options['first_name'])
       end
       submission.workflow_complete = true
       submission.save
     end
   end
 
-  def send_form526_confirmation_email(full_name)
+  def send_form526_confirmation_email(full_name, first_name)
     email_address = form['form526']['form526']['veteran']['emailAddress']
     personalization_parameters = {
       'email' => email_address,
       'submitted_claim_id' => submitted_claim_id,
       'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
-      'full_name' => full_name
+      'full_name' => full_name,
+      'first_name' => first_name
     }
     Form526ConfirmationEmailJob.perform_async(personalization_parameters)
   end
