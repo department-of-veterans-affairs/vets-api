@@ -17,7 +17,8 @@ module EducationForm
 
     # Get all 10203 submissions that have a row in education_stem_automated_decisions
     def perform(
-      records: EducationBenefitsClaim.processed.joins(:education_stem_automated_decision).includes(:saved_claim).where(
+      records: EducationBenefitsClaim.includes(:saved_claim, :education_stem_automated_decision).where(
+        processed_at: processed_at_range,
         saved_claims: {
           form_id: '22-10203'
         },
@@ -43,6 +44,10 @@ module EducationForm
     end
 
     private
+
+    def processed_at_range
+      (@time - 24.hours)..@time
+    end
 
     def inform_on_error(claim, error = nil)
       region = EducationFacility.facility_for(region: :eastern)

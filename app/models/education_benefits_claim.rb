@@ -99,10 +99,6 @@ class EducationBenefitsClaim < ApplicationRecord
     where(processed_at: nil)
   end
 
-  def self.processed
-    where.not(processed_at: nil)
-  end
-
   def region
     EducationForm::EducationFacility.region_for(self)
   end
