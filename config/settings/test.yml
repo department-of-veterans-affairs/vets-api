@@ -60,6 +60,7 @@ account:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: <fake_api_key>
+  staging_flag: ~
 
 search:
   access_key: TESTKEY
@@ -91,6 +92,15 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+
+vanotify:
+  client_url: http://fakeapi.com
+  services:
+    lighthouse:
+      api_key: fake_api_key
+      template_id:
+        disconnection_template: fake_template_id
+        connection_template: fake_template_id
 
 veteran_readiness_and_employment:
   base_url: https://fake_url.com

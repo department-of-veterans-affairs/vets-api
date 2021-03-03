@@ -76,9 +76,10 @@ Rails.application.routes.draw do
     resource :post911_gi_bill_status, only: [:show]
     resource :vso_appointments, only: [:create]
 
-    resource :education_benefits_claims, only: [:create] do
+    resource :education_benefits_claims, only: %i[create show] do
       collection do
         post(':form_type', action: :create, as: :form_type)
+        get(:stem_claim_status)
       end
     end
 
@@ -99,6 +100,8 @@ Rails.application.routes.draw do
         get(:disability_rating)
       end
     end
+
+    resources :dependents_verifications, only: :index
 
     if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]

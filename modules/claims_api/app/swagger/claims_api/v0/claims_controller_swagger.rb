@@ -98,15 +98,33 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotFoundModel
+                  end
                 end
               end
             end
@@ -206,15 +224,33 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
-            schema do
-              key :type, :object
-              key :required, [:errors]
-              property :errors do
-                key :type, :array
-                items do
-                  key :'$ref', :ErrorModel
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotFoundModel
+                  end
                 end
               end
             end

@@ -41,12 +41,17 @@ module HealthQuest
       end
 
       ##
-      # The registry which holds the return value for `to_hash`.
+      # The registry which holds the return value for the `to_hash` method.
       #
       # @return [Hash]
       #
       def registry
         {
+          appointment: {
+            patient: user.icn,
+            date: appointment_dates,
+            location: clinic_id
+          },
           questionnaire_response: {
             subject: appointment_reference,
             source: user.icn,
@@ -56,6 +61,24 @@ module HealthQuest
             'context-type-value': context_type_value
           }
         }
+      end
+
+      ##
+      # Get the location id from the filters.
+      #
+      # @return [String]
+      #
+      def clinic_id
+        @clinic_id ||= filters&.fetch(:location, nil)
+      end
+
+      ##
+      # Get the range of appointment dates from the filters.
+      #
+      # @return [String]
+      #
+      def appointment_dates
+        @appointment_dates ||= filters&.fetch(:date, nil)
       end
 
       ##

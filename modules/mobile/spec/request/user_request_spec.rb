@@ -219,6 +219,13 @@ RSpec.describe 'user', type: :request do
         expect(response.body).to match_json_schema('errors')
       end
     end
+
+    context 'after a profile request' do
+      it 'kicks off a pre cache appointments job' do
+        expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
+        get '/mobile/v0/user', headers: iam_headers
+      end
+    end
   end
 
   describe 'GET /mobile/v0/user/logout' do

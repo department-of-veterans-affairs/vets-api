@@ -36,7 +36,7 @@ module AppealsApi
         'uuid' => notice_of_disagreement.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
         'numberAttachments' => 0,
-        'receiveDt' => notice_of_disagreement.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'receiveDt' => receive_date(notice_of_disagreement),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
         'docType' => '10182',
         'lob' => notice_of_disagreement.lob
@@ -55,6 +55,13 @@ module AppealsApi
       else
         map_error(response.status, response.body, AppealsApi::UploadError)
       end
+    end
+
+    def receive_date(notice_of_disagreement)
+      notice_of_disagreement
+        .created_at
+        .in_time_zone('Central Time (US & Canada)')
+        .strftime('%Y-%m-%d %H:%M:%S')
     end
   end
 end

@@ -67,7 +67,7 @@ paths:
   /v0/appointments:
     get:
       summary: /v0/appointments
-      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 3 months and + 6 months from the beginning of today's UTC date.
       operationId: getAppointments
       security:
         - Bearer: []
@@ -1258,7 +1258,7 @@ paths:
     get:
       summary: /v0/payment-information/benefits
       description: Returns direct deposit payment info
-      operationId: index
+      operationId: getPaymentInformation
       security:
         - Bearer: []
       responses:
@@ -1319,7 +1319,7 @@ paths:
     put:
       summary: /v0/payment-information/benefits
       description: Returns updated direct deposit payment info
-      operationId: update
+      operationId: updatePaymentInformation
       security:
         - Bearer: []
       requestBody:
@@ -1906,7 +1906,7 @@ paths:
       summary: /v0/messaging/health/folders
       description: List available secure messaging folders
       operationId: listFolders
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
@@ -1930,7 +1930,7 @@ paths:
       summary: /v0/messaging/health/folders/{id}
       description: Get a secure messaging folder
       operationId: getFolder
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
@@ -1954,7 +1954,7 @@ paths:
       summary: /v0/messaging/health/folders/{id}/messages
       description: List messages in a secure messaging folder
       operationId: listFolderMessages
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
@@ -1978,7 +1978,7 @@ paths:
       summary: /v0/messaging/health/messages/{id}
       description: Get a secure message and mark message as read
       operationId: getMessage
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
@@ -2000,18 +2000,18 @@ paths:
   /v0/messaging/health/messages/{id}/attachments/{attachment_id}:
     get:
       summary: /v0/messaging/health/messages/{id}/attachments/{attachment_id}
-      description: > 
-        Get a secure message attachment content as a direct binary download. 
+      description: >
+        Get a secure message attachment content as a direct binary download.
         Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
 
       operationId: getMessageAttachment
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
           headers:
             Content-Disposition:
-              schema: 
+              schema:
                 type: string
               description: >
                 This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
@@ -2036,7 +2036,7 @@ paths:
       summary: /v0/messaging/health/messages/categories
       description: List available message categories
       operationId: listMessageCategories
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
@@ -2061,7 +2061,7 @@ paths:
       summary: /v0/messaging/health/recipients
       description: List available recipients to which messages may be sent
       operationId: listRecipients
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
