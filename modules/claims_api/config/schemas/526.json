@@ -853,7 +853,8 @@
                   "type": "string"
                 },
                 "disabilityActionType": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": ["NONE", "NEW", "SECONDARY", "INCREASE", "REOPEN"]
                 },
                 "serviceRelevance": {
                   "type": "string"
