@@ -47,27 +47,22 @@ class LogsProcessor
           stdout_arr = stdout_arr[1..-1]
           
           puts stderr_str if stderr_str
-          puts stdout_arr
+          # puts stdout_arr
 
           stdout_arr.each do |log|
             json_log = JSON.parse(log)
             yield (json_log) # Yield control to the calling block
           end
-          # i = 0
-          # while i < stdout_arr.length
-          #   json_log = JSON.parse(stdout_arr[i])
-          #   yield (json_log) # Yield control to the calling block
-          # end
 
-          if status.success?
-            File.open(path, 'w') do |file|
-              file.write stdout_str
-            end
-          else
-            puts 'Error occurred fetching data for ' + path
-            puts stderr_str
-            exit status.exitstatus
-          end
+          # if status.success?
+          #   File.open(path, 'w') do |file|
+          #     file.write stdout_str
+          #   end
+          # else
+          #   puts 'Error occurred fetching data for ' + path
+          #   puts stderr_str
+          #   exit status.exitstatus
+          # end
         end
       end
     end
@@ -89,7 +84,7 @@ class LogsProcessor
 
   def self.ranges(start_date, end_date)
     (start_date..end_date).map do |day|
-      [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 00, 04, 59, 0).iso8601]
+      [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 23, 59, 59, 0).iso8601]
     end
   end
 

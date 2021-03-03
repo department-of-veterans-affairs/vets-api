@@ -6,6 +6,7 @@ def start_server
   system("redis-server")
 end
 
+# add tty
 def save(key, value)
   REDIS_CONNECTION.set(key, value)
 end
@@ -14,6 +15,6 @@ def load(key)
   REDIS_CONNECTION.get(key)
 end
 
-def keys(prefix)
-  REDIS_CONNECTION.keys(prefix)
+def keys(namespace)
+  REDIS_CONNECTION.keys(namespace)
 end
