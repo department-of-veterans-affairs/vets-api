@@ -55,11 +55,8 @@ http_interactions:
             "tx_type": "PUSH",
           	"txInteractionType": "ATTENDED",
           	"txPushInput": {
-          	},
-          	"txOutput": [
-          		{
-          		}
-          	]
+              "source_date": "2021-03-03T09:18:38Z"
+          	}
           }
       http_version:
     recorded_at: Thu, 16 Jan 2020 03:15:06 GMT
