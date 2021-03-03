@@ -180,10 +180,12 @@ features:
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   form526_original_claims:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
   form526_benefits_delivery_at_discharge:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
   form526_confirmation_email:
@@ -215,6 +217,7 @@ features:
       Panel that displays while the user is modifying inputs to give context to their currently estimated benefits until they reach the full your estimated benefits panel.
   form996_higher_level_review:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
   debt_letters_show_letters:
@@ -266,6 +269,7 @@ features:
       Enables showing the pre-appointment questionnaire feature.
   show526_wizard:
     actor_type: user
+    enable_in_development: true
     description: >
       This determines when the wizard should show up on the form 526 intro page
   show_new_get_medical_records_page:
@@ -296,10 +300,6 @@ features:
     actor_type: user
     description: >
       This will show the Cerner facility 757 as `isCerner`.
-  gibct_benefit_filter_enhancement:
-    actor_type: user
-    description: >
-      Comparison Tool Search Results Benefit UI Enhancements to improve usability
   gibct_school_ratings:
     actor_type: user
     description: >
@@ -308,10 +308,6 @@ features:
     actor_type: user
     description: >
       API endpoints consumed by the VA Mobile App (iOS/Android)
-  show_chapter_36:
-    actor_type: user
-    description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
   show_chapter_31:
     actor_type: user
     description: >
@@ -384,3 +380,13 @@ features:
     enable_in_development: true
     description: >
       Manage dependent removal from view dependent page
+  vanotify_service_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allow consumer to use service specific VaNotify client. Owned by va-notify team.
+  subform_8940_4192:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Form 526 subforms for unemployability & connected employment information

@@ -13,15 +13,18 @@ module VAForms
       Rails.logger.info('VAForms::FormReloader is being called.')
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
       body = { query: query }
-      response = connection.post('graphql', body.to_json)
+      response = connection.post do |req|
+        req.path = 'graphql'
+        req.body = body.to_json
+        req.options.timeout = 300
+      end
       forms_data = JSON.parse(response.body)
       forms_data.dig('data', 'nodeQuery', 'entities').each do |form|
         build_and_save_form(form)
       rescue => e
         log_message_to_sentry(
           "#{form['fieldVaFormNumber']} failed to import into forms database",
-          :error,
-          body: e.message
+          :error, body: e.message
         )
         next
       end

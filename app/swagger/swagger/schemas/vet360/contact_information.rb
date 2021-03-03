@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'vet360/contact_information/person_response'
-require 'vet360/contact_information/service'
-require 'vet360/models/address'
-require 'vet360/models/telephone'
-require 'vet360/models/permission'
+require 'va_profile/contact_information/person_response'
+require 'va_profile/contact_information/service'
+require 'va_profile/models/address'
+require 'va_profile/models/telephone'
+require 'va_profile/models/permission'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
@@ -49,11 +49,11 @@ module Swagger
                   property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
                   property :address_line2, type: %i[string null]
                   property :address_line3, type: %i[string null]
-                  property :address_pou, type: :string, example: ::Vet360::Models::Address::RESIDENCE
+                  property :address_pou, type: :string, example: ::VAProfile::Models::Address::RESIDENCE
                   property :address_type,
                            type: :string,
-                           enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                           example: ::Vet360::Models::Address::DOMESTIC
+                           enum: ::VAProfile::Models::Address::ADDRESS_TYPES,
+                           example: ::VAProfile::Models::Address::DOMESTIC
                   property :city, type: :string, example: 'Fulton'
                   property :country_code_iso3, type: %i[string], example: 'USA'
                   property :country_code_fips, type: %i[string null], example: 'US'
@@ -98,11 +98,11 @@ module Swagger
                   property :address_line3, type: %i[string null]
                   property :address_pou,
                            type: :string,
-                           example: ::Vet360::Models::Address::CORRESPONDENCE
+                           example: ::VAProfile::Models::Address::CORRESPONDENCE
                   property :address_type,
                            type: :string,
-                           enum: ::Vet360::Models::Address::ADDRESS_TYPES,
-                           example: ::Vet360::Models::Address::DOMESTIC
+                           enum: ::VAProfile::Models::Address::ADDRESS_TYPES,
+                           example: ::VAProfile::Models::Address::DOMESTIC
                   property :city, type: :string, example: 'Fulton'
                   property :country_code_iso3, type: %i[string], example: 'USA'
                   property :country_code_fips, type: %i[string null], example: 'US'
@@ -151,7 +151,7 @@ module Swagger
                   property :is_tty, type: :boolean
                   property :is_voicemailable, type: :boolean
                   property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::MOBILE
+                  property :phone_type, type: :string, example: ::VAProfile::Models::Telephone::MOBILE
                   property :created_at,
                            type: :string,
                            format: 'date-time',
@@ -184,7 +184,7 @@ module Swagger
                   property :is_tty, type: :boolean
                   property :is_voicemailable, type: :boolean
                   property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::HOME
+                  property :phone_type, type: :string, example: ::VAProfile::Models::Telephone::HOME
                   property :created_at,
                            type: :string,
                            format: 'date-time',
@@ -217,7 +217,7 @@ module Swagger
                   property :is_tty, type: :boolean
                   property :is_voicemailable, type: :boolean
                   property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::WORK
+                  property :phone_type, type: :string, example: ::VAProfile::Models::Telephone::WORK
                   property :created_at,
                            type: :string,
                            format: 'date-time',
@@ -250,7 +250,7 @@ module Swagger
                   property :is_tty, type: :boolean
                   property :is_voicemailable, type: :boolean
                   property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::TEMPORARY
+                  property :phone_type, type: :string, example: ::VAProfile::Models::Telephone::TEMPORARY
                   property :created_at,
                            type: :string,
                            format: 'date-time',
@@ -283,7 +283,7 @@ module Swagger
                   property :is_tty, type: :boolean
                   property :is_voicemailable, type: :boolean
                   property :phone_number, type: :string, example: '5551234'
-                  property :phone_type, type: :string, example: ::Vet360::Models::Telephone::FAX
+                  property :phone_type, type: :string, example: ::VAProfile::Models::Telephone::FAX
                   property :created_at,
                            type: :string,
                            format: 'date-time',
@@ -308,7 +308,7 @@ module Swagger
 
                 property :text_permission, type: :object do
                   property :id, type: :integer, example: 123
-                  property :permission_type, type: :string, example: ::Vet360::Models::Permission::TEXT
+                  property :permission_type, type: :string, example: ::VAProfile::Models::Permission::TEXT
                   property :permission_value, type: :boolean, example: true
                   property :created_at,
                            type: :string,

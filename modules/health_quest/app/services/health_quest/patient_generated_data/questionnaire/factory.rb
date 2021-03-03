@@ -15,7 +15,7 @@ module HealthQuest
       # @!attribute map_query
       #   @return [PatientGeneratedData::Questionnaire::MapQuery]
       # @!attribute options_builder
-      #   @return [PatientGeneratedData::Questionnaire::OptionsBuilder]
+      #   @return [Shared::OptionsBuilder]
       class Factory
         attr_reader :session_service, :user, :map_query, :options_builder
 
@@ -31,9 +31,9 @@ module HealthQuest
 
         def initialize(user)
           @user = user
-          @session_service = HealthQuest::Lighthouse::Session.build(user)
+          @session_service = HealthQuest::Lighthouse::Session.build(user: user, api: pgd_api)
           @map_query = PatientGeneratedData::Questionnaire::MapQuery.build(session_service.retrieve)
-          @options_builder = OptionsBuilder
+          @options_builder = Shared::OptionsBuilder
         end
 
         ##
@@ -66,6 +66,12 @@ module HealthQuest
         #
         def resource_name
           { resource_name: 'questionnaire' }
+        end
+
+        private
+
+        def pgd_api
+          Settings.hqva_mobile.lighthouse.pgd_api
         end
       end
     end

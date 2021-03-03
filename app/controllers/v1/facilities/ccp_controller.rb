@@ -59,6 +59,22 @@ class V1::Facilities::CcpController < FacilitiesController
     )
   end
 
+  def ppms_provider_params
+    params.require(:type)
+    params.require(:specialties)
+    params.permit(
+      :address,
+      :latitude,
+      :longitude,
+      :page,
+      :per_page,
+      :radius,
+      :type,
+      bbox: [],
+      specialties: []
+    )
+  end
+
   def ppms_show_params
     params.permit(:id)
   end
@@ -67,16 +83,12 @@ class V1::Facilities::CcpController < FacilitiesController
     if ppms_params[:type] == 'provider' && ppms_params[:specialties] == ['261QU0200X']
       api.pos_locator(ppms_params)
     elsif ppms_params[:type] == 'provider'
-      provider_search
+      api.provider_locator(ppms_provider_params)
     elsif ppms_params[:type] == 'pharmacy'
-      provider_search(specialties: ['3336C0003X'])
+      api.provider_locator(ppms_params.merge(specialties: ['3336C0003X']))
     elsif ppms_params[:type] == 'urgent_care'
       api.pos_locator(ppms_params)
     end
-  end
-
-  def provider_search(options = {})
-    api.provider_locator(ppms_params.merge(options))
   end
 
   def resource_path(options)

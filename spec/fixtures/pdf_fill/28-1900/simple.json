@@ -1,32 +1,27 @@
 {
-  "use_eva": true,
-  "use_telecounseling": true,
-  "appointment_time_preferences": {
-    "morning": true,
-    "mid_day": false,
-    "afternoon": false,
-    "other": false
-  },
-  "years_of_education": "12",
-  "is_moving": false,
-  "veteran_address": {
+  "useEva": true,
+  "useTelecounseling": true,
+  "appointmentTimePreferences": ["morning"],
+  "yearsOfEducation": "12",
+  "isMoving": false,
+  "veteranAddress": {
     "country": "USA",
     "street": "4201 Henry Ave",
     "city": "Philadelphia",
     "state": "PA",
-    "postal_code": "19144"
+    "postalCode": "19144"
   },
-  "main_phone": "2159512800",
+  "mainPhone": "2159512800",
   "email": "sam@test.com",
-  "veteran_information": {
-    "full_name": {
+  "veteranInformation": {
+    "fullName": {
       "first": "Adam",
       "middle": "B",
       "last": "Huberws",
       "suffix": "Jr."
     },
     "ssn": "796-10-4437",
-    "va_file_number": "796104437",
-    "birth_date": "1950-10-04"
+    "VAFileNumber": "796104437",
+    "dob": "1950-10-04"
   }
 }

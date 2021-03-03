@@ -5,7 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
-    include CentralMailStatus
+    include AppealStatus
 
     def self.load_json_schema(filename)
       MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
@@ -97,7 +97,8 @@ module AppealsApi
     end
 
     def zip_code_5
-      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+      # schema already validated address presence if not homeless
+      veteran_contact_info&.dig('address', 'zipCode5') || '00000'
     end
 
     def lob

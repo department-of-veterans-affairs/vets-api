@@ -194,6 +194,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports checking stem_claim_status' do
+      expect(subject).to validate(:get, '/v0/education_benefits_claims/stem_claim_status', 200)
+    end
+
     it 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mpi/find_candidate/valid' do
         VCR.use_cassette 'emis/get_veteran_status/valid' do
@@ -2198,10 +2202,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:get, '/v0/profile/full_name', 200, headers)
       end
 
-      it 'supports posting vet360 email address data' do
+      it 'supports posting va_profile email address data' do
         expect(subject).to validate(:post, '/v0/profile/email_addresses', 401)
 
-        VCR.use_cassette('vet360/contact_information/post_email_success') do
+        VCR.use_cassette('va_profile/contact_information/post_email_success') do
           email_address = build(:email)
 
           expect(subject).to validate(
@@ -2213,10 +2217,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports putting vet360 email address data' do
+      it 'supports putting va_profile email address data' do
         expect(subject).to validate(:put, '/v0/profile/email_addresses', 401)
 
-        VCR.use_cassette('vet360/contact_information/put_email_success') do
+        VCR.use_cassette('va_profile/contact_information/put_email_success') do
           email_address = build(:email, id: 42)
 
           expect(subject).to validate(
@@ -2228,10 +2232,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports deleting vet360 email address data' do
+      it 'supports deleting va_profile email address data' do
         expect(subject).to validate(:delete, '/v0/profile/email_addresses', 401)
 
-        VCR.use_cassette('vet360/contact_information/delete_email_success') do
+        VCR.use_cassette('va_profile/contact_information/delete_email_success') do
           email_address = build(:email, id: 42)
 
           expect(subject).to validate(
@@ -2243,10 +2247,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports posting vet360 telephone data' do
+      it 'supports posting va_profile telephone data' do
         expect(subject).to validate(:post, '/v0/profile/telephones', 401)
 
-        VCR.use_cassette('vet360/contact_information/post_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/post_telephone_success') do
           telephone = build(:telephone)
 
           expect(subject).to validate(
@@ -2258,10 +2262,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports putting vet360 telephone data' do
+      it 'supports putting va_profile telephone data' do
         expect(subject).to validate(:put, '/v0/profile/telephones', 401)
 
-        VCR.use_cassette('vet360/contact_information/put_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/put_telephone_success') do
           telephone = build(:telephone, id: 42)
 
           expect(subject).to validate(
@@ -2273,10 +2277,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports deleting vet360 telephone data' do
+      it 'supports deleting va_profile telephone data' do
         expect(subject).to validate(:delete, '/v0/profile/telephones', 401)
 
-        VCR.use_cassette('vet360/contact_information/delete_telephone_success') do
+        VCR.use_cassette('va_profile/contact_information/delete_telephone_success') do
           telephone = build(:telephone, id: 42)
 
           expect(subject).to validate(
@@ -2369,13 +2373,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports the address validation api' do
         expect(subject).to validate(:post, '/v0/profile/address_validation', 401)
 
-        address = build(:vet360_address, :multiple_matches)
+        address = build(:va_profile_address, :multiple_matches)
         VCR.use_cassette(
-          'vet360/address_validation/validate_match',
+          'va_profile/address_validation/validate_match',
           VCR::MATCH_EVERYTHING
         ) do
           VCR.use_cassette(
-            'vet360/address_validation/candidate_multiple_matches',
+            'va_profile/address_validation/candidate_multiple_matches',
             VCR::MATCH_EVERYTHING
           ) do
             expect(subject).to validate(
@@ -2388,11 +2392,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports posting vet360 address data' do
+      it 'supports posting va_profile address data' do
         expect(subject).to validate(:post, '/v0/profile/addresses', 401)
 
-        VCR.use_cassette('vet360/contact_information/post_address_success') do
-          address = build(:vet360_address)
+        VCR.use_cassette('va_profile/contact_information/post_address_success') do
+          address = build(:va_profile_address)
 
           expect(subject).to validate(
             :post,
@@ -2403,11 +2407,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports putting vet360 address data' do
+      it 'supports putting va_profile address data' do
         expect(subject).to validate(:put, '/v0/profile/addresses', 401)
 
-        VCR.use_cassette('vet360/contact_information/put_address_success') do
-          address = build(:vet360_address, id: 42)
+        VCR.use_cassette('va_profile/contact_information/put_address_success') do
+          address = build(:va_profile_address, id: 42)
 
           expect(subject).to validate(
             :put,
@@ -2418,11 +2422,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports deleting vet360 address data' do
+      it 'supports deleting va_profile address data' do
         expect(subject).to validate(:delete, '/v0/profile/addresses', 401)
 
-        VCR.use_cassette('vet360/contact_information/delete_address_success') do
-          address = build(:vet360_address, id: 42)
+        VCR.use_cassette('va_profile/contact_information/delete_address_success') do
+          address = build(:va_profile_address, id: 42)
 
           expect(subject).to validate(
             :delete,
@@ -2433,10 +2437,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports posting vet360 permission data' do
+      it 'supports posting va_profile permission data' do
         expect(subject).to validate(:post, '/v0/profile/permissions', 401)
 
-        VCR.use_cassette('vet360/contact_information/post_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/post_permission_success') do
           permission = build(:permission)
 
           expect(subject).to validate(
@@ -2448,10 +2452,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports putting vet360 permission data' do
+      it 'supports putting va_profile permission data' do
         expect(subject).to validate(:put, '/v0/profile/permissions', 401)
 
-        VCR.use_cassette('vet360/contact_information/put_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/put_permission_success') do
           permission = build(:permission, id: 401)
 
           expect(subject).to validate(
@@ -2463,10 +2467,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports deleting vet360 permission data' do
+      it 'supports deleting va_profile permission data' do
         expect(subject).to validate(:delete, '/v0/profile/permissions', 401)
 
-        VCR.use_cassette('vet360/contact_information/delete_permission_success') do
+        VCR.use_cassette('va_profile/contact_information/delete_permission_success') do
           permission = build(:permission, id: 361) # TODO: ID
 
           expect(subject).to validate(
@@ -2481,7 +2485,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports posting to initialize a vet360_id' do
         expect(subject).to validate(:post, '/v0/profile/initialize_vet360_id', 401)
 
-        VCR.use_cassette('vet360/person/init_vet360_id_success') do
+        VCR.use_cassette('va_profile/person/init_vet360_id_success') do
           expect(subject).to validate(
             :post,
             '/v0/profile/initialize_vet360_id',
@@ -2519,7 +2523,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           'transaction_id' => transaction.transaction_id
         )
 
-        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+        VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
           expect(subject).to validate(
             :get,
             '/v0/profile/status/{transaction_id}',
@@ -2536,7 +2540,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           401
         )
 
-        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+        VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
           expect(subject).to validate(
             :get,
             '/v0/profile/status/',
@@ -2571,7 +2575,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           'transaction_id' => transaction.transaction_id
         )
 
-        VCR.use_cassette('vet360/contact_information/person_transaction_status') do
+        VCR.use_cassette('va_profile/contact_information/person_transaction_status') do
           expect(subject).to validate(
             :get,
             '/v0/profile/person/status/{transaction_id}',
@@ -3127,6 +3131,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'dependents verifications' do
+      it 'supports getting dependent information' do
+        expect(subject).to validate(:get, '/v0/dependents_verifications', 401)
+        VCR.use_cassette('bgs/diaries/read') do
+          expect(subject).to validate(:get, '/v0/dependents_verifications', 200, headers)
+        end
+      end
+    end
+
     describe 'education career counseling claims' do
       it 'supports adding a career counseling claim' do
         expect(subject).to validate(
@@ -3160,6 +3173,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'veteran readiness employment claims' do
       it 'supports adding veteran readiness employment claim' do
         VCR.use_cassette('veteran_readiness_employment/send_to_vre') do
+          allow(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
           expect(subject).to validate(
             :post,
             '/v0/veteran_readiness_employment_claims',

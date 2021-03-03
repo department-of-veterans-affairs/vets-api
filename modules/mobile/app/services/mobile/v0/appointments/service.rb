@@ -20,7 +20,7 @@ module Mobile
         #
         # @return Hash two lists of appointments, va and cc (community care)
         #
-        def get_appointments(start_date, end_date, use_cache = true)
+        def get_appointments(start_date, end_date, use_cache = false)
           params = {
             startDate: start_date.utc.iso8601,
             endDate: end_date.utc.iso8601,

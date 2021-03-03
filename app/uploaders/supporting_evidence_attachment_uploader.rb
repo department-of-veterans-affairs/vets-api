@@ -24,7 +24,7 @@ class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def extension_whitelist
+  def extension_allowlist
     %w[pdf png gif tiff tif jpeg jpg bmp txt]
   end
 
