@@ -36,11 +36,9 @@ module EducationForm
       end
 
       records.each do |record|
-        begin
-          StemApplicantDenialMailer.build(record, nil).deliver_now
-        rescue => e
-          inform_on_error(record, e)
-        end
+        StemApplicantDenialMailer.build(record, nil).deliver_now
+      rescue => e
+        inform_on_error(record, e)
       end
     end
 
