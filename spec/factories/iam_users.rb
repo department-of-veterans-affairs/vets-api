@@ -75,15 +75,15 @@ FactoryBot.define do
 
       after(:build) do
         stub_mpi(
-            build(
-                :mvi_profile,
-                icn: '24811694708759028',
-                edipi: '1005079124',
-                birls_id: '796121200',
-                participant_id: '796121200',
-                birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
-                vet360_id: nil
-            )
+          build(
+            :mvi_profile,
+            icn: '24811694708759028',
+            edipi: '1005079124',
+            birls_id: '796121200',
+            participant_id: '796121200',
+            birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
+            vet360_id: nil
+          )
         )
       end
     end

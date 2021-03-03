@@ -45,7 +45,7 @@ module Mobile
 
       session_manager = IAMSSOeOAuth::SessionManager.new(access_token)
       @current_user = session_manager.find_or_create_user
-      link_user_with_vets360 unless @current_user.vet360_id.present?
+      link_user_with_vets360 if @current_user.vet360_id.blank?
       @current_user
     end
 
