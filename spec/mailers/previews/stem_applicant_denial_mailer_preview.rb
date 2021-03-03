@@ -12,7 +12,6 @@ class StemApplicantDenialMailerPreview < ActionMailer::Preview
             automated_decision_state: EducationStemAutomatedDecision::DENIED
         }
     )&.last
-    ga_client_id = params.key?(:ga_client_id) ? params[:ga_client_id] : nil
-    StemApplicantDenialMailer.build(claim, ga_client_id) if claim.present?
+    StemApplicantDenialMailer.build(claim, nil) if claim.present?
   end
 end
