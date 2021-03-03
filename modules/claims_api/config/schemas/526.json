@@ -479,6 +479,7 @@
         },
         "changeOfAddress": {
           "type": "object",
+          "required": ["country", "type", "addressLine1", "addressChangeType", "beginningDate"],
           "properties": {
             "beginningDate": {
               "type": "string"
