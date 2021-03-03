@@ -84,7 +84,7 @@
                         "items": {
                           "type": "object",
                           "properties": {
-                            "id": { "type": "string", "nullable": true, "example": null },
+                            "id": { "type": ["integer", "string"], "nullable": true, "example": null },
                             "approxDecisionDate": {
                               "type": "string",
                               "nullable": true,

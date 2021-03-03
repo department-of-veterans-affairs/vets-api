@@ -12,13 +12,13 @@ module HealthQuest
       end
 
       def create
-        render json: factory.create(params[:questionnaire_response]).response[:body]
+        render json: factory.create(questionnaire_response_params).response[:body]
       end
 
       private
 
       def questionnaire_response_params
-        params.permit!
+        params.require(:questionnaire_response).permit!
       end
 
       def factory
