@@ -26,7 +26,7 @@ module AppsApi
 
       logs = get_events(event_type)
       logs.body.each do |event|
-        unless event_is_invalid(event)
+        unless event_is_invalid?(event)
           parsed_hash = parse_event(event)
           send_email(hash: parsed_hash, template: template)
         end
@@ -73,17 +73,17 @@ module AppsApi
       Time.zone.parse(published).strftime('%m/%d/%Y at %T:%M%p')
     end
 
-    def event_is_invalid(event)
+    def event_is_invalid?(event)
       # checking if the event is unable to be processed,
       # or has already been processed.
-      event_has_been_handled(event['uuid']) || event_unsuccessful(event)
+      event_already_handled?(event['uuid']) || event_unsuccessful?(event)
     end
 
-    def event_has_been_handled(uuid)
+    def event_already_handled?(uuid)
       @handled_events.include?(uuid)
     end
 
-    def event_unsuccessful(event)
+    def event_unsuccessful?(event)
       event['outcome']['result'] != 'SUCCESS' ||
         (event['eventType'] == @disconnection_event &&
          event['target'][0]['detailEntry']['subject'].nil?)
