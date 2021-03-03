@@ -22,7 +22,7 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusUpdater, type: :job do
       expect(faraday_response).to receive(:body).at_least(:once).and_return([in_process_element].to_json)
 
       with_settings(Settings.modules_appeals_api, notice_of_disagreement_updater_enabled: true) do
-        AppealsApi::NoticeOfDisagreementUploadStatusUpdater.new.perform([upload])
+        expect { AppealsApi::NoticeOfDisagreementUploadStatusUpdater.new.perform([upload]) }.not_to raise_error
         upload.reload
         expect(upload.status).to eq('processing')
       end
