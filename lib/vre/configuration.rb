@@ -26,8 +26,8 @@ module VRE
 
     def ssl_options
       {
-        cert: Settings.veteran_readiness_and_employment.cert,
-        key: Settings.veteran_readiness_and_employment.key
+        client_cert: Settings.veteran_readiness_and_employment.cert,
+        client_key: Settings.veteran_readiness_and_employment.key
       }
     end
 
