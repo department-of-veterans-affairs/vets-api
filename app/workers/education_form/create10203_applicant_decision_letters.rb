@@ -6,10 +6,10 @@ module EducationForm
   class FormattingError < StandardError
   end
 
-  class Create10203ApplicantDecisionLetterLogging < StandardError
+  class Create10203ApplicantDecisionLettersLogging < StandardError
   end
 
-  class Create10203ApplicantDecisionLetter
+  class Create10203ApplicantDecisionLetters
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
@@ -58,7 +58,7 @@ module EducationForm
     end
 
     def log_info(message)
-      log_exception_to_sentry(Create10203ApplicantDecisionLetterLogging.new(message),
+      log_exception_to_sentry(Create10203ApplicantDecisionLettersLogging.new(message),
                               {}, {}, :info)
     end
   end
