@@ -48,18 +48,18 @@ module AppsApi
         app_record = DirectoryApplication.find_by(name: event['actor']['displayName'])
       end
       user = @okta_service.user(user_id)
-      create_hash(app_record: app_record, user: user, published: event['published'], uuid: event['uuid'])
+      create_hash(app_record: app_record, user: user, event: event)
     end
 
-    def create_hash(app_record:, user:, published:, uuid:)
+    def create_hash(app_record:, user:, event:)
       {
-        'uuid' => uuid,
+        'uuid' => event['uuid'],
         'app_record' => app_record,
         'user_email' => user.body['profile']['email'],
         'options' => {
           'first_name' => user.body['profile']['firstName'],
           'application' => app_record ? app_record['name'] : nil,
-          'time' => format_published_time(published),
+          'time' => format_published_time(event['published']),
           'privacy_policy' => app_record ? app_record['privacy_url'] : nil,
           'password_reset' => Settings.vanotify.links.password_reset,
           'connected_applications_link' => Settings.vanotify.links.connected_applications

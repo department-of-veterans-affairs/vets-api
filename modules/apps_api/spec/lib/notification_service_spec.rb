@@ -46,7 +46,7 @@ describe AppsApi::NotificationService do
         'result' => 'SUCCESS'
       },
       'published' => '2020-11-29T00:23:39.508Z',
-      'uuid' => '5678fakeuuid',
+      'uuid' => '1234fakeuuid',
       'target' => [
         {
           'id' => 'oagke4gvwYHTncxlI2p6',
@@ -132,8 +132,7 @@ describe AppsApi::NotificationService do
     subject.create_hash(
       app_record: directory_app,
       user: user_struct,
-      published: published,
-      uuid: '1234fakeuuid'
+      event: valid_connection_event
     )
   end
   let(:directory_app_struct) do
@@ -301,8 +300,7 @@ describe AppsApi::NotificationService do
         subject.create_hash(
           app_record: nil,
           user: user_struct,
-          published: '2020-11-29T00:23:39.508Z',
-          uuid: '1234fakeuuid'
+          event: valid_connection_event
         )
       end
 
