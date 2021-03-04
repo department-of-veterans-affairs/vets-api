@@ -32,6 +32,12 @@ module Okta
       end
     end
 
+    def get_auth_server(auth_server_id)
+      with_monitoring do
+        get_url_with_token("#{AUTH_SERVER_API_BASE_PATH}/#{auth_server_id}")
+      end
+    end
+
     def get_auth_servers
       with_monitoring do
         get_url_with_token(AUTH_SERVER_API_BASE_PATH)
