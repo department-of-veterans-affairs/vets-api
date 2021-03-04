@@ -1905,7 +1905,7 @@ paths:
     get:
       summary: /v0/messaging/health/folders
       description: List available secure messaging folders
-      operationId: listFolders
+      operationId: get_folders
       security:
         - Bearer: []
       responses:
@@ -1929,7 +1929,7 @@ paths:
     get:
       summary: /v0/messaging/health/folders/{id}
       description: Get a secure messaging folder
-      operationId: getFolder
+      operationId: get_folder
       security:
         - Bearer: []
       responses:
@@ -1953,7 +1953,7 @@ paths:
     get:
       summary: /v0/messaging/health/folders/{id}/messages
       description: List messages in a secure messaging folder
-      operationId: listFolderMessages
+      operationId: get_folder_messages
       security:
         - Bearer: []
       responses:
@@ -1977,7 +1977,7 @@ paths:
     post:
       summary: /v0/messaging/health/messages
       description: Send a new secure message
-      operationId: postCreateMessage
+      operationId: post_create_message
       security:
         - Bearer: []
       requestBody:
@@ -2008,7 +2008,7 @@ paths:
     get:
       summary: /v0/messaging/health/messages/{id}
       description: Get a secure message and mark message as read
-      operationId: getMessage
+      operationId: get_message
       security:
         - Bearer: []
       responses:
@@ -2030,6 +2030,7 @@ paths:
                 $ref: "./schemas/Errors.yml"
     patch:
       summary: /v0/messaging/health/messages/{id}/move
+      operationId: post_move_message
       parameters:
         - in: path
           name: id
@@ -2062,6 +2063,7 @@ paths:
                 $ref: "./schemas/Errors.yml"
     delete:
       summary: /v0/messaging/health/messages/{id}
+      operationId: delete_message
       parameters:
         - in: path
           name: id
@@ -2090,7 +2092,7 @@ paths:
     post:
       summary: /v0/messaging/health/messages/{id}/reply
       description: Send reply to a secure message
-      operationId: postCreateMessage
+      operationId: post_create_message_reply
       security:
         - Bearer: []
       requestBody:
@@ -2123,7 +2125,7 @@ paths:
       description: >
         Get a secure message attachment content as a direct binary download.
         Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
-      operationId: getMessageAttachment
+      operationId: get_attachment
       security:
         - Bearer: []
       responses:
@@ -2154,7 +2156,7 @@ paths:
     get:
       summary: /v0/messaging/health/messages/categories
       description: List available message categories
-      operationId: listMessageCategories
+      operationId: get_categories
       security:
         - Bearer: []
       responses:
@@ -2179,7 +2181,7 @@ paths:
     get:
       summary: /v0/messaging/health/recipients
       description: List available recipients to which messages may be sent
-      operationId: listRecipients
+      operationId: get_triage_teams
       security:
         - Bearer: []
       responses:
