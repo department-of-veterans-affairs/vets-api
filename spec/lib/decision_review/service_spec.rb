@@ -132,6 +132,21 @@ describe DecisionReview::Service do
       end
     end
 
+    context '200 response with a malformed body' do
+      def personal_information_logs
+        PersonalInformationLog.where error_class: 'DecisionReview::Service#validate_against_schema' \
+          ' exception Common::Exceptions::SchemaValidationErrors (HLR)'
+      end
+
+      it 'returns a schema error' do
+        VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200-MALFORMED') do
+          expect(personal_information_logs.count).to be 0
+          expect { subject }.to raise_error an_instance_of Common::Exceptions::SchemaValidationErrors
+          expect(personal_information_logs.count).to be 1
+        end
+      end
+    end
+
     context '404 response' do
       before do
         allow_any_instance_of(User).to receive(:ssn).and_return('000000000')
