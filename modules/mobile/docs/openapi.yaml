@@ -1973,6 +1973,37 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages:
+    post:
+      summary: /v0/messaging/health/messages
+      description: Send a new secure message
+      operationId: postCreateMessage
+      security:
+        - Bearer: []
+      requestBody:
+        description: New message body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/SecureMessageNewMessageRequest.yml'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageDetail.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/messaging/health/messages/{id}:
     get:
       summary: /v0/messaging/health/messages/{id}
@@ -1997,13 +2028,101 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+    patch:
+      summary: /v0/messaging/health/messages/{id}/move
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The id of the message that is to be moved
+        - in: query
+          name: folder_id,
+          required: true
+          schema:
+            type: string
+          description: The id of the folder that the message is to be moved to
+      description: Moves a secure message to a specified folder
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: 'The message was moved successfully'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    delete:
+      summary: /v0/messaging/health/messages/{id}
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The id of the message that is to be deleted
+      description: Moves a secure message to the "Deleted" folder
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: The message was deleted successfully
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages/{id}/reply:
+    post:
+      summary: /v0/messaging/health/messages/{id}/reply
+      description: Send reply to a secure message
+      operationId: postCreateMessage
+      security:
+        - Bearer: []
+      requestBody:
+        description: Reply message body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/SecureMessageReplyRequest.yml'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageDetail.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/messaging/health/messages/{id}/attachments/{attachment_id}:
     get:
       summary: /v0/messaging/health/messages/{id}/attachments/{attachment_id}
       description: >
         Get a secure message attachment content as a direct binary download.
         Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
-
       operationId: getMessageAttachment
       security:
         - Bearer: []
