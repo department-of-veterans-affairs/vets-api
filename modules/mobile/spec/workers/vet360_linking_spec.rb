@@ -19,8 +19,8 @@ RSpec.describe Mobile::V0::Vet360LinkingJob, type: :job do
     VCR.use_cassette('profile/init_vet360_id_status_complete') do
       VCR.use_cassette('profile/init_vet360_id_status_incomplete') do
         VCR.use_cassette('profile/init_vet360_id_success') do
-          result = described_class.new.perform(user)
-          expect(result.transaction_status).to eq('COMPLETED_SUCCESS')
+          expect(Rails.logger).not_to receive(:error)
+          subject.perform(user)
         end
       end
     end
