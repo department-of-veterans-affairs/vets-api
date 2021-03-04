@@ -31,7 +31,7 @@ module EducationForm
 
       if records.count.zero?
         log_info('No records to process.')
-        true
+        return true
       else
         log_info("Processing #{records.count} denied application(s)")
       end
@@ -41,6 +41,7 @@ module EducationForm
       rescue => e
         inform_on_error(record, e)
       end
+      true
     end
 
     private
