@@ -655,7 +655,7 @@ ActiveRecord::Schema.define(version: 2021_03_03_164133) do
     t.string "related_forms", array: true
     t.jsonb "benefit_categories"
     t.string "form_details_url"
-    t.jsonb "va_form_administration", default: []
+    t.jsonb "va_form_administration", default: {}
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
