@@ -68,9 +68,12 @@ RSpec.describe EducationForm::Create10203ApplicantDecisionLetters, type: :model,
                                               build(:education_stem_automated_decision, :with_poa, :denied))
 
         error = StandardError.new
+        exception = EducationForm::FormattingError.new(
+            "Could not email denial letter for #{education_benefits_claim.confirmation_number}.\n\n#{error}"
+        )
 
         expect(StemApplicantDenialMailer).to receive(:build).and_raise(error)
-        expect(subject).to receive('inform_on_error').with(education_benefits_claim, error).once
+        expect(subject).to receive('log_exception_to_sentry').with(exception).once
         expect(subject.perform).to be(true)
       end
     end
