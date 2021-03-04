@@ -60,24 +60,24 @@ module Mobile
     def link_user_with_vets360
       account_uuid = @current_user.account_uuid
 
-      unless vet360_link_locked?(account_uuid)
-        lock_vets360_link(account_uuid)
+      unless vet360_linking_locked?(account_uuid)
+        lock_vets360_linking(account_uuid)
         jid = Mobile::V0::Vet360LinkingJob.perform_async(@current_user)
         Rails.logger.info('Mobile Vet360 account link job id', { job_id: jid })
       end
     end
 
-    def vets360_link_lock
-      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:mobile_vets360_account_link][:namespace], redis: Redis.current)
+    def vets360_link_redis_lock
+      @redis ||= Redis::Namespace.new(REDIS_CONFIG[:mobile_vets360_account_link_lock][:namespace], redis: Redis.current)
     end
 
-    def lock_vets360_link(account_uuid)
-      vets360_link_lock.set(account_uuid, 1)
-      vets360_link_lock.expire(account_uuid, REDIS_CONFIG[:mobile_vets360_account_link][:each_ttl])
+    def lock_vets360_linking(account_uuid)
+      vets360_link_redis_lock.set(account_uuid, 1)
+      vets360_link_redis_lock.expire(account_uuid, REDIS_CONFIG[:mobile_vets360_account_link_lock][:each_ttl])
     end
 
-    def vet360_link_locked?(account_uuid)
-      !vets360_link_lock.get(account_uuid).nil?
+    def vet360_linking_locked?(account_uuid)
+      !vets360_link_redis_lock.get(account_uuid).nil?
     end
   end
 end
