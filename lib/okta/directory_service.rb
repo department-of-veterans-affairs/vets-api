@@ -7,6 +7,7 @@ module Okta
     DEFAULT_OKTA_SCOPES = %w[openid profile email address phone offline_access].freeze
 
     attr_accessor :okta_service
+
     def initialize
       @okta_service = Okta::Service.new
     end
@@ -26,12 +27,9 @@ module Okta
     def handle_nonhealth_server(category)
       servers = @okta_service.get_auth_servers
       server = servers.body.select { |auth_server| auth_server['name'].include?(category.downcase) }
-      p server
-      if server.empty?
-        return server
-      end
+      return server if server.empty?
+
       scopes = @okta_service.get_server_scopes(server[0]['id'])
-      p scopes
       remove_okta_base_scopes(scopes)
     end
 

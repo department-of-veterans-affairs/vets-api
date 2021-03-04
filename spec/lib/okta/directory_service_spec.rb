@@ -5,7 +5,6 @@ require 'okta/directory_service.rb'
 require 'okta/service'
 
 RSpec.describe Okta::DirectoryService do
-
   let(:subject) { described_class.new }
 
   describe '#initialize' do
