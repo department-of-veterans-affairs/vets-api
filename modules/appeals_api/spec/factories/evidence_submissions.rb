@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :evidence_submission, class: 'AppealsApi::EvidenceSubmission' do
-    id { SecureRandom.uuid }
+    sequence(:id) { |n| n }
     association :supportable, factory: :notice_of_disagreement
   end
 end
