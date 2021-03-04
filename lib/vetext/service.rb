@@ -42,15 +42,6 @@ module VEText
       remap_error(e)
     end
 
-    # Raise an error if the service returned an error in the
-    # body of a 200 response
-    #
-    def raise_if_response_error(body)
-      if body[:success] == false
-        raise VEText::ResponseError.new(body)
-      end
-    end
-
     # Get preferences for a given user/device.
     #
     # @endpoint_sid String    the registration id as returned from `register`
@@ -63,6 +54,7 @@ module VEText
         "#{PREFERENCES_PATH}/#{endpoint_sid}",
         nil
       )
+      raise_if_response_error(response.body)
       response.body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
@@ -85,12 +77,22 @@ module VEText
           value: !!value
         }
       )
+      raise_if_response_error(response.body)
       response.body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end
 
     private
+
+    # Raise an error if the service returned an error in the
+    # body of a 200 response
+    #
+    def raise_if_response_error(body)
+      if body[:success] == false
+        raise VEText::ResponseError.new(body)
+      end
+    end
 
     def remap_error(e)
       case e.status
