@@ -54,5 +54,25 @@ RSpec.describe EducationForm::Create10203ApplicantDecisionLetters, type: :model,
         expect(subject.perform).to be(true)
       end
     end
+
+    context 'with error' do
+      before do
+        EducationBenefitsClaim.delete_all
+        EducationStemAutomatedDecision.delete_all
+      end
+
+      it 'prints a statement and exits' do
+        education_benefits_claim = create(:education_benefits_claim_10203,
+                                          processed_at: time.beginning_of_day,
+                                          education_stem_automated_decision:
+                                              build(:education_stem_automated_decision, :with_poa, :denied))
+
+        error = StandardError.new
+
+        expect(StemApplicantDenialMailer).to receive(:build).and_raise(error)
+        expect(subject).to receive('inform_on_error').with(education_benefits_claim, error).once
+        expect(subject.perform).to be(true)
+      end
+    end
   end
 end
