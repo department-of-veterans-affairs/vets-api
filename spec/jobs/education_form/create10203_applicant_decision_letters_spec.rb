@@ -62,18 +62,13 @@ RSpec.describe EducationForm::Create10203ApplicantDecisionLetters, type: :model,
       end
 
       it 'prints a statement and exits' do
-        education_benefits_claim = create(:education_benefits_claim_10203,
-                                          processed_at: time.beginning_of_day,
-                                          education_stem_automated_decision:
-                                              build(:education_stem_automated_decision, :with_poa, :denied))
+        create(:education_benefits_claim_10203,
+                                           processed_at: time.beginning_of_day,
+                                           education_stem_automated_decision:
+                                               build(:education_stem_automated_decision, :with_poa, :denied))
 
-        error = StandardError.new
-        exception = EducationForm::FormattingError.new(
-            "Could not email denial letter for #{education_benefits_claim.confirmation_number}.\n\n#{error}"
-        )
-
-        expect(StemApplicantDenialMailer).to receive(:build).and_raise(error)
-        expect(subject).to receive('log_exception_to_sentry').with(exception).once
+        expect(StemApplicantDenialMailer).to receive(:build).and_raise(StandardError.new)
+        expect(subject).to receive('log_exception_to_sentry').with(any_args).twice
         expect(subject.perform).to be(true)
       end
     end
