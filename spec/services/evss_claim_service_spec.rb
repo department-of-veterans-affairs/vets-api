@@ -36,17 +36,17 @@ RSpec.describe EVSSClaimService do
   end
 
   describe '#upload_document' do
-    let(:tempfile) do
+    let(:upload_file) do
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
       f.rewind
-      f
+      Rack::Test::UploadedFile.new(f.path, 'image/jpeg')
     end
     let(:document) do
       EVSSClaimDocument.new(
         tracked_item_id: 1,
-        file_obj: tempfile,
-        file_name: File.basename(tempfile.path)
+        file_obj: upload_file,
+        file_name: File.basename(upload_file.path)
       )
     end
 

@@ -258,7 +258,7 @@ class FormProfile
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
 
-    opt[:address] ||= va_profile_address_hash
+    opt[:address] ||= user_address_hash
 
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
@@ -277,7 +277,7 @@ class FormProfile
 
     @vet360_contact_info_retrieved = true
     if Settings.vet360.prefill && user.vet360_id.present?
-      @vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
+      @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     end
     @vet360_contact_info
   end
@@ -286,16 +286,15 @@ class FormProfile
     vet360_contact_info&.mailing_address
   end
 
-  def va_profile_address_hash
-    user.va_profile&.address &&
-      {
-        street: user.va_profile.address.street,
-        street2: nil,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        country: user.va_profile.address.country,
-        postal_code: user.va_profile.address.postal_code
-      }
+  def user_address_hash
+    {
+      street: user.address[:street],
+      street2: nil,
+      city: user.address[:city],
+      state: user.address[:state],
+      country: user.address[:country],
+      postal_code: user.address[:zip]
+    }
   end
 
   def format_for_schema_compatibility(opt)

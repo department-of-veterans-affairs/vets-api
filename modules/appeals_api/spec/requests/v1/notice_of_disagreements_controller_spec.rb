@@ -61,10 +61,18 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     end
 
     context 'when validation fails due to invalid data' do
+      before { post(path, params: @invalid_data, headers: @headers) }
+
       it 'returns an error response' do
-        post(path, params: @invalid_data, headers: @headers)
         expect(response.status).to eq(422)
         expect(parsed['errors']).not_to be_empty
+      end
+
+      it 'returns error objects in JSON API 1.0 ErrorObject format' do
+        expected_keys = %w[code detail meta source status title]
+        expect(parsed['errors'].first.keys).to include(*expected_keys)
+        expect(parsed['errors'][0]['meta']['missing_fields']).to eq ['address']
+        expect(parsed['errors'][0]['source']['pointer']).to eq '/data/attributes/veteran'
       end
     end
 
@@ -104,4 +112,21 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       expect(parsed['errors']).not_to be_empty
     end
   end
+
+  # rubocop:disable Layout/LineLength
+  describe '#render_model_errors' do
+    let(:path) { base_path 'notice_of_disagreements' }
+    let(:data) { JSON.parse(@minimum_valid_data) }
+
+    it 'returns model errors in JSON API 1.0 ErrorObject format' do
+      data['data']['attributes']['boardReviewOption'] = 'hearing'
+
+      post(path, params: data.to_json, headers: @headers)
+
+      expect(response.status).to eq(422)
+      expect(parsed['errors'][0]['source']['pointer']).to eq('/data/attributes/hearingTypePreference')
+      expect(parsed['errors'][0]['detail']).to eq("If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present")
+    end
+  end
+  # rubocop:enable Layout/LineLength
 end

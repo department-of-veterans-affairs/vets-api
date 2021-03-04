@@ -14,7 +14,7 @@ require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
 require 'support/mpi/stub_mpi'
 require 'support/stub_evss_pciu'
-require 'support/vet360/stub_vet360'
+require 'support/va_profile/stub_vet360'
 require 'support/factory_bot'
 require 'support/serializer_spec_helper'
 require 'support/validation_helpers'
@@ -23,6 +23,7 @@ require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/vcr'
 require 'support/mdot_helpers'
+require 'support/financial_status_report_helpers'
 require 'support/poa_stub'
 require 'support/pdf_fill_helper'
 require 'support/vcr_multipart_matcher_helper'
@@ -92,7 +93,7 @@ Shrine.storages = {
   store: Shrine::Storage::Memory.new
 }
 
-CarrierWave.root = Rails.root.join('spec', 'support', 'uploads')
+CarrierWave.root = Rails.root.join('spec', 'support', "uploads#{ENV['TEST_ENV_NUMBER']}")
 
 FactoryBot::SyntaxRunner.class_eval do
   include RSpec::Mocks::ExampleMethods
@@ -113,6 +114,11 @@ RSpec.configure do |config|
   %i[controller mdot_helpers request].each do |type|
     config.include(MDOTHelpers, type: type)
   end
+
+  # Allows setting of filenet_id in the FinancialStatusReport model
+  config.include FinancialStatusReportHelpers, type: :controller
+  config.include FinancialStatusReportHelpers, type: :service
+  config.include FinancialStatusReportHelpers, type: :request
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers
@@ -173,6 +179,10 @@ RSpec.configure do |config|
   # clean up carrierwave uploads
   # https://github.com/carrierwaveuploader/carrierwave/wiki/How-to:-Cleanup-after-your-Rspec-tests
   config.after(:all) do
-    FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', 'uploads')]) if Rails.env.test?
+    FileUtils.rm_rf(Dir[Rails.root.join('spec', 'support', "uploads#{ENV['TEST_ENV_NUMBER']}")]) if Rails.env.test?
   end
+end
+
+BGS.configure do |config|
+  config.logger = Rails.logger
 end

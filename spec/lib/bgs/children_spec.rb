@@ -102,7 +102,7 @@ RSpec.describe BGS::Children do
         expect(children[:dependents]).to include(
           a_hash_including(
             event_date: '1977-02-01',
-            family_relationship_type_name: 'Other',
+            family_relationship_type_name: 'Biological',
             participant_relationship_type_name: 'Child',
             type: 'child_marriage'
           )
@@ -123,7 +123,7 @@ RSpec.describe BGS::Children do
         expect(children[:dependents]).to include(
           a_hash_including(
             participant_relationship_type_name: 'Child',
-            family_relationship_type_name: 'Other',
+            family_relationship_type_name: 'Biological',
             event_date: '2019-03-03',
             type: 'not_attending_school'
           )

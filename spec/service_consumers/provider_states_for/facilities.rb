@@ -7,7 +7,6 @@ Pact.provider_states_for 'Facility Locator' do
   }
   provider_state 'ccp data exists' do
     set_up do
-      Flipper.enable(:facility_locator_ppms_use_v1_client, true)
       VCR.insert_cassette('facilities/ppms/ppms', vcr_options)
     end
 
@@ -18,7 +17,6 @@ Pact.provider_states_for 'Facility Locator' do
 
   provider_state 'mashup urgent care data exists' do
     set_up do
-      Flipper.enable(:facility_locator_ppms_use_v1_client, true)
       VCR.insert_cassette('facilities/va/ppms_and_lighthouse', vcr_options)
     end
 
@@ -29,7 +27,6 @@ Pact.provider_states_for 'Facility Locator' do
 
   provider_state 'va data exists' do
     set_up do
-      Flipper.enable(:facility_locator_ppms_use_v1_client, true)
       VCR.insert_cassette('/lighthouse/facilities', vcr_options)
     end
 
@@ -40,7 +37,6 @@ Pact.provider_states_for 'Facility Locator' do
 
   provider_state 'ccp specialties data exists' do
     set_up do
-      Flipper.enable(:facility_locator_ppms_use_v1_client, true)
       VCR.insert_cassette('facilities/ppms/ppms', vcr_options)
     end
 

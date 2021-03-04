@@ -12,8 +12,9 @@ require 'saml/responses/base'
 require 'saml/user'
 require 'stats_d_metric'
 require 'search/service'
-require 'vet360/exceptions/parser'
-require 'vet360/service'
+require 'search_click_tracking/service'
+require 'va_profile/exceptions/parser'
+require 'va_profile/service'
 require 'va_notify/service'
 
 host = Settings.statsd.host
@@ -109,14 +110,14 @@ StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
 StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
 
 # init Vet360
-Vet360::Exceptions::Parser.instance.known_keys.each do |key|
-  StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ["exception:#{key}"])
+VAProfile::Exceptions::Parser.instance.known_keys.each do |key|
+  StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ["exception:#{key}"])
 end
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.total_operations", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.failure", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.success", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.total_operations", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.success", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.failure", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.init_vet360_id.success", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure", 0)
 
 # init eMIS
 StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", 0, tags: ['present:true', 'present:false'])
@@ -131,6 +132,9 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
+
+# init SearchClickTracking
+StatsD.increment("#{SearchClickTracking::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:400'])
 
 # init Form1010cg
 StatsD.increment(Form1010cg::Auditor.metrics.submission.attempt, 0)
@@ -173,7 +177,7 @@ end
 # init Facilities Jobs
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
 
-ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_, start_time, end_time, _, payload|
+ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_name, start_time, end_time, _id, payload|
   duration = end_time - start_time
   measurement = case payload[:url].path
                 when /ProviderLocator/
@@ -185,8 +189,20 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_,
                 when /Providers\(\d+\)/
                   'facilities.ppms.providers'
                 end
-  StatsD.measure(measurement, duration, tags: ['facilities.ppms']) if measurement
+
+  if measurement
+    tags = ['facilities.ppms']
+    params = Rack::Utils.parse_nested_query payload[:url].query
+
+    if params['radius']
+      tags << "facilities.ppms.radius:#{params['radius']}"
+      tags << "facilities.ppms.results:#{payload[:body]&.count || 0}"
+    end
+
+    StatsD.measure(measurement, duration, tags: tags)
+  end
 end
+
 ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, _|
   duration = end_time - start_time
 

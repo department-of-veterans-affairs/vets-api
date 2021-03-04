@@ -1,23 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_info'
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
+  include FixtureHelpers
+
   subject { described_class }
 
   before { Sidekiq::Worker.clear_all }
 
-  let(:auth_headers) do
-    File.read(
-      Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_10182_headers.json')
-    )
-  end
-
+  let(:auth_headers) { fixture_to_s 'valid_10182_headers.json' }
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:valid_doc) { File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_10182.json')) }
+  let(:valid_doc) { fixture_to_s 'valid_10182.json' }
 
   it 'uploads a valid payload' do
     allow(CentralMail::Service).to receive(:new) { client_stub }
@@ -35,6 +32,7 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
     expect(capture_body).to have_key('document')
     metadata = JSON.parse(capture_body['metadata'])
     expect(metadata['uuid']).to eq(notice_of_disagreement.id)
+    expect(metadata['lob']).to eq(notice_of_disagreement.lob)
     updated = AppealsApi::NoticeOfDisagreement.find(notice_of_disagreement.id)
     expect(updated.status).to eq('submitted')
   end
@@ -55,6 +53,7 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
     expect(capture_body).to have_key('document')
     metadata = JSON.parse(capture_body['metadata'])
     expect(metadata['uuid']).to eq(notice_of_disagreement.id)
+    expect(metadata['lob']).to eq(notice_of_disagreement.lob)
     updated = AppealsApi::NoticeOfDisagreement.find(notice_of_disagreement.id)
     expect(updated.status).to eq('error')
     expect(updated.code).to eq('DOC104')
@@ -77,38 +76,17 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
     end
   end
 
-  context 'pdf minimum content verification' do
-    let(:notice_of_disagreement) { create(:minimal_notice_of_disagreement) }
+  context 'an error throws' do
+    it 'updates the NOD status to reflect the error' do
+      submit_job_worker = described_class.new
+      allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
 
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      path = described_class.new.generate_pdf(notice_of_disagreement.id)
-      expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_10182_minimum.pdf')
-      generated_pdf_md5 = Digest::MD5.digest(File.read(path))
-      expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
-      File.delete(path) if File.exist?(path)
-      expect(generated_pdf_md5).to eq(expected_pdf_md5)
-      Timecop.return
-    end
-  end
+      expect do
+        submit_job_worker.perform(notice_of_disagreement.id)
+      end.to raise_error(RuntimeError, 'runtime error!')
 
-  context 'pdf extra content verification' do
-    let(:notice_of_disagreement) { create(:notice_of_disagreement) }
-    let(:email) { notice_of_disagreement.form_data.dig 'data', 'attributes', 'veteran', 'emailAddressText' }
-    let(:rep_name) { notice_of_disagreement.form_data.dig 'data', 'attributes', 'veteran', 'representativesName' }
-    let(:extra_issue) { notice_of_disagreement.form_data['included'].last.dig('attributes', 'issue') }
-
-    it 'generates pdf with expected content' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      generated_pdf = described_class.new.generate_pdf(notice_of_disagreement.id)
-      reader = PDF::Reader.new(generated_pdf)
-      expect(reader.pages.size).to eq 5
-      expect(reader.pages.first.text).to include email
-      expect(reader.pages.first.text).to include rep_name
-      expect(reader.pages[3].text).to include 'Hearing type requested: Central office'
-      expect(reader.pages[4].text).to include extra_issue
-      File.delete(generated_pdf) if File.exist?(generated_pdf)
-      Timecop.return
+      notice_of_disagreement.reload
+      expect(notice_of_disagreement.status).to eq('error')
     end
   end
 end

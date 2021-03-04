@@ -13,10 +13,17 @@ module CovidVaccine
     STATSD_SUCCESS_NAME = 'worker.covid_vaccine_registration_email.success'
 
     def perform(email, date, sid)
-      @notify_client ||= VaNotify::Service.new
+      if Flipper.enabled?(:vanotify_service_enhancement)
+        @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+        @template_id ||= Settings.vanotify.services.va_gov.template_id.covid_vaccine_registration
+      else
+        @notify_client ||= VaNotify::Service.new(Settings.vanotify.api_key)
+        @template_id ||= Settings.vanotify.template_id.covid_vaccine_registration
+      end
+
       @notify_client.send_email(
         email_address: email,
-        template_id: Settings.vanotify.template_id.covid_vaccine_registration,
+        template_id: @template_id,
         personalisation: {
           'date' => date,
           'confirmation_id' => sid

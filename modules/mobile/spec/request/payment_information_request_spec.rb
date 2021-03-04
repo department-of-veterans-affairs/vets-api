@@ -24,7 +24,8 @@ RSpec.describe 'payment_information', type: :request do
             'isCompetentIndicator' => true,
             'indexIndicator' => true,
             'noFiduciaryAssignedIndicator' => true,
-            'notDeceasedIndicator' => true
+            'notDeceasedIndicator' => true,
+            'canUpdatePayment' => true
           },
           'paymentAccount' => {
             'accountType' => 'Checking',
@@ -68,6 +69,53 @@ RSpec.describe 'payment_information', type: :request do
         end
       end
     end
+
+    context 'with a user who is not authorized to update payment information' do
+      before do
+        @original_cassette_dir = VCR.configure(&:cassette_library_dir)
+        VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
+      end
+
+      after { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
+
+      let(:get_payment_info_body) do
+        {
+          'data' => {
+            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'type' => 'paymentInformation',
+            'attributes' => {
+              'accountControl' => {
+                'canUpdateAddress' => true,
+                'corpAvailIndicator' => true,
+                'corpRecFoundIndicator' => true,
+                'hasNoBdnPaymentsIndicator' => true,
+                'identityIndicator' => true,
+                'isCompetentIndicator' => false,
+                'indexIndicator' => true,
+                'noFiduciaryAssignedIndicator' => true,
+                'notDeceasedIndicator' => true,
+                'canUpdatePayment' => false
+              },
+              'paymentAccount' => {
+                'accountType' => nil,
+                'financialInstitutionName' => nil,
+                'accountNumber' => nil,
+                'financialInstitutionRoutingNumber' => nil
+              }
+            }
+          }
+        }
+      end
+
+      it 'has canUpdatePayment as false' do
+        VCR.use_cassette('/payment_information/payment_information_unauthorized_to_update') do
+          get '/mobile/v0/payment-information/benefits', headers: iam_headers
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)).to eq(get_payment_info_body)
+          expect(response.body).to match_json_schema('payment_information')
+        end
+      end
+    end
   end
 
   describe 'PUT /mobile/v0/payment-information' do
@@ -88,7 +136,8 @@ RSpec.describe 'payment_information', type: :request do
               'isCompetentIndicator' => true,
               'indexIndicator' => true,
               'noFiduciaryAssignedIndicator' => true,
-              'notDeceasedIndicator' => true
+              'notDeceasedIndicator' => true,
+              'canUpdatePayment' => true
             },
             'paymentAccount' => {
               'accountType' => 'Checking',

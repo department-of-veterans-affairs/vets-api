@@ -11,7 +11,8 @@ module SentryControllerLogging
     RequestStore.store['request_id'] = request.uuid
     RequestStore.store['additional_request_attributes'] = {
       'remote_ip' => request.remote_ip,
-      'user_agent' => request.user_agent
+      'user_agent' => request.user_agent,
+      'user_uuid' => current_user&.uuid
     }
     Raven.extra_context(request_uuid: request.uuid)
     Raven.user_context(user_context) if current_user
@@ -36,6 +37,7 @@ module SentryControllerLogging
       else
         tags[:sign_in_method] = 'not-signed-in'
       end
+      tags[:source] = request.headers['Source-App-Name'] if request.headers['Source-App-Name']
     end
   end
 end

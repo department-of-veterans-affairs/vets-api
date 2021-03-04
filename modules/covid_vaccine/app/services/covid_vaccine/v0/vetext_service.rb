@@ -21,6 +21,16 @@ module CovidVaccine
         end
       end
 
+      def put_email_opt_out(identifier)
+        response = perform(:put, "#{url}/opt-out", { sid: identifier }, headers)
+        response.body
+      end
+
+      def put_email_opt_in(identifier)
+        response = perform(:put, "#{url}/opt-in", { sid: identifier }, headers)
+        response.body
+      end
+
       # Supported methods that do not need to be exposed to users
       # def get_vaccine_registry_by_sid
       # end

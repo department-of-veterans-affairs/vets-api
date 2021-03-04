@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_11_213957) do
+ActiveRecord::Schema.define(version: 2021_02_26_193901) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -34,6 +34,36 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
   end
 
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.bigint "byte_size", null: false
+    t.string "checksum", null: false
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "appeals_api_evidence_submissions", force: :cascade do |t|
+    t.string "status", default: "pending", null: false
+    t.string "supportable_type"
+    t.string "supportable_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
+  end
+
   create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "status", default: "pending", null: false
     t.string "encrypted_form_data"
@@ -44,18 +74,20 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.datetime "updated_at", null: false
     t.string "code"
     t.string "detail"
+    t.string "source"
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.string "status", default: "pending", null: false
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"
     t.string "encrypted_auth_headers_iv"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "status", default: "pending", null: false
     t.string "code"
     t.string "detail"
+    t.string "source"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -70,6 +102,7 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.datetime "updated_at", null: false
     t.string "encrypted_metadata"
     t.string "encrypted_metadata_iv"
+    t.index ["created_at"], name: "index_async_transactions_on_created_at"
     t.index ["source_id"], name: "index_async_transactions_on_source_id"
     t.index ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true
     t.index ["transaction_id"], name: "index_async_transactions_on_transaction_id"
@@ -97,6 +130,7 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.boolean "mobile"
     t.string "active_status"
     t.string "visn"
+    t.index ["lat"], name: "index_base_facilities_on_lat"
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
     t.index ["name"], name: "index_base_facilities_on_name", opclass: :gin_trgm_ops, using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true
@@ -135,6 +169,11 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.string "encrypted_bgs_flash_responses"
     t.string "encrypted_bgs_flash_responses_iv"
     t.string "flashes", default: [], array: true
+    t.jsonb "special_issues", default: []
+    t.string "encrypted_bgs_special_issue_responses"
+    t.string "encrypted_bgs_special_issue_responses_iv"
+    t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
+    t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
   end
 
@@ -195,6 +234,7 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.string "tos_url"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_directory_applications_on_name", unique: true
   end
 
   create_table "disability_contentions", id: :serial, force: :cascade do |t|
@@ -251,8 +291,23 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.boolean "transfer_of_entitlement", default: false, null: false
     t.boolean "chapter1607", default: false, null: false
     t.boolean "vettec", default: false
+    t.index ["created_at"], name: "index_education_benefits_submissions_on_created_at"
     t.index ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true
     t.index ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd"
+  end
+
+  create_table "education_stem_automated_decisions", force: :cascade do |t|
+    t.bigint "education_benefits_claim_id"
+    t.string "automated_decision_state", default: "init"
+    t.string "user_uuid", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.boolean "poa"
+    t.string "encrypted_auth_headers_json"
+    t.string "encrypted_auth_headers_json_iv"
+    t.integer "remaining_entitlement"
+    t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
+    t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
 
   create_table "evss_claims", id: :serial, force: :cascade do |t|
@@ -263,6 +318,8 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.string "user_uuid", null: false
     t.json "list_data", default: {}, null: false
     t.boolean "requested_decision", default: false, null: false
+    t.index ["evss_id"], name: "index_evss_claims_on_evss_id"
+    t.index ["updated_at"], name: "index_evss_claims_on_updated_at"
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
   end
 
@@ -412,6 +469,7 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "mhv_correlation_id"
+    t.index ["mhv_correlation_id"], name: "index_mhv_accounts_on_mhv_correlation_id"
     t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true
   end
 
@@ -543,6 +601,29 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.index ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid"
   end
 
+  create_table "test_user_dashboard_tud_accounts", force: :cascade do |t|
+    t.string "account_uuid"
+    t.string "first_name"
+    t.string "middle_name"
+    t.string "last_name"
+    t.string "gender"
+    t.datetime "birth_date"
+    t.integer "ssn"
+    t.string "phone"
+    t.string "email"
+    t.string "password"
+    t.boolean "standard"
+    t.boolean "available"
+    t.datetime "checkout_time"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "id_type"
+    t.string "loa"
+    t.string "account_type"
+    t.text "services"
+    t.uuid "idme_uuid"
+  end
+
   create_table "user_preferences", id: :serial, force: :cascade do |t|
     t.integer "account_id", null: false
     t.integer "preference_id", null: false
@@ -588,6 +669,7 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.string "consumer_name"
     t.uuid "consumer_id"
     t.json "uploaded_pdf"
+    t.boolean "use_active_storage", default: false
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
@@ -639,4 +721,5 @@ ActiveRecord::Schema.define(version: 2020_12_11_213957) do
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
 end

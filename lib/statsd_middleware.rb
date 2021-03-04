@@ -29,6 +29,7 @@ class StatsdMiddleware
     burials
     claims-status
     coronavirus-research
+    coronavirus-vaccination
     covid19screen
     dashboard
     dependents-view-dependents
@@ -41,6 +42,7 @@ class StatsdMiddleware
     hca
     letters
     login-page
+    messages
     my-documents
     my-health-account-validation
     order-form-2346
@@ -51,8 +53,11 @@ class StatsdMiddleware
     proxy-rewrite
     public-outreach-materials
     questionnaire
+    questionnaire-list
+    request-debt-help-5655
     resources-and-support
     search
+    search-click-tracking
     static-pages
     terms-and-conditions
     vaos
@@ -60,8 +65,10 @@ class StatsdMiddleware
     veteran-id-card
     veteran-representative
     view-payments
+    view-representative
     yellow-ribbon
     your-debt
+    unknown
     undefined
   ].freeze
 
@@ -112,7 +119,7 @@ class StatsdMiddleware
     #        so as not to allow for a malicious client to overflow worker queues
     Rails.logger.warn "Unrecognized value for HTTP_SOURCE_APP_NAME request header... [#{source_app}]"
 
-    'not_in_whitelist'
+    'not_in_allowlist'
   end
 
   def instrument_statsd(status, duration, controller, action, source_app)

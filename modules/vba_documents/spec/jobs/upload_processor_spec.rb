@@ -258,6 +258,21 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
+    it 'sets error status for invalid line of business in the metadata' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        v = valid_parts
+        hash = JSON.parse(v['metadata'])
+        hash['businessLine'] = 'BAD'
+        v['metadata'] = hash.to_json
+        v
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+      expect(updated.detail).to start_with('Invalid businessLine provided')
+    end
+
     context 'with locked pdf' do
       { 'sets error status for locked pdf attachment' => [:valid_parts_locked_attachment,
                                                           'Invalid PDF content, part attachment1'],
@@ -392,7 +407,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC104')
     end
 
-    context 'with a downstream error' do
+    context 'with a upstream error' do
       before do
         allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
         allow(CentralMail::Service).to receive(:new) { client_stub }
@@ -401,7 +416,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         allow(faraday_response).to receive(:success?).and_return(false)
       end
 
-      it 'does not set error status for downstream server error' do
+      it 'does not set error status for upstream server error' do
         capture_body = nil
         expect(client_stub).to receive(:upload) { |arg|
           capture_body = arg
@@ -418,7 +433,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         expect(updated.code).not_to eq('DOC201')
       end
 
-      it 'sets error status for downstream server error after retries' do
+      it 'sets error status for upstream server error after retries' do
         capture_body = nil
         after_retries = 4
         expect(client_stub).to receive(:upload) { |arg|

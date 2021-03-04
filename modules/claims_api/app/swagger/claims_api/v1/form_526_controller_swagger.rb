@@ -41,8 +41,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -50,7 +50,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
                   end
                 end
               end
@@ -67,6 +67,9 @@ module ClaimsApi
               Takes in JSON, returns UUID for submission. Asynchronously auto-establishes claim and generates a PDF for VBMS.
               Can accept document binary PDF or base64 string as part of a multi-part payload (as `attachment1`, `attachment2`, etc.).
               **If you are filing an original claim, and the filer is not the veteran** (the oauth token is not the veteran’s), see [PUT /forms/526/{id}](#operations-Disability-upload526Attachment).
+
+              * Claim establishment is handled asynchronously. See [GET /claims/{id}](#operations-Claims-findClaimById) to check status of submission.
+              * Claim establishment does not start if autoCestPDFGenerationDisabled is set to true. [PUT /forms/526/{id}](#operations-Disability-upload526Attachment) is required to begin establishing the claim.
             X
           )
           key :operationId, 'post526Claim'
@@ -81,7 +84,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
-            key :description, 'SSN of Veteran to fetch'
+            key :description, 'SSN of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -89,7 +92,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-First-Name'
             key :in, :header
-            key :description, 'First Name of Veteran to fetch'
+            key :description, 'First Name of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -97,7 +100,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Last-Name'
             key :in, :header
-            key :description, 'Last Name of Veteran to fetch'
+            key :description, 'Last Name of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -105,7 +108,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Birth-Date'
             key :in, :header
-            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, false
             key :type, :string
           end
@@ -113,7 +116,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-EDIPI'
             key :in, :header
-            key :description, 'EDIPI Number of Veteran to fetch'
+            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -143,13 +146,14 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :ClaimsIndex
+                  key :'$ref', :Form526Response
                 end
               end
             end
           end
-          response :default do
-            key :description, 'unexpected error'
+
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -157,7 +161,23 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
@@ -172,11 +192,24 @@ module ClaimsApi
           key(
             :description,
             <<~X
-              Upload attachments for [form 526](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) submission.
-              Use this endpoint in conjunction with the [POST](#operations-Disability-post526Claim) endpoint to file an original claim when the filer is _not_ the veteran (the oauth token is not the veteran’s).
-              In most cases, if the veteran is not the filer on the original claim, a scanned copy of form 526, signed in ink by the veteran, is required.
-              **`Step 1:`** use [POST /forms/526/{id}](#operations-Disability-post526Claim) but set `"autoCestPDFGenerationDisabled": true` (this disables automatic PDF generation).
-              **`Step 2:`** use PUT to attach scan of form 526 in binary PDF or base64 string.
+              Use this endpoint to upload completed, wet-signed 526 PDFs after POSTing the claim data to
+              the [/forms/526](#operations-Disability-post526Claim) endpoint. Uploading a completed, wet-signed
+              PDF is only required for a Veteran's first claim (called an original claim) when the original claim
+              is filed by a representative using the representative's OAuth token. Uploading a PDF for subsequent
+              claims is not required or recommended. When using this endpoint, you must:
+
+              * Set the `autoCestPDFGenerationDisabled` boolean in your [/forms/526](#operations-Disability-post526Claim)
+              payload to `true` (unless explicitly set, a PDF is automatically generated using the data submitted in
+              the original 526 submission payload).
+
+              * Send only [526 forms](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf). For other attachments,
+              such as medical records, use the
+              [/forms/526/{id}/attachments](#operations-Disability-upload526Attachments) endpoint.
+
+              * The pdf you are sending represents the final version of the claim that was submitted through
+              the POST to [/forms/526](#operations-Disability-post526Claim). If there is a discrepancy between the
+              PDF and the data submitted through the [/forms/526](#operations-Disability-post526Claim) endpoint,
+              the VA will manually review the data and change it to the values present in the PDF.
             X
           )
           key :operationId, 'upload526Attachment'
@@ -202,7 +235,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
-            key :description, 'SSN of Veteran to fetch'
+            key :description, 'SSN of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -210,7 +243,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-First-Name'
             key :in, :header
-            key :description, 'First Name of Veteran to fetch'
+            key :description, 'First Name of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -218,7 +251,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Last-Name'
             key :in, :header
-            key :description, 'Last Name of Veteran to fetch'
+            key :description, 'Last Name of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -226,7 +259,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Birth-Date'
             key :in, :header
-            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, false
             key :type, :string
           end
@@ -234,7 +267,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-EDIPI'
             key :in, :header
-            key :description, 'EDIPI Number of Veteran to fetch'
+            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -268,8 +301,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -277,7 +310,39 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotFoundModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
@@ -301,7 +366,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
-            key :description, 'SSN of Veteran to fetch'
+            key :description, 'SSN of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -309,7 +374,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-First-Name'
             key :in, :header
-            key :description, 'First Name of Veteran to fetch'
+            key :description, 'First Name of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -317,7 +382,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Last-Name'
             key :in, :header
-            key :description, 'Last Name of Veteran to fetch'
+            key :description, 'Last Name of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -325,7 +390,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Birth-Date'
             key :in, :header
-            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
             key :type, :string
           end
@@ -333,7 +398,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-EDIPI'
             key :in, :header
-            key :description, 'EDIPI Number of Veteran to fetch'
+            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -390,7 +455,7 @@ module ClaimsApi
           end
 
           response 422 do
-            key :description, 'Invalid Payload'
+            key :description, 'Unprocessable entity'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -398,15 +463,15 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -414,7 +479,23 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end
@@ -450,7 +531,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
-            key :description, 'SSN of Veteran to fetch'
+            key :description, 'SSN of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -458,7 +539,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-First-Name'
             key :in, :header
-            key :description, 'First Name of Veteran to fetch'
+            key :description, 'First Name of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -466,7 +547,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Last-Name'
             key :in, :header
-            key :description, 'Last Name of Veteran to fetch'
+            key :description, 'Last Name of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -474,7 +555,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Birth-Date'
             key :in, :header
-            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, false
             key :type, :string
           end
@@ -482,7 +563,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-EDIPI'
             key :in, :header
-            key :description, 'EDIPI Number of Veteran to fetch'
+            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -524,8 +605,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -533,7 +614,39 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :'$ref', :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :NotFoundModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :'$ref', :UnprocessableEntityModel
                   end
                 end
               end

@@ -34,6 +34,11 @@ features:
     actor_type: user
     description: >
       Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/" leading to the frontend form on va.gov for the covid-19 vaccine sign-up
+  covid_vaccine_registration_frontend_hide_auth:
+    actor_type: user
+    description: >
+      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
+      Note: When this is enabled, the 'Sign in' button will be hidden
   covid_vaccine_registration:
     actor_type: user
     description: >
@@ -47,6 +52,10 @@ features:
     enable_in_development: true
     description: >
       Enables The New My VA Dashboard 2.0
+  facility_locator_show_operational_hours_special_instructions:
+    actor_type: user
+    enable_in_development: true
+    description: Display new field operationalHoursSpecialInstructions for VA facilities
   facility_locator_show_community_cares:
     actor_type: user
     enable_in_development: true
@@ -57,15 +66,13 @@ features:
     actor_type: user
     enable_in_development: true
     description: A fast and dirty way to get the operating status from lighthouse
+  facility_locator_lighthouse_covid_vaccine_query:
+    actor_type: user
+    enable_in_development: true
+    description: enable covid search/display
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
-  facility_locator_ppms_use_v1_client:
-    actor_type: user
-    description: Have the V1 API use the PPMS::V1::Client
-  facility_locator_ppms_skip_additional_round_trips:
-    actor_type: user
-    description: Have the PPMS::V1::Client skip the additional round trips to get the type
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
@@ -113,11 +120,6 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to directly schedule VA appointments
-  va_online_scheduling_past:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Allows veterans to see past appointments
   va_online_scheduling_vsp_appointment_list:
     actor_type: user
     description: >
@@ -142,30 +144,31 @@ features:
     actor_type: user
     description: >
       Enables the use of VSP for making a new VA appointment request
-  va_online_scheduling_express_care:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables Express Care redirect to legacy and Express Care tab
   va_online_scheduling_express_care_new:
     actor_type: user
     enable_in_development: true
     description: >
       Enables Express Care request flow in VAOS
-  va_online_scheduling_flat_facility_page:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables the new VA facility choice page with a flat list
-  va_online_scheduling_flat_facility_page_sacramento:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Enables the new VA facility choice page with a flat list for users registered to Sacramento (612)
   va_online_scheduling_provider_selection:
     actor_type: user
+    enable_in_development: true
     description: >
       Enables the community care provider selection field
+  va_online_scheduling_cheetah:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables Project Cheetah discovery work
+  va_online_scheduling_homepage_refresh:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Set up toggle in anticipation of the next iteration of the homepage and appointment cards.
+  va_online_scheduling_facility_selection_v2_2:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Set up toggle in anticipation of the next iteration of facility selection, version 2.2.
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -177,10 +180,12 @@ features:
       Enables ssoe, as opposed to saml authentication wrapped by id.me
   form526_original_claims:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
   form526_benefits_delivery_at_discharge:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
   form526_confirmation_email:
@@ -212,6 +217,7 @@ features:
       Panel that displays while the user is modifying inputs to give context to their currently estimated benefits until they reach the full your estimated benefits panel.
   form996_higher_level_review:
     actor_type: user
+    enable_in_development: true
     description: >
       Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
   debt_letters_show_letters:
@@ -261,12 +267,9 @@ features:
     enable_in_development: true
     description: >
       Enables showing the pre-appointment questionnaire feature.
-  stem_sco_email:
-    actor_type: user
-    description: >
-      Enable/disable SCO email per environment
   show526_wizard:
     actor_type: user
+    enable_in_development: true
     description: >
       This determines when the wizard should show up on the form 526 intro page
   show_new_get_medical_records_page:
@@ -289,18 +292,42 @@ features:
     actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+  cerner_override_463:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 463 as `isCerner`.
+  cerner_override_531:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 531 as `isCerner`.
+  cerner_override_648:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 648 as `isCerner`.
+  cerner_override_653:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 653 as `isCerner`.
+  cerner_override_663:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 663 as `isCerner`.
   cerner_override_668:
     actor_type: user
     description: >
       This will show the Cerner facility 668 as `isCerner`.
+  cerner_override_687:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 687 as `isCerner`.
+  cerner_override_692:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 692 as `isCerner`.
   cerner_override_757:
     actor_type: user
     description: >
       This will show the Cerner facility 757 as `isCerner`.
-  gibct_benefit_filter_enhancement:
-    actor_type: user
-    description: >
-      Comparison Tool Search Results Benefit UI Enhancements to improve usability
   gibct_school_ratings:
     actor_type: user
     description: >
@@ -309,14 +336,10 @@ features:
     actor_type: user
     description: >
       API endpoints consumed by the VA Mobile App (iOS/Android)
-  show_chapter_36:
+  show_chapter_31:
     actor_type: user
     description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E Chapter 36 form
-  view_payment_history:
-    actor_type: user
-    description: >
-      This will toggle between an ebenefits link and a link to View Payment History on VA.gov
+      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
   request_locked_pdf_password:
     actor_type: user
     enable_in_development: true
@@ -332,14 +355,14 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
-  allow_online_10_10cg_submissions:
-    actor_type: cookie_id
-    description: >
-      Allows (unauthenticated) users to submit a 10-10CG through VA.gov. When enabled, this will redirect visitors from the form's page to the home page (va.gov).
   async_10_10_cg_attachments:
     actor_type: cookie_id
     description: >
       This will process attachments of 10-10CG submissions using sidekiq.
+  multiple_address_10_10ez:
+    actor_type: cookie_id
+    description: >
+      [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran vs only collecting a single, "permanent" address.
   evss_upload_limit_150mb:
     actor_type: user
     enable_in_development: true
@@ -349,4 +372,49 @@ features:
     actor_type: user
     enable_in_development: true
     description: >
-      Enhances Find A Forms MVP and enables users to navigate to Form Detail landing pages.
+      Enhances Find A Forms MVP.
+  yellow_ribbon_mvp_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enhances Yellow Ribbon MVP.
+  stem_automated_decision:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Add automated decision to 10203 application workflow
+  edu_form_omb_and_expiration:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Update OMB # and expiration dates for forms
+  in_progress_form_custom_expiration:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable/disable custom expiration dates for forms
+  search_representative:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enable frontend application and cta for Search Representative application
+  gibct_state_search:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Include state abbreviation when searching on comparison tool
+  dependents_management:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Manage dependent removal from view dependent page
+  vanotify_service_enhancement:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Allow consumer to use service specific VaNotify client. Owned by va-notify team.
+  subform_8940_4192:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Form 526 subforms for unemployability & connected employment information

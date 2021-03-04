@@ -4,9 +4,10 @@
 class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
   include SetAWSConfig
   include ValidatePdf
+  include ValidateEVSSFileSize
 
   def size_range
-    1.byte...50.megabytes
+    1.byte...150.megabytes
   end
 
   def initialize(guid)
@@ -23,7 +24,7 @@ class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def extension_whitelist
+  def extension_allowlist
     %w[pdf png gif tiff tif jpeg jpg bmp txt]
   end
 

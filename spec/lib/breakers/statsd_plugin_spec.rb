@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe Breakers::StatsdPlugin do
   let(:request) { Faraday::Env.new }
+  let(:response) { Faraday::Env.new }
   let(:test_host) { 'https://test-host.gov' }
 
   describe 'get_tags' do
@@ -62,6 +63,9 @@ describe Breakers::StatsdPlugin do
 
         request.url = URI(test_host + '/api/v1/users/00u2i1p2u2m3l7FYb712/grants')
         expect(subject.get_tags(request)).to include('endpoint:/api/v1/users/xxx/grants')
+
+        request.url = URI(test_host + '/cce/v1/patients/1012845331V153043/eligibility/Podiatry')
+        expect(subject.get_tags(request)).to include('endpoint:/cce/v1/patients/xxx/eligibility/zzz')
       end
     end
 
@@ -69,6 +73,31 @@ describe Breakers::StatsdPlugin do
       it 'doesnt replace anything' do
         request.url = URI(test_host + '/foo/bar')
         expect(subject.get_tags(request)).to include('endpoint:/foo/bar')
+      end
+    end
+  end
+
+  describe 'send_metric' do
+    let(:abstract_service) { Common::Client::Base }
+
+    context 'request env is not null' do
+      it 'builds metrics with request env' do
+        allow_any_instance_of(Breakers::StatsdPlugin).to receive(:get_tags).and_return('request_env')
+        allow(response).to receive(:[]).with(:duration).and_return(50)
+
+        expect_any_instance_of(StatsD).to receive('increment').and_return({})
+        expect_any_instance_of(StatsD).to receive('measure').and_return({})
+
+        subject.send_metric('ok', abstract_service, request, response)
+      end
+
+      it 'builds metrics with request env and does not make StatsD measure call' do
+        allow_any_instance_of(Breakers::StatsdPlugin).to receive(:get_tags).and_return('request_env')
+
+        expect_any_instance_of(StatsD).to receive('increment').and_return({})
+        expect_any_instance_of(StatsD).not_to receive('measure')
+
+        subject.send_metric('ok', abstract_service, request, response)
       end
     end
   end

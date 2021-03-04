@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VbaDocuments
+module VBADocuments
   module DocumentUpload
     class SubmissionSwagger
       include Swagger::Blocks
@@ -30,18 +30,16 @@ module VbaDocuments
         schema :DocumentUploadSubmissionAttributes do
           allOf do
             schema do
-              key :$ref, :DocumentUploadStatusAttributes
-            end
-            schema do
               key :type, :object
               key :required, %i[location]
-
+            end
+            schema do
+              key :$ref, :DocumentUploadStatusAttributes
               property :location do
                 key :description, 'Location to which to PUT document Payload'
                 key :type, :string
                 key :format, :uri
-                key :example, 'https://sandbox-api.va.gov/services_content/idpath
-      '
+                key :example, 'https://sandbox-api.va.gov/services_user_content/vba_documents/{idpath}'
               end
             end
           end

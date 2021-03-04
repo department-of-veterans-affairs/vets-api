@@ -23,76 +23,47 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   # rubocop:disable Layout/LineLength
-  describe 'validations' do
-    describe '#validate_address' do
-      context 'when homeless is true' do
+  describe '#validate_hearing_type_selection' do
+    context "when board review option 'hearing' selected" do
+      context 'when hearing type provided' do
         before do
-          notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = true
-          notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
           notice_of_disagreement.valid?
         end
 
-        it { expect(notice_of_disagreement.errors.count).to be 0 }
+        it 'does not throw an error' do
+          expect(notice_of_disagreement.errors.count).to be 0
+        end
       end
 
-      context 'when homeless is false' do
+      context 'when hearing type missing' do
         before do
-          notice_of_disagreement.form_data['data']['attributes']['veteran']['homeless'] = false
-          notice_of_disagreement.form_data['data']['attributes']['veteran'].delete('address')
+          form_data['data']['attributes'].delete('hearingTypePreference')
           notice_of_disagreement.valid?
         end
 
-        it do
+        it 'throws an error' do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors.full_messages.first).to eq(
-            "Form data if not homeless, address must be provided: '/data/attributes/veteran/address'"
+          expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
+            "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
           )
         end
       end
     end
 
-    describe '#validate_hearing_type_selection' do
-      context "when board review option 'hearing' selected" do
-        context 'when hearing type provided' do
-          before do
-            notice_of_disagreement.valid?
-          end
+    context "when board review option 'direct_review' or 'evidence_submission' is selected" do
+      let(:form_data) { fixture_as_json 'valid_10182_minimum.json' }
 
-          it 'does not throw an error' do
-            expect(notice_of_disagreement.errors.count).to be 0
-          end
+      context 'when hearing type provided' do
+        before do
+          notice_of_disagreement.form_data['data']['attributes']['hearingTypePreference'] = 'video_conference'
+          notice_of_disagreement.valid?
         end
 
-        context 'when hearing type missing' do
-          before do
-            form_data['data']['attributes'].delete('hearingTypePreference')
-            notice_of_disagreement.valid?
-          end
-
-          it 'throws an error' do
-            expect(notice_of_disagreement.errors.count).to be 1
-            expect(notice_of_disagreement.errors.full_messages.first).to eq(
-              "Form data if '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
-            )
-          end
-        end
-      end
-
-      context "when board review option 'direct_review' or 'evidence_submission' is selected" do
-        let(:form_data) { fixture_as_json 'valid_10182_minimum.json' }
-
-        context 'when hearing type provided' do
-          before do
-            notice_of_disagreement.form_data['data']['attributes']['hearingTypePreference'] = 'video_conference'
-            notice_of_disagreement.valid?
-          end
-
-          it 'throws an error' do
-            expect(notice_of_disagreement.errors.count).to be 1
-            expect(notice_of_disagreement.errors.full_messages.first).to eq(
-              "Form data if '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
-            )
-          end
+        it 'throws an error' do
+          expect(notice_of_disagreement.errors.count).to be 1
+          expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
+            "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
+          )
         end
       end
     end
@@ -114,7 +85,49 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
     end
   end
 
+  describe '#veteran_first_name' do
+    it { expect(notice_of_disagreement.veteran_first_name).to eq 'Jane' }
+  end
+
+  describe '#veteran_last_name' do
+    it { expect(notice_of_disagreement.veteran_last_name).to eq 'Doe' }
+  end
+
+  describe '#ssn' do
+    it { expect(notice_of_disagreement.ssn).to eq '123456789' }
+  end
+
+  describe '#file_number' do
+    it { expect(notice_of_disagreement.file_number).to eq '987654321' }
+  end
+
   describe '#consumer_name' do
-    it { expect(notice_of_disagreement.consumer_name).to eq('va.gov') }
+    it { expect(notice_of_disagreement.consumer_name).to eq 'va.gov' }
+  end
+
+  describe '#consumer_id' do
+    it { expect(notice_of_disagreement.consumer_id).to eq 'some-guid' }
+  end
+
+  describe '#zip_code_5' do
+    context 'when address present' do
+      it { expect(notice_of_disagreement.zip_code_5).to eq '30012' }
+    end
+
+    context 'when homeless and no address' do
+      before do
+        veteran_data = default_form_data['data']['attributes']['veteran']
+        veteran_data['homeless'] = true
+        veteran_data.delete('address')
+      end
+
+      it do
+        expect(notice_of_disagreement.zip_code_5).to eq '00000'
+      end
+    end
+  end
+
+  describe '#lob' do
+    it { expect(notice_of_disagreement.lob).to eq 'BVA' }
   end
 end

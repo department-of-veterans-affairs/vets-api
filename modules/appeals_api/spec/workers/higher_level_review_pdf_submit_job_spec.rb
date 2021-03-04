@@ -1,24 +1,20 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_info'
+require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
+  include FixtureHelpers
+
   subject { described_class }
 
   before { Sidekiq::Worker.clear_all }
 
-  let(:auth_headers) do
-    File.read(
-      Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996_headers.json')
-    )
-  end
-  let(:higher_level_review) { create_higher_level_review(:higher_level_review) }
-  let(:extra_higher_level_review) { create_higher_level_review(:extra_higher_level_review) }
-  let(:minimal_higher_level_review) { create_higher_level_review(:minimal_higher_level_review) }
+  let(:auth_headers) { fixture_to_s 'valid_200996_headers.json' }
+  let(:higher_level_review) { create_higher_level_review }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:valid_doc) { File.read(Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'valid_200996.json')) }
+  let(:valid_doc) { fixture_to_s 'valid_200996.json' }
 
   it 'uploads a valid payload' do
     allow(CentralMail::Service).to receive(:new) { client_stub }
@@ -78,64 +74,24 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     end
   end
 
-  context 'pdf content verification' do
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      path = described_class.new.generate_pdf(higher_level_review.id)
-      expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996.pdf')
-      generated_pdf_md5 = Digest::MD5.digest(File.read(path))
-      expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
-      File.delete(path) if File.exist?(path)
-      expect(generated_pdf_md5).to eq(expected_pdf_md5)
-      Timecop.return
-    end
-  end
+  context 'an error throws' do
+    it 'updates the HLR status to reflect the error' do
+      submit_job_worker = described_class.new
+      allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
 
-  context 'pdf extra content verification' do
-    # We need to revisit how we're doing content verification. At minimum we need to re-generate the expected PDF
-    # in the docker container. This spec will be commented out do it's intermittent failures until a new solution
-    # is implemented.
-    #
-    # it 'generates the expected pdf' do
-    #   Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-    #   path = described_class.new.generate_pdf(extra_higher_level_review.id)
-    #   expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996_extra.pdf')
-    #   generated_pdf_md5 = Digest::MD5.digest(File.read(path))
-    #   expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
-    #   File.delete(path) if File.exist?(path)
-    #   expect(generated_pdf_md5).to eq(expected_pdf_md5)
-    #   Timecop.return
-    # end
-    it 'generates the correct number of pages and extra content on additional page' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      path = described_class.new.generate_pdf(extra_higher_level_review.id)
-      expect(PdfInfo::Metadata.read(path).pages).to eq(3)
+      expect do
+        submit_job_worker.perform(higher_level_review.id)
+      end.to raise_error(RuntimeError, 'runtime error!')
 
-      reader = PDF::Reader.new(path)
-      expect(reader.page(3).text).to include('left shoulder', 'sleep apnea')
-
-      File.delete(path) if File.exist?(path)
-      Timecop.return
-    end
-  end
-
-  context 'pdf minimum content verification' do
-    it 'generates the expected pdf' do
-      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-      path = described_class.new.generate_pdf(minimal_higher_level_review.id)
-      expected_path = Rails.root.join('modules', 'appeals_api', 'spec', 'fixtures', 'expected_200996_minimum.pdf')
-      generated_pdf_md5 = Digest::MD5.digest(File.read(path))
-      expected_pdf_md5 = Digest::MD5.digest(File.read(expected_path))
-      expect(generated_pdf_md5).to eq(expected_pdf_md5)
-      File.delete(path) if File.exist?(path)
-      Timecop.return
+      higher_level_review.reload
+      expect(higher_level_review.status).to eq('error')
     end
   end
 
   private
 
-  def create_higher_level_review(type)
-    higher_level_review = create(type)
+  def create_higher_level_review
+    higher_level_review = create(:higher_level_review)
     higher_level_review.auth_headers = JSON.parse(auth_headers)
     higher_level_review.save
     higher_level_review

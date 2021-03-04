@@ -62,17 +62,16 @@ module Okta
       end
     end
 
-    def metadata(iss)
-      proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
+    def system_logs(event, time)
       with_monitoring do
-        get_url_with_token(proxied_iss + '/.well-known/openid-configuration')
+        get_url_with_token("#{API_BASE_PATH}/logs?filter=eventType+eq+%22#{event}%22&since=#{time}")
       end
     end
 
-    def oidc_jwks_keys(iss)
-      url = metadata(iss).body['jwks_uri']
+    def metadata(iss)
+      proxied_iss = iss.gsub(Settings.oidc.issuer_prefix, Settings.oidc.base_api_url + 'oauth2')
       with_monitoring do
-        get_url_with_token(url)
+        get_url_no_token(proxied_iss + '/.well-known/openid-configuration')
       end
     end
 

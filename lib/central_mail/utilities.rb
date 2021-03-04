@@ -6,6 +6,11 @@ module CentralMail
     META_PART_NAME = 'metadata'
     DOC_PART_NAME = 'content'
     SUBMIT_DOC_PART_NAME = 'document'
+    # valid lines of business.  From 'LOG' on these keys must be mapped to 'CMP' until they are formally supported.
+    # See https://vajira.max.gov/browse/API-678 for a description of the LOBs
+    VALID_LOB = { 'CMP' => 'CMP', 'PMC' => 'PMC', 'INS' => 'INS', 'EDU' => 'EDU', 'VRE' => 'VRE', 'BVA' => 'BVA',
+                  'FID' => 'FID', 'LOG' => 'CMP', 'MED' => 'CMP', 'BUR' => 'CMP', 'OTH' => 'CMP',
+                  'DROC' => 'CMP' }.freeze
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/.freeze
     MAX_PART_SIZE = 100_000_000 # 100MB
@@ -43,11 +48,12 @@ module CentralMail
     end
 
     def log_error(e, uploaded_object)
+      uuid = uploaded_object.respond_to?(:guid) ? uploaded_object.guid : uploaded_object.id
       Rails.logger.info("#{uploaded_object.class.to_s.gsub('::', ' ')}: Submission failure",
                         'source' => uploaded_object.consumer_name,
                         'consumer_id' => uploaded_object.consumer_id,
                         'consumer_username' => uploaded_object.consumer_name,
-                        'uuid' => uploaded_object.id,
+                        'uuid' => uuid,
                         'code' => e.code,
                         'detail' => e.detail)
     end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module VbaDocuments
+module VBADocuments
   module DocumentUpload
     class MetadataSwagger
       include Swagger::Blocks
@@ -46,6 +46,29 @@ module VbaDocuments
             key :type, :string
             key :example, '21-22'
             key :description, 'VBA form number of the document'
+          end
+
+          property :businessLine do
+            key :type, :string
+            key :example, 'CMP'
+            key :enum, %i[CMP PMC INS EDU VRE BVA FID LOG MED BUR OTH DROC]
+            key :description,
+                <<~DESCRIPTION
+                  Optional parameter (can be missing or empty).  The values are:<br>
+                  CMP - Compensation<br>
+                  PMC - Pension<br>
+                  INS - Insurance<br>
+                  EDU - Education<br>
+                  VRE - VRE<br>
+                  BVA - BVA<br>
+                  FID - Fiduciary<br><br>
+                  Future values (These values, if used, will be treated as CMP.):<br>
+                  LOG – Loan_Guaranty<br>
+                  MED – Medical<br>
+                  BUR – Burial<br>
+                  OTH – Other<br>
+                  DROC - Decision Review Operations Center
+                DESCRIPTION
           end
         end
       end

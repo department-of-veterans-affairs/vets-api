@@ -19,6 +19,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
       AppealsApi::Engine.root.join('config/schemas/10182_headers.json')
     )
   )['definitions']['nodCreateHeadersRoot']['properties'].keys
+  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
   def create
     @notice_of_disagreement.save
@@ -45,16 +46,16 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   def validate_json_schema
     validate_json_schema_for_headers
     validate_json_schema_for_body
-  rescue JsonSchema::JsonApiMissingAttribute => e
-    render json: e.to_json_api, status: e.code
+  rescue SCHEMA_ERROR_TYPE => e
+    render json: { errors: e.errors }, status: 422
   end
 
   def validate_json_schema_for_headers
-    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
+    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!("#{FORM_NUMBER}_HEADERS", headers)
   end
 
   def validate_json_schema_for_body
-    AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
+    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!(FORM_NUMBER, @json_body)
   end
 
   def validation_success
@@ -79,15 +80,17 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
     render_model_errors unless @notice_of_disagreement.validate
   end
 
+  # Follows JSON API v1.0 error object standard (https://jsonapi.org/format/1.0/#error-objects)
   def render_model_errors
     render json: model_errors_to_json_api, status: MODEL_ERROR_STATUS
   end
 
   def model_errors_to_json_api
-    errors = @notice_of_disagreement.errors.to_a.map do |error|
-      { status: MODEL_ERROR_STATUS, detail: error }
+    errors = @notice_of_disagreement.errors.to_h.map do |source, data|
+      data = I18n.t('common.exceptions.validation_errors').deep_merge data
+      data[:source] = { pointer: source.to_s }
+      data
     end
-
     { errors: errors }
   end
 

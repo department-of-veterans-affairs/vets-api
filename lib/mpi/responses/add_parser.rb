@@ -49,9 +49,9 @@ module MPI
         attributes.each do |attribute|
           case attribute[:code]
           when /BRLS/
-            codes[:birls_id] = sanitize_birls_id(attribute[:code])
+            codes[:birls_id] = sanitize_id(attribute[:code])
           when /CORP/
-            codes[:participant_id] = sanitize_participant_id(attribute[:code])
+            codes[:participant_id] = sanitize_id(attribute[:code])
           else
             codes[:other].append(attribute)
           end

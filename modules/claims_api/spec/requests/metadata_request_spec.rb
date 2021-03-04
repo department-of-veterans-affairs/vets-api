@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_api/health_checker'
+require 'bgs/service'
+require 'mpi/service'
+require 'evss/service'
 
 RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
   describe '#get /metadata' do
@@ -20,9 +22,9 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
 
           parsed_response = JSON.parse(response.body)
           expect(response).to have_http_status(:ok)
-          expect(parsed_response['description']).to eq('Claims API health check')
-          expect(parsed_response['status']).to eq('UP')
-          expect(parsed_response['time']).not_to be_nil
+          expect(parsed_response['default']['message']).to eq('Application is running')
+          expect(parsed_response['default']['success']).to eq(true)
+          expect(parsed_response['default']['time']).not_to be_nil
         end
       end
     end
@@ -39,64 +41,37 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
     %w[v0 v1].each do |version|
       context version do
         it 'returns correct response and status when healthy' do
-          allow_any_instance_of(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?).and_return(true)
-          allow_any_instance_of(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?).and_return(true)
-          allow_any_instance_of(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?).and_return(true)
-          allow_any_instance_of(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?).and_return(true)
+          allow(EVSS::Service).to receive(:service_is_up?).and_return(true)
+          allow(MPI::Service).to receive(:service_is_up?).and_return(true)
+          allow_any_instance_of(BGS::Services).to receive(:vet_record).and_return(Struct.new(:healthy?).new(true))
+          allow_any_instance_of(BGS::Services).to receive(:intent_to_file).and_return(Struct.new(:healthy?).new(true))
+          allow_any_instance_of(BGS::Services).to receive(:claimant).and_return(Struct.new(:healthy?).new(true))
+          allow_any_instance_of(BGS::Services).to receive(:contention).and_return(Struct.new(:healthy?).new(true))
+          allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(Struct.new(:status).new(200))
           get "/services/claims/#{version}/upstream_healthcheck"
           expect(response).to have_http_status(:ok)
-
-          parsed_response = JSON.parse(response.body)
-          expect(parsed_response['description']).to eq('Claims API upstream health check')
-          expect(parsed_response['status']).to eq('UP')
-          expect(parsed_response['time']).to eq('2020-09-21T00:00:00Z')
-
-          details = parsed_response['details']
-          expect(details['name']).to eq('All upstream services')
-
-          expect(details['upstreamServices'].size).to eq(4)
-          details['upstreamServices'].each do |upstream_service|
-            expect(upstream_service['description']).to be_in(ClaimsApi::HealthChecker::SERVICES.map(&:upcase))
-            expect(upstream_service['status']).to eq('UP')
-            expect(upstream_service['details']['name']).to be_in(ClaimsApi::HealthChecker::SERVICES.map(&:upcase))
-            expect(upstream_service['details']['statusCode']).to eq(200)
-            expect(upstream_service['details']['status']).to eq('OK')
-            expect(upstream_service['details']['time']).to eq('2020-09-21T00:00:00Z')
-          end
         end
 
-        ClaimsApi::HealthChecker::SERVICES.each do |upstream_service|
+        required_upstream_services = %w[evss mpi bgs-intent_to_file]
+        optional_upstream_services = %w[vbms bgs-vet_record bgs-claimant bgs-contention]
+        (required_upstream_services + optional_upstream_services).each do |upstream_service|
           it "returns correct status when #{upstream_service} is not healthy" do
-            allow_any_instance_of(ClaimsApi::HealthChecker).to receive(:evss_is_healthy?)
-              .and_return(upstream_service != 'evss')
-            allow_any_instance_of(ClaimsApi::HealthChecker).to receive(:mpi_is_healthy?)
-              .and_return(upstream_service != 'mpi')
-            allow_any_instance_of(ClaimsApi::HealthChecker).to receive(:bgs_is_healthy?)
-              .and_return(upstream_service != 'bgs')
-            allow_any_instance_of(ClaimsApi::HealthChecker).to receive(:vbms_is_healthy?)
-              .and_return(upstream_service != 'vbms')
+            allow(EVSS::Service).to receive(:service_is_up?).and_return(upstream_service != 'evss')
+            allow(MPI::Service).to receive(:service_is_up?).and_return(upstream_service != 'mpi')
+            allow_any_instance_of(BGS::Services).to receive(:vet_record)
+              .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-vet_record'))
+            allow_any_instance_of(BGS::Services).to receive(:intent_to_file)
+              .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-intent_to_file'))
+            allow_any_instance_of(BGS::Services).to receive(:claimant)
+              .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-claimant'))
+            allow_any_instance_of(BGS::Services).to receive(:contention)
+              .and_return(Struct.new(:healthy?).new(upstream_service != 'bgs-contention'))
+            allow_any_instance_of(Faraday::Connection).to receive(:get)
+              .and_return(upstream_service == 'vbms' ? Struct.new(:status).new(500) : Struct.new(:status).new(200))
+
             get "/services/claims/#{version}/upstream_healthcheck"
-            expect(response).to have_http_status(:service_unavailable)
-
-            parsed_response = JSON.parse(response.body)
-            expect(parsed_response['description']).to eq('Claims API upstream health check')
-            expect(parsed_response['status']).to eq('DOWN')
-            expect(parsed_response['time']).to eq('2020-09-21T00:00:00Z')
-
-            details = parsed_response['details']
-            expect(details['name']).to eq('All upstream services')
-
-            expect(details['upstreamServices'].size).to eq(4)
-            details['upstreamServices'].each do |service_response|
-              service_under_test = service_response['description'] == upstream_service.upcase
-
-              expect(service_response['description']).to be_in(ClaimsApi::HealthChecker::SERVICES.map(&:upcase))
-              expect(service_response['status']).to eq(service_under_test ? 'DOWN' : 'UP')
-              expect(service_response['details']['name']).to be_in(ClaimsApi::HealthChecker::SERVICES.map(&:upcase))
-              expect(service_response['details']['statusCode']).to eq(service_under_test ? 503 : 200)
-              expect(service_response['details']['status']).to eq(service_under_test ? 'Unavailable' : 'OK')
-              expect(service_response['details']['time']).to eq('2020-09-21T00:00:00Z')
-            end
+            expected_status = required_upstream_services.include?(upstream_service) ? :internal_server_error : :success
+            expect(response).to have_http_status(expected_status)
           end
         end
       end

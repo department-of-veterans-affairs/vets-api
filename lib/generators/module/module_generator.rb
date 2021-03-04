@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails/generators'
+require 'generators/module_helper'
 
 class ModuleGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('templates', __dir__)
+  include ModuleHelper
 
   def create_directory_structure
     # create the dir structure here
-    %w[controllers models serializers service].each do |dir|
+    %w[controllers models serializers services].each do |dir|
       FileUtils.mkdir_p "modules/#{file_name}/app/#{dir}" unless Dir.exist?("modules/#{file_name}/app/#{dir}")
     end
   end
@@ -47,25 +49,49 @@ class ModuleGenerator < Rails::Generators::NamedBase
   end
 
   # rubocop:disable Rails/Output
+  def update_spec_helper
+    options_hash = {}
+    options_hash[:regex] = /# Modules(.*)# End Modules/m
+    options_hash[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
+    options_hash[:new_entry] = "    add_group '#{file_name.camelize}', " \
+                       "'modules/#{file_name}/'\n"
+
+    module_generator_file_insert('spec/spec_helper.rb', options_hash)
+  end
+
+  def update_simplecov_helper
+    # spec and simplecov helper add group
+
+    options_hash = {}
+    options_hash[:regex] = /# Modules(.*)end/m
+    options_hash[:insert_matcher] = "add_group '#{file_name.camelize}', 'modules/#{file_name}/'"
+    options_hash[:new_entry] = "    add_group '#{file_name.camelize}', " \
+                       "'modules/#{file_name}/'\n"
+
+    module_generator_file_insert('spec/simplecov_helper.rb', options_hash)
+  end
+
+  def update_gemfile
+    options_hash = {}
+    options_hash[:insert_matcher] = "gem '#{file_name}'"
+    options_hash[:new_entry] = "  #{options_hash[:insert_matcher]}\n"
+
+    module_generator_file_insert('Gemfile', options_hash)
+  end
+
+  def update_routes_file
+    options_hash = {}
+    options_hash[:regex] = /# Modules(.*)# End Modules/m
+    options_hash[:insert_matcher] = "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
+    options_hash[:new_entry] = "  mount #{file_name.camelize}::Engine, at: '/#{file_name}'\n"
+
+    module_generator_file_insert('config/routes.rb', options_hash)
+  end
+
   # :nocov:
   def update_and_install
-    # spec helper add group
-    insert_into_file 'spec/spec_helper.rb', "\tadd_group '#{file_name.camelize}',
-      'modules/#{file_name}/'\n", after: "# Modules\n"
-
-    # simplecov add group
-    insert_into_file 'spec/simplecov_helper.rb', "\tadd_group '#{file_name.camelize}',
-      'modules/#{file_name}/'\n", after: "# Modules\n"
-
-    # insert into main app gemfile
-    insert_into_file 'Gemfile', "\tgem '#{file_name}'\n", after: "path 'modules' do\n"
-    route "mount #{file_name.camelize}::Engine, at: '/#{file_name}'"
-
     run 'bundle install'
-
-    puts "\n"
-    puts "\u{1F64C} new module generated at ./modules/#{file_name}\n\n"
-    puts "\n"
+    puts "\n\u{1F64C} new module generated at ./modules/#{file_name}\n\n\n"
   end
   # :nocov:
   # rubocop:enable Rails/Output

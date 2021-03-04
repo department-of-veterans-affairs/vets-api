@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'forwardable'
-
 module HealthQuest
   module PatientGeneratedData
     module QuestionnaireResponse
@@ -9,24 +7,15 @@ module HealthQuest
       # A service object for isolating dependencies from the questionnaire_responses controller.
       #
       # @!attribute session_service
-      #   @return [HealthQuest::SessionService]
+      #   @return [HealthQuest::Lighthouse::Session]
       # @!attribute user
       #   @return [User]
       # @!attribute map_query
       #   @return [PatientGeneratedData::QuestionnaireResponse::MapQuery]
       # @!attribute options_builder
-      #   @return [PatientGeneratedData::QuestionnaireResponse::OptionsBuilder]
+      #   @return [Shared::OptionsBuilder]
       class Factory
-        extend Forwardable
-
         attr_reader :session_service, :user, :map_query, :options_builder
-
-        ##
-        # This delegate method is called with the patient id
-        #
-        # @return [FHIR::DSTU2::QuestionnaireResponse::ClientReply]
-        #
-        def_delegator :@map_query, :get
 
         ##
         # Builds a PatientGeneratedData::QuestionnaireResponse::Factory instance from a given User
@@ -40,20 +29,31 @@ module HealthQuest
 
         def initialize(user)
           @user = user
-          @session_service = HealthQuest::SessionService.new(user)
-          @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.headers)
-          @options_builder = OptionsBuilder
+          @session_service = HealthQuest::Lighthouse::Session.build(user: user, api: pgd_api)
+          @map_query = PatientGeneratedData::QuestionnaireResponse::MapQuery.build(session_service.retrieve)
+          @options_builder = Shared::OptionsBuilder
+        end
+
+        ##
+        # Gets the QuestionnaireResponse from it's unique ID
+        #
+        # @param data [String] a unique string value
+        # @return [FHIR::QuestionnaireResponse::ClientReply]
+        #
+        def get(id) # rubocop:disable Rails/Delegate
+          map_query.get(id)
         end
 
         ##
         # Gets Questionnaire Responses from a given set of OptionsBuilder
         #
-        # @param filters [PatientGeneratedData::QuestionnaireResponse::OptionsBuilder] the set of query options.
-        # @return [FHIR::DSTU2::QuestionnaireResponse::ClientReply] an instance of ClientReply
+        # @param filters [Hash] the set of query options.
+        # @return [FHIR::ClientReply] an instance of ClientReply
         #
-        def search(filters)
-          with_options = options_builder.manufacture(user, filters).to_hash
+        def search(filters = {})
+          filters.merge!(resource_name)
 
+          with_options = options_builder.manufacture(user, filters).to_hash
           map_query.search(with_options)
         end
 
@@ -61,12 +61,25 @@ module HealthQuest
         # Create a QuestionnaireResponse resource from the logged in user.
         #
         # @param data [Hash] questionnaire answers and appointment data hash.
-        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        # @return [FHIR::Patient::ClientReply] an instance of ClientReply
         #
         def create(data)
-          questionnaire_response = Resource.manufacture(data, user).prepare
+          map_query.create(data, user)
+        end
 
-          map_query.create(questionnaire_response)
+        ##
+        # Builds the key/value pair for identifying the resource
+        #
+        # @return [Hash] a key value pair
+        #
+        def resource_name
+          { resource_name: 'questionnaire_response' }
+        end
+
+        private
+
+        def pgd_api
+          Settings.hqva_mobile.lighthouse.pgd_api
         end
       end
     end

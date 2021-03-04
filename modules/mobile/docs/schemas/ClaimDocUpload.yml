@@ -1,0 +1,13 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - jobId
+    properties:
+      jobId:
+        type: string
+        description: job id of upload process
+

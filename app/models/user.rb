@@ -9,6 +9,7 @@ require 'evss/pciu/service'
 require 'mpi/messages/find_profile_message'
 require 'mpi/service'
 require 'saml/user'
+require 'formatters/date_formatter'
 
 class User < Common::RedisStore
   include BetaSwitch
@@ -89,8 +90,32 @@ class User < Common::RedisStore
     identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
   end
 
+  # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
   def birth_date
-    identity.birth_date || (mhv_icn.present? ? mpi&.profile&.birth_date&.to_date&.to_s : nil)
+    birth_date = nil
+
+    if identity.birth_date
+      birth_date =  identity.birth_date
+    elsif mhv_icn.present?
+      birth_date =  mpi_profile_birth_date
+    end
+    if birth_date.nil?
+      Rails.logger.info "[User] Cannot find birth date for User with uuid: #{uuid}"
+      return nil
+    end
+
+    Formatters::DateFormatter.format_date(birth_date)
+  end
+
+  def address
+    address = mpi_profile&.address
+    {
+      street: address&.street,
+      city: address&.city,
+      state: address&.state,
+      country: address&.country,
+      zip: address&.postal_code
+    }
   end
 
   def zip
@@ -127,9 +152,9 @@ class User < Common::RedisStore
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
+  delegate :person_types, to: :identity, allow_nil: true
 
   # mpi attributes
-  delegate :icn, to: :mpi
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
@@ -144,6 +169,10 @@ class User < Common::RedisStore
 
   def sec_id
     identity.sec_id || va_profile&.sec_id
+  end
+
+  def icn
+    identity&.icn || mpi&.icn
   end
 
   def birls_id
@@ -275,7 +304,7 @@ class User < Common::RedisStore
   def vet360_contact_info
     return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
+    @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
   end
 
   def all_emails
@@ -331,6 +360,23 @@ class User < Common::RedisStore
   end
 
   private
+
+  def mpi_profile
+    return nil unless mpi
+
+    mpi.profile
+  end
+
+  def mpi_profile_birth_date
+    return nil unless mpi_profile
+
+    if mpi_profile.birth_date.nil?
+      Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
+      return nil
+    end
+
+    mpi_profile.birth_date
+  end
 
   def pciu
     @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?

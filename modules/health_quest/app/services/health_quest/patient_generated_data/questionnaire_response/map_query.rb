@@ -6,64 +6,72 @@ module HealthQuest
       ##
       # A service object for querying the PGD for Questionnaire Response resources.
       #
+      # @!attribute access_token
+      #   @return [String]
       # @!attribute headers
       #   @return [Hash]
       class MapQuery
-        include PatientGeneratedData::FHIRClient
+        include Lighthouse::FHIRClient
+        include Lighthouse::FHIRHeaders
 
-        attr_reader :headers
+        attr_reader :access_token, :headers
 
         ##
-        # Builds a PatientGeneratedData::QuestionnaireResponse::MapQuery instance from a given hash of headers.
+        # Builds a PatientGeneratedData::QuestionnaireResponse::MapQuery instance from a redis session.
         #
-        # @param headers [Hash] the set of headers.
+        # @param session_store [HealthQuest::SessionStore] the users redis session.
         # @return [PatientGeneratedData::QuestionnaireResponse::MapQuery] an instance of this class
         #
-        def self.build(headers)
-          new(headers)
+        def self.build(session_store)
+          new(session_store)
         end
 
-        def initialize(headers)
-          @headers = headers
+        def initialize(session_store)
+          @access_token = session_store.token
+          @headers = auth_header
         end
 
         ##
         # Gets QuestionnaireResponse from provided options
         #
         # @param options [Hash] the search options.
-        # @return [FHIR::DSTU2::QuestionnaireResponse::Bundle] an instance of Bundle
+        # @return [FHIR::QuestionnaireResponse::Bundle] an instance of Bundle
         #
-        def search(options = {})
-          client.search(dstu2_model, search_options(options))
+        def search(options)
+          client.search(fhir_model, search_options(options))
         end
 
         ##
         # Gets a QuestionnaireResponse from its id
         #
         # @param id [String] the QuestionnaireResponse ID.
-        # @return [FHIR::DSTU2::QuestionnaireResponse::ClientReply] an instance of ClientReply
+        # @return [FHIR::QuestionnaireResponse::ClientReply] an instance of ClientReply
         #
         def get(id)
-          client.read(dstu2_model, id)
+          client.read(fhir_model, id)
         end
 
         ##
         # Create a QuestionnaireResponse resource from the logged in user.
         #
         # @param data [Hash] questionnaire answers and appointment data hash.
-        # @return [FHIR::DSTU2::Patient::ClientReply] an instance of ClientReply
+        # @param user [User] the current user.
+        # @return [FHIR::ClientReply] an instance of ClientReply
         #
-        def create(data) # rubocop:disable Rails/Delegate
-          client.create(data)
+        def create(data, user)
+          headers.merge!(content_type_header)
+
+          questionnaire_response = Resource.manufacture(data, user).prepare
+          client.create(questionnaire_response)
         end
 
         ##
-        # Returns the FHIR::DSTU2::QuestionnaireResponse class object
+        # Returns the FHIR::QuestionnaireResponse class object
         #
-        # @return [FHIR::DSTU2::QuestionnaireResponse]
+        # @return [FHIR::QuestionnaireResponse]
         #
-        def dstu2_model
-          FHIR::DSTU2::QuestionnaireResponse
+        def fhir_model
+          FHIR::QuestionnaireResponse
         end
 
         ##
@@ -78,6 +86,15 @@ module HealthQuest
               parameters: options
             }
           }
+        end
+
+        ##
+        # Returns the PGD api path
+        #
+        # @return [String]
+        #
+        def api_query_path
+          Settings.hqva_mobile.lighthouse.pgd_path
         end
       end
     end

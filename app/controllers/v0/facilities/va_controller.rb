@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'will_paginate/array'
-require 'facilities/ppms/v0/client'
 
-class V0::Facilities::VaController < FacilitiesController
+class V0::Facilities::VAController < FacilitiesController
   TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   before_action :validate_params, only: [:index]
   before_action :validate_types_name_part, only: [:suggested]
@@ -13,12 +12,6 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    return provider_locator if params[:type] == 'cc_provider'
-
-    facilities
-  end
-
-  def facilities
     resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
     render json: resource,
            each_serializer: VAFacilitySerializer,
@@ -37,27 +30,6 @@ class V0::Facilities::VaController < FacilitiesController
     render json: results,
            serializer: CollectionSerializer,
            each_serializer: VASuggestedFacilitySerializer
-  end
-
-  def provider_locator
-    ppms = Facilities::PPMS::V0::Client.new
-    providers = ppms.provider_locator(params)
-    page = 1
-    page = Integer(params[:page]) if params[:page]
-    total = providers.length
-    start_ind = (page - 1) * BaseFacility.per_page
-    providers = providers[start_ind, BaseFacility.per_page - 1]
-    providers.map! do |provider|
-      prov_info = ppms.provider_info(provider['ProviderIdentifier'])
-      provider.add_details(prov_info)
-      provider
-    end
-    pages = { current_page: page, per_page: BaseFacility.per_page,
-              total_pages: total / BaseFacility.per_page + 1, total_entries: total }
-
-    render json: providers,
-           each_serializer: ProviderSerializer,
-           meta: { pagination: pages }
   end
 
   private

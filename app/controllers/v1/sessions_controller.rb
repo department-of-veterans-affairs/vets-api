@@ -300,7 +300,7 @@ module V1
                 else
                   exc.message
                 end
-      log_message_to_sentry(message, level, extra_context: context)
+      conditional_log_message_to_sentry(message, level, context, code)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)
@@ -313,6 +313,18 @@ module V1
       )
     end
     # rubocop:enable Metrics/ParameterLists
+
+    def conditional_log_message_to_sentry(message, level, context, code)
+      # If our error is that we have multiple mhv ids, this is a case where we won't log in the user,
+      # but we give them a path to resolve this. So we don't want to throw an error, and we don't want
+      # to pollute Sentry with this condition, but we will still log in case we want metrics in
+      # Cloudwatch or any other log aggregator
+      if code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE
+        Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
+      else
+        log_message_to_sentry(message, level, extra_context: context)
+      end
+    end
 
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)

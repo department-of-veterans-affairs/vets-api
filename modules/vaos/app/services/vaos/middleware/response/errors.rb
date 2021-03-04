@@ -1,57 +1,30 @@
 # frozen_string_literal: true
 
-require 'common/exceptions'
-
 module VAOS
   module Middleware
     module Response
       class Errors < Faraday::Response::Middleware
+        STATSD_KEY_PREFIX = 'api.vaos.va_mobile.response'
+
         def on_complete(env)
+          statsd_increment("#{STATSD_KEY_PREFIX}.total", env)
           return if env.success?
 
+          statsd_increment("#{STATSD_KEY_PREFIX}.fail", env)
           Raven.extra_context(vamf_status: env.status, vamf_body: env.body, vamf_url: env.url)
-          case env.status
-          when 400, 409
-            error_400(env.body)
-          when 403
-            raise Common::Exceptions::BackendServiceException.new('VAOS_403', source: self.class)
-          when 404
-            raise Common::Exceptions::BackendServiceException.new('VAOS_404', source: self.class)
-          when 500..510
-            error_500(env.body)
-          else
-            raise Common::Exceptions::BackendServiceException.new('VA900', source: self.class)
-          end
+          raise VAOS::Exceptions::BackendServiceException, env
         end
 
-        def error_500(body)
-          # NOTE: This is a temporary patch more on that here:
-          # https://github.com/department-of-veterans-affairs/vets-api/pull/5082
-          if /APTCRGT/.match?(body)
-            error_400(body)
-          else
-            raise Common::Exceptions::BackendServiceException.new('VAOS_502', source: self.class)
-          end
-        end
+        private
 
-        def error_400(body)
-          raise Common::Exceptions::BackendServiceException.new(
-            'VAOS_400',
-            title: 'Bad Request',
-            detail: parse_error(body),
-            source: self.class
-          )
-        end
-
-        def parse_error(body)
-          parsed = JSON.parse(body)
-          if parsed['errors']
-            parsed['errors'].first['errorMessage']
-          else
-            parsed['message']
-          end
-        rescue
-          body
+        def statsd_increment(key, env)
+          StatsDMetric.new(key: key).save
+          tags = [
+            "method:#{env.method.upcase}",
+            "url:#{StringHelpers.filtered_endpoint_tag(env.url.path)}",
+            "http_status:#{env.status}"
+          ]
+          StatsD.increment(key, tags: tags)
         end
       end
     end

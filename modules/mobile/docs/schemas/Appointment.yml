@@ -14,65 +14,50 @@ properties:
     type: object
     required:
       - appointmentType
-      - status
-      - startTime
-      - minutesDuration
       - comment
-      - timeZone
+      - clinicId
+      - facilityId
       - healthcareService
       - location
+      - minutesDuration
+      - startDateLocal
+      - startDateUtc
+      - status
+      - timeZone
     properties:
       appointmentType:
         type: string
         enum: [ COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_GFE, VA_VIDEO_CONNECT_ONSITE ]
         example: VA
-      status:
-        type: string
-        enum: [ BOOKED, CANCELLED ]
-        example: BOOKED
-      startTime:
-        type: datetime
-        example: 2020-10-29T10:30:00-07:00
-      minutesDuration:
-        type: integer
-        example: 60
       comment:
         type: string
         example: Please arrive 20 minutes before the start of your appointment
-      timeZone:
-        type: string
-        enum: [ Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York ]
-        example: America/Los_Angeles
       healthcareService:
         type: string
         example: Blind Rehabilitation Center
       location:
         type: object
         required:
+          - name
           - address
           - phoneNumber
           - url
           - code
         properties:
+          name:
+            type: string
+            example: VA Long Beach Healthcare System
           address:
             type: object
             required:
-              - line1
-              - line2
-              - line3
+              - street
               - city
               - state
               - zipCode
             properties:
-              line1:
+              street:
                 type: string
-                example: 5901 East 7th Street
-              line2:
-                type: string
-                example: Building 166
-              line3:
-                type: string
-                example: null
+                example: 5901 East 7th Street, Building 166
               city:
                 type: string
                 example: Long Beach
@@ -82,15 +67,24 @@ properties:
               zipCode:
                 type: string
                 example: 90822
+          lat:
+            type: float
+            example: 33.770050
+          long:
+            type: float
+            example: -118.193741
           phone:
             type: object
             required:
               - number
               - extension
             properties:
+              areaCode:
+                type: string
+                example: 562
               number:
                 type: string
-                example: 562-434-6008
+                example: 434-6008
               extension:
                 type: string
                 example: 1001
@@ -99,23 +93,21 @@ properties:
             example: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
           code:
             type: string
-            example: GL32CA
-      practitioner:
-        required:
-          - prefix
-          - firstName
-          - middleName
-          - lastName
-        properties:
-          prefix:
-            type: string
-            example: "Dr."
-          firstName:
-            type: string
-            example: "John"
-          middleName:
-            type: string
-            example: "A."
-          lastName:
-            type: string
-            example: "Smith"
+            example: GL32C
+      minutesDuration:
+        type: integer
+        example: 60
+      startDateLocal:
+        type: datetime
+        example: 2019-04-20T14:15:00.000-04:00
+      startDateUtc:
+        type: datetime
+        example: 2019-04-20T18:15:00.000Z
+      status:
+        type: string
+        description: Booking status of the appointment. Note that 'HIDDEN' means that the status should be hidden, the appointment should still be visible.
+        enum: [ BOOKED, CANCELLED, HIDDEN ]
+        example: BOOKED
+      timeZone:
+        type: string
+        example: "America/Los_Angeles"

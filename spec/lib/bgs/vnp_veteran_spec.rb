@@ -14,7 +14,9 @@ RSpec.describe BGS::VnpVeteran do
       'phone_number' => '1112223333',
       'email_address' => 'foo@foo.com',
       'country_name' => 'USA',
-      'address_line1' => '8200 Doby LN',
+      'address_line1' => '2037400 twenty',
+      'address_line2' => 'ninth St apt 2222',
+      'address_line3' => 'Bldg 33333',
       'city' => 'Pasadena',
       'state_code' => 'CA',
       'zip_code' => '21122',
@@ -22,7 +24,9 @@ RSpec.describe BGS::VnpVeteran do
       'martl_status_type_cd' => 'Separated',
       'veteran_address' => {
         'country_name' => 'USA',
-        'address_line1' => '8200 Doby LN',
+        'address_line1' => '2037400 twenty',
+        'address_line2' => 'ninth St apt 2222',
+        'address_line3' => 'Bldg 33333',
         'city' => 'Pasadena',
         'state_code' => 'CA',
         'zip_code' => '21122'
@@ -116,9 +120,9 @@ RSpec.describe BGS::VnpVeteran do
       }
 
       expected_address = {
-        addrs_one_txt: '8200 Doby LN',
-        addrs_three_txt: nil,
-        addrs_two_txt: nil,
+        addrs_one_txt: '2037400 twenty',
+        addrs_two_txt: 'ninth St apt 2222',
+        addrs_three_txt: 'Bldg 33333',
         city_nm: 'Pasadena',
         cntry_nm: 'USA',
         email_addrs_txt: 'foo@foo.com',

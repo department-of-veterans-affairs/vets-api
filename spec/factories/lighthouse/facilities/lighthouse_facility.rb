@@ -3,7 +3,7 @@
 require 'lighthouse/facilities/facility'
 
 FactoryBot.define do
-  factory :lighthouse_facility, class: Lighthouse::Facilities::Facility do
+  factory :lighthouse_facility, class: 'Lighthouse::Facilities::Facility' do
     # vha_648A4
     transient do
       access do

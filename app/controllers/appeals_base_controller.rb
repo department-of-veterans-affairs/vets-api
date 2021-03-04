@@ -5,6 +5,7 @@ require 'decision_review/service'
 
 class AppealsBaseController < ApplicationController
   include ActionController::Serialization
+  include FailedRequestLoggable
   before_action { authorize :appeals, :access? }
 
   private
@@ -35,5 +36,12 @@ class AppealsBaseController < ApplicationController
 
   def request_body_is_not_a_hash_error
     DecisionReview::ServiceException.new key: 'DR_REQUEST_BODY_IS_NOT_A_HASH'
+  end
+
+  def request_body_debug_data
+    {
+      request_body_class_name: request.try(:body).class.name,
+      request_body_string: request.try(:body).try(:string)
+    }
   end
 end

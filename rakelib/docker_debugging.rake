@@ -3,6 +3,7 @@
 $stdout.sync = true
 namespace :docker_debugging do
   desc 'Setup environment for debugging in docker'
+  command = 'foreman start -m all=1,clamd=0,freshclam=0'
   task setup: :environment do |_task|
     if Settings.docker_debugging
       raise 'This rake task runs in development mode only!' unless Rails.env.development?
@@ -14,15 +15,17 @@ namespace :docker_debugging do
         Thread.send(:new) { loop {} }.join
       end
       if s.set_up_db
-        puts 'Starting db setup'
         Rake::Task['db:drop'].invoke
         Rake::Task['db:create'].invoke
         Rake::Task['db:schema:load'].invoke
-        Rails.env = 'test'
-        Rake::Task['db:schema:load'].invoke
+        Rake::Task['db:migrate'].invoke
         puts 'All dun!'
       end
-      sh 'foreman start -m all=1,clamd=0,freshclam=0'
+      if s.enable_sidekiq
+        puts 'Sidekiq debugging is enabled'
+        command += ',job=0'
+      end
+      sh command
     end
   end
 end

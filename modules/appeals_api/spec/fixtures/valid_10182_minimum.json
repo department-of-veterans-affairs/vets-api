@@ -14,7 +14,7 @@
           "areaCode": "555",
           "phoneNumber": "8001111"
         },
-        "emailAddressText": "a@a.a"
+        "emailAddressText": "user@example.com"
       },
       "boardReviewOption": "evidence_submission",
       "timezone": "America/Chicago",

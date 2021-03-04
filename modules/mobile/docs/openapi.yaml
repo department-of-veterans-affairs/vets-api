@@ -21,11 +21,53 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Message.yml"
-
+    post:
+      summary: /
+      description: Returns urls for app use based on app build number, environment, and OS
+      operationId: index
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: App build and environment info
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/DiscoveryRequest.yml'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/DiscoveryResponse.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/appointments:
     get:
       summary: /v0/appointments
-      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 3 months and + 6 months from the beginning of today's UTC date.
       operationId: getAppointments
       security:
         - Bearer: []
@@ -41,6 +83,12 @@ paths:
           schema:
             type: datetime
           description: The end date for the range of appointments in ISO 8601 UTC format
+          example: 2021-11-29T08:00:00.000Z
+        - in: query
+          name: useCache
+          schema:
+            type: boolean
+          description: Whether or not to use the upstream VAOS service's cache of appointments
           example: 2021-11-29T08:00:00.000Z
       responses:
         '200':
@@ -77,6 +125,77 @@ paths:
                 $ref: "./schemas/Errors.yml"
         '408':
           description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Validation Error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/appointments/cancel/{cancelId}:
+    put:
+      summary: /v0/appointments/cancel/{cancelId}
+      description: Cancel an appointment by cancelId. Note only VA appointments can be cancelled online and some VA facilities do not support online cancellation. Only appointments that can be cancelled will have a cancelId.
+      operationId: putCancelAppointment
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: path
+          name: cancelId
+          required: true
+          schema:
+            type: string
+          description: The cancel ID hash from an appointment returned in the GET appointments endpoint.
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Validation error.
           content:
             application/json:
               schema:
@@ -1015,12 +1134,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#./schemas/Phone.yml"
-            example:
-              areaCode: "704"
-              countryCode: "1"
-              phoneNumber: "7749069"
-              phoneType: "HOME"
+              $ref: "./schemas/Phone.yml"
       responses:
         '200':
           description: OK
@@ -1089,13 +1203,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#./schemas/PhoneUpdate.yml"
-            example:
-              id: 157032
-              areaCode: "704"
-              countryCode: "1"
-              phoneNumber: "7749069"
-              phoneType: "HOME"
+              $ref: "./schemas/PhoneUpdate.yml"
       responses:
         '200':
           description: OK
@@ -1150,7 +1258,7 @@ paths:
     get:
       summary: /v0/payment-information/benefits
       description: Returns direct deposit payment info
-      operationId: index
+      operationId: getPaymentInformation
       security:
         - Bearer: []
       responses:
@@ -1211,7 +1319,7 @@ paths:
     put:
       summary: /v0/payment-information/benefits
       description: Returns updated direct deposit payment info
-      operationId: update
+      operationId: updatePaymentInformation
       security:
         - Bearer: []
       requestBody:
@@ -1467,7 +1575,7 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-  /v0/claims-and-appeals/overview:
+  /v0/claims-and-appeals-overview:
     get:
       summary: /v0/claims-and-appeals-overview
       description: Returns info on all user's claims and appeals for mobile overview page
@@ -1661,6 +1769,320 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/claim/{id}/documents:
+    post:
+      summary: /v0/claim/{id}/documents
+      description: Post tracked item document for upload, returns jobId for upload process
+      operationId: upload_documents
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Claim Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/ClaimUploadRequestBody.yml"
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/ClaimDocUpload.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/claim/{id}/request-decision:
+    post:
+      summary: /v0/claim/{id}/request-decision
+      description: Request decision on a given claim, returns job id
+      operationId: request_decision
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Claim Id
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/ClaimDocUpload.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/folders:
+    get:
+      summary: /v0/messaging/health/folders
+      description: List available secure messaging folders
+      operationId: listFolders
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessagingFolders.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/folders/{id}:
+    get:
+      summary: /v0/messaging/health/folders/{id}
+      description: Get a secure messaging folder
+      operationId: getFolder
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessagingFolder.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/folders/{id}/messages:
+    get:
+      summary: /v0/messaging/health/folders/{id}/messages
+      description: List messages in a secure messaging folder
+      operationId: listFolderMessages
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageList.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages/{id}:
+    get:
+      summary: /v0/messaging/health/messages/{id}
+      description: Get a secure message and mark message as read
+      operationId: getMessage
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageDetail.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages/{id}/attachments/{attachment_id}:
+    get:
+      summary: /v0/messaging/health/messages/{id}/attachments/{attachment_id}
+      description: >
+        Get a secure message attachment content as a direct binary download.
+        Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
+
+      operationId: getMessageAttachment
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              description: >
+                This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages/categories:
+    get:
+      summary: /v0/messaging/health/messages/categories
+      description: List available message categories
+      operationId: listMessageCategories
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+               $ref: "./schemas/SecureMessageCategories.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+
+  /v0/messaging/health/recipients:
+    get:
+      summary: /v0/messaging/health/recipients
+      description: List available recipients to which messages may be sent
+      operationId: listRecipients
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessagingRecipients.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+
+
+
 components:
   securitySchemes:
     Bearer:

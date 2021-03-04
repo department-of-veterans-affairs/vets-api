@@ -73,7 +73,7 @@ module V0
         callback_stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
     rescue => e
-      log_exception_to_sentry(e, {}, {}, :error)
+      conditional_log_exception_to_sentry(e)
       unless performed?
         redirect_to url_service.login_redirect_url(auth: 'fail',
                                                    code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE)
@@ -84,6 +84,22 @@ module V0
     end
 
     private
+
+    def conditional_log_exception_to_sentry(error)
+      if (error.is_a? SAML::SAMLError) &&
+         (error.code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE)
+        # If our error is that we have multiple mhv ids, this is a case where we won't log in the user,
+        # but we give them a path to resolve this. So we don't want to throw an error, and we don't want
+        # to pollute Sentry with this condition, but we will still log in case we want metrics in
+        # Cloudwatch or any other log aggregator
+        Rails.logger.warn(
+          "SessionsController version:v0 context:#{error.context} "\
+          "message:#{error.message}"
+        )
+      else
+        log_exception_to_sentry(error, {}, {}, :error)
+      end
+    end
 
     def auth_error_code(code)
       if code == SAML::Responses::Base::AUTH_TOO_LATE_ERROR_CODE && validate_session

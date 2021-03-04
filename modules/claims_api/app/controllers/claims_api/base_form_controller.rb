@@ -5,6 +5,7 @@ require 'claims_api/form_schemas'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'bgs/auth_headers'
+require 'claims_api/special_issue_mappers/bgs'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
@@ -57,6 +58,26 @@ module ClaimsApi
       initial_flashes.present? ? initial_flashes.uniq : []
     end
 
+    def special_issues_per_disability
+      (form_attributes['disabilities'] || []).map { |disability| special_issues_for_disability(disability) }
+    end
+
+    def special_issues_for_disability(disability)
+      primary_special_issues = disability['specialIssues'] || []
+      secondary_special_issues = []
+      (disability['secondaryDisabilities'] || []).each do |secondary_disability|
+        secondary_special_issues += (secondary_disability['specialIssues'] || [])
+      end
+      special_issues = primary_special_issues + secondary_special_issues
+
+      mapper = ClaimsApi::SpecialIssueMappers::Bgs.new
+      {
+        code: disability['diagnosticCode'],
+        name: disability['name'],
+        special_issues: special_issues.map { |special_issue| mapper.code_from_name!(special_issue) }
+      }
+    end
+
     def documents
       document_keys = params.keys.select { |key| key.include? 'attachment' }
       params.slice(*document_keys).values.map do |document|
@@ -100,10 +121,13 @@ module ClaimsApi
 
     def participant_claimant_id
       if form_type == 'burial'
+        message = "Representative cannot file for type 'burial'"
+        raise(::Common::Exceptions::Forbidden, detail: message) if @current_user.blank? && v0?
+
         begin
           @current_user.participant_id
         rescue ArgumentError
-          raise ::Common::Exceptions::Forbidden, detail: "Representative cannot file for type 'burial'"
+          raise ::Common::Exceptions::Forbidden, detail: message
         end
       else
         target_veteran.participant_id

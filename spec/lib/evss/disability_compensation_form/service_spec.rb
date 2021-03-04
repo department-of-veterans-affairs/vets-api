@@ -14,6 +14,13 @@ describe EVSS::DisabilityCompensationForm::Service do
 
   describe '#get_rated_disabilities' do
     context 'with a valid evss response' do
+      let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
+
+      before do
+        allow(Rails).to receive(:cache).and_return(memory_store)
+        Rails.cache.clear
+      end
+
       it 'returns a rated disabilities response object' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
           expect { @response = subject.get_rated_disabilities }.to trigger_statsd_increment(
@@ -21,6 +28,12 @@ describe EVSS::DisabilityCompensationForm::Service do
             times: 1,
             value: 1
           )
+
+          # cached
+          expect { subject.get_rated_disabilities }.not_to trigger_statsd_increment(
+            'api.external_http_request.EVSS/DisabilityCompensationForm.success'
+          )
+
           expect(@response).to be_ok
           expect(@response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
           expect(@response.rated_disabilities.count).to eq 2
@@ -49,6 +62,22 @@ describe EVSS::DisabilityCompensationForm::Service do
   describe '#submit_form' do
     let(:valid_form_content) do
       File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
+    end
+
+    context 'with a 503 error' do
+      it 'raises a service unavailable exception' do
+        expect_any_instance_of(described_class).to receive(:perform).and_raise(
+          Common::Client::Errors::ClientError.new(
+            'the server responded with status 503',
+            503,
+            '<html><body><h1>503 Service Unavailable</h1>No server is available to handle this request.</body></html>'
+          )
+        )
+
+        expect do
+          subject.submit_form526(valid_form_content)
+        end.to raise_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
+      end
     end
 
     context 'with valid input' do

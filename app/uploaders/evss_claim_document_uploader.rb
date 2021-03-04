@@ -4,9 +4,10 @@
 class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include CarrierWave::MiniMagick
   include SetAWSConfig
+  include ValidateEVSSFileSize
 
   def size_range
-    1.byte...50.megabytes
+    1.byte...150.megabytes
   end
 
   version :converted, if: :tiff? do
@@ -55,7 +56,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     store_dir
   end
 
-  def extension_whitelist
+  def extension_allowlist
     %w[pdf gif tiff tif jpeg jpg bmp txt]
   end
 

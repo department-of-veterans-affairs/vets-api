@@ -78,7 +78,7 @@ module PdfFill
               question_text: 'DATE OF BIRTH'
             }
           },
-          'VAFileNumber' => {
+          'vaFileNumber' => {
             key: 'F[0].Page_1[0].VAFileNumber[0]',
             limit: 8,
             question_num: 1,
@@ -117,18 +117,11 @@ module PdfFill
           }
         }, # end claimantInformation
         'claimantAddress' => {
-          'addressLine1' => {
+          'street' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]',
             limit: 30,
             question_num: 3,
             question_suffix: 'A',
-            question_text: 'MAILING ADDRESS'
-          },
-          'addressLine2' => {
-            key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
-            limit: 5,
-            question_num: 3,
-            question_suffix: 'B',
             question_text: 'MAILING ADDRESS'
           },
           'city' => {
@@ -138,7 +131,7 @@ module PdfFill
             question_suffix: 'C',
             question_text: 'MAILING ADDRESS'
           },
-          'stateCode' => {
+          'state' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_StateOrProvince[0]',
             limit: 2,
             question_num: 3,
@@ -242,7 +235,7 @@ module PdfFill
             question_text: 'DATE OF BIRTH'
           }
         },
-        'VAFileNumber' => {
+        'vaFileNumber' => {
           key: 'F[0].Page_1[0].VETERANS_VAFileNumber[0]',
           limit: 8,
           question_num: 6,
@@ -274,10 +267,22 @@ module PdfFill
           'year' => {
             key: 'F[0].Page_2[0].DOByear[0]'
           }
-        } # end date_signed
+        }, # end date_signed
+        'claimantName' => { key: 'claimantName' },
+        'claimantSsn' => { key: 'claimantSsn' },
+        'claimantDob' => { key: 'claimantDob' },
+        'claimantVaFileNumber' => { key: 'claimantVaFileNumber' },
+        'claimantEmail' => { key: 'claimantEmail' },
+        'claimantRelationship' => { key: 'claimantRelationship' },
+        'claimantTelephone' => { key: 'claimantTelephone' },
+        'claimantMailingAddress' => { key: 'claimantMailingAddress' },
+        'veteranName' => { key: 'veteranName' },
+        'veteranSocialSecurityNumber' => { key: 'veteranSocialSecurityNumber' },
+        'veteranVaFileNumber' => { key: 'veteranVaFileNumber' }
       }.freeze
 
       def merge_fields(_options = {})
+        merge_addendum_helpers
         merge_claimant_helpers
         merge_veteran_helpers
 
@@ -309,9 +314,11 @@ module PdfFill
         expand_phone_number
 
         # extract postal code and country
-        claimant_address = @form_data['claimantAddress']
-        claimant_address['postalCode'] = split_postal_code(claimant_address)
-        claimant_address['country'] = extract_country(claimant_address)
+        claimant_addr = @form_data['claimantAddress']
+        claimant_addr['postalCode'] = split_postal_code(claimant_addr)
+        claimant_addr['country'] = extract_country(claimant_addr)
+
+        claimant_addr['street'] = "#{claimant_addr['street']} #{claimant_addr['street2']} #{claimant_addr['street3']}"
       end
 
       def merge_veteran_helpers
@@ -356,6 +363,21 @@ module PdfFill
         return @form_data['veteranSsn'] = split_ssn(ssn.delete('-')) if ssn.present?
 
         @form_data['veteranSsn'] = @form_data.dig('claimantInformation', 'ssn')
+      end
+
+      def merge_addendum_helpers
+        @form_data['claimantName'] = combine_full_name(@form_data.dig('claimantInformation', 'fullName'))
+        @form_data['claimantSsn'] = @form_data.dig('claimantInformation', 'ssn')
+        @form_data['claimantDob'] = @form_data.dig('claimantInformation', 'dateOfBirth')
+        @form_data['claimantVaFileNumber'] = @form_data.dig('claimantInformation', 'vaFileNumber')
+        # possible values for relationship: ['isActiveDuty', 'isVeteran', 'isSpouse', 'isChild']
+        # on the PDF we want to remove the 'is' from the beginning of each of those values
+        @form_data['claimantRelationship'] = @form_data.dig('status')[2..]
+        @form_data['claimantEmail'] = @form_data.dig('claimantInformation', 'emailAddress')
+        @form_data['claimantTelephone'] = @form_data.dig('claimantInformation', 'phoneNumber')
+        @form_data['claimantMailingAddress'] = combine_full_address(@form_data.dig('claimantAddress'))
+        @form_data['veteranName'] = combine_full_name(@form_data.dig('veteranFullName'))
+        @form_data['veteranVaFileNumber'] = @form_data.dig('vaFileNumber')
       end
     end
   end

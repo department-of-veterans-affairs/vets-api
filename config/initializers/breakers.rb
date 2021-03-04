@@ -19,7 +19,6 @@ require 'evss/gi_bill_status/service'
 require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
 require 'facilities/bulk_configuration'
-require 'facilities/ppms/v0/configuration'
 require 'facilities/ppms/v1/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
@@ -30,8 +29,9 @@ require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
 require 'search/configuration'
+require 'search_click_tracking/configuration'
 require 'okta/configuration'
-require 'vet360/contact_information/configuration'
+require 'va_profile/contact_information/configuration'
 require 'iam_ssoe_oauth/configuration'
 
 # Read the redis config, create a connection and a namespace for breakers
@@ -60,7 +60,6 @@ services = [
   Gibft::Configuration.instance.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
-  Facilities::PPMS::V0::Configuration.instance.breakers_service,
   Facilities::PPMS::V1::Configuration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
@@ -68,8 +67,9 @@ services = [
   MPI::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
-  Vet360::ContactInformation::Configuration.instance.breakers_service,
+  VAProfile::ContactInformation::Configuration.instance.breakers_service,
   Search::Configuration.instance.breakers_service,
+  SearchClickTracking::Configuration.instance.breakers_service,
   Okta::Configuration.instance.breakers_service,
   VAOS::Configuration.instance.breakers_service,
   IAMSSOeOAuth::Configuration.instance.breakers_service,

@@ -107,12 +107,12 @@ RSpec.describe 'user', type: :request do
       it 'includes a mobile phone number' do
         expect(attributes['profile']['mobilePhoneNumber']).to include(
           {
-            'id' => 791,
+            'id' => 790,
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
             'phoneNumber' => '5551234',
-            'phoneType' => 'WORK'
+            'phoneType' => 'MOBILE'
           }
         )
       end
@@ -120,12 +120,12 @@ RSpec.describe 'user', type: :request do
       it 'includes a work phone number' do
         expect(attributes['profile']['workPhoneNumber']).to include(
           {
-            'id' => 790,
+            'id' => 791,
             'areaCode' => '303',
             'countryCode' => '1',
             'extension' => nil,
             'phoneNumber' => '5551234',
-            'phoneType' => 'MOBILE'
+            'phoneType' => 'WORK'
           }
         )
       end
@@ -192,7 +192,7 @@ RSpec.describe 'user', type: :request do
 
     context 'when the upstream va profile service returns an error' do
       before do
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
@@ -207,7 +207,7 @@ RSpec.describe 'user', type: :request do
 
     context 'when the va profile service throws an error' do
       before do
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           ArgumentError.new
         )
       end
@@ -217,6 +217,13 @@ RSpec.describe 'user', type: :request do
 
         expect(response).to have_http_status(:internal_server_error)
         expect(response.body).to match_json_schema('errors')
+      end
+    end
+
+    context 'after a profile request' do
+      it 'kicks off a pre cache appointments job' do
+        expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
+        get '/mobile/v0/user', headers: iam_headers
       end
     end
   end
@@ -230,7 +237,6 @@ RSpec.describe 'user', type: :request do
       end
 
       it 'returns an ok response' do
-        puts response.body
         expect(response).to have_http_status(:ok)
       end
     end
