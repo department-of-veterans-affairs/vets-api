@@ -34,13 +34,6 @@ RSpec.describe EducationForm::Create10203ApplicantDecisionLetters, type: :model,
                education_stem_automated_decision: build(:education_stem_automated_decision, :with_poa, :denied))
       end
 
-      it 'sends an email' do
-        expect(StemApplicantDenialMailer).to receive(:build)
-        expect { subject.perform }.to change {
-          ActionMailer::Base.deliveries.count
-        }.by(count)
-      end
-
       it 'logs number of applications being processed' do
         expect(subject).to receive('log_info')
           .with("Processing #{count} denied application(s)")
