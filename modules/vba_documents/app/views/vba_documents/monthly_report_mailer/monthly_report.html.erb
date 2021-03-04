@@ -10,6 +10,7 @@
     <th>PROCESSING *</th>
     <th>SUCCESS</th>
     <th>VBMS</th>
+    <th>TOTAL SUBMISSIONS</th>
   </tr>
   </thead>
   <tbody>
@@ -21,6 +22,7 @@
       <td style="text-align: right"><%= row['processing'] %></td>
       <td style="text-align: right"><%= row['success'] %></td>
       <td style="text-align: right"><%= row['vbms'] %></td>
+      <td style="text-align: right"><%= row['total'] %></td>
     </tr>
   <% end if @monthly_totals %>
   </tbody>
@@ -33,6 +35,7 @@
       <td style="text-align: right"><%= @summary_totals['processing'] %></td>
       <td style="text-align: right"><%= @summary_totals['success'] %></td>
       <td style="text-align: right"><%= @summary_totals['vbms'] %></td>
+      <td style="text-align: right"><%= @summary_totals['total'] %></td>
     </tr>
   <% end %>
   </tfoot>
@@ -40,14 +43,18 @@
 <h5>* Processing statuses include: uploaded, received, and processing</h5>
 <br>
 <br>
-<h2>Prior Twelve Months - Average Time to Completion (Success/VBMS)</h2>
+<h2>Prior Twelve Months - Average Time to VBMS</h2>
 <table>
   <thead>
   <tr>
     <th>YEAR</th>
     <th>MONTH</th>
     <th>COUNT</th>
-    <th>AVERAGE TIME TO COMPLETE</th>
+    <th>AVERAGE TIME TO VBMS</th>
+    <th>MAX PAGE COUNT</th>
+    <th>AVERAGE PAGE COUNT</th>
+    <th>MEDIAN PAGE COUNT</th>
+    <th>MODE PAGE COUNT</th>
   </tr>
   </thead>
   <tbody>
@@ -55,8 +62,12 @@
     <tr>
       <td><%= row['yyyy'] %></td>
       <td><%= Date::MONTHNAMES[row['mm']] %></td>
-      <td style="text-align: right"><%= row['count'] %></td>
-      <td style="text-align: right"><%= row['avg_time'] %></td>
+      <td style="text-align: right"><%= row['count'].to_s %></td>
+      <td style="text-align: right"><%= row['avg_time'].to_s %></td>
+      <td style="text-align: right"><%= row['max_pages'].to_s %></td>
+      <td style="text-align: right"><%= row['avg_pages'].to_s %></td>
+      <td style="text-align: right"><%= row['median_pages'].to_s %></td>
+      <td style="text-align: right"><%= row['mode_pages'].to_s %></td>
     </tr>
   <% end if @avg_processing_time %>
   </tbody>
