@@ -42,11 +42,11 @@ RSpec.describe 'permission', type: :request do
         end
       end
 
-      it 'creates a new AsyncTransaction::Vet360::PermissionTransaction db record' do
+      it 'creates a new AsyncTransaction::VAProfile::PermissionTransaction db record' do
         VCR.use_cassette('va_profile/contact_information/post_permission_success') do
           expect do
             post('/v0/profile/permissions', params: permission.to_json, headers: headers)
-          end.to change(AsyncTransaction::Vet360::PermissionTransaction, :count).from(0).to(1)
+          end.to change(AsyncTransaction::VAProfile::PermissionTransaction, :count).from(0).to(1)
         end
       end
     end
@@ -111,11 +111,11 @@ RSpec.describe 'permission', type: :request do
         end
       end
 
-      it 'creates a new AsyncTransaction::Vet360::PermissionTransaction db record' do
+      it 'creates a new AsyncTransaction::VAProfile::PermissionTransaction db record' do
         VCR.use_cassette('va_profile/contact_information/put_permission_success') do
           expect do
             put('/v0/profile/permissions', params: permission.to_json, headers: headers)
-          end.to change(AsyncTransaction::Vet360::PermissionTransaction, :count).from(0).to(1)
+          end.to change(AsyncTransaction::VAProfile::PermissionTransaction, :count).from(0).to(1)
         end
       end
     end
