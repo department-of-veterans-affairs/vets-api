@@ -26,14 +26,6 @@ module Okta
       end
     end
 
-    def call_no_token(action, url)
-      connection.send(action) do |req|
-        req.url url
-        req.headers['Content-Type'] = 'application/json'
-        req.headers['Accept'] = 'application/json'
-      end
-    end
-
     def app(app_id)
       with_monitoring do
         get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}")
@@ -83,23 +75,12 @@ module Okta
       end
     end
 
-    def oidc_jwks_keys(iss)
-      url = metadata(iss).body['jwks_uri']
-      with_monitoring do
-        get_url_no_token(url)
-      end
-    end
-
     private
 
     %i[get post put delete].each do |http_verb|
       define_method("#{http_verb}_url_with_token".to_sym) do |url|
         Okta::Response.new call_with_token(http_verb, url)
       end
-    end
-
-    def get_url_no_token(url)
-      Okta::Response.new call_no_token('get', url)
     end
   end
 end

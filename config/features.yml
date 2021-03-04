@@ -292,10 +292,38 @@ features:
     actor_type: user
     description: >
       This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
+  cerner_override_463:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 463 as `isCerner`.
+  cerner_override_531:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 531 as `isCerner`.
+  cerner_override_648:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 648 as `isCerner`.
+  cerner_override_653:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 653 as `isCerner`.
+  cerner_override_663:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 663 as `isCerner`.
   cerner_override_668:
     actor_type: user
     description: >
       This will show the Cerner facility 668 as `isCerner`.
+  cerner_override_687:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 687 as `isCerner`.
+  cerner_override_692:
+    actor_type: user
+    description: >
+      This will show the Cerner facility 692 as `isCerner`.
   cerner_override_757:
     actor_type: user
     description: >
@@ -308,10 +336,6 @@ features:
     actor_type: user
     description: >
       API endpoints consumed by the VA Mobile App (iOS/Android)
-  show_chapter_36:
-    actor_type: user
-    description: >
-      This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 36 form
   show_chapter_31:
     actor_type: user
     description: >
