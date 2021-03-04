@@ -53,11 +53,7 @@ module EducationForm
     def inform_on_error(claim, error = nil)
       region = EducationFacility.facility_for(region: :eastern)
       StatsD.increment("worker.education_benefits_claim.applicant_denial_letter.#{region}.22-#{claim.form_type}")
-      exception = if error.present?
-                    FormattingError.new("Could not email denial letter for #{claim.confirmation_number}.\n\n#{error}")
-                  else
-                    FormattingError.new("Could not email denial letter for #{claim.confirmation_number}")
-                  end
+      exception = FormattingError.new("Could not email denial letter for #{claim.confirmation_number}.\n\n#{error}")
       log_exception_to_sentry(exception)
     end
 
