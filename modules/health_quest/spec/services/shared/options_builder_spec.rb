@@ -11,6 +11,7 @@ describe HealthQuest::Shared::OptionsBuilder do
   let(:appt_filter) { { resource_name: 'appointment' } }
   let(:q_filter) { { resource_name: 'questionnaire' } }
   let(:loc_filter) { { resource_name: 'location' } }
+  let(:org_filter) { { resource_name: 'organization' } }
   let(:lighthouse) { Settings.hqva_mobile.lighthouse }
 
   describe '.manufacture' do
@@ -78,6 +79,14 @@ describe HealthQuest::Shared::OptionsBuilder do
     end
   end
 
+  describe '#organization_ids' do
+    let(:filters) { org_filter.merge!('_id': '123abc,456def').with_indifferent_access }
+
+    it 'has a organization_ids' do
+      expect(options_builder.organization_ids).to eq('123abc,456def')
+    end
+  end
+
   describe '#appointment_reference' do
     let(:filters) { qr_filter.merge!(subject: '123').with_indifferent_access }
 
@@ -116,6 +125,14 @@ describe HealthQuest::Shared::OptionsBuilder do
 
     context 'when resource is location' do
       let(:filters) { loc_filter.merge!('_id': '123abc,456def').with_indifferent_access }
+
+      it 'has relevant keys' do
+        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[_id])
+      end
+    end
+
+    context 'when resource is organization' do
+      let(:filters) { org_filter.merge!('_id': '123abc,456def').with_indifferent_access }
 
       it 'has relevant keys' do
         expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[_id])
@@ -169,6 +186,17 @@ describe HealthQuest::Shared::OptionsBuilder do
     context 'when resource is location' do
       context 'when _id' do
         let(:filters) { loc_filter.merge!('_id': '123abc,456def').with_indifferent_access }
+
+        it 'returns an _id hash' do
+          expect(options_builder.to_hash)
+            .to eq({ '_id': '123abc,456def' })
+        end
+      end
+    end
+
+    context 'when resource is organization' do
+      context 'when _id' do
+        let(:filters) { org_filter.merge!('_id': '123abc,456def').with_indifferent_access }
 
         it 'returns an _id hash' do
           expect(options_builder.to_hash)
