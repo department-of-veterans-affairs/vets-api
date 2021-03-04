@@ -17,7 +17,7 @@ module VEText
     #
     # @app_sid String        the identifier specific to the Mobile App
     # @device_token String   the unique token for the user's device
-    # @icn String            the user's unique id in MVI
+    # @icn String            the Integration Control Number of the Veteran
     # @os_name String        the operating system name from the device
     # @os_version String     the operating system version number from the device
     # @device_name String    (optional) the name of the device
@@ -36,9 +36,19 @@ module VEText
           deviceName: device_name || os_name
         }
       )
+      raise_if_response_error(response.body)
       response.body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
+    end
+
+    # Raise an error if the service returned an error in the
+    # body of a 200 response
+    #
+    def raise_if_response_error(body)
+      if body[:success] == false
+        raise VEText::ResponseError.new(body)
+      end
     end
 
     # Get preferences for a given user/device.
