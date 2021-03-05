@@ -30,7 +30,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_to_vre(user)
     prepare_form_data
-    office_location = check_office_location(user)
+    office_location = check_office_location
 
     upload_to_vbms
 
@@ -61,8 +61,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   private
 
-  def check_office_location(user)
-    service = bgs_client(user)
+  def check_office_location
+    service = bgs_client
     vet_info = parsed_form['veteranAddress']
 
     regional_office_response = service.routing.get_regional_office_by_zip_code(
@@ -70,13 +70,15 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     regional_office_response[:regional_office][:number]
+  rescue StandardError => e
+    { regional_office: {number: '000'} }
   end
 
-  def bgs_client(user)
-    external_key = user.common_name || user.email
+  def bgs_client
+    external_key = parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
 
     @service ||= BGS::Services.new(
-      external_uid: user.icn || user.uuid,
+      external_uid: parsed_form['email'],
       external_key: external_key
     )
   end
