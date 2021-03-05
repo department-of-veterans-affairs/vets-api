@@ -70,8 +70,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     regional_office_response[:regional_office][:number]
-  rescue StandardError => e
-    { regional_office: {number: '000'} }
+  rescue => e
+    log_message_to_sentry(e.message, :warn, {}, { team: 'vfs-ebenefits' })
+    '000'
   end
 
   def bgs_client
