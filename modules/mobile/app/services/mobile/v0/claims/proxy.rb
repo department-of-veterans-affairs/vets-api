@@ -7,7 +7,7 @@ module Mobile
     module Claims
       class Proxy
         STATSD_UPLOAD_LATENCY = 'mobile.api.claims.upload.latency'
-        
+
         def initialize(user)
           @user = user
         end
@@ -23,48 +23,48 @@ module Mobile
           data = serialize_list(full_list.flatten)
 
           status = case errors.size
-                        when 1
-                          :multi_status
-                        when 2
-                          :bad_gateway
-                        else
-                          :ok
-                        end
+                   when 1
+                     :multi_status
+                   when 2
+                     :bad_gateway
+                   else
+                     :ok
+                   end
 
           { data: data, errors: errors, status: status }
         end
-        
+
         def get_claim(id)
           claim = claims_scope.find_by(evss_id: id)
           raise Common::Exceptions::RecordNotFound, id unless claim
-  
+
           raw_claim = claims_service.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
           claim.update(data: raw_claim)
           EVSSClaimDetailSerializer.new(claim)
         end
-        
+
         def get_appeal(id)
           appeals = appeals_service.get_appeals(@user).body['data']
           appeal = appeals.select { |entry| entry.dig('id') == id }[0]
           raise Common::Exceptions::RecordNotFound, id unless appeal
-  
+
           serializable_resource = OpenStruct.new(appeal['attributes'])
           serializable_resource[:id] = appeal['id']
           serializable_resource[:type] = appeal['type']
           serializable_resource
         end
-        
+
         def request_decision(id)
           claim = EVSSClaim.for_user(current_user).find_by(evss_id: id)
           jid = evss_claim_service.request_decision(claim)
           Rails.logger.info('Mobile Request', {
-            claim_id: params[:id],
-            job_id: jid
-          })
+                              claim_id: params[:id],
+                              job_id: jid
+                            })
           claim.update(requested_decision: true)
           jid
         end
-        
+
         def upload_documents(params)
           start_timer = Time.zone.now
           params.require :file
@@ -72,20 +72,24 @@ module Mobile
           file = params[:file]
           claim = claims_scope.find_by(evss_id: id)
           raise Common::Exceptions::RecordNotFound, id unless claim
-  
+
           file_to_upload = params[:multifile] ? generate_multi_image_pdf(file) : file
           document_data = EVSSClaimDocument.new(evss_claim_id: id, file_obj: file_to_upload,
-            uuid: SecureRandom.uuid, file_name: file_to_upload.original_filename,
-            tracked_item_id: params[:tracked_item_id],
-            document_type: params[:document_type], password: params[:password])
+                                                uuid: SecureRandom.uuid, file_name: file_to_upload.original_filename,
+                                                tracked_item_id: params[:tracked_item_id],
+                                                document_type: params[:document_type], password: params[:password])
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
-  
+
           jid = evss_claim_service.upload_document(document_data)
           Rails.logger.info('Mobile Request', { claim_id: id, job_id: jid })
-          StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ["is_multifile:#{params[:multifile]}"])
+          StatsD.measure(
+            STATSD_UPLOAD_LATENCY,
+            Time.zone.now - start_timer,
+            tags: ["is_multifile:#{params[:multifile]}"]
+          )
           jid
         end
-        
+
         def cleanup_after_upload
           (FileUtils.rm_rf(@base_path) if File.exist?(@base_path)) if @base_path
         end

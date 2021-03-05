@@ -8,16 +8,16 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
     iam_sign_in
     Sidekiq::Worker.clear_all
   end
-  
+
   before(:all) do
     @original_cassette_dir = VCR.configure(&:cassette_library_dir)
     VCR.configure { |c| c.cassette_library_dir = 'modules/mobile/spec/support/vcr_cassettes' }
   end
-  
+
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
-  
+
   let(:user) { FactoryBot.build(:iam_user) }
-  
+
   describe '.perform_async' do
     context 'with no errors' do
       it 'caches the expected claims and appeals' do
@@ -27,13 +27,13 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
             subject.perform(user.uuid)
             expect(JSON.parse(Mobile::V0::ClaimOverview.get_cached(user)).first).to eq(
               {
-                "id" => "SC1678",
-                "type" => "appeal",
-                "attributes" => {
-                  "subtype" => "supplementalClaim",
-                  "completed" => false,
-                  "date_filed" => "2020-09-23",
-                  "updated_at" => "2020-09-23T00:00:00-07:00"
+                'id' => 'SC1678',
+                'type' => 'appeal',
+                'attributes' => {
+                  'subtype' => 'supplementalClaim',
+                  'completed' => false,
+                  'date_filed' => '2020-09-23',
+                  'updated_at' => '2020-09-23T00:00:00-07:00'
                 }
               }
             )
