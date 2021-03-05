@@ -6,3 +6,7 @@ en:
         hearing_type_preference_missing: "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
         nod_not_found: "NoticeOfDisagreement with uuid %{id} not found."
         not_homeless_address_missing: "If not homeless, address must be provided: '/data/attributes/veteran/address'"
+      evidence_submission:
+        max_dimensions_error: "File exceeds the maximum page dimensions."
+        max_file_size_error: "File is too large."
+        pdf_read_error: "File must be in PDF format."

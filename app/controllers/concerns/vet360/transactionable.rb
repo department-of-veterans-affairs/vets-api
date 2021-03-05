@@ -8,7 +8,7 @@ module Vet360
     extend ActiveSupport::Concern
 
     def check_transaction_status!
-      transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
+      transaction = AsyncTransaction::VAProfile::Base.refresh_transaction_status(
         @current_user,
         service,
         params[:transaction_id]

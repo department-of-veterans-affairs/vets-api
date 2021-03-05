@@ -46,7 +46,7 @@ module AppealsApi
           def hearing_type_text
             return if no_hearing_type?
 
-            "\nHearing Type Preference: #{form_data.hearing_type_preference.humanize}\n"
+            "\n<b>Hearing Type Preference:</b>\n#{form_data.hearing_type_preference.humanize}\n"
           end
 
           def extra_issues_table_data

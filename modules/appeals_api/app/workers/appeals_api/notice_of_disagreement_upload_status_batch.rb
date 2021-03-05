@@ -6,7 +6,8 @@ module AppealsApi
   class NoticeOfDisagreementUploadStatusBatch
     include Sidekiq::Worker
 
-    sidekiq_options 'retry': true, unique_until: :success
+    # No need to retry since the schedule will run this every hour
+    sidekiq_options retry: false
 
     def perform
       return unless enabled? && notice_of_disagreement_ids.present?
