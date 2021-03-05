@@ -17,8 +17,8 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
     max_avg_pages = 'monthly_report/monthly_max_avg_pages.yml'
 
     it 'sends mail' do
-      with_settings(Settings.vba_documents.monthly_report, enabled: true) do
-        last_month_start =  Date.parse('01-02-2021')
+      with_settings(Settings.vba_documents, monthly_report: true) do
+        last_month_start = Date.parse('01-02-2021')
         last_month_end = Date.parse('01-03-2021')
         two_months_ago_start = Date.parse('01-01-2021')
 
@@ -35,14 +35,14 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
           rval = get_fixture_yml(still_processing) if sql.eql? proc_sql
           rval = get_fixture_yml(avg_times) if sql.eql? avg_sql
           rval = get_fixture_yml(mode_pages) if sql.eql? mode_sql
-          rval = [{'median_pages' => 5}] if sql.eql? median_sql
+          rval = [{ 'median_pages' => 5 }] if sql.eql? median_sql
           rval = get_fixture_yml(max_avg_pages) if sql.eql? max_avg_pages_sql
           rval
         end
 
         expect(VBADocuments::MonthlyReportMailer).to receive(:build).once.with(
-            get_fixture_yml(monthly_counts), get_fixture_yml(summary), get_fixture_yml(still_processing),
-            get_fixture_yml(avg_and_pages), last_month_start, last_month_end, two_months_ago_start
+          get_fixture_yml(monthly_counts), get_fixture_yml(summary), get_fixture_yml(still_processing),
+          get_fixture_yml(avg_and_pages), last_month_start, last_month_end, two_months_ago_start
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
                      end)

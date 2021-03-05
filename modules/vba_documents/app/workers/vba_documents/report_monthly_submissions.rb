@@ -6,7 +6,6 @@ require 'date'
 module VBADocuments
   class ReportMonthlySubmissions
     include Sidekiq::Worker
-    # attr_reader :monthly_counts
 
     MONTHLY_COUNT_SQL = "
       select
@@ -93,7 +92,7 @@ module VBADocuments
 
     # rubocop:disable Metrics/MethodLength
     def perform
-      if Settings.vba_documents.monthly_report.enabled
+      if Settings.vba_documents.monthly_report
         # get reporting date ranges
         last_month_start = (Date.current - 1.month).beginning_of_month
         last_month_end = Date.current.beginning_of_month
