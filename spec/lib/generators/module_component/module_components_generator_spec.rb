@@ -98,6 +98,11 @@ RSpec.describe 'ModuleComponent', type: :generator do
       ModuleGenerator.new(['foo']).create_directory_structure
     end
 
+    # this prevents a prompt about overwriting configuration.rb if tests are run out of order
+    before do
+      FileUtils.rm_f(Dir[Rails.root.join('modules', 'foo', 'app', 'services', 'foo', 'v0', 'configuration.rb')])
+    end
+
     after(:all) { FileUtils.rm_rf(Dir[Rails.root.join('modules', 'foo')]) }
 
     let(:path) { Rails.root.join('modules', 'foo', 'app', 'services') }
@@ -108,7 +113,6 @@ RSpec.describe 'ModuleComponent', type: :generator do
         module_gen.create_component
         expect(File).to exist("#{path}/foo/v0/bar_service.rb")
         expect(File).to exist("#{path}/foo/v0/configuration.rb")
-        FileUtils.rm_f(Dir[Rails.root.join('modules', 'foo', 'app', 'services', 'foo', 'v0', 'configuration.rb')])
       end
     end
 
