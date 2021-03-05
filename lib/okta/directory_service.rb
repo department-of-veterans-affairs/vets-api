@@ -21,7 +21,7 @@ module Okta
     def handle_health_server
       server = @okta_service.get_auth_server(Settings.directory.health_server_id)
       scopes = @okta_service.get_server_scopes(server.body['id'])
-      remove_okta_base_scopes(scopes)
+      remove_scope_keys(scopes)
     end
 
     def handle_nonhealth_server(category)
@@ -30,18 +30,21 @@ module Okta
       return server if server.empty?
 
       scopes = @okta_service.get_server_scopes(server[0]['id'])
-      remove_okta_base_scopes(scopes)
+      remove_scope_keys(scopes)
     end
 
-    def remove_okta_base_scopes(scopes)
+    def remove_scope_keys(scopes)
       # Removing unneccesary key/value pairs from the Okta Response.
       # Our response only requires the names and description
       parsed_scopes = scopes.body.each do |item|
-        item.select! { |k, _v| %w[name displayName description].include?(k) }
+        item.select! { |k, _v| %w[name displayName description].include?(k.to_s) }
       end
       # Removing the default scopes assigned to each Okta Authorization Server
-      parsed_scopes.delete_if { |scope| DEFAULT_OKTA_SCOPES.include? scope['name'] }
-      parsed_scopes
+      remove_base_okta_scopes(parsed_scopes)
+    end
+
+    def remove_base_okta_scopes(scopes)
+      scopes.delete_if { |scope| DEFAULT_OKTA_SCOPES.include? scope['name'] }
     end
   end
 end
