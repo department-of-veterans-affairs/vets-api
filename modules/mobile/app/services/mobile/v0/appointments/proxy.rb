@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/client'
+
 module Mobile
   module V0
     module Appointments

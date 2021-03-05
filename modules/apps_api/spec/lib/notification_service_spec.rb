@@ -19,7 +19,8 @@ describe AppsApi::NotificationService do
       'outcome' => {
         'result' => 'FAILED'
       },
-      'published' => '2020-10-01T17:37:49.538Z',
+      'published' => '2020-11-29T00:23:39.508Z',
+      'uuid' => '1234fakeuuid',
       'target' => [
         {
           'id' => 'oagke4gvwYHTncxlI2p6',
@@ -44,7 +45,8 @@ describe AppsApi::NotificationService do
       'outcome' => {
         'result' => 'SUCCESS'
       },
-      'published' => '2020-10-01T17:37:49.538Z',
+      'published' => '2020-11-29T00:23:39.508Z',
+      'uuid' => '1234fakeuuid',
       'target' => [
         {
           'id' => 'oagke4gvwYHTncxlI2p6',
@@ -68,7 +70,7 @@ describe AppsApi::NotificationService do
       'outcome' => {
         'result' => 'SUCCESS'
       },
-      'published' => '2020-10-08T18=>08=>41.204Z',
+      'published' => '2020-11-29T00:23:39.508Z',
       'target' => [
         {
           'id' => '{token_id}',
@@ -94,7 +96,7 @@ describe AppsApi::NotificationService do
       'outcome' => {
         'result' => 'SUCCESS'
       },
-      'published' => '2020-10-08T18=>08=>41.204Z',
+      'published' => '2020-11-29T00:23:39.508Z',
       'target' => [
         {
           'id' => '{token_id}',
@@ -125,12 +127,12 @@ describe AppsApi::NotificationService do
                                 tos_url: '123.com')
   end
 
-  let(:published) { '2020-10-08T18=>08=>41.204' }
+  let(:published) { '2020-11-29T00:23:39.508Z' }
   let(:returned_hash) do
     subject.create_hash(
       app_record: directory_app,
       user: user_struct,
-      published: published
+      event: valid_connection_event
     )
   end
   let(:directory_app_struct) do
@@ -225,22 +227,52 @@ describe AppsApi::NotificationService do
   describe 'validating events' do
     context 'and the event is a connection' do
       it 'does not validate invalid connection events' do
-        expect(subject.event_is_invalid(invalid_connection_event)).to be(true)
+        expect(subject.event_is_invalid?(invalid_connection_event)).to be(true)
       end
 
       it 'validates valid connection events' do
-        expect(subject.event_is_invalid(valid_connection_event)).to be(false)
+        expect(subject.event_is_invalid?(valid_connection_event)).to be(false)
       end
     end
 
     context 'and the event is a disconnection' do
       it 'does not validate invalid disconnection events' do
-        expect(subject.event_is_invalid(invalid_disconnection_event)).to be(true)
+        expect(subject.event_is_invalid?(invalid_disconnection_event)).to be(true)
       end
 
       it 'validates valid disconnection events' do
-        expect(subject.event_is_invalid(valid_disconnection_event)).to be(false)
+        expect(subject.event_is_invalid?(valid_disconnection_event)).to be(false)
       end
+    end
+
+    context 'when the event has already been processed' do
+      it 'does not process an event that has already been processed' do
+        subject.instance_variable_set(:@handled_events, ['1234fakeuuid'])
+        expect(subject.event_is_invalid?(invalid_connection_event)).to be(true)
+      end
+
+      it 'ignores events that have not been processed' do
+        expect(subject.event_is_invalid?(valid_connection_event)).to be(false)
+      end
+    end
+  end
+
+  describe 'event_already_handled?' do
+    it 'correctly checks if an event uuid has been processed' do
+      subject.instance_variable_set(:@handled_events, ['1234fakeuuid'])
+      expect(subject.event_already_handled?(invalid_connection_event['uuid'])).to be(true)
+    end
+  end
+
+  describe 'event_unsuccessful?' do
+    it 'parses connection events as expected' do
+      expect(subject.event_unsuccessful?(valid_connection_event)).to be(false)
+      expect(subject.event_unsuccessful?(invalid_connection_event)).to be(true)
+    end
+
+    it 'handles disconnection events as expected' do
+      expect(subject.event_unsuccessful?(valid_disconnection_event)).to be(false)
+      expect(subject.event_unsuccessful?(invalid_connection_event)).to be(true)
     end
   end
 
@@ -250,8 +282,15 @@ describe AppsApi::NotificationService do
       expect(returned_hash['user_email']).to eq('johndoe@email.com')
       expect(returned_hash['options'].size).to eq(6)
       expect(returned_hash['options']['first_name']).to eq('John')
-      expect(returned_hash['options']['time']).to eq('2020-10-08T18=>08=>41.204')
+      expect(returned_hash['options']['time']).to eq('11/29/2020 at 00:23:39:23AM')
       expect(returned_hash['options']['privacy_policy']).to eq('123.com')
+      expect(returned_hash['uuid']).to eq('1234fakeuuid')
+    end
+  end
+
+  describe 'format_published_time' do
+    it 'parses the published time correctly' do
+      expect(subject.format_published_time(published)).to eq('11/29/2020 at 00:23:39:23AM')
     end
   end
 
@@ -261,7 +300,7 @@ describe AppsApi::NotificationService do
         subject.create_hash(
           app_record: nil,
           user: user_struct,
-          published: '2020-10-08T18=>08=>41.204'
+          event: valid_connection_event
         )
       end
 

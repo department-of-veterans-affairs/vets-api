@@ -21,7 +21,7 @@ module DebtManagementCenter
       type = if type == :compensation
                'Compensation & Pension - Recurring'
              elsif type == :education
-               'Education'
+               'Post-9/11 GI Bill'
              end
 
       selected_payments = @payments.select { |payment| payment[:payment_type] == type }
