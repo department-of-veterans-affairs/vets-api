@@ -6,7 +6,6 @@ module VAProfile
   module Communication
     class Service < VAProfile::Service
       configuration VAProfile::Communication::Configuration
-
     end
   end
 end
