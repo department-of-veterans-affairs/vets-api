@@ -48,13 +48,13 @@ RSpec.describe 'person', type: :request do
         end
       end
 
-      it 'creates a new AsyncTransaction::Vet360::InitializePersonTransaction', :aggregate_failures do
+      it 'creates a new AsyncTransaction::VAProfile::InitializePersonTransaction', :aggregate_failures do
         VCR.use_cassette('va_profile/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           expect do
             post('/v0/profile/initialize_vet360_id', params: empty_body, headers: headers)
-          end.to change { AsyncTransaction::Vet360::InitializePersonTransaction.count }.from(0).to(1)
+          end.to change { AsyncTransaction::VAProfile::InitializePersonTransaction.count }.from(0).to(1)
 
-          expect(AsyncTransaction::Vet360::InitializePersonTransaction.first).to be_valid
+          expect(AsyncTransaction::VAProfile::InitializePersonTransaction.first).to be_valid
         end
       end
 

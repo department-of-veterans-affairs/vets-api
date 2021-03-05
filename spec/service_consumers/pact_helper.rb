@@ -11,7 +11,7 @@ require 'support/authenticated_session_helper'
 require 'support/mpi/stub_mpi'
 require 'support/stub_emis'
 require 'support/stub_session'
-require 'support/vet360/stub_vet360'
+require 'support/va_profile/stub_vet360'
 require 'support/vcr'
 Dir.glob(File.expand_path('provider_states_for/*.rb', __dir__), &method(:require))
 

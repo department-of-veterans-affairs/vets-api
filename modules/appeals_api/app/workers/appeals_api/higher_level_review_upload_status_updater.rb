@@ -6,7 +6,8 @@ module AppealsApi
   class HigherLevelReviewUploadStatusUpdater
     include Sidekiq::Worker
 
-    sidekiq_options 'retry': true, unique_until: :success
+    # Only retry for ~30 minutes since the job that spawns this one runs every hour
+    sidekiq_options retry: 5, unique_until: :success
 
     def perform(ids)
       batch_size = CentralMailUpdater::MAX_UUIDS_PER_REQUEST
