@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 require 'common/models/resource'
-require_relative 'concerns/redis_caching'
 
 module Mobile
   module V0
     class ClaimOverview < Common::Resource
-      include Mobile::V0::RedisCaching
+      include Mobile::V0::Concerns::RedisCaching
 
       redis_config REDIS_CONFIG[:mobile_app_claims_store]
 

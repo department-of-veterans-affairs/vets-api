@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/resource'
-require_relative 'concerns/redis_caching'
 
 module Mobile
   module V0
@@ -12,7 +11,7 @@ module Mobile
     #   Mobile::V0::Adapters::Appointment.new(appointment_hash)
     #
     class Appointment < Common::Resource
-      include Mobile::V0::RedisCaching
+      include Mobile::V0::Concerns::RedisCaching
 
       redis_config REDIS_CONFIG[:mobile_app_appointments_store]
 
