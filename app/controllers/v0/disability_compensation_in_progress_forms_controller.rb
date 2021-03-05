@@ -28,10 +28,8 @@ module V0
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
         end
         evss_rated_disabilites = JSON.parse(rated_disabilities_evss.rated_disabilities.to_json)
-        prased_form_data['ratedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilites)
-        metadata['ratedDisabilitiesUpdated'] = true
+        prased_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilites)
       else
-        metadata['ratedDisabilitiesUpdated'] = false
       end
 
       {
