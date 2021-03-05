@@ -47,7 +47,8 @@ module EducationForm
     private
 
     def processed_at_range
-      (@time - 24.hours)..@time
+      time = Time.zone.now
+      (time - 24.hours)..time
     end
 
     def inform_on_error(claim, error = nil)
