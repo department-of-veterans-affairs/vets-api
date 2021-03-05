@@ -27,15 +27,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         claim.add_claimant_info(user_object)
         claimant_keys = %w[fullName ssn dob VAFileNumber pid edipi vet360ID]
         expect(claim.parsed_form['veteranInformation']).to include(
-                                                             {
-                                                               'fullName' => {
-                                                                 'first' => 'Homer',
-                                                                 'middle' => 'John',
-                                                                 'last' => 'Simpson'
-                                                               },
-                                                               'dob' => '1809-02-12'
-                                                             }
-                                                           )
+          {
+            'fullName' => {
+              'first' => 'Homer',
+              'middle' => 'John',
+              'last' => 'Simpson'
+            },
+            'dob' => '1809-02-12'
+          }
+        )
 
         expect(
           claim.parsed_form['veteranInformation'].keys
@@ -107,7 +107,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         end
       end
     end
-
   end
 
   describe '#regional_office' do
