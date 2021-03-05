@@ -77,7 +77,7 @@ module ClaimsApi
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
-          render json: @claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
+          render json: @claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: @claim.id
         end
 
         def validate_form_526

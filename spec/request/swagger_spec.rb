@@ -2512,7 +2512,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports GETting async transaction by ID' do
         transaction = create(
-          :address_transaction,
+          :va_profile_address_transaction,
           transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
           user_uuid: user.uuid
         )
@@ -2562,7 +2562,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports GETting async person transaction by transaction ID' do
         transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
         transaction = create(
-          :initialize_person_transaction,
+          :va_profile_initialize_person_transaction,
           :init_vet360_id,
           user_uuid: user_without_vet360_id.uuid,
           transaction_id: transaction_id

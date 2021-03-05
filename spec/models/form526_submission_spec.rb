@@ -359,6 +359,8 @@ RSpec.describe Form526Submission do
   end
 
   describe '#perform_ancillary_jobs' do
+    let(:first_name) { 'firstname' }
+
     context 'with (3) uploads' do
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
@@ -366,7 +368,7 @@ RSpec.describe Form526Submission do
 
       it 'queues 1 upload jobs' do
         expect do
-          subject.perform_ancillary_jobs('some name')
+          subject.perform_ancillary_jobs(first_name)
         end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
       end
     end
@@ -378,7 +380,7 @@ RSpec.describe Form526Submission do
 
       it 'queues 1 UploadBddInstructions job' do
         expect do
-          subject.perform_ancillary_jobs('some name')
+          subject.perform_ancillary_jobs(first_name)
         end.to change(EVSS::DisabilityCompensationForm::UploadBddInstructions.jobs, :size).by(1)
       end
     end
@@ -390,7 +392,7 @@ RSpec.describe Form526Submission do
 
       it 'queues a 4142 job' do
         expect do
-          subject.perform_ancillary_jobs('some name')
+          subject.perform_ancillary_jobs(first_name)
         end.to change(CentralMail::SubmitForm4142Job.jobs, :size).by(1)
       end
     end
@@ -402,7 +404,7 @@ RSpec.describe Form526Submission do
 
       it 'queues a 0781 job' do
         expect do
-          subject.perform_ancillary_jobs('some name')
+          subject.perform_ancillary_jobs(first_name)
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm0781.jobs, :size).by(1)
       end
     end
@@ -414,54 +416,43 @@ RSpec.describe Form526Submission do
 
       it 'queues a 8940 job' do
         expect do
-          subject.perform_ancillary_jobs('some name')
+          subject.perform_ancillary_jobs(first_name)
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
       end
     end
   end
 
-  describe '#get_full_name' do
+  describe '#get_first_name' do
     [
       {
-        input:
-          {
-            first_name: 'Joe',
-            middle_name: 'Doe',
-            last_name: 'Smith',
-            suffix: 'Jr.'
-          },
-        expected: 'JOE DOE SMITH JR.'
+        input: 'Joe',
+        expected: 'JOE'
       },
       {
-        input:
-          {
-            first_name: 'Joe',
-            middle_name: nil,
-            last_name: 'Smith',
-            suffix: nil
-          },
-        expected: 'JOE SMITH'
+        input: 'JOE',
+        expected: 'JOE'
       }, {
-        input:
-          {
-            first_name: 'Joe',
-            middle_name: 'Doe',
-            last_name: 'Smith',
-            suffix: nil
-          },
-        expected: 'JOE DOE SMITH'
+        input: 'joe mark',
+        expected: 'JOE MARK'
       }
     ].each do |test_param|
-      it 'gets correct full name' do
+      it 'gets correct first name' do
         allow(User).to receive(:find).with(anything).and_return(user)
-        allow_any_instance_of(User).to receive(:full_name_normalized).and_return(test_param[:input])
+        allow_any_instance_of(User).to receive(:first_name).and_return(test_param[:input])
 
-        expect(subject.get_full_name).to eql(test_param[:expected])
+        expect(subject.get_first_name).to eql(test_param[:expected])
       end
     end
   end
 
   describe '#workflow_complete_handler' do
+    let(:options) do
+      {
+        'submission_id' => subject.id,
+        'first_name' => 'firstname'
+      }
+    end
+
     context 'with a single successful job' do
       subject { create(:form526_submission, :with_one_succesful_job) }
 
@@ -495,16 +486,12 @@ RSpec.describe Form526Submission do
         Flipper.enable(:form526_confirmation_email)
 
         allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
-          expect(args[0]['full_name']).to eql('some name')
+          expect(args[0]['first_name']).to eql('firstname')
           expect(args[0]['submitted_claim_id']).to be(123_654_879)
           expect(args[0]['email']).to eql('test@email.com')
           expect(args[0]['date_submitted']).to eql('July 20, 2012 2:15 p.m. UTC')
         end
 
-        options = {
-          'submission_id' => subject.id,
-          'full_name' => 'some name'
-        }
         subject.workflow_complete_handler(nil, options)
       end
     end
@@ -520,16 +507,12 @@ RSpec.describe Form526Submission do
         Flipper.enable(:form526_confirmation_email)
 
         allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
-          expect(args[0]['full_name']).to eql('some name')
+          expect(args[0]['first_name']).to eql('firstname')
           expect(args[0]['submitted_claim_id']).to be(123_654_879)
           expect(args[0]['email']).to eql('test@email.com')
           expect(args[0]['date_submitted']).to eql('July 20, 2012 11:12 a.m. UTC')
         end
 
-        options = {
-          'submission_id' => subject.id,
-          'full_name' => 'some name'
-        }
         subject.workflow_complete_handler(nil, options)
       end
     end
@@ -545,16 +528,12 @@ RSpec.describe Form526Submission do
         Flipper.enable(:form526_confirmation_email)
 
         allow(Form526ConfirmationEmailJob).to receive(:perform_async) do |*args|
-          expect(args[0]['full_name']).to eql('some name')
+          expect(args[0]['first_name']).to eql('firstname')
           expect(args[0]['submitted_claim_id']).to be(123_654_879)
           expect(args[0]['email']).to eql('test@email.com')
           expect(args[0]['date_submitted']).to eql('July 20, 2012 8:07 a.m. UTC')
         end
 
-        options = {
-          'submission_id' => subject.id,
-          'full_name' => 'some name'
-        }
         subject.workflow_complete_handler(nil, options)
       end
     end

@@ -14,8 +14,11 @@ module HealthQuest
       private
 
       def factory
-        @factory =
-          HealthQuest::HealthApi::Appointment::Factory.manufacture(current_user)
+        HealthQuest::Resource::Factory.manufacture(
+          user: current_user,
+          resource_identifier: 'appointment',
+          api: Settings.hqva_mobile.lighthouse.health_api
+        )
       end
     end
   end

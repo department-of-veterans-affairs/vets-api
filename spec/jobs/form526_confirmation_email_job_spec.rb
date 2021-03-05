@@ -11,9 +11,9 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
     let(:notification_client) { double('Notifications::Client') }
 
     context 'with default attributes' do
-      before do
-        @email_address = 'foo@example.com'
-        @email_response = {
+      let(:email_address) { 'foo@example.com' }
+      let(:email_response) do
+        {
           'content': {
             'body': '<html><body><h1>Hello</h1> World.</body></html>',
             'from_email': 'from_email',
@@ -30,6 +30,14 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           'uri': 'url'
         }
       end
+      let(:personalization_parameters) do
+        {
+          'email' => email_address,
+          'submitted_claim_id' => '600191990',
+          'date_submitted' => 'July 12, 2020',
+          'first_name' => 'firstname'
+        }
+      end
 
       it 'the service is initialized with the correct parameters with enabled toggle' do
         Flipper.enable(:vanotify_service_enhancement)
@@ -39,7 +47,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         ) do
           mocked_notification_service = instance_double('VaNotify::Service')
           allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
-          allow(mocked_notification_service).to receive(:send_email).and_return(@email_response)
+          allow(mocked_notification_service).to receive(:send_email).and_return(email_response)
           subject.perform('')
           expect(VaNotify::Service).to have_received(:new).with(test_service_api_key)
         end
@@ -53,7 +61,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         ) do
           mocked_notification_service = instance_double('VaNotify::Service')
           allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
-          allow(mocked_notification_service).to receive(:send_email).and_return(@email_response)
+          allow(mocked_notification_service).to receive(:send_email).and_return(email_response)
           subject.perform('')
           expect(VaNotify::Service).to have_received(:new).with(test_service_api_key)
         end
@@ -61,26 +69,21 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
       it 'sends a confirmation email' do
         requirements = {
-          email_address: @email_address,
+          email_address: email_address,
           template_id: Settings.vanotify
                                .template_id
                                .form526_confirmation_email,
           personalisation: {
             'claim_id' => '600191990',
             'date_submitted' => 'July 12, 2020',
-            'full_name' => 'first last'
+            'first_name' => 'firstname'
           }
         }
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
-        allow(notification_client).to receive(:send_email).and_return(@email_response)
+        allow(notification_client).to receive(:send_email).and_return(email_response)
 
         expect(notification_client).to receive(:send_email).with(requirements)
-        subject.perform({
-                          'email' => @email_address,
-                          'submitted_claim_id' => '600191990',
-                          'date_submitted' => 'July 12, 2020',
-                          'full_name' => 'first last'
-                        })
+        subject.perform(personalization_parameters)
       end
 
       it 'handles 4xx errors when sending an email' do
@@ -94,12 +97,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         )
         allow(notification_client).to receive(:send_email).and_raise(error)
 
-        personalization_parameters = {
-          'email' => @email_address,
-          'submitted_claim_id' => '600191990',
-          'date_submitted' => 'July 12, 2020',
-          'full_name' => 'first last'
-        }
         expect(subject).to receive(:log_exception_to_sentry).with(error)
         expect { subject.perform(personalization_parameters) }
           .to trigger_statsd_increment('worker.form526_confirmation_email.error')
@@ -116,12 +113,6 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         )
         allow(notification_client).to receive(:send_email).and_raise(error)
 
-        personalization_parameters = {
-          'email' => @email_address,
-          'submitted_claim_id' => '600191990',
-          'date_submitted' => 'July 12, 2020',
-          'full_name' => 'first last'
-        }
         expect(subject).to receive(:log_exception_to_sentry).with(error)
         expect { subject.perform(personalization_parameters) }
           .to raise_error(Common::Exceptions::BackendServiceException)
@@ -130,15 +121,9 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
 
       it 'returns one job triggered' do
         allow(Notifications::Client).to receive(:new).and_return(notification_client)
-        allow(notification_client).to receive(:send_email).and_return(@email_response)
+        allow(notification_client).to receive(:send_email).and_return(email_response)
 
         expect do
-          personalization_parameters = {
-            'email' => @email_address,
-            'submitted_claim_id' => '600191990',
-            'date_submitted' => 'July 12, 2020',
-            'full_name' => 'first last'
-          }
           Form526ConfirmationEmailJob.perform_async(personalization_parameters)
         end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
       end
