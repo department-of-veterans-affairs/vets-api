@@ -22,9 +22,9 @@ module Mobile
             subtype: entry['list_data']['status_type'],
             completed: entry['list_data']['status'] == 'COMPLETE',
             date_filed: Date.strptime(entry['list_data']['date'], '%m/%d/%Y').iso8601,
-            updated_at: Date.strptime(
+            updated_at: DateTime.strptime(
               entry['list_data']['claim_phase_dates']['phase_change_date'], '%m/%d/%Y'
-            ).to_time.utc.iso8601
+            ).utc.iso8601
           }
         end
 
@@ -37,7 +37,7 @@ module Mobile
             subtype: subtype,
             completed: !entry['attributes']['active'],
             date_filed: entry['attributes']['events'][filed_index]['date'],
-            updated_at: entry['attributes']['events'].last['date'].to_time.utc.iso8601
+            updated_at: DateTime.parse(entry['attributes']['events'].last['date']).utc.iso8601
           }
         end
       end
