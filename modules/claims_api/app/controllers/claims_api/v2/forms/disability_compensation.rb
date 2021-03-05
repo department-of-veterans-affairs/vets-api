@@ -1,7 +1,7 @@
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'bgs/auth_headers'
-require 'claims_api/special_issue_mapper'
+require 'claims_api/special_issue_mappers/bgs'
 
 module ClaimsApi
   module V2

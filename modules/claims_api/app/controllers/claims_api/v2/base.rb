@@ -60,6 +60,7 @@ module ClaimsApi
 
       mount ClaimsApi::V2::Veterans
       mount ClaimsApi::V2::Claims
+      mount ClaimsApi::V2::PowerOfAttorneys
       mount ClaimsApi::V2::Forms::DisabilityCompensation
       mount ClaimsApi::V2::Forms::IntentToFile
       mount ClaimsApi::V2::Forms::PowerOfAttorney
