@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'openssl'
-require 'okta/service'
-
+require 'oidc/service.rb'
 module OIDC
   class KeyService
     @mutex = Mutex.new
@@ -59,8 +58,8 @@ module OIDC
     end
 
     def self.fetch_keys
-      okta = Okta::Service.new
-      key_response = okta.oidc_jwks_keys(@expected_iss)
+      service = OIDC::Service.new
+      key_response = service.oidc_jwks_keys(@expected_iss)
       key_response.body
     end
 

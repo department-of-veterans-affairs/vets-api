@@ -151,8 +151,8 @@ RSpec.describe 'health_quest questionnaire_manager', type: :request do
       before do
         sign_in_as(current_user)
         allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
-        allow_any_instance_of(HealthQuest::PatientGeneratedData::QuestionnaireResponse::MapQuery)
-          .to receive(:create).with(anything, anything).and_return(client_reply)
+        allow_any_instance_of(HealthQuest::Resource::Query).to receive(:create)
+          .with(anything, anything).and_return(client_reply)
       end
 
       it 'returns a QuestionnaireResponse FHIR response type' do

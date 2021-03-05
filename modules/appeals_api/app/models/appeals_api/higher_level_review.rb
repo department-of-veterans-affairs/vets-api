@@ -36,6 +36,8 @@ module AppealsApi
       if: proc { |a| a.form_data.present? }
     )
 
+    has_many :evidence_submissions, as: :supportable, dependent: :destroy
+
     def pdf_structure(version)
       Object.const_get(
         "AppealsApi::PdfConstruction::HigherLevelReview::#{version.upcase}::Structure"

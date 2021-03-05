@@ -23,6 +23,10 @@ EducationForm::Create10203SpoolSubmissionsReport:
   cron: "30 4 * * MON-FRI America/New_York"
   description: "Send the daily 10203 report to the call center about spool file submissions"
 
+EducationForm::Create10203ApplicantDecisionLetters:
+  cron: "45 4 * * MON-FRI America/New_York"
+  description: "Send 10203 applicant decision letters to applicants"
+
 Preneeds::DeleteOldUploads:
   cron: "15 2 * * * America/New_York"
   description: "Clear out preneeds file uploads older than 2 months"
