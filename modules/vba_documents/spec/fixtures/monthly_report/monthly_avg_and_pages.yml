@@ -4,16 +4,28 @@
   count: 38495
   avg_time_secs: 186833
   avg_time: '51:53:53'
+  max_pages: 4644
+  avg_pages: 15
+  mode_pages: 2
+  median_pages: 5
 - yyyy: 2020
   mm: 12
   count: 35225
   avg_time_secs: 725249
   avg_time: '201:27:29'
+  max_pages: 3768
+  avg_pages: 16
+  mode_pages: 2
+  median_pages: 5
 - yyyy: 2020
   mm: 11
   count: 31356
   avg_time_secs: 331426
   avg_time: '92:03:46'
+  max_pages: 266
+  avg_pages: 13
+  mode_pages: 2
+  median_pages: 5
 - yyyy: 2020
   mm: 10
   count: 34716

@@ -16,6 +16,8 @@ module VBADocuments
 
     RECIPIENTS = fetch_recipients.freeze
 
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/ParameterLists
     def build(monthly_totals, summary, still_processing, avg_processing_time, last_month_start,
               last_month_end, two_months_ago_start)
       @monthly_totals = monthly_totals
@@ -36,15 +38,13 @@ module VBADocuments
       )
       template = File.read(path)
       body = ERB.new(template).result(binding)
-
-      # testing code - save output locally
-      # File.open('greg.html', 'w') { |file| file.write(body) }
-
       mail(
         to: RECIPIENTS,
         subject: "Monthly Benefits Intake Submission Report for #{@environment}",
         body: body
       )
     end
+    # rubocop:enable Metrics/ParameterLists
+    # rubocop:enable Metrics/MethodLength
   end
 end
