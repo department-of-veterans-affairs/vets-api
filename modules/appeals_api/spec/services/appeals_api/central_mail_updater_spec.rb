@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'appeals_api/central_mail_updater'
 
 describe AppealsApi::CentralMailUpdater do
   let(:client_stub) { instance_double('CentralMail::Service') }
