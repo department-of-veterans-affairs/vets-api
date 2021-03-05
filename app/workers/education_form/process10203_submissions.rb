@@ -31,7 +31,7 @@ module EducationForm
         log_info('No records to process.')
         return true
       else
-        count = records.filter{ |r| r.education_stem_automated_decision.automated_decision_state === 'init'}.count
+        count = records.filter { |r| r.education_stem_automated_decision.automated_decision_state === 'init' }.count
         log_info("Processing #{count} application(s) with init status")
       end
 
