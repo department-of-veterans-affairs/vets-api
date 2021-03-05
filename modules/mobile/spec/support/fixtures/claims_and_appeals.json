@@ -1,0 +1,102 @@
+[
+  {
+    "id": "SC1678",
+    "type": "appeal",
+    "attributes": {
+      "subtype": "supplementalClaim",
+      "completed": false,
+      "date_filed": "2020-09-23",
+      "updated_at": "2020-09-23T00:00:00-07:00"
+    }
+  },
+  {
+    "id": "HLR2423",
+    "type": "appeal",
+    "attributes": {
+      "subtype": "higherLevelReview",
+      "completed": false,
+      "date_filed": "2020-05-01",
+      "updated_at": "2020-05-01T00:00:00-07:00"
+    }
+  },
+  {
+    "id": "3294289",
+    "type": "appeal",
+    "attributes": {
+      "subtype": "legacyAppeal",
+      "completed": false,
+      "date_filed": "2008-06-11",
+      "updated_at": "2018-01-16T00:00:00-08:00"
+    }
+  },
+  {
+    "id": "600118851",
+    "type": "claim",
+    "attributes": {
+      "subtype": "Compensation",
+      "completed": false,
+      "date_filed": "2017-12-08",
+      "updated_at": "2017-12-08T00:00:00-08:00"
+    }
+  },
+  {
+    "id": "600114693",
+    "type": "claim",
+    "attributes": {
+      "subtype": "Dependency",
+      "completed": false,
+      "date_filed": "2017-09-28",
+      "updated_at": "2017-09-28T00:00:00-07:00"
+    }
+  },
+  {
+    "id": "600114692",
+    "type": "claim",
+    "attributes": {
+      "subtype": "Compensation",
+      "completed": false,
+      "date_filed": "2017-09-28",
+      "updated_at": "2017-09-28T00:00:00-07:00"
+    }
+  },
+  {
+    "id": "600106271",
+    "type": "claim",
+    "attributes": {
+      "subtype": "Dependency",
+      "completed": true,
+      "date_filed": "2017-07-06",
+      "updated_at": "2017-09-20T00:00:00-07:00"
+    }
+  },
+  {
+    "id": "600104193",
+    "type": "claim",
+    "attributes": {
+      "subtype": "Compensation",
+      "completed": true,
+      "date_filed": "2017-06-12",
+      "updated_at": "2017-06-21T00:00:00-07:00"
+    }
+  },
+  {
+    "id": "600104203",
+    "type": "claim",
+    "attributes": {
+      "subtype": "Compensation",
+      "completed": true,
+      "date_filed": "2017-06-12",
+      "updated_at": "2017-06-21T00:00:00-07:00"
+    }
+  },
+  {
+    "id": "600103598",
+    "type": "claim",
+    "attributes": {
+      "subtype": "Compensation",
+      "completed": true,
+      "date_filed": "2017-06-01",
+      "updated_at": "2017-06-21T00:00:00-07:00"
+    }
+  }
+]
