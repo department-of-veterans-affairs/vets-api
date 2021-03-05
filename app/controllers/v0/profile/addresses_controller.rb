@@ -33,7 +33,6 @@ module V0
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def address_params
         params.permit(
           :address_line1,
@@ -55,7 +54,6 @@ module V0
           :zip_code_suffix
         )
       end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end
