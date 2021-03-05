@@ -90,7 +90,6 @@ module VBADocuments
       limit 12
     "
 
-    # rubocop:disable Metrics/MethodLength
     def perform
       if Settings.vba_documents.monthly_report
         # get reporting date ranges
@@ -114,7 +113,6 @@ module VBADocuments
         ).deliver_now
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
