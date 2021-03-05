@@ -14,9 +14,10 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         addressLine1: '1019 Robin Cir',
         addressLine2: nil,
         addressLine3: nil,
-        city: 'Cleveland',
-        province: 'OH',
-        internationalPostalCode: '44101'
+        city: 'Arroyo Grande',
+        province: 'CA',
+        internationalPostalCode: '93420'
+
       }
     }
   end
