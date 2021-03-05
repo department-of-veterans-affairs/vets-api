@@ -17,8 +17,14 @@ module AppealsApi::V1
           render json: serialized.serializable_hash
         end
 
-        def upload
-          render json: { message: 'Good work.', document: params[:document], uuid: params[:uuid] }
+        def create
+          status, error = AppealsApi::FileValidator.new(params[:document]).call
+
+          if status == :ok
+            render json: { document: params[:document], uuid: params[:uuid] }
+          else
+            render json: error, status: 422
+          end
         end
       end
     end
