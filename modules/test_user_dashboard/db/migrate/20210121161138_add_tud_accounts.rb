@@ -5,6 +5,7 @@ class AddTudAccounts < ActiveRecord::Migration[6.0]
       t.datetime :birth_date
       t.integer :ssn
       t.string :phone, :email, :password
+      t.boolean :standard, :available
       t.datetime :checkout_time
       t.timestamps
     end

@@ -612,6 +612,8 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.string "phone"
     t.string "email"
     t.string "password"
+    t.boolean "standard"
+    t.boolean "available"
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
