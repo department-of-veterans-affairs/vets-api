@@ -19,7 +19,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
     unless mobile.nil?
       it "is expected that all results have mobile=#{mobile}" do
         expected_array = ids.collect { |id| { id: id, mobile: mobile } }
-        expect(parsed_body['data'].collect {|x| x['attributes'].slice(:id,:mobile)}).to match(expected_array)
+        expect(parsed_body['data'].collect { |x| x['attributes'].slice(:id, :mobile) }).to match(expected_array)
       end
     end
 
@@ -172,15 +172,15 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
     context 'params[:exclude_mobile]' do
       context 'true' do
         it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        exclude_mobile: true,
-                        bbox: [-74.730, 40.015, -73.231, 41.515],
-                        page: 1
-                      },
-                      %w[
-                        vba_306h vba_306i vha_630 vba_306 vha_630GA
-                        vc_0133V vha_526GD vc_0106V vc_0105V vha_561GE
-                      ]
+                        {
+                          exclude_mobile: true,
+                          bbox: [-74.730, 40.015, -73.231, 41.515],
+                          page: 1
+                        },
+                        %w[
+                          vba_306h vba_306i vha_630 vba_306 vha_630GA
+                          vc_0133V vha_526GD vc_0106V vc_0105V vha_561GE
+                        ]
       end
     end
 
@@ -220,7 +220,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                         },
                         %w[
                           vha_630 vha_630GA vc_0133V vha_526GD vc_0106V
-                          vc_0105V vha_561GE vc_0102V vc_0110V  vha_526
+                          vc_0105V vha_561GE vc_0102V vc_0110V vha_526
                         ],
                         false
       end
@@ -243,13 +243,13 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
             attributes: {
               access: {
                 health: [
-                  { service: 'Audiology',        new: 46.619047,  established: 51.410526 },
+                  { service: 'Audiology',        new: 46.619047, established: 51.410526 },
                   { service: 'Dermatology',      new: 20.277777, established: 22.076923 },
                   { service: 'MentalHealthCare', new: 13.941176, established: 0.872781 },
-                  { service: 'Ophthalmology',    new: nil,      established: 3.238532 },
+                  { service: 'Ophthalmology',    new: nil, established: 3.238532 },
                   { service: 'Optometry',        new: 34.921052, established: 30.927184 },
                   { service: 'PrimaryCare',      new: 8.582677, established: 3.297883 },
-                  { service: 'SpecialtyCare',    new: 29.614754,      established: 21.455078 }
+                  { service: 'SpecialtyCare',    new: 29.614754, established: 21.455078 }
                 ],
                 effectiveDate: '2021-02-15'
 
@@ -292,7 +292,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
               operatingStatus: {
                 code: 'NORMAL'
               },
-              operationalHoursSpecialInstructions: 'Expanded or Nontraditional hours are available for some ' +
+              operationalHoursSpecialInstructions: 'Expanded or Nontraditional hours are available for some ' \
                 'services on a routine and or requested basis. Please call our main phone number for details. |',
               phone: {
                 fax: '360-690-0864',

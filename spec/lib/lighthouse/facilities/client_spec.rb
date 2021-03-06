@@ -67,13 +67,13 @@ RSpec.describe Lighthouse::Facilities::Client, team: :facilities, vcr: vcr_optio
       access: {
         'effective_date' => '2021-02-15',
         'health' => [
-          { 'service' => 'Audiology',        'new' => 81.333333,  'established' => 63.361702 },
-          { 'service' => 'Cardiology',       'new' => 128.0,  'established' => 52.26 },
-          { 'service' => 'Dermatology',      'new' => 165.333333,     'established' => 95.916666 },
+          { 'service' => 'Audiology',        'new' => 81.333333, 'established' => 63.361702 },
+          { 'service' => 'Cardiology',       'new' => 128.0, 'established' => 52.26 },
+          { 'service' => 'Dermatology',      'new' => 165.333333, 'established' => 95.916666 },
           { 'service' => 'Gastroenterology', 'new' => 273.0, 'established' => nil },
           { 'service' => 'Ophthalmology',    'new' => 65.25, 'established' => 32.64 },
-          { 'service' => 'PrimaryCare',      'new' => 43.56,       'established' => 27.230158 },
-          { 'service' => 'SpecialtyCare',    'new' => 95.230769,  'established' => 53.319796 }
+          { 'service' => 'PrimaryCare',      'new' => 43.56, 'established' => 27.230158 },
+          { 'service' => 'SpecialtyCare',    'new' => 95.230769, 'established' => 53.319796 }
         ]
       },
       mobile: false,
