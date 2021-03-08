@@ -69,6 +69,7 @@ module VAForms
             key :description, 'The VA form_name of the form being requested'
             key :required, true
             key :type, :string
+            key :example, :VA10192
           end
 
           response 200 do
