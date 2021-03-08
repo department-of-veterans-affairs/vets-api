@@ -13,7 +13,7 @@ module ClaimsApi
 
       report_threshold = Settings.claims_api.claims_pending_reporting.threshold
       claims = ClaimsApi::AutoEstablishedClaim.where(status: ClaimsApi::AutoEstablishedClaim::PENDING)
-                                              .where("created_at < ?", (report_threshold / 1000).seconds.ago)
+                                              .where('created_at < ?', (report_threshold / 1000).seconds.ago)
       return unless claims.any?
 
       client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
