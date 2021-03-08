@@ -17,7 +17,8 @@ module ClaimsApi
       return unless claims.any?
 
       client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                       channel: "#vaapi-alerts-testing")
+                                       channel: '#vaapi-alerts-testing',
+                                       username: 'ClaimAuditor')
       environment_name = Settings.claims_api.claims_pending_reporting.environment_name
       message = "#{claims.count} claims in #{environment_name} surpass defined pending status threshold: "
       message += "#{report_threshold}ms"
