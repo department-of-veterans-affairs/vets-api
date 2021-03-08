@@ -20,6 +20,8 @@ DEFAULT_OPTIONS = {
   path: 'logs'
 }
 
+
+
 class LogsProcessor
   def request_by_id(id)
     "{$.named_tags.request_id=\"#{id}\"}"

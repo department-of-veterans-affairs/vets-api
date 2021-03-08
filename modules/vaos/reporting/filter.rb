@@ -1,10 +1,11 @@
 require './logs_processor'
 require './redis_service'
 
-class PayloadFilter
-  def initialize(name, tag, pattern, options)
+class Filter
+  def initialize(name, tag, filter, pattern, options)
     @name = name
     @tag = tag
+    @filter=filter
     @pattern = pattern
     @options = options
   end
@@ -12,9 +13,11 @@ class PayloadFilter
     puts "#{@name}\n"
 
     @options.merge!(
-      {filter_pattern: "{($.payload.url='*#{@pattern}*')}"},
+      {filter_pattern: "{($.#{@filter}='*#{@pattern}*')}"},
       {path: 'logs'}
     ) 
+
+    puts @options
    
     LogsProcessor.fetch_data(@options) do |json_log|
       request_id = json_log['named_tags']['request_id']

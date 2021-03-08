@@ -1,11 +1,10 @@
-require './payload_filter'
+require './filter'
 require 'optparse'
 
 class Runner
   def initialize(
+    filter,
     pattern,
-    start_date,
-    end_date,
     name,
     tag = pattern
   )
@@ -17,9 +16,9 @@ class Runner
       start_date: start_date,
       end_date: end_date,
     }
-   
-    payload_filter = PayloadFilter.new(name, tag, pattern, options)
-    payload_filter.fetch
+
+    filter_type = Filter.new(name, tag, filter, pattern, options)
+    filter_type.fetch
   end
 end
 
@@ -35,4 +34,4 @@ end
 
 # p options
 
-Runner.new(ARGV[0], ARGV[1], ARGV[2], ARGV[3]="Report")
+Runner.new(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
