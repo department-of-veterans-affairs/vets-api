@@ -13,8 +13,7 @@ module AppealsApi
     private
 
     def enabled?
-      Settings.dig('modules_appeals_api', 'reports') &&
-        Settings.modules_appeals_api.reports.daily_error.enabled
+      Settings.modules_appeals_api.reports.daily_error.enabled
     end
   end
 end

@@ -3,8 +3,10 @@
 require 'fast_jsonapi'
 
 module <%= class_name %>
-  class <%= class_name %>Serializer
-    include FastJsonapi::ObjectSerializer
-    attributes :message
+  module V0
+	  class <%= @comp_name.camelize %>Serializer
+	    include FastJsonapi::ObjectSerializer
+	    attributes :message
+	  end
   end
 end

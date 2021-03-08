@@ -9,7 +9,7 @@ RSpec.describe FormProfile, type: :model do
 
   before do
     user.va_profile.suffix = 'Jr.'
-    user.va_profile.address.country = 'USA'
+    user.address[:country] = 'USA'
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -52,10 +52,10 @@ RSpec.describe FormProfile, type: :model do
     {
       'street' => street_check[:street],
       'street2' => street_check[:street2],
-      'city' => user.va_profile[:address][:city],
-      'state' => user.va_profile[:address][:state],
-      'country' => user.va_profile[:address][:country],
-      'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      'city' => user.address[:city],
+      'state' => user.address[:state],
+      'country' => user.address[:country],
+      'postal_code' => user.address[:zip].slice(0, 5)
     }
   end
 
@@ -587,10 +587,10 @@ RSpec.describe FormProfile, type: :model do
         'fileNumber' => '3735'
       },
       'personalData' => {
-        'fullName' => full_name,
+        'veteranFullName' => full_name,
         'address' => address,
-        'phone' => us_phone,
-        'email' => user.pciu_email,
+        'telephoneNumber' => us_phone,
+        'emailAddress' => user.pciu_email,
         'dateOfBirth' => user.birth_date
       },
       'income' => [
@@ -886,7 +886,13 @@ RSpec.describe FormProfile, type: :model do
 
     context 'user without an address' do
       it 'prefills properly' do
-        expect(user.va_profile).to receive(:address).and_return(nil)
+        expect(user).to receive(:address).exactly(5).times.and_return(
+          street: nil,
+          city: nil,
+          state: nil,
+          country: nil,
+          zip: nil
+        )
         described_class.for(form_id: '22-1990e', user: user).prefill
       end
     end

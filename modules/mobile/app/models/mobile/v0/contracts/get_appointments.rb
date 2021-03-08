@@ -5,9 +5,9 @@ module Mobile
     module Contracts
       class GetAppointments < Base
         params do
-          required(:start_date).filled(:date_time)
-          required(:end_date).filled(:date_time)
-          required(:use_cache).filled(:bool)
+          optional(:start_date).maybe(:date_time, :filled?)
+          optional(:end_date).maybe(:date_time, :filled?)
+          optional(:use_cache).maybe(:bool, :filled?)
         end
       end
     end

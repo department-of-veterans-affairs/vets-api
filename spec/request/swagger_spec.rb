@@ -194,6 +194,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports checking stem_claim_status' do
+      expect(subject).to validate(:get, '/v0/education_benefits_claims/stem_claim_status', 200)
+    end
+
     it 'supports adding an caregiver\'s assistance claim' do
       VCR.use_cassette 'mpi/find_candidate/valid' do
         VCR.use_cassette 'emis/get_veteran_status/valid' do
@@ -2508,7 +2512,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports GETting async transaction by ID' do
         transaction = create(
-          :address_transaction,
+          :va_profile_address_transaction,
           transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
           user_uuid: user.uuid
         )
@@ -2558,7 +2562,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports GETting async person transaction by transaction ID' do
         transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
         transaction = create(
-          :initialize_person_transaction,
+          :va_profile_initialize_person_transaction,
           :init_vet360_id,
           user_uuid: user_without_vet360_id.uuid,
           transaction_id: transaction_id
@@ -3127,6 +3131,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'dependents verifications' do
+      it 'supports getting dependent information' do
+        expect(subject).to validate(:get, '/v0/dependents_verifications', 401)
+        VCR.use_cassette('bgs/diaries/read') do
+          expect(subject).to validate(:get, '/v0/dependents_verifications', 200, headers)
+        end
+      end
+    end
+
     describe 'education career counseling claims' do
       it 'supports adding a career counseling claim' do
         expect(subject).to validate(
@@ -3160,6 +3173,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'veteran readiness employment claims' do
       it 'supports adding veteran readiness employment claim' do
         VCR.use_cassette('veteran_readiness_employment/send_to_vre') do
+          allow(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
           expect(subject).to validate(
             :post,
             '/v0/veteran_readiness_employment_claims',

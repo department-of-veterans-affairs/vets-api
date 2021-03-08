@@ -25,7 +25,7 @@ class Form526ConfirmationEmailJob
       personalisation: {
         'claim_id' => personalization_parameters['submitted_claim_id'],
         'date_submitted' => personalization_parameters['date_submitted'],
-        'full_name' => personalization_parameters['full_name']
+        'first_name' => personalization_parameters['first_name']
       }
     )
     StatsD.increment(STATSD_SUCCESS_NAME)
