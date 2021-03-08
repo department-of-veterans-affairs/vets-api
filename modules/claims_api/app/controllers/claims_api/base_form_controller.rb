@@ -48,7 +48,7 @@ module ClaimsApi
     end
 
     def flashes
-      initial_flashes = form_attributes.dig('veteran', 'flashes')
+      initial_flashes = form_attributes.dig('veteran', 'flashes') || []
       homelessness = form_attributes.dig('veteran', 'homelessness')
       is_terminally_ill = form_attributes.dig('veteran', 'isTerminallyIll')
 
