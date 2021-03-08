@@ -44,6 +44,7 @@ class Form526Submission < ApplicationRecord
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
+  BIRLS_KEY = 'va_eauth_birlsfilenumber'
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
