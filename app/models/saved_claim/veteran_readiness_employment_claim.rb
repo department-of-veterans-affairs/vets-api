@@ -30,8 +30,21 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_to_vre(user)
     prepare_form_data
 
+    upload_to_vbms
     service = VRE::Ch31Form.new(user: user, claim: self)
     service.submit
+  end
+
+  def upload_to_vbms(doc_type: '171')
+    form_path = PdfFill::Filler.fill_form(self)
+
+    uploader = ClaimsApi::VBMSUploader.new(
+      filepath: form_path,
+      file_number: parsed_form['veteranInformation']['ssn'],
+      doc_type: doc_type
+    )
+
+    uploader.upload!
   end
 
   # SavedClaims require regional_office to be defined

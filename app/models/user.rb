@@ -107,6 +107,17 @@ class User < Common::RedisStore
     Formatters::DateFormatter.format_date(birth_date)
   end
 
+  def address
+    address = mpi_profile&.address
+    {
+      street: address&.street,
+      city: address&.city,
+      state: address&.state,
+      country: address&.country,
+      zip: address&.postal_code
+    }
+  end
+
   def zip
     identity.zip || (mhv_icn.present? ? mpi&.profile&.address&.postal_code : nil)
   end
@@ -141,6 +152,7 @@ class User < Common::RedisStore
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :dslogon_edipi, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
+  delegate :person_types, to: :identity, allow_nil: true
 
   # mpi attributes
   delegate :icn_with_aaid, to: :mpi

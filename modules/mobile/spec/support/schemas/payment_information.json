@@ -34,6 +34,9 @@
                 },
                 "notDeceasedIndicator": {
                   "type": "boolean"
+                },
+                "canUpdatePayment": {
+                  "type": "boolean"
                 }
               },
               "type": "object"
@@ -41,16 +44,16 @@
             "paymentAccount": {
               "properties": {
                 "accountNumber": {
-                  "type": "string"
+                  "type": ["string", "null"]
                 },
                 "accountType": {
-                  "type": "string"
+                  "type": ["string", "null"]
                 },
                 "financialInstitutionName": {
-                  "type": "string"
+                  "type": ["string", "null"]
                 },
                 "financialInstitutionRoutingNumber": {
-                  "type": "string"
+                  "type": ["string", "null"]
                 }
               },
               "type": "object"

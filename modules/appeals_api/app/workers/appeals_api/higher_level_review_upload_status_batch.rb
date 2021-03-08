@@ -6,7 +6,8 @@ module AppealsApi
   class HigherLevelReviewUploadStatusBatch
     include Sidekiq::Worker
 
-    sidekiq_options 'retry': true, unique_until: :success
+    # No need to retry since the schedule will run this every hour
+    sidekiq_options retry: false
 
     def perform
       return unless enabled? && higher_level_review_ids.present?

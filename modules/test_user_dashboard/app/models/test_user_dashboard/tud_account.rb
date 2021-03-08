@@ -2,6 +2,8 @@
 
 module TestUserDashboard
   class TudAccount < ApplicationRecord
+    self.ignored_columns = %w[standard available]
+
     ID_PROVIDERS = %w[id_me dslogon mhv].freeze
 
     validates :first_name, :last_name, :email, :gender, presence: true

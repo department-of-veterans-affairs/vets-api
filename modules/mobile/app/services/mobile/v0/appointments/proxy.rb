@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/facilities/client'
+
 module Mobile
   module V0
     module Appointments
@@ -13,8 +15,8 @@ module Mobile
           @user = user
         end
 
-        def get_appointments(start_date, end_date)
-          responses, errors = parallel_appointments_service.get_appointments(start_date, end_date)
+        def get_appointments(start_date:, end_date:, use_cache: false)
+          responses, errors = parallel_appointments_service.get_appointments(start_date, end_date, use_cache)
 
           va_appointments = []
           cc_appointments = []

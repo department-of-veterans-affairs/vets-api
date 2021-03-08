@@ -13,38 +13,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
   let(:form_data) { default_form_data }
   let(:default_form_data) { fixture_as_json 'valid_200996.json' }
 
-  describe '.refresh_statuses_using_central_mail!' do
-    subject { described_class.refresh_statuses_using_central_mail!(higher_level_reviews) }
-
-    let(:higher_level_reviews) { AppealsApi::HigherLevelReview.all }
-    let(:central_mail) { instance_double('CentralMail::Service') }
-    let(:faraday_response) { instance_double('Faraday::Response') }
-
-    before do
-      allow(CentralMail::Service).to receive(:new).and_return central_mail
-      allow(central_mail).to receive(:status).and_return faraday_response
-      allow(faraday_response).to receive(:success?).and_return true
-    end
-
-    it 'updates with CentralMail status update' do
-      higher_level_review
-      returned_status = {
-        "uuid": higher_level_review.id,
-        "status": 'In Process',
-        "lastUpdated": Time.zone.yesterday.strftime('%F %T')
-      }
-      expect(faraday_response).to receive(:body).and_return [[returned_status]].to_json
-      subject
-      expect(higher_level_review.reload.status).to eq('processing')
-    end
-
-    it 'handles an empty CentralMail response' do
-      higher_level_review
-      expect(faraday_response).to receive(:body).and_return [[]].to_json
-      expect { subject }.not_to raise_error
-    end
-  end
-
   describe '#first_name' do
     subject { higher_level_review.first_name }
 
