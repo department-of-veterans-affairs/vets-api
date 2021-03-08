@@ -3,108 +3,86 @@
 require 'rails_helper'
 require 'okta/directory_service.rb'
 require 'okta/service'
+require 'vcr'
 
 RSpec.describe Okta::DirectoryService do
   let(:subject) { described_class.new }
-  let(:scopes) do
-    [
-      {
-        "id": 'dsfdsafdsfdsl',
-        "name": 'launch/patient',
-        "displayName": 'Patient ID',
-        "description": 'Your unique VA ID number....',
-        "system": false,
-        "metadataPublish": 'ALL_CLIENTS',
-        "consent": 'REQUIRED',
-        "default": false,
-        "_links": {
-          "self": {
-            "href": 'fakewebsite',
-            "hints": {
-              "allow": %w[
-                GET
-                PUT
-                DELETE
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 'fdsafdsaff',
-        "name": 'patient/AllergyIntolerance.read',
-        "displayName": 'Allergies',
-        "description": 'A list of any substances.....',
-        "system": false,
-        "metadataPublish": 'ALL_CLIENTS',
-        "consent": 'REQUIRED',
-        "default": false,
-        "_links": {
-          "self": {
-            "href": 'fakewebsite',
-            "hints": {
-              "allow": %w[
-                GET
-                PUT
-                DELETE
-              ]
-            }
-          }
-        }
-      },
-      {
-        "id": 'fdsafdsaff',
-        "name": 'email',
-        "displayName": 'email',
-        "description": 'email',
-        "system": false,
-        "metadataPublish": 'ALL_CLIENTS',
-        "consent": 'REQUIRED',
-        "default": false,
-        "_links": {
-          "self": {
-            "href": 'fakewebsite',
-            "hints": {
-              "allow": %w[
-                GET
-                PUT
-                DELETE
-              ]
-            }
-          }
-        }
-      }
-    ]
-  end
   let(:server_scopes) do
     {
-      'body' => scopes
+      'body' => [
+        {
+          "id": 'dsfdsafdsfdsl',
+          "name": 'launch/patient',
+          "displayName": 'Patient ID',
+          "description": 'Your unique VA ID number....',
+          "system": false,
+          "metadataPublish": 'ALL_CLIENTS',
+          "consent": 'REQUIRED',
+          "default": false,
+          "_links": {
+            "self": {
+              "href": 'fakewebsite',
+              "hints": {
+                "allow": %w[
+                  GET
+                  PUT
+                  DELETE
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 'fdsafdsaff',
+          "name": 'patient/AllergyIntolerance.read',
+          "displayName": 'Allergies',
+          "description": 'A list of any substances.....',
+          "system": false,
+          "metadataPublish": 'ALL_CLIENTS',
+          "consent": 'REQUIRED',
+          "default": false,
+          "_links": {
+            "self": {
+              "href": 'fakewebsite',
+              "hints": {
+                "allow": %w[
+                  GET
+                  PUT
+                  DELETE
+                ]
+              }
+            }
+          }
+        },
+        {
+          "id": 'fdsafdsaff',
+          "name": 'email',
+          "displayName": 'email',
+          "description": 'email',
+          "system": false,
+          "metadataPublish": 'ALL_CLIENTS',
+          "consent": 'REQUIRED',
+          "default": false,
+          "_links": {
+            "self": {
+              "href": 'fakewebsite',
+              "hints": {
+                "allow": %w[
+                  GET
+                  PUT
+                  DELETE
+                ]
+              }
+            }
+          }
+        }
+      ]
     }
   end
   let(:server_hash_struct) { OpenStruct.new(server_scopes) }
 
-  let(:parsed_server_scopes) do
-    [
-      {
-        "name": 'launch/patient',
-        "displayName": 'Patient ID',
-        "description": 'Your unique VA ID number....'
-      },
-      {
-        "name": 'patient/AllergyIntolerance.read',
-        "displayName": 'Allergies',
-        "description": 'A list of any substances.....'
-      },
-      {
-        "name": 'email',
-        "displayName": 'email',
-        "description": 'email'
-      }
-    ]
-  end
-
   describe '#initialize' do
-    it 'creates the service correctly' do
+    it 'creates the okta service correctly' do
       expect(subject.okta_service).to be_instance_of(Okta::Service)
     end
   end
@@ -117,6 +95,34 @@ RSpec.describe Okta::DirectoryService do
     it 'directs to #handle_nonhealth_server as expected' do
       allow_any_instance_of(Okta::DirectoryService).to receive(:scopes).with('verification').and_return('beep')
       expect(subject.scopes('verification')).to be('beep')
+    end
+  end
+
+  describe '#handle_health_server' do
+    before do
+      allow(Settings.directory).to receive(:health_server_id).and_return('ausa6g29u50OhqAdv2p7')
+    end
+
+    it 'returns a body' do
+      VCR.use_cassette('okta/health_scopes', match_requests_on: %i[method path]) do
+        response = subject.handle_health_server
+        expect(response).not_to be_nil
+      end
+    end
+  end
+
+  describe '#handle_nonhealth_server' do
+    it 'handles nonhealth servers as expected' do
+      VCR.use_cassette('okta/verification_scopes', match_requests_on: %i[method path]) do
+        response = subject.handle_nonhealth_server('verification')
+        expect(response).not_to be_nil
+      end
+    end
+    it 'returns an empty server when passed an invalid category' do
+      VCR.use_cassette('okta/invalid_scopes', match_requests_on: %i[method path]) do
+        response = subject.handle_nonhealth_server('somethingthatdoesntexist')
+        expect(response).to eq([])
+      end
     end
   end
 
