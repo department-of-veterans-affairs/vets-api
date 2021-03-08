@@ -41,11 +41,11 @@ RSpec.describe 'address', type: :request do
         end
       end
 
-      it 'creates a new AsyncTransaction::Vet360::AddressTransaction db record' do
+      it 'creates a new AsyncTransaction::VAProfile::AddressTransaction db record' do
         VCR.use_cassette('va_profile/contact_information/post_address_success') do
           expect do
             post('/v0/profile/addresses', params: address.to_json, headers: headers)
-          end.to change(AsyncTransaction::Vet360::AddressTransaction, :count).from(0).to(1)
+          end.to change(AsyncTransaction::VAProfile::AddressTransaction, :count).from(0).to(1)
         end
       end
     end
@@ -163,11 +163,11 @@ RSpec.describe 'address', type: :request do
         end
       end
 
-      it 'creates a new AsyncTransaction::Vet360::AddressTransaction db record' do
+      it 'creates a new AsyncTransaction::VAProfile::AddressTransaction db record' do
         VCR.use_cassette('va_profile/contact_information/put_address_success') do
           expect do
             put('/v0/profile/addresses', params: address.to_json, headers: headers)
-          end.to change(AsyncTransaction::Vet360::AddressTransaction, :count).from(0).to(1)
+          end.to change(AsyncTransaction::VAProfile::AddressTransaction, :count).from(0).to(1)
         end
       end
 

@@ -52,15 +52,23 @@ module HealthQuest
             date: appointment_dates,
             location: clinic_id
           },
+          location: { _id: location_ids },
+          organization: { _id: organization_ids },
           questionnaire_response: {
             subject: appointment_reference,
             source: user.icn,
             authored: resource_created_date
           },
-          questionnaire: {
-            'context-type-value': context_type_value
-          }
+          questionnaire: { 'context-type-value': context_type_value }
         }
+      end
+
+      def location_ids
+        @location_ids ||= filters&.fetch(:_id, nil)
+      end
+
+      def organization_ids
+        @organization_ids ||= filters&.fetch(:_id, nil)
       end
 
       ##
