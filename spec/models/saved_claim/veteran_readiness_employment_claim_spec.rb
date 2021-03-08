@@ -17,7 +17,6 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
         city: 'Arroyo Grande',
         province: 'CA',
         internationalPostalCode: '93420'
-
       }
     }
   end
