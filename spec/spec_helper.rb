@@ -52,6 +52,7 @@ unless ENV['NOCOVERAGE']
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'HealthQuest', 'modules/health_quest/'
+    add_group 'Identity', 'modules/identity/'
     add_group 'Mobile', 'modules/mobile/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'
