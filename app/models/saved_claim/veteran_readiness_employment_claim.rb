@@ -76,12 +76,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def bgs_client
-    external_key = parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
-
     @service ||= BGS::Services.new(
       external_uid: parsed_form['email'],
       external_key: external_key
     )
+  end
+
+  def external_key
+    parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
   end
 
   def prepare_form_data
