@@ -410,6 +410,11 @@ claims_api:
     bucket: ~
   disability_claims_mock_override: false
   schema_dir: config/schemas
+  slack:
+    webhook_url: https://example.com
+  claims_pending_reporting:
+    threshold: ~
+    environment_name: ~
 
 redis:
   host: localhost
