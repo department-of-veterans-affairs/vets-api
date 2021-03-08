@@ -49,7 +49,6 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
           form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
 
           post(:create, params: form_params)
-
           expect(response.code).to eq('200')
         end
       end
