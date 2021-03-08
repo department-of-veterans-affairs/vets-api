@@ -1542,6 +1542,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    context 'with a loa1 user' do
+      let(:mhv_user) { build(:user, :loa1) }
+
+      it 'rejects getting EVSS Letters for loa1 users' do
+        expect(subject).to validate(:get, '/v0/letters', 403, headers)
+      end
+
+      it 'rejects getting EVSS benefits Letters for loa1 users' do
+        expect(subject).to validate(:get, '/v0/letters/beneficiary', 403, headers)
+      end
+    end
+
     context 'without EVSS mock' do
       before do
         Settings.evss.mock_gi_bill_status = false
