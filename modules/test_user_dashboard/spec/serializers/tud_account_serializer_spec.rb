@@ -10,18 +10,18 @@ RSpec.describe TestUserDashboard::TudAccountSerializer, type: :serializer do
   let(:attributes) { data['attributes'] }
 
   it 'returns serialized #first_name data' do
-    expect(attributes.dig('first_name')).to be_present
+    expect(attributes['first_name']).to be_present
   end
 
   it 'returns serialized #last_name data' do
-    expect(attributes.dig('last_name')).to be_present
+    expect(attributes['last_name']).to be_present
   end
 
   it 'returns serialized #email data' do
-    expect(attributes.dig('email')).to be_present
+    expect(attributes['email']).to be_present
   end
 
   it 'returns serialized #gender data' do
-    expect(attributes.dig('gender')).to be_present
+    expect(attributes['gender']).to be_present
   end
 end

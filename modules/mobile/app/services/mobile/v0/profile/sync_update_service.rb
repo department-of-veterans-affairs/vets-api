@@ -31,7 +31,7 @@ module Mobile
         # @params Hash the new parameters used in the update
         # @update whether the save is a new write or an update
         #
-        # @return AsyncTransaction::Vet360::Base the final async transaction status
+        # @return AsyncTransaction::VAProfile::Base the final async transaction status
         #
         def save_and_await_response(resource_type:, params:, update: false)
           http_method = update ? 'put' : 'post'
@@ -64,7 +64,7 @@ module Mobile
           raise Common::Exceptions::ValidationErrors, record unless record.valid?
 
           response = contact_information_service.send("#{http_method}_#{resource_type.downcase}", record)
-          "AsyncTransaction::Vet360::#{resource_type.capitalize}Transaction".constantize.start(@user, response)
+          "AsyncTransaction::VAProfile::#{resource_type.capitalize}Transaction".constantize.start(@user, response)
         end
 
         def build_record(type, params)
@@ -120,7 +120,7 @@ module Mobile
         def check_transaction_status!(transaction_id)
           @transaction_id = transaction_id
 
-          transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
+          transaction = AsyncTransaction::VAProfile::Base.refresh_transaction_status(
             @user,
             contact_information_service,
             transaction_id

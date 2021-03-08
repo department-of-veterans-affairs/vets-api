@@ -53,14 +53,15 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController, type: :reque
         end
 
         it 'returns the form as JSON' do
+          rated_disabilities_before = JSON.parse(in_progress_form.form_data).dig('ratedDisabilities')
           VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
             get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
           end
           expect(response).to have_http_status(:ok)
           json_response = JSON.parse(response.body)
-          expect(json_response['formData']['ratedDisabilities']).to eq(rated_disabilites_from_evss)
+          expect(json_response['formData']['ratedDisabilities']).to eq(rated_disabilities_before)
+          expect(json_response['formData']['updatedRatedDisabilities']).to eq(rated_disabilites_from_evss)
           expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
-          expect(json_response['metadata']['ratedDisabilitiesUpdated']).to be_truthy
         end
       end
     end

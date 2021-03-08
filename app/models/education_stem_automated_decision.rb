@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 class EducationStemAutomatedDecision < ApplicationRecord
-  DECISION_STATES = %w[init processed denied].freeze
+  INIT = 'init'
+  PROCESSED = 'processed'
+  DENIED = 'denied'
+
+  DECISION_STATES = [INIT, PROCESSED, DENIED].freeze
 
   attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
 
@@ -10,15 +14,15 @@ class EducationStemAutomatedDecision < ApplicationRecord
   belongs_to(:education_benefits_claim, inverse_of: :education_stem_automated_decision)
 
   def self.init
-    where(automated_decision_state: 'init')
+    where(automated_decision_state: INIT)
   end
 
   def self.processed
-    where(automated_decision_state: 'processed')
+    where(automated_decision_state: PROCESSED)
   end
 
   def self.denied
-    where(automated_decision_state: 'denied')
+    where(automated_decision_state: DENIED)
   end
 
   # @return [Hash] parsed auth headers

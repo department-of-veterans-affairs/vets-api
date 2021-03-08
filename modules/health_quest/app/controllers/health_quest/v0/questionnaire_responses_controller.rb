@@ -22,8 +22,11 @@ module HealthQuest
       end
 
       def factory
-        @factory =
-          HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(current_user)
+        HealthQuest::Resource::Factory.manufacture(
+          user: current_user,
+          resource_identifier: 'questionnaire_response',
+          api: Settings.hqva_mobile.lighthouse.pgd_api
+        )
       end
     end
   end
