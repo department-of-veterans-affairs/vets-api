@@ -87,6 +87,7 @@ PATH
     covid_vaccine (0.1.0)
       sidekiq
     health_quest (0.1.0)
+    identity (0.1.0)
     mobile (0.1.0)
       dry-validation
     openid_auth (0.0.1)
@@ -975,6 +976,7 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
+  identity!
   iso_country_codes
   json (>= 2.3.0)
   json-schema
