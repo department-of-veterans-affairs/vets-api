@@ -22,12 +22,11 @@ module HealthQuest
     # @!attribute appointment_service
     #   @return [HealthQuest::AppointmentService]
     # @!attribute patient_service
-    #   @return [HealthApi::Patient::Factory]
+    #   @return [HealthQuest::Resource::Factory]
     # @!attribute questionnaire_response_service
-    #   @return [PatientGeneratedData::QuestionnaireResponse::Factory]
-    # @!attribute user
+    #   @return [HealthQuest::Resource::Factory]
     # @!attribute questionnaire_service
-    #   @return [PatientGeneratedData::Questionnaire::Factory]
+    #   @return [HealthQuest::Resource::Factory]
     # @!attribute sip_model
     #   @return [InProgressForm]
     # @!attribute transformer
@@ -35,6 +34,8 @@ module HealthQuest
     # @!attribute user
     #   @return [User]
     class Factory
+      include FactoryTypes
+
       HEALTH_CARE_FORM_PREFIX = 'HC-QSTNR'
       USE_CONTEXT_DELIMITER = ','
 
@@ -67,16 +68,16 @@ module HealthQuest
         @aggregated_data = default_response
         @user = user
         @appointment_service = AppointmentService.new(user)
-        @patient_service = HealthApi::Patient::Factory.manufacture(user)
-        @questionnaire_service = PatientGeneratedData::Questionnaire::Factory.manufacture(user)
-        @questionnaire_response_service = PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(user)
+        @patient_service = HealthQuest::Resource::Factory.manufacture(patient_type)
+        @questionnaire_service = HealthQuest::Resource::Factory.manufacture(questionnaire_type)
+        @questionnaire_response_service = HealthQuest::Resource::Factory.manufacture(questionnaire_response_type)
         @request_threads = []
         @sip_model = InProgressForm
         @transformer = Transformer
       end
 
       ##
-      # Interacts with and invokes functionality on the PGD and appointment health_quest services.
+      # Interacts with and invokes functionality on FHIR PGD and Health API services.
       # Invokes the `compose` method in the end to stitch all the data together for the controller.
       #
       # @return [Hash] an aggregated hash
@@ -92,8 +93,7 @@ module HealthQuest
       end
 
       ##
-      # Create a QuestionnaireResponse resource by calling the
-      # questionnaire response factory service.
+      # Create a QuestionnaireResponse resource
       #
       # @param data [Hash] questionnaire answers and appointment data hash.
       # @return [FHIR::ClientReply] an instance of ClientReply
@@ -103,7 +103,7 @@ module HealthQuest
       end
 
       ##
-      # Multi-Threaded and independent requests to the PGD and vets-api to cut down on network call times.
+      # Multi-Threaded and independent requests to the PGD, Health API, and vets-api to cut down on network overhead.
       # Sets the patient, questionnaires, questionnaire_responses and save_in_progress instance variables
       # independently by calling the separate endpoints through different threads. Any exception raised
       # during the execution of a thread will abort the current set of threads and bubble up the exception
@@ -125,12 +125,12 @@ module HealthQuest
       end
 
       ##
-      # Gets a patient resource from the PGD.
+      # Gets a patient resource from the Health API.
       #
       # @return [FHIR::Patient::ClientReply] an instance of ClientReply
       #
       def get_patient
-        @get_patient ||= patient_service.get
+        @get_patient ||= patient_service.get(user.icn)
       end
 
       ##

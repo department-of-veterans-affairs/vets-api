@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
-require 'appeals_api/central_mail_updater'
 
 module AppealsApi
   class NoticeOfDisagreementUploadStatusUpdater

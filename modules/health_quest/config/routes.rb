@@ -4,6 +4,8 @@ HealthQuest::Engine.routes.draw do
   namespace :v0, defaults: { format: :json } do
     resources :appointments, only: %i[index show]
     resources :lighthouse_appointments, only: %i[index show]
+    resources :locations, only: %i[index show]
+    resources :organizations, only: %i[index show]
     resources :pgd_questionnaires, only: %i[show]
     resources :patients, only: %i[create]
     resources :questionnaires, only: %i[index show]

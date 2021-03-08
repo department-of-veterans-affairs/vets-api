@@ -8,6 +8,7 @@ module Swagger
       swagger_path '/v0/letters' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
 
           key :description, 'Get a list of available letters for a veteran'
           key :operationId, 'getLetters'
@@ -27,6 +28,7 @@ module Swagger
       swagger_path '/v0/letters/beneficiary' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
 
           key :description, 'Returns service history, and a list of benefit options for use with POST /v0/letters'
           key :operationId, 'getLettersBeneficiary'
@@ -46,6 +48,7 @@ module Swagger
       swagger_path '/v0/letters/{id}' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ForbiddenError
 
           key :description, 'Returns a letter as a PDF blob'
           key :operationId, 'postLetter'
