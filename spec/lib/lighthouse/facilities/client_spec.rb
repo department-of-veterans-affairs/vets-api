@@ -58,23 +58,22 @@ RSpec.describe Lighthouse::Facilities::Client, team: :facilities, vcr: vcr_optio
         'wednesday' => '730AM-430PM'
       },
       services: { 'health' => %w[Audiology Cardiology Dermatology Gastroenterology
-                                 MentalHealthCare Ophthalmology PrimaryCare SpecialtyCare],
-                  'last_updated' => '2021-01-25', 'other' => [] },
+                                 Ophthalmology PrimaryCare SpecialtyCare],
+                  'last_updated' => '2021-02-15', 'other' => [] },
       feedback: {
         'effective_date' => nil,
         'health' => {}
       },
       access: {
-        'effective_date' => '2021-01-25',
+        'effective_date' => '2021-02-15',
         'health' => [
-          { 'service' => 'Audiology',        'new' => 84.083333,  'established' => 40.418604 },
-          { 'service' => 'Cardiology',       'new' => 76.333333,  'established' => 53.785714 },
-          { 'service' => 'Dermatology',      'new' => 226.75,     'established' => 54.727272 },
-          { 'service' => 'Gastroenterology', 'new' => 109.666666, 'established' => nil },
-          { 'service' => 'MentalHealthCare', 'new' => nil,        'established' => 8.0 },
-          { 'service' => 'Ophthalmology',    'new' => 157.166666, 'established' => 54.113636 },
-          { 'service' => 'PrimaryCare',      'new' => 23.5,       'established' => 20.656862 },
-          { 'service' => 'SpecialtyCare',    'new' => 88.471698,  'established' => 50.856321 }
+          { 'service' => 'Audiology',        'new' => 81.333333, 'established' => 63.361702 },
+          { 'service' => 'Cardiology',       'new' => 128.0, 'established' => 52.26 },
+          { 'service' => 'Dermatology',      'new' => 165.333333, 'established' => 95.916666 },
+          { 'service' => 'Gastroenterology', 'new' => 273.0, 'established' => nil },
+          { 'service' => 'Ophthalmology',    'new' => 65.25, 'established' => 32.64 },
+          { 'service' => 'PrimaryCare',      'new' => 43.56, 'established' => 27.230158 },
+          { 'service' => 'SpecialtyCare',    'new' => 95.230769, 'established' => 53.319796 }
         ]
       },
       mobile: false,

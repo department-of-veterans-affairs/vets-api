@@ -46,7 +46,8 @@
                 "type": ["array", "null"],
                 "items": { "type": "string" }
               },
-              "benefit_categories": { "type": ["array", "null"] }
+              "benefit_categories": { "type": ["array", "null"] },
+              "va_form_administration": { "type": ["array", "null"] }
             }
           }
         }

@@ -6,6 +6,7 @@ require 'vre/ch31_form'
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
   FORM = '28-1900'
+  PERMITTED_OFFICE_LOCATIONS = %w[319 325 339 377].freeze
 
   validate :veteran_information, on: :prepare_form_data
 
@@ -29,8 +30,14 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
   def send_to_vre(user)
     prepare_form_data
+    office_location = check_office_location
 
     upload_to_vbms
+
+    # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
+    # send the data to them. We always send a pdf to VBMS
+    return unless PERMITTED_OFFICE_LOCATIONS.include?(office_location)
+
     service = VRE::Ch31Form.new(user: user, claim: self)
     service.submit
   end
@@ -53,6 +60,31 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   private
+
+  def check_office_location
+    service = bgs_client
+    vet_info = parsed_form['veteranAddress']
+
+    regional_office_response = service.routing.get_regional_office_by_zip_code(
+      vet_info['postalCode'], vet_info['country'], vet_info['state'], 'CP', parsed_form['veteranInformation']['ssn']
+    )
+
+    regional_office_response[:regional_office][:number]
+  rescue => e
+    log_message_to_sentry(e.message, :warn, {}, { team: 'vfs-ebenefits' })
+    '000'
+  end
+
+  def bgs_client
+    @service ||= BGS::Services.new(
+      external_uid: parsed_form['email'],
+      external_key: external_key
+    )
+  end
+
+  def external_key
+    parsed_form.dig('veteranInformation', 'fullName', 'first') || parsed_form['email']
+  end
 
   def prepare_form_data
     form_copy = parsed_form
