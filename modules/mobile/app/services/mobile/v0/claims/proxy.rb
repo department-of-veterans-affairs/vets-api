@@ -139,30 +139,6 @@ module Mobile
           }
         end
 
-        def parse_appeals(appeals, full_list, error_list, status_code)
-          if appeals[1]
-            # appeals success
-            full_list.push(appeals[0])
-            status_code
-          else
-            # appeals error
-            error_list.push(appeals[0])
-            status_code == :multi_status ? :bad_gateway : :multi_status
-          end
-        end
-
-        def parse_claims(claims, full_list, error_list)
-          if claims[1]
-            # claims success
-            full_list.push(claims[0].map { |claim| create_or_update_claim(claim) })
-            :ok
-          else
-            # claims error
-            error_list.push(claims[0])
-            :multi_status
-          end
-        end
-
         def serialize_list(full_list)
           adapted_full_list = full_list.map { |entry| Mobile::V0::Adapters::ClaimsOverview.new.parse(entry) }
           adapted_full_list = adapted_full_list.sort_by { |entry| entry[:updated_at] }.reverse!
