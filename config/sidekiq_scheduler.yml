@@ -194,3 +194,8 @@ CypressViewportUpdater::UpdateCypressViewportsJob:
   cron: "0 12 3 * * America/New_York"
   class: CypressViewportUpdater::UpdateCypressViewportsJob
   description: "Updates Cypress files in vets-website with data from Google Analytics."
+
+ClaimsApi::ClaimAuditor:
+  cron: "0 0 0/12 1/1 * ? * America/New_York"
+  class: ClaimsApi::ClaimAuditor
+  description: "Daily alert of pending claims longer than acceptable threshold"
