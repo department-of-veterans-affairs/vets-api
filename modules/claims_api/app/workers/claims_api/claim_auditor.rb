@@ -9,7 +9,7 @@ module ClaimsApi
     include SentryLogging
 
     def perform
-      return unless Settings.claims_api.report_enabled
+      return unless Settings.claims_api.audit_enabled
 
       report_threshold = Settings.claims_api.claims_pending_reporting.threshold
       claims = ClaimsApi::AutoEstablishedClaim.where(status: ClaimsApi::AutoEstablishedClaim::PENDING)

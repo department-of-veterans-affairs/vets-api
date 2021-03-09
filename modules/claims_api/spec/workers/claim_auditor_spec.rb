@@ -20,7 +20,7 @@ RSpec.describe ClaimsApi::ClaimAuditor, type: :job do
     expect_any_instance_of(SlackNotify::Client).to receive(:notify)
 
     with_settings(Settings.claims_api,
-                  report_enabled: true,
+                  audit_enabled: true,
                   slack: OpenStruct.new(webhook_url: 'https://example.com'),
                   claims_pending_reporting: OpenStruct.new(threshold: 86_400_000, environment_name: 'test')) do
       subject.new.perform
@@ -32,7 +32,7 @@ RSpec.describe ClaimsApi::ClaimAuditor, type: :job do
     expect_any_instance_of(SlackNotify::Client).not_to receive(:notify)
 
     with_settings(Settings.claims_api,
-                  report_enabled: true,
+                  audit_enabled: true,
                   slack: OpenStruct.new(webhook_url: 'https://example.com'),
                   claims_pending_reporting: OpenStruct.new(threshold: 86_400_000, environment_name: 'test')) do
       subject.new.perform
