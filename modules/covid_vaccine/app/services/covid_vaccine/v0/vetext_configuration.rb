@@ -13,7 +13,7 @@ module CovidVaccine
       end
 
       def service_name
-        'Vetext'
+        'VEText'
       end
 
       def connection

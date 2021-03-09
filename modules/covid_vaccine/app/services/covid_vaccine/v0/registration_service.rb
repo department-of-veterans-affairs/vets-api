@@ -20,7 +20,7 @@ module CovidVaccine
         # TODO: error handling
         audit_log(attributes, user_type)
         response = submit(attributes)
-        Rails.logger.info("Covid_Vaccine Vetext Response: #{response}")
+        Rails.logger.info("Covid_Vaccine VEText Response: #{response}")
         submission.update!(sid: response[:sid], form_data: attributes)
         submit_confirmation_email(attributes[:email], submission.created_at, response[:sid])
         submission

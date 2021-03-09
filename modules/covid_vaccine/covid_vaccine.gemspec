@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.email       = ['kam@adhocteam.us']
   s.homepage    = 'https://api.va.gov'
   s.summary     = 'COVID-19 Registry API'
-  s.description = 'The Vetext COVID-19 Vaccine Registry API allows for adding veterans into a vaccine registry database.'
+  s.description = 'The VEText COVID-19 Vaccine Registry API allows for adding veterans into a vaccine registry database.'
   s.license     = 'MIT'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
