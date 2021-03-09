@@ -11,6 +11,7 @@ module VAForms
 
     def perform
       Rails.logger.info('VAForms::FormReloader is being called.')
+      query = @query
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
       body = { query: query }
       response = connection.post do |req|
@@ -30,6 +31,11 @@ module VAForms
       end
     rescue => e
       Rails.logger.error('VAForms::FormReloader failed to run!', e)
+    end
+
+    def set_query(query)
+
+
     end
 
     def connection
@@ -84,7 +90,7 @@ module VAForms
         deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
         related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
         benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
-        va_form_administration: form['fieldVaFormAdministration']
+        va_form_administration: form.dig('fieldVaFormAdministration').dig('entity').dig('entityLabel')
       }
       mapped[:form_details_url] = "#{FORM_BASE_URL}#{form.dig('entityUrl', 'path')}" if form['entityPublished']
       mapped
