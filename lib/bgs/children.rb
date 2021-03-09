@@ -99,7 +99,8 @@ module BGS
         {
           'event_date': formatted_info['event_date'],
           'type': event_type,
-          'child_prevly_married_ind': formatted_info['ever_married_ind']
+          'child_prevly_married_ind': formatted_info['ever_married_ind'],
+          'dep_has_income_ind': formatted_info['dependent_income']
         }
       )
     end
