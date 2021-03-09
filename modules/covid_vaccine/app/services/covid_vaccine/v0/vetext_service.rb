@@ -57,7 +57,7 @@ module CovidVaccine
       end
 
       def config
-        CovidVaccine::V0::VetextConfiguration.instance
+        CovidVaccine::V0::VETextConfiguration.instance
       end
 
       # Set the referrer (Referer header) to distinguish review instance, staging, etc from logs

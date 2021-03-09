@@ -5,7 +5,7 @@ require_relative '../middleware/response/errors'
 
 module CovidVaccine
   module V0
-    class VetextConfiguration < Common::Client::Configuration::REST
+    class VETextConfiguration < Common::Client::Configuration::REST
       self.read_timeout = Settings.vetext.timeout || 15
 
       def base_path
