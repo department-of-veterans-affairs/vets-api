@@ -14,8 +14,8 @@ module BGS
 
     def auth_json
       {
-        external_uid: @user.uuid,
-        external_key: @user.email
+        external_uid: @user.ssn,
+        external_key: @user.ssn
       }.to_json
     end
   end

@@ -36,7 +36,7 @@ module ClaimsApi
                      .add_headers(
                        EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
                      )
-      evss_headers = evss_headers.merge(BGS::AuthHeaders.new(@current_user).to_h) if @current_user.present?
+      evss_headers = evss_headers.merge(BGS::AuthHeaders.new(target_veteran).to_h)
 
       if request.headers['Mock-Override'] &&
          Settings.claims_api.disability_claims_mock_override
