@@ -133,7 +133,7 @@ FactoryBot.define do
             },
             'ssn' => '370947141',
             'birth_date' => '2001-03-03',
-            'dependent_income' => 'true'
+            'dependent_income' => true
           },
           'step_children' => [
             {
