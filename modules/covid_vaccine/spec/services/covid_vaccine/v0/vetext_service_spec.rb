@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe CovidVaccine::V0::VetextService do
+describe CovidVaccine::V0::VETextService do
   subject { described_class.new }
 
   let(:user) { build(:user, :mhv) }

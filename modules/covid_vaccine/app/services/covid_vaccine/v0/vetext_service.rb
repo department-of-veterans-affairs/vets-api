@@ -6,7 +6,7 @@ require 'common/exceptions'
 
 module CovidVaccine
   module V0
-    class VetextService < Common::Client::Base
+    class VETextService < Common::Client::Base
       include Common::Client::Concerns::Monitoring
       include SentryLogging
 

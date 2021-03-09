@@ -28,12 +28,12 @@ module CovidVaccine
       end
 
       def opt_out
-        CovidVaccine::V0::VetextService.new.put_email_opt_out(sid)
+        CovidVaccine::V0::VETextService.new.put_email_opt_out(sid)
         head :no_content
       end
 
       def opt_in
-        CovidVaccine::V0::VetextService.new.put_email_opt_in(sid)
+        CovidVaccine::V0::VETextService.new.put_email_opt_in(sid)
         head :no_content
       end
 

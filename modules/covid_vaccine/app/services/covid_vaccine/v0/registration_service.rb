@@ -34,7 +34,7 @@ module CovidVaccine
       end
 
       def submit(attributes)
-        CovidVaccine::V0::VetextService.new.put_vaccine_registry(attributes)
+        CovidVaccine::V0::VETextService.new.put_vaccine_registry(attributes)
       end
 
       def audit_log(attributes, user_type)
