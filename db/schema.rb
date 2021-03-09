@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_26_193901) do
+ActiveRecord::Schema.define(version: 2021_03_05_155617) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -612,8 +612,6 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.string "phone"
     t.string "email"
     t.string "password"
-    t.boolean "standard"
-    t.boolean "available"
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -655,6 +653,7 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.string "related_forms", array: true
     t.jsonb "benefit_categories"
     t.string "form_details_url"
+    t.jsonb "va_form_administration"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 

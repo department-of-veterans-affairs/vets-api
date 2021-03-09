@@ -132,14 +132,22 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ServiceHistoryEpisode'
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceHistoryEpisode'
             application/jwt:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ServiceHistoryToken'
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceHistoryToken'
         '401':
           description: Not authorized
         '404':

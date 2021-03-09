@@ -64,6 +64,7 @@ class SimpleCovHelper
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
+    add_group 'Identity', 'modules/identity/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
