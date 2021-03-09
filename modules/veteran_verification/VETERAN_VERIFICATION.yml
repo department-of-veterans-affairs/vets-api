@@ -88,8 +88,8 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/VeteranStatusConfirmation'
-        '403':
-          description: Provided Access Token Does not have the required scopes to access.
+        '401':
+          description: Not authorized
         '502':
           description: eMIS failed to respond or responded in a way we cannot handle.
   /disability_rating:
@@ -114,6 +114,8 @@ paths:
             application/jwt:
               schema:
                 $ref: '#/components/schemas/DisabilityRatingToken'
+        '401':
+          description: Not authorized
         '502':
           description: BGS service responded with something other than the expected disability rating response.
   /service_history:
@@ -134,10 +136,20 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: '#/components/schemas/ServiceHistoryEpisode'
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceHistoryEpisode'
             application/jwt:
               schema:
-                $ref: '#/components/schemas/ServiceHistoryToken'
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceHistoryToken'
+        '401':
+          description: Not authorized
         '404':
           description: No service history found
   /keys:
@@ -153,6 +165,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/JWKKeyset'
+        '401':
+          description: Not authorized
 components:
   securitySchemes:
     bearer_token:
@@ -224,27 +238,27 @@ components:
       type: string
       example: 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjA4OGQyNDIzMmZmNmZhYTRjZDRjZmVjMTI2YWQwNDMxZGZmMWVhMDI4YWZkYjFjODZiMzcxOGQ3MDE3MWFlZDYifQ.eyJkYXRhIjp7ImlkIjoxMjMwMywidHlwZSI6ImRvY3VtZW50X3VwbG9hZCIsImF0dHJpYnV0ZXMiOnsiZGVjaXNpb24iOiJTZXJ2aWNlIENvbm5lY3RlZCIsImVmZmVjdGl2ZV9kYXRlIjoiMjAxOC0wMy0yN1QyMTowMDo0MS4wMDArMDAwMCIsInJhdGluZ19wZXJjZW50YWdlIjo1MH19fQ.z3EeYFixwdmG_4_LFdzy6fdF2Y7nj3y9uOPRTwLqsXVcLNUDIN72atn0SSI-hkF-rRkbFdyzLDaY2AWtQ-LmBPdeWqyv4U2ZnjynAwlCnG0VNG3x4Wz2qSW7BW1cQVBx0yvWag_NmQ74AfOBNz7K2qz8aEOvYIJaicRr2hSAu7A'
     VeteranStatusConfirmation:
-          description: |
-            Veteran status confirmation for an individual
+      description: |
+        Veteran status confirmation for an individual
+      type: object
+      properties:
+        id:
+          type: string
+          description: Confirmation UUID
+          example: "833c6ffc-efef-4775-9355-f836b4f57501"
+        type:
+          type: string
+          example: veteran_status_confirmations
+        attributes:
           type: object
           properties:
-            id:
+            veteran_status:
               type: string
-              description: Confirmation UUID
-              example: "833c6ffc-efef-4775-9355-f836b4f57501"
-            type:
-              type: string
-              example: veteran_status_confirmations
-            attributes:
-              type: object
-              properties:
-                veteran_status:
-                  type: string
-                  description: |
-                    Whether the system could confirm the Veteran status of the authorized individual
-                  enum:
-                    - confirmed
-                    - not confirmed
+              description: |
+                Whether the system could confirm the Veteran status of the authorized individual
+              enum:
+                - confirmed
+                - not confirmed
     ServiceHistoryEpisode:
       description: |
         Service History for authorized Veteran

@@ -814,6 +814,8 @@ vanotify:
     connection_template: fake_template_id
     disconnection_template: fake_template_id
     covid_vaccine_registration: fake_template_id
+    direct_deposit_edu: edu_template_id
+    direct_deposit_comp_pen: comp_pen_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications

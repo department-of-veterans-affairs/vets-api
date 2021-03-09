@@ -8,7 +8,7 @@ module VAForms
                :last_revision_on, :pages, :sha256, :valid_pdf,
                :form_usage, :form_tool_intro, :form_tool_url, :form_details_url,
                :form_type, :language, :deleted_at, :related_forms,
-               :benefit_categories, :versions
+               :benefit_categories, :va_form_administration, :versions
 
     def id
       object.form_name

@@ -16,6 +16,7 @@ path 'modules' do
   gem 'covid_research'
   gem 'covid_vaccine'
   gem 'health_quest'
+  gem 'identity'
   gem 'mobile'
   gem 'openid_auth'
   gem 'test_user_dashboard'
