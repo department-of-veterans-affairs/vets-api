@@ -56,7 +56,7 @@ module ClaimsApi
     def queue_flash_updater(auth_headers, flashes, auto_claim_id)
       return if flashes.blank?
 
-      ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes, auto_claim_id: auto_claim_id)
+      ClaimsApi::FlashUpdater.perform_async(bgs_user(auth_headers), flashes, auto_claim_id)
     end
 
     def service(auth_headers)

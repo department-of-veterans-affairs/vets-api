@@ -8,7 +8,7 @@ module ClaimsApi
     include Sidekiq::Worker
     include SentryLogging
 
-    def perform(user, flashes, auto_claim_id: nil)
+    def perform(user, flashes, auto_claim_id = nil)
       service = bgs_service(user).claimant
 
       flashes.each do |flash_name|
