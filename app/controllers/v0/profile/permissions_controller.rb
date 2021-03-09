@@ -35,13 +35,10 @@ module V0
 
       def permission_params
         params.permit(
-          :effective_start_date,
           :id,
           :permission_type,
           :permission_value,
-          :source_date,
-          :transaction_id,
-          :vet360_id
+          :transaction_id
         )
       end
     end
