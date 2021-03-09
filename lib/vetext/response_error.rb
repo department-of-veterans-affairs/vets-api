@@ -5,9 +5,9 @@ module VEText
   #
   class ResponseError < StandardError
     def initialize(body)
-      @id_type = body&.idType
-      @id = body&.id
-      super(body&.error || 'Response returned success=false')
+      @id_type = body[:idType]
+      @id = body[:id]
+      super(body[:error] || 'Response returned success=false')
     end
   end
 end
