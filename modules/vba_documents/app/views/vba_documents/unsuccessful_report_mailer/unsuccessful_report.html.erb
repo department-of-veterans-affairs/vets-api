@@ -7,7 +7,7 @@
   <tr>
     <th>CONSUMER</th>
     <% VBADocuments::UploadSubmission::RPT_STATUSES.each do |status| %>
-      <th><%= status %></th>
+      <th><%= status.upcase %></th>
     <% end %>
     <th>TOTALS</th>
     <th>SUCCESS RATE</th>
