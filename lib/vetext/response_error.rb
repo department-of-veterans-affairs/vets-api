@@ -10,5 +10,4 @@ module VEText
       super(body&.error || 'Response returned success=false')
     end
   end
-
 end

@@ -10,7 +10,6 @@ module VEText
   #   configuration VEText::Configuration
   #
   class Configuration < Common::Client::Configuration::REST
-
     # Override the parent's base path
     # @return String the service base path from the environment settings
     #
@@ -35,13 +34,12 @@ module VEText
         conn.basic_auth(Settings.vetext_push.user, Settings.vetext_push.pass)
         conn.use :breakers
         conn.request :json
-        
+
         conn.use Faraday::Response::RaiseError
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
         conn.adapter Faraday.default_adapter
       end
     end
-
   end
 end

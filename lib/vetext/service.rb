@@ -19,13 +19,12 @@ module VEText
     # @app_name String       name from
     # @device_token String   the unique token for the user's device
     # @icn String            the Integration Control Number of the Veteran
-    # @os_name String        the operating system name from the device
-    # @os_version String     the operating system version number from the device
+    # @os_info String        the operating system name from the device
     # @device_name String    (optional) the name of the device
     #
     # @return Hash           response object, which includes endpoint_sid
     #
-    def register(app_name, device_token, icn, os_name, os_version, device_name = nil)
+    def register(app_name, device_token, icn, os_info, device_name = nil)
       app_sid = get_app_sid(app_name)
       response = perform(
         :put,
@@ -33,9 +32,9 @@ module VEText
           appSid: app_sid,
           token: device_token,
           icn: icn,
-          os: os_name,
-          osVersion: os_version,
-          deviceName: device_name || os_name
+          os: os_info[:name],
+          osVersion: os_info[:version],
+          deviceName: device_name || os_info[:name]
         }
       )
       raise_if_response_error(response.body)
@@ -63,19 +62,19 @@ module VEText
 
     # Set a single preference for a given user/device.
     #
-    # @endpoint_sid String    the registration id as returned from `register`
-    # @preference_id String   the preference type identifier
-    # @value boolean          true: user wishes to receive this type of push notification
+    # @endpoint_sid String          the registration id as returned from `register`
+    # @preference_id String         the preference type identifier
+    # @receive_preference boolean   true: user wishes to receive this type of push notification
     #
-    # @return Hash            response object
+    # @return Hash                  response object
     #
-    def set_preference(endpoint_sid, preference_id, value)
+    def set_preference(endpoint_sid, preference_id, receive_preference)
       response = perform(
         :put,
         PREFERENCES_PATH, {
           endpointSid: endpoint_sid,
           preferenceId: preference_id,
-          value: !!value
+          value: receive_preference == true
         }
       )
       raise_if_response_error(response.body)
@@ -92,14 +91,14 @@ module VEText
     #
     # @return Hash            response object
     #
-    def send_notification(endpoint_id, template_id, personalization = Hash.new)
+    def send_notification(endpoint_id, template_id, personalization = {})
       response = perform(
-          :post,
-          SEND_PATH, {
-              endpointSid: endpoint_id,
-              templateSid: template_id,
-              personalization: personalization
-          }
+        :post,
+        SEND_PATH, {
+          endpointSid: endpoint_id,
+          templateSid: template_id,
+          personalization: personalization
+        }
       )
       raise_if_response_error(response.body)
       response.body
@@ -113,9 +112,7 @@ module VEText
     # body of a 200 response
     #
     def raise_if_response_error(body)
-      if body[:success] == false
-        raise VEText::ResponseError.new(body)
-      end
+      raise VEText::ResponseError, body if body[:success] == false
     end
 
     def remap_error(e)
@@ -133,10 +130,10 @@ module VEText
 
     def get_app_sid(app_name)
       settings = Settings.vetext_push
-      if settings.has_key?("#{app_name}_sid".to_sym)
+      if settings.key?("#{app_name}_sid".to_sym)
         settings["#{app_name}_sid".to_sym]
       else
-        raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_404')
+        raise Common::Exceptions::BackendServiceException, 'VETEXT_PUSH_404'
       end
     end
   end
