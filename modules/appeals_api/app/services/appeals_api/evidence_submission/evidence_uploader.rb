@@ -11,8 +11,8 @@ module AppealsApi
 
       def process!
         generate_evidence_submission!
-        #store_metadata! TODO: ?
-        temporary_upload!
+        uploader.store!(document)
+        store_metadata!
         update_submission_status!
 
         #vbms_connect_job
@@ -27,11 +27,13 @@ module AppealsApi
       end
 
       def store_metadata!
-
+        @submission.update(file_data: {
+          filename: uploader.filename
+        })
       end
 
-      def temporary_upload!
-        TemporaryStorageUploader.new(appeal.id, @type).store!(document)
+      def uploader
+        @uploader ||= TemporaryStorageUploader.new(appeal.id, @type)
       end
 
       def update_submission_status!
