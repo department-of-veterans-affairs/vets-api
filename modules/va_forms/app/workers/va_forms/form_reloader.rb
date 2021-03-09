@@ -11,7 +11,6 @@ module VAForms
 
     def perform
       Rails.logger.info('VAForms::FormReloader is being called.')
-      query = @query
       query = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
       body = { query: query }
       response = connection.post do |req|
@@ -31,11 +30,6 @@ module VAForms
       end
     rescue => e
       Rails.logger.error('VAForms::FormReloader failed to run!', e)
-    end
-
-    def set_query(query)
-
-
     end
 
     def connection
