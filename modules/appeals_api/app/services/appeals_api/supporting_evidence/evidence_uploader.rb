@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AppealsApi
-  module EvidenceSubmission
+  module SupportingEvidence
     class EvidenceUploader
       def initialize(appeal, document, type:)
         @document = document
