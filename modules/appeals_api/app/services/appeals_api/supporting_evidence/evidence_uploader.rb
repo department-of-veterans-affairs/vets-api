@@ -4,6 +4,7 @@ module AppealsApi
   module SupportingEvidence
     class EvidenceUploader
       def initialize(appeal, document, type:)
+        @appeal = appeal
         @document = document
         @type = type
         raise ArgumentError, 'invalid type' unless valid_type!
@@ -15,12 +16,12 @@ module AppealsApi
         store_metadata!
         update_submission_status!
 
-        #vbms_connect_job
+        # vbms_connect_job
       end
 
       private
 
-      attr_accessor :submission, :document
+      attr_accessor :submission, :document, :appeal
 
       def generate_evidence_submission!
         @submission = appeal.evidence_submissions.create!
@@ -28,8 +29,8 @@ module AppealsApi
 
       def store_metadata!
         @submission.update(file_data: {
-          filename: uploader.filename
-        })
+                             filename: uploader.filename
+                           })
       end
 
       def uploader

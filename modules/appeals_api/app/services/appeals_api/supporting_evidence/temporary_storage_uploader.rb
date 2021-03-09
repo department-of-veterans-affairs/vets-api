@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-#
+
 module AppealsApi
   module SupportingEvidence
     class TemporaryStorageUploader < CarrierWave::Uploader::Base
@@ -19,6 +19,7 @@ module AppealsApi
 
       def store_dir
         raise 'missing guid' if @appeal_guid.blank?
+
         "#{location}/#{@appeal_guid}"
       end
 
