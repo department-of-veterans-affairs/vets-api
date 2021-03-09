@@ -58,4 +58,17 @@ RSpec.describe BGS::DependencyVerificationService do
       end
     end
   end
+
+  describe '#update_diaries' do
+    it 'returns no errors' do
+      VCR.use_cassette('bgs/diaries_service/update_diaries') do
+        allow(user).to receive(:participant_id).and_return('13014883')
+        service = BGS::DependencyVerificationService.new(user)
+        response = service.update_diaries
+
+        expect(response[:error_level]).to eq('0')
+        expect(response[:diaries][:diary].map { |diary| diary[:award_diary_id] }).to eq(%w[71859 71860 71861])
+      end
+    end
+  end
 end
