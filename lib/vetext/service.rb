@@ -12,10 +12,11 @@ module VEText
     BASE_PATH = '/api/vetext/pub/mobile/push'
     REGISTER_PATH = BASE_PATH + '/endpoint'
     PREFERENCES_PATH = BASE_PATH + '/preferences/client'
+    SEND_PATH = BASE_PATH + '/send'
 
     # Register a user's mobile device with the push notification service.
     #
-    # @app_sid String        the identifier specific to the Mobile App
+    # @app_name String       name from
     # @device_token String   the unique token for the user's device
     # @icn String            the Integration Control Number of the Veteran
     # @os_name String        the operating system name from the device
@@ -24,7 +25,8 @@ module VEText
     #
     # @return Hash           response object, which includes endpoint_sid
     #
-    def register(app_sid, device_token, icn, os_name, os_version, device_name = nil)
+    def register(app_name, device_token, icn, os_name, os_version, device_name = nil)
+      app_sid = get_app_sid(app_name)
       response = perform(
         :put,
         REGISTER_PATH, {
@@ -54,7 +56,6 @@ module VEText
         "#{PREFERENCES_PATH}/#{endpoint_sid}",
         nil
       )
-      raise_if_response_error(response.body)
       response.body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
@@ -83,6 +84,29 @@ module VEText
       remap_error(e)
     end
 
+    # Send a push notification to a single device
+    #
+    # @endpoint_sid String    the registration id as returned from `register`
+    # @template_id String     id of the push notification content template
+    # @personalisation Hash   data map provided by sender to fill in specified template
+    #
+    # @return Hash            response object
+    #
+    def send_notification(endpoint_id, template_id, personalization = Hash.new)
+      response = perform(
+          :post,
+          SEND_PATH, {
+              endpointSid: endpoint_id,
+              templateSid: template_id,
+              personalization: personalization
+          }
+      )
+      raise_if_response_error(response.body)
+      response.body
+    rescue Common::Client::Errors::ClientError => e
+      remap_error(e)
+    end
+
     private
 
     # Raise an error if the service returned an error in the
@@ -97,11 +121,22 @@ module VEText
     def remap_error(e)
       case e.status
       when 400..499
-        raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_400', { detail: e.body[:error] }, e.status, e.body)
+        raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_400',
+                                                              { detail: e.body[:error] }, e.status,
+                                                              e.body)
       when 500..599
         raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_502', {}, e.status)
       else
         raise e
+      end
+    end
+
+    def get_app_sid(app_name)
+      settings = Settings.vetext_push
+      if settings.has_key?("#{app_name}_sid".to_sym)
+        settings["#{app_name}_sid".to_sym]
+      else
+        raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_404')
       end
     end
   end

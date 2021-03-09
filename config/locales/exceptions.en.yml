@@ -1875,6 +1875,11 @@ en:
         code: 'VETEXT_PUSH_400'
         detail: The request to the upstream service was malformed and could not be processed
         status: 400
+      VETEXT_PUSH_404:
+        <<: *external_defaults
+        detail: app_name not found
+        code: 'VETEXT_PUSH_404'
+        status: 404
       VETEXT_PUSH_502:
         <<: *external_defaults
         code: 'VETEXT_PUSH_502'

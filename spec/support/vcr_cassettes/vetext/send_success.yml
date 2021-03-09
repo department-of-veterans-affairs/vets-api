@@ -1,11 +1,11 @@
 ---
 http_interactions:
   - request:
-      method: put
-      uri: https://vetext1.r01.med.va.gov/api/vetext/pub/mobile/push/endpoint
+      method: post
+      uri: https://vetext1.r01.med.va.gov/api/vetext/pub/mobile/push/send
       body:
         encoding: UTF-8
-        string: '{appSid: "EC15A7E1767C4018AC50B442AAC50D1E", token: "9bad7c63574f75f46944c6436a01b7c41c0776d6f061aa46b0884cdd93bb6959", icn: "1011568236", os: "ios"}'
+        string: '{endpointSid: "8c258cbe573c462f912e7dd74585a5a9", templateSid: "0EF7C8C9390847D7B3B521426EFF5814", personalization: { "%APPOINTMENT_DATE%": "DEC 14", "%APPOINTMENT_TIME%": "10:00" }'
       headers:
         Accept: "application/json"
         Content-Type: "application/json"
@@ -22,7 +22,7 @@ http_interactions:
         content-type:
           - application/json;charset=UTF-8
         date:
-          - Wed, 18 Nov 2020 21:52:29 GMT
+          - Tue, 15 Dec 2020 21:52:29 GMT
         p3p:
           - CP="NON CUR OTPi OUR NOR UNI"
         x-frame-options:
@@ -53,9 +53,8 @@ http_interactions:
         encoding: UTF-8
         string: |-
           {
-            "sid":"8E7F6585AAB1F6CF2E16058183303383",
-            "success":true
+            "success": true
           }
         http_version:
-    recorded_at: Wed, 18 Nov 2020 21:52:29 GMT
+    recorded_at: Tue, 15 Dec 2020 21:52:29 GMT
 recorded_with: VCR 5.0.0
