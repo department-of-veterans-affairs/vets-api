@@ -180,6 +180,13 @@ modules_appeals_api:
         - laura.trager@adhocteam.us
         - nathan.wright@oddball.io
   schema_dir: config/schemas
+  s3:
+    uploads_enabled: false
+    aws_access_key_id: "aws_access_key_id"
+    aws_secret_access_key: "aws_secret_access_key"
+    region: "region"
+    bucket: "bucket"
+
 
 vre_counseling:
   prefill: true
