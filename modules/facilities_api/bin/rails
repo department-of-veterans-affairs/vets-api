@@ -8,13 +8,11 @@ ENGINE_PATH = File.expand_path('../lib/facilities_api/engine', __dir__)
 ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', __dir__)
 require 'bundler/setup' if File.exist?(ENV['BUNDLE_GEMFILE'])
 
-# require 'rails/all'
-
 require 'rails'
 # Pick the frameworks you want:
 require 'active_model/railtie'
 # require "active_job/railtie"
-require 'active_record/railtie'
+require 'active_record/railtie' # Required to create models
 # require "active_storage/engine"
 require 'action_controller/railtie'
 # require "action_mailer/railtie"
