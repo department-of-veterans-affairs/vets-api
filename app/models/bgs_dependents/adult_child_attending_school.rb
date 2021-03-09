@@ -66,7 +66,7 @@ module BGSDependents
       {
         ssn: @ssn,
         birth_date: @birth_date,
-        ever_married_ind: @was_married == true ? 'Y' : 'N',
+        ever_married_ind: formatted_boolean(@was_married),
         dependent_income: formatted_boolean(@dependent_income)
       }.merge(@full_name)
     end
