@@ -5,7 +5,7 @@ module SpoolHelpers
 
   module ClassMethods
     # rubocop:disable Metrics/MethodLength
-    def test_spool_file(form_type, test_name, enabled_features = [], disabled_features = [])
+    def test_spool_file(form_type, test_name, disabled_features = [])
       describe "#{form_type} #{test_name} spool test" do
         subject do
           described_class.new(education_benefits_claim)
@@ -25,11 +25,6 @@ module SpoolHelpers
         end
 
         it 'generates the spool file correctly', run_at: '2017-01-17 03:00:00 -0500' do
-
-          enabled_features.each do |feature|
-            allow(Flipper).to receive(:enabled?).with(feature).and_return(true)
-          end
-
           disabled_features.each do |feature|
             allow(Flipper).to receive(:enabled?).with(feature).and_return(false)
           end
