@@ -44,7 +44,9 @@ class IAMUserIdentity < ::UserIdentity
       loa: { current: loa_level, highest: loa_level },
       middle_name: iam_profile[:middle_name]
     )
-
+    
+    StatsD.increment('iam_ssoe_oauth.auth_type', tags:["type:#{iam_auth_n_type}"])
+    
     identity.set_expire
     identity
   end

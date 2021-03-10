@@ -49,6 +49,16 @@ module Mobile
           raw_claim = claims_service.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
           claim.update(data: raw_claim)
           claim_detail = EVSSClaimDetailSerializer.new(claim)
+
+          StatsD.increment(
+            'mobile.claims_and_appeals.claim.type',
+            tags: %W[
+              base_end_product_code#{claim['base_end_product_code']}
+              base_end_product_code#{claim['benefit_claim_type_code']}
+            ],
+            sample_rate: 1.0
+          )
+
           render json: Mobile::V0::ClaimSerializer.new(claim_detail)
         else
           raise Common::Exceptions::RecordNotFound, params[:id]

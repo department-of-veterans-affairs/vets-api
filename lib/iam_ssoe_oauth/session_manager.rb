@@ -63,6 +63,9 @@ module IAMSSOeOAuth
       user = IAMUser.build_from_user_identity(user_identity)
       user.last_signed_in = Time.now.utc
       user.save
+      
+      StatsD.set('iam_ssoe_oauth.users', user.uuid, sample_rate: 1.0)
+      
       user
     end
 
