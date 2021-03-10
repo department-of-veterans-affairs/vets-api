@@ -133,7 +133,7 @@ module VEText
       if settings.key?("#{app_name}_sid".to_sym)
         settings["#{app_name}_sid".to_sym]
       else
-        raise Common::Exceptions::BackendServiceException, 'VETEXT_PUSH_404'
+        raise Common::Exceptions::RecordNotFound, app_name
       end
     end
   end

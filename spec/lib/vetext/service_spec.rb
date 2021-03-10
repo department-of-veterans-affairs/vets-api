@@ -58,7 +58,7 @@ describe 'VEText::Service' do
               version: '13.1'
             }
           )
-        end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_404/)
+        end.to raise_error(Common::Exceptions::RecordNotFound)
       end
     end
   end
