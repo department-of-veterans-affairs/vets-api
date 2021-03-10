@@ -108,7 +108,6 @@ module VAForms
                 key :example, '21-22A'
               end
             end
-
             property :benefit_categories do
               key :description, I18n.t('va_forms.field_descriptions.benefit_categories')
               key :type, :array
@@ -123,6 +122,14 @@ module VAForms
                   key :type, :string
                   key :example, 'VA pension benefits'
                 end
+              end
+            end
+            property :va_form_administration do
+              key :description, I18n.t('va_forms.field_descriptions.va_form_administration')
+              key :type, :array
+              items do
+                key :type, :string
+                key :example, 'Veterans Health Administration'
               end
             end
           end
@@ -223,7 +230,6 @@ module VAForms
                 key :example, '21-22A'
               end
             end
-
             property :benefit_categories do
               key :description, I18n.t('va_forms.field_descriptions.benefit_categories')
               key :type, :array
@@ -240,7 +246,14 @@ module VAForms
                 end
               end
             end
-
+            property :va_form_administration do
+              key :description, I18n.t('va_forms.field_descriptions.va_form_administration')
+              key :type, :array
+              items do
+                key :type, :string
+                key :example, 'Veterans Health Administration'
+              end
+            end
             property :versions do
               key :type, :array
               key :description, I18n.t('va_forms.field_descriptions.versions')

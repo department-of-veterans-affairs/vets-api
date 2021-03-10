@@ -1,7 +1,14 @@
 The Benefits Intake API allows authorized third-party systems used by Veteran Service Organizations and agencies to digitally submit claim documents directly to the Veterans Benefits Administration's (VBA) claims intake process.
 
-This API provides a secure and efficient alternative to paper or fax document submissions. VBA can begin processing documents submitted through this API immediately, which ultimately allows VA to provide Veterans with claim decisions more quickly.
-All submitted documents will be routed to the correct office(s), including documents related to the following Benefit/Claim types : Compensation, Pension/Survivors Benefits, Education, Fiduciary, Insurance, Veteran Readiness & Employment (VRE), and Board of Veteran Appeals (BVA).
+This API provides a secure and efficient alternative to paper or fax document submissions. VBA can begin processing documents submitted through this API immediately, which ultimately allows VA to provide Veterans with claim decisions more quickly. All successfully submitted documents are routed to the correct office(s) for processing, including documents related to the following benefit/claim types :
+
+* Compensation
+* Pension/Survivors Benefits
+* Education
+* Fiduciary
+* Insurance
+* Veteran Readiness & Employment (VRE), and
+* Board of Veteran Appeals (BVA)
 
 It also saves users time by reporting documents' status until they reach Veterans Benefits Management System (VBMS), where the documents are reviewed. This eliminates the need for users to switch between systems to manually check whether documents have reached VBMS.
 
