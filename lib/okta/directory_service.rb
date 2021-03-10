@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'okta/service'
 
 module Okta
   class DirectoryService < Common::Client::Base
@@ -19,13 +20,13 @@ module Okta
     end
 
     def handle_health_server
-      server = @okta_service.get_auth_server(Settings.directory.health_server_id)
-      scopes = @okta_service.get_server_scopes(server.body['id'])
+      server = okta_service.auth_server(Settings.directory.health_server_id)
+      scopes = okta_service.get_server_scopes(server.body['id'])
       remove_scope_keys(scopes)
     end
 
     def handle_nonhealth_server(category)
-      servers = @okta_service.get_auth_servers
+      servers = okta_service.auth_servers
       server = servers.body.select { |auth_server| auth_server['name'].include?(category.downcase) }
       return server if server.empty?
 
