@@ -55,7 +55,6 @@ module VEText
         "#{PREFERENCES_PATH}/#{endpoint_sid}",
         nil
       )
-      raise_if_response_error(response.body)
       response.body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
