@@ -50,7 +50,7 @@ module V0
 
     def send_confirmation_email
       if Flipper.enabled?(:direct_deposit_vanotify, current_user)
-        VANotifyDdEmailJob.send_to_emails(current_user.all_emails, :comp_pen)
+        VANotifyDdEmailJob.send_to_emails(current_user.all_emails, 'comp_pen')
       else
         DirectDepositEmailJob.send_to_emails(current_user.all_emails, params[:ga_client_id], :comp_pen)
       end
