@@ -11,7 +11,7 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
 
   describe '#create' do
     def personal_information_logs
-      PersonalInformationLog.where error_class: 'V0::HigherLevelReviewsController#create exception (HLR)'
+      PersonalInformationLog.where 'error_class like ?', 'V0::HigherLevelReviewsController#create exception % (HLR)'
     end
 
     subject do
@@ -32,6 +32,7 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
         expect(personal_information_logs.count).to be 0
         subject
         expect(personal_information_logs.count).to be 1
+byebug
         pil = personal_information_logs.first
         %w[
           first_name last_name birls_id icn edipi mhv_correlation_id
