@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_05_155617) do
+ActiveRecord::Schema.define(version: 2021_03_10_191813) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -669,6 +669,7 @@ ActiveRecord::Schema.define(version: 2021_03_05_155617) do
     t.uuid "consumer_id"
     t.json "uploaded_pdf"
     t.boolean "use_active_storage", default: false
+    t.jsonb "metadata", default: {}
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end

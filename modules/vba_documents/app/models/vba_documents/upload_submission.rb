@@ -9,6 +9,9 @@ module VBADocuments
     include SetGuid
     include SentryLogging
     send(:validates_uniqueness_of, :guid)
+    before_save :capture_status_time, if: :status_changed?
+    after_find :set_initial_status
+    attr_reader :initial_status
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
@@ -18,6 +21,12 @@ module VBADocuments
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 
     after_save :report_errors
+
+    def initialize(attributes = nil)
+      super
+      @initial_status = status
+      self.metadata = {'status' => {@initial_status => {'start' => Time.now.to_i}}}
+    end
 
     def self.fake_status(guid)
       empty_submission = OpenStruct.new(guid: guid,
@@ -129,5 +138,23 @@ module VBADocuments
       key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
       StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_attribute?(:status) && status == 'error'
     end
+
+    def set_initial_status
+      @initial_status = self.status
+    end
+
+    def capture_status_time
+      from = @initial_status
+      to = status
+      time = Time.now.to_i
+      self.metadata['status'][from]['end'] = time
+      self.metadata['status'][to] ||= {}
+      self.metadata['status'][to]['start'] = time
+    end
   end
 end
+
+=begin
+#todo delete me
+load('./modules/vba_documents/app/models/vba_documents/upload_submission.rb')
+=end
