@@ -114,6 +114,11 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   class: VBADocuments::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful benefits intake submissions"
 
+VBADocuments::ReportMonthlySubmissions:
+  cron: "0 2 1 * MON-FRI America/New_York"
+  class: VBADocuments::ReportMonthlySubmissions
+  description: "Monthly report of benefits intake submissions at 0200 on the first of the month"
+
 ClaimsApi::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
   class: ClaimsApi::ReportUnsuccessfulSubmissions
@@ -125,17 +130,17 @@ VBADocuments::RunUnsuccessfulSubmissions:
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
 AppealsApi::DecisionReviewReportDaily:
-  cron: "0 0 * * MON-FRI America/New_York"
+  cron: "0 23 * * MON-FRI America/New_York"
   class: AppealsApi::DecisionReviewReportDaily
   description: "Daily report of appeals submissions"
 
 AppealsApi::DecisionReviewReportWeekly:
-  cron: "0 0 * * MON America/New_York"
+  cron: "0 23 * * MON America/New_York"
   class: AppealsApi::DecisionReviewReportWeekly
   description: "Weekly report of appeals submissions"
 
 AppealsApi::DailyErrorReport:
-  cron: "0 0 * * MON-FRI America/New_York"
+  cron: "0 23 * * MON-FRI America/New_York"
   class: AppealsApi::DailyErrorReport
   description: "Daily report of appeals errors"
 
