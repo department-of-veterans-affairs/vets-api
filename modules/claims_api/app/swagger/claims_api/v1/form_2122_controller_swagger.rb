@@ -428,8 +428,9 @@ module ClaimsApi
           key :summary, 'Check active power of attorney status'
           key :description,
               <<~X
-                Returns last active JSON payload.
+                Returns last Power of Attorney submission sent to this API.
                 * Any authenticated user can view any individual's active, and previous, POA.
+                * Returned payload will also include `previous_poa` if a previous POA is detected.
               X
           key :operationId, 'getActive2122Poa'
           key :tags, [
