@@ -57,7 +57,7 @@ module DecisionReview
     end
 
     def breakers_error_threshold
-      80
+      80 # breakers will be tripped if error rate reaches 80% over a two minute period.
     end
   end
 end
