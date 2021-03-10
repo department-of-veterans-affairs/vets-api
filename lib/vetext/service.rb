@@ -13,7 +13,7 @@ module VEText
     REGISTER_PATH = BASE_PATH + '/endpoint'
     PREFERENCES_PATH = BASE_PATH + '/preferences/client'
     SEND_PATH = BASE_PATH + '/send'
-    
+
     def register(app_name, device_token, icn, os_info, device_name = nil)
       app_sid = app_sid(app_name)
       response = perform(
