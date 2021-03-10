@@ -1860,7 +1860,7 @@ en:
       VETEXT_PUSH_502:
         <<: *external_defaults
         code: 'VETEXT_PUSH_502'
-        detail: Received an an invalid response from the upstream server
+        detail: Received an invalid response from the upstream server
         status: 502
 
   decision_review:
