@@ -25,7 +25,7 @@ module VEText
     # @return Hash           response object, which includes endpoint_sid
     #
     def register(app_name, device_token, icn, os_info, device_name = nil)
-      app_sid = get_app_sid(app_name)
+      app_sid = app_sid(app_name)
       response = perform(
         :put,
         REGISTER_PATH, {
@@ -55,6 +55,7 @@ module VEText
         "#{PREFERENCES_PATH}/#{endpoint_sid}",
         nil
       )
+      raise_if_response_error(response.body)
       response.body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
@@ -128,7 +129,7 @@ module VEText
       end
     end
 
-    def get_app_sid(app_name)
+    def app_sid(app_name)
       settings = Settings.vetext_push
       if settings.key?("#{app_name}_sid".to_sym)
         settings["#{app_name}_sid".to_sym]
