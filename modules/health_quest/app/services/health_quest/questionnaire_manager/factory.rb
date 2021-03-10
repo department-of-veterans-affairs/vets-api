@@ -38,9 +38,11 @@ module HealthQuest
 
       HEALTH_CARE_FORM_PREFIX = 'HC-QSTNR'
       USE_CONTEXT_DELIMITER = ','
+      ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
 
       attr_reader :appointments,
                   :lighthouse_appointments,
+                  :locations,
                   :aggregated_data,
                   :patient,
                   :questionnaires,
@@ -49,6 +51,7 @@ module HealthQuest
                   :save_in_progress,
                   :appointment_service,
                   :lighthouse_appointment_service,
+                  :location_service,
                   :patient_service,
                   :questionnaire_response_service,
                   :questionnaire_service,
@@ -71,6 +74,7 @@ module HealthQuest
         @user = user
         @appointment_service = AppointmentService.new(user)
         @lighthouse_appointment_service = HealthQuest::Resource::Factory.manufacture(appointment_type)
+        @location_service = HealthQuest::Resource::Factory.manufacture(location_type)
         @patient_service = HealthQuest::Resource::Factory.manufacture(patient_type)
         @questionnaire_service = HealthQuest::Resource::Factory.manufacture(questionnaire_type)
         @questionnaire_response_service = HealthQuest::Resource::Factory.manufacture(questionnaire_response_type)
@@ -87,7 +91,8 @@ module HealthQuest
       #
       def all
         @appointments = get_appointments[:data]
-        @lighthouse_appointments = get_lighthouse_appointments
+        @lighthouse_appointments = get_lighthouse_appointments.resource&.entry
+        @locations = get_locations
         return default_response if appointments.blank?
 
         concurrent_pgd_requests
@@ -146,12 +151,46 @@ module HealthQuest
         @get_appointments ||= appointment_service.get_appointments(three_months_ago, one_year_from_now)
       end
 
+      ##
+      # Gets a list of Appointments from the Lighthouse Health API.
+      #
+      # @return [FHIR::Bundle] an object containing the
+      # entries for FHIR::Appointment objects
+      #
       def get_lighthouse_appointments
         @get_lighthouse_appointments ||=
           lighthouse_appointment_service.search(
             patient: user.icn,
             date: [date_ge_one_year_ago, date_le_one_year_from_now]
           )
+      end
+
+      ##
+      # Gets a list of Locations from the `lighthouse_appointments` array.
+      #
+      # @return [Array] a list of Locations
+      #
+      def get_locations
+        location_references =
+          lighthouse_appointments.map do |appt|
+            reference = appt.resource.participant.first.actor.reference
+
+            reference.match(ID_MATCHER)[1]
+          end
+
+        location_references.each_with_object([]) do |ref, accumulator|
+          loc = location_service.get(ref)
+          # We're hard coding the identifier value until the Lighthouse team
+          # adds this to the Location resources in their Health API.
+          # This hard coding will be removed by the end of the sprint
+          # scheduled to be completed by 03-23-21
+          #############################
+          idf = FHIR::Identifier.new
+          idf.value = 'vha_534_12975'
+          loc.resource.identifier = idf
+          #############################
+          accumulator << loc
+        end
       end
 
       ##
