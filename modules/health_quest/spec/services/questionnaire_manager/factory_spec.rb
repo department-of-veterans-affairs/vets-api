@@ -25,11 +25,13 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
     it 'responds to attributes' do
       expect(factory.respond_to?(:appointments)).to eq(true)
+      expect(factory.respond_to?(:lighthouse_appointments)).to eq(true)
       expect(factory.respond_to?(:aggregated_data)).to eq(true)
       expect(factory.respond_to?(:patient)).to eq(true)
       expect(factory.respond_to?(:questionnaires)).to eq(true)
       expect(factory.respond_to?(:save_in_progress)).to eq(true)
       expect(factory.respond_to?(:appointment_service)).to eq(true)
+      expect(factory.respond_to?(:lighthouse_appointment_service)).to eq(true)
       expect(factory.respond_to?(:patient_service)).to eq(true)
       expect(factory.respond_to?(:questionnaire_service)).to eq(true)
       expect(factory.respond_to?(:sip_model)).to eq(true)
@@ -55,6 +57,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
     before do
       allow_any_instance_of(subject).to receive(:get_patient).and_return(client_reply)
       allow_any_instance_of(subject).to receive(:get_appointments).and_return(appointments)
+      allow_any_instance_of(subject).to receive(:get_lighthouse_appointments).and_return(client_reply)
       allow_any_instance_of(subject).to receive(:get_save_in_progress).and_return([{}])
       allow_any_instance_of(subject)
         .to receive(:get_questionnaire_responses).and_return(questionnaire_response_client_reply)
@@ -156,6 +159,16 @@ describe HealthQuest::QuestionnaireManager::Factory do
       allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:search).with(anything).and_return(client_reply)
 
       expect(described_class.manufacture(user).get_questionnaire_responses).to eq(client_reply)
+    end
+  end
+
+  describe '#get_lighthouse_appointments' do
+    let(:client_reply) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: [{}])) }
+
+    it 'returns a FHIR::ClientReply' do
+      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:search).with(anything).and_return(client_reply)
+
+      expect(described_class.manufacture(user).get_lighthouse_appointments).to eq(client_reply)
     end
   end
 

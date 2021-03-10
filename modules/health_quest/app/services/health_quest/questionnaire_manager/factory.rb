@@ -40,6 +40,7 @@ module HealthQuest
       USE_CONTEXT_DELIMITER = ','
 
       attr_reader :appointments,
+                  :lighthouse_appointments,
                   :aggregated_data,
                   :patient,
                   :questionnaires,
@@ -47,6 +48,7 @@ module HealthQuest
                   :request_threads,
                   :save_in_progress,
                   :appointment_service,
+                  :lighthouse_appointment_service,
                   :patient_service,
                   :questionnaire_response_service,
                   :questionnaire_service,
@@ -68,6 +70,7 @@ module HealthQuest
         @aggregated_data = default_response
         @user = user
         @appointment_service = AppointmentService.new(user)
+        @lighthouse_appointment_service = HealthQuest::Resource::Factory.manufacture(appointment_type)
         @patient_service = HealthQuest::Resource::Factory.manufacture(patient_type)
         @questionnaire_service = HealthQuest::Resource::Factory.manufacture(questionnaire_type)
         @questionnaire_response_service = HealthQuest::Resource::Factory.manufacture(questionnaire_response_type)
@@ -84,6 +87,7 @@ module HealthQuest
       #
       def all
         @appointments = get_appointments[:data]
+        @lighthouse_appointments = get_lighthouse_appointments
         return default_response if appointments.blank?
 
         concurrent_pgd_requests
@@ -142,6 +146,14 @@ module HealthQuest
         @get_appointments ||= appointment_service.get_appointments(three_months_ago, one_year_from_now)
       end
 
+      def get_lighthouse_appointments
+        @get_lighthouse_appointments ||=
+          lighthouse_appointment_service.search(
+            patient: user.icn,
+            date: [date_ge_one_year_ago, date_le_one_year_from_now]
+          )
+      end
+
       ##
       # Gets a list of Questionnaires from the PGD.
       #
@@ -190,6 +202,7 @@ module HealthQuest
         @compose ||= begin
           @aggregated_data = transformer.manufacture(
             appointments: appointments,
+            lighthouse_appointments: lighthouse_appointments,
             questionnaires: questionnaires,
             questionnaire_responses: questionnaire_responses,
             save_in_progress: save_in_progress
@@ -216,6 +229,22 @@ module HealthQuest
       end
 
       private
+
+      def date_ge_one_year_ago
+        year = tz_date_string(1.year.ago)
+
+        "ge#{year}"
+      end
+
+      def date_le_one_year_from_now
+        year = tz_date_string(1.year.from_now)
+
+        "le#{year}"
+      end
+
+      def tz_date_string(year)
+        year.in_time_zone.to_date.to_s
+      end
 
       def date_three_months_ago
         (DateTime.now.in_time_zone.to_date - 3.months).to_s
