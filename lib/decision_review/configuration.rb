@@ -55,5 +55,9 @@ module DecisionReview
     def mock_enabled?
       Settings.decision_review.mock || false
     end
+
+    def breakers_error_threshold
+      80
+    end
   end
 end
