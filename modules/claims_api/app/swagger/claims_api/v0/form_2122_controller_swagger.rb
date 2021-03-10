@@ -452,9 +452,9 @@ module ClaimsApi
         operation :get do
           key :summary, 'Check active power of attorney status'
           key :description,
-               <<~X
-                 Returns last Power of Attorney submission sent to this API.
-               X
+              <<~X
+                Returns last Power of Attorney submission sent to this API.
+              X
           key :operationId, 'getActive2122Poa'
           key :tags, [
             'Power of Attorney'
@@ -556,7 +556,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :'$ref', :NoPOAFound
                   end
                 end
               end
