@@ -32,7 +32,6 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
         expect(personal_information_logs.count).to be 0
         subject
         expect(personal_information_logs.count).to be 1
-byebug
         pil = personal_information_logs.first
         %w[
           first_name last_name birls_id icn edipi mhv_correlation_id
