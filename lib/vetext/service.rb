@@ -16,7 +16,7 @@ module VEText
 
     # Register a user's mobile device with the push notification service.
     #
-    # @app_name String       name from
+    # @app_name String       unique key for the mobile app
     # @device_token String   the unique token for the user's device
     # @icn String            the Integration Control Number of the Veteran
     # @os_info String        the operating system name from the device
