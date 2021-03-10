@@ -90,16 +90,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
           expect(parsed['data']['attributes']['status']).to eq('submitted')
         end
       end
-
-      it 'return the active status of a PoA without a GUID' do
-        with_okta_user(scopes) do |auth_header|
-          get('/services/claims/v1/forms/2122/active',
-              params: nil, headers: headers.merge(auth_header))
-          parsed = JSON.parse(response.body)
-          expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-          expect(parsed['data']['attributes']['previous_poa']).to eq('A01')
-        end
-      end
     end
 
     describe '#upload_power_of_attorney_document' do
