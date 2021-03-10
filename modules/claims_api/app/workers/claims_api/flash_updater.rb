@@ -39,11 +39,9 @@ module ClaimsApi
     end
 
     def bgs_service(user)
-      external_key = user['common_name'] || user['email']
-
       BGS::Services.new(
-        external_uid: user['icn'] || user['uuid'],
-        external_key: external_key
+        external_uid: user['ssn'],
+        external_key: user['ssn']
       )
     end
   end

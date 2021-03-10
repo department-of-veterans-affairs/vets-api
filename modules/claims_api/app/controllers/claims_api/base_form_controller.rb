@@ -4,7 +4,6 @@ require 'json_schema/json_api_missing_attribute'
 require 'claims_api/form_schemas'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
-require 'bgs/auth_headers'
 require 'claims_api/special_issue_mappers/bgs'
 
 module ClaimsApi
@@ -36,7 +35,6 @@ module ClaimsApi
                      .add_headers(
                        EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
                      )
-      evss_headers = evss_headers.merge(BGS::AuthHeaders.new(target_veteran).to_h)
 
       if request.headers['Mock-Override'] &&
          Settings.claims_api.disability_claims_mock_override
