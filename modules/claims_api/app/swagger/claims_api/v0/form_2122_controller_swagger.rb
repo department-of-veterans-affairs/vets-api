@@ -451,7 +451,7 @@ module ClaimsApi
       swagger_path '/forms/2122/active' do
         operation :get do
           key :summary, 'Check active power of attorney status'
-          key :description, 'Returns last active JSON payload.'
+          key :description, 'Returns last Power of Attorney submission sent to this API.'
           key :operationId, 'getActive2122Poa'
           key :tags, [
             'Power of Attorney'
@@ -522,7 +522,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form2122Output
+                  key :'$ref', :Form2122NoPreviousPOAOutput
                 end
               end
             end
