@@ -37,25 +37,3 @@ A string that describes the notification type
 A string template for the push message, associated with a preference. A Preference may have multiple Templates, but only one is set to the the default.
 
 A Template belongs to a Preference.
-
-## Endpoints
-
-### Register a mobile app
-PUT /api/vetext/pub/mobile/push/endpoint
-
-Send a device token, ICN, and App SID, get back an Endpoint SID.
-
-### Get a user's prefs
-GET /api/vetext/pub/mobile/push/preference/client/{endpoint_sid}
-
-Get a list of Preferences for a given Endpoint, along with whether the user wants to receive them.
-
-### Set a user's pref
-PUT /api/vetext/pub/mobile/push/preference/client
-
-Set a Preference to true or false, whether the user wants to receive them. Call with one Preference at a time.
-
-### Send a push notification
-POST /api/vetext/pub/mobile/push/send
-
-Send a push notification. Pass Endpoint SID or ICN as well a Preference SID.
