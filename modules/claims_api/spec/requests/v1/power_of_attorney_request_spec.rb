@@ -178,10 +178,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
       context 'when there is a Lightouse active power of attorney' do
         let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
+        let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
         context 'when there is no BGS active power of attorney' do
-          let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
-
           it "the 'previous_poa' attribute is nil" do
             with_okta_user(scopes) do |auth_header|
               expect(ClaimsApi::PowerOfAttorney).to receive(
@@ -201,9 +200,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
 
         context 'when there is a BGS active power of attorney' do
-          let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
-
-          it "the 'previous_poa' attribute is nil" do
+          it "the 'previous_poa' attribute is populated" do
             with_okta_user(scopes) do |auth_header|
               expect(ClaimsApi::PowerOfAttorney).to receive(
                 :find_using_identifier_and_source
