@@ -751,12 +751,6 @@ en:
         code: VET360_ADDR110
         detail: Size must be between 0 and 100.
         status: 400
-      VET360_ADDR110:
-        <<: *external_defaults
-        title: Address Line 2 Size
-        code: VET360_ADDR110
-        detail: Size must be between 0 and 100.
-        status: 400
       VET360_ADDR111:
         <<: *external_defaults
         title: Requires alphanumeric address 2
@@ -973,12 +967,6 @@ en:
         code: VET360_ADDR146
         detail: Address POU may not be null
         status: 400
-      VET360_ADDR146:
-        <<: *external_defaults
-        title: Address POU Null
-        code: VET360_ADDR146
-        detail: Address POU may not be null
-        status: 400
       VET360_ADDR147:
         <<: *external_defaults
         title: County value not found
@@ -1044,12 +1032,6 @@ en:
         title: Invalid confirmation date
         code: VET360_ADDR206
         detail: ConfirmationDate can not be greater than sourceDate
-        status: 400
-      VET360_ADDR300:
-        <<: *external_defaults
-        title: Address Inactive
-        code: VET360_ADDR300
-        detail: Cannot modify an existing inactive record.
         status: 400
       VET360_ADDR300:
         <<: *external_defaults
@@ -1875,11 +1857,6 @@ en:
         code: 'VETEXT_PUSH_400'
         detail: The request to the upstream service was malformed and could not be processed
         status: 400
-      VETEXT_PUSH_404:
-        <<: *external_defaults
-        detail: app_name not found
-        code: 'VETEXT_PUSH_404'
-        status: 404
       VETEXT_PUSH_502:
         <<: *external_defaults
         code: 'VETEXT_PUSH_502'
