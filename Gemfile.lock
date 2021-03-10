@@ -86,6 +86,7 @@ PATH
       sidekiq
     covid_vaccine (0.1.0)
       sidekiq
+    facilities_api (0.1.0)
     health_quest (0.1.0)
     identity (0.1.0)
     mobile (0.1.0)
@@ -953,6 +954,7 @@ DEPENDENCIES
   debase
   dry-struct
   dry-types
+  facilities_api!
   factory_bot_rails (> 5)
   faker
   fakeredis
