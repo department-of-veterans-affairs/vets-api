@@ -17,7 +17,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
         allow_any_instance_of(VAForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
         expect do
           form_reloader.perform
-        end.to change(VAForms::Form, :count).by(1)
+        end.to change { VAForms::Form.count }.by(0)
       end
     end
 
