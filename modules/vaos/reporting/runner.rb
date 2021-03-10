@@ -1,37 +1,45 @@
-require './filter'
-require 'optparse'
+require './logs_processor'
+require './redis_service'
 
-class Runner
-  def initialize(
-    filter,
-    pattern,
-    name,
-    tag = pattern
-  )
+$DEBUG=false
 
-    start_date = start_date ?  Date.parse(start_date) : Date.today
-    end_date = (start_date && end_date) ? Date.parse(end_date) : Date.today 
+def fetch(filter, options)
+  options.merge!(
+    {filter_pattern: filter},
+    {path: 'logs'}
+  ) 
 
-    options = {
-      start_date: start_date,
-      end_date: end_date,
-    }
+  LogsProcessor.fetch_data(options) do |json_log|
+    request_id = json_log['named_tags']['request_id']
+    http_method = /\(.*\)/.match(json_log['payload']['url'])[0][1..-2]
+    http_status = json_log['payload']['status']
+    timestamp = DateTime.parse(json_log['timestamp'])
+    endpoint = /(\/)((?!.*\/).*)(\?)|(\/)((?!.*\/)).*/.match(json_log['payload']['url'])[0]
+    tag = endpoint[-1] == '?' ? endpoint[1..-2] : endpoint[1..-1]
+    key = "#{tag}:#{timestamp.strftime("%Y%m%d%H%M%S")}:#{http_method}:#{http_status}:#{request_id}"
 
-    filter_type = Filter.new(name, tag, filter, pattern, options)
-    filter_type.fetch
+    puts key unless !$DEBUG
+    if (!$DEBUG)
+      save key, json_log
+    end
   end
 end
 
-# options = {}
+def runner(
+  filter,
+  start_date,
+  end_date
+)
 
-# OptionParser.new do |opts|
-#   opts.banner = "Usage: example.rb [options]"
+  start_date = start_date ? Date.parse(start_date) : Date.today
+  end_date = (start_date && end_date) ? Date.parse(end_date) : Date.today
+  
+  options = {
+    start_date: start_date,
+    end_date: end_date,
+  }
 
-#   opts.on("-v", "--[no-]verbose", "Run verbosely") do |v|
-#     options[:verbose] = v
-#   end
-# end.parse!
+  fetch filter, options
+end
 
-# p options
-
-Runner.new(ARGV[0], ARGV[1], ARGV[2], ARGV[3])
+runner(ARGV[0], ARGV[1], ARGV[2])

@@ -86,7 +86,11 @@ class LogsProcessor
 
   def self.ranges(start_date, end_date)
     (start_date..end_date).map do |day|
-      [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 23, 59, 59, 0).iso8601]
+      if $DEBUG
+        [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 00, 05, 59, 0).iso8601]
+      else
+        [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 23, 59, 59, 0).iso8601]
+      end
     end
   end
 
