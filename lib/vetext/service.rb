@@ -16,7 +16,7 @@ module VEText
 
     def register(app_name, device_token, icn, os_info, device_name = nil)
       app_sid = app_sid(app_name)
-      response = perform(
+      perform(
         :put,
         REGISTER_PATH, {
           appSid: app_sid,
@@ -26,61 +26,48 @@ module VEText
           osVersion: os_info[:version],
           deviceName: device_name || os_info[:name]
         }
-      )
-      raise_if_response_error(response.body)
-      response.body
+      ).body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end
 
     def get_preferences(endpoint_sid)
-      response = perform(
+      perform(
         :get,
         "#{PREFERENCES_PATH}/#{endpoint_sid}",
         nil
-      )
-      response.body
+      ).body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end
 
     def set_preference(endpoint_sid, preference_id, receive_preference)
-      response = perform(
+      perform(
         :put,
         PREFERENCES_PATH, {
           endpointSid: endpoint_sid,
           preferenceId: preference_id,
           value: receive_preference == true
         }
-      )
-      raise_if_response_error(response.body)
-      response.body
+      ).body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end
 
     def send_notification(endpoint_id, template_id, personalization = {})
-      response = perform(
+      perform(
         :post,
         SEND_PATH, {
           endpointSid: endpoint_id,
           templateSid: template_id,
           personalization: personalization
         }
-      )
-      raise_if_response_error(response.body)
-      response.body
+      ).body
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end
 
     private
-
-    # Raise an error if the service returned an error in the body of a 200 response
-    #
-    def raise_if_response_error(body)
-      raise VEText::ResponseError, body if body[:success] == false
-    end
 
     def remap_error(e)
       case e.status
