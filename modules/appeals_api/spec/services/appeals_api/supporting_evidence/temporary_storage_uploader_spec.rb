@@ -31,8 +31,8 @@ module AppealsApi
           with_settings(Settings.modules_appeals_api.s3, uploads_enabled: true) do
             expect(uploader.class.storage).to eq(CarrierWave::Storage::AWS)
             expect(uploader.aws_credentials).to eq(access_key_id: 'aws_access_key_id',
-                                                  secret_access_key: 'aws_secret_access_key',
-                                                  region: 'region')
+                                                   secret_access_key: 'aws_secret_access_key',
+                                                   region: 'region')
           end
         end
       end
