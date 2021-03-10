@@ -13,7 +13,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
     double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)
   end
   let(:client_reply) { double('FHIR::ClientReply') }
-  let(:default_appointments) { { data: [] } }
+  let(:default_appointments) { double('FHIR::ClientReply', resource: double('Entry', entry: [])) }
   let(:default_location) { [double('FHIR::Location')] }
   let(:default_organization) { [double('FHIR::Organization')] }
   let(:appointments) { { data: [{}, {}] } }
@@ -46,7 +46,6 @@ describe HealthQuest::QuestionnaireManager::Factory do
     let(:factory) { described_class.manufacture(user) }
 
     it 'responds to attributes' do
-      expect(factory.respond_to?(:appointments)).to eq(true)
       expect(factory.respond_to?(:lighthouse_appointments)).to eq(true)
       expect(factory.respond_to?(:locations)).to eq(true)
       expect(factory.respond_to?(:organizations)).to eq(true)
@@ -54,7 +53,6 @@ describe HealthQuest::QuestionnaireManager::Factory do
       expect(factory.respond_to?(:patient)).to eq(true)
       expect(factory.respond_to?(:questionnaires)).to eq(true)
       expect(factory.respond_to?(:save_in_progress)).to eq(true)
-      expect(factory.respond_to?(:appointment_service)).to eq(true)
       expect(factory.respond_to?(:lighthouse_appointment_service)).to eq(true)
       expect(factory.respond_to?(:location_service)).to eq(true)
       expect(factory.respond_to?(:organization_service)).to eq(true)
@@ -83,7 +81,6 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
     before do
       allow_any_instance_of(subject).to receive(:get_patient).and_return(client_reply)
-      allow_any_instance_of(subject).to receive(:get_appointments).and_return(appointments)
       allow_any_instance_of(subject).to receive(:get_lighthouse_appointments).and_return(appointments_client_reply)
       allow_any_instance_of(subject).to receive(:get_locations).and_return(default_location)
       allow_any_instance_of(subject).to receive(:get_organizations).and_return(default_organization)
@@ -99,7 +96,8 @@ describe HealthQuest::QuestionnaireManager::Factory do
       let(:fhir_questionnaire_response_bundle) { nil }
 
       before do
-        allow_any_instance_of(subject).to receive(:get_appointments).and_return(default_appointments)
+        allow_any_instance_of(subject).to receive(:get_lighthouse_appointments).and_return(default_appointments)
+        allow_any_instance_of(subject).to receive(:get_locations).and_return(nil)
       end
 
       it 'returns a default hash' do
@@ -148,17 +146,17 @@ describe HealthQuest::QuestionnaireManager::Factory do
   end
 
   describe '#get_use_context' do
-    let(:data) do
+    let(:location) do
       [
-        double('Appointments', facility_id: '123', clinic_id: '54679'),
-        double('Appointments', facility_id: '789', clinic_id: '98741')
+        double('FHIR::Location',
+               resource: double('FHIR::Bundle', identifier: double('Value', value: 'vha_123_54679')))
       ]
     end
 
     it 'returns a formatted use-context string' do
-      allow_any_instance_of(described_class).to receive(:appointments).and_return(data)
+      allow_any_instance_of(described_class).to receive(:locations).and_return(location)
 
-      expect(described_class.manufacture(user).get_use_context).to eq('venue$123/54679,venue$789/98741')
+      expect(described_class.manufacture(user).get_use_context).to eq('venue$vha_123_54679')
     end
   end
 
@@ -235,14 +233,6 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
     it 'returns an array of organizations' do
       expect(described_class.manufacture(user).get_organizations).to eq([default_organization])
-    end
-  end
-
-  describe '#get_appointments' do
-    it 'returns a FHIR::ClientReply' do
-      allow_any_instance_of(HealthQuest::AppointmentService).to receive(:get_appointments).and_return(appointments)
-
-      expect(described_class.manufacture(user).get_appointments).to eq(appointments)
     end
   end
 
