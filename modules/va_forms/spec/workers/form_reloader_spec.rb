@@ -12,7 +12,6 @@ RSpec.describe VAForms::FormReloader, type: :job do
   end
 
   describe 'importer' do
-
     it 'gets the sha256 when contents are a Tempfile' do
       VCR.use_cassette('va_forms/tempfile') do
         url = 'http://www.vba.va.gov/pubs/forms/26-8599.pdf'
