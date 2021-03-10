@@ -6,7 +6,7 @@ module AppealsApi
       include SetAWSConfig
 
       def size_range
-        1.byte...25.megabytes
+        1.byte...100.megabytes
       end
 
       def initialize(appeal_guid, type)

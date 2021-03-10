@@ -13,32 +13,28 @@ module AppealsApi
       def process!
         generate_evidence_submission!
         uploader.store!(document)
-        store_metadata!
-        update_submission_status!
-
-        # vbms_connect_job
+        update_submission!
       end
 
       private
 
-      attr_accessor :submission, :document, :appeal
+      attr_accessor :submission, :document, :appeal, :type
 
       def generate_evidence_submission!
         @submission = appeal.evidence_submissions.create!
       end
 
-      def store_metadata!
-        @submission.update(file_data: {
-                             filename: uploader.filename
-                           })
-      end
-
       def uploader
-        @uploader ||= TemporaryStorageUploader.new(appeal.id, @type)
+        @uploader ||= TemporaryStorageUploader.new(appeal.id, type)
       end
 
-      def update_submission_status!
-        @submission.update(status: 'submitted')
+      def update_submission!
+        @submission.update(
+          status: 'submitted',
+          file_data: {
+            filename: uploader.filename
+          }
+        )
       end
 
       def valid_type!
