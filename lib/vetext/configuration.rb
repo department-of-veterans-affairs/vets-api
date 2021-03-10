@@ -37,6 +37,7 @@ module VEText
         conn.use Faraday::Response::RaiseError
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
+        conn.response
         conn.adapter Faraday.default_adapter
       end
     end
