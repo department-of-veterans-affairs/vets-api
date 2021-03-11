@@ -182,11 +182,6 @@ Rails.application.routes.draw do
       end
     end
 
-    scope :facilities, module: 'facilities' do
-      resources :va, only: %i[index show], defaults: { format: :json }
-      get 'suggested', to: 'va#suggested'
-    end
-
     scope :gi, module: 'gids' do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
@@ -361,6 +356,7 @@ Rails.application.routes.draw do
   # Modules
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
+  # mount FacilitiesApi::Engine, at: '/facilities_api'
   mount HealthQuest::Engine, at: '/health_quest'
   mount Mobile::Engine, at: '/mobile'
   mount VAOS::Engine, at: '/vaos'

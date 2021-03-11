@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'va_profile/person/service'
+
 module Mobile
   module V0
     module Profile
@@ -34,6 +36,18 @@ module Mobile
         def save_and_await_response(resource_type:, params:, update: false)
           http_method = update ? 'put' : 'post'
           initial_transaction = save!(http_method, resource_type, params)
+
+          # return non-received status transactions (errors)
+          return initial_transaction unless initial_transaction.transaction_status == TRANSACTION_RECEIVED
+
+          poll_with_backoff do
+            check_transaction_status!(initial_transaction.transaction_id)
+          end
+        end
+
+        def await_vet360_account_link
+          response = person_service.init_vet360_id
+          initial_transaction = AsyncTransaction::Vet360::InitializePersonTransaction.start(@user, response)
 
           # return non-received status transactions (errors)
           return initial_transaction unless initial_transaction.transaction_status == TRANSACTION_RECEIVED
@@ -125,6 +139,10 @@ module Mobile
 
         def contact_information_service
           VAProfile::ContactInformation::Service.new @user
+        end
+
+        def person_service
+          VAProfile::Person::Service.new @user
         end
 
         def raise_timeout_error(elapsed, try)
