@@ -15,6 +15,14 @@ describe VAProfile::Models::Address do
     end
   end
 
+  describe '#set_address_type_case' do
+    it 'should set title case for address type' do
+      address = described_class.new(address_type: 'OVERSEAS MILITARY')
+      address.valid?
+      expect(address.address_type).to eq('Overseas Military')
+    end
+  end
+
   describe '#zip_plus_four' do
     context 'with no zipcode' do
       it 'returns nil' do

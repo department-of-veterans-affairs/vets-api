@@ -8,6 +8,7 @@ module VAProfile
   module Models
     class BaseAddress < Base
       include VAProfile::Concerns::Defaultable
+      include ActiveModel::Validations::Callbacks
 
       VALID_ALPHA_REGEX = /[a-zA-Z ]+/.freeze
       VALID_NUMERIC_REGEX = /[0-9]+/.freeze
@@ -122,10 +123,18 @@ module VAProfile
         validates :county_code, absence: true
       end
 
+      before_validation :set_address_type_case
+
       def zip_plus_four
         return if zip_code.blank?
 
         [zip_code, zip_code_suffix].compact.join('-')
+      end
+
+      private
+
+      def set_address_type_case
+        self.address_type = address_type.titleize if address_type.present?
       end
     end
   end
