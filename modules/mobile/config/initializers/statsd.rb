@@ -12,10 +12,14 @@ Mobile::ApplicationController.statsd_count_success :authenticate,
 Mobile::V0::Appointments::Proxy.extend StatsD::Instrument
 Mobile::V0::Appointments::Proxy.statsd_count_success :get_appointments,
                                                      'mobile.appointments.get_appointments'
-
-Mobile::V0::Appointments::Proxy.extend StatsD::Instrument
 Mobile::V0::Appointments::Proxy.statsd_count_success :put_cancel_appointment,
                                                      'mobile.appointments.put_cancel_appointment'
+
+Mobile::V0::PaymentInformation::Proxy.extend StatsD::Instrument
+Mobile::V0::PaymentInformation::Proxy.statsd_count_success :get_payment_information,
+                                                           'mobile.payment_information.get_payment_information'
+Mobile::V0::PaymentInformation::Proxy.statsd_count_success :update_payment_information,
+                                                           'mobile.payment_information.update_payment_information'
 
 # Authentication
 
@@ -48,3 +52,12 @@ StatsD.increment('mobile.letters.download.type', 0)
 # which claim types are most often viewed
 StatsD.increment('mobile.claims_and_appeals.claim.type', 0)
 
+# Payment Information
+
+# service failure rate for getting payment information
+StatsD.increment('mobile.payment_information.get_payment_information.success', 0)
+StatsD.increment('mobile.payment_information.get_payment_information.failure', 0)
+
+# service failure rate for updating payment information
+StatsD.increment('mobile.payment_information.update_payment_information.success', 0)
+StatsD.increment('mobile.payment_information.update_payment_information.failure', 0)
