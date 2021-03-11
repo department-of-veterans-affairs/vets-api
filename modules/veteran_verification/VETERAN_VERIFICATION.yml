@@ -185,6 +185,8 @@ components:
         Body of the disability rating response
       required:
         - combined_disability_rating
+        - combined_effective_date
+        - legal_effective_date
         - individual_ratings
       properties:
         combined_disability_rating:
