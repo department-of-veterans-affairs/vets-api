@@ -30,7 +30,7 @@ RSpec.describe StemApplicantDenialMailer, type: [:mailer] do
         expect(subject.body.raw_source).to include(date_received)
       end
       it 'includes claim status url' do
-        env = FeatureFlipper.staging_email? ? 'stage.' : ''
+        env = FeatureFlipper.staging_email? ? 'staging.' : ''
         claim_status_url = "https://#{env}va.gov/track-claims/your-stem-claims/#{education_benefits_claim.id}/status"
         expect(subject.body.raw_source).to include(claim_status_url)
       end
