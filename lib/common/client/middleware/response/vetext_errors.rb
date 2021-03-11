@@ -8,12 +8,6 @@ module Common
           def on_complete(env)
             return if env.success?
 
-            remap_error(env)
-          end
-
-          private
-
-          def remap_error(env)
             case env.status
             when 400..499
               raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_400', {}, env.status,
