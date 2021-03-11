@@ -18,7 +18,7 @@ module VAProfile
           addressLine2: @address_line2,
           addressLine3: @address_line3,
           addressPOU: @address_pou,
-          addressType: @address_type,
+          addressType: @address_type.titleize,
           cityName: @city,
           countryCodeISO2: @country_code_iso2,
           countryCodeISO3: @country_code_iso3,
