@@ -32,7 +32,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with success' do
       it 'passes' do
         err = VAOS::Middleware::Response::Errors.new
-        expect(StatsD).not_to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(success) }.not_to raise_error
       end
     end
