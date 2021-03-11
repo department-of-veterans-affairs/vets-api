@@ -215,9 +215,9 @@ describe 'VEText::Service' do
         VCR.use_cassette('vetext/send_internal_server_error') do
           expect do
             service.send_notification(
-                '8c258cbe573c462f912e7dd74585a5a9',
-                '0EF7C8C9390847D7B3B521426EFF5814',
-                personalization
+              '8c258cbe573c462f912e7dd74585a5a9',
+              '0EF7C8C9390847D7B3B521426EFF5814',
+              personalization
             )
           end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_502/)
         end
@@ -229,9 +229,9 @@ describe 'VEText::Service' do
         VCR.use_cassette('vetext/send_bad_request') do
           expect do
             service.send_notification(
-                '8c258cbe573c462f912e7dd74585a5a9',
-                '0EF7C8C9390847D7B3B521426EFF5814',
-                personalization
+              '8c258cbe573c462f912e7dd74585a5a9',
+              '0EF7C8C9390847D7B3B521426EFF5814',
+              personalization
             )
           end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_400/)
         end
