@@ -4,7 +4,6 @@ require 'common/client/configuration/rest'
 
 module VEText
   class Configuration < Common::Client::Configuration::REST
-
     def base_url
       Settings.vetext_push.base_url
     end
