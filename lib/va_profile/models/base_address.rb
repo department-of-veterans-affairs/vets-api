@@ -16,9 +16,9 @@ module VAProfile
       RESIDENCE      = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
-      DOMESTIC       = 'DOMESTIC'
-      INTERNATIONAL  = 'INTERNATIONAL'
-      MILITARY       = 'OVERSEAS MILITARY'
+      DOMESTIC       = 'Domestic'
+      INTERNATIONAL  = 'International'
+      MILITARY       = 'Overseas Military'
       ADDRESS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
 
       attribute :address_line1, String

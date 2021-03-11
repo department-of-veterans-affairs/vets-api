@@ -1058,6 +1058,7 @@ DEPENDENCIES
   sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov (< 0.18)
+  slack-notify
   spring
   spring-commands-rspec
   staccato
