@@ -4,7 +4,6 @@
     "attributes": {
       "veteran": {
         "homeless": false,
-        "address": { "zipCode5":  "66002" },
         "representativesName": "Tony Danza"
       },
       "boardReviewOption": "hearing",

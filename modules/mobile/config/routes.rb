@@ -7,9 +7,11 @@ Mobile::Engine.routes.draw do
   namespace :v0 do
     get '/appeal/:id', to: 'claims_and_appeals#get_appeal'
     get '/appointments', to: 'appointments#index'
+    put '/appointments/cancel/:id', to: 'appointments#cancel'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_documents'
+    post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
@@ -25,5 +27,23 @@ Mobile::Engine.routes.draw do
     put '/user/emails', to: 'emails#update'
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
+
+    scope :messaging do
+      scope :health do
+        resources :triage_teams, only: [:index], defaults: { format: :json }, path: 'recipients'
+
+        resources :folders, only: %i[index show create destroy], defaults: { format: :json } do
+          resources :messages, only: [:index], defaults: { format: :json }
+        end
+
+        resources :messages, only: %i[show create destroy], defaults: { format: :json } do
+          get :thread, on: :member
+          get :categories, on: :collection
+          patch :move, on: :member
+          post :reply, on: :member
+          resources :attachments, only: [:show], defaults: { format: :json }
+        end
+      end
+    end
   end
 end

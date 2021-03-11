@@ -28,7 +28,6 @@
         "enum": [
           "ALS",
           "HEPC",
-          "POW",
           "PTSD/1",
           "PTSD/2",
           "PTSD/3",
@@ -373,7 +372,7 @@
   "properties": {
     "veteran": {
       "type": "object",
-      "required": ["currentMailingAddress"],
+      "required": ["currentMailingAddress", "currentlyVAEmployee"],
       "properties": {
         "flashes": {
           "$ref": "#/definitions/flashes"
@@ -836,7 +835,8 @@
             "type": "integer"
           },
           "disabilityActionType": {
-            "type": "string"
+            "type": "string",
+            "enum": ["NONE", "NEW", "SECONDARY", "INCREASE", "REOPEN"]
           },
           "name": {
             "type": "string"
@@ -853,7 +853,8 @@
                   "type": "string"
                 },
                 "disabilityActionType": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": ["NONE", "NEW", "SECONDARY", "INCREASE", "REOPEN"]
                 },
                 "serviceRelevance": {
                   "type": "string"
@@ -953,7 +954,7 @@
       "properties": {
         "accountType": {
           "type": "string",
-          "enum": ["Checking", "Saving"]
+          "enum": ["Checking", "Savings"]
         },
         "accountNumber": {
           "minLength": 4,

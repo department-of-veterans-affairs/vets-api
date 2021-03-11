@@ -11,11 +11,19 @@ module AppealsApi
     include Sidekiq::Worker
     include CentralMail::Utilities
 
-    def perform(higher_level_review, retries = 0)
-      @retries = retries
-      stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
-      upload_to_central_mail(higher_level_review, stamped_pdf)
-      File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+    def perform(higher_level_review_id, retries = 0)
+      higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
+
+      begin
+        @retries = retries
+        stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
+        higher_level_review.update!(status: 'submitting')
+        upload_to_central_mail(higher_level_review, stamped_pdf)
+        File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      rescue => e
+        higher_level_review.update!(status: 'error', code: e.class.to_s, detail: e.message)
+        raise
+      end
     end
 
     def upload_to_central_mail(higher_level_review, pdf_path)
@@ -28,7 +36,7 @@ module AppealsApi
         'uuid' => higher_level_review.id,
         'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
         'numberAttachments' => 0,
-        'receiveDt' => higher_level_review.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'receiveDt' => receive_date(higher_level_review),
         'numberPages' => PdfInfo::Metadata.read(pdf_path).pages,
         'docType' => '20-0996'
       }
@@ -46,6 +54,13 @@ module AppealsApi
       else
         map_error(response.status, response.body, AppealsApi::UploadError)
       end
+    end
+
+    def receive_date(higher_level_review)
+      higher_level_review
+        .created_at
+        .in_time_zone('Central Time (US & Canada)')
+        .strftime('%Y-%m-%d %H:%M:%S')
     end
   end
 end

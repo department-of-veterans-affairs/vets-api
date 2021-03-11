@@ -210,7 +210,7 @@ module SM
     def post_create_message(args = {})
       validate_create_context(args)
 
-      json = perform(:post, 'message', args, token_headers).body
+      json = perform(:post, 'message', args.to_h, token_headers).body
       Message.new(json)
     end
 
@@ -225,7 +225,7 @@ module SM
       validate_create_context(args)
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
-      json = perform(:post, 'message/attach', args, custom_headers).body
+      json = perform(:post, 'message/attach', args.to_h, custom_headers).body
       Message.new(json)
     end
 
@@ -240,7 +240,7 @@ module SM
       validate_reply_context(args)
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
-      json = perform(:post, "message/#{id}/reply/attach", args, custom_headers).body
+      json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
       Message.new(json)
     end
 
@@ -254,7 +254,7 @@ module SM
     def post_create_message_reply(id, args = {})
       validate_reply_context(args)
 
-      json = perform(:post, "message/#{id}/reply", args, token_headers).body
+      json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
       Message.new(json)
     end
 
@@ -296,7 +296,7 @@ module SM
       path = "message/#{message_id}/attachment/#{attachment_id}"
 
       response = perform(:get, path, nil, token_headers)
-      filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '')
+      filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
       { body: response.body, filename: filename }
     end
     # @!endgroup

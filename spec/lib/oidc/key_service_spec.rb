@@ -69,6 +69,88 @@ RSpec.describe OIDC::KeyService do
         key = described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU', 'https://example.com/oauth2/default')
         expect(key).to be_a(OpenSSL::PKey::RSA)
       end
+
+      it 'invalid prefix' do
+        with_settings(Settings.oidc.issuers.first, prefix: 'https://example.bad.com/') do
+          expect do
+            described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU', 'https://example.com/oauth2/default')
+          end.to raise_error { |error|
+            expect(error).to be_a(Common::Exceptions::OpenIdServiceError)
+            expect(error.code).to eq 401
+            expect(error.status).to eq 401
+          }
+        end
+      end
+
+      it 'invalid proxy' do
+        with_settings(Settings.oidc.issuers.first, proxy: 'https://example.bad.com/') do
+          expect do
+            described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU', 'https://example.com/oauth2/default')
+          end.to raise_error { |error|
+            expect(error).to be_a(Common::Exceptions::OpenIdServiceError)
+            expect(error.code).to eq 404
+            expect(error.status).to eq 404
+          }
+        end
+      end
+    end
+
+    context 'with okta api recordings no jwks' do
+      around do |example|
+        with_settings(
+          Settings.oidc,
+          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
+          issuer: 'https://example.com/oauth2/default',
+          issuer_prefix: 'https://example.com/oauth2',
+          base_api_url: 'https://example.com/',
+          base_api_token: 'token'
+        ) do
+          with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+            VCR.use_cassette('okta/metadata-no-jwks') do
+              example.run
+            end
+          end
+        end
+      end
+
+      it 'no jwks' do
+        expect do
+          described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU', 'https://example.com/oauth2/default')
+        end.to raise_error { |error|
+          expect(error).to be_a(Common::Exceptions::OpenIdServiceError)
+          expect(error.code).to eq 404
+          expect(error.status).to eq 404
+        }
+      end
+    end
+
+    context 'with okta api recordings bad jwks' do
+      around do |example|
+        with_settings(
+          Settings.oidc,
+          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
+          issuer: 'https://example.com/oauth2/default',
+          issuer_prefix: 'https://example.com/oauth2',
+          base_api_url: 'https://example.com/',
+          base_api_token: 'token'
+        ) do
+          with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+            VCR.use_cassette('okta/metadata-bad') do
+              example.run
+            end
+          end
+        end
+      end
+
+      it 'bad jwks' do
+        expect do
+          described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU', 'https://example.com/oauth2/default')
+        end.to raise_error { |error|
+          expect(error).to be_a(Common::Exceptions::OpenIdServiceError)
+          expect(error.code).to eq 404
+          expect(error.status).to eq 404
+        }
+      end
     end
   end
 end

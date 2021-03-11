@@ -5,7 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
-    include CentralMailStatus
+    include AppealStatus
 
     def self.past?(date)
       date < Time.zone.today
@@ -35,6 +35,8 @@ module AppealsApi
       :contestable_issue_dates_are_valid_dates,
       if: proc { |a| a.form_data.present? }
     )
+
+    has_many :evidence_submissions, as: :supportable, dependent: :destroy
 
     def pdf_structure(version)
       Object.const_get(
@@ -140,12 +142,12 @@ module AppealsApi
     end
 
     # 13. IF YOU WOULD LIKE THE SAME OFFICE...
-    def same_office?
+    def same_office
       data_attributes&.dig('sameOffice')
     end
 
     # 14. ...INFORMAL CONFERENCE...
-    def informal_conference?
+    def informal_conference
       data_attributes&.dig('informalConference')
     end
 

@@ -299,10 +299,12 @@ module ClaimsApi
               key :description, 'Current status of the claim'
               key :enum, [
                 '"Claim received"',
+                '"Complete"',
                 '"Initial review"',
                 '"Evidence gathering, review, and decision"',
                 '"Preparation for notification"',
-                '"Complete"'
+                '"errored"',
+                '"pending"'
               ]
             end
           end

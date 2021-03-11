@@ -8,6 +8,8 @@ module AppealsApi
           @notice_of_disagreement = notice_of_disagreement
         end
 
+        delegate :mailing_address, to: :notice_of_disagreement
+
         def veteran_name
           name('Veteran')
         end
@@ -24,39 +26,35 @@ module AppealsApi
           dob 'Veteran'
         end
 
-        def mailing_address_number_and_street
-          'USE ADDRESS ON FILE'
-        end
-
-        def homeless?
-          notice_of_disagreement.veteran_homeless_state ? 1 : 'Off'
+        def homeless
+          notice_of_disagreement.veteran_homeless? ? 1 : 'Off'
         end
 
         def preferred_phone
-          'USE PHONE NUMBER ON FILE'
+          notice_of_disagreement.phone
         end
 
         def preferred_email
-          'USE EMAIL ON FILE'
+          notice_of_disagreement.email
         end
 
-        def direct_review?
+        def direct_review
           board_review_option == 'direct_review' ? 1 : 'Off'
         end
 
-        def evidence_submission?
+        def evidence_submission
           board_review_option == 'evidence_submission' ? 1 : 'Off'
         end
 
-        def hearing?
+        def hearing
           board_review_option == 'hearing' ? 1 : 'Off'
         end
 
-        def extra_contestable_issues?
+        def extra_contestable_issues
           contestable_issues.size > 5 ? 1 : 'Off'
         end
 
-        def soc_opt_in?
+        def soc_opt_in
           notice_of_disagreement.form_data&.dig('data', 'attributes', 'socOptIn') ? 1 : 'Off'
         end
 

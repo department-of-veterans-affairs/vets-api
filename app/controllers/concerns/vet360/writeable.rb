@@ -1,21 +1,21 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/validation_errors'
-require 'vet360/contact_information/service'
+require 'va_profile/contact_information/service'
 
 module Vet360
   module Writeable
     extend ActiveSupport::Concern
 
-    # For the passed Vet360 model type and params, it:
-    #   - builds and validates a Vet360 models
-    #   - POSTs/PUTs the model data to Vet360
+    # For the passed VAProfile model type and params, it:
+    #   - builds and validates a VAProfile models
+    #   - POSTs/PUTs the model data to VAProfile
     #   - creates a new AsyncTransaction db record, based on the type
     #   - renders the transaction through the base serializer
     #
-    # @param type [String] the Vet360::Models type (i.e. 'Email', 'Address', etc.)
+    # @param type [String] the VAProfile::Models type (i.e. 'Email', 'Address', etc.)
     # @param params [ActionController::Parameters ] The strong params from the controller
-    # @param http_verb [String] The type of write request being made to Vet360 ('post' or 'put')
+    # @param http_verb [String] The type of write request being made to VAProfile ('post' or 'put')
     # @return [Response] Normal controller `render json:` response with a response.body, .status, etc.
     #
     def write_to_vet360_and_render_transaction!(type, params, http_verb: 'post')
@@ -26,24 +26,30 @@ module Vet360
     end
 
     def invalidate_cache
-      Vet360Redis::Cache.invalidate(@current_user)
+      VAProfileRedis::Cache.invalidate(@current_user)
     end
 
     private
 
     def build_record(type, params)
-      "Vet360::Models::#{type.capitalize}"
+      "VAProfile::Models::#{type.capitalize}"
         .constantize
         .new(params)
         .set_defaults(@current_user)
     end
 
     def validate!(record)
-      raise Common::Exceptions::ValidationErrors, record unless record.valid?
+      return if record.valid?
+
+      PersonalInformationLog.create!(
+        data: record.to_h,
+        error_class: "#{record.class} ValidationError"
+      )
+      raise Common::Exceptions::ValidationErrors, record
     end
 
     def service
-      Vet360::ContactInformation::Service.new @current_user
+      VAProfile::ContactInformation::Service.new @current_user
     end
 
     def write_valid_record!(http_verb, type, record)
@@ -51,7 +57,9 @@ module Vet360
     end
 
     def render_new_transaction!(type, response)
-      transaction = "AsyncTransaction::Vet360::#{type.capitalize}Transaction".constantize.start(@current_user, response)
+      transaction = "AsyncTransaction::VAProfile::#{type.capitalize}Transaction".constantize.start(
+        @current_user, response
+      )
 
       render json: transaction, serializer: AsyncTransaction::BaseSerializer
     end

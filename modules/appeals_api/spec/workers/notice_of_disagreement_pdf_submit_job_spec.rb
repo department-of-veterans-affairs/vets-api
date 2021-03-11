@@ -75,4 +75,18 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       Timecop.return
     end
   end
+
+  context 'an error throws' do
+    it 'updates the NOD status to reflect the error' do
+      submit_job_worker = described_class.new
+      allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
+
+      expect do
+        submit_job_worker.perform(notice_of_disagreement.id)
+      end.to raise_error(RuntimeError, 'runtime error!')
+
+      notice_of_disagreement.reload
+      expect(notice_of_disagreement.status).to eq('error')
+    end
+  end
 end

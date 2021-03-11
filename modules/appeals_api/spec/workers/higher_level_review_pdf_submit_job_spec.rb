@@ -26,7 +26,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       capture_body = arg
       faraday_response
     }
-    described_class.new.perform(higher_level_review)
+    described_class.new.perform(higher_level_review.id)
     expect(capture_body).to be_a(Hash)
     expect(capture_body).to have_key('metadata')
     expect(capture_body).to have_key('document')
@@ -46,7 +46,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       capture_body = arg
       faraday_response
     }
-    described_class.new.perform(higher_level_review)
+    described_class.new.perform(higher_level_review.id)
     expect(capture_body).to be_a(Hash)
     expect(capture_body).to have_key('metadata')
     expect(capture_body).to have_key('document')
@@ -68,9 +68,23 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
     it 'queues another job to retry the request' do
       expect(client_stub).to receive(:upload) { |_arg| faraday_response }
       Timecop.freeze(Time.zone.now)
-      described_class.new.perform(higher_level_review)
+      described_class.new.perform(higher_level_review.id)
       expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
       Timecop.return
+    end
+  end
+
+  context 'an error throws' do
+    it 'updates the HLR status to reflect the error' do
+      submit_job_worker = described_class.new
+      allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
+
+      expect do
+        submit_job_worker.perform(higher_level_review.id)
+      end.to raise_error(RuntimeError, 'runtime error!')
+
+      higher_level_review.reload
+      expect(higher_level_review.status).to eq('error')
     end
   end
 

@@ -28,6 +28,7 @@ FactoryBot.define do
       search_token { nil }
       icn_with_aaid { nil }
       common_name { nil }
+      person_types { [] }
 
       sign_in do
         {
@@ -294,6 +295,10 @@ FactoryBot.define do
 
     factory :ch33_dd_user, traits: [:loa3] do
       ssn { '796104437' }
+
+      transient do
+        multifactor { true }
+      end
 
       after(:build) do
         stub_mpi(

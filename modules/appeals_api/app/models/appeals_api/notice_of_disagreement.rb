@@ -5,7 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
-    include CentralMailStatus
+    include AppealStatus
 
     def self.load_json_schema(filename)
       MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
@@ -20,7 +20,9 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    validate :validate_hearing_type_selection
+    validate :validate_hearing_type_selection, if: :pii_present?
+
+    has_many :evidence_submissions, as: :supportable, dependent: :destroy
 
     def pdf_structure(version)
       Object.const_get(
@@ -52,7 +54,35 @@ module AppealsApi
       header_field_as_string 'X-Consumer-ID'
     end
 
-    def veteran_homeless_state
+    def veteran_contact_info
+      form_data&.dig('data', 'attributes', 'veteran')
+    end
+
+    def mailing_address
+      address_combined = [
+        veteran_contact_info.dig('address', 'addressLine1'),
+        veteran_contact_info.dig('address', 'addressLine2'),
+        veteran_contact_info.dig('address', 'addressLine3')
+      ].compact.map(&:strip).join(' ')
+
+      [
+        address_combined,
+        veteran_contact_info.dig('address', 'city'),
+        veteran_contact_info.dig('address', 'stateCode'),
+        veteran_contact_info.dig('address', 'zipCode5'),
+        veteran_contact_info.dig('address', 'countryName')
+      ].compact.map(&:strip).join(', ')
+    end
+
+    def phone
+      AppealsApi::HigherLevelReview::Phone.new(veteran_contact_info&.dig('phone')).to_s
+    end
+
+    def email
+      veteran_contact_info.dig('emailAddressText')
+    end
+
+    def veteran_homeless?
       form_data&.dig('data', 'attributes', 'veteran', 'homeless')
     end
 
@@ -69,7 +99,8 @@ module AppealsApi
     end
 
     def zip_code_5
-      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+      # schema already validated address presence if not homeless
+      veteran_contact_info&.dig('address', 'zipCode5') || '00000'
     end
 
     def lob
@@ -113,6 +144,11 @@ module AppealsApi
 
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
+    end
+
+    # After expunging pii, form_data is nil, update will fail unless validation skipped
+    def pii_present?
+      proc { |a| a.form_data.present? }
     end
   end
 end

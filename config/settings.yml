@@ -162,13 +162,23 @@ modules_appeals_api:
   higher_level_review_updater_enabled: true
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
-  report_enabled: false
-  report_recipients:
-    - drew.fisher@adhocteam.us
-    - jack.schuss@oddball.io
-    - kelly@adhocteam.us
-    - laura.trager@adhocteam.us
-    - nathan.wright@oddball.io
+  reports:
+    decision_review:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
+    daily_error:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
   schema_dir: config/schemas
 
 vre_counseling:
@@ -287,6 +297,11 @@ mhv:
   account:
     mock: false
 
+# Settings for alternate MHV integration for mobile app
+mhv_mobile:
+  sm:
+    app_token: fake-app-token
+
 # Settings for Master Veteran Index
 mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
@@ -370,6 +385,7 @@ preneeds:
 # Settings for VBA Document upload service module
 vba_documents:
   report_enabled: false
+  monthly_report: false
   location:
     prefix: http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
@@ -387,6 +403,7 @@ vba_documents:
 #Settings for Claims Api Module
 claims_api:
   report_enabled: false
+  audit_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
@@ -395,6 +412,11 @@ claims_api:
     bucket: ~
   disability_claims_mock_override: false
   schema_dir: config/schemas
+  slack:
+    webhook_url: https://example.com
+  claims_pending_reporting:
+    threshold: ~
+    environment_name: ~
 
 redis:
   host: localhost
@@ -403,6 +425,8 @@ redis:
     url: redis://localhost:6379
     # secondary_url: redis://localhost:6378
   sidekiq:
+    url: redis://localhost:6379
+  rails_cache:
     url: redis://localhost:6379
 
 # Settings for GovDelivery (email delivery)
@@ -422,32 +446,93 @@ reports:
   spool10203_submission:
     emails:
       - Brian.Grubb@va.gov
-      - Joseph.Preisser@va.gov
-      - Lucas.Tickner@va.gov
-      - tammy.hurley1@va.gov
-      - Ricardo.DaSilva@va.gov
-      - kyle.pietrosanto@va.gov
-      - Joshua.Lashbrook@va.gov
-      - shay.norton@va.gov
       - dana.kuykendall@va.gov
       - Jennifer.Waltz2@va.gov
-      - kathleen.dalfonso@va.gov
-      - lihan@adhocteam.us
-    staging_emails:
-      - Brian.Grubb@va.gov
       - Joseph.Preisser@va.gov
-      - Lucas.Tickner@va.gov
-      - tammy.hurley1@va.gov
-      - Ricardo.DaSilva@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
       - kyle.pietrosanto@va.gov
       - lihan@adhocteam.us
-      - Delli-Gatti_Michael@bah.com
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - robert.shinners@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
       - Darrell.Neel@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
       - Neel_Darrell@bah.com
+      - Ricardo.DaSilva@va.gov
       - shawkey_daniel@bah.com
       - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
       - Turner_Desiree@bah.com
-
+  spool_submission:
+    emails:
+      - Brian.Grubb@va.gov
+      - dana.kuykendall@va.gov
+      - Jennifer.Waltz2@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Darrell.Neel@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - Neel_Darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - Turner_Desiree@bah.com
+  year_to_date_report:
+    emails:
+      - 222A.VBAVACO@va.gov
+      - 224B.VBAVACO@va.gov
+      - 224C.VBAVACO@va.gov
+      - Brandon.Scott2@va.gov
+      - Brian.Grubb@va.gov
+      - Christina.DiTucci@va.gov
+      - John.McNeal@va.gov
+      - Joseph.Preisser@va.gov
+      - Joshua.Lashbrook@va.gov
+      - kathleen.dalfonso@va.gov
+      - kyle.pietrosanto@va.gov
+      - Lucas.Tickner@va.gov
+      - michele.mendola@va.gov
+      - Ricardo.DaSilva@va.gov
+      - shay.norton@va.gov
+      - tammy.hurley1@va.gov
+    staging_emails:
+      - Brian.Grubb@va.gov
+      - Delli-Gatti_Michael@bah.com
+      - Joseph.Preisser@va.gov
+      - kyle.pietrosanto@va.gov
+      - lihan@adhocteam.us
+      - Lucas.Tickner@va.gov
+      - matthew.ziolkowski@va.gov
+      - Michael.Johnson19@va.gov
+      - neel_darrell@bah.com
+      - Ricardo.DaSilva@va.gov
+      - shawkey_daniel@bah.com
+      - sonntag_adam@bah.com
+      - tammy.hurley1@va.gov
+      - turner_desiree@bah.com
 
 oidc:
   auth_server_metadata_url: ~
@@ -461,6 +546,10 @@ oidc:
   base_api_url: https://example.com
   base_api_token: ~
   smart_launch_url: ~
+  issuers:
+    - prefix: "https://example.com/"
+      metadata: "/.well-known/openid-configuration"
+      proxy: "https://example.com/"
 
 sentry:
   dsn: ~
@@ -505,6 +594,7 @@ maintenance:
     vet360: PHVOGQ1
     vetext_vaccine: P9PG8HG
     vic: P7LW3MS
+    hcq: PWGA814
   aws:
     access_key_id: ~
     bucket: ~
@@ -617,6 +707,12 @@ bgs:
   mock_responses: ~
   ssl_verify_mode: "peer"
 
+directory:
+  url: http://example.com/services/apps/v0/
+  apikey: fake_apikey
+  staging_flag: ~
+  health_server_id: ~
+
 va_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
@@ -638,12 +734,34 @@ hqva_mobile:
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"
+    pgd_token_path: "/oauth2/pgd/v1/token"
+    health_api_path: "/services/fhir/v0/r4"
+    health_token_path: "/oauth2/health/system/v1/token"
     host: "sandbox-api.va.gov"
-    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    pgd_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    health_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7"
     claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     redis_session_prefix: "healthquest_lighthouse"
+    health_api: "health_api"
+    pgd_api: "pgd_api"
     mock: false
     key_path: /srv/vets-api/secret/health-quest.lighthouse.key
+    pgd_api_scopes:
+      - "launch/patient"
+      - "patient/Observation.read"
+      - "patient/Observation.write"
+      - "patient/Questionnaire.read"
+      - "patient/Questionnaire.write"
+      - "patient/QuestionnaireResponse.read"
+      - "patient/QuestionnaireResponse.write"
+    health_api_scopes:
+      - "launch/patient"
+      - "patient/Appointment.read"
+      - "patient/Location.read"
+      - "patient/Organization.read"
+      - "patient/Patient.read"
 
 lighthouse:
   api_key: fake_key
@@ -685,11 +803,31 @@ coronavirus_chatbot:
 # Settings for notifications client
 vanotify:
   client_url: http://fakeapi.com
+  services:
+    va_gov:
+      api_key: fake_secret
+      template_id:
+        form526_confirmation_email: fake_template_id
+        covid_vaccine_registration: fake_template_id
+    lighthouse:
+      api_key: fake_secret
+      template_id:
+        disconnection_template: fake_template_id
+        connection_template: fake_template_id
+
+  # will be removed once the vanotify_service_enhancement feature toggle is removed
   api_key: fake_secret
   template_id:
     form526_confirmation_email: fake_template_id
+    connection_template: fake_template_id
+    disconnection_template: fake_template_id
     covid_vaccine_registration: fake_template_id
+    direct_deposit_edu: edu_template_id
+    direct_deposit_comp_pen: comp_pen_template_id
   mock: false
+  links:
+    connected_applications: https://www.va.gov/profile/connected-applications
+    password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
@@ -708,3 +846,22 @@ veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
   auth_endpoint: ~
+
+# Settings for connecting to the va.gov Google Analytics for the Cypress Viewport Updater
+google_analytics_cvu:
+  type: service_account
+  project_id: vsp-analytics-and-insights
+  private_key_id: ~
+  private_key: ~
+  client_email: va-gov-top-user-viewports@vsp-analytics-and-insights.iam.gserviceaccount.com
+  client_id: ~
+  auth_uri: https://accounts.google.com/o/oauth2/auth
+  token_uri: https://oauth2.googleapis.com/token
+  auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+  client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/va-gov-top-user-viewports%40vsp-analytics-and-insights.iam.gserviceaccount.com
+
+# Settings for connecting to the cypress-viewport-updater-bot GitHub app
+github_cvu:
+  installation_id: ~
+  integration_id: ~
+  private_pem: ~

@@ -25,8 +25,21 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     it 'adds veteran information' do
       VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
         claim.add_claimant_info(user_object)
+        claimant_keys = %w[fullName ssn dob VAFileNumber pid edipi vet360ID]
+        expect(claim.parsed_form['veteranInformation']).to include(
+          {
+            'fullName' => {
+              'first' => 'Homer',
+              'middle' => 'John',
+              'last' => 'Simpson'
+            },
+            'dob' => '1809-02-12'
+          }
+        )
 
-        expect(claim.parsed_form['veteranInformation']).to include('VAFileNumber' => '796043735')
+        expect(
+          claim.parsed_form['veteranInformation'].keys
+        ).to eq(claimant_keys)
       end
     end
 
@@ -43,11 +56,19 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#send_to_vre' do
-    context 'successful submission' do
+    context 'submission to VRE' do
+      before do
+        expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
+        expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
+          { regional_office: { number: '319' } }
+        )
+      end
+
       it 'successfully sends to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
           claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
+
           expect(response['error_occurred']).to eq(false)
         end
       end
@@ -60,13 +81,28 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           expect(claim.parsed_form['appointmentTimePreferences'].first).to eq('morning')
         end
       end
-
       it 'does not successfully send to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/failed_send_to_vre' do
           claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
 
           expect(response['error_occurred']).to eq(true)
+        end
+      end
+    end
+
+    context 'non-submission to VRE' do
+      it 'stops submission if location is not in list' do
+        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
+          expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
+            { regional_office: { number: '310' } }
+          )
+
+          expect(VRE::Ch31Form).not_to receive(:new)
+          claim.add_claimant_info(user_object)
+
+          claim.send_to_vre(user_object)
         end
       end
     end

@@ -16,7 +16,7 @@ module ClaimsApi
       rescue # => e
         # Need to eventually start logging poa error logs.
         # log_message_to_sentry('PoA claims', :warning, body: e.message)
-        raise Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
+        raise ::Common::Exceptions::Unauthorized, detail: 'Cannot validate Power of Attorney'
       end
 
       def verify_representative_and_veteran(logged_in_representative_user, target_veteran_to_be_verified)

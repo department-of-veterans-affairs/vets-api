@@ -17,15 +17,14 @@ module AppealsApi
             form_fields.veteran_ssn => form_data.veteran_ssn,
             form_fields.veteran_file_number => form_data.veteran_file_number,
             form_fields.veteran_dob => form_data.veteran_dob,
-            form_fields.mailing_address_number_and_street => form_data.mailing_address_number_and_street,
-            form_fields.homeless? => form_data.homeless?,
+            form_fields.mailing_address => form_data.mailing_address,
+            form_fields.homeless => form_data.homeless,
             form_fields.preferred_phone => form_data.preferred_phone,
-            form_fields.preferred_email => form_data.preferred_email,
-            form_fields.direct_review? => form_data.direct_review?,
-            form_fields.evidence_submission? => form_data.evidence_submission?,
-            form_fields.hearing? => form_data.hearing?,
-            form_fields.extra_contestable_issues? => form_data.extra_contestable_issues?,
-            form_fields.soc_opt_in? => form_data.soc_opt_in?,
+            form_fields.direct_review => form_data.direct_review,
+            form_fields.evidence_submission => form_data.evidence_submission,
+            form_fields.hearing => form_data.hearing,
+            form_fields.extra_contestable_issues => form_data.extra_contestable_issues,
+            form_fields.soc_opt_in => form_data.soc_opt_in,
             form_fields.signature => form_data.signature,
             form_fields.date_signed => form_data.date_signed
           }
@@ -47,17 +46,23 @@ module AppealsApi
               min_font_size: 8,
               valign: :bottom
             }
-
             pdf.font 'Courier'
             pdf.text_box(
-              form_data.representatives_name,
+              form_data.preferred_email,
               text_opts.merge(
-                at: [350, 512],
+                at: [145, 514],
                 width: 195,
                 height: 24
               )
             )
-
+            pdf.text_box(
+              form_data.representatives_name,
+              text_opts.merge(
+                at: [350, 514],
+                width: 195,
+                height: 24
+              )
+            )
             form_data
               .contestable_issues
               .take(5)
@@ -107,9 +112,18 @@ module AppealsApi
         end
 
         def stamp(stamped_pdf_path)
-          CentralMail::DatestampPdf.new(stamped_pdf_path).run(
-            text: form_data.stamp_text,
+          stamper = CentralMail::DatestampPdf.new(stamped_pdf_path)
+
+          bottom_stamped_path = stamper.run(
+            text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
             x: 5,
+            y: 775,
+            text_only: true
+          )
+
+          CentralMail::DatestampPdf.new(bottom_stamped_path).run(
+            text: form_data.stamp_text,
+            x: 280,
             y: 775,
             text_only: true
           )

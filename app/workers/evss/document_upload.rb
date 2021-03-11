@@ -7,6 +7,7 @@ class EVSS::DocumentUpload
   sidekiq_options retry: 14
 
   def perform(auth_headers, user_uuid, document_hash)
+    Raven.tags_context(source: 'claims-status')
     document = EVSSClaimDocument.new document_hash
     client = EVSS::DocumentsService.new(auth_headers)
     uploader = EVSSClaimDocumentUploader.new(user_uuid, document.uploader_ids)

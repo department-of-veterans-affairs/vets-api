@@ -3,13 +3,14 @@
 require 'rails_helper'
 require 'lighthouse/facilities/client'
 
-RSpec.describe Lighthouse::Facilities::Client do
-  vcr_options = {
-    match_requests_on: %i[path query],
-    allow_playback_repeats: true,
-    record: :new_episodes
-  }
+vcr_options = {
+  cassette_name: '/lighthouse/facilities',
+  match_requests_on: %i[path query],
+  allow_playback_repeats: true,
+  record: :new_episodes
+}
 
+RSpec.describe Lighthouse::Facilities::Client, team: :facilities, vcr: vcr_options do
   let(:facilities_client) { Lighthouse::Facilities::Client.new }
 
   let(:params) do
@@ -56,28 +57,30 @@ RSpec.describe Lighthouse::Facilities::Client do
         'tuesday' => '730AM-430PM',
         'wednesday' => '730AM-430PM'
       },
-      services: { 'health' => %w[Audiology Cardiology Dermatology Ophthalmology
-                                 PrimaryCare SpecialtyCare],
-                  'last_updated' => '2020-09-14', 'other' => [] },
+      services: { 'health' => %w[Audiology Cardiology Dermatology Gastroenterology
+                                 Ophthalmology PrimaryCare SpecialtyCare],
+                  'last_updated' => '2021-02-15', 'other' => [] },
       feedback: {
         'effective_date' => nil,
         'health' => {}
       },
       access: {
-        'effective_date' => '2020-09-14',
+        'effective_date' => '2021-02-15',
         'health' => [
-          { 'established' => 29.705882, 'new' => 68.857142, 'service' => 'Audiology' },
-          { 'established' => 29.108695, 'new' => 2.2,       'service' => 'Cardiology' },
-          { 'established' => 7.153846,  'new' => 81.714285, 'service' => 'Dermatology' },
-          { 'established' => 28.462962, 'new' => 98.222222, 'service' => 'Ophthalmology' },
-          { 'established' => 15.333333, 'new' => 7.0,       'service' => 'PrimaryCare' },
-          { 'established' => 26.449197, 'new' => 61.53125,  'service' => 'SpecialtyCare' }
+          { 'service' => 'Audiology',        'new' => 81.333333, 'established' => 63.361702 },
+          { 'service' => 'Cardiology',       'new' => 128.0, 'established' => 52.26 },
+          { 'service' => 'Dermatology',      'new' => 165.333333, 'established' => 95.916666 },
+          { 'service' => 'Gastroenterology', 'new' => 273.0, 'established' => nil },
+          { 'service' => 'Ophthalmology',    'new' => 65.25, 'established' => 32.64 },
+          { 'service' => 'PrimaryCare',      'new' => 43.56, 'established' => 27.230158 },
+          { 'service' => 'SpecialtyCare',    'new' => 95.230769, 'established' => 53.319796 }
         ]
       },
       mobile: false,
       active_status: 'A',
       visn: '21',
       operating_status: { 'code' => 'NORMAL' },
+      operational_hours_special_instructions: nil,
       facility_type_prefix: 'vha',
       unique_id: '358'
     }
@@ -104,10 +107,17 @@ RSpec.describe Lighthouse::Facilities::Client do
     end
   end
 
-  describe '#get_by_id', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities') do
+  describe '#get_by_id' do
     it 'returns a facility' do
       r = facilities_client.get_by_id('vha_358')
       expect(r).to have_attributes(vha_358_attributes)
+    end
+
+    it 'has operational_hours_special_instructions' do
+      r = facilities_client.get_by_id('vc_0617V')
+      expect(r[:operational_hours_special_instructions]).to eql('Expanded or Nontraditional hours are available for ' \
+        'some services on a routine and or requested basis. Please call our main phone number for details. | Vet ' \
+        'Center after hours assistance is available by calling 1-877-WAR-VETS (1-877-927-8387).')
     end
 
     it 'returns a 404 error' do
@@ -121,7 +131,7 @@ RSpec.describe Lighthouse::Facilities::Client do
     end
   end
 
-  describe '#get_facilities', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities') do
+  describe '#get_facilities' do
     it 'returns matching facilities for bbox request' do
       r = facilities_client.get_facilities(params)
       expect(r.length).to be 8

@@ -20,11 +20,11 @@ module AppealsApi
           'F[0].Page_1[0].DateSigned[0]'
         end
 
-        def mailing_address_number_and_street
+        def mailing_address
           'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]'
         end
 
-        def homeless?
+        def homeless
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[0]'
         end
 
@@ -32,27 +32,23 @@ module AppealsApi
           'F[0].Page_1[0].PreferredPhoneNumber[0]'
         end
 
-        def preferred_email
-          'F[0].Page_1[0].PreferredE_MailAddress[0]'
-        end
-
-        def direct_review?
+        def direct_review
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[1]'
         end
 
-        def evidence_submission?
+        def evidence_submission
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[2]'
         end
 
-        def hearing?
+        def hearing
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[3]'
         end
 
-        def extra_contestable_issues?
+        def extra_contestable_issues
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[4]'
         end
 
-        def soc_opt_in?
+        def soc_opt_in
           'F[0].Page_1[0].DecisionReviewOfficer_DROReviewProcess[5]'
         end
 

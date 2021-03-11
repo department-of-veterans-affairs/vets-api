@@ -16,7 +16,7 @@ describe ModuleGenerator do
 
     it 'the directories should exist' do
       ModuleGenerator.new([module_name]).create_directory_structure
-      %w[controllers models serializers service].each do |module_dir|
+      %w[controllers models serializers services].each do |module_dir|
         expect(File.directory?("#{path}/#{module_dir}")).to be(true)
       end
     end
@@ -94,6 +94,70 @@ MESSAGES
 
     it 'creates the Gemfile' do
       expect(File).to exist("#{path}/Gemfile")
+    end
+  end
+
+  describe 'file insertion methods' do
+    let(:module_name) { 'foo' }
+
+    it 'inserts to the simplecov helper' do
+      options = {
+        insert_matcher: "add_group 'Foo', 'modules/foo/'",
+        new_entry: "    add_group 'Foo', 'modules/foo/'\n",
+        regex: /# Modules(.*)end/m
+      }
+      allow_any_instance_of(ModuleGenerator).to(
+        receive(:module_generator_file_insert).with('spec/simplecov_helper.rb', options).and_return('stub insertion')
+      )
+      simplecov_updater = ModuleGenerator.new([module_name]).update_simplecov_helper
+      expect(simplecov_updater).to eq('stub insertion')
+    end
+
+    it 'inserts to the  spec helper' do
+      options = {
+        insert_matcher: "add_group 'Foo', 'modules/foo/'",
+        new_entry: "    add_group 'Foo', 'modules/foo/'\n",
+        regex: /# Modules(.*)# End Modules/m
+      }
+
+      allow_any_instance_of(ModuleGenerator).to(
+        receive(:module_generator_file_insert).with('spec/spec_helper.rb', options).and_return('stub insertion')
+      )
+      spec_updater = ModuleGenerator.new([module_name]).update_spec_helper
+      expect(spec_updater).to eq('stub insertion')
+    end
+
+    it 'inserts to the gemfile' do
+      options = {
+        insert_matcher: "gem '#{module_name}'",
+        new_entry: "  gem '#{module_name}'\n"
+      }
+
+      allow_any_instance_of(ModuleGenerator).to(
+        receive(:module_generator_file_insert).with('Gemfile', options).and_return('stub insertion')
+      )
+      gemfile_updater = ModuleGenerator.new([module_name]).update_gemfile
+      expect(gemfile_updater).to eq('stub insertion')
+    end
+
+    it 'inserts to the routes file' do
+      options = {
+        insert_matcher: "mount Foo::Engine, at: '/foo'",
+        new_entry: "  mount Foo::Engine, at: '/foo'\n",
+        regex: /# Modules(.*)# End Modules/m
+      }
+
+      allow_any_instance_of(ModuleGenerator).to(
+        receive(:module_generator_file_insert).with('config/routes.rb', options).and_return('stub insertion')
+      )
+      routes_updater = ModuleGenerator.new([module_name]).update_routes_file
+      expect(routes_updater).to eq('stub insertion')
+    end
+
+    it 'bundle installs' do
+      allow_any_instance_of(ModuleGenerator).to receive(:update_and_install).and_return('bundle installing...')
+      installer = ModuleGenerator.new([module_name]).update_and_install
+      expect(installer).to eq('bundle installing...')
     end
   end
 end
