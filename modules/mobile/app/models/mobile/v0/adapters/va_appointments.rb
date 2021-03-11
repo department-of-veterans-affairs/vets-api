@@ -74,7 +74,7 @@ module Mobile
 
           facilities.each do |facility_id|
             StatsD.increment(
-              'mobile.appointments.list.facilities',
+              'mobile.appointments.facilities',
               tags: ["facility_id:#{facility_id}"],
               sample_rate: 1.0
             )
@@ -124,7 +124,7 @@ module Mobile
           }
 
           StatsD.increment(
-            'mobile.appointments.list.type', tags: ["type:#{type}"], sample_rate: 0.1
+            'mobile.appointments.type', tags: ["type:#{type}"], sample_rate: 0.1
           )
 
           Mobile::V0::Appointment.new(adapted_hash)

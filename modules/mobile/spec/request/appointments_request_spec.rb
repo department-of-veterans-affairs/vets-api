@@ -329,7 +329,7 @@ RSpec.describe 'appointments', type: :request do
         after { Timecop.return }
 
         it 'retrieves the cached appointments rather than hitting the service' do
-          expect_any_instance_of(Mobile::V0::Appointments::Proxy).not_to receive(:get_appointments)
+          expect_any_instance_of(VAOS::AppointmentService).not_to receive(:get_appointments)
           get '/mobile/v0/appointments', headers: iam_headers, params: params
           expect(response).to have_http_status(:ok)
         end

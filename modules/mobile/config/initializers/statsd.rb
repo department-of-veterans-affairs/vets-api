@@ -34,9 +34,9 @@ StatsD.increment('mobile.appointments.put_cancel_appointment.success', 0)
 StatsD.increment('mobile.appointments.put_cancel_appointment.failure', 0)
 
 # which facilities most often appear in the list (tags:["facility_id:#{facility_id}"])
-StatsD.increment('mobile.appointments.list.facilities', 0)
+StatsD.increment('mobile.appointments.facilities', 0)
 # which appointment types most often appear in the list (tags:["type:#{type}"])
-StatsD.increment('mobile.appointments.list.type', 0)
+StatsD.increment('mobile.appointments.type', 0)
 
 # Letters
 
@@ -47,3 +47,4 @@ StatsD.increment('mobile.letters.download.type', 0)
 
 # which claim types are most often viewed
 StatsD.increment('mobile.claims_and_appeals.claim.type', 0)
+
