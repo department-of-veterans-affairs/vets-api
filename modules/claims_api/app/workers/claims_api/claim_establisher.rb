@@ -68,11 +68,7 @@ module ClaimsApi
 
     def bgs_user(auth_headers)
       {
-        'ssn' => auth_headers['va_eauth_pnid'],
-        'uuid' => nil,
-        'email' => nil,
-        'icn' => nil,
-        'common_name' => nil
+        'ssn' => auth_headers['va_eauth_pnid']
       }
     end
   end

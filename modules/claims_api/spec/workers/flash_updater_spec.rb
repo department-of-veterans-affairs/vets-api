@@ -11,11 +11,7 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
 
   let(:user) do
     {
-      'ssn' => '796043735',
-      'uuid' => nil,
-      'email' => nil,
-      'icn' => nil,
-      'common_name' => nil
+      'ssn' => '796043735'
     }
   end
   let(:flashes) { %w[Homeless POW] }
