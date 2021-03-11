@@ -193,6 +193,42 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_processing.save
     end
 
+    it 'records status change times properly' do
+      time = Time.now
+      Timecop.freeze(time)
+      upload = VBADocuments::UploadSubmission.new
+      Timecop.travel(time + 1.minute)
+      upload.status = 'uploaded'
+      upload.save!
+      elapsed = upload.metadata['status']['pending']['end'] - upload.metadata['status']['pending']['start']
+      expect(elapsed).to be == 60
+    end
+
+    it 'records status changes' do
+      upload = VBADocuments::UploadSubmission.new
+      upload.status = 'uploaded'
+      upload.save!
+      expect(upload.metadata['status']['pending']['start'].class).to be == Integer
+      expect(upload.metadata['status']['pending']['end'].class).to be == Integer
+      expect(upload.metadata['status']['uploaded']['start'].class).to be == Integer
+      expect(upload.metadata['status']['uploaded']['end'].class).to be == NilClass
+      upload.status = 'error'
+      upload.save!
+      expect(upload.metadata['status']['uploaded']['end'].class).to be == Integer
+      expect(upload.metadata['status']['error']['start'].class).to be == Integer
+    end
+
+    it 'records status changes after being found' do
+      upload = VBADocuments::UploadSubmission.new
+      upload.status = 'uploaded'
+      upload.save!
+      found = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      found.status = 'error'
+      found.save!
+      expect(found.metadata['status']['uploaded']['end'].class).to be == Integer
+      expect(found.metadata['status']['error']['start'].class).to be == Integer
+    end
+
     it 'does not allow the same guid used twice' do
       upload1 = VBADocuments::UploadSubmission.new
       upload2 = VBADocuments::UploadSubmission.new
