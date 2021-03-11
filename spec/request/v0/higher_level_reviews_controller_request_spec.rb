@@ -11,7 +11,7 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
 
   describe '#create' do
     def personal_information_logs
-      PersonalInformationLog.where error_class: 'V0::HigherLevelReviewsController#create exception (HLR)'
+      PersonalInformationLog.where 'error_class like ?', 'V0::HigherLevelReviewsController#create exception % (HLR)'
     end
 
     subject do
