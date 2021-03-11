@@ -9,6 +9,12 @@ module HealthQuest
     #
     # @!attribute appointments
     #   @return [Array]
+    # @!attribute lighthouse_appointments
+    #   @return [Array]
+    # @!attribute locations
+    #   @return [Array]
+    # @!attribute organizations
+    #   @return [Array]
     # @!attribute aggregated_data
     #   @return [Hash]
     # @!attribute patient
@@ -21,6 +27,12 @@ module HealthQuest
     #   @return [Array]
     # @!attribute appointment_service
     #   @return [HealthQuest::AppointmentService]
+    # @!attribute lighthouse_appointment_service
+    #   @return [HealthQuest::Resource::Factory]
+    # @!attribute location_service
+    #   @return [HealthQuest::Resource::Factory]
+    # @!attribute organization_service
+    #   @return [HealthQuest::Resource::Factory]
     # @!attribute patient_service
     #   @return [HealthQuest::Resource::Factory]
     # @!attribute questionnaire_response_service
@@ -43,6 +55,7 @@ module HealthQuest
       attr_reader :appointments,
                   :lighthouse_appointments,
                   :locations,
+                  :organizations,
                   :aggregated_data,
                   :patient,
                   :questionnaires,
@@ -52,6 +65,7 @@ module HealthQuest
                   :appointment_service,
                   :lighthouse_appointment_service,
                   :location_service,
+                  :organization_service,
                   :patient_service,
                   :questionnaire_response_service,
                   :questionnaire_service,
@@ -75,6 +89,7 @@ module HealthQuest
         @appointment_service = AppointmentService.new(user)
         @lighthouse_appointment_service = HealthQuest::Resource::Factory.manufacture(appointment_type)
         @location_service = HealthQuest::Resource::Factory.manufacture(location_type)
+        @organization_service = HealthQuest::Resource::Factory.manufacture(organization_type)
         @patient_service = HealthQuest::Resource::Factory.manufacture(patient_type)
         @questionnaire_service = HealthQuest::Resource::Factory.manufacture(questionnaire_type)
         @questionnaire_response_service = HealthQuest::Resource::Factory.manufacture(questionnaire_response_type)
@@ -125,6 +140,7 @@ module HealthQuest
 
         # rubocop:disable ThreadSafety/NewThread
         request_threads << Thread.new { @patient = get_patient.resource }
+        request_threads << Thread.new { @organizations = get_organizations }
         request_threads << Thread.new { @questionnaires = get_questionnaires.resource&.entry }
         request_threads << Thread.new { @questionnaire_responses = get_questionnaire_responses.resource&.entry }
         request_threads << Thread.new { @save_in_progress = get_save_in_progress }
@@ -194,6 +210,19 @@ module HealthQuest
       end
 
       ##
+      # Returns an array of Organizations from the Health API for the `locations` array
+      #
+      # @return [Array] a list of Organizations
+      #
+      def get_organizations
+        locations.each_with_object([]) do |loc, accumulator|
+          org = organization_service.get(loc.resource.id)
+
+          accumulator << org
+        end
+      end
+
+      ##
       # Gets a list of Questionnaires from the PGD.
       #
       # @return [FHIR::Bundle] an object containing the
@@ -242,6 +271,8 @@ module HealthQuest
           @aggregated_data = transformer.manufacture(
             appointments: appointments,
             lighthouse_appointments: lighthouse_appointments,
+            locations: locations,
+            organizations: organizations,
             questionnaires: questionnaires,
             questionnaire_responses: questionnaire_responses,
             save_in_progress: save_in_progress

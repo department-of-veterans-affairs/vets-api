@@ -42,6 +42,14 @@ module HealthQuest
           api: Settings.hqva_mobile.lighthouse.health_api
         }
       end
+
+      def organization_type
+        {
+          user: user,
+          resource_identifier: 'organization',
+          api: Settings.hqva_mobile.lighthouse.health_api
+        }
+      end
     end
   end
 end
