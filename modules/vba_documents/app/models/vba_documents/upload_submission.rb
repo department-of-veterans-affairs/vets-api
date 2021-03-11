@@ -91,6 +91,44 @@ module VBADocuments
       self[:consumer_name] || 'unknown'
     end
 
+    #data structure
+    # [{"status"=>"pending", "elapsed_secs"=>"13"},
+    # {"status"=>"processing", "elapsed_secs"=>"76"},
+    # {"status"=>"received", "elapsed_secs"=>"51"},
+    # {"status"=>"uploaded", "elapsed_secs"=>"30"}]
+    def self.avg_status_times(from, to, consumer_name = nil)
+      avg_status_sql = %Q(
+      select status,
+      round(avg(duration)) as elapsed_secs
+      from (
+        select guid,
+          status_key as status,
+          consumer_name,
+          created_at,
+          status_json -> status_key -> 'start' as start_time,
+          status_json -> status_key -> 'end' as end_time,
+          (status_json -> status_key -> 'end')::INTEGER -
+          (status_json -> status_key -> 'start')::INTEGER as duration
+        from (
+          SELECT guid,
+            consumer_name,
+            created_at,
+            jsonb_object_keys(metadata -> 'status') as status_key,
+            metadata -> 'status' as status_json
+          from vba_documents_upload_submissions
+        ) as n1
+        where status_json -> status_key -> 'end' is not null
+      ) as closed_statuses
+      where 1 = 1
+      #{consumer_name ? "and consumer_name = '#{consumer_name}' " : ''}
+      and   created_at > $1 and created_at < $2
+      group by status
+    )
+      ActiveRecord::Base.connection_pool.with_connection do |c|
+        c.raw_connection.exec_params(avg_status_sql, [from, to]).to_a
+      end
+    end
+
     private
 
     def rewrite_url(url)
