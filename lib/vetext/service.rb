@@ -27,8 +27,6 @@ module VEText
           deviceName: device_name || os_info[:name]
         }
       )
-    rescue Common::Client::Errors::ClientError => e
-      remap_error(e)
     end
 
     def get_preferences(endpoint_sid)
@@ -37,8 +35,6 @@ module VEText
         "#{PREFERENCES_PATH}/#{endpoint_sid}",
         nil
       )
-    rescue Common::Client::Errors::ClientError => e
-      remap_error(e)
     end
 
     def set_preference(endpoint_sid, preference_id, receive_preference)
@@ -50,8 +46,6 @@ module VEText
           value: receive_preference == true
         }
       )
-    rescue Common::Client::Errors::ClientError => e
-      remap_error(e)
     end
 
     def send_notification(endpoint_id, template_id, personalization = {})
@@ -63,24 +57,9 @@ module VEText
           personalization: personalization
         }
       )
-    rescue Common::Client::Errors::ClientError => e
-      remap_error(e)
     end
 
     private
-
-    def remap_error(e)
-      case e.status
-      when 400..499
-        raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_400',
-                                                              { detail: e.body[:error] }, e.status,
-                                                              e.body)
-      when 500..599
-        raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_502', {}, e.status)
-      else
-        raise e
-      end
-    end
 
     def app_sid(app_name)
       settings = Settings.vetext_push

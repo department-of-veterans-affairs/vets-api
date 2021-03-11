@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/rest'
+require 'common/client/middleware/response/vetext_errors'
 
 module VEText
   class Configuration < Common::Client::Configuration::REST
@@ -22,6 +23,7 @@ module VEText
         conn.use Faraday::Response::RaiseError
         conn.response :snakecase
         conn.response :json, content_type: /\bjson$/
+        conn.response :vetext_error
         conn.adapter Faraday.default_adapter
       end
     end
