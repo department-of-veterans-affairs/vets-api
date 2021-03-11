@@ -16,47 +16,34 @@ module VEText
 
     def register(app_name, device_token, icn, os_info, device_name = nil)
       app_sid = app_sid(app_name)
-      perform(
-        :put,
-        REGISTER_PATH, {
-          appSid: app_sid,
-          token: device_token,
-          icn: icn,
-          os: os_info[:name],
-          osVersion: os_info[:version],
-          deviceName: device_name || os_info[:name]
-        }
-      )
+      perform(:put, REGISTER_PATH, {
+                appSid: app_sid,
+                token: device_token,
+                icn: icn,
+                os: os_info[:name],
+                osVersion: os_info[:version],
+                deviceName: device_name || os_info[:name]
+              })
     end
 
     def get_preferences(endpoint_sid)
-      perform(
-        :get,
-        "#{PREFERENCES_PATH}/#{endpoint_sid}",
-        nil
-      )
+      perform(:get, "#{PREFERENCES_PATH}/#{endpoint_sid}", nil)
     end
 
     def set_preference(endpoint_sid, preference_id, receive_preference)
-      perform(
-        :put,
-        PREFERENCES_PATH, {
-          endpointSid: endpoint_sid,
-          preferenceId: preference_id,
-          value: receive_preference == true
-        }
-      )
+      perform(:put, PREFERENCES_PATH, {
+                endpointSid: endpoint_sid,
+                preferenceId: preference_id,
+                value: receive_preference == true
+              })
     end
 
     def send_notification(endpoint_id, template_id, personalization = {})
-      perform(
-        :post,
-        SEND_PATH, {
-          endpointSid: endpoint_id,
-          templateSid: template_id,
-          personalization: personalization
-        }
-      )
+      perform(:post, SEND_PATH, {
+                endpointSid: endpoint_id,
+                templateSid: template_id,
+                personalization: personalization
+              })
     end
 
     private
