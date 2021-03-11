@@ -11,7 +11,7 @@ module VBADocuments
     send(:validates_uniqueness_of, :guid)
     before_save :capture_status_time, if: :status_changed?
     after_find :set_initial_status
-    attr_reader :initial_status
+    attr_reader :current_status
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
@@ -24,8 +24,8 @@ module VBADocuments
 
     def initialize(attributes = nil)
       super
-      @initial_status = status
-      self.metadata = {'status' => {@initial_status => {'start' => Time.now.to_i}}}
+      @current_status = status
+      self.metadata = {'status' => {@current_status => {'start' => Time.now.to_i}}}
     end
 
     def self.fake_status(guid)
@@ -140,16 +140,17 @@ module VBADocuments
     end
 
     def set_initial_status
-      @initial_status = self.status
+      @current_status = self.status
     end
 
     def capture_status_time
-      from = @initial_status
+      from = @current_status
       to = status
       time = Time.now.to_i
       self.metadata['status'][from]['end'] = time
       self.metadata['status'][to] ||= {}
       self.metadata['status'][to]['start'] = time
+      @current_status = to
     end
   end
 end
