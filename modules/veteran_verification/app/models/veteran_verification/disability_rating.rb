@@ -45,7 +45,7 @@ module VeteranVerification
         id: 0,
         combined_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
         combined_effective_date: get_combined_effective_date(response[:disability_rating_record]),
-        legal_effective_date: get_combined_effective_date(response[:disability_rating_record]),
+        legal_effective_date: get_legal_effective_date(response[:disability_rating_record]),
         individual_ratings: individual_ratings(response)
       )
     end
