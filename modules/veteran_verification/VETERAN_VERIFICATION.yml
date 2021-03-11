@@ -192,6 +192,10 @@ components:
           type: integer
           example: 100
         combined_effective_date:
+          description: The effective date of the latest combined disability rating for the Veteran
+          type: datetime
+          example: "2018-03-27T21:00:41.000+0000"
+        legal_effective_date:
           description: When the Veteran could begin claiming benefits for combined disability rating
           type: datetime
           example: "2018-03-27T21:00:41.000+0000"
