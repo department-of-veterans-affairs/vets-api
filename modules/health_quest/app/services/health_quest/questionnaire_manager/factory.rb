@@ -7,8 +7,6 @@ module HealthQuest
     # An aggregator which collects and combines data from the health_quest services, those which
     # interact with appointments and patient generated data in particular.
     #
-    # @!attribute appointments
-    #   @return [Array]
     # @!attribute lighthouse_appointments
     #   @return [Array]
     # @!attribute locations
@@ -25,8 +23,6 @@ module HealthQuest
     #   @return [Array]
     # @!attribute save_in_progress
     #   @return [Array]
-    # @!attribute appointment_service
-    #   @return [HealthQuest::AppointmentService]
     # @!attribute lighthouse_appointment_service
     #   @return [HealthQuest::Resource::Factory]
     # @!attribute location_service
@@ -52,8 +48,7 @@ module HealthQuest
       USE_CONTEXT_DELIMITER = ','
       ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
 
-      attr_reader :appointments,
-                  :lighthouse_appointments,
+      attr_reader :lighthouse_appointments,
                   :locations,
                   :organizations,
                   :aggregated_data,
@@ -86,7 +81,6 @@ module HealthQuest
       def initialize(user)
         @aggregated_data = default_response
         @user = user
-        @appointment_service = AppointmentService.new(user)
         @lighthouse_appointment_service = HealthQuest::Resource::Factory.manufacture(appointment_type)
         @location_service = HealthQuest::Resource::Factory.manufacture(location_type)
         @organization_service = HealthQuest::Resource::Factory.manufacture(organization_type)
@@ -105,10 +99,9 @@ module HealthQuest
       # @return [Hash] an aggregated hash
       #
       def all
-        @appointments = get_appointments[:data]
         @lighthouse_appointments = get_lighthouse_appointments.resource&.entry
         @locations = get_locations
-        return default_response if appointments.blank?
+        return default_response if lighthouse_appointments.blank?
 
         concurrent_pgd_requests
         return default_response if patient.blank? || questionnaires.blank?
@@ -156,15 +149,6 @@ module HealthQuest
       #
       def get_patient
         @get_patient ||= patient_service.get(user.icn)
-      end
-
-      ##
-      # Gets a patients appointments by a default date range.
-      #
-      # @return [Hash] a hash containing appointment data and meta data
-      #
-      def get_appointments
-        @get_appointments ||= appointment_service.get_appointments(three_months_ago, one_year_from_now)
       end
 
       ##
@@ -235,16 +219,16 @@ module HealthQuest
       end
 
       ##
-      # Gets a list of QuestionnaireResponses from the PGD.
+      # Gets a list of QuestionnaireResponses that were created a year ago in the past,
+      # AND a year into the future, for the user from the Lighthouse PGD
       #
-      # @return [FHIR::Bundle] an object containing the
-      # entries for FHIR::QuestionnaireResponse objects
+      # @return [FHIR::Bundle]
       #
       def get_questionnaire_responses
         @get_questionnaire_responses ||=
           questionnaire_response_service.search(
             source: user.icn,
-            authored: [date_three_months_ago, date_one_year_from_now]
+            authored: [date_ge_one_year_ago, date_le_one_year_from_now]
           )
       end
 
@@ -269,7 +253,6 @@ module HealthQuest
       def compose
         @compose ||= begin
           @aggregated_data = transformer.manufacture(
-            appointments: appointments,
             lighthouse_appointments: lighthouse_appointments,
             locations: locations,
             organizations: organizations,
@@ -283,16 +266,17 @@ module HealthQuest
       end
 
       ##
-      # Builds the use context string from a list of appointments
+      # Builds the use context string, which will be used to query for Questionnaires,
+      # from a list of Locations
       #
-      # @return [String] a context-type-value built using facility and clinic IDs
+      # @return [String]
       #
       def get_use_context
         use_context_array =
-          appointments.each_with_object([]) do |apt, accumulator|
-            key_with_venue = "venue$#{apt.facility_id}/#{apt.clinic_id}"
+          locations.each_with_object([]) do |loc, accumulator|
+            key = "venue$#{loc.resource.identifier.value}"
 
-            accumulator << key_with_venue
+            accumulator << key
           end
 
         use_context_array.join(USE_CONTEXT_DELIMITER)
@@ -314,22 +298,6 @@ module HealthQuest
 
       def tz_date_string(year)
         year.in_time_zone.to_date.to_s
-      end
-
-      def date_three_months_ago
-        (DateTime.now.in_time_zone.to_date - 3.months).to_s
-      end
-
-      def date_one_year_from_now
-        (DateTime.now.in_time_zone.to_date + 12.months).to_s
-      end
-
-      def three_months_ago
-        3.months.ago.in_time_zone
-      end
-
-      def one_year_from_now
-        1.year.from_now.in_time_zone
       end
 
       def default_response
