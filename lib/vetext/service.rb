@@ -26,7 +26,7 @@ module VEText
           osVersion: os_info[:version],
           deviceName: device_name || os_info[:name]
         }
-      ).body
+      )
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end
@@ -36,7 +36,7 @@ module VEText
         :get,
         "#{PREFERENCES_PATH}/#{endpoint_sid}",
         nil
-      ).body
+      )
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end
@@ -49,7 +49,7 @@ module VEText
           preferenceId: preference_id,
           value: receive_preference == true
         }
-      ).body
+      )
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end
@@ -62,7 +62,7 @@ module VEText
           templateSid: template_id,
           personalization: personalization
         }
-      ).body
+      )
     rescue Common::Client::Errors::ClientError => e
       remap_error(e)
     end

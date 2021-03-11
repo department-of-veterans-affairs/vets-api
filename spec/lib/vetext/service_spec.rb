@@ -24,7 +24,7 @@ describe 'VEText::Service' do
       end
 
       it 'returns the unique sid for the app/device/icn' do
-        expect(response).to include(sid: '8E7F6585AAB1F6CF2E16058183303383')
+        expect(response.body).to include(sid: '8E7F6585AAB1F6CF2E16058183303383')
       end
     end
 
@@ -61,22 +61,22 @@ describe 'VEText::Service' do
         end.to raise_error(Common::Exceptions::RecordNotFound)
       end
     end
-  end
 
-  context 'when a 500 is returned' do
-    it 'raises an error' do
-      VCR.use_cassette('vetext/register_internal_server_error') do
-        expect do
-          service.register(
-            'va_mobile_app',
-            'device-token',
-            'icn',
-            {
-              name: 'ios',
-              version: '13.1'
-            }
-          )
-        end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_502/)
+    context 'when a 500 is returned' do
+      it 'raises an error' do
+        VCR.use_cassette('vetext/register_internal_server_error') do
+          expect do
+            service.register(
+              'va_mobile_app',
+              'device-token',
+              'icn',
+              {
+                name: 'ios',
+                version: '13.1'
+              }
+            )
+          end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_502/)
+        end
       end
     end
   end
@@ -108,7 +108,27 @@ describe 'VEText::Service' do
       end
 
       it 'returns the list of preferences' do
-        expect(response).to eq(get_preferences_body)
+        expect(response.body).to eq(get_preferences_body)
+      end
+    end
+
+    context 'when a 500 is returned' do
+      it 'raises an error' do
+        VCR.use_cassette('vetext/get_preferences_internal_server_error') do
+          expect do
+            service.get_preferences('8c258cbe573c462f912e7dd74585a5a9')
+          end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_502/)
+        end
+      end
+    end
+
+    context 'when a 400 is returned' do
+      it 'raises an error' do
+        VCR.use_cassette('vetext/get_preferences_bad_request') do
+          expect do
+            service.get_preferences('8c258cbe573c462f912e7dd74585a5a9')
+          end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_400/)
+        end
       end
     end
   end
@@ -130,7 +150,31 @@ describe 'VEText::Service' do
       end
 
       it 'returns successfully' do
-        expect(response).to eq(set_preference_body)
+        expect(response.body).to eq(set_preference_body)
+      end
+    end
+
+    context 'when a 500 is returned' do
+      it 'raises an error' do
+        VCR.use_cassette('vetext/set_preferences_internal_server_error') do
+          expect do
+            service.set_preference('8c258cbe573c462f912e7dd74585a5a9',
+                                   'claim_status_updates',
+                                   true)
+          end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_502/)
+        end
+      end
+    end
+
+    context 'when a 400 is returned' do
+      it 'raises an error' do
+        VCR.use_cassette('vetext/set_preferences_bad_request') do
+          expect do
+            service.set_preference('bad_id',
+                                   'claim_status_updates',
+                                   true)
+          end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_400/)
+        end
       end
     end
   end
@@ -160,8 +204,37 @@ describe 'VEText::Service' do
         end
       end
 
-      it 'returns successfully and has a 200' do
-        expect(response).to eq(response_body)
+      it 'returns successfully with a 200 status' do
+        expect(response.body).to eq(response_body)
+        expect(response.status).to eq(200)
+      end
+    end
+
+    context 'when a 500 is returned' do
+      it 'raises an error' do
+        VCR.use_cassette('vetext/send_internal_server_error') do
+          expect do
+            service.send_notification(
+                '8c258cbe573c462f912e7dd74585a5a9',
+                '0EF7C8C9390847D7B3B521426EFF5814',
+                personalization
+            )
+          end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_502/)
+        end
+      end
+    end
+
+    context 'when a 400 is returned' do
+      it 'raises an error' do
+        VCR.use_cassette('vetext/send_bad_request') do
+          expect do
+            service.send_notification(
+                '8c258cbe573c462f912e7dd74585a5a9',
+                '0EF7C8C9390847D7B3B521426EFF5814',
+                personalization
+            )
+          end.to raise_error(Common::Exceptions::BackendServiceException, /VETEXT_PUSH_400/)
+        end
       end
     end
   end
