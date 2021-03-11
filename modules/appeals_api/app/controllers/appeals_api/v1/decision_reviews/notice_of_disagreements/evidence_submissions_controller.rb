@@ -23,7 +23,7 @@ module AppealsApi::V1
           if status == :ok
             render json: { document: params[:document], uuid: params[:uuid] }
           else
-            render json: error, status: 422
+            render json: { errors: [error] }, status: 422
           end
         end
       end
