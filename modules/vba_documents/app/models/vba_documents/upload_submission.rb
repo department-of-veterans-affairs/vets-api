@@ -91,15 +91,16 @@ module VBADocuments
       self[:consumer_name] || 'unknown'
     end
 
-    #data structure
-    # [{"status"=>"pending", "elapsed_secs"=>"13"},
-    # {"status"=>"processing", "elapsed_secs"=>"76"},
-    # {"status"=>"received", "elapsed_secs"=>"51"},
-    # {"status"=>"uploaded", "elapsed_secs"=>"30"}]
+    # data structure
+    # [{"status"=>"pending", "elapsed_secs"=>"16", "rowcount"=>7},
+    # {"status"=>"processing", "elapsed_secs"=>"45", "rowcount" =>2},
+    # {"status"=>"received", "elapsed_secs"=>"45", "rowcount"=>3},
+    # {"status"=>"uploaded", "elapsed_secs"=>"22", "rowcount"=>5}]
     def self.avg_status_times(from, to, consumer_name = nil)
       avg_status_sql = %Q(
       select status,
-      round(avg(duration)) as elapsed_secs
+      round(avg(duration)) as elapsed_secs,
+    	count(*) as rowcount
       from (
         select guid,
           status_key as status,
@@ -108,7 +109,7 @@ module VBADocuments
           status_json -> status_key -> 'start' as start_time,
           status_json -> status_key -> 'end' as end_time,
           (status_json -> status_key -> 'end')::INTEGER -
-          (status_json -> status_key -> 'start')::INTEGER as duration
+            (status_json -> status_key -> 'start')::INTEGER as duration
         from (
           SELECT guid,
             consumer_name,
