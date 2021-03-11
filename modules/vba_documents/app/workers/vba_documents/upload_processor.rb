@@ -31,13 +31,16 @@ module VBADocuments
     # rubocop:disable Metrics/MethodLength
     def download_and_process
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
-
       begin
+        update_size(@upload, tempfile.size)
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
         update_pdf_metadata(@upload, inspector)
+        # todo remove below
+        # load('./modules/vba_documents/app/workers/vba_documents/upload_processor.rb')
+        # load('./modules/vba_documents/lib/vba_documents/upload_validator.rb')
         metadata = perfect_metadata(@upload, parts, timestamp)
         response = submit(metadata, parts)
         process_response(response)
