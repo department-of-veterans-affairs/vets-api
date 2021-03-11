@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require_relative 'gc_ids_constants'
-# require_relative 'gc_ids_helper'
+require_relative 'gc_ids_helper'
 
 module Identity
   module Parsers
     module GCIds
       include Identity::Parsers::GCIdsConstants
-      # include Identity::Parsers::GCIdsHelper
+      include Identity::Parsers::GCIdsHelper
 
       # @param ids [Array] An array of XML objects representing ids to parse
       # @return [Hash] An hash representing the parsed ids
