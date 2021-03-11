@@ -21,7 +21,7 @@ StatsD.increment('mobile.authentication.failure', 0)
 Mobile::V0::Appointments::Proxy.extend StatsD::Instrument
 Mobile::V0::Appointments::Proxy.statsd_count_success :get_appointments,
                                                      'mobile.appointments.get_appointments'
-Mobile::V0::Appointments::Proxy.statsd_measure :save_and_await_response,
+Mobile::V0::Appointments::Proxy.statsd_measure :get_appointments,
                                                'mobile.appointments.get_appointments.measure'
 Mobile::V0::Appointments::Proxy.statsd_count_success :put_cancel_appointment,
                                                      'mobile.appointments.put_cancel_appointment'
