@@ -13,15 +13,15 @@ To gain access to the decision reviews API you must [request an API Key](/apply)
 ### Submission Statuses (for NODs only at this time)
 
 In order to understand where your appeal submission is in the process, the Show endpoint (ex: GET /higher_level_reviews/{uuid}) can be called which will return the status for that appeal submission.  Please note this is the status of the appeal submission to VA, NOT the status of the appeal within the AMA process.
-The statuses returned for an appeal submission (NOD only at this time) follow this pattern:
+The statuses returned for an appeal submission (only NOD at this time) follow this pattern:
 
-1. **pending** - Initial status, indicates no document package has been uploaded yet
+1. **pending** - Initial status, indicates nothing has been uploaded yet
 1. **submitting** - Indicates that the transfer of data has begun but not yet completed
 1. **submitted** - Indicates that the data has been sent to upstream systems
-1. **received** - Indicates document package has been received upstream of the API, but is not yet in processing. Date of Receipt is set when this status is achieved. (This is also the final status in the sandbox environment.)
-1. **processing** - Indicates intake has begun, Conversion and Mail Handling Services (ICMHS) is processing the document package.
-1. **success** - Indicates document package has been received by Digital Mail Handling System (DHMS, aka the Centralized Mail portal).
-1. **caseflow** - Final status. Indicates document package has been entered into the Caseflow system. Once the appeal has entered this status, the Appeals Status API can be used to check the status of the appeal within the AMA process.
+1. **received** - Indicates the appeal data has been received upstream of the API, but is not yet in processing. Date of Receipt is set when this status is achieved. (This is also the final status in the sandbox environment.)
+1. **processing** - Indicates intake has begun, Conversion and Mail Handling Services (ICMHS) is processing the appeal data.
+1. **success** - Indicates appeal data has been received by Digital Mail Handling System (DHMS, aka the Centralized Mail portal).
+1. **caseflow** - Final status. Indicates appeal data has been entered into the Caseflow system. Once the appeal has entered this status, the Appeals Status API can be used to check the status of the appeal within the AMA process.
 
 If there is a problem during the process,
 
