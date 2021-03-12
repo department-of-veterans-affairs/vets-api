@@ -22,11 +22,11 @@ module HealthQuest
     def payload
       {
         authenticated: true,
-        sub: @user.icn,
+        sub: user.icn,
         idType: ID_TYPE,
         iss: ISS,
-        firstName: @user.first_name,
-        lastName: @user.last_name,
+        firstName: user.first_name,
+        lastName: user.last_name,
         authenticationAuthority: AUTHORITY,
         jti: SecureRandom.uuid,
         nbf: 1.minute.ago.to_i,
@@ -34,16 +34,16 @@ module HealthQuest
         sst: 1.minute.ago.to_i + 50,
         version: VERSION,
         gender: gender,
-        dob: @user.birth_date,
-        dateOfBirth: @user.birth_date,
-        edipid: @user.edipi,
-        ssn: @user.ssn
+        dob: user.birth_date,
+        dateOfBirth: user.birth_date,
+        edipid: user.edipi,
+        ssn: user.ssn
       }
     end
 
     def gender
-      type = @user.gender
-      return '' unless type.is_a?(String)
+      type = user.gender
+      return '' unless type
 
       case type.upcase[0, 1]
       when 'M'
