@@ -10,18 +10,6 @@ module V0
 
     private
 
-    def token_payload
-      {
-        directLineURI: Settings.virtual_agent.directline_uri,
-        connectorToken: fetch_connector_token,
-        userId: chat_bot_user_id
-      }
-    end
-
-    def chat_bot_user_id
-      SecureRandom.hex(8)
-    end
-
     def fetch_connector_token
       connector_response = request_connector_token
       parse_connector_token(connector_response)
