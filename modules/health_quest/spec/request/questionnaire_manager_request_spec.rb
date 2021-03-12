@@ -156,7 +156,7 @@ RSpec.describe 'health_quest questionnaire_manager', type: :request do
       end
 
       it 'returns a QuestionnaireResponse FHIR response type' do
-        post '/health_quest/v0/questionnaire_manager', params: { questionnaire_response: data }
+        post '/health_quest/v0/questionnaire_manager', params: { questionnaireResponse: data }
 
         expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'QuestionnaireResponse' })
       end
