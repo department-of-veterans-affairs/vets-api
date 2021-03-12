@@ -80,7 +80,7 @@ describe VAOS::Middleware::VAOSLogging do
     end
 
     describe 'with web socket error' do
-      # These requests won't actually make an outbound request, because we are stubbing the Faraday adapter to 
+      # These requests won't actually make an outbound request, because we are stubbing the Faraday adapter to
       # to raise an error that it would receive in the event of a network socket error.
       around do |example|
         VCR.turn_off!
