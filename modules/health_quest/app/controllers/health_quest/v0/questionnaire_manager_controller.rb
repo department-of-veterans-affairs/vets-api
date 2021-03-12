@@ -18,7 +18,7 @@ module HealthQuest
       private
 
       def questionnaire_response_params
-        params.require(:questionnaire_response).permit!
+        params.require(:questionnaireResponse).permit!
       end
 
       def factory
