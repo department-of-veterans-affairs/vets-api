@@ -10,6 +10,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:target_vet_participant_id) { 1 }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user)
                                            .add_headers(EVSS::AuthHeaders.new(user).to_h)
@@ -24,7 +25,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   it 'submits successfully' do
     expect do
-      subject.perform_async(claim.id)
+      subject.perform_async(claim.id, target_vet_participant_id)
     end.to change(subject.jobs, :size).by(1)
   end
 
@@ -33,7 +34,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     allow(EVSS::DisabilityCompensationForm::Service).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:submit_form526) { OpenStruct.new(claim_id: 1337) }
 
-    subject.new.perform(claim.id)
+    subject.new.perform(claim.id, target_vet_participant_id)
     claim.reload
     expect(claim.evss_id).to eq(1337)
     expect(claim.form_data).to be_empty
@@ -47,7 +48,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(EVSS::DisabilityCompensationForm::ServiceException.new(body))
     )
-    subject.new.perform(claim.id)
+    subject.new.perform(claim.id, target_vet_participant_id)
     claim.reload
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body['messages'])
@@ -59,7 +60,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
       receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException.new)
     )
-    subject.new.perform(claim.id)
+    subject.new.perform(claim.id, target_vet_participant_id)
     claim.reload
     expect(claim.evss_id).to be_nil
     expect(claim.evss_response).to eq(body)
@@ -74,7 +75,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
       .and_raise(ActiveRecord::RecordInvalid.new(claim))
 
     expect do
-      subject.new.perform(claim.id)
+      subject.new.perform(claim.id, target_vet_participant_id)
     end.to raise_error(ActiveRecord::RecordInvalid)
   end
 end
