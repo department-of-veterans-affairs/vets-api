@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'vba_documents/upload_error'
+require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
 
@@ -8,6 +9,7 @@ module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
+    extend SQLSupport
     send(:validates_uniqueness_of, :guid)
     before_save :capture_status_time, if: :status_changed?
     after_find :set_initial_status
@@ -25,7 +27,7 @@ module VBADocuments
     def initialize(attributes = nil)
       super
       @current_status = status
-      self.metadata = {'status' => {@current_status => {'start' => Time.now.to_i}}}
+      self.metadata = { 'status' => { @current_status => { 'start' => Time.now.to_i } } }
     end
 
     def self.fake_status(guid)
@@ -97,34 +99,7 @@ module VBADocuments
     # {"status"=>"received", "elapsed_secs"=>"45", "rowcount"=>3},
     # {"status"=>"uploaded", "elapsed_secs"=>"22", "rowcount"=>5}]
     def self.avg_status_times(from, to, consumer_name = nil)
-      avg_status_sql = %Q(
-      select status,
-      round(avg(duration)) as elapsed_secs,
-    	count(*) as rowcount
-      from (
-        select guid,
-          status_key as status,
-          consumer_name,
-          created_at,
-          status_json -> status_key -> 'start' as start_time,
-          status_json -> status_key -> 'end' as end_time,
-          (status_json -> status_key -> 'end')::INTEGER -
-            (status_json -> status_key -> 'start')::INTEGER as duration
-        from (
-          SELECT guid,
-            consumer_name,
-            created_at,
-            jsonb_object_keys(metadata -> 'status') as status_key,
-            metadata -> 'status' as status_json
-          from vba_documents_upload_submissions
-        ) as n1
-        where status_json -> status_key -> 'end' is not null
-      ) as closed_statuses
-      where 1 = 1
-      #{consumer_name ? "and consumer_name = '#{consumer_name}' " : ''}
-      and   created_at > $1 and created_at < $2
-      group by status
-    )
+      avg_status_sql = avg_sql(consumer_name)
       ActiveRecord::Base.connection_pool.with_connection do |c|
         c.raw_connection.exec_params(avg_status_sql, [from, to]).to_a
       end
@@ -179,22 +154,17 @@ module VBADocuments
     end
 
     def set_initial_status
-      @current_status = self.status
+      @current_status = status
     end
 
     def capture_status_time
       from = @current_status
       to = status
       time = Time.now.to_i
-      self.metadata['status'][from]['end'] = time
-      self.metadata['status'][to] ||= {}
-      self.metadata['status'][to]['start'] = time
+      metadata['status'][from]['end'] = time
+      metadata['status'][to] ||= {}
+      metadata['status'][to]['start'] = time
       @current_status = to
     end
   end
 end
-
-=begin
-#todo delete me
-load('./modules/vba_documents/app/models/vba_documents/upload_submission.rb')
-=end

@@ -15,7 +15,7 @@ module VBADocuments
     end
 
     def update_size(model, size)
-      model.update(metadata: model.metadata.merge({'size' => size}))
+      model.update(metadata: model.metadata.merge({ 'size' => size }))
     end
 
     def validate_parts(parts)

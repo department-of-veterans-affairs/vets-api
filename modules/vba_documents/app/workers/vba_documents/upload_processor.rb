@@ -38,9 +38,6 @@ module VBADocuments
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
         update_pdf_metadata(@upload, inspector)
-        # todo remove below
-        # load('./modules/vba_documents/app/workers/vba_documents/upload_processor.rb')
-        # load('./modules/vba_documents/lib/vba_documents/upload_validator.rb')
         metadata = perfect_metadata(@upload, parts, timestamp)
         response = submit(metadata, parts)
         process_response(response)

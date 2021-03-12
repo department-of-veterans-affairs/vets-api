@@ -194,11 +194,10 @@ describe VBADocuments::UploadSubmission, type: :model do
     end
 
     context 'averages' do
-
       before do
-        time = Time.now
+        time = Time.zone.now
         consumer_1 = VBADocuments::UploadSubmission.new
-        consumer_1.consumer_name = "consumer_1"
+        consumer_1.consumer_name = 'consumer_1'
         @num_times = 5
         @num_times.times do |index|
           Timecop.freeze(time)
@@ -215,19 +214,19 @@ describe VBADocuments::UploadSubmission, type: :model do
       #  rspec ./modules/vba_documents/spec/models/upload_submission_spec.rb
       it 'calculates status averages' do
         avg_times = VBADocuments::UploadSubmission.avg_status_times(1.year.ago, 1.minute.from_now).first
-        avg_times_c1 = VBADocuments::UploadSubmission.
-            avg_status_times(1.year.ago, 1.minute.from_now, 'consumer_1').first
+        avg_times_c1 = VBADocuments::UploadSubmission
+                       .avg_status_times(1.year.ago, 1.minute.from_now, 'consumer_1').first
         expect(avg_times['elapsed_secs'].to_i).to be == 60
         expect(avg_times['rowcount'].to_i).to be == @num_times + 1
-        expect(avg_times['status'].eql?('pending'))
+        expect(avg_times['status']).to eq('pending')
         expect(avg_times_c1['elapsed_secs'].to_i).to be == 60
         expect(avg_times_c1['rowcount'].to_i).to be == 2
-        expect(avg_times_c1['status'].eql?('pending'))
+        expect(avg_times_c1['status']).to eq('pending')
       end
     end
 
     it 'records status change times properly' do
-      time = Time.now
+      time = Time.zone.now
       Timecop.freeze(time)
       upload = VBADocuments::UploadSubmission.new
       Timecop.travel(time + 1.minute)
