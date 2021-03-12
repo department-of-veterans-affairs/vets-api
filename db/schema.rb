@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_09_193554) do
+ActiveRecord::Schema.define(version: 2021_03_11_215129) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -53,6 +53,15 @@ ActiveRecord::Schema.define(version: 2021_03_09_193554) do
     t.string "checksum", null: false
     t.datetime "created_at", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "appeal_submissions", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "submitted_appeal_uuid"
+    t.string "type_of_appeal"
+    t.string "board_review_otpion"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
