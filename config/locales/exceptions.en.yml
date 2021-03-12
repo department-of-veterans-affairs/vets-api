@@ -283,22 +283,22 @@ en:
         <<: *external_defaults
         code: 'SM101'
         detail: 'Application authentication failed'
-        status: 422
+        status: 401
       SM102:
         <<: *external_defaults
         code: 'SM102'
         detail: 'Application authorization failed'
-        status: 422
+        status: 401
       SM103:
         <<: *external_defaults
         code: 'SM103'
         detail: 'Invalid User Credentials'
-        status: 422
+        status: 401
       SM104:
         <<: *external_defaults
         code: 'SM104'
         detail: 'Missing User Credentials'
-        status: 422
+        status: 401
       SM105: # What causes this? Perhaps then we can come up with more customized detail below
         <<: *external_defaults
         code: 'SM105'
@@ -863,12 +863,6 @@ en:
         code: VET360_ADDR110
         detail: Size must be between 0 and 100.
         status: 400
-      VET360_ADDR110:
-        <<: *external_defaults
-        title: Address Line 2 Size
-        code: VET360_ADDR110
-        detail: Size must be between 0 and 100.
-        status: 400
       VET360_ADDR111:
         <<: *external_defaults
         title: Requires alphanumeric address 2
@@ -1085,12 +1079,6 @@ en:
         code: VET360_ADDR146
         detail: Address POU may not be null
         status: 400
-      VET360_ADDR146:
-        <<: *external_defaults
-        title: Address POU Null
-        code: VET360_ADDR146
-        detail: Address POU may not be null
-        status: 400
       VET360_ADDR147:
         <<: *external_defaults
         title: County value not found
@@ -1156,12 +1144,6 @@ en:
         title: Invalid confirmation date
         code: VET360_ADDR206
         detail: ConfirmationDate can not be greater than sourceDate
-        status: 400
-      VET360_ADDR300:
-        <<: *external_defaults
-        title: Address Inactive
-        code: VET360_ADDR300
-        detail: Cannot modify an existing inactive record.
         status: 400
       VET360_ADDR300:
         <<: *external_defaults
