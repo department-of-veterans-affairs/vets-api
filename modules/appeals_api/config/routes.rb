@@ -22,12 +22,12 @@ AppealsApi::Engine.routes.draw do
       end
       namespace :notice_of_disagreements do
         get 'contestable_issues', to: 'contestable_issues#index'
-        resources :evidence_submissions, only: %i[show]
+        resources :evidence_submissions, only: %i[create show]
       end
       resources :notice_of_disagreements, only: %i[create show] do
         collection do
-          get 'schema', to: 'notice_of_disagreements#schema'
-          post 'validate', to: 'notice_of_disagreements#validate'
+          get 'schema'
+          post 'validate'
         end
       end
     end
