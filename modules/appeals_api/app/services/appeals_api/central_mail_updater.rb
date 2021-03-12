@@ -9,7 +9,8 @@ module AppealsApi
     CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
 
     NOD_CENTRAL_STATUS_ATTRIBUTES = {
-      'Received' => { status: 'received' },
+      # we are consolidating submitted/received into one status for clarity
+      'Received' => { status: 'submitted' },
       'Success' => { status: 'success' },
 
       'In Process' => { status: 'processing' },
