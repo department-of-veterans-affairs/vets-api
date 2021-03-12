@@ -6,7 +6,7 @@ module Mobile
   module V0
     module Claims
       class Proxy
-        STATSD_UPLOAD_LATENCY = 'mobile.api.claims.upload.latency"
+        STATSD_UPLOAD_LATENCY = 'mobile.api.claims.upload.latency'
 
         def initialize(user)
           @user = user
