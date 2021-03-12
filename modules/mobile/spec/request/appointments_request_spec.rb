@@ -128,7 +128,8 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
                 'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
                 'status' => 'BOOKED',
-                'timeZone' => 'America/Denver'
+                'timeZone' => 'America/Denver',
+                'vetextId' => '308;20201103.090000'
               }
             }
           )
@@ -170,7 +171,8 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-01T22:30:00.000-05:00',
                 'startDateUtc' => '2020-11-02T03:30:00.000Z',
                 'status' => 'BOOKED',
-                'timeZone' => 'America/New_York'
+                'timeZone' => 'America/New_York',
+                'vetextId' => nil
               }
             }
           )
