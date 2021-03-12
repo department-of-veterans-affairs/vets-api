@@ -24,7 +24,7 @@ module Mobile
       end
 
       def cancel
-        decoded_cancel_params = Mobile::V0::Contracts::CancelAppointment.decode_cancel_id(params[:id])
+        decoded_cancel_params = Mobile::V0::Appointment.decode_cancel_id(params[:id])
         contract = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
         raise Mobile::V0::Exceptions::ValidationErrors, contract if contract.failure?
 

@@ -41,7 +41,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                         'type' => 'appointment',
                         'attributes' => {
                           'appointment_type' => 'VA',
-                          'cancel_id' => 'MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                          'cancel_id' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
                           'comment' => nil,
                           'healthcare_service' => 'CHY PC KILPATRICK',
                           'location' => {

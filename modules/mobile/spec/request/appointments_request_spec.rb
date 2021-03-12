@@ -103,7 +103,7 @@ RSpec.describe 'appointments', type: :request do
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'VA',
-                'cancelId' => 'MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
                 'comment' => nil,
                 'healthcareService' => 'CHY PC KILPATRICK',
                 'location' => {
@@ -362,7 +362,7 @@ RSpec.describe 'appointments', type: :request do
 
     context 'with valid params' do
       let(:cancel_id) do
-        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+        Mobile::V0::Appointment.encode_cancel_id(
           start_date_local: DateTime.parse('2019-11-15T13:00:00'),
           clinic_id: '437',
           facility_id: '983',
@@ -412,7 +412,7 @@ RSpec.describe 'appointments', type: :request do
 
     context 'when appointment can be cancelled' do
       let(:cancel_id) do
-        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+        Mobile::V0::Appointment.encode_cancel_id(
           start_date_local: DateTime.parse('2019-11-15T13:00:00'),
           clinic_id: '437',
           facility_id: '983',
@@ -433,7 +433,7 @@ RSpec.describe 'appointments', type: :request do
 
       context 'when appointment can be cancelled but fails' do
         let(:cancel_id) do
-          Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+          Mobile::V0::Appointment.encode_cancel_id(
             start_date_local: DateTime.parse('2019-11-20T17:00:00'),
             clinic_id: '437',
             facility_id: '983',
