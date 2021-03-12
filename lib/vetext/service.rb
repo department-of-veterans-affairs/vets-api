@@ -15,9 +15,8 @@ module VEText
     SEND_PATH = BASE_PATH + '/send'
 
     def register(app_name, device_token, icn, os_info, device_name = nil)
-      app_sid = app_sid(app_name)
       perform(:put, REGISTER_PATH, {
-                appSid: app_sid,
+                appSid: app_sid(app_name),
                 token: device_token,
                 icn: icn,
                 os: os_info[:name],
