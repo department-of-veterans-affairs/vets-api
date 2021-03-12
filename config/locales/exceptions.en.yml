@@ -275,16 +275,60 @@ en:
     # Below this line just define the minor code as key to be used by client error
       VA900:
         <<: *external_defaults
-      SM105: # What casues this? Perhaps then we can come up with more customized detail below
+      SM100:
+        <<: *validation_errors
+        code: 'SM100'
+        detail: 'The message body cannot be blank'
+      SM101:
+        <<: *external_defaults
+        code: 'SM101'
+        detail: 'Application authentication failed'
+        status: 422
+      SM102:
+        <<: *external_defaults
+        code: 'SM102'
+        detail: 'Application authorization failed'
+        status: 422
+      SM103:
+        <<: *external_defaults
+        code: 'SM103'
+        detail: 'Invalid User Credentials'
+        status: 422
+      SM104:
+        <<: *external_defaults
+        code: 'SM104'
+        detail: 'Missing User Credentials'
+        status: 422
+      SM105: # What causes this? Perhaps then we can come up with more customized detail below
         <<: *external_defaults
         code: 'SM105'
         detail: 'User was not found'
         status: 422
+      SM106:
+        <<: *external_defaults
+        code: 'SM106'
+        detail: 'User is not eligible because they are blocked'
+        status: 403
+      SM111:
+        <<: *external_defaults
+        code: 'SM111'
+        detail: 'Invalid user permissions (invalid user type for resource requested)'
+        status: 403
       SM112: # 'User is not owner of entity requested' (usually attachments)
         <<: *external_defaults
         code: 'SM112'
         detail: 'You do not have access to the requested resource'
         status: 403
+      SM113:
+        <<: *external_defaults
+        code: 'SM113'
+        detail: 'Unable to read attachment'
+        status: 422
+      SM114:
+        <<: *external_defaults
+        code: 'SM114'
+        detail: 'Unable to move message'
+        status: 400
       SM115:
         <<: *external_defaults
         code: 'SM115'
@@ -301,10 +345,54 @@ en:
         code: 'SM117'
         detail: 'A data integrity issue was encountered'
         status: 502
+      SM118:
+        <<: *external_defaults
+        code: 'SM118'
+        detail: 'It is not possible to move a message from the DRAFTS folder'
+        status: 422
       SM119: # 'Triage team does not exist' when trying to create new message
         <<: *external_defaults
         code: 'SM119'
         detail: 'Triage team does not exist'
+        status: 422
+      SM120:
+        <<: *validation_errors
+        code: 'SM120'
+        detail: 'The Page Number must be greater than zero'
+      SM121:
+        <<: *validation_errors
+        code: 'SM121'
+        detail: 'The Page Size must be greater than zero'
+      SM122:
+        <<: *validation_errors
+        code: 'SM122'
+        detail: 'The attachment file type is currently not supported'
+      SM123:
+        <<: *validation_errors
+        code: 'SM123'
+        detail: 'The filename is a required parameter'
+      SM124:
+        <<: *external_defaults
+        code: 'SM124'
+        detail: 'The attachment file size exceeds the supported size limits'
+        status: 413
+      SM125:
+        <<: *validation_errors
+        code: 'SM125'
+        detail: 'To create a folder the name is required'
+      SM126:
+        <<: *external_defaults
+        code: 'SM126'
+        detail: 'The folder already exists with the requested name'
+        status: 422
+      SM127:
+        <<: *validation_errors
+        code: 'SM127'
+        detail: 'The folder name should only contain letters, numbers, and spaces'
+      SM128:
+        <<: *external_defaults
+        code: 'SM128'
+        detail: 'The message you are attempting to send is not a draft '
         status: 422
       SM129:
         <<: *external_defaults
@@ -315,6 +403,20 @@ en:
         <<: *external_defaults
         code: 'SM130'
         detail: 'Unable to reply because the source message is expired'
+        status: 422
+      SM131:
+        <<: *external_defaults
+        code: 'SM131'
+        detail: 'Unable to reply to a message that is a draft'
+        status: 422
+      SM133:
+        <<: *validation_errors
+        code: 'SM133'
+        detail: 'PageSize exceeds the maximum allowed limit'
+      SM134:
+        <<: *external_defaults
+        code: 'SM134'
+        detail: 'The message you are attempting to save is not a draft'
         status: 422
       SM135: # 'User is not eligible because they have not accepted terms and conditions or opted-in'
         <<: *external_defaults
@@ -330,9 +432,19 @@ en:
         <<: *validation_errors
         code: 'SM152'
         detail: 'Email address is invalid'
+      SM900: # 'Mailbox Service Error'
+        <<: *external_defaults
+        code: 'SM900'
+        detail: 'Service is temporarily unavailable'
+        status: 503
       SM901: # 'Authentication Service Error' (connection pool issue)
         <<: *external_defaults
         code: 'SM901'
+        detail: 'Service is temporarily unavailable'
+        status: 503
+      SM902: # 'Triage Group Service Error'
+        <<: *external_defaults
+        code: 'SM902'
         detail: 'Service is temporarily unavailable'
         status: 503
       SM903:
