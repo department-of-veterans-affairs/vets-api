@@ -422,3 +422,15 @@ features:
     enable_in_development: true
     description: >
       Form 526 subforms for unemployability & connected employment information
+  spool_testing_error_1:
+    actor_type: user
+    description: >
+      Support testing of track file spool file creation by RPO
+  spool_testing_error_2:
+    actor_type: user
+    description: >
+      Create notification for when spool file processing fails
+  spool_testing_error_3:
+    actor_type: user
+    description: >
+      Update processing retry functionality
