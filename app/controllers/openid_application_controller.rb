@@ -50,9 +50,10 @@ class OpenidApplicationController < ApplicationController
   def token_from_request
     auth_request = request.authorization.to_s
     return unless auth_request[TOKEN_REGEX]
+
     token_string = auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, '')
 
-    if is_jwt?(token_string)
+    if jwt?(token_string)
       Token.new(token_string, fetch_aud)
     else
       # Future block for opaque tokens
@@ -60,11 +61,11 @@ class OpenidApplicationController < ApplicationController
     end
   end
 
-  def is_jwt?(token_string)
+  def jwt?(token_string)
     JWT.decode(token_string, nil, false, algorithm: 'RS256')
-    return true
-  rescue JWT::DecodeError => e
-    return false
+    true
+  rescue JWT::DecodeError
+    false
   end
 
   def error_klass(error_detail_string)
