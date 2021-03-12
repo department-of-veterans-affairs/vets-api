@@ -63,10 +63,20 @@ module HealthQuest
         }
       end
 
+      ##
+      # Get the list of location ids from the filters.
+      #
+      # @return [String]
+      #
       def location_ids
         @location_ids ||= filters&.fetch(:_id, nil)
       end
 
+      ##
+      # Get the list of organization ids from the filters.
+      #
+      # @return [String]
+      #
       def organization_ids
         @organization_ids ||= filters&.fetch(:_id, nil)
       end
