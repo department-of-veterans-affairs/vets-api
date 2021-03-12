@@ -26,11 +26,9 @@ module FailedRequestLoggable
         to_json
         to_s
       ].each do |method|
-        begin
-          hash[method] = exception.send method
-        rescue
-          nil
-        end
+        hash[method] = exception.send method
+      rescue
+        nil
       end
       hash
     end
