@@ -10,7 +10,7 @@ module ClaimsApi
     include Sidekiq::Worker
     include SentryLogging
 
-    def perform(auto_claim_id)
+    def perform(auto_claim_id, target_veteran_participant_id)
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
       form_data = auto_claim.to_internal
@@ -22,7 +22,7 @@ module ClaimsApi
       auto_claim.save!
 
       queue_flash_updater(auth_headers, auto_claim.flashes, auto_claim_id)
-      queue_special_issues_updater(auth_headers, auto_claim.special_issues, auto_claim)
+      queue_special_issues_updater(auth_headers, auto_claim.special_issues, target_veteran_participant_id, auto_claim)
     rescue ::EVSS::DisabilityCompensationForm::ServiceException => e
       auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
       auto_claim.evss_response = e.messages
@@ -37,7 +37,7 @@ module ClaimsApi
 
     private
 
-    def queue_special_issues_updater(auth_headers, special_issues_per_disability, auto_claim)
+    def queue_special_issues_updater(auth_headers, special_issues_per_disability, target_vet_participant_id, auto_claim)
       return if special_issues_per_disability.blank?
 
       special_issues_per_disability.each do |disability|
@@ -48,7 +48,9 @@ module ClaimsApi
         }
         ClaimsApi::SpecialIssueUpdater.perform_async(bgs_user(auth_headers),
                                                      contention_id,
-                                                     disability['special_issues'])
+                                                     disability['special_issues'],
+                                                     target_vet_participant_id,
+                                                     auto_claim.id)
       end
     end
 

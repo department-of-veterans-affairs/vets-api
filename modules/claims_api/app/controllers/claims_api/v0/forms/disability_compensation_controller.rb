@@ -35,7 +35,7 @@ module ClaimsApi
             raise Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
-          ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
+          ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id, target_veteran.participant_id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end

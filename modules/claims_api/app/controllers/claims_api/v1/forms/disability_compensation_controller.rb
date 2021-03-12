@@ -41,7 +41,7 @@ module ClaimsApi
           end
 
           unless form_attributes['autoCestPDFGenerationDisabled'] == true
-            ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
+            ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id, target_veteran.participant_id)
           end
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
@@ -54,7 +54,7 @@ module ClaimsApi
             pending_claim.set_file_data!(documents.first, params[:doc_type])
             pending_claim.save!
 
-            ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id)
+            ClaimsApi::ClaimEstablisher.perform_async(pending_claim.id, target_veteran.participant_id)
             ClaimsApi::ClaimUploader.perform_async(pending_claim.id)
 
             render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer

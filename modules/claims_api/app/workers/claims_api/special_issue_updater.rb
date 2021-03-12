@@ -19,11 +19,12 @@ module ClaimsApi
     # @param contention_id [Hash(claim_id:, code:, name:)] Identifier to match existing contention
     # @param special_issues [Array(String)] List of special issues to append
     # @param auto_claim_id [Integer] default: nil
-    def perform(user, contention_id, special_issues, auto_claim_id: nil)
+    def perform(user, contention_id, special_issues, target_veteran_participant_id, auto_claim_id = nil)
+      contention_id.symbolize_keys!
       validate_contention_id_structure(contention_id)
       service = bgs_service(user).contention
 
-      claims = service.find_contentions_by_ptcpnt_id(user.participant_id)[:benefit_claims]
+      claims = service.find_contentions_by_ptcpnt_id(target_veteran_participant_id)[:benefit_claims]
       claim = claim_from_contention_id(claims, contention_id)
       raise "Claim not found with contention: #{contention_id}" if claim.blank?
 
@@ -52,11 +53,9 @@ module ClaimsApi
     # @param user [OpenStruct] Veteran to attach special issues to
     # @return [BGS::Services] Service object
     def bgs_service(user)
-      external_key = user.common_name || user.email
-
       BGS::Services.new(
-        external_uid: user.icn || user.uuid,
-        external_key: external_key
+        external_uid: user['ssn'],
+        external_key: user['ssn']
       )
     end
 
