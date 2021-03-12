@@ -133,6 +133,24 @@ module HealthQuest
       def questionnaires_with_facility_clinic_id
         QuestionnaireFormatter.build(questionnaires).to_h
       end
+
+      ##
+      # Builds the location hash with ids as keys
+      #
+      # @return [Hash] a hash of locations
+      #
+      def locations_with_id
+        ResourceHashIdFormatter.build(locations).to_h
+      end
+
+      ##
+      # Builds the organization hash with facility ids as keys
+      #
+      # @return [Hash] a hash of organizations
+      #
+      def organizations_by_facility_ids
+        OrganizationFormatter.build(organizations).to_h
+      end
     end
   end
 end
