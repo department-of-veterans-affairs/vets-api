@@ -61,7 +61,6 @@ describe AppealsApi::DecisionReviewReport do
       'error' => 1,
       'pending' => 0,
       'processing' => 0,
-      'received' => 0,
       'submitted' => 0,
       'submitting' => 0,
       'success' => 2,

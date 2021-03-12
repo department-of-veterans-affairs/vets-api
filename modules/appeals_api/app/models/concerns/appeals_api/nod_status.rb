@@ -7,9 +7,9 @@ module AppealsApi
     extend ActiveSupport::Concern
 
     INTERNAL_STATUSES = %w[pending submitting submitted].freeze
-    STATUSES = [*INTERNAL_STATUSES, *CentralMailUpdater::CENTRAL_MAIL_STATUSES].freeze
+    STATUSES = [*INTERNAL_STATUSES, *CentralMailUpdater::CENTRAL_MAIL_STATUSES].uniq.freeze
 
-    RECEIVED_OR_PROCESSING = %w[received processing].freeze
+    RECEIVED_OR_PROCESSING = %w[submitted processing].freeze
     COMPLETE_STATUSES = %w[success error].freeze
 
     included do

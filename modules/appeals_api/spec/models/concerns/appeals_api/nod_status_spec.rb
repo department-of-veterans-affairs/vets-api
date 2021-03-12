@@ -7,13 +7,13 @@ describe AppealsApi::NodStatus, type: :concern do
     let(:local_statuses) { subject::STATUSES }
 
     it 'fails if central mail statuses are not included' do
-      additional_statuses = [*subject::RECEIVED_OR_PROCESSING, *subject::COMPLETE_STATUSES]
+      additional_statuses = [*subject::RECEIVED_OR_PROCESSING, *subject::COMPLETE_STATUSES].uniq
 
       expect(local_statuses).to include(*additional_statuses)
     end
 
     it 'includes the expected statuses' do
-      statuses = %w[pending submitting submitted received success processing error caseflow]
+      statuses = %w[pending submitting submitted success processing error caseflow]
       expect(described_class::STATUSES).to eq(statuses)
     end
   end
