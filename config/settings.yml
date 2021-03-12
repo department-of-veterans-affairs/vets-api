@@ -803,6 +803,9 @@ coronavirus_chatbot:
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
 
+virtual_agent:
+  webchat_secret: fake_secret
+
 # Settings for notifications client
 vanotify:
   client_url: http://fakeapi.com
