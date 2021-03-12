@@ -19,11 +19,11 @@ module AppealsApi
       it 'sends a network request' do
         text = SidekiqRetryNotifier.message_text(params)
 
-        allow(Faraday).to receive(:post).with(SidekiqRetryNotifier::WEBHOOK_URL, text)
+        allow(Faraday).to receive(:post).with(SidekiqRetryNotifier.slack_api_path)
 
         SidekiqRetryNotifier.notify!(params)
 
-        expect(Faraday).to have_received(:post).with(SidekiqRetryNotifier::WEBHOOK_URL, text)
+        expect(Faraday).to have_received(:post).with(SidekiqRetryNotifier.slack_api_path)
       end
     end
   end
