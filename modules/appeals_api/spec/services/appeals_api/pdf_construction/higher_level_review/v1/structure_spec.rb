@@ -41,8 +41,9 @@ module AppealsApi
 
           describe 'stamp' do
             it 'returns the supplied pdf path' do
+              allow(File).to receive(:delete)
               result = described_class.new(higher_level_review).stamp('dummy_path.pdf')
-              expect(result).to eq('dummy_path.pdf')
+              expect(result[-4..]).to eq('.pdf')
             end
           end
 

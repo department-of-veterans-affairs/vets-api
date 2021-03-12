@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_25_160010) do
+ActiveRecord::Schema.define(version: 2021_03_11_215129) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -55,12 +55,23 @@ ActiveRecord::Schema.define(version: 2021_02_25_160010) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "appeal_submissions", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "submitted_appeal_uuid"
+    t.string "type_of_appeal"
+    t.string "board_review_otpion"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
     t.string "status", default: "pending", null: false
     t.string "supportable_type"
     t.string "supportable_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
   end
 
@@ -612,15 +623,14 @@ ActiveRecord::Schema.define(version: 2021_02_25_160010) do
     t.string "phone"
     t.string "email"
     t.string "password"
-    t.boolean "standard"
-    t.boolean "available"
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
+    t.text "services"
+    t.uuid "idme_uuid"
   end
 
   create_table "user_preferences", id: :serial, force: :cascade do |t|
@@ -654,6 +664,7 @@ ActiveRecord::Schema.define(version: 2021_02_25_160010) do
     t.string "related_forms", array: true
     t.jsonb "benefit_categories"
     t.string "form_details_url"
+    t.jsonb "va_form_administration"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 

@@ -1,2 +1,2 @@
-first_name,middle_name,last_name,gender,birth_date,ssn,phone,email,password
-JOHN,J,DOE,M,1952-01-021T00:00:00-09:00,123123123,800-800-1000,johnjdoe@gmail.com,1securepass1
+first_name,middle_name,last_name,gender,birth_date,ssn,phone,email,password,idme_uuid
+MARK,,WEBB,M,1950-10-04,796104437,800-827-1000,vets.gov.user+228@gmail.com,testpass,2693564c-8e76-4733-a382-2f2c6ffe0ba8:wq

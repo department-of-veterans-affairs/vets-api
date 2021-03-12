@@ -80,6 +80,9 @@
                   "type": "string"
                 }
               },
+              "vaFormAdministration": {
+                "type": ["array", "null"]
+              },
               "benefitCategories": {
                 "type": ["array", "null"]
               }

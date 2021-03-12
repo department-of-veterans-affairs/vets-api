@@ -22,6 +22,8 @@ module AppealsApi
 
     validate :validate_hearing_type_selection, if: :pii_present?
 
+    has_many :evidence_submissions, as: :supportable, dependent: :destroy
+
     def pdf_structure(version)
       Object.const_get(
         "AppealsApi::PdfConstruction::NoticeOfDisagreement::#{version.upcase}::Structure"

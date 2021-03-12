@@ -1542,6 +1542,18 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    context 'with a loa1 user' do
+      let(:mhv_user) { build(:user, :loa1) }
+
+      it 'rejects getting EVSS Letters for loa1 users' do
+        expect(subject).to validate(:get, '/v0/letters', 403, headers)
+      end
+
+      it 'rejects getting EVSS benefits Letters for loa1 users' do
+        expect(subject).to validate(:get, '/v0/letters/beneficiary', 403, headers)
+      end
+    end
+
     context 'without EVSS mock' do
       before do
         Settings.evss.mock_gi_bill_status = false
@@ -1731,92 +1743,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             404,
             headers.merge('name' => 'blat')
           )
-        end
-      end
-    end
-
-    describe 'facility locator tests', team: :facilities do
-      context 'successful calls' do
-        let(:provider) { FactoryBot.build(:provider, :from_provider_info) }
-        let(:provider_services_response) do
-          {
-            'CareSiteAddressStreet' => '3195 S Price Rd Ste 148',
-            'CareSiteAddressCity' => 'Chandler',
-            'CareSiteAddressZipCode' => '85248',
-            'CareSiteAddressState' => 'AZ',
-            'Latitude' => 33.258135,
-            'Longitude' => -111.887927
-          }
-        end
-
-        vcr_options = {
-          cassette_name: '/lighthouse/facilities',
-          match_requests_on: %i[path query],
-          allow_playback_repeats: true,
-          record: :new_episodes
-        }
-
-        context 'Using the Lighthouse API', vcr: vcr_options do
-          before do
-            Flipper.enable(:facility_locator_lighthouse_api, true)
-          end
-
-          it 'supports getting a list of facilities' do
-            expect(subject).to validate(
-              :get,
-              '/v0/facilities/va', 200,
-              {
-                '_query_string' => { bbox: ['-122.440689', '45.451913', '-122.78675', '45.64'] }.to_query
-              }
-            )
-          end
-
-          it '404s on non-existent facility' do
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 404, 'id' => 'nca_9999999')
-          end
-        end
-
-        context 'Using Active Record' do
-          before do
-            Flipper.enable(:facility_locator_lighthouse_api, false)
-          end
-
-          it 'supports getting a list of facilities' do
-            VCR.use_cassette('facilities/va/pdx_bbox') do
-              expect(subject).to validate(:get, '/v0/facilities/va', 200,
-                                          'bbox' => ['-122.440689', '45.451913', '-122.78675', '45.64'])
-            end
-          end
-
-          it '404s on non-existent facility' do
-            VCR.use_cassette('facilities/va/nonexistent_cemetery') do
-              expect(subject).to validate(:get, '/v0/facilities/va/{id}', 404, 'id' => 'nca_9999999')
-            end
-          end
-        end
-
-        it 'supports getting a single facility' do
-          VCR.use_cassette('/lighthouse/facilities', match_requests_on: %i[path query]) do
-            create :vha_648A4
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
-          end
-        end
-
-        it '400s on invalid bounding box query' do
-          expect(subject).to validate(:get, '/v0/facilities/va', 400,
-                                      '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')
-        end
-
-        it 'supports getting a list of facilities by name' do
-          create :vha_648A4
-          expect(subject).to validate(:get, '/v0/facilities/suggested', 200,
-                                      '_query_string' => 'type[]=health&name_part=por')
-        end
-
-        it '400s on invalid type' do
-          create :vha_648A4
-          expect(subject).to validate(:get, '/v0/facilities/suggested', 400,
-                                      '_query_string' => 'type[]=foo&name_part=por')
         end
       end
     end
@@ -2512,7 +2438,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports GETting async transaction by ID' do
         transaction = create(
-          :address_transaction,
+          :va_profile_address_transaction,
           transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6',
           user_uuid: user.uuid
         )
@@ -2562,7 +2488,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports GETting async person transaction by transaction ID' do
         transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
         transaction = create(
-          :initialize_person_transaction,
+          :va_profile_initialize_person_transaction,
           :init_vet360_id,
           user_uuid: user_without_vet360_id.uuid,
           transaction_id: transaction_id
