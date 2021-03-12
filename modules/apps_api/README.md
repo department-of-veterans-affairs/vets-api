@@ -3,6 +3,7 @@
 ## Endpoints
 Publically this app exposes an `#index` method for returning all applications in the directory, a `#show` endpoint to get an individual application, and a `#scopes` method for seeing what scopes a service category will ask for. The scopes information is used for the Application Directory internally but is listed in the README since it is also a GET route. The routes for each are shown below. If the `APP_NAME` contains whitespace, replace each whitespace character with `%20` in the URL. See examples below.
 All other endpoints inside `apps_api` require an api_key and are for internal use only.
+
 ```
 # index
 GET /v0/apps
