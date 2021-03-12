@@ -79,6 +79,16 @@ RSpec.describe 'Power of Attorney ', type: :request do
         expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
         expect(parsed['data']['attributes']['status']).to eq('submitted')
       end
+
+      context 'when power of attorney cannot be found' do
+        it 'returns a 404' do
+          get('/services/claims/v0/forms/2122/999999',
+              params: nil, headers: headers)
+
+          allow(ClaimsApi::PowerOfAttorney).to receive(:find_using_identifier_and_source).and_return(nil)
+          expect(response.status).to eq(404)
+        end
+      end
     end
 
     describe '#upload_power_of_attorney_document' do
@@ -129,6 +139,18 @@ RSpec.describe 'Power of Attorney ', type: :request do
       it 'responds properly when JSON parse error' do
         post "#{path}/validate", params: 'hello', headers: headers
         expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    describe 'active' do
+      context 'when there is no active power of attorney' do
+        it 'returns a 404' do
+          get('/services/claims/v0/forms/2122/active',
+              params: nil, headers: headers)
+
+          allow(ClaimsApi::PowerOfAttorney).to receive(:find_using_identifier_and_source).and_return(nil)
+          expect(response.status).to eq(404)
+        end
       end
     end
   end

@@ -33,7 +33,6 @@ module V0
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def address_params
         params.permit(
           :address_line1,
@@ -45,20 +44,16 @@ module V0
           :country_code_iso3,
           :county_code,
           :county_name,
-          :effective_start_date,
           :validation_key,
           :id,
           :international_postal_code,
           :province,
-          :source_date,
           :state_code,
           :transaction_id,
-          :vet360_id,
           :zip_code,
           :zip_code_suffix
         )
       end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end

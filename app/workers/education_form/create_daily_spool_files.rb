@@ -28,9 +28,6 @@ module EducationForm
     # Setting the default value to the `unprocessed` scope is safe
     # because the execution of the query itself is deferred until the
     # data is accessed by the code inside of the method.
-    # Be *EXTREMELY* careful running this manually as it may overwrite
-    # existing files on the SFTP server if one was already written out
-    # for the day.
     def perform(
       records: EducationBenefitsClaim.unprocessed.includes(:saved_claim, :education_stem_automated_decision).where(
         saved_claims: {

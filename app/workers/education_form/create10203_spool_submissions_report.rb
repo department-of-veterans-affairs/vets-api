@@ -80,8 +80,6 @@ module EducationForm
     end
 
     def perform
-      return false unless Flipper.enabled?(:stem_automated_decision)
-
       @time = Time.zone.now
       folder = 'tmp/spool10203_reports'
       FileUtils.mkdir_p(folder)

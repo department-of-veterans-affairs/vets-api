@@ -26,5 +26,24 @@ FactoryBot.define do
         source_id { nil }
       end
     end
+
+    factory :va_profile_address_transaction, class: AsyncTransaction::VAProfile::AddressTransaction do
+    end
+
+    factory :va_profile_email_transaction, class: AsyncTransaction::VAProfile::EmailTransaction do
+    end
+
+    factory :va_profile_telephone_transaction, class: AsyncTransaction::VAProfile::TelephoneTransaction do
+    end
+
+    factory :va_profile_permission_transaction, class: AsyncTransaction::VAProfile::PermissionTransaction do
+    end
+
+    factory :va_profile_initialize_person_transaction,
+            class: AsyncTransaction::VAProfile::InitializePersonTransaction do
+      trait :init_vet360_id do
+        source_id { nil }
+      end
+    end
   end
 end

@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :education_stem_automated_decision do
-    automated_decision_state { 'init' }
+    automated_decision_state { EducationStemAutomatedDecision::INIT }
     user_uuid { SecureRandom.uuid }
     poa { false }
 
@@ -11,11 +11,12 @@ FactoryBot.define do
     end
 
     trait :denied do
-      automated_decision_state { 'denied' }
+      remaining_entitlement { 181 }
+      automated_decision_state { EducationStemAutomatedDecision::DENIED }
     end
 
     trait :processed do
-      automated_decision_state { 'processed' }
+      automated_decision_state { EducationStemAutomatedDecision::PROCESSED }
     end
   end
 end

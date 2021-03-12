@@ -38,7 +38,6 @@ module V0
           :area_code,
           :country_code,
           :extension,
-          :effective_start_date,
           :id,
           :is_international,
           :is_textable,
@@ -47,9 +46,7 @@ module V0
           :is_voicemailable,
           :phone_number,
           :phone_type,
-          :source_date,
-          :transaction_id,
-          :vet360_id
+          :transaction_id
         )
       end
     end

@@ -12,7 +12,9 @@ module ClaimsApi
 
         FORM_NUMBER = '526'
 
-        before_action { permit_scopes %w[claim.write] }
+        before_action except: %i[schema] do
+          permit_scopes %w[claim.write]
+        end
         before_action :validate_json_schema, only: %i[submit_form_526 validate_form_526]
         before_action :validate_initial_claim, only: %i[submit_form_526 validate_form_526]
         before_action :validate_documents_content_type, only: %i[upload_supporting_documents upload_form_526]
@@ -75,7 +77,7 @@ module ClaimsApi
             ClaimsApi::ClaimUploader.perform_async(claim_document.id)
           end
 
-          render json: @claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
+          render json: @claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: @claim.id
         end
 
         def validate_form_526
