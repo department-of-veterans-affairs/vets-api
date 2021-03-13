@@ -11,18 +11,10 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   version :converted, if: :tiff_or_incorrect_extension? do
-    metadata = file_metadata_from_binary_inspection
-
     process convert: :jpg, if: :tiff?
 
-    new_ext = if binary_content_does_not_match_file_extension?(metadata)
-      file_metadata&.extensions&.first&.then {|ext| ".#{ext}"}
-    else
-      nil
-    end
-
     def full_filename(file)
-      "converted_#{file}#{new_ext}"
+      "converted_#{file}#{true_extension}"
     end
   end
 
@@ -75,33 +67,36 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   private
 
   def tiff?(carrier_wave_sanitized_file)
-    file_obj = carrier_wave_sanitized_file&.to_file
+    mimemagic_object = inspect_binary carrier_wave_sanitized_file
+    (tiff_mimemagic_object?(mimemagic_object) || carrier_wave_sanitized_file&.content_type) == 'image/tiff'
+  end
 
-    file_obj && MimeMagic.by_magic(file_obj)&.type == 'image/tiff'
+  def tiff_or_incorrect_extension?(carrier_wave_sanitized_file)
+    mimemagic_object = inspect_binary carrier_wave_sanitized_file
+
+    tiff_mimemagic_object?(mimemagic_object) ||
+      extension.downcase != true_extension_from_mimemagic_object(mimemagic_object).downcase
+  end
+
+  def tiff_mimemagic_object?(mimemagic_object)
+    mimemagic_object&.type == 'image/tiff'
+  end
+
+  def true_extension
+    true_extension_from_mimemagic_object(inspect_binary(file)) || extension
+  end
+
+  def true_extension_from_mimemagic_object(mimemagic_object)
+    mimemagic_object&.extensions&.first&.then { |ext| ".#{ext}" }
+  end
+
+  def inspect_binary(carrier_wave_sanitized_file)
+    file_obj = carrier_wave_sanitized_file&.to_file
+    return unless file_obj
+
+    MimeMagic.by_magic file_obj
   ensure
     file_obj&.close
-  end
-
-  def binary_content_does_not_match_file_extension?(carrier_wave_sanitized_file)
-    file_metadata_from_binary_inspection(carrier_wave_sanitized_file)&.type !=
-      file_metadata_from_filename(carrier_wave_sanitized_file)&.type
-  end
-
-  def tiff_or_incorrect_extension?
-    metadata = file_metadata_from_binary_inspection
-    tiff?(metadata) || binary_content_does_not_match_file_extension?(metadata)
-  end
-
-  def file_metadata_from_filename(carrier_wave_sanitized_file)
-    MimeMagic.by_path carrier_wave_sanitized_file.path if carrier_wave_sanitized_file.path
-  end
-
-  def file_metadata_from_binary_inspection(carrier_wave_sanitized_file)
-    file = carrier_wave_sanitized_file&.to_file
-
-    MimeMagic.by_magic file if file
-  ensure
-    file&.close
   end
 
   def set_storage_options!
