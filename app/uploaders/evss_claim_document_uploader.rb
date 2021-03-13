@@ -73,7 +73,6 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   def tiff_or_incorrect_extension?(carrier_wave_sanitized_file)
     mimemagic_object = inspect_binary carrier_wave_sanitized_file
-
     tiff_mimemagic_object?(mimemagic_object) ||
       extension.downcase != true_extension_from_mimemagic_object(mimemagic_object).downcase
   end
@@ -92,9 +91,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   def inspect_binary(carrier_wave_sanitized_file)
     file_obj = carrier_wave_sanitized_file&.to_file
-    return unless file_obj
-
-    MimeMagic.by_magic file_obj
+    file_obj && MimeMagic.by_magic(file_obj)
   ensure
     file_obj&.close
   end
