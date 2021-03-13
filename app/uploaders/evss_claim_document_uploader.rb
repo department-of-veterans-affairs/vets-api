@@ -11,7 +11,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   version :converted, if: :tiff_or_incorrect_extension? do
-    process convert: :jpg, if: :tiff?
+    process(convert: :jpg, if: :tiff?)
 
     def full_filename(file)
       "converted_#{file}#{true_extension}"
