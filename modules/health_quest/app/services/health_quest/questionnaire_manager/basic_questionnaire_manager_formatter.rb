@@ -7,39 +7,56 @@ module HealthQuest
     #
     # @!attribute appointments
     #   @return [Array]
+    # @!attribute hashed_organizations
+    #   @return [Hash]
+    # @!attribute hashed_locations
+    #   @return [Hash]
     # @!attribute hashed_questionnaires
     #   @return [Hash]
     class BasicQuestionnaireManagerFormatter
-      attr_reader :appointments, :hashed_questionnaires
+      ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
+
+      attr_reader :appointments, :hashed_organizations, :hashed_locations, :hashed_questionnaires
 
       ##
       # Builds a HealthQuest::QuestionnaireManager::BasicQuestionnaireManagerFormatter instance
       #
-      # @param appointments [Array] an array of appointments.
-      # @param hashed_questionnaires [Hash] a hash of questionnaires.
+      # @param opts [Hash] a set of options.
       # @return [HealthQuest::QuestionnaireManager::BasicQuestionnaireManagerFormatter] an instance of this class
       #
-      def self.build(appointments, hashed_questionnaires)
-        new(appointments, hashed_questionnaires)
+      def self.build(opts = {})
+        new(opts)
       end
 
-      def initialize(appointments, hashed_questionnaires)
-        @appointments = appointments
-        @hashed_questionnaires = hashed_questionnaires
+      def initialize(opts)
+        @appointments = opts[:appointments]
+        @hashed_organizations = opts[:hashed_organizations]
+        @hashed_locations = opts[:hashed_locations]
+        @hashed_questionnaires = opts[:hashed_questionnaires]
       end
 
       ##
-      # Builds an array of appointments and their questionnaires
+      # Builds an array of appointments and their orgs and locations and questionnaires
       # and placeholder questionnaire responses
       #
-      # @return [Array] an array of appointments and associated data
+      # @return [Array]
       #
       def to_a
         appointments.each_with_object([]) do |appt, accumulator|
-          key = context_key(appt)
-          next unless hashed_questionnaires.key?(key)
+          location_id = appt_location_id(appt)
+          location = hashed_locations[location_id]
+          quest_key = location.resource.identifier.last.value
+          org_key = location.resource.identifier.first.value
+          org = hashed_organizations[org_key]
 
-          accumulator << { appointment: appt.to_h, questionnaire: questions_with_qr(key) }
+          next unless hashed_questionnaires.key?(quest_key)
+
+          accumulator << {
+            appointment: appt.resource.to_hash,
+            organization: org.resource.to_hash,
+            location: location.resource.to_hash,
+            questionnaire: questions_with_qr(quest_key)
+          }.with_indifferent_access
         end
       end
 
@@ -48,8 +65,10 @@ module HealthQuest
       #
       # @return [String] a string representing a facility and clinic
       #
-      def context_key(appt)
-        "#{appt.facility_id}/#{appt.clinic_id}"
+      def appt_location_id(appt)
+        reference = appt.resource.participant.first.actor.reference
+
+        reference.match(ID_MATCHER)[1]
       end
 
       ##
@@ -60,7 +79,7 @@ module HealthQuest
       #
       def questions_with_qr(key)
         hashed_questionnaires[key].map do |quest|
-          { id: quest.resource.id, title: quest.resource.title, questionnaire_response: {} }
+          { id: quest.resource.id, title: quest.resource.title, questionnaire_response: [] }.with_indifferent_access
         end
       end
     end
