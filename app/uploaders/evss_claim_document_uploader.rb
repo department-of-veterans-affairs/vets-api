@@ -11,10 +11,10 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
       mimemagic_object&.type == 'image/tiff' || carrier_wave_sanitized_file&.content_type == 'image/tiff'
     end
 
-    def incorrect_extension?(mimemagic_object:, carrier_wave_sanitized_file:)
+    def incorrect_extension?(extension:, mimemagic_object:)
       true_extensions = extensions_from_mimemagic_object(mimemagic_object).map(&:downcase)
 
-      true_extensions.present? && !carrier_wave_sanitized_file.extension.downcase.in?(true_extensions)
+      true_extensions.present? && !extension.downcase.in?(true_extensions)
     end
 
     def extensions_from_mimemagic_object(mimemagic_object)
@@ -36,13 +36,14 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   version :converted, if: :tiff_or_incorrect_extension? do
     process(convert: :jpg, if: :tiff?)
 
-    def full_filename(filename)
-      name = "converted_#{filename}"
+    def full_filename(original_name_for_file)
+      name = "converted_#{original_name_for_file}"
 
+      extension = CarrierWave::SanitizedFile.new(nil).send(:split_extension, original_name_for_file)[1]
       mimemagic_object = self.class.inspect_binary file
-      if self.class.incorrect_extension?(carrier_wave_sanitized_file: file, mimemagic_object: mimemagic_object)
-        ext = self.class.extensions_from_mimemagic_object(mimemagic_object).first
-        return "#{name}.#{ext}"
+      if self.class.incorrect_extension?(extension: extension, mimemagic_object: mimemagic_object)
+        extension = self.class.extensions_from_mimemagic_object(mimemagic_object).first
+        return "#{name}.#{extension}"
       end
 
       name
@@ -64,7 +65,6 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   def final_filename
-byebug
     if converted_exists?
       converted.file.filename
     else
@@ -106,11 +106,14 @@ byebug
   end
 
   def tiff_or_incorrect_extension?(carrier_wave_sanitized_file)
-    args = {
+    mimemagic_object = self.class.inspect_binary carrier_wave_sanitized_file
+    self.class.tiff?(
       carrier_wave_sanitized_file: carrier_wave_sanitized_file,
-      mimemagic_object: self.class.inspect_binary(carrier_wave_sanitized_file)
-    }
-    self.class.tiff?(**args) || self.class.incorrect_extension?(**args)
+      mimemagic_object: mimemagic_object
+    ) || self.class.incorrect_extension?(
+      extension: carrier_wave_sanitized_file.extension,
+      mimemagic_object: mimemagic_object
+    )
   end
 
   def set_storage_options!
