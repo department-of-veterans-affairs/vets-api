@@ -4,13 +4,16 @@ require 'common/client/base'
 
 module AppealsApi
   class SidekiqRetryNotifier
+    API_PATH = 'https://slack.com/api/chat.postMessage'
+
     class << self
       def notify!(params)
-        Faraday.post(slack_api_path) do |req|
-          req.headers['Content-Type'] = 'application/json'
-          req.headers['Authorization'] = 'application/json'
+        Faraday.post(API_PATH) do |req|
+          req.headers['Content-type'] = 'application/json; charset=utf-8'
+          req.headers['Authorization'] = "Bearer #{slack_api_token}"
           req.body = {
-            text: message_text(params)
+            text: message_text(params),
+            channel: slack_channel_id
           }.to_json
         end
       end
@@ -23,22 +26,14 @@ This job failed at: #{Time.zone.at(params['failed_at'])}, and was retried at: #{
         "''
       end
 
-      def slack_api_path
-        "#{base_path}/#{slack_team_id}/#{slack_channel_id}"
-      end
-
       private
 
-      def base_path
-        'https://slack.com/api/chat.postMessage'
-      end
-
-      def slack_team_id
-        Settings.modules_appeals_api.lighthouse_team_id
-      end
-
       def slack_channel_id
-        Settings.modules_appeals_api.appeals_channel_id
+        Settings.modules_appeals_api.slack.appeals_channel_id
+      end
+
+      def slack_api_token
+        Settings.modules_appeals_api.slack.api_token
       end
     end
   end
