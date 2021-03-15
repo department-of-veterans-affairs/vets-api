@@ -2,13 +2,13 @@
 
 require 'saml/errors'
 require 'digest'
-require 'mpi/responses/parser_base'
-require 'mpi/responses/id_parser'
+require 'identity/parsers/gc_ids'
 
 module SAML
   module UserAttributes
     class SSOe
       include SentryLogging
+      include Identity::Parsers::GCIds
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
                                    dslogon_edipi loa sign_in multifactor participant_id birls_id icn
@@ -42,11 +42,11 @@ module SAML
       end
 
       def participant_id
-        MPI::Responses::ParserBase.new.sanitize_id(mvi_ids[:vba_corp_id])
+        sanitize_id(mvi_ids[:vba_corp_id])
       end
 
       def birls_id
-        MPI::Responses::ParserBase.new.sanitize_id(mvi_ids[:birls_id])
+        sanitize_id(mvi_ids[:birls_id])
       end
 
       def icn
@@ -229,7 +229,7 @@ module SAML
         gcids = safe_attr('va_eauth_gcIds')
         return {} unless gcids
 
-        @mvi_ids = MPI::Responses::IdParser.new.parse_string(gcids)
+        @mvi_ids = parse_string_gcids(gcids)
       end
 
       def safe_attr(key)

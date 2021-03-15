@@ -11,6 +11,10 @@ module Mobile
     #   Mobile::V0::Adapters::Appointment.new(appointment_hash)
     #
     class Appointment < Common::Resource
+      include Mobile::V0::Concerns::RedisCaching
+
+      redis_config REDIS_CONFIG[:mobile_app_appointments_store]
+
       APPOINTMENT_TYPE = Types::String.enum(
         'COMMUNITY_CARE',
         'VA',
@@ -54,22 +58,6 @@ module Mobile
 
         return id.sub(match[0], (%w[442 983] - [id]).first) if %w[442 983].include? match[0]
         return id.sub(match[0], (%w[552 984] - [id]).first) if %w[552 984].include? match[0]
-      end
-
-      def self.get_cached_appointments(user)
-        redis = Redis::Namespace.new(REDIS_CONFIG[:mobile_app_appointments_store][:namespace], redis: Redis.current)
-        redis.get(user.uuid)
-      end
-
-      def self.set_cached_appointments(user, json)
-        redis = Redis::Namespace.new(REDIS_CONFIG[:mobile_app_appointments_store][:namespace], redis: Redis.current)
-        redis.set(user.uuid, json)
-        redis.expire(user.uuid, REDIS_CONFIG[:mobile_app_appointments_store][:each_ttl])
-      end
-
-      def self.delete_cached_appointments(user)
-        redis = Redis::Namespace.new(REDIS_CONFIG[:mobile_app_appointments_store][:namespace], redis: Redis.current)
-        redis.del(user.uuid)
       end
 
       # VAOS appointments aren't cancelled by id but instead by a combination
