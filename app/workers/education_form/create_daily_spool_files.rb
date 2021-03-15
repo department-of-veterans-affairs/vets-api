@@ -22,8 +22,7 @@ module EducationForm
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
-                    unique_for: 30.minutes,
-                    retry: 5
+                    retry: false
 
     # Setting the default value to the `unprocessed` scope is safe
     # because the execution of the query itself is deferred until the
