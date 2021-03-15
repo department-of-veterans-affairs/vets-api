@@ -57,7 +57,7 @@ class OpenidApplicationController < ApplicationController
       Token.new(token_string, fetch_aud)
     else
       # Future block for opaque tokens
-      raise error_klass('Opaque tokens not supported.')
+      raise error_klass('Invalid token.')
     end
   end
 
