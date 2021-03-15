@@ -132,7 +132,8 @@ FactoryBot.define do
               'suffix' => 'II'
             },
             'ssn' => '370947141',
-            'birth_date' => '2001-03-03'
+            'birth_date' => '2001-03-03',
+            'dependent_income' => true
           },
           'step_children' => [
             {

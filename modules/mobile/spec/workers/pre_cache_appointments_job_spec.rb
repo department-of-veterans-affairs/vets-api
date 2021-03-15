@@ -31,9 +31,9 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
         VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
             VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
-              expect(Mobile::V0::Appointment.get_cached_appointments(user)).to be_nil
+              expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
               subject.perform(user.uuid)
-              first_appointment = JSON.parse(Mobile::V0::Appointment.get_cached_appointments(user))['data'].first
+              first_appointment = JSON.parse(Mobile::V0::Appointment.get_cached(user))['data'].first
               expect(
                 first_appointment
               ).to eq({
@@ -79,9 +79,9 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
           VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
             VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
               VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
-                expect(Mobile::V0::Appointment.get_cached_appointments(user)).to be_nil
+                expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
                 subject.perform(user.uuid)
-                expect(Mobile::V0::Appointment.get_cached_appointments(user)).to be_nil
+                expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
               end
             end
           end

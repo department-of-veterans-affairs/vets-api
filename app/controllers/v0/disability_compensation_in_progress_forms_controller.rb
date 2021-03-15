@@ -17,25 +17,22 @@ module V0
     end
 
     def data_and_metadata_with_updated_rated_disabilites
-      prased_form_data = JSON.parse(form_for_user.form_data)
+      parsed_form_data = JSON.parse(form_for_user.form_data)
       metadata = form_for_user.metadata
 
       # If EVSS's list of rated disabilties does not match our prefilled rated disabilites
       if rated_disabilities_evss.present? &&
-         names_arr(prased_form_data.dig('ratedDisabilities')) != names_arr(rated_disabilities_evss.rated_disabilities)
-        if prased_form_data['ratedDisabilities'].present? &&
-           prased_form_data.dig('view:claimType', 'view:claimingIncrease')
+         names_arr(parsed_form_data.dig('ratedDisabilities')) != names_arr(rated_disabilities_evss.rated_disabilities)
+        if parsed_form_data['ratedDisabilities'].present? &&
+           parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
         end
         evss_rated_disabilites = JSON.parse(rated_disabilities_evss.rated_disabilities.to_json)
-        prased_form_data['ratedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilites)
-        metadata['ratedDisabilitiesUpdated'] = true
-      else
-        metadata['ratedDisabilitiesUpdated'] = false
+        parsed_form_data['updatedRatedDisabilities'] = camelize_with_olivebranch(evss_rated_disabilites)
       end
 
       {
-        formData: prased_form_data,
+        formData: parsed_form_data,
         metadata: metadata
       }
     end

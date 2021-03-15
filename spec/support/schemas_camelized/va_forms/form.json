@@ -120,6 +120,12 @@
                 "null"
               ]
             },
+            "vaFormAdministration": {
+              "type": [
+                "array",
+                "null"
+              ]
+            },
             "versions": {
               "type": "array",
               "items": {
