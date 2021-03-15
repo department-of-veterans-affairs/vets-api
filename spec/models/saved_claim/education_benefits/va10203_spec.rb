@@ -31,7 +31,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'stem_automated_decision feature disabled' do
       it 'does not create education_stem_automated_decision' do
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(false)
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(false)
         instance.after_submit(user)
         expect(instance.education_benefits_claim.education_stem_automated_decision).to be_nil
       end
@@ -39,7 +39,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'stem_automated_decision feature enabled' do
       it 'creates education_stem_automated_decision for user' do
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(true)
         instance.after_submit(user)
         expect(instance.education_benefits_claim.education_stem_automated_decision).not_to be_nil
         expect(instance.education_benefits_claim.education_stem_automated_decision.user_uuid)
@@ -48,7 +48,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
       end
 
       it 'saves user auth_headers' do
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(true)
         instance.after_submit(user)
         expect(instance.education_benefits_claim.education_stem_automated_decision.auth_headers).not_to be_nil
       end

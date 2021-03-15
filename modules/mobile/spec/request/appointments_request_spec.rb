@@ -323,7 +323,7 @@ RSpec.describe 'appointments', type: :request do
           options = { meta: { errors: nil } }
           json = Mobile::V0::AppointmentSerializer.new(appointments, options).serialized_json
 
-          Mobile::V0::Appointment.set_cached_appointments(user, json)
+          Mobile::V0::Appointment.set_cached(user, json)
         end
 
         after { Timecop.return }
@@ -331,12 +331,6 @@ RSpec.describe 'appointments', type: :request do
         it 'retrieves the cached appointments rather than hitting the service' do
           expect_any_instance_of(Mobile::V0::Appointments::Proxy).not_to receive(:get_appointments)
           get '/mobile/v0/appointments', headers: iam_headers, params: params
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'clears the cache' do
-          get '/mobile/v0/appointments', headers: iam_headers, params: params
-          expect(Mobile::V0::Appointment.get_cached_appointments(user)).to be_nil
           expect(response).to have_http_status(:ok)
         end
       end
