@@ -3,6 +3,7 @@
 class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   add_form_and_validation('22-10203')
 
+  # rubocop:disable Metrics/CyclomaticComplexity
   def after_submit(user)
     create_stem_automated_decision(user) if user.present? && Flipper.enabled?(:stem_automated_decision, user)
 
@@ -12,12 +13,15 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     StemApplicantConfirmationMailer.build(self, nil).deliver_now
 
     if user.present?
-      education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
+      if Flipper.enabled?(:stem_automated_decision, user)
+        education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
+      end
       authorized = user.authorize(:evss, :access?)
 
       EducationForm::SendSchoolCertifyingOfficialsEmail.perform_async(user.uuid, id) if authorized
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def create_stem_automated_decision(user)
     education_benefits_claim.build_education_stem_automated_decision(
