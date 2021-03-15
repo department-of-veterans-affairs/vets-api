@@ -9,14 +9,18 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
     Sidekiq::Worker.clear_all
   end
 
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) do
+    {
+      'ssn' => '796043735'
+    }
+  end
   let(:contention_id) { { claim_id: '123', code: '200', name: 'contention-name-here' } }
   let(:special_issues) { %w[ALS PTSD/2] }
   let(:claim_record) { create(:auto_established_claim) }
 
   it 'submits successfully' do
     expect do
-      subject.perform_async(user, contention_id, special_issues, auto_claim_id: claim_record.id)
+      subject.perform_async(user, contention_id, special_issues, claim_record.id)
     end.to change(subject.jobs, :size).by(1)
   end
 
@@ -28,7 +32,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
         .and_return(claims)
 
       expect do
-        subject.new.perform(user, contention_id, special_issues, auto_claim_id: claim_record.id)
+        subject.new.perform(user, contention_id, special_issues, claim_record.id)
       end.to raise_error(StandardError)
     end
   end
@@ -54,7 +58,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
 
       it 'job fails and retries later' do
         expect do
-          subject.new.perform(user, contention_id, special_issues, auto_claim_id: claim_record.id)
+          subject.new.perform(user, contention_id, special_issues, claim_record.id)
         end.to raise_error(StandardError)
       end
     end
@@ -98,14 +102,14 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
           ]
           expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
-          subject.new.perform(user, contention_id, special_issues, auto_claim_id: claim_record.id)
+          subject.new.perform(user, contention_id, special_issues, claim_record.id)
         end
 
         it 'stores bgs exceptions correctly' do
           expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions)
             .and_raise(BGS::ShareError.new('failed', 500))
 
-          subject.new.perform(user, contention_id, special_issues, auto_claim_id: claim_record.id)
+          subject.new.perform(user, contention_id, special_issues, claim_record.id)
           expect(ClaimsApi::AutoEstablishedClaim.find(claim_record.id).bgs_special_issue_responses.count).to eq(1)
         end
       end
@@ -150,7 +154,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
             ]
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
-            subject.new.perform(user, contention_id, special_issues, auto_claim_id: claim_record.id)
+            subject.new.perform(user, contention_id, special_issues, claim_record.id)
           end
         end
 
@@ -193,7 +197,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
             ]
             expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
-            subject.new.perform(user, contention_id, special_issues, auto_claim_id: claim_record.id)
+            subject.new.perform(user, contention_id, special_issues, claim_record.id)
           end
         end
       end
