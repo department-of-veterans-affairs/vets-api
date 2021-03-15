@@ -23,7 +23,7 @@ module EducationForm
         },
         education_stem_automated_decisions: {
           automated_decision_state: EducationStemAutomatedDecision::DENIED,
-          denial_email_sent_at: nil,
+          denial_email_sent_at: nil
         }
       )
     )
