@@ -45,11 +45,6 @@ module EducationForm
 
     private
 
-    def created_at_range
-      time = Time.zone.now
-      (time - 1.hours)..time
-    end
-
     def inform_on_error(claim, error = nil)
       region = EducationFacility.facility_for(region: :eastern)
       StatsD.increment("worker.education_benefits_claim.applicant_denial_letter.#{region}.22-#{claim.form_type}")
