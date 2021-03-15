@@ -1,0 +1,22 @@
+type: object
+required:
+  - endpointSid
+  - templateId
+  - personalization
+properties:
+  endpointSid:
+    type: string
+    example: "8c258cbe573c462f912e7dd74585a5a9"
+  templateId:
+    type: string
+    example: "appointment_reminders"
+  personalization:
+    type: object
+    properties:
+      "%APPOINTMENT_DATE%":
+        type: string
+        example: "DEC 14"
+      "%APPOINTMENT_TIME%":
+        type: string
+        example: "10:00"
+
