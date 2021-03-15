@@ -7,7 +7,7 @@ module AppealsApi
         @appeal = appeal
         @document = document
         @type = type
-        raise ArgumentError, 'invalid type' unless valid_type!
+        raise ArgumentError, 'invalid type' unless valid_type?
       end
 
       def process!
@@ -37,7 +37,7 @@ module AppealsApi
         )
       end
 
-      def valid_type!
+      def valid_type?
         type.in?(%i[notice_of_disagreement])
       end
     end
