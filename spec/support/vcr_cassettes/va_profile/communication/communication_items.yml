@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4433/communication-hub/communication/v1/communication-items
+    uri: https://int.vet360.va.gov/communication-hub/communication/v1/communication-items
     body:
       encoding: US-ASCII
       string: ''
