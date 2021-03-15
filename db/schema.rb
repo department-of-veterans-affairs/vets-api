@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_05_155617) do
+ActiveRecord::Schema.define(version: 2021_03_12_211214) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -55,12 +55,23 @@ ActiveRecord::Schema.define(version: 2021_03_05_155617) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "appeal_submissions", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "submitted_appeal_uuid"
+    t.string "type_of_appeal"
+    t.string "board_review_otpion"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
     t.string "status", default: "pending", null: false
     t.string "supportable_type"
     t.string "supportable_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
   end
 
@@ -669,6 +680,7 @@ ActiveRecord::Schema.define(version: 2021_03_05_155617) do
     t.uuid "consumer_id"
     t.json "uploaded_pdf"
     t.boolean "use_active_storage", default: false
+    t.jsonb "metadata", default: {}
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
