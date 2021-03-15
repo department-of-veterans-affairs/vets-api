@@ -12,6 +12,7 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
     StemApplicantConfirmationMailer.build(self, nil).deliver_now
 
     if user.present?
+      education_benefits_claim.education_stem_automated_decision.update(confirmation_email_sent_at: Time.zone.now)
       authorized = user.authorize(:evss, :access?)
 
       EducationForm::SendSchoolCertifyingOfficialsEmail.perform_async(user.uuid, id) if authorized
