@@ -24,11 +24,7 @@ module Mobile
       end
 
       def set_prefs
-        params[:preferences].each do |preference|
-          service.set_preference(params[:endpoint_sid],
-                                 preference[:templateId],
-                                 preference[:enabled].to_s.downcase == "true")
-        end
+        service.set_preference(params[:endpoint_sid], params[:preference], params[:enabled].to_s.downcase == "true")
 
         render json: {}, status: :ok
       end

@@ -12,35 +12,23 @@ RSpec.describe 'push send', type: :request do
     context 'with with valid request body' do
       let(:params) do
         {
-            preferences: [
-                {
-                    templateId: "claim_status_updates",
-                    enabled: true
-                },
-                {
-                    templateId: "claim_status_updates",
-                    enabled: true
-                }
-            ]
+            preference: "claim_status_updates",
+            enabled: true
         }
       end
       it 'returns 200 and empty json' do
-        VCR.use_cassette('vetext/set_preference_success', :allow_playback_repeats => true) do
-            put '/mobile/v0/push/prefs/8c258cbe573c462f912e7dd74585a5a9', headers: iam_headers, params: params
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to eq("{}")
+        VCR.use_cassette('vetext/set_preference_success') do
+          put '/mobile/v0/push/prefs/8c258cbe573c462f912e7dd74585a5a9', headers: iam_headers, params: params
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to eq("{}")
         end
       end
     end
     context 'with with valid request body' do
       let(:params) do
         {
-            preferences: [
-                {
-                    templateId: "claim_status_updates",
-                    enabled: true
-                }
-            ]
+            preference: "claim_status_updates",
+            enabled: true
         }
       end
       it 'returns 200 and empty json' do

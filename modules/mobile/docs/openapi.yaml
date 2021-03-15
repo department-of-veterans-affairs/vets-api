@@ -1441,11 +1441,18 @@ paths:
               schema:
                 $ref: "./schemas/Errors.yml"
     put:
-      summary: /v0/push/prefs
+      summary: /v0/push/prefs/{endpointSid}
       description: Set the user's push notification preferences
       operationId: putPrefs
       security:
         - Bearer: []
+      parameters:
+        - in: path
+          name: endpointSid
+          required: true
+          schema:
+            type: string
+          description: device endpointSid provided by the register endpoint
       requestBody:
         description: Push notification preferences
         required: true
