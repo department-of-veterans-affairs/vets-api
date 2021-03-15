@@ -3,6 +3,7 @@ data:
     id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
     attributes:
       appointmentType: COMMUNITY_CARE
+      cancelId: null
       comment: Please arrive 20 minutes before the start of your appointment
       clinicId: ~
       facilityId: ~
@@ -27,3 +28,4 @@ data:
       startDateUtc: 2019-04-20T18:15:00.000Z
       status: CANCELLED
       timeZone: America/Los_Angeles
+      vetextId: null
