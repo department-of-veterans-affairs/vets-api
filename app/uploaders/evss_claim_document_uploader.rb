@@ -6,6 +6,29 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include SetAWSConfig
   include ValidateEVSSFileSize
 
+  class << self
+    def tiff?(mimemagic_object:, carrier_wave_sanitized_file:)
+      mimemagic_object&.type == 'image/tiff' || carrier_wave_sanitized_file&.content_type == 'image/tiff'
+    end
+
+    def incorrect_extension?(mimemagic_object:, carrier_wave_sanitized_file:)
+      true_extensions = extensions_from_mimemagic_object(mimemagic_object).map(&:downcase)
+
+      true_extensions.present? && !carrier_wave_sanitized_file.extension.downcase.in?(true_extensions)
+    end
+
+    def extensions_from_mimemagic_object(mimemagic_object)
+      mimemagic_object&.extensions || []
+    end
+
+    def inspect_binary(carrier_wave_sanitized_file)
+      file_obj = carrier_wave_sanitized_file&.to_file
+      file_obj && MimeMagic.by_magic(file_obj)
+    ensure
+      file_obj&.close
+    end
+  end
+
   def size_range
     1.byte...150.megabytes
   end
@@ -13,8 +36,16 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   version :converted, if: :tiff_or_incorrect_extension? do
     process(convert: :jpg, if: :tiff?)
 
-    def full_filename(file)
-      "converted_#{file}#{true_extension}"
+    def full_filename(filename)
+      name = "converted_#{filename}"
+
+      mimemagic_object = self.class.inspect_binary file
+      if self.class.incorrect_extension?(carrier_wave_sanitized_file: file, mimemagic_object: mimemagic_object)
+        ext = self.class.extensions_from_mimemagic_object(mimemagic_object).first
+        return "#{name}.#{ext}"
+      end
+
+      name
     end
   end
 
@@ -33,6 +64,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   end
 
   def final_filename
+byebug
     if converted_exists?
       converted.file.filename
     else
@@ -67,33 +99,18 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   private
 
   def tiff?(carrier_wave_sanitized_file)
-    mimemagic_object = inspect_binary carrier_wave_sanitized_file
-    (tiff_mimemagic_object?(mimemagic_object) || carrier_wave_sanitized_file&.content_type) == 'image/tiff'
+    self.class.tiff?(
+      carrier_wave_sanitized_file: carrier_wave_sanitized_file,
+      mimemagic_object: self.class.inspect_binary(carrier_wave_sanitized_file)
+    )
   end
 
   def tiff_or_incorrect_extension?(carrier_wave_sanitized_file)
-    mimemagic_object = inspect_binary carrier_wave_sanitized_file
-    tiff_mimemagic_object?(mimemagic_object) ||
-      extension.downcase != true_extension_from_mimemagic_object(mimemagic_object).downcase
-  end
-
-  def tiff_mimemagic_object?(mimemagic_object)
-    mimemagic_object&.type == 'image/tiff'
-  end
-
-  def true_extension
-    true_extension_from_mimemagic_object(inspect_binary(file)) || extension
-  end
-
-  def true_extension_from_mimemagic_object(mimemagic_object)
-    mimemagic_object&.extensions&.first&.then { |ext| ".#{ext}" }
-  end
-
-  def inspect_binary(carrier_wave_sanitized_file)
-    file_obj = carrier_wave_sanitized_file&.to_file
-    file_obj && MimeMagic.by_magic(file_obj)
-  ensure
-    file_obj&.close
+    args = {
+      carrier_wave_sanitized_file: carrier_wave_sanitized_file,
+      mimemagic_object: self.class.inspect_binary(carrier_wave_sanitized_file)
+    }
+    self.class.tiff?(**args) || self.class.incorrect_extension?(**args)
   end
 
   def set_storage_options!

@@ -91,8 +91,6 @@ RSpec.describe EVSSClaimDocumentUploader do
 
   describe 'converted version' do
     it 'converts tiff files to jpg' do
-      e = begin; MimeMagic::TYPES[MimeMagic.by_magic(uploader_with_tiff.file)]&.first&.first; rescue => e; e;end
-      byebug
       expect(MimeMagic.by_magic(uploader_with_tiff.converted.file.read).type).to eq(
         'image/jpeg'
       )
@@ -100,15 +98,6 @@ RSpec.describe EVSSClaimDocumentUploader do
 
     it 'shouldnt convert if the file isnt tiff' do
       expect(uploader_with_jpg.converted_exists?).to eq(false)
-    end
-  end
-
-
-  describe 'fixed extension version' do
-    it 'converts tiff files to jpg' do
-      expect(MimeMagic.by_magic(uploader_with_tiff.fixed_extension.file.read).type).to eq(
-        'image/jpeg'
-      )
     end
   end
 
