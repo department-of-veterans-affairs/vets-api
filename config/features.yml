@@ -422,3 +422,8 @@ features:
     enable_in_development: true
     description: >
       Form 526 subforms for unemployability & connected employment information
+  dependency_verification:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Feature gates the dependency verification modal for updating the diaries service.
