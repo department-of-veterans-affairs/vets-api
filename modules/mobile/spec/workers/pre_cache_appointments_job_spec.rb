@@ -41,7 +41,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                         'type' => 'appointment',
                         'attributes' => {
                           'appointment_type' => 'VA',
-                          'cancel_id' => 'MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                          'cancel_id' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
                           'comment' => nil,
                           'healthcare_service' => 'CHY PC KILPATRICK',
                           'location' => {
@@ -66,7 +66,8 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                           'start_date_local' => '2020-11-03T09:00:00.000-07:00',
                           'start_date_utc' => '2020-11-03T16:00:00.000+00:00',
                           'status' => 'BOOKED',
-                          'time_zone' => 'America/Denver'
+                          'time_zone' => 'America/Denver',
+                          'vetext_id' => '308;20201103.090000'
                         }
                       })
             end
