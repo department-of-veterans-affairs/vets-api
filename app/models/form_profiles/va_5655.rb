@@ -38,7 +38,7 @@ class FormProfiles::VA5655 < FormProfile
     (
       BGS::PeopleService.new(user).find_person_by_participant_id[:file_nbr].presence ||
         user.ssn.presence
-    )&.last(4)
+    )&.last(4).to_i
   end
 
   def init_payments
