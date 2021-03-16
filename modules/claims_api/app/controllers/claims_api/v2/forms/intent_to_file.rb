@@ -5,7 +5,7 @@ module ClaimsApi
         version 'v2'
 
         resource 'veterans/:token' do
-          resource 'forms/0966' do
+          resource 'forms/21-0966' do
             desc 'Submit a claim.' do
               success ClaimsApi::Entities::V2::ClaimSubmittedEntity
               failure [

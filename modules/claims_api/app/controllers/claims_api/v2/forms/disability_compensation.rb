@@ -1,6 +1,5 @@
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
-require 'bgs/auth_headers'
 require 'claims_api/special_issue_mappers/bgs'
 
 module ClaimsApi
@@ -19,7 +18,6 @@ module ClaimsApi
                            .add_headers(
                              EVSS::AuthHeaders.new(target_veteran).to_h
                            )
-            evss_headers.merge(BGS::AuthHeaders.new(@current_user).to_h) if @current_user.present?
           end
 
           def flashes
@@ -60,7 +58,7 @@ module ClaimsApi
         end
 
         resource 'veterans/:token' do
-          resource 'forms/526' do
+          resource 'forms/21-526EZ' do
             desc 'Submit a claim.' do
               success code: 202, model: ClaimsApi::Entities::V2::DisabilityClaimSubmittedEntity
               failure [
