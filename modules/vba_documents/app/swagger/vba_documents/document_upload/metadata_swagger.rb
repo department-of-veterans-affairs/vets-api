@@ -51,23 +51,19 @@ module VBADocuments
           property :businessLine do
             key :type, :string
             key :example, 'CMP'
-            key :enum, %i[CMP PMC INS EDU VRE BVA FID LOG MED BUR OTH DROC]
+            key :enum, %i[CMP PMC INS EDU VRE BVA FID OTH]
             key :description,
                 <<~DESCRIPTION
                   Optional parameter (can be missing or empty).  The values are:<br>
-                  CMP - Compensation<br>
-                  PMC - Pension<br>
-                  INS - Insurance<br>
-                  EDU - Education<br>
-                  VRE - VRE<br>
-                  BVA - BVA<br>
-                  FID - Fiduciary<br><br>
+                  CMP - Compensation requests such as those related to disability, unemployment, and pandemic claims<br>
+                  PMC - Pension requests including survivor’s pension<br>
+                  INS - Insurance such as life insurance, disability insurance, and other health insurance<br>
+                  EDU - Education benefits, programs, and affiliations<br>
+                  VRE – Veteran Readiness & Employment such as employment questionnaires, employment discrimination, employment verification<br>
+                  BVA – Board of Veteran Appeals<br>
+                  FID - Fiduciary / financial appointee, including family member benefits<br><br>
                   Future values (These values, if used, will be treated as CMP.):<br>
-                  LOG – Loan_Guaranty<br>
-                  MED – Medical<br>
-                  BUR – Burial<br>
-                  OTH – Other<br>
-                  DROC - Decision Review Operations Center
+                  OTH – Other (this value if used, will be treated as CMP)<br>
                 DESCRIPTION
           end
         end

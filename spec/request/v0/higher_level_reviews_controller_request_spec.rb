@@ -24,6 +24,8 @@ RSpec.describe V0::HigherLevelReviewsController, type: :request do
       VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
         subject
         expect(response).to be_successful
+        appeal_uuid = JSON.parse(response.body)['data']['id']
+        expect(AppealSubmission.where(submitted_appeal_uuid: appeal_uuid).first).to be_truthy
       end
     end
 
