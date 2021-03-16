@@ -1,45 +1,108 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'optparse'
+require 'active_support/all'
 require './logs_processor'
 require './redis_service'
 
-$DEBUG=false
+# runner.rb debugging flag
+$DEBUG = false
 
-def fetch(filter, options)
-  options.merge!(
-    {filter_pattern: filter},
-    {path: 'logs'}
-  ) 
+#
+# this class handles command line parsing.
+class RunnerOptions < Hash
+  def initialize(args)
+    super()
+    self[:show_ends] = ''
+    options = get_options
+    options.parse!(args)
+  end
 
-  LogsProcessor.fetch_data(options) do |json_log|
-    request_id = json_log['named_tags']['request_id']
-    http_method = /\(.*\)/.match(json_log['payload']['url'])[0][1..-2]
-    http_status = json_log['payload']['status']
-    timestamp = DateTime.parse(json_log['timestamp'])
-    endpoint = /(\/)((?!.*\/).*)(\?)|(\/)((?!.*\/)).*/.match(json_log['payload']['url'])[0]
-    tag = endpoint[-1] == '?' ? endpoint[1..-2] : endpoint[1..-1]
-    key = "#{tag}:#{timestamp.strftime("%Y%m%d%H%M%S")}:#{http_method}:#{http_status}:#{request_id}"
-
-    puts key unless !$DEBUG
-    if (!$DEBUG)
-      save key, json_log
+  def get_options
+    OptionParser.new do |opts|
+      @opts = opts
+      opts.banner = 'Usage: runner.rb [options]'
+      opts.on('-s', '--start-date <yyyy-mm-dd>', 'Date to start search on.') do |date|
+        self[:sdt] = date
+      end
+      opts.on('-e', '--end-date <yyyy-mm-dd>', 'Date to end search on, inclusive.',
+              ' Optional: defaults to current date.') do |date|
+        self[:edt] = date
+      end
+      opts.on('-f', '--filter-pattern <pattern>', 'CloudWatch log filter pattern.',
+              ' Optional: defaults to {($.message="VAOS*") && ($.payload.url="*")}') do |filter_pattern|
+        self[:fp] = filter_pattern
+      end
+      opts.on_tail('-h', '--help', 'Display help message.') do
+        usage
+        exit
+      end
     end
+  end
+
+  def usage
+    puts "\n  #{@opts}"
   end
 end
 
-def runner(
-  filter,
-  start_date,
-  end_date
-)
-
-  start_date = start_date ? Date.parse(start_date) : Date.today
-  end_date = (start_date && end_date) ? Date.parse(end_date) : Date.today
-  
-  options = {
-    start_date: start_date,
-    end_date: end_date,
-  }
-
-  fetch filter, options
+#
+# parse the runner.rb command line options
+begin
+  arguments = RunnerOptions.new(ARGV)
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
+  puts "\nUnable to parse arguments => #{e.message}\n"
+  exit
 end
 
-runner(ARGV[0], ARGV[1], ARGV[2])
+#
+# extract individual options...
+# start date
+begin
+  start_date = if !arguments[:sdt].nil?
+                 Date.parse(arguments[:sdt])
+               else
+                 Time.current.to_date - 1
+               end
+rescue ArgumentError
+  puts "\nUnable to parse start date #{arguments[:sdt]}"
+  exit
+end
+
+# end date
+begin
+  end_date = if !arguments[:edt].nil?
+               Date.parse(arguments[:edt])
+             else
+               Time.current.to_date
+             end
+rescue ArgumentError
+  puts "\nUnable to parse end date #{arguments[:edt]}"
+  exit
+end
+
+# filter pattern
+filter_pattern = if !arguments[:fp].nil?
+                   arguments[:fp]
+                 else
+                   '{($.message="VAOS*") && ($.payload.url="*")}'
+                 end
+
+#
+# query CloudWatch and store in records in Redis
+options = { filter_pattern: filter_pattern,
+            start_date: start_date,
+            end_date: end_date }
+
+LogsProcessor.fetch_data(options) do |json_log|
+  request_id = json_log['named_tags']['request_id']
+  http_method = /\(.*\)/.match(json_log['payload']['url'])[0][1..-2]
+  http_status = json_log['payload']['status']
+  timestamp = DateTime.parse(json_log['timestamp'])
+  endpoint = %r{(/)((?!.*/).*)(\?)|(/)((?!.*/)).*}.match(json_log['payload']['url'])[0]
+  tag = endpoint[-1] == '?' ? endpoint[1..-2] : endpoint[1..]
+  key = "#{tag}:#{timestamp.strftime('%Y%m%d%H%M%S')}:#{http_method}:#{http_status}:#{request_id}"
+
+  puts key if $DEBUG
+  save(key, json_log) unless $DEBUG
+end

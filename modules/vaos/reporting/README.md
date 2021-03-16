@@ -41,13 +41,13 @@ These steps assume a working local instance of vets-api.
   
   - `runner.rb` examples:
     - querying for all log records with a message containing "VAOS service call" over the 24 hour period of 3/5/2021 to 3/6/2021:
-      - `ruby runner.rb '{ ($.message = "VAOS service call*") }' '20210305000000' '20210306000000'`
+      - `ruby runner.rb -f '{ ($.message = "VAOS service call*") }' -s '20210305000000' -e '20210306000000'`
     
     - querying for all log records with a specific request id over the 24 hour period of 3/5/2021 to 3/6/2021:
-      - `ruby runner.rb '{ ($.named_tags.request_id = "36b9c9bc-6f7d-4f62-9740-934c6256cc6a") }' '20210305000000' '20210306000000'`
+      - `ruby runner.rb -f '{ ($.named_tags.request_id = "36b9c9bc-6f7d-4f62-9740-934c6256cc6a") }' -s '20210305000000' -e '20210306000000'`
     
     - querying for all log records with a specific remote ip and a 200 status over the 24 hour period of 3/5/2021 to 3/6/2021:
-      - `ruby runner.rb '{ ($.named_tags.remote_ip = "2601:642:4303:4ce0:4c7a:edae:e702:73a7") && ($.payload.status = "200") }' '20210305000000' '20210306000000'`
+      - `ruby runner.rb -f '{ ($.named_tags.remote_ip = "2601:642:4303:4ce0:4c7a:edae:e702:73a7") && ($.payload.status = "200") }' -s '20210305000000' -e '20210306000000'`
 
 ##  
 

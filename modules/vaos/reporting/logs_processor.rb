@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'date'
 require 'digest'
 require 'open3'
@@ -10,17 +12,7 @@ require 'net/http'
 require 'uri'
 require 'csv'
 
-AWS_LOG_PATH = "dsva-vagov-prod/srv/vets-api/src/log/vets-api-server.log"
-
-# In the future we can use OptionsParser to make this accept arguments
-DEFAULT_OPTIONS = {
-  start_date: Date.new(2020, 9, 28),
-  end_date: Date.today - 1,
-  filter_pattern:  '{ ($.message = “VAOS service call*“) }',
-  path: 'logs'
-}
-
-
+AWS_LOG_PATH = 'dsva-vagov-prod/srv/vets-api/src/log/vets-api-server.log'
 
 class LogsProcessor
   def request_by_id(id)
@@ -29,77 +21,38 @@ class LogsProcessor
 
   def self.fetch_data(options)
     ranges(options[:start_date], options[:end_date]).each do |range|
-      Dir.mkdir(options[:path]) unless File.exists?(options[:path])
-      path = "#{options[:path]}/#{range[0].split('T00').first}.#{filter_pattern_hash(options)}.vaos.log"
-      # If logs were previously fetched for the current day, they are likely stale and should be fetched again.
-      #   in the future could figure out a way to append to the existing file.
-      # File.delete(path) if DateTime.parse(range[1]).to_date == Date.today && File.exist?(path)
-      if File.exist?(path)
-        puts "Logs already exist at #{path}. Using Existing Logs."
-      else
-        puts "Fetching logs from Cloudwatch > #{path}"
-        command = "awslogs get #{AWS_LOG_PATH} -s '#{range[0]}' -e '#{range[1]}' -f '#{options[:filter_pattern]}'"
-        puts "Executing #{command}"
-        Open3.popen3 command do |stdin, stdout, stderr, wait_thr|
-          stdout_str = stdout.read
-          stderr_str = stderr.read
-          status = wait_thr.value
+      command = "awslogs get #{AWS_LOG_PATH} -s '#{range[0]}' -e '#{range[1]}' -f '#{options[:filter_pattern]}'"
+      puts "Executing #{command}"
+      Open3.popen3 command do |_stdin, stdout, stderr, _wait_thr|
+        stdout_str = stdout.read
+        stderr_str = stderr.read
 
-          stdout_arr = stdout_str.split(/dsva-vagov-prod\/srv\/vets-api\/src\/log\/vets-api-server.log[^|]+\| /)
-          stdout_arr = stdout_arr[1..-1]
-          
-          puts stderr_str if stderr_str
-          # puts stdout_arr
+        stdout_arr = stdout_str.split(%r{dsva-vagov-prod\/srv\/vets-api\/src\/log\/vets-api-server.log[^|]+\| })
+        stdout_arr = stdout_arr[1..]
 
-          stdout_arr.each do |log|
-            json_log = JSON.parse(log)
-            yield (json_log) # Yield control to the calling block
-          end
+        puts stderr_str if stderr_str
 
-          # if status.success?
-          #   File.open(path, 'w') do |file|
-          #     file.write stdout_str
-          #   end
-          # else
-          #   puts 'Error occurred fetching data for ' + path
-          #   puts stderr_str
-          #   exit status.exitstatus
-          # end
+        stdout_arr.each do |log|
+          log = data_scrub(log)
+          json_log = JSON.parse(log)
+          yield json_log # Yield control to the calling block
         end
       end
     end
-  end
-  
-  private
-
-  def self.json_data(options)
-    ranges(options[:start_date], options[:end_date]).map do |range|
-      path = "#{options[:path]}/#{range[0].split('T00').first}.#{filter_pattern_hash(options)}.vaos.log"
-      File.open(path).each_line.map do |line|
-        group, stream, broken_body = line.split(" ", 3)
-        body = broken_body.split('| ')[1]
-        json = JSON.parse(data_scrub(body))
-        json["payload"]&.merge("timestamp" => json["timestamp"]) # .merge(json["named_tags"]) Excluded for now since it includes remote ip
-      end
-    end.flatten
   end
 
   def self.ranges(start_date, end_date)
     (start_date..end_date).map do |day|
       if $DEBUG
-        [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 00, 05, 59, 0).iso8601]
+        [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 0, 5, 59, 0).iso8601]
       else
         [day.to_datetime.iso8601, DateTime.new(day.year, day.month, day.day, 23, 59, 59, 0).iso8601]
       end
     end
   end
 
-  def self.filter_pattern_hash(options)
-    Digest::MD5.hexdigest(options[:filter_pattern])[0..6]
-  end
-
   def self.data_scrub(string)
-    string.gsub(/\/ICN\/\S+\//, '/ICN/REDACTED_ICN/')
-          .gsub(/\/appointments\/v1\/patients\/\S+\//, '/appointments/v1/patients/REDACTED_ICN/')
+    string.gsub(%r{\/ICN\/\S+\/}, '/ICN/REDACTED_ICN/')
+          .gsub(%r{\/appointments\/v1\/patients\/\S+\/}, '/appointments/v1/patients/REDACTED_ICN/')
   end
 end
