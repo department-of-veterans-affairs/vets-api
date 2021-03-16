@@ -38,14 +38,12 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
     def full_filename(original_name_for_file)
       name = "converted_#{original_name_for_file}"
-
       extension = CarrierWave::SanitizedFile.new(nil).send(:split_extension, original_name_for_file)[1]
       mimemagic_object = self.class.inspect_binary file
       if self.class.incorrect_extension?(extension: extension, mimemagic_object: mimemagic_object)
         extension = self.class.extensions_from_mimemagic_object(mimemagic_object).first
         return "#{name}.#{extension}"
       end
-
       name
     end
   end
