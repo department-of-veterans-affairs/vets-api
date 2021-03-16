@@ -7,8 +7,10 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include ValidateEVSSFileSize
 
   class << self
-    def tiff?(mimemagic_object:, carrier_wave_sanitized_file:)
-      mimemagic_object&.type == 'image/tiff' || carrier_wave_sanitized_file&.content_type == 'image/tiff'
+    def tiff?(mimemagic_object: nil, carrier_wave_sanitized_file: nil)
+      return mimemagic_object.type == 'image/tiff' if mimemagic_object
+
+      carrier_wave_sanitized_file&.content_type == 'image/tiff'
     end
 
     def incorrect_extension?(extension:, mimemagic_object:)
