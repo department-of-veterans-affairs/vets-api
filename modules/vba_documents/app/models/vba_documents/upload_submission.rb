@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'vba_documents/upload_error'
+require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
 
@@ -8,7 +9,11 @@ module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
+    extend SQLSupport
     send(:validates_uniqueness_of, :guid)
+    before_save :capture_status_time, if: :status_changed?
+    after_find :set_initial_status
+    attr_reader :current_status
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
@@ -18,6 +23,12 @@ module VBADocuments
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 
     after_save :report_errors
+
+    def initialize(attributes = nil)
+      super
+      @current_status = status
+      self.metadata = { 'status' => { @current_status => { 'start' => Time.now.to_i } } }
+    end
 
     def self.fake_status(guid)
       empty_submission = OpenStruct.new(guid: guid,
@@ -82,6 +93,18 @@ module VBADocuments
       self[:consumer_name] || 'unknown'
     end
 
+    # data structure
+    # [{"status"=>"pending", "elapsed_secs"=>"16", "rowcount"=>7},
+    # {"status"=>"processing", "elapsed_secs"=>"45", "rowcount" =>2},
+    # {"status"=>"received", "elapsed_secs"=>"45", "rowcount"=>3},
+    # {"status"=>"uploaded", "elapsed_secs"=>"22", "rowcount"=>5}]
+    def self.avg_status_times(from, to, consumer_name = nil)
+      avg_status_sql = avg_sql(consumer_name)
+      ActiveRecord::Base.connection_pool.with_connection do |c|
+        c.raw_connection.exec_params(avg_status_sql, [from, to]).to_a
+      end
+    end
+
     private
 
     def rewrite_url(url)
@@ -128,6 +151,20 @@ module VBADocuments
     def report_errors
       key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
       StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_attribute?(:status) && status == 'error'
+    end
+
+    def set_initial_status
+      @current_status = status
+    end
+
+    def capture_status_time
+      from = @current_status
+      to = status
+      time = Time.now.to_i
+      metadata['status'][from]['end'] = time
+      metadata['status'][to] ||= {}
+      metadata['status'][to]['start'] = time
+      @current_status = to
     end
   end
 end
