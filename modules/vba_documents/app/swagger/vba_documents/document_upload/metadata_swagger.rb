@@ -59,8 +59,8 @@ module VBADocuments
                   PMC - Pension<br>
                   INS - Insurance<br>
                   EDU - Education<br>
-                  VRE - VRE<br>
-                  BVA - BVA<br>
+                  VRE - Veteran Readiness & Employment<br>
+                  BVA - Board of Veteran Appeals<br>
                   FID - Fiduciary<br><br>
                   Future values (These values, if used, will be treated as CMP.):<br>
                   LOG – Loan_Guaranty<br>

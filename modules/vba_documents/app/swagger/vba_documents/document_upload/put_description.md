@@ -17,7 +17,8 @@ Content-Type: application/json
 "fileNumber": "012345678",
 "zipCode": "97202",
 "source": "MyVSO",
-"docType": "21-22"}
+"docType": "21-22"
+"businessLine": "CMP"}
 --17de1ed8f01442b2a2d7a93506314b76
 Content-Disposition: form-data; name="content"
 Content-Type: application/pdf
