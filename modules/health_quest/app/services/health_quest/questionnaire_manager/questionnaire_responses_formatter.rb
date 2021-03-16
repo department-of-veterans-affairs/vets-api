@@ -35,6 +35,7 @@ module HealthQuest
         qr_array.each_with_object({}) do |qr, accumulator|
           ref = reference(qr)
           id = appointment_id(ref)
+          next if id.blank?
 
           accumulator[id] ||= []
           accumulator[id] << qr
@@ -44,10 +45,12 @@ module HealthQuest
       ##
       # Gets the appointment_id from a `QuestionnaireResponse` reference field
       #
-      # @return [String] a user's appointment_id
+      # @return [String, nil] a user's appointment_id
       #
       def appointment_id(ref)
-        ref.match(ID_MATCHER)[1]
+        matched = ref.match(ID_MATCHER)
+
+        matched ? matched[1] : nil
       end
 
       ##
@@ -56,7 +59,7 @@ module HealthQuest
       # @return [String] a reference to a user's appointment
       #
       def reference(qr)
-        qr.subject.reference
+        qr.resource.subject.reference
       end
     end
   end
