@@ -18,7 +18,7 @@ module SFTPWriter
     def write(contents, filename)
       path = File.join(write_path, filename)
       FileUtils.mkdir_p(File.dirname(path))
-      File.open(path, 'wb') do |f|
+      File.open(path, 'ab') do |f|
         f.write(contents)
       end
     end
