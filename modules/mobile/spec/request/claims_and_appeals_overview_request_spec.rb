@@ -122,5 +122,28 @@ RSpec.describe 'claims and appeals overview', type: :request do
         end
       end
     end
+
+    context 'when there are cached claims and appeals' do
+      let(:user) { FactoryBot.build(:iam_user) }
+      let(:params) { { useCache: true } }
+
+      before do
+        iam_sign_in
+        path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'claims_and_appeals.json')
+        json = File.read(path)
+        Mobile::V0::ClaimOverview.set_cached(user, json)
+      end
+
+      it 'retrieves the cached appointments rather than hitting the service' do
+        expect_any_instance_of(Mobile::V0::Claims::Proxy).not_to receive(:get_claims_and_appeals)
+        get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+        expect(response).to have_http_status(:ok)
+        parsed_response_contents = response.parsed_body.dig('data')
+        open_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600114693' }[0]
+        expect(open_claim.dig('attributes', 'completed')).to eq(false)
+        expect(open_claim.dig('type')).to eq('claim')
+        expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+      end
+    end
   end
 end

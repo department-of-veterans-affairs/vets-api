@@ -109,7 +109,6 @@ fragment vaForm on NodeVaForm {
     }
   }
   fieldVaFormAdministration {
-    targetId
         entity {
           entityLabel
         }

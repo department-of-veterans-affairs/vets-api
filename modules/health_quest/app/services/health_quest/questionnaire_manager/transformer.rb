@@ -7,6 +7,10 @@ module HealthQuest
     #
     # @!attribute appointments
     #   @return [Array]
+    # @!attribute locations
+    #   @return [Array]
+    # @!attribute organizations
+    #   @return [Array]
     # @!attribute questionnaires
     #   @return [Array]
     # @!attribute questionnaire_responses
@@ -21,9 +25,13 @@ module HealthQuest
     #   @return [Hash]
     class Transformer
       attr_reader :appointments,
+                  :locations,
+                  :organizations,
                   :questionnaires,
                   :questionnaire_responses,
                   :save_in_progress,
+                  :hashed_locations,
+                  :hashed_organizations,
                   :hashed_questionnaires,
                   :hashed_questionnaire_responses,
                   :hashed_save_in_progress
@@ -39,10 +47,14 @@ module HealthQuest
       end
 
       def initialize(opts)
-        @appointments = opts[:appointments]
+        @appointments = opts[:lighthouse_appointments]
+        @locations = opts[:locations]
+        @organizations = opts[:organizations]
         @questionnaires = opts[:questionnaires]
         @questionnaire_responses = opts[:questionnaire_responses]
         @save_in_progress = opts[:save_in_progress]
+        @hashed_locations = locations_with_id
+        @hashed_organizations = organizations_by_facility_ids
         @hashed_questionnaires = questionnaires_with_facility_clinic_id
         @hashed_questionnaire_responses = questionnaire_responses_with_appointment_id
         @hashed_save_in_progress = sip_with_appointment_id
@@ -85,7 +97,12 @@ module HealthQuest
       #
       def appointments_with_questionnaires
         @appointments_with_questionnaires ||=
-          BasicQuestionnaireManagerFormatter.build(appointments, hashed_questionnaires).to_a
+          BasicQuestionnaireManagerFormatter.build(
+            appointments: appointments,
+            hashed_organizations: hashed_organizations,
+            hashed_locations: hashed_locations,
+            hashed_questionnaires: hashed_questionnaires
+          ).to_a
       end
 
       ##

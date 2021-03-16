@@ -434,3 +434,8 @@ features:
     actor_type: user
     description: >
       Update processing retry functionality
+  dependency_verification:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Feature gates the dependency verification modal for updating the diaries service.

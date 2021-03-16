@@ -51,7 +51,28 @@ class OpenidApplicationController < ApplicationController
     auth_request = request.authorization.to_s
     return unless auth_request[TOKEN_REGEX]
 
-    Token.new(auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, ''), fetch_aud)
+    token_string = auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, '')
+
+    if jwt?(token_string)
+      Token.new(token_string, fetch_aud)
+    else
+      # Future block for opaque tokens
+      raise error_klass('Invalid token.')
+    end
+  end
+
+  def jwt?(token_string)
+    JWT.decode(token_string, nil, false, algorithm: 'RS256')
+    true
+  rescue JWT::DecodeError
+    false
+  end
+
+  def error_klass(error_detail_string)
+    # Errors from the jwt gem (and other dependencies) are reraised with
+    # this class so we can exclude them from Sentry without needing to know
+    # all the classes used by our dependencies.
+    Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
   end
 
   def establish_session
