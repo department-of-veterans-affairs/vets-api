@@ -12,9 +12,9 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     end
 
     def incorrect_extension?(extension:, mimemagic_object:)
+      extension = extension.to_s.downcase
       true_extensions = extensions_from_mimemagic_object(mimemagic_object).map(&:downcase)
-
-      true_extensions.present? && !extension.downcase.in?(true_extensions)
+      true_extensions.present? && !extension.in?(true_extensions)
     end
 
     def extensions_from_mimemagic_object(mimemagic_object)
