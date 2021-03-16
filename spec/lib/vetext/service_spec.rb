@@ -197,7 +197,7 @@ describe 'VEText::Service' do
       let(:response) do
         VCR.use_cassette('vetext/send_success') do
           service.send_notification(
-              'va_mobile_app',
+            'va_mobile_app',
             '12345',
             '0EF7C8C9390847D7B3B521426EFF5814',
             personalization
@@ -216,7 +216,7 @@ describe 'VEText::Service' do
         VCR.use_cassette('vetext/send_internal_server_error') do
           expect do
             service.send_notification(
-                'va_mobile_app',
+              'va_mobile_app',
               '12345',
               '0EF7C8C9390847D7B3B521426EFF5814',
               personalization
@@ -231,7 +231,7 @@ describe 'VEText::Service' do
         VCR.use_cassette('vetext/send_bad_request') do
           expect do
             service.send_notification(
-                'va_mobile_app',
+              'va_mobile_app',
               '12345',
               '0EF7C8C9390847D7B3B521426EFF5814',
               personalization
