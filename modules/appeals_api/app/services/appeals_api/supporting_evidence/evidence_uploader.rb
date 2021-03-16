@@ -3,6 +3,8 @@
 module AppealsApi
   module SupportingEvidence
     class EvidenceUploader
+      VALID_EVIDENCE_TYPES = %i[notice_of_disagreement].freeze
+
       def initialize(appeal, document, type:)
         @appeal = appeal
         @document = document
@@ -29,7 +31,7 @@ module AppealsApi
       end
 
       def update_submission!
-        @submission.update(
+        @submission.update!(
           status: 'submitted',
           file_data: {
             filename: uploader.filename
@@ -38,7 +40,7 @@ module AppealsApi
       end
 
       def valid_type?
-        type.in?(%i[notice_of_disagreement])
+        type.in?(VALID_EVIDENCE_TYPES)
       end
     end
   end
