@@ -48,7 +48,8 @@ module ClaimsApi
         }
         ClaimsApi::SpecialIssueUpdater.perform_async(bgs_user(auth_headers),
                                                      contention_id,
-                                                     disability['special_issues'])
+                                                     disability['special_issues'],
+                                                     auto_claim.id)
       end
     end
 
@@ -68,7 +69,8 @@ module ClaimsApi
 
     def bgs_user(auth_headers)
       {
-        'ssn' => auth_headers['va_eauth_pnid']
+        'ssn' => auth_headers['va_eauth_pnid'],
+        'participant_id' => auth_headers['va_eauth_pid']
       }
     end
   end

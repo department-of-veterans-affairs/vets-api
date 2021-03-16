@@ -43,6 +43,10 @@ module Mobile
           poll_with_backoff do
             check_transaction_status!(initial_transaction.transaction_id)
           end
+        ensure
+          StatsD.increment(
+            'mobile.profile.update.type', tags: ["type:#{resource_type}"], sample_rate: 1.0
+          )
         end
 
         def await_vet360_account_link

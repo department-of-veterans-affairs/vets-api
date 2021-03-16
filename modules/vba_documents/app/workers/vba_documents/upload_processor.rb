@@ -31,8 +31,8 @@ module VBADocuments
     # rubocop:disable Metrics/MethodLength
     def download_and_process
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
-
       begin
+        update_size(@upload, tempfile.size)
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
         validate_parts(parts)
