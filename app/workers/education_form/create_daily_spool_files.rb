@@ -22,7 +22,8 @@ module EducationForm
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
-                    retry: false
+                    unique_for: 30.minutes,
+                    retry: 5
 
     # Setting the default value to the `unprocessed` scope is safe
     # because the execution of the query itself is deferred until the
@@ -78,7 +79,7 @@ module EducationForm
     def write_files(writer, structured_data:)
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
-        filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
+        filename = determine_filename(region_id)
         log_submissions(records, filename)
         # create the single textual spool file
         contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
@@ -97,6 +98,12 @@ module EducationForm
       end
     ensure
       writer.close
+    end
+
+    # If after midnight but before run time then filename should be previous date
+    # If between run time and midnight filename should be current date    #
+    def determine_filename(region_id)
+      "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
     end
 
     def format_application(data, rpo: 0)
