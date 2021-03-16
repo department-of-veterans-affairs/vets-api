@@ -18,17 +18,15 @@ module EducationForm
     # Get all 10203 submissions that have a row in education_stem_automated_decisions
     def perform(
       records: EducationBenefitsClaim.includes(:saved_claim, :education_stem_automated_decision).where(
-        processed_at: processed_at_range,
         saved_claims: {
           form_id: '22-10203'
         },
         education_stem_automated_decisions: {
-          automated_decision_state: EducationStemAutomatedDecision::DENIED
+          automated_decision_state: EducationStemAutomatedDecision::DENIED,
+          denial_email_sent_at: nil
         }
       )
     )
-      return false unless Flipper.enabled?(:stem_automated_decision)
-
       if records.count.zero?
         log_info('No records to process.')
         return true
@@ -38,6 +36,7 @@ module EducationForm
 
       records.each do |record|
         StemApplicantDenialMailer.build(record, nil).deliver_now
+        record.education_stem_automated_decision.update(denial_email_sent_at: Time.zone.now)
       rescue => e
         inform_on_error(record, e)
       end
@@ -45,11 +44,6 @@ module EducationForm
     end
 
     private
-
-    def processed_at_range
-      time = Time.zone.now
-      (time - 24.hours)..time
-    end
 
     def inform_on_error(claim, error = nil)
       region = EducationFacility.facility_for(region: :eastern)

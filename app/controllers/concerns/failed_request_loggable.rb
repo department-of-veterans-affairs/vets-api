@@ -7,19 +7,16 @@ module FailedRequestLoggable
     def exception_hash(exception)
       hash = {}
       %i[
-        backtrace
-        errors
-        key
-        message
-        original_body
-        original_status
-        response_values
-        sentry_type
-        status_code
+        as_json attributes backtrace errors
+        inspect instance_values key message
+        original_body original_status
+        response_values sentry_type
+        serializable_hash status_code
+        to_a to_h to_json to_s
       ].each do |method|
-        next unless exception.respond_to? method
-
-        hash[method] = exception.try method
+        hash[method] = exception.send method
+      rescue
+        nil
       end
       hash
     end

@@ -37,7 +37,7 @@ module Mobile
             subtype: subtype,
             completed: !entry['attributes']['active'],
             date_filed: entry['attributes']['events'][filed_index]['date'],
-            updated_at: entry['attributes']['events'].last['date'].to_time.iso8601
+            updated_at: DateTime.parse(entry['attributes']['events'].last['date']).iso8601
           }
         end
       end
