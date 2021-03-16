@@ -32,7 +32,7 @@ module V0
     def token_endpoint_uri
       return @token_uri if @token_uri.present?
 
-      token_endpoint = "https://directline.botframework.com/v3/directline/tokens/generate"
+      token_endpoint = 'https://directline.botframework.com/v3/directline/tokens/generate'
       @token_uri = URI(token_endpoint)
     end
 
