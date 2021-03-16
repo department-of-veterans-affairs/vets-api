@@ -4,7 +4,7 @@ module ClaimsApi
       class IntentToFile < ClaimsApi::V2::Base
         version 'v2'
 
-        resource 'veterans/:token' do
+        resource 'veterans/:veteranId' do
           resource 'forms/21-0966' do
             desc 'Submit a claim.' do
               success ClaimsApi::Entities::V2::ClaimSubmittedEntity
@@ -12,7 +12,7 @@ module ClaimsApi
                 [401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity'],
                 [400, 'Bad Request', 'ClaimsApi::Entities::V2::ErrorsEntity']
               ]
-              tags ['Intent to File']
+              tags ['Forms']
               security [{ bearer_token: [] }]
             end
             params do

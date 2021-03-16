@@ -14,7 +14,7 @@ module ClaimsApi
         permit_scopes %w[claim.read]
       end
 
-      resource 'veterans/:token' do
+      resource 'veterans/:veteranId' do
         resource :claims do
           desc 'Return all claims associated with Veteran.' do
             detail <<~X

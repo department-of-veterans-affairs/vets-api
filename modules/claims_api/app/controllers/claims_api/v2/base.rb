@@ -78,10 +78,8 @@ module ClaimsApi
         },
         tags: [
           { name: 'Veteran Identifiers', description: 'Unique Veteran Identifier' },
-          { name: 'Claims', description: 'Benefits Claims' },
-          { name: 'Disability', description: '526 Claim Submissions' },
-          { name: 'Intent to File', description: '0966 Submissions' },
-          { name: 'Power of Attorney', description: '2122 Submissions' }
+          { name: 'Claims', description: 'Benefits Claims retrieval and monitoring' },
+          { name: 'Forms', description: 'Benefits Claim requests' }
         ],
         servers: [
           {

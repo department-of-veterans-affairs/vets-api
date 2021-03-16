@@ -16,7 +16,7 @@ module ClaimsApi
         permit_scopes %w[claim.read]
       end
 
-      resource 'veterans/:token' do
+      resource 'veterans/:veteranId' do
         resource 'power-of-attorneys' do
           desc 'Return all power of attorneys historically associated with Veteran.' do
             detail <<~X
@@ -25,7 +25,7 @@ module ClaimsApi
             X
             # success ClaimsApi::Entities::V2::ClaimEntity
             failure [[401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity']]
-            tags ['Power of Attorney']
+            tags ['Claims']
             security [{ bearer_token: [] }]
           end
           params do

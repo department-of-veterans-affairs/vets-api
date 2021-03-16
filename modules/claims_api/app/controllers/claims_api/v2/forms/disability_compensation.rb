@@ -57,7 +57,7 @@ module ClaimsApi
           permit_scopes %w[claim.write]
         end
 
-        resource 'veterans/:token' do
+        resource 'veterans/:veteranId' do
           resource 'forms/21-526EZ' do
             desc 'Submit a claim.' do
               success code: 202, model: ClaimsApi::Entities::V2::DisabilityClaimSubmittedEntity
@@ -65,7 +65,7 @@ module ClaimsApi
                 [401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity'],
                 [400, 'Bad Request', 'ClaimsApi::Entities::V2::ErrorsEntity']
               ]
-              tags ['Disability']
+              tags ['Forms']
               security [{ bearer_token: [] }]
             end
             params do
@@ -111,7 +111,7 @@ module ClaimsApi
                 [401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity'],
                 [400, 'Bad Request', 'ClaimsApi::Entities::V2::ErrorsEntity']
               ]
-              tags ['Disability']
+              tags ['Forms']
               security [{ bearer_token: [] }]
             end
             params do

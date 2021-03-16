@@ -4,7 +4,7 @@ module ClaimsApi
       class PowerOfAttorney < ClaimsApi::V2::Base
         version 'v2'
 
-        resource 'veterans/:token' do
+        resource 'veterans/:veteranId' do
           resource 'forms/21-22' do
             desc 'Submit a claim.' do
               success code: 202, model: ClaimsApi::Entities::V2::ClaimSubmittedEntity
@@ -12,7 +12,7 @@ module ClaimsApi
                 [401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity'],
                 [400, 'Bad Request', 'ClaimsApi::Entities::V2::ErrorsEntity']
               ]
-              tags ['Power of Attorney']
+              tags ['Forms']
               security [{ bearer_token: [] }]
             end
             params do
@@ -32,7 +32,7 @@ module ClaimsApi
                 [401, 'Unauthorized', 'ClaimsApi::Entities::V2::ErrorsEntity'],
                 [400, 'Bad Request', 'ClaimsApi::Entities::V2::ErrorsEntity']
               ]
-              tags ['Power of Attorney']
+              tags ['Forms']
               security [{ bearer_token: [] }]
             end
             params do
