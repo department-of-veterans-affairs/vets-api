@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
 require 'appeals_api/sidekiq_retry_notifier'
 
 module AppealsApi
@@ -17,11 +18,24 @@ module AppealsApi
       end
 
       it 'sends a network request' do
-        allow(Faraday).to receive(:post).with(SidekiqRetryNotifier::API_PATH)
+        with_settings(Settings.modules_appeals_api.slack, api_token: 'api token',
+                                                          appeals_channel_id: 'slack channel id') do
+          body = {
+            text: SidekiqRetryNotifier.message_text(params),
+            channel: 'slack channel id'
+          }.to_json
 
-        SidekiqRetryNotifier.notify!(params)
+          headers = {
+            'Content-type' => 'application/json; charset=utf-8',
+            'Authorization' => 'Bearer api token'
+          }
 
-        expect(Faraday).to have_received(:post).with(SidekiqRetryNotifier::API_PATH)
+          allow(Faraday).to receive(:post).with(SidekiqRetryNotifier::API_PATH, body, headers)
+
+          SidekiqRetryNotifier.notify!(params)
+
+          expect(Faraday).to have_received(:post).with(SidekiqRetryNotifier::API_PATH, body, headers)
+        end
       end
     end
   end
