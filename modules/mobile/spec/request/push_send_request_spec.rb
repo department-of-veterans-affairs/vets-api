@@ -12,7 +12,6 @@ RSpec.describe 'push send', type: :request do
     context 'with with valid request body' do
       let(:params) do
         {
-            endpointSid: "8c258cbe573c462f912e7dd74585a5a9",
             templateId: "0EF7C8C9390847D7B3B521426EFF5814",
             personalization: {
                 "%APPOINTMENT_DATE%": "DEC 14",
@@ -32,7 +31,6 @@ RSpec.describe 'push send', type: :request do
     context 'with invalid endpointSid' do
       let(:params) do
         {
-            endpointSid: "8c258cbe573c462f912e7dd74585a5a9",
             templateId: "0EF7C8C9390847D7B3B521426EFF5814",
             personalization: {
                 "%APPOINTMENT_DATE%": "DEC 14",
@@ -52,7 +50,6 @@ RSpec.describe 'push send', type: :request do
     context 'when causing vetext internal server error ' do
       let(:params) do
         {
-            endpointSid: "8c258cbe573c462f912e7dd74585a5a9",
             templateId: "0EF7C8C9390847D7B3B521426EFF5814",
             personalization: {
                 "%APPOINTMENT_DATE%": "DEC 14",

@@ -30,7 +30,7 @@ module Mobile
       end
 
       def send_notification
-        service.send_notification(params[:endpointSid], params[:templateId], params[:personalization])
+        service.send_notification(params[:appName], @current_user.icn, params[:templateId], params[:personalization])
         render json: {}, status: :ok
       end
 
