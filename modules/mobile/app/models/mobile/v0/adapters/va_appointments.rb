@@ -72,6 +72,14 @@ module Mobile
             build_appointment_model(appointment_hash, facilities)
           end
 
+          facilities.each do |facility_id|
+            StatsD.increment(
+              'mobile.appointments.facilities',
+              tags: ["facility_id:#{facility_id}"],
+              sample_rate: 1.0
+            )
+          end
+
           [appointments, facilities]
         end
 
@@ -115,6 +123,10 @@ module Mobile
             time_zone: time_zone,
             vetext_id: vetext_id(appointment_hash, start_date_local)
           }
+
+          StatsD.increment(
+            'mobile.appointments.type', tags: ["type:#{type}"], sample_rate: 0.1
+          )
 
           Mobile::V0::Appointment.new(adapted_hash)
         end

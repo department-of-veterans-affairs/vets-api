@@ -9,17 +9,17 @@ module Mobile
       before_action { authorize :ppiu, :access? }
       before_action :validate_pay_info, only: :update
       before_action(only: :update) { authorize(:ppiu, :access_update?) }
+      after_action(only: :update) { proxy.send_confirmation_email(params[:ga_client_id]) }
 
       def index
-        payment_information = service.get_payment_information.responses[0]
+        payment_information = proxy.get_payment_information
         render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.id,
                                                                   payment_information.payment_account,
                                                                   payment_information.control_information)
       end
 
       def update
-        payment_information = service.update_payment_information(pay_info).responses[0]
-        send_confirmation_email
+        payment_information = proxy.update_payment_information(pay_info)
         render json: Mobile::V0::PaymentInformationSerializer.new(@current_user.id,
                                                                   payment_information.payment_account,
                                                                   payment_information.control_information)
@@ -27,8 +27,8 @@ module Mobile
 
       private
 
-      def service
-        @service ||= EVSS::PPIU::Service.new(@current_user)
+      def proxy
+        @proxy ||= Mobile::V0::PaymentInformation::Proxy.new(@current_user)
       end
 
       def ppiu_params
@@ -48,23 +48,6 @@ module Mobile
         unless pay_info.valid?
           Raven.tags_context(validation: 'direct_deposit')
           raise Common::Exceptions::ValidationErrors, pay_info
-        end
-      end
-
-      def send_confirmation_email
-        user_emails = current_user.all_emails
-
-        if user_emails.present?
-          user_emails.each do |email|
-            DirectDepositEmailJob.perform_async(email, params[:ga_client_id])
-          end
-        else
-          log_message_to_sentry(
-            'Direct Deposit info update: no email address present for confirmation email',
-            :info,
-            {},
-            feature: 'direct_deposit'
-          )
         end
       end
     end

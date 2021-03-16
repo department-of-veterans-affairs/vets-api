@@ -10,8 +10,9 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   end
 
   let(:user) do
+    user_mock = FactoryBot.create(:evss_user, :loa3)
     {
-      'ssn' => '796043735'
+      'ssn' => user_mock.ssn
     }
   end
   let(:flashes) { %w[Homeless POW] }

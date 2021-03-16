@@ -14,6 +14,10 @@ module VBADocuments
       model.update(uploaded_pdf: inspector.pdf_data)
     end
 
+    def update_size(model, size)
+      model.update(metadata: model.metadata.merge({ 'size' => size }))
+    end
+
     def validate_parts(parts)
       unless parts.key?(META_PART_NAME)
         raise VBADocuments::UploadError.new(code: 'DOC102',

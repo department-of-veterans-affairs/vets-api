@@ -304,6 +304,15 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC103')
     end
 
+    it 'sets document size' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'content' => valid_doc }
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.metadata['size'].class).to be == Integer
+    end
+
     context 'with invalid sizes' do
       %w[21x21 18x22 22x18].each do |invalid_size|
         it 'sets an error status for invalid size' do
