@@ -116,7 +116,7 @@ module HealthQuest
       # @return [FHIR::ClientReply] an instance of ClientReply
       #
       def create_questionnaire_response(data)
-        questionnaire_response_service.create(data)
+        questionnaire_response_service.create(data.to_h.with_indifferent_access)
       end
 
       ##

@@ -40,7 +40,7 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseCollector do
       ]
     end
     let(:appt_questionnaires) do
-      { 'abc-123-def-455' => { id: 'abc-123-def-455', title: 'The Questionnaire', questionnaire_response: {} } }
+      { 'abc-123-def-455' => { id: 'abc-123-def-455', title: 'The Questionnaire', questionnaire_response: [] } }
     end
 
     before do
@@ -53,7 +53,9 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseCollector do
         'abc-123-def-455' => {
           id: 'abc-123-def-455',
           title: 'The Questionnaire',
-          questionnaire_response: { id: 'abc-123-def-455', status: 'completed', submitted_on: '2021-02-01' }
+          questionnaire_response: [
+            { id: 'abc-123-def-455', status: 'completed', submitted_on: '2021-02-01' }.with_indifferent_access
+          ]
         }
       }
 

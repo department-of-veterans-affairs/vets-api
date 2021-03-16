@@ -33,7 +33,7 @@ describe HealthQuest::QuestionnaireManager::SaveInProgressCollector do
   describe '#collect' do
     let(:sip_responses) { [double('InProgressForm', form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55_abc-123')] }
     let(:appt_questionnaires) do
-      { 'abc-123' => { id: 'abc-123', title: 'The Questionnaire', questionnaire_response: {} } }
+      { 'abc-123' => { id: 'abc-123', title: 'The Questionnaire', questionnaire_response: [] } }
     end
 
     before do
@@ -43,7 +43,16 @@ describe HealthQuest::QuestionnaireManager::SaveInProgressCollector do
 
     it 'sets the in-progress status' do
       response = {
-        'abc-123' => { id: 'abc-123', title: 'The Questionnaire', questionnaire_response: { status: 'in-progress' } }
+        'abc-123' => {
+          id: 'abc-123',
+          title: 'The Questionnaire',
+          questionnaire_response: [
+            {
+              form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55_abc-123',
+              status: 'in-progress'
+            }.with_indifferent_access
+          ]
+        }
       }
 
       basic_structure.collect
