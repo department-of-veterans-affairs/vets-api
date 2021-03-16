@@ -216,7 +216,7 @@ module ClaimsApi
                 key :'$ref', :Claimant
               end
 
-              property :signatureFiles do
+              property :signatures do
                 key :type, :object
                 property :veteran do
                   key :type, :string
