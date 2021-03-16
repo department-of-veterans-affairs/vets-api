@@ -36,7 +36,10 @@ module SFTPWriter
       path = File.join([write_path, sanitize(filename)].compact)
       @logger.info("Writing #{path}")
       mkdir_safe(path)
-      sftp.upload!(StringIO.new(contents), path)
+      # open and append to a pseudo-IO for a remote file
+      sftp.file.open(path, 'ab') do |f|
+        f.write(contents)
+      end
     end
 
     private
