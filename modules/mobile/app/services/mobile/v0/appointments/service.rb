@@ -36,7 +36,6 @@ module Mobile
             responses[:va], errors[:va] = parallel_get(va_url, params)
           end
 
-          StatsD.increment('mobile.appointments.get_appointments.success')
           [responses, errors]
         end
 
@@ -81,7 +80,6 @@ module Mobile
             detail: e.message
           }
 
-          StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
         end
 
@@ -97,7 +95,6 @@ module Mobile
             detail: e.response_values[:detail]
           }
 
-          StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
         end
 
