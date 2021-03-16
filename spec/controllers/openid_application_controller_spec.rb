@@ -221,6 +221,16 @@ RSpec.describe OpenidApplicationController, type: :controller do
       end
     end
 
+    context 'with an opaque token supplied and no session' do
+      it 'returns 401' do
+        request.headers['Authorization'] = 'Bearer FakeToken'
+        get :index
+        expect(response.status).to eq(401)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors[0]['detail']).to eq('Invalid token.')
+      end
+    end
+
     context 'with a MHV credential profile' do
       let(:mvi_profile) do
         build(:mvi_profile,

@@ -108,6 +108,11 @@ fragment vaForm on NodeVaForm {
       }
     }
   }
+  fieldVaFormAdministration {
+        entity {
+          entityLabel
+        }
+  }
   changed
   status
 }

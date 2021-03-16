@@ -67,7 +67,7 @@ paths:
   /v0/appointments:
     get:
       summary: /v0/appointments
-      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 3 months and + 6 months from the beginning of today's UTC date.
       operationId: getAppointments
       security:
         - Bearer: []
@@ -547,7 +547,6 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-
   /v0/user/logout:
     get:
       summary: /v0/user/logout
@@ -608,7 +607,6 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-
   /v0/user/addresses:
     post:
       summary: /v0/user/addresses
@@ -804,7 +802,6 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-
   /v0/user/addresses/validate:
     post:
       summary: /v0/user/addresses/validate
@@ -842,83 +839,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  data:
-                    required:
-                      - id
-                      - string
-                    properties:
-                      id:
-                        type: string
-                        example: "3be0c7de-bfe1-4101-a326-5567bcd98b63"
-                      type:
-                        type: string
-                        example: "suggested_address"
-                      attributes:
-                        type: object
-                        required:
-                          - transactionId
-                          - transactionStatus
-                          - type
-                        properties:
-                          addressLine1:
-                            type: string
-                            example: "51 W Weber Rd"
-                          addressLine2:
-                            type: [ string, null ]
-                            example: null
-                          addressLine3:
-                            type: [ string, null ]
-                            example: null
-                          addressPou:
-                            type: string
-                            example: "RESIDENCE/CHOICE"
-                          addressType:
-                            type: string
-                            example: "DOMESTIC"
-                          city:
-                            type: string
-                            example: "Columbus"
-                          countryCodeIso3:
-                            type: string
-                            example: "USA"
-                          internationalPostalCode:
-                            type: [ string, null ]
-                            example: null
-                          province:
-                            type: [ string, null ]
-                            example: null
-                          stateCode:
-                            type: string
-                            example: "OH"
-                          zipCode:
-                            type: string
-                            example: "43202"
-                          zipCodeSuffix:
-                            type: string
-                            example: "1922"
-                      meta:
-                        type: object
-                        properties:
-                          address:
-                            type: object
-                            properties:
-                              confidenceScore:
-                                type: float
-                                example: 100.0
-                                addressType:
-                                  type: string
-                                  example: "Domestic"
-                                deliveryPointValidation:
-                                  type: string
-                                  example: "CONFIRMED"
-                                residentialDeliveryIndicator:
-                                  type: string
-                                  example: "RESIDENTIAL"
-                          validationKey:
-                            type: integer
-                            example: -1398777841
-
+                $ref: '#./schemas/AddressResponse.yml'
               examples:
                 Single match:
                   value:
@@ -968,7 +889,6 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-
   /v0/user/emails:
     post:
       summary: /v0/user/emails
@@ -1113,7 +1033,6 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-
   /v0/user/phones:
     post:
       summary: /v0/user/phones
@@ -1253,12 +1172,11 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-
   /v0/payment-information/benefits:
     get:
       summary: /v0/payment-information/benefits
       description: Returns direct deposit payment info
-      operationId: index
+      operationId: getPaymentInformation
       security:
         - Bearer: []
       responses:
@@ -1319,7 +1237,7 @@ paths:
     put:
       summary: /v0/payment-information/benefits
       description: Returns updated direct deposit payment info
-      operationId: update
+      operationId: updatePaymentInformation
       security:
         - Bearer: []
       requestBody:
@@ -1385,7 +1303,7 @@ paths:
               schema:
                 $ref: "./schemas/Errors.yml"
   /v0/push/register:
-    post:
+    put:
       summary: /v0/push/register
       description: Allows a new app install to register to receive push notifications
       operationId: register
@@ -1401,6 +1319,10 @@ paths:
       responses:
         '201':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/PushRegistrationResponse.yml"
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:
@@ -1453,7 +1375,7 @@ paths:
     get:
       summary: /v0/push/prefs
       description: Get the user's push notification preferences
-      operationId: prefs
+      operationId: getPrefs
       security:
         - Bearer: []
       responses:
@@ -1514,7 +1436,7 @@ paths:
     put:
       summary: /v0/push/prefs
       description: Set the user's push notification preferences
-      operationId: prefs
+      operationId: putPrefs
       security:
         - Bearer: []
       requestBody:
@@ -1575,11 +1497,69 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/push/send:
+    post:
+      summary: /v0/push/send
+      description: Allows client to trigger specified push notification to be sent to specified endpoint
+      operationId: sendNotification
+      security:
+        - Bearer: []
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: Both upstream services the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/ClaimsAndAppealsOverviewDoubleFailure.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/claims-and-appeals-overview:
     get:
       summary: /v0/claims-and-appeals-overview
       description: Returns info on all user's claims and appeals for mobile overview page
-      operationId: index
+      operationId: claimsAndAppealsOverview
       security:
         - Bearer: []
       responses:
@@ -1906,15 +1886,17 @@ paths:
       summary: /v0/messaging/health/folders
       description: List available secure messaging folders
       operationId: listFolders
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "./schemas/SecureMessagingFolders.yml"
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -1930,15 +1912,17 @@ paths:
       summary: /v0/messaging/health/folders/{id}
       description: Get a secure messaging folder
       operationId: getFolder
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "./schemas/SecureMessagingFolder.yml"
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -1954,15 +1938,17 @@ paths:
       summary: /v0/messaging/health/folders/{id}/messages
       description: List messages in a secure messaging folder
       operationId: listFolderMessages
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "./schemas/SecureMessageList.yml"
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -1978,15 +1964,17 @@ paths:
       summary: /v0/messaging/health/messages/{id}
       description: Get a secure message and mark message as read
       operationId: getMessage
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "./schemas/SecureMessageDetail.yml"
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -2000,18 +1988,19 @@ paths:
   /v0/messaging/health/messages/{id}/attachments/{attachment_id}:
     get:
       summary: /v0/messaging/health/messages/{id}/attachments/{attachment_id}
-      description: > 
-        Get a secure message attachment content as a direct binary download. 
+      description: >
+        Get a secure message attachment content as a direct binary download.
         Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
 
       operationId: getMessageAttachment
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
+          description: OK
           headers:
             Content-Disposition:
-              schema: 
+              schema:
                 type: string
               description: >
                 This header will have the value of "attachment", and a "filename" parameter containing the original filename of the attached content.
@@ -2021,6 +2010,7 @@ paths:
                 type: string
                 format: binary
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -2036,15 +2026,17 @@ paths:
       summary: /v0/messaging/health/messages/categories
       description: List available message categories
       operationId: listMessageCategories
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
                $ref: "./schemas/SecureMessageCategories.yml"
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -2055,21 +2047,22 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-
   /v0/messaging/health/recipients:
     get:
       summary: /v0/messaging/health/recipients
       description: List available recipients to which messages may be sent
       operationId: listRecipients
-      security: 
+      security:
         - Bearer: []
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "./schemas/SecureMessagingRecipients.yml"
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:

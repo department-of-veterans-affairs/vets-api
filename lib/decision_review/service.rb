@@ -86,9 +86,10 @@ module DecisionReview
 
       {
         'X-VA-SSN' => user.ssn.to_s,
-        'X-VA-First-Name' => user.first_name.to_s,
-        'X-VA-Middle-Initial' => user.middle_name.presence&.first&.to_s,
-        'X-VA-Last-Name' => user.last_name.to_s,
+        'X-VA-First-Name' => user.first_name.to_s.first(12),
+        # middle_name can return either a string or an array (hence the strange chain)
+        'X-VA-Middle-Initial' => user.middle_name.presence&.first&.to_s&.first,
+        'X-VA-Last-Name' => user.last_name.to_s.first(18),
         'X-VA-Birth-Date' => user.birth_date.to_s,
         'X-VA-File-Number' => nil,
         'X-VA-Service-Number' => nil,
@@ -146,11 +147,16 @@ module DecisionReview
       errors = JSONSchemer.schema(schema).validate(json).to_a
       return if errors.empty?
 
-      PersonalInformationLog.create!(
-        error_class: "#{self.class.name}#validate_against_schema exception#{append_to_error_class}",
-        data: { json: json, schema: schema, errors: errors }
-      )
       raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
+    rescue => e
+      PersonalInformationLog.create!(
+        error_class: "#{self.class.name}#validate_against_schema exception #{e.class}#{append_to_error_class}",
+        data: {
+          json: json, schema: schema, errors: errors,
+          error: Class.new.include(FailedRequestLoggable).exception_hash(e)
+        }
+      )
+      raise
     end
 
     def raise_schema_error_unless_200_status(status)

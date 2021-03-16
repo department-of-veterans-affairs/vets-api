@@ -2,10 +2,10 @@ personalIdentification:
   ssn: [identity_information, ssn_last_four]
   fileNumber: [va_file_number_last_four]
 personalData:
-  fullName: [identity_information, full_name]
+  veteranFullName: [identity_information, full_name]
   address: [contact_information, address]
-  phone: [contact_information, us_phone]
-  email: [contact_information, email]
+  telephoneNumber: [contact_information, us_phone]
+  emailAddress: [contact_information, email]
   dateOfBirth: [identity_information, date_of_birth]
 income:
 - veteranOrSpouse: [payments, veteran_or_spouse]

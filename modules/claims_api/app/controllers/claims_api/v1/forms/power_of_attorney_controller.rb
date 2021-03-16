@@ -8,7 +8,9 @@ module ClaimsApi
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
         include ClaimsApi::DocumentValidations
 
-        before_action { permit_scopes %w[claim.write] }
+        before_action except: %i[schema] do
+          permit_scopes %w[claim.write]
+        end
         before_action :validate_json_schema, only: %i[submit_form_2122 validate]
         before_action :validate_documents_content_type, only: %i[upload]
         before_action :validate_documents_page_size, only: %i[upload]
@@ -65,11 +67,16 @@ module ClaimsApi
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
-          if power_of_attorney
-            render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          render_poa_not_found and return unless power_of_attorney
+
+          if current_poa
+            lighthouse_poa = power_of_attorney.attributes
+            lighthouse_poa['current_poa'] = current_poa
+            combined = ClaimsApi::PowerOfAttorney.new(lighthouse_poa)
+
+            render json: combined, serializer: ClaimsApi::PowerOfAttorneySerializer
           else
-            previous_poa = ClaimsApi::PowerOfAttorney.new(form_data: {}, current_poa: current_poa)
-            render json: previous_poa, serializer: ClaimsApi::PowerOfAttorneySerializer
+            render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
           end
         end
 

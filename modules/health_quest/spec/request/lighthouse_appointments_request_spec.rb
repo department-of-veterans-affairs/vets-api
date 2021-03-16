@@ -29,15 +29,22 @@ RSpec.describe 'Lighthouse appointments', type: :request do
 
     context 'health quest user' do
       let(:current_user) { build(:user, :health_quest) }
+      let(:id) { 'faae134c-9c7b-49d7-8161-10e314da4de1' }
+      let(:session_store) { double('SessionStore', token: '123abc') }
+      let(:client_reply) do
+        double('FHIR::ClientReply', response: { body: { 'resourceType' => 'Appointment' } })
+      end
 
       before do
         sign_in_as(current_user)
+        allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
+        allow_any_instance_of(HealthQuest::Resource::Query).to receive(:get).with(anything).and_return(client_reply)
       end
 
-      it 'returns an empty appointment' do
+      it 'returns a FHIR type of Appointment' do
         get '/health_quest/v0/lighthouse_appointments/I2-ABC123'
 
-        expect(JSON.parse(response.body)).to eq({})
+        expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'Appointment' })
       end
     end
   end
@@ -65,15 +72,19 @@ RSpec.describe 'Lighthouse appointments', type: :request do
 
     context 'health quest user' do
       let(:current_user) { build(:user, :health_quest) }
+      let(:session_store) { double('SessionStore', token: '123abc') }
+      let(:client_reply) { double('FHIR::ClientReply', response: { body: { 'resourceType' => 'Bundle' } }) }
 
       before do
         sign_in_as(current_user)
+        allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
+        allow_any_instance_of(HealthQuest::Resource::Query).to receive(:search).with(anything).and_return(client_reply)
       end
 
-      it 'returns an empty appointment list' do
+      it 'returns a FHIR Bundle ' do
         get '/health_quest/v0/lighthouse_appointments?test=1234'
 
-        expect(JSON.parse(response.body)).to eq({ 'data' => [] })
+        expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'Bundle' })
       end
     end
   end
