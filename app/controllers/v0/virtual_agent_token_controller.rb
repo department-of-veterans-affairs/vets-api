@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module V0
-  class VirtualAgentTokensController < ApplicationController
+  class VirtualAgentTokenController < ApplicationController
     skip_before_action :authenticate, only: [:create]
 
     def create

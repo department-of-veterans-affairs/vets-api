@@ -171,7 +171,7 @@ module V0
       Swagger::Requests::CaregiversAssistanceClaims,
       Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Requests::VeteranReadinessEmploymentClaims,
-      Swagger::Requests::VirtualAgentTokens,
+      Swagger::Requests::VirtualAgentToken,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,

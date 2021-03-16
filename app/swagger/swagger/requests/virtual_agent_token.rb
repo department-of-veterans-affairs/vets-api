@@ -2,10 +2,10 @@
 
 module Swagger
   module Requests
-    class VirtualAgentTokens
+    class VirtualAgentToken
       include Swagger::Blocks
 
-      swagger_path '/v0/virtual_agent_tokens' do
+      swagger_path '/v0/virtual_agent_token' do
         operation :post do
           key :description, 'Gets a webchat token'
           key :operationId, 'getToken'
