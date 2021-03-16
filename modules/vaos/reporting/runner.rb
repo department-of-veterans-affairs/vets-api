@@ -52,7 +52,7 @@ begin
   arguments = RunnerOptions.new(ARGV)
 rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
   puts "\nUnable to parse arguments => #{e.message}\n"
-  exit
+  exit 1 
 end
 
 #
@@ -66,7 +66,7 @@ begin
                end
 rescue ArgumentError
   puts "\nUnable to parse start date #{arguments[:sdt]}"
-  exit
+  exit 1
 end
 
 # end date
@@ -78,7 +78,7 @@ begin
              end
 rescue ArgumentError
   puts "\nUnable to parse end date #{arguments[:edt]}"
-  exit
+  exit 1
 end
 
 # filter pattern
