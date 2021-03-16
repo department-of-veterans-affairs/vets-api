@@ -52,7 +52,7 @@ begin
   arguments = RunnerOptions.new(ARGV)
 rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
   puts "\nUnable to parse arguments => #{e.message}\n"
-  exit 1 
+  exit 1
 end
 
 #
