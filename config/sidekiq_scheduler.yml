@@ -24,7 +24,7 @@ EducationForm::Create10203SpoolSubmissionsReport:
   description: "Send the daily 10203 report to the call center about spool file submissions"
 
 EducationForm::Create10203ApplicantDecisionLetters:
-  cron: "45 4 * * MON-FRI America/New_York"
+  every: '2m'
   description: "Send 10203 applicant decision letters to applicants"
 
 Preneeds::DeleteOldUploads:
@@ -114,6 +114,11 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   class: VBADocuments::ReportUnsuccessfulSubmissions
   description: "Weekly report of unsuccessful benefits intake submissions"
 
+VBADocuments::ReportMonthlySubmissions:
+  cron: "0 2 1 * MON-FRI America/New_York"
+  class: VBADocuments::ReportMonthlySubmissions
+  description: "Monthly report of benefits intake submissions at 0200 on the first of the month"
+
 ClaimsApi::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
   class: ClaimsApi::ReportUnsuccessfulSubmissions
@@ -125,17 +130,17 @@ VBADocuments::RunUnsuccessfulSubmissions:
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
 AppealsApi::DecisionReviewReportDaily:
-  cron: "0 0 * * MON-FRI America/New_York"
+  cron: "0 23 * * MON-FRI America/New_York"
   class: AppealsApi::DecisionReviewReportDaily
   description: "Daily report of appeals submissions"
 
 AppealsApi::DecisionReviewReportWeekly:
-  cron: "0 0 * * MON America/New_York"
+  cron: "0 23 * * MON America/New_York"
   class: AppealsApi::DecisionReviewReportWeekly
   description: "Weekly report of appeals submissions"
 
 AppealsApi::DailyErrorReport:
-  cron: "0 0 * * MON-FRI America/New_York"
+  cron: "0 23 * * MON-FRI America/New_York"
   class: AppealsApi::DailyErrorReport
   description: "Daily report of appeals errors"
 
@@ -186,7 +191,7 @@ AppsApi::FetchConnections:
   description: "Fetches and handles notifications for recent application connections and disconnections"
 
 EducationForm::Process10203Submissions:
-  cron: "0 6-18 * * * America/New_York"
+  every: '2m'
   class: EducationForm::Process10203Submissions
   description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
 
@@ -194,3 +199,8 @@ CypressViewportUpdater::UpdateCypressViewportsJob:
   cron: "0 12 3 * * America/New_York"
   class: CypressViewportUpdater::UpdateCypressViewportsJob
   description: "Updates Cypress files in vets-website with data from Google Analytics."
+
+ClaimsApi::ClaimAuditor:
+  every: "12h"
+  class: ClaimsApi::ClaimAuditor
+  description: "Daily alert of pending claims longer than acceptable threshold"

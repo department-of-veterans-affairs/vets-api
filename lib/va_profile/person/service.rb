@@ -2,19 +2,16 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
-require 'mpi/responses/id_parser'
 require 'va_profile/contact_information/configuration'
 require 'va_profile/contact_information/transaction_response'
 require 'va_profile/service'
+require 'identity/parsers/gc_ids_constants'
 
 module VAProfile
   module Person
     class Service < VAProfile::Service
       include Common::Client::Concerns::Monitoring
       include ERB::Util
-
-      AAID = MPI::Responses::IdParser::ICN_ASSIGNING_AUTHORITY_ID
-      OID  = MPI::Responses::IdParser::VA_ROOT_OID
 
       configuration VAProfile::ContactInformation::Configuration
 
@@ -42,12 +39,12 @@ module VAProfile
       def encode_url!(icn)
         encoded_icn_with_aaid = url_encode(build_icn_with_aaid!(icn))
 
-        "#{OID}/#{encoded_icn_with_aaid}"
+        "#{Identity::Parsers::GCIdsConstants::VA_ROOT_OID}/#{encoded_icn_with_aaid}"
       end
 
       def build_icn_with_aaid!(icn)
         if icn.present?
-          "#{icn}#{AAID}"
+          "#{icn}#{Identity::Parsers::GCIdsConstants::ICN_ASSIGNING_AUTHORITY_ID}"
         elsif @user&.icn_with_aaid.present?
           @user.icn_with_aaid
         else

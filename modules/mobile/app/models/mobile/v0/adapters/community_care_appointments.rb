@@ -54,7 +54,8 @@ module Mobile
             start_date_local: start_date_local,
             start_date_utc: start_date_utc,
             status: BOOKED_STATUS,
-            time_zone: time_zone
+            time_zone: time_zone,
+            vetext_id: nil
           }
         end
 

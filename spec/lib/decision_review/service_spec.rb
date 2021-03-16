@@ -46,6 +46,21 @@ describe DecisionReview::Service do
     end
   end
 
+  describe '#create_higher_level_review_headers' do
+    subject { described_class.new.send(:create_higher_level_review_headers, user) }
+
+    let(:user) do
+      name = 'x' * 100
+      build :user, first_name: name, middle_name: name, last_name: name
+    end
+
+    it 'returns a properly formatted 200 response' do
+      expect(subject['X-VA-First-Name']).to eq 'x' * 12
+      expect(subject['X-VA-Middle-Initial']).to eq 'x'
+      expect(subject['X-VA-Last-Name']).to eq 'x' * 18
+    end
+  end
+
   describe '#create_higher_level_review' do
     subject { described_class.new.create_higher_level_review(request_body: body.to_json, user: user) }
 

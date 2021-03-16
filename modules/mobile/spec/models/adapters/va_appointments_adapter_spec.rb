@@ -30,8 +30,8 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_va[:id]).to eq('202006031600983000030800000000000000')
     end
 
-    it 'has a cancel id of the cancel params' do
-      expect(booked_va[:cancel_id]).to eq('MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=')
+    it 'has a cancel id of the encoded cancel params' do
+      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=')
     end
 
     it 'has a type of VA' do
@@ -87,6 +87,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has a time zone' do
       expect(booked_va[:time_zone]).to eq('America/Denver')
+    end
+
+    it 'has a vetext id' do
+      expect(booked_va[:vetext_id]).to eq('308;20201103.090000')
     end
   end
 

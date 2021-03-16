@@ -5,6 +5,17 @@ require 'rails_helper'
 describe HealthQuest::QuestionnaireManager::Transformer do
   subject { described_class }
 
+  let(:default_options) do
+    {
+      lighthouse_appointments: [],
+      locations: [],
+      organizations: [],
+      questionnaires: [],
+      questionnaire_responses: [],
+      save_in_progress: []
+    }
+  end
+
   describe '.manufacture' do
     before do
       allow_any_instance_of(subject).to receive(:questionnaires_with_facility_clinic_id).and_return({})
@@ -13,7 +24,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
     end
 
     it 'is an instance of the subject' do
-      expect(subject.manufacture({})).to be_an_instance_of(described_class)
+      expect(subject.manufacture(default_options)).to be_an_instance_of(described_class)
     end
   end
 
@@ -25,31 +36,39 @@ describe HealthQuest::QuestionnaireManager::Transformer do
     end
 
     it 'responds to appointments' do
-      expect(subject.manufacture({}).respond_to?(:appointments)).to be(true)
+      expect(subject.manufacture(default_options).respond_to?(:appointments)).to be(true)
+    end
+
+    it 'responds to locations' do
+      expect(subject.manufacture(default_options).respond_to?(:locations)).to be(true)
+    end
+
+    it 'responds to organizations' do
+      expect(subject.manufacture(default_options).respond_to?(:organizations)).to be(true)
     end
 
     it 'responds to questionnaires' do
-      expect(subject.manufacture({}).respond_to?(:questionnaires)).to be(true)
+      expect(subject.manufacture(default_options).respond_to?(:questionnaires)).to be(true)
     end
 
     it 'responds to questionnaire_responses' do
-      expect(subject.manufacture({}).respond_to?(:questionnaire_responses)).to be(true)
+      expect(subject.manufacture(default_options).respond_to?(:questionnaire_responses)).to be(true)
     end
 
     it 'responds to save_in_progress' do
-      expect(subject.manufacture({}).respond_to?(:save_in_progress)).to be(true)
+      expect(subject.manufacture(default_options).respond_to?(:save_in_progress)).to be(true)
     end
 
     it 'responds to hashed_questionnaires' do
-      expect(subject.manufacture({}).respond_to?(:hashed_questionnaires)).to be(true)
+      expect(subject.manufacture(default_options).respond_to?(:hashed_questionnaires)).to be(true)
     end
 
     it 'responds to hashed_questionnaire_responses' do
-      expect(subject.manufacture({}).respond_to?(:hashed_questionnaire_responses)).to be(true)
+      expect(subject.manufacture(default_options).respond_to?(:hashed_questionnaire_responses)).to be(true)
     end
 
     it 'responds to hashed_save_in_progress' do
-      expect(subject.manufacture({}).respond_to?(:hashed_save_in_progress)).to be(true)
+      expect(subject.manufacture(default_options).respond_to?(:hashed_save_in_progress)).to be(true)
     end
   end
 
@@ -58,24 +77,24 @@ describe HealthQuest::QuestionnaireManager::Transformer do
       [
         OpenStruct.new(
           id: 1,
-          form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000_abc-123-def-455'
+          form_id: 'HC-QSTNR_I2-SLRRT64GFG_abc-123-def-455'
         ),
         OpenStruct.new(
           id: 2,
-          form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000_ccc-123-ddd-455'
+          form_id: 'HC-QSTNR_I2-SLRRT64GFG_ccc-123-ddd-455'
         )
       ]
     end
     let(:formatted_hash) do
       {
-        'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000' => [
+        'I2-SLRRT64GFG' => [
           OpenStruct.new(
             id: 1,
-            form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000_abc-123-def-455'
+            form_id: 'HC-QSTNR_I2-SLRRT64GFG_abc-123-def-455'
           ),
           OpenStruct.new(
             id: 2,
-            form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000_ccc-123-ddd-455'
+            form_id: 'HC-QSTNR_I2-SLRRT64GFG_ccc-123-ddd-455'
           )
         ]
       }
@@ -87,34 +106,24 @@ describe HealthQuest::QuestionnaireManager::Transformer do
     end
 
     it 'returns a hash' do
-      expect(subject.manufacture(save_in_progress: sip_data).hashed_save_in_progress).to eq(formatted_hash)
+      expect(subject.manufacture(default_options.merge(save_in_progress: sip_data)).hashed_save_in_progress)
+        .to eq(formatted_hash)
     end
   end
 
   describe '#hashed_questionnaire_responses' do
+    let(:reference) { OpenStruct.new(reference: 'Appointment/I2-SLRRT64GFG') }
     let(:questionnaire_responses_data) do
       [
-        OpenStruct.new(
-          id: 1,
-          subject: OpenStruct.new(reference: 'Appointment/I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB')
-        ),
-        OpenStruct.new(
-          id: 2,
-          subject: OpenStruct.new(reference: 'Appointment/I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB')
-        )
+        OpenStruct.new(id: 1, resource: OpenStruct.new(subject: reference)),
+        OpenStruct.new(id: 2, resource: OpenStruct.new(subject: reference))
       ]
     end
     let(:formatted_hash) do
       {
-        'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB' => [
-          OpenStruct.new(
-            id: 1,
-            subject: OpenStruct.new(reference: 'Appointment/I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB')
-          ),
-          OpenStruct.new(
-            id: 2,
-            subject: OpenStruct.new(reference: 'Appointment/I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB')
-          )
+        'I2-SLRRT64GFG' => [
+          OpenStruct.new(id: 1, resource: OpenStruct.new(subject: reference)),
+          OpenStruct.new(id: 2, resource: OpenStruct.new(subject: reference))
         ]
       }
     end
@@ -125,8 +134,8 @@ describe HealthQuest::QuestionnaireManager::Transformer do
     end
 
     it 'returns a hash' do
-      expect(subject.manufacture(questionnaire_responses: questionnaire_responses_data).hashed_questionnaire_responses)
-        .to eq(formatted_hash)
+      expect(subject.manufacture(default_options.merge(questionnaire_responses: questionnaire_responses_data))
+        .hashed_questionnaire_responses).to eq(formatted_hash)
     end
   end
 
@@ -136,30 +145,30 @@ describe HealthQuest::QuestionnaireManager::Transformer do
         OpenStruct.new(
           id: 1,
           to_hash: { 'resource' => { 'useContext' => [{
-            'valueCodeableConcept' => { 'coding' => [{ 'code' => '123/45678' }] }
+            'valueCodeableConcept' => { 'coding' => [{ 'code' => 'vha_442_3049' }] }
           }] } }
         ),
         OpenStruct.new(
           id: 2,
           to_hash: { 'resource' => { 'useContext' => [{
-            'valueCodeableConcept' => { 'coding' => [{ 'code' => '123/45678' }] }
+            'valueCodeableConcept' => { 'coding' => [{ 'code' => 'vha_442_3049' }] }
           }] } }
         )
       ]
     end
     let(:formatted_hash) do
       {
-        '123/45678' => [
+        'vha_442_3049' => [
           OpenStruct.new(
             id: 1,
             to_hash: { 'resource' => { 'useContext' => [{
-              'valueCodeableConcept' => { 'coding' => [{ 'code' => '123/45678' }] }
+              'valueCodeableConcept' => { 'coding' => [{ 'code' => 'vha_442_3049' }] }
             }] } }
           ),
           OpenStruct.new(
             id: 2,
             to_hash: { 'resource' => { 'useContext' => [{
-              'valueCodeableConcept' => { 'coding' => [{ 'code' => '123/45678' }] }
+              'valueCodeableConcept' => { 'coding' => [{ 'code' => 'vha_442_3049' }] }
             }] } }
           )
         ]
@@ -172,79 +181,101 @@ describe HealthQuest::QuestionnaireManager::Transformer do
     end
 
     it 'returns a hash' do
-      expect(subject.manufacture(questionnaires: questionnaire_data).hashed_questionnaires).to eq(formatted_hash)
+      expect(subject.manufacture(default_options.merge(questionnaires: questionnaire_data)).hashed_questionnaires)
+        .to eq(formatted_hash)
     end
   end
 
   describe '#combine' do
-    let(:data) do
+    let(:appointments) do
       [
         double(
           'Appointments',
-          id: 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
-          facility_id: '534',
-          clinic_id: '12975',
-          to_h: { id: 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
-                  attributes: { facility_id: '534', clinic_id: '12975' } }
-        ),
-        double(
-          'Appointments',
-          id: 'I2-DDRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
-          facility_id: '789',
-          clinic_id: '98741',
-          to_h: { id: 'I2-DDRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ000',
-                  attributes: { facility_id: '789', clinic_id: '98741' } }
+          id: 'I2-SLRRT64GFG',
+          resource: double('Resource',
+                           participant: [double('first', actor: double('ref', reference: '/L/I2-LABC'))],
+                           to_hash: { id: 'I2-SLRRT64GFG' })
         )
       ]
     end
-    let(:questions_hash) do
+    let(:hashed_locations) do
       {
-        '534/12975' => [
+        'I2-LABC' => double(
+          'Location',
+          resource: double('Resource',
+                           identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                           to_hash: { id: 'I2-LABC' })
+        )
+      }
+    end
+    let(:hashed_organizations) do
+      {
+        'vha_442' => double(
+          'Organization',
+          resource: double('Resource', to_hash: { id: 'vha_442' })
+        )
+      }
+    end
+    let(:hashed_questionnaires) do
+      {
+        'vha_442_3049' => [
           double('Questionnaire', resource: double('Resource', id: 'abc-123-def-455', title: 'Primary Care'))
         ]
       }
+    end
+    let(:base_questionnaire_manager) do
+      {
+        appointment: {
+          id: 'I2-SLRRT64GFG'
+        },
+        organization: {
+          id: 'vha_442'
+        },
+        location: {
+          id: 'I2-LABC'
+        }
+      }
+    end
+
+    before do
+      allow_any_instance_of(subject).to receive(:appointments).and_return(appointments)
+      allow_any_instance_of(subject).to receive(:locations_with_id).and_return(hashed_locations)
+      allow_any_instance_of(subject).to receive(:organizations_by_facility_ids).and_return(hashed_organizations)
+      allow_any_instance_of(subject).to receive(:questionnaires_with_facility_clinic_id)
+        .and_return(hashed_questionnaires)
     end
 
     context 'when no sip and no questionnaire response data' do
       let(:response) do
         {
           data: [
-            {
-              appointment: {
-                id: 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
-                attributes: {
-                  facility_id: '534',
-                  clinic_id: '12975'
-                }
-              },
+            base_questionnaire_manager.merge(
               questionnaire: [
                 {
                   id: 'abc-123-def-455',
                   title: 'Primary Care',
-                  questionnaire_response: {}
+                  questionnaire_response: []
                 }
               ]
-            }
+            ).with_indifferent_access
           ]
         }
       end
 
       before do
-        allow_any_instance_of(subject).to receive(:appointments).and_return(data)
-        allow_any_instance_of(subject).to receive(:questionnaires_with_facility_clinic_id).and_return(questions_hash)
         allow_any_instance_of(subject).to receive(:questionnaire_responses_with_appointment_id).and_return({})
         allow_any_instance_of(subject).to receive(:sip_with_appointment_id).and_return({})
       end
 
       it 'returns appointment with questionnaire and empty questionnaire response' do
-        expect(subject.manufacture({}).combine).to eq(response)
+        expect(subject.manufacture(default_options).combine).to eq(response)
       end
     end
 
     context 'when questionnaire response data and no sip' do
       let(:questionnaire_response_hash) do
         {
-          'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000' => [
+          'I2-SLRRT64GFG' => [
             double(
               'QuestionnaireResponse',
               resource: double('Resource',
@@ -267,95 +298,79 @@ describe HealthQuest::QuestionnaireManager::Transformer do
       let(:response) do
         {
           data: [
-            {
-              appointment: {
-                id: 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
-                attributes: {
-                  facility_id: '534',
-                  clinic_id: '12975'
-                }
-              },
+            base_questionnaire_manager.merge(
               questionnaire: [
                 {
                   id: 'abc-123-def-455',
                   title: 'Primary Care',
-                  questionnaire_response: {
-                    id: 'abc-123-def-455',
-                    status: 'completed',
-                    submitted_on: '2021-02-01'
-                  }
+                  questionnaire_response: [
+                    {
+                      id: 'abc-123-def-455',
+                      status: 'completed',
+                      submitted_on: '2021-02-01'
+                    }
+                  ]
                 }
               ]
-            }
+            ).with_indifferent_access
           ]
         }
       end
 
       before do
-        allow_any_instance_of(subject).to receive(:appointments).and_return(data)
-        allow_any_instance_of(subject).to receive(:questionnaires_with_facility_clinic_id).and_return(questions_hash)
         allow_any_instance_of(subject).to receive(:questionnaire_responses_with_appointment_id)
           .and_return(questionnaire_response_hash)
         allow_any_instance_of(subject).to receive(:sip_with_appointment_id).and_return({})
       end
 
       it 'returns appointment with questionnaire and matching questionnaire response' do
-        expect(subject.manufacture({}).combine).to eq(response)
+        expect(subject.manufacture(default_options).combine).to eq(response)
       end
     end
 
     context 'when sip and no questionnaire response data' do
       let(:sip_hash) do
         {
-          'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000' => [
-            double('SaveInProgress',
-                   form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000_abc-123-def-455'),
-            double('SaveInProgress',
-                   form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000_ccc-123-ddd-455')
+          'I2-SLRRT64GFG' => [
+            double('SaveInProgress', form_id: 'HC-QSTNR_I2-SLRRT64GFG_abc-123-def-455')
           ]
         }
       end
       let(:response) do
         {
           data: [
-            {
-              appointment: {
-                id: 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
-                attributes: {
-                  facility_id: '534',
-                  clinic_id: '12975'
-                }
-              },
+            base_questionnaire_manager.merge(
               questionnaire: [
                 {
                   id: 'abc-123-def-455',
                   title: 'Primary Care',
-                  questionnaire_response: {
-                    status: 'in-progress'
-                  }
+                  questionnaire_response: [
+                    {
+                      form_id: 'HC-QSTNR_I2-SLRRT64GFG_abc-123-def-455',
+                      status: 'in-progress'
+                    }
+                  ]
                 }
               ]
-            }
+            ).with_indifferent_access
           ]
         }
       end
 
       before do
-        allow_any_instance_of(subject).to receive(:appointments).and_return(data)
-        allow_any_instance_of(subject).to receive(:questionnaires_with_facility_clinic_id).and_return(questions_hash)
         allow_any_instance_of(subject).to receive(:questionnaire_responses_with_appointment_id).and_return({})
         allow_any_instance_of(subject).to receive(:sip_with_appointment_id).and_return(sip_hash)
       end
 
       it 'returns appointment with questionnaire and matching questionnaire response' do
-        expect(subject.manufacture({}).combine).to eq(response)
+        expect(subject.manufacture(default_options).combine).to eq(response)
       end
     end
 
     context 'when questionnaire response and sip data' do
-      let(:questions_hash) do
+      let(:hashed_questionnaires) do
         {
-          '534/12975' => [
+          'vha_442_3049' => [
             double('Questionnaire', resource: double('Resource', id: 'abc-123-def-455', title: 'Primary Care')),
             double('Questionnaire', resource: double('Resource', id: 'ccc-123-ddd-455', title: 'Donut Intake'))
           ]
@@ -363,7 +378,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
       end
       let(:questionnaire_response_hash) do
         {
-          'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000' => [
+          'I2-SLRRT64GFG' => [
             double(
               'QuestionnaireResponse',
               resource: double('Resource',
@@ -377,56 +392,52 @@ describe HealthQuest::QuestionnaireManager::Transformer do
       end
       let(:sip_hash) do
         {
-          'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000' => [
+          'I2-SLRRT64GFG' => [
             double('SaveInProgress',
-                   form_id: 'HC-QSTNR_I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000_ccc-123-ddd-455')
+                   form_id: 'HC-QSTNR_I2-SLRRT64GFG_ccc-123-ddd-455')
           ]
         }
       end
       let(:response) do
         {
           data: [
-            {
-              appointment: {
-                id: 'I2-SLRRT64GFGJAJGX62Q55NSQV44VEE4ZBB7U7YZQVVGKJGQ4653IQ0000',
-                attributes: {
-                  facility_id: '534',
-                  clinic_id: '12975'
-                }
-              },
+            base_questionnaire_manager.merge(
               questionnaire: [
                 {
                   id: 'abc-123-def-455',
                   title: 'Primary Care',
-                  questionnaire_response: {
-                    id: 'abc-123-def-455',
-                    status: 'completed',
-                    submitted_on: '2021-02-01'
-                  }
+                  questionnaire_response: [
+                    {
+                      id: 'abc-123-def-455',
+                      status: 'completed',
+                      submitted_on: '2021-02-01'
+                    }
+                  ]
                 },
                 {
                   id: 'ccc-123-ddd-455',
                   title: 'Donut Intake',
-                  questionnaire_response: {
-                    status: 'in-progress'
-                  }
+                  questionnaire_response: [
+                    {
+                      form_id: 'HC-QSTNR_I2-SLRRT64GFG_ccc-123-ddd-455',
+                      status: 'in-progress'
+                    }
+                  ]
                 }
               ]
-            }
+            ).with_indifferent_access
           ]
         }
       end
 
       before do
-        allow_any_instance_of(subject).to receive(:appointments).and_return(data)
-        allow_any_instance_of(subject).to receive(:questionnaires_with_facility_clinic_id).and_return(questions_hash)
         allow_any_instance_of(subject).to receive(:questionnaire_responses_with_appointment_id)
           .and_return(questionnaire_response_hash)
         allow_any_instance_of(subject).to receive(:sip_with_appointment_id).and_return(sip_hash)
       end
 
       it 'returns appointment with questionnaire and matching questionnaire response' do
-        expect(subject.manufacture({}).combine).to eq(response)
+        expect(subject.manufacture(default_options).combine).to eq(response)
       end
     end
   end

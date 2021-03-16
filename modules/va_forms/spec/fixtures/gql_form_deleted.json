@@ -79,6 +79,11 @@
       }
     }
   ],
+  "fieldVaFormAdministration": {
+    "entity": {
+      "entityLabel": "Veterans Benefits Administration"
+    }
+  },
   "fieldVaFormRevisionDate": {
     "value": "2018-08-22",
     "date": "2018-08-22 12:00:00 UTC"

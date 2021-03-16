@@ -86,9 +86,10 @@ module DecisionReview
 
       {
         'X-VA-SSN' => user.ssn.to_s,
-        'X-VA-First-Name' => user.first_name.to_s,
-        'X-VA-Middle-Initial' => user.middle_name.presence&.first&.to_s,
-        'X-VA-Last-Name' => user.last_name.to_s,
+        'X-VA-First-Name' => user.first_name.to_s.first(12),
+        # middle_name can return either a string or an array (hence the strange chain)
+        'X-VA-Middle-Initial' => user.middle_name.presence&.first&.to_s&.first,
+        'X-VA-Last-Name' => user.last_name.to_s.first(18),
         'X-VA-Birth-Date' => user.birth_date.to_s,
         'X-VA-File-Number' => nil,
         'X-VA-Service-Number' => nil,

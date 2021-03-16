@@ -103,7 +103,7 @@ RSpec.describe 'appointments', type: :request do
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'VA',
-                'cancelId' => 'MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
                 'comment' => nil,
                 'healthcareService' => 'CHY PC KILPATRICK',
                 'location' => {
@@ -128,7 +128,8 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
                 'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
                 'status' => 'BOOKED',
-                'timeZone' => 'America/Denver'
+                'timeZone' => 'America/Denver',
+                'vetextId' => '308;20201103.090000'
               }
             }
           )
@@ -170,7 +171,8 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-01T22:30:00.000-05:00',
                 'startDateUtc' => '2020-11-02T03:30:00.000Z',
                 'status' => 'BOOKED',
-                'timeZone' => 'America/New_York'
+                'timeZone' => 'America/New_York',
+                'vetextId' => nil
               }
             }
           )
@@ -323,7 +325,7 @@ RSpec.describe 'appointments', type: :request do
           options = { meta: { errors: nil } }
           json = Mobile::V0::AppointmentSerializer.new(appointments, options).serialized_json
 
-          Mobile::V0::Appointment.set_cached_appointments(user, json)
+          Mobile::V0::Appointment.set_cached(user, json)
         end
 
         after { Timecop.return }
@@ -331,12 +333,6 @@ RSpec.describe 'appointments', type: :request do
         it 'retrieves the cached appointments rather than hitting the service' do
           expect_any_instance_of(Mobile::V0::Appointments::Proxy).not_to receive(:get_appointments)
           get '/mobile/v0/appointments', headers: iam_headers, params: params
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'clears the cache' do
-          get '/mobile/v0/appointments', headers: iam_headers, params: params
-          expect(Mobile::V0::Appointment.get_cached_appointments(user)).to be_nil
           expect(response).to have_http_status(:ok)
         end
       end
@@ -362,7 +358,7 @@ RSpec.describe 'appointments', type: :request do
 
     context 'with valid params' do
       let(:cancel_id) do
-        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+        Mobile::V0::Appointment.encode_cancel_id(
           start_date_local: DateTime.parse('2019-11-15T13:00:00'),
           clinic_id: '437',
           facility_id: '983',
@@ -412,7 +408,7 @@ RSpec.describe 'appointments', type: :request do
 
     context 'when appointment can be cancelled' do
       let(:cancel_id) do
-        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+        Mobile::V0::Appointment.encode_cancel_id(
           start_date_local: DateTime.parse('2019-11-15T13:00:00'),
           clinic_id: '437',
           facility_id: '983',
@@ -433,7 +429,7 @@ RSpec.describe 'appointments', type: :request do
 
       context 'when appointment can be cancelled but fails' do
         let(:cancel_id) do
-          Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+          Mobile::V0::Appointment.encode_cancel_id(
             start_date_local: DateTime.parse('2019-11-20T17:00:00'),
             clinic_id: '437',
             facility_id: '983',

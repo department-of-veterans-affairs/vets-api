@@ -26,6 +26,7 @@ module BGSDependents
     attribute :ssn, String
     attribute :birth_date, String
     attribute :ever_married_ind, String
+    attribute :dependent_income, String
 
     validates :first, presence: true
     validates :last, presence: true
@@ -36,6 +37,7 @@ module BGSDependents
       @full_name = @dependents_application['student_name_and_ssn']['full_name']
       @birth_date = @dependents_application.dig('student_name_and_ssn', 'birth_date')
       @was_married = @dependents_application['student_address_marriage_tuition']['was_married']
+      @dependent_income = @dependents_application['student_name_and_ssn']['dependent_income']
 
       self.attributes = described_class_attribute_hash
     end
@@ -64,7 +66,8 @@ module BGSDependents
       {
         ssn: @ssn,
         birth_date: @birth_date,
-        ever_married_ind: @was_married == true ? 'Y' : 'N'
+        ever_married_ind: formatted_boolean(@was_married),
+        dependent_income: formatted_boolean(@dependent_income)
       }.merge(@full_name)
     end
   end

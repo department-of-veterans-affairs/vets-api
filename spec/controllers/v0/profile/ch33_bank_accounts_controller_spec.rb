@@ -25,6 +25,12 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
       expect_unauthorized
     end
 
+    context 'with a non multifactor user' do
+      let(:user) { build(:user, :loa3) }
+
+      expect_unauthorized
+    end
+
     context 'with a flipper disabled user' do
       before do
         allow(User).to receive(:find).with(user.uuid).and_return(user)
