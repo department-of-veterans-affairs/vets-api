@@ -29,7 +29,7 @@ RSpec.describe 'push send', type: :request do
       end
     end
 
-    context 'with with invalid endpointSid' do
+    context 'with invalid endpointSid' do
       let(:params) do
         {
             endpointSid: "8c258cbe573c462f912e7dd74585a5a9",
@@ -40,10 +40,30 @@ RSpec.describe 'push send', type: :request do
             }
         }
       end
-      it 'returns 200 and empty json' do
+      it 'returns bad request and error' do
         VCR.use_cassette('vetext/send_bad_request') do
           post '/mobile/v0/push/send', headers: iam_headers, params: params
           expect(response).to have_http_status(:bad_request)
+          expect(response.body).to match_json_schema('errors')
+        end
+      end
+    end
+
+    context 'when causing vetext internal server error ' do
+      let(:params) do
+        {
+            endpointSid: "8c258cbe573c462f912e7dd74585a5a9",
+            templateId: "0EF7C8C9390847D7B3B521426EFF5814",
+            personalization: {
+                "%APPOINTMENT_DATE%": "DEC 14",
+                "%APPOINTMENT_TIME%": "10:00"
+            }
+        }
+      end
+      it 'returns bad gateway and error' do
+        VCR.use_cassette('vetext/send_internal_server_error') do
+          post '/mobile/v0/push/send', headers: iam_headers, params: params
+          expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('errors')
         end
       end

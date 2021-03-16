@@ -24,17 +24,34 @@ RSpec.describe 'push send', type: :request do
         end
       end
     end
-    context 'with with valid request body' do
+
+    context 'when preference is not found' do
       let(:params) do
         {
             preference: "claim_status_updates",
             enabled: true
         }
       end
-      it 'returns 200 and empty json' do
+      it 'returns bad request and error' do
         VCR.use_cassette('vetext/set_preferences_bad_request') do
           put '/mobile/v0/push/prefs/bad_id', headers: iam_headers, params: params
           expect(response).to have_http_status(:bad_request)
+          expect(response.body).to match_json_schema('errors')
+        end
+      end
+    end
+
+    context 'when causing vetext internal server error' do
+      let(:params) do
+        {
+            preference: "claim_status_updates",
+            enabled: true
+        }
+      end
+      it 'returns bad gateway and error' do
+        VCR.use_cassette('vetext/set_preferences_internal_server_error') do
+          put '/mobile/v0/push/prefs/bad_id', headers: iam_headers, params: params
+          expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('errors')
         end
       end
