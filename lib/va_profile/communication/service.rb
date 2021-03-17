@@ -8,7 +8,7 @@ module VAProfile
       configuration VAProfile::Communication::Configuration
 
       def communication_items
-        perform(:get, 'communication-items')
+        VAProfile::Models::CommunicationItemGroup.create_groups(perform(:get, 'communication-items').body)
       end
     end
   end
