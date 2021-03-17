@@ -36,6 +36,8 @@ module EVSS
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           service = service(submission.auth_headers)
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+          submission.mark_birls_id_as_tried!
+byebug
           response_handler(response)
         end
       rescue Common::Exceptions::BackendServiceException,

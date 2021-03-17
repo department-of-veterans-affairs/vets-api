@@ -64,9 +64,6 @@ class Form526Submission < ApplicationRecord
       EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(id)
     end
 
-    mark_birls_id_as_tried
-    save!
-
     jids.first
   end
 
@@ -82,7 +79,6 @@ class Form526Submission < ApplicationRecord
     extra_content_for_sentry: {},
     silence_errors_and_log_to_sentry: false
   )
-
     untried_birls_id = birls_ids_that_havent_been_tried_yet.first
     return unless untried_birls_id
 
@@ -172,6 +168,12 @@ class Form526Submission < ApplicationRecord
     hash = birls_ids_tried_hash
     hash[ids.first] << timestamp_string
     self.birls_ids_tried = hash.to_json
+    timestamp_string
+  end
+
+  def mark_birls_id_as_tried!(*args, **kwargs)
+    timestamp_string = mark_birls_id_as_tried(*args, **kwargs)
+    save!
     timestamp_string
   end
 
