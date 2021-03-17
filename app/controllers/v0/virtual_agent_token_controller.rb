@@ -4,6 +4,9 @@ module V0
   class VirtualAgentTokenController < ApplicationController
     skip_before_action :authenticate, only: [:create]
 
+    rescue_from 'V0::VirtualAgentTokenController::ServiceException', with: :service_exception_handler
+    rescue_from Net::HTTPError, with: :service_exception_handler
+
     def create
       render json: { token: fetch_connector_token }
     end
@@ -39,5 +42,11 @@ module V0
     def bearer_token
       @bearer_token ||= 'Bearer ' + Settings.virtual_agent.webchat_secret
     end
+
+    def service_exception_handler
+      render nothing: true, status: :service_unavailable
+    end
+
+    class ServiceException < RuntimeError; end
   end
 end

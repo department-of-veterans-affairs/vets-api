@@ -20,12 +20,22 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
       it 'returns a token' do
         VCR.use_cassette('virtual_agent/webchat_token') do
           post :create
-
-          expect(response).to have_http_status(:ok)
-
-          res = JSON.parse(response.body)
-          expect(res['token']).to eq(recorded_token)
         end
+
+        expect(response).to have_http_status(:ok)
+
+        res = JSON.parse(response.body)
+        expect(res['token']).to eq(recorded_token)
+      end
+    end
+
+    context 'when external service is unavailable' do
+      it 'returns service unavailable' do
+        VCR.use_cassette('virtual_agent/webchat_error') do
+          post :create
+        end
+
+        expect(response).to have_http_status(:service_unavailable)
       end
     end
   end
