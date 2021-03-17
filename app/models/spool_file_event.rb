@@ -1,5 +1,6 @@
 class SpoolFileEvent < ApplicationRecord
   validates(:rpo, inclusion: EducationForm::EducationFacility::FACILITY_IDS.values)
+  validates_uniqueness_of :filename, scope: [:rpo, :filename]
 
   # Look for an existing row with same filename and RPO
   # and increase retry attempt if wasn't successful from previous attempt
@@ -11,7 +12,6 @@ class SpoolFileEvent < ApplicationRecord
       return event
     end
 
-    binding.pry
     SpoolFileEvent.create(rpo: rpo, filename: filename)
   end
 end
