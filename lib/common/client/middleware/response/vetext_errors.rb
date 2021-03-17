@@ -15,7 +15,7 @@ module Common
             when 500..599
               raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_502', {}, env.status)
             else
-              raise env
+              raise 'Unexpected VEText Error'
             end
           end
         end
