@@ -54,16 +54,15 @@ module VBADocuments
             key :enum, %i[CMP PMC INS EDU VRE BVA FID OTH]
             key :description,
                 <<~DESCRIPTION
-                  Optional parameter (can be missing or empty).  The values are:<br>
-                  CMP - Compensation requests such as those related to disability, unemployment, and pandemic claims<br>
-                  PMC - Pension requests including survivor’s pension<br>
-                  INS - Insurance such as life insurance, disability insurance, and other health insurance<br>
-                  EDU - Education benefits, programs, and affiliations<br>
-                  VRE – Veteran Readiness & Employment such as employment questionnaires, employment discrimination, employment verification<br>
-                  BVA – Board of Veteran Appeals<br>
+                  Optional parameter (can be missing or empty).  The values are:<br><br>
+                  CMP - Compensation requests such as those related to disability, unemployment, and pandemic claims<br><br>
+                  PMC - Pension requests including survivor’s pension<br><br>
+                  INS - Insurance such as life insurance, disability insurance, and other health insurance<br><br>
+                  EDU - Education benefits, programs, and affiliations<br><br>
+                  VRE - Veteran Readiness & Employment such as employment questionnaires, employment discrimination, employment verification<br><br>
+                  BVA - Board of Veteran Appeals<br><br>
                   FID - Fiduciary / financial appointee, including family member benefits<br><br>
-                  Future values (These values, if used, will be treated as CMP.):<br>
-                  OTH – Other (this value if used, will be treated as CMP)<br>
+                  OTH - Other (this value if used, will be treated as CMP)<br>
                 DESCRIPTION
           end
         end
