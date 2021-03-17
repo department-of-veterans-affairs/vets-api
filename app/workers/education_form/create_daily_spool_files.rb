@@ -85,7 +85,6 @@ module EducationForm
         if spool_file_event.successful_at.present?
           log_info("Spool file #{filename} already created for #{region_id} for this run period")
         else
-
           log_submissions(records, filename)
           # create the single textual spool file
           contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
@@ -99,7 +98,12 @@ module EducationForm
             records.each { |r| r.record.update(processed_at: Time.zone.now) }
             spool_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
           rescue => e
-            exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{e}")
+            attempt_msg = if spool_file_event.retry_attempt.zero?
+                            'initial attempt'
+                          else
+                            "attempt #{spool_file_event.retry_attempt}"
+                          end
+            exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
             log_exception_to_sentry(exception)
             next
           end
