@@ -161,9 +161,15 @@ module VBADocuments
       from = @current_status
       to = status
       time = Time.now.to_i
-      metadata['status'][from]['end'] = time
-      metadata['status'][to] ||= {}
-      metadata['status'][to]['start'] = time
+      if metadata.has_key? 'status'
+        metadata['status'][from]['end'] = time
+        metadata['status'][to] ||= {}
+        metadata['status'][to]['start'] = time
+      else
+        metadata['status'] = {}
+        metadata['status'][to] = {}
+        metadata['status'][to]['start'] = time
+      end
       @current_status = to
     end
   end
