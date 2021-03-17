@@ -6,6 +6,8 @@ module VAOS
     # Faraday middleware that logs various semantically relevant attributes needed for debugging and audit purposes
     #
     class VAOSLogging < Faraday::Middleware
+      STATSD_KEY_PREFIX = 'api.vaos.va_mobile.response'
+
       def initialize(app)
         super(app)
       end
@@ -23,26 +25,48 @@ module VAOS
       # @param env [Faraday::Env] the request/response tree
       # @return [Faraday::Env]
       def call(env)
+        statsd_increment("#{STATSD_KEY_PREFIX}.total", env)
         start_time = Time.current
 
         @app.call(env).on_complete do |response_env|
-          log_tags = {
-            jti: jti(env),
-            status: response_env.status,
-            duration: Time.current - start_time,
-            # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
-            url: "(#{env.method.upcase}) #{env.url}"
-          }
-
           if response_env.status.between?(200, 299)
-            log(:info, 'VAOS service call succeeded!', log_tags)
+            log(:info, 'VAOS service call succeeded!', log_tags(env, start_time, response_env))
           else
-            log(:warn, 'VAOS service call failed!', log_tags)
+            statsd_increment("#{STATSD_KEY_PREFIX}.fail", env)
+            log(:warn, 'VAOS service call failed!', log_tags(env, start_time, response_env))
           end
         end
+      rescue Timeout::Error, Faraday::TimeoutError => e
+        statsd_increment("#{STATSD_KEY_PREFIX}.fail", env, e)
+        log(:warn, "VAOS service call failed - #{e.message}", log_tags(env, start_time))
+        raise
+      rescue Faraday::ConnectionFailed => e
+        statsd_increment("#{STATSD_KEY_PREFIX}.fail", env, e)
+        log(:warn, "VAOS service call failed - #{e.message}", log_tags(env, start_time))
+        raise
       end
 
       private
+
+      def log_tags(env, start_time, response_env = nil)
+        {
+          jti: jti(env),
+          status: response_env&.status,
+          duration: Time.current - start_time,
+          # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
+          url: "(#{env.method.upcase}) #{env.url}"
+        }
+      end
+
+      def statsd_increment(key, env, error = nil)
+        StatsDMetric.new(key: key).save
+        tags = [
+          "method:#{env.method.upcase}",
+          "url:#{StringHelpers.filtered_endpoint_tag(env.url.path)}",
+          "http_status:#{error.present? ? error.class : env.status}"
+        ]
+        StatsD.increment(key, tags: tags)
+      end
 
       # #log invokes the Rails.logger
       #

@@ -32,9 +32,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with success' do
       it 'passes' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:200']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).not_to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(success) }.not_to raise_error
       end
     end
@@ -42,9 +39,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with 400 errors' do
       it 'raises a VAOS_400 BackendServiceException' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:400']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(env_400) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_400')
           expect(e.response_values[:detail]).to equal('body')
@@ -58,9 +52,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with a 403 error' do
       it 'raises VAOS_403 BackendServiceException' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:403']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(env_403) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_403')
           expect(e.response_values[:detail]).to equal('body')
@@ -74,9 +65,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with a 404 error' do
       it 'raises VAOS_404 BackendServiceException' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:404']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(env_404) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_404')
           expect(e.response_values[:detail]).to equal('body')
@@ -90,9 +78,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with 409 errors' do
       it 'raises a VAOS_409A BackendServiceException' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:409']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(env_409) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_409A')
           expect(e.response_values[:detail]).to equal('body')
@@ -106,9 +91,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with a 500..510 error' do
       it 'raises VAOS_502 error' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:500']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(env_500) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_502')
           expect(e.response_values[:detail]).to equal('body')
@@ -122,9 +104,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with all other errors' do
       it 'raises a VA900 error' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:600']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(env_other) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VA900')
           expect(e.response_values[:detail]).to equal('body')
@@ -138,9 +117,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with error' do
       it 'parses error message' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:400']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(env_with_error) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_400')
           expect(e.response_values[:detail]).to match('message')
@@ -151,9 +127,6 @@ describe VAOS::Middleware::Response::Errors do
     context 'with errors' do
       it 'parses error message' do
         err = VAOS::Middleware::Response::Errors.new
-        tags = ['method:GET', 'url:url', 'http_status:400']
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.total', tags: tags)
-        expect(StatsD).to receive(:increment).with('api.vaos.va_mobile.response.fail', tags: tags)
         expect { err.on_complete(env_with_errors) }.to raise_error(VAOS::Exceptions::BackendServiceException) { |e|
           expect(e.key).to equal('VAOS_400')
           expect(e.response_values[:detail]).to match('first')

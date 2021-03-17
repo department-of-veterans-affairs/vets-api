@@ -161,7 +161,10 @@ module VBADocuments
       from = @current_status
       to = status
       time = Time.now.to_i
-      metadata['status'][from]['end'] = time
+      # ensure that we have a current status. Old upload submissions may not have been run through the initializer
+      # so we are checking that here
+      metadata['status'][from]['end'] = time if metadata.key? 'status'
+      metadata['status'] ||= {}
       metadata['status'][to] ||= {}
       metadata['status'][to]['start'] = time
       @current_status = to

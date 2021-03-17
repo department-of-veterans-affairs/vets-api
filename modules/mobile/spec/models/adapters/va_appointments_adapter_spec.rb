@@ -373,20 +373,36 @@ describe Mobile::V0::Adapters::VAAppointments do
       subject.parse(JSON.parse(appointment_fixtures_missing_status, symbolize_names: true))[0]
     end
 
-    let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+    context 'with  past appointment' do
+      before { Timecop.freeze(Time.zone.parse('2021-01-13')) }
 
-    it 'includes a hidden status' do
-      expect(booked_va_hidden_status.to_hash).to include(
-        {
-          appointment_type: 'VA',
-          comment: 'Follow-up/Routine: sasdfasdf',
-          healthcare_service: 'FTC CPAP',
-          minutes_duration: 60,
-          start_date_local: DateTime.parse('2021-01-14 13:00:00.000 MST -07:00'),
-          start_date_utc: DateTime.parse('2021-01-14 20:00:00.000 +00:00 +00:00'),
-          status: 'HIDDEN'
-        }
-      )
+      after { Timecop.return }
+
+      let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+
+      it 'does not include a hidden status' do
+        expect(booked_va_hidden_status.to_hash).to include(
+          {
+            status: 'BOOKED'
+          }
+        )
+      end
+    end
+
+    context 'with a future appointment' do
+      before { Timecop.freeze(Time.zone.parse('2021-01-15')) }
+
+      after { Timecop.return }
+
+      let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+
+      it 'includes a hidden status' do
+        expect(booked_va_hidden_status.to_hash).to include(
+          {
+            status: 'HIDDEN'
+          }
+        )
+      end
     end
   end
 end
