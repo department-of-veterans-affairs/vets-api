@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_15_162119) do
+ActiveRecord::Schema.define(version: 2021_03_17_132241) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -317,8 +317,6 @@ ActiveRecord::Schema.define(version: 2021_03_15_162119) do
     t.string "encrypted_auth_headers_json"
     t.string "encrypted_auth_headers_json_iv"
     t.integer "remaining_entitlement"
-    t.datetime "denial_email_sent_at"
-    t.datetime "confirmation_email_sent_at"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -591,6 +589,16 @@ ActiveRecord::Schema.define(version: 2021_03_15_162119) do
     t.index ["user_uuid"], name: "index_session_activities_on_user_uuid"
   end
 
+  create_table "spool_file_events", force: :cascade do |t|
+    t.string "rpo"
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at"
+    t.integer "retry_attempt"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
     t.string "name"
     t.string "title"
@@ -682,7 +690,6 @@ ActiveRecord::Schema.define(version: 2021_03_15_162119) do
     t.uuid "consumer_id"
     t.json "uploaded_pdf"
     t.boolean "use_active_storage", default: false
-    t.jsonb "metadata", default: {}
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
