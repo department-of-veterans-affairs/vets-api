@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 class Form526Submission < ApplicationRecord
+  include SentryLogging
+
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
   #
@@ -61,6 +65,36 @@ class Form526Submission < ApplicationRecord
     end
 
     jids.first
+  end
+
+  # Runs the start method above but first looks to see if the veteran has BIRLS IDs that previous start
+  # attempts haven't used before (if so, swaps one of those into auth_headers).
+  # If all BIRLS IDs for a veteran have been tried, does nothing and returns nil.
+  # Note: this assumes that the current BIRLS ID has been used (that `start` has been attempted once).
+  #
+  # @return [String] the job id of the first job in the batch, i.e the 526 submit job
+  # @return [NilClass] all BIRLS IDs for the veteran have been tried
+  #
+  def start_but_use_a_birls_id_that_hasnt_been_tried_yet!(
+    extra_content_for_sentry: {},
+    silence_errors_and_log_to_sentry: false
+  )
+    untried_birls_id = birls_ids_that_havent_been_tried_yet.first
+    return unless untried_birls_id
+
+    self.birls_id = untried_birls_id
+    save!
+    start
+  rescue => e
+    # 1) why have the 'silence_errors_and_log_to_sentry' option? (why not rethrow the error?)
+    # This method is primarily intended to be triggered by a running Sidekiq job that has hit a dead end
+    # (exhausted, or non-retryable error). One of the places this method is called is inside a
+    # `sidekiq_retries_exhausted` block. It seems like the value of self for that block won't be the
+    # Sidekiq job instance (so no access to the log_exception_to_sentry method). Also, rethrowing the error
+    # (and letting it bubble up to Sidekiq) might trigger the current job to retry (which we don't want).
+    raise unless silence_errors_and_log_to_sentry
+
+    log_exception_to_sentry e, extra_content_for_sentry
   end
 
   def get_first_name
@@ -134,6 +168,12 @@ class Form526Submission < ApplicationRecord
     hash = birls_ids_tried_hash
     hash[ids.first] << timestamp_string
     self.birls_ids_tried = hash.to_json
+    timestamp_string
+  end
+
+  def mark_birls_id_as_tried!(*args, **kwargs)
+    timestamp_string = mark_birls_id_as_tried(*args, **kwargs)
+    save!
     timestamp_string
   end
 
