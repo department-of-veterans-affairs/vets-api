@@ -1967,12 +1967,29 @@ paths:
       security:
         - Bearer: []
       requestBody:
-        description: New message body
+        description: |
+          New message body.
+          
+          <strong>NOTES:</strong> 
+          <ul><li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
+          <li>Messages can only be replied to for 120 days.  After that, it is considered "expired"</li></ul>
         required: true
         content:
           application/json:
             schema:
               $ref: './schemas/SecureMessageNewMessageRequest.yml'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                uploads[]:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                message:
+                  type: string
+                  description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"category":"OTHER","recipient_id":1763526,"body":"test message"}')
       responses:
         '200':
           content:
@@ -2077,7 +2094,10 @@ paths:
   /v0/messaging/health/messages/{id}/reply:
     post:
       summary: /v0/messaging/health/messages/{id}/reply
-      description: Send reply to a secure message
+      description: |
+        Send reply to a secure message          
+        
+        <strong>NOTE:</strong> If including file attachments, this request must be sent as <i>multipart/form-data</i>
       operationId: post_create_message_reply
       security:
         - Bearer: []
@@ -2088,6 +2108,18 @@ paths:
           application/json:
             schema:
               $ref: './schemas/SecureMessageReplyRequest.yml'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                uploads[]:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                message:
+                  type: string
+                  description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"body":"test body with attachment"}')
       responses:
         '200':
           description: OK
