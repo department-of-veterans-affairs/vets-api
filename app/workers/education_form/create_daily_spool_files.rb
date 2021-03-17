@@ -80,20 +80,26 @@ module EducationForm
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = determine_filename(region_id)
-        log_submissions(records, filename)
-        # create the single textual spool file
-        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+        if spool_file_already_created?(region_id, filename)
+          log_info("#{filename} already created for #{region_id} for this run period")
+        else
 
-        begin
-          writer.write(contents, filename)
+          log_submissions(records, filename)
+          # create the single textual spool file
+          contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
-          # track and update the records as processed once the file has been successfully written
-          track_submissions(region_id)
-          records.each { |r| r.record.update(processed_at: Time.zone.now) }
-        rescue => e
-          exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{e}")
-          log_exception_to_sentry(exception)
-          next
+          begin
+            writer.write(contents, filename)
+
+            # track and update the records as processed once the file has been successfully written
+            track_submissions(region_id)
+            records.each { |r| r.record.update(processed_at: Time.zone.now) }
+            track_successful_spool_creation(region_id, filename, records.count)
+          rescue => e
+            exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{e}")
+            log_exception_to_sentry(exception)
+            next
+          end
         end
       end
     ensure
@@ -104,6 +110,12 @@ module EducationForm
     # If between run time and midnight filename should be current date    #
     def determine_filename(region_id)
       "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
+    end
+
+    def track_successful_spool_creation(region_id, filename, records_count)
+    end
+
+    def spool_file_already_created?(region_id, filename)
     end
 
     def format_application(data, rpo: 0)
