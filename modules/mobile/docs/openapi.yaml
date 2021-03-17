@@ -2136,7 +2136,6 @@ paths:
                   items:
                     type: string
                     format: binary
-                  description:
                 message:
                   type: string
                   description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"body":"test body with attachment"}')
