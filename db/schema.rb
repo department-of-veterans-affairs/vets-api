@@ -317,6 +317,8 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.string "encrypted_auth_headers_json"
     t.string "encrypted_auth_headers_json_iv"
     t.integer "remaining_entitlement"
+    t.datetime "denial_email_sent_at"
+    t.datetime "confirmation_email_sent_at"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -691,6 +693,7 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.uuid "consumer_id"
     t.json "uploaded_pdf"
     t.boolean "use_active_storage", default: false
+    t.jsonb "metadata", default: {}
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
