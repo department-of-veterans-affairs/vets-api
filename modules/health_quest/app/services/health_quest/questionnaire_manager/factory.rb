@@ -180,15 +180,7 @@ module HealthQuest
 
         location_references.each_with_object([]) do |ref, accumulator|
           loc = location_service.get(ref)
-          # We're hard coding the identifier value until the Lighthouse team
-          # adds this to the Location resources in their Health API.
-          # This hard coding will be removed by the end of the sprint
-          # scheduled to be completed by 03-23-21
-          #############################
-          idf = FHIR::Identifier.new
-          idf.value = 'vha_534_12975'
-          loc.resource.identifier = idf
-          #############################
+
           accumulator << loc
         end
       end
@@ -200,7 +192,9 @@ module HealthQuest
       #
       def get_organizations
         locations.each_with_object([]) do |loc, accumulator|
-          org = organization_service.get(loc.resource.id)
+          reference = loc.resource.managingOrganization.reference
+          org_id = reference.match(ID_MATCHER)[1]
+          org = organization_service.get(org_id)
 
           accumulator << org
         end
@@ -274,7 +268,7 @@ module HealthQuest
       def get_use_context
         use_context_array =
           locations.each_with_object([]) do |loc, accumulator|
-            key = "venue$#{loc.resource.identifier.value}"
+            key = "venue$#{loc.resource.identifier.last.value}"
 
             accumulator << key
           end

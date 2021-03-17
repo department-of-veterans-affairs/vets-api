@@ -17,6 +17,11 @@ module EVSS
       # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
         job_exhausted(msg, STATSD_KEY_PREFIX)
+        submission = Form526Submission.find msg['args'].first
+        submission.start_but_use_a_birls_id_that_hasnt_been_tried_yet!(
+          silence_errors_and_log_to_sentry: true,
+          extra_content_for_sentry: { job_class: msg['class'].demodulize, job_id: msg['jid'] }
+        )
       end
       # :nocov:
 
@@ -30,6 +35,7 @@ module EVSS
         super(submission_id)
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
           service = service(submission.auth_headers)
+          submission.mark_birls_id_as_tried!
           response = service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
@@ -56,6 +62,15 @@ module EVSS
         # update JobStatus, log and metrics in JobStatus#retryable_error_handler
         super(error)
         raise error
+      end
+
+      def non_retryable_error_handler(error)
+        # update JobStatus, log and metrics in JobStatus#non_retryable_error_handler
+        super(error)
+        submission.start_but_use_a_birls_id_that_hasnt_been_tried_yet!(
+          silence_errors_and_log_to_sentry: true,
+          extra_content_for_sentry: { job_class: self.class.to_s.demodulize, job_id: jid }
+        )
       end
 
       def service(_auth_headers)

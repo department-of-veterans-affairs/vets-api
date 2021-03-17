@@ -146,17 +146,19 @@ describe HealthQuest::QuestionnaireManager::Factory do
   end
 
   describe '#get_use_context' do
-    let(:location) do
+    let(:locations) do
       [
         double('FHIR::Location',
-               resource: double('FHIR::Bundle', identifier: double('Value', value: 'vha_123_54679')))
+               resource: double('FHIR::Bundle',
+                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                                to_hash: { id: 'I2-LABC' }))
       ]
     end
 
     it 'returns a formatted use-context string' do
-      allow_any_instance_of(described_class).to receive(:locations).and_return(location)
+      allow_any_instance_of(described_class).to receive(:locations).and_return(locations)
 
-      expect(described_class.manufacture(user).get_use_context).to eq('venue$vha_123_54679')
+      expect(described_class.manufacture(user).get_use_context).to eq('venue$vha_442_3049')
     end
   end
 
@@ -173,7 +175,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
     it 'returns a FHIR::ClientReply' do
       allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:search).with(anything).and_return(client_reply)
-      allow_any_instance_of(described_class).to receive(:get_use_context).and_return('venue$583/12345')
+      allow_any_instance_of(described_class).to receive(:get_use_context).and_return('venue$vha_442_3049')
 
       expect(described_class.manufacture(user).get_questionnaires).to eq(client_reply)
     end
@@ -223,7 +225,15 @@ describe HealthQuest::QuestionnaireManager::Factory do
   end
 
   describe '#get_organizations' do
-    let(:locations) { [double('FHIR::Location', resource: double('FHIR::Bundle', id: '123abc'))] }
+    let(:locations) do
+      [
+        double('FHIR::Location',
+               resource: double('FHIR::Bundle',
+                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                                managingOrganization: double('Reference', reference: '/O/I2-OABC'),
+                                to_hash: { id: 'I2-LABC' }))
+      ]
+    end
 
     before do
       allow_any_instance_of(subject).to receive(:locations).and_return(locations)
