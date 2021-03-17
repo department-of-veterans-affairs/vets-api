@@ -928,7 +928,7 @@ DEPENDENCIES
   appeals_api!
   apps_api!
   attr_encrypted (= 3.1.0)
-  awesome_print (~> 1.8)
+  awesome_print (~> 1.9)
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
   benchmark-ips
