@@ -507,7 +507,7 @@ module ClaimsApi
       swagger_path '/forms/526/{id}/attachments' do
         operation :post do
           key :summary, 'Upload documents in support of a 526 claim'
-          key :description, 'Accpets document binary PDF or base64 string as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
+          key :description, 'Accepts document binary PDF or base64 string as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
           key :operationId, 'upload526Attachments'
           key :produces, [
             'application/json'
