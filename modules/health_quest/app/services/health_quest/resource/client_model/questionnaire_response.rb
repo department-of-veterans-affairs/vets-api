@@ -78,7 +78,7 @@ module HealthQuest
         end
 
         def set_date
-          DateTime.now.in_time_zone.to_date.to_s
+          DateTime.now.in_time_zone.to_datetime.to_s
         end
 
         def set_status

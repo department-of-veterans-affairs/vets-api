@@ -51,7 +51,7 @@ module HealthQuest
       #
       def appt_questionnaires
         base_qm[:questionnaire].each_with_object({}) do |quest, acc|
-          questionnaire_id = quest[:id]
+          questionnaire_id = quest['id']
           acc[questionnaire_id] = quest
         end
       end
@@ -80,7 +80,7 @@ module HealthQuest
       # @return [String] an appointments id
       #
       def appt_id
-        @appt_id ||= base_qm.dig(:appointment, :id)
+        @appt_id ||= base_qm.dig(:appointment, 'id')
       end
     end
   end
