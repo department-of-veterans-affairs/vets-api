@@ -79,9 +79,11 @@ module EducationForm
     def write_files(writer, structured_data:)
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
-        filename = determine_filename(region_id)
-        if spool_file_already_created?(region_id, filename)
-          log_info("#{filename} already created for #{region_id} for this run period")
+        filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
+        spool_file_event = SpoolFileEvent.create(region_id, filename)
+
+        if spool_file_event.successful_at.present?
+          log_info("Spool file #{filename} already created for #{region_id} for this run period")
         else
 
           log_submissions(records, filename)
@@ -94,7 +96,8 @@ module EducationForm
             # track and update the records as processed once the file has been successfully written
             track_submissions(region_id)
             records.each { |r| r.record.update(processed_at: Time.zone.now) }
-            track_successful_spool_creation(region_id, filename, records.count)
+
+            spool_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
           rescue => e
             exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{e}")
             log_exception_to_sentry(exception)
@@ -104,18 +107,6 @@ module EducationForm
       end
     ensure
       writer.close
-    end
-
-    # If after midnight but before run time then filename should be previous date
-    # If between run time and midnight filename should be current date    #
-    def determine_filename(region_id)
-      "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
-    end
-
-    def track_successful_spool_creation(region_id, filename, records_count)
-    end
-
-    def spool_file_already_created?(region_id, filename)
     end
 
     def format_application(data, rpo: 0)
