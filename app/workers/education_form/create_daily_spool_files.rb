@@ -76,6 +76,7 @@ module EducationForm
 
     # Write out the combined spool files for each region along with recording
     # and tracking successful transfers.
+    # Creates or updates an SpoolFileEvent for tracking and to prevent multiple files per RPO per date during retries
     def write_files(writer, structured_data:)
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
