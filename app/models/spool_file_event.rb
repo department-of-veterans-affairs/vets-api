@@ -6,12 +6,12 @@ class SpoolFileEvent < ApplicationRecord
   # and increase retry attempt if wasn't successful from previous attempt
   # Otherwise create a new event
   def self.build_event(rpo, filename)
-    event = SpoolFileEvent.where(rpo: rpo, filename: filename).first
+    event = where(rpo: rpo, filename: filename).first
     if event.present?
       event.update(retry_attempt: event.retry_attempt + 1) if event.successful_at.nil?
       return event
     end
 
-    SpoolFileEvent.create(rpo: rpo, filename: filename)
+    create(rpo: rpo, filename: filename)
   end
 end
