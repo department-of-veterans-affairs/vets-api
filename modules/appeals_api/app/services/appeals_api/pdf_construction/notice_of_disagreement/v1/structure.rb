@@ -112,9 +112,18 @@ module AppealsApi
         end
 
         def stamp(stamped_pdf_path)
-          CentralMail::DatestampPdf.new(stamped_pdf_path).run(
-            text: form_data.stamp_text,
+          stamper = CentralMail::DatestampPdf.new(stamped_pdf_path)
+
+          bottom_stamped_path = stamper.run(
+            text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
             x: 5,
+            y: 775,
+            text_only: true
+          )
+
+          CentralMail::DatestampPdf.new(bottom_stamped_path).run(
+            text: form_data.stamp_text,
+            x: 280,
             y: 775,
             text_only: true
           )

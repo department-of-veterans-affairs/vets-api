@@ -38,8 +38,7 @@ RSpec.describe 'Lighthouse appointments', type: :request do
       before do
         sign_in_as(current_user)
         allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
-        allow_any_instance_of(HealthQuest::HealthApi::Appointment::MapQuery)
-          .to receive(:get).with(anything).and_return(client_reply)
+        allow_any_instance_of(HealthQuest::Resource::Query).to receive(:get).with(anything).and_return(client_reply)
       end
 
       it 'returns a FHIR type of Appointment' do
@@ -79,8 +78,7 @@ RSpec.describe 'Lighthouse appointments', type: :request do
       before do
         sign_in_as(current_user)
         allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
-        allow_any_instance_of(HealthQuest::HealthApi::Appointment::MapQuery)
-          .to receive(:search).with(anything).and_return(client_reply)
+        allow_any_instance_of(HealthQuest::Resource::Query).to receive(:search).with(anything).and_return(client_reply)
       end
 
       it 'returns a FHIR Bundle ' do

@@ -19,19 +19,38 @@ RSpec.describe 'transactions', type: :request do
 
   describe 'GET /v0/profile/status/:transaction_id' do
     context 'when the requested transaction exists' do
-      it 'responds with a serialized transaction', :aggregate_failures do
-        transaction = create(
-          :address_transaction,
-          user_uuid: user.uuid,
-          transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6'
-        )
+      context 'with a va profile transaction' do
+        it 'responds with a serialized transaction', :aggregate_failures do
+          transaction = create(
+            :va_profile_address_transaction,
+            user_uuid: user.uuid,
+            transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6'
+          )
 
-        VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
-          get("/v0/profile/status/#{transaction.transaction_id}")
-          expect(response).to have_http_status(:ok)
-          response_body = JSON.parse(response.body)
-          expect(response_body['data']['type']).to eq('async_transaction_vet360_address_transactions')
-          # @TODO The ...data.attributes.type has the original, non-snake-cased version of the class
+          VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
+            get("/v0/profile/status/#{transaction.transaction_id}")
+            expect(response).to have_http_status(:ok)
+            response_body = JSON.parse(response.body)
+            expect(response_body['data']['type']).to eq('async_transaction_va_profile_address_transactions')
+          end
+        end
+      end
+
+      context 'with a vet360 transaction' do
+        it 'responds with a serialized transaction', :aggregate_failures do
+          transaction = create(
+            :address_transaction,
+            user_uuid: user.uuid,
+            transaction_id: 'a030185b-e88b-4e0d-a043-93e4f34c60d6'
+          )
+
+          VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
+            get("/v0/profile/status/#{transaction.transaction_id}")
+            expect(response).to have_http_status(:ok)
+            response_body = JSON.parse(response.body)
+            expect(response_body['data']['type']).to eq('async_transaction_vet360_address_transactions')
+            # @TODO The ...data.attributes.type has the original, non-snake-cased version of the class
+          end
         end
       end
     end
@@ -72,26 +91,53 @@ RSpec.describe 'transactions', type: :request do
 
   describe 'GET /v0/profile/status/' do
     context 'when transaction(s) exists' do
-      it 'responds with an array of transaction(s)', :aggregate_failures do
-        create(
-          :address_transaction,
-          user_uuid: user.uuid,
-          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
-        )
-        create(
-          :email_transaction,
-          user_uuid: user.uuid,
-          transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
-        )
-        VCR.use_cassette('va_profile/contact_information/address_and_email_transaction_status') do
-          get('/v0/profile/status/')
-          expect(response).to have_http_status(:ok)
-          response_body = JSON.parse(response.body)
-          expect(response_body['data'].is_a?(Array)).to eq(true)
-          expect(response_body['data'][0]['attributes']['type'])
-            .to eq('AsyncTransaction::Vet360::AddressTransaction')
-          expect(response_body['data'][1]['attributes']['type'])
-            .to eq('AsyncTransaction::Vet360::EmailTransaction')
+      context 'with va profile transactions' do
+        it 'responds with an array of transaction(s)', :aggregate_failures do
+          create(
+            :va_profile_address_transaction,
+            user_uuid: user.uuid,
+            transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+          )
+          create(
+            :va_profile_email_transaction,
+            user_uuid: user.uuid,
+            transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
+          )
+          VCR.use_cassette('va_profile/contact_information/address_and_email_transaction_status') do
+            get('/v0/profile/status/')
+            expect(response).to have_http_status(:ok)
+            response_body = JSON.parse(response.body)
+            expect(response_body['data'].is_a?(Array)).to eq(true)
+            expect(response_body['data'][0]['attributes']['type'])
+              .to eq('AsyncTransaction::VAProfile::AddressTransaction')
+            expect(response_body['data'][1]['attributes']['type'])
+              .to eq('AsyncTransaction::VAProfile::EmailTransaction')
+          end
+        end
+      end
+
+      context 'with vet360 transactions' do
+        it 'responds with an array of transaction(s)', :aggregate_failures do
+          create(
+            :address_transaction,
+            user_uuid: user.uuid,
+            transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+          )
+          create(
+            :email_transaction,
+            user_uuid: user.uuid,
+            transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
+          )
+          VCR.use_cassette('va_profile/contact_information/address_and_email_transaction_status') do
+            get('/v0/profile/status/')
+            expect(response).to have_http_status(:ok)
+            response_body = JSON.parse(response.body)
+            expect(response_body['data'].is_a?(Array)).to eq(true)
+            expect(response_body['data'][0]['attributes']['type'])
+              .to eq('AsyncTransaction::Vet360::AddressTransaction')
+            expect(response_body['data'][1]['attributes']['type'])
+              .to eq('AsyncTransaction::Vet360::EmailTransaction')
+          end
         end
       end
     end

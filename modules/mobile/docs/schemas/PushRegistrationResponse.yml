@@ -1,0 +1,26 @@
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "pushRegister"
+      id:
+        description: appSid
+        type: string
+        example: "EC15A7E1767C4018AC50B442AAC50D1E"
+      attributes:
+        type: object
+        required:
+          - letters
+        properties:
+          endpointSid:
+            type: string
+            example: "F1DC67487F5CE0227516037291336983"

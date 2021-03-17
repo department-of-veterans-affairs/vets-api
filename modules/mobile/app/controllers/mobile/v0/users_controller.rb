@@ -30,6 +30,7 @@ module Mobile
 
       def pre_cache_resources
         Mobile::V0::PreCacheAppointmentsJob.perform_async(@current_user.uuid)
+        Mobile::V0::PreCacheClaimsAndAppealsJob.perform_async(@current_user.uuid)
       end
     end
   end

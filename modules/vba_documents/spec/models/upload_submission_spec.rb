@@ -193,6 +193,74 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_processing.save
     end
 
+    context 'averages' do
+      before do
+        time = Time.zone.now
+        consumer_1 = VBADocuments::UploadSubmission.new
+        consumer_1.consumer_name = 'consumer_1'
+        @num_times = 5
+        @num_times.times do |index|
+          Timecop.freeze(time)
+          upload = VBADocuments::UploadSubmission.new
+          upload.consumer_name = "consumer_#{index}"
+          Timecop.travel(time + 1.minute)
+          upload.status = 'uploaded'
+          upload.save
+        end
+        consumer_1.status = 'uploaded'
+        consumer_1.save
+      end
+
+      #  rspec ./modules/vba_documents/spec/models/upload_submission_spec.rb
+      it 'calculates status averages' do
+        avg_times = VBADocuments::UploadSubmission.avg_status_times(1.year.ago, 1.minute.from_now).first
+        avg_times_c1 = VBADocuments::UploadSubmission
+                       .avg_status_times(1.year.ago, 1.minute.from_now, 'consumer_1').first
+        expect(avg_times['elapsed_secs'].to_i).to be == 60
+        expect(avg_times['rowcount'].to_i).to be == @num_times + 1
+        expect(avg_times['status']).to eq('pending')
+        expect(avg_times_c1['elapsed_secs'].to_i).to be == 60
+        expect(avg_times_c1['rowcount'].to_i).to be == 2
+        expect(avg_times_c1['status']).to eq('pending')
+      end
+    end
+
+    it 'records status change times properly' do
+      time = Time.zone.now
+      Timecop.freeze(time)
+      upload = VBADocuments::UploadSubmission.new
+      Timecop.travel(time + 1.minute)
+      upload.status = 'uploaded'
+      upload.save!
+      elapsed = upload.metadata['status']['pending']['end'] - upload.metadata['status']['pending']['start']
+      expect(elapsed).to be == 60
+    end
+
+    it 'records status changes' do
+      upload = VBADocuments::UploadSubmission.new
+      upload.status = 'uploaded'
+      upload.save!
+      expect(upload.metadata['status']['pending']['start'].class).to be == Integer
+      expect(upload.metadata['status']['pending']['end'].class).to be == Integer
+      expect(upload.metadata['status']['uploaded']['start'].class).to be == Integer
+      expect(upload.metadata['status']['uploaded']['end'].class).to be == NilClass
+      upload.status = 'error'
+      upload.save!
+      expect(upload.metadata['status']['uploaded']['end'].class).to be == Integer
+      expect(upload.metadata['status']['error']['start'].class).to be == Integer
+    end
+
+    it 'records status changes after being found' do
+      upload = VBADocuments::UploadSubmission.new
+      upload.status = 'uploaded'
+      upload.save!
+      found = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      found.status = 'error'
+      found.save!
+      expect(found.metadata['status']['uploaded']['end'].class).to be == Integer
+      expect(found.metadata['status']['error']['start'].class).to be == Integer
+    end
+
     it 'does not allow the same guid used twice' do
       upload1 = VBADocuments::UploadSubmission.new
       upload2 = VBADocuments::UploadSubmission.new
