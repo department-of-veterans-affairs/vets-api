@@ -38,7 +38,7 @@ module SFTPWriter
       mkdir_safe(path)
       # open and append to a pseudo-IO for a remote file
       sftp.file.open(path, 'ab') do |f|
-        f.write(contents)
+        f.puts(contents)
       end
     end
 
