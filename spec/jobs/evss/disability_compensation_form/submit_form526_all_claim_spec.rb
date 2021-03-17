@@ -116,31 +116,21 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with a client error' do
       it 'sets the job_status to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
-          log_count = 0
-          allow_any_instance_of(described_class).to(receive(:log_exception_to_sentry)) { log_count += 1 }
-
+          expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
           subject.perform_async(submission.id)
-
-          metrics_count = 0
-          allow_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to(
-            receive(:increment_non_retryable)
-          ) { metrics_count += 1 }
-
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
-          expect(log_count).to eq 2
-          expect(metrics_count).to eq 2
-
-#          form_job_status = Form526JobStatus.last
-#          expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
-#          expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
-#          expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
-#          expect(form_job_status.error_message).to eq(
-#            '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", "severity"=>"ERROR", "text"=>"The ' \
-#              'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
-#              'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
-#              'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
-#              'pointOfContactName.Pattern", "severity"=>"ERROR", "text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
-#          )
+          form_job_status = Form526JobStatus.last
+          expect(form_job_status.error_class).to eq 'EVSS::DisabilityCompensationForm::ServiceException'
+          expect(form_job_status.job_class).to eq 'SubmitForm526AllClaim'
+          expect(form_job_status.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+          expect(form_job_status.error_message).to eq(
+            '[{"key"=>"form526.serviceInformation.ConfinementPastActiveDutyDate", "severity"=>"ERROR", "text"=>"The ' \
+              'confinement start date is too far in the past"}, {"key"=>"form526.serviceInformation.' \
+              'ConfinementWithInServicePeriod", "severity"=>"ERROR", "text"=>"Your period of confinement must be ' \
+              'within a single period of service"}, {"key"=>"form526.veteran.homelessness.pointOfContact.' \
+              'pointOfContactName.Pattern", "severity"=>"ERROR", "text"=>"must match \\"([a-zA-Z0-9-/]+( ?))*$\\""}]'
+          )
         end
       end
     end
@@ -219,7 +209,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with a pif in use server error' do
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_pif_in_use') do
-byebug
           subject.perform_async(submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
