@@ -594,7 +594,7 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.integer "number_of_submissions"
     t.string "filename"
     t.datetime "successful_at"
-    t.integer "retry_attempt"
+    t.integer "retry_attempt", default: 0
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["rpo", "filename"], name: "index_spool_file_events_uniqueness", unique: true

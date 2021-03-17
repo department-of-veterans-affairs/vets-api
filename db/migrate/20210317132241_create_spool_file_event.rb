@@ -5,7 +5,7 @@ class CreateSpoolFileEvent < ActiveRecord::Migration[6.0]
       t.integer :number_of_submissions
       t.string :filename
       t.timestamp :successful_at
-      t.integer :retry_attempt
+      t.integer :retry_attempt, default: 0
 
       t.timestamps
 
