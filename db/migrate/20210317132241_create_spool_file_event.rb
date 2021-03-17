@@ -8,6 +8,8 @@ class CreateSpoolFileEvent < ActiveRecord::Migration[6.0]
       t.integer :retry_attempt
 
       t.timestamps
+
+      t.index [ :rpo, :filename ], name: "index_spool_file_events_uniqueness", unique: true
     end
   end
 end

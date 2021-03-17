@@ -597,6 +597,7 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.integer "retry_attempt"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["rpo", "filename"], name: "index_spool_file_events_uniqueness", unique: true
   end
 
   create_table "terms_and_conditions", id: :serial, force: :cascade do |t|

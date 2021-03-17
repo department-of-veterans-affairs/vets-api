@@ -58,11 +58,7 @@ module Mobile
 
           vaos_appointments_service.put_cancel_appointment(put_params)
         rescue Common::Exceptions::BackendServiceException => e
-          if e.original_status == 409
-            raise Common::Exceptions::BackendServiceException, 'MOBL_409_facility_not_supported'
-          end
-
-          raise e
+          handle_cancel_error(e, params)
         end
 
         private
@@ -95,6 +91,19 @@ module Mobile
 
         def unable_to_keep_appointment?(valid_codes)
           valid_codes.include? UNABLE_TO_KEEP_APPOINTMENT
+        end
+
+        def handle_cancel_error(e, params)
+          if e.original_status == 409
+            Rails.logger.info(
+              'mobile cancel appointment facility not supported',
+              clinic_id: params[:clinicId],
+              facility_id: params[:facilityId]
+            )
+            raise Common::Exceptions::BackendServiceException, 'MOBL_409_facility_not_supported'
+          end
+
+          raise e
         end
 
         def parallel_appointments_service
