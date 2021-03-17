@@ -12,11 +12,11 @@ RSpec.describe 'push register', type: :request do
     context 'with a valid put body' do
       it 'matches the register schema' do
         params = {
-            appName: 'va_mobile_app',
-            deviceToken: '09d5a13a03b64b669f5ac0c32a0db6ad',
-            osName: 'ios',
-            osVersion: '13.1',
-            deviceName: "My Iphone"
+          appName: 'va_mobile_app',
+          deviceToken: '09d5a13a03b64b669f5ac0c32a0db6ad',
+          osName: 'ios',
+          osVersion: '13.1',
+          deviceName: 'My Iphone'
         }
         VCR.use_cassette('vetext/register_success') do
           put '/mobile/v0/push/register', headers: iam_headers, params: params
@@ -29,11 +29,11 @@ RSpec.describe 'push register', type: :request do
     context 'with invalid appName' do
       it 'matches the errors schema and responds not found' do
         params = {
-            appName: 'bad_name',
-            deviceToken: '09d5a13a03b64b669f5ac0c32a0db6ad',
-            osName: 'ios',
-            osVersion: '13.1',
-            deviceName: "My Iphone"
+          appName: 'bad_name',
+          deviceToken: '09d5a13a03b64b669f5ac0c32a0db6ad',
+          osName: 'ios',
+          osVersion: '13.1',
+          deviceName: 'My Iphone'
         }
         put '/mobile/v0/push/register', headers: iam_headers, params: params
         expect(response).to have_http_status(:not_found)
@@ -44,11 +44,11 @@ RSpec.describe 'push register', type: :request do
     context 'with bad request' do
       it 'returns bad request and errors' do
         params = {
-            appName: 'va_mobile_app',
-            deviceToken: '9bad7c63574f75f46944c6436a01b7c41c0776d6f061aa46b0884cdd93bb6959',
-            osName: 'ios',
-            osVersion: '13.1',
-            deviceName: "My Iphone"
+          appName: 'va_mobile_app',
+          deviceToken: '9bad7c63574f75f46944c6436a01b7c41c0776d6f061aa46b0884cdd93bb6959',
+          osName: 'ios',
+          osVersion: '13.1',
+          deviceName: 'My Iphone'
         }
         VCR.use_cassette('vetext/register_bad_request') do
           put '/mobile/v0/push/register', headers: iam_headers, params: params
@@ -61,11 +61,11 @@ RSpec.describe 'push register', type: :request do
     context 'when causing vetext internal server error' do
       it 'returns bad gateway and errors' do
         params = {
-            appName: 'va_mobile_app',
-            deviceToken: '9bad7c63574f75f46944c6436a01b7c41c0776d6f061aa46b0884cdd93bb6959',
-            osName: 'ios',
-            osVersion: '13.1',
-            deviceName: "My Iphone"
+          appName: 'va_mobile_app',
+          deviceToken: '9bad7c63574f75f46944c6436a01b7c41c0776d6f061aa46b0884cdd93bb6959',
+          osName: 'ios',
+          osVersion: '13.1',
+          deviceName: 'My Iphone'
         }
         VCR.use_cassette('vetext/register_internal_server_error') do
           put '/mobile/v0/push/register', headers: iam_headers, params: params

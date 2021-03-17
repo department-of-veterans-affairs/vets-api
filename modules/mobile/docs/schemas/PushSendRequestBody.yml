@@ -1,15 +1,15 @@
 type: object
 required:
-  - endpointSid
+  - appName
   - templateId
   - personalization
 properties:
-  endpointSid:
+  appName:
     type: string
-    example: "8c258cbe573c462f912e7dd74585a5a9"
+    example: "va_mobile_app"
   templateId:
     type: string
-    example: "appointment_reminders"
+    example: "0EF7C8C9390847D7B3B521426EFF5814"
   personalization:
     type: object
     properties:

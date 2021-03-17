@@ -5,14 +5,13 @@ require 'vetext/service'
 module Mobile
   module V0
     class PushNotificationsController < ApplicationController
-
       def register
         result = service.register(
-            params[:appName],
-            params[:deviceToken],
-            @current_user.icn,
-            { name: params[:osName], version: params[:osVersion] },
-            params[:deviceName] ? params[:deviceName] : params[:osName]
+          params[:appName],
+          params[:deviceToken],
+          @current_user.icn,
+          { name: params[:osName], version: params[:osVersion] },
+          params[:deviceName] || params[:osName]
         )
 
         render json: Mobile::V0::PushRegisterSerializer.new(params[:appName], result.body[:sid])
@@ -24,7 +23,7 @@ module Mobile
       end
 
       def set_prefs
-        service.set_preference(params[:endpoint_sid], params[:preference], params[:enabled].to_s.downcase == "true")
+        service.set_preference(params[:endpoint_sid], params[:preference], params[:enabled].to_s.downcase == 'true')
 
         render json: {}, status: :ok
       end
