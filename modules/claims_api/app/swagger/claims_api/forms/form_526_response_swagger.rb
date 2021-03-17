@@ -1127,7 +1127,7 @@ module ClaimsApi
               property :standardClaim do
                 key :type, :boolean
                 key :example, false
-                key :description, 'Determines if claim is considered a Standard Claim.'
+                key :description, 'A value of false indicates the claim should be processed as a Fully Developed Claim'
               end
 
               property :autoCestPDFGenerationDisabled do

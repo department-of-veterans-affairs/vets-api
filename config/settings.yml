@@ -403,6 +403,7 @@ vba_documents:
 #Settings for Claims Api Module
 claims_api:
   report_enabled: false
+  audit_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
@@ -411,6 +412,11 @@ claims_api:
     bucket: ~
   disability_claims_mock_override: false
   schema_dir: config/schemas
+  slack:
+    webhook_url: https://example.com
+  claims_pending_reporting:
+    threshold: ~
+    environment_name: ~
 
 redis:
   host: localhost
@@ -631,6 +637,7 @@ flipper:
     - devinmccurdy@gmail.com
     - draju@governmentcio.com
     - ed.mangimelli@adhocteam.us
+    - elder_joseph@bah.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
@@ -657,6 +664,7 @@ flipper:
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
+    - mccurdy_devin@bah.com
     - mdewey@governmentcio.com
     - micah@adhocteam.us
     - michael.fleet@oddball.io
@@ -684,6 +692,7 @@ flipper:
     - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
+    - turner_desiree@bah.com
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
@@ -705,6 +714,7 @@ directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
   staging_flag: ~
+  health_server_id: ~
 
 va_mobile:
   url: "https://veteran.apps.va.gov"

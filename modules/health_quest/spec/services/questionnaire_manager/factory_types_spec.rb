@@ -39,4 +39,10 @@ describe HealthQuest::QuestionnaireManager::FactoryTypes do
       expect(location_type).to eq({ user: user, resource_identifier: 'location', api: 'health_api' })
     end
   end
+
+  describe '#organization_type' do
+    it 'returns a hash' do
+      expect(organization_type).to eq({ user: user, resource_identifier: 'organization', api: 'health_api' })
+    end
+  end
 end

@@ -23,7 +23,6 @@ RSpec.describe EducationForm::Create10203ApplicantDecisionLetters, type: :model,
     EducationStemAutomatedDecision.delete_all
 
     before do
-      expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(true)
       subject.instance_variable_set(:@time, time)
     end
 
