@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
-require_relative 'id_parser'
-require_relative 'historical_icn_parser'
+require 'identity/parsers/gc_ids'
 require_relative 'parser_base'
 
 module MPI
@@ -10,6 +9,7 @@ module MPI
     # Parses a MVI response and returns a MviProfile
     class ProfileParser < ParserBase
       include SentryLogging
+      include Identity::Parsers::GCIds
 
       BODY_XPATH = 'env:Envelope/env:Body/idm:PRPA_IN201306UV02'
       CODE_XPATH = 'acknowledgement/typeCode/@code'
@@ -26,6 +26,14 @@ module MPI
       NAME_XPATH = 'patientPerson/name'
       ADDRESS_XPATH = 'patientPerson/addr'
       PHONE = 'patientPerson/telecom'
+
+      HISTORICAL_ICN_XPATH = [
+        'controlActProcess/subject', # matches SUBJECT_XPATH
+        'registrationEvent',
+        'replacementOf',
+        'priorRegistration',
+        'id'
+      ].join('/').freeze
 
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
@@ -69,7 +77,7 @@ module MPI
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         full_mvi_ids = get_extensions(patient.locate('id'))
-        parsed_mvi_ids = MPI::Responses::IdParser.new.parse(patient.locate('id'))
+        parsed_mvi_ids = parse_xml_gcids(patient.locate('id'))
         log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
         MPI::Models::MviProfile.new(
           given_names: name[:given],
@@ -89,9 +97,9 @@ module MPI
           vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
           sec_id: parsed_mvi_ids[:sec_id],
           birls_id: sanitize_id(parsed_mvi_ids[:birls_id]),
-          birls_ids: parsed_mvi_ids[:birls_ids].map { |id| sanitize_id(id) }.compact,
+          birls_ids: sanitize_id_array(parsed_mvi_ids[:birls_ids]),
           vet360_id: parsed_mvi_ids[:vet360_id],
-          historical_icns: MPI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
+          historical_icns: parse_xml_historical_icns(@original_body.locate(HISTORICAL_ICN_XPATH)),
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
           search_token: locate_element(@original_body, 'id').attributes[:extension],
           cerner_id: parsed_mvi_ids[:cerner_id],

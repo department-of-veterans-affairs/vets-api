@@ -11,7 +11,7 @@ describe AppealsApi::DecisionReviewReportDaily, type: :job do
         date_from = date_to.monday? ? 3.days.ago : 1.day.ago
 
         expect(AppealsApi::DecisionReviewMailer).to receive(:build).once.with(
-          date_from: date_from,
+          date_from: date_from.beginning_of_day,
           date_to: date_to,
           friendly_duration: 'Daily'
         ).and_return(double.tap do |mailer|

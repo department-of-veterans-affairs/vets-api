@@ -52,8 +52,8 @@ RSpec.describe 'Claims Status Metadata Endpoint', type: :request do
           expect(response).to have_http_status(:ok)
         end
 
-        required_upstream_services = %w[evss mpi bgs-intent_to_file]
-        optional_upstream_services = %w[vbms bgs-vet_record bgs-claimant bgs-contention]
+        required_upstream_services = %w[evss mpi bgs-intent_to_file bgs-claimant]
+        optional_upstream_services = %w[vbms bgs-vet_record bgs-contention]
         (required_upstream_services + optional_upstream_services).each do |upstream_service|
           it "returns correct status when #{upstream_service} is not healthy" do
             allow(EVSS::Service).to receive(:service_is_up?).and_return(upstream_service != 'evss')

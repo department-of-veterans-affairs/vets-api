@@ -86,6 +86,7 @@ PATH
       sidekiq
     covid_vaccine (0.1.0)
       sidekiq
+    facilities_api (0.1.0)
     health_quest (0.1.0)
     identity (0.1.0)
     mobile (0.1.0)
@@ -828,6 +829,9 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
+    slack-notify (0.6.0)
+      faraday (>= 0.9)
+      json (>= 1.8)
     socksify (1.7.1)
     spring (2.1.1)
     spring-commands-rspec (1.0.4)
@@ -844,7 +848,7 @@ GEM
     statsd-instrument (2.6.0)
     strong_migrations (0.7.3)
       activerecord (>= 5)
-    super_diff (0.5.2)
+    super_diff (0.5.3)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -950,6 +954,7 @@ DEPENDENCIES
   debase
   dry-struct
   dry-types
+  facilities_api!
   factory_bot_rails (> 5)
   faker
   fakeredis
@@ -1053,6 +1058,7 @@ DEPENDENCIES
   sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov (< 0.18)
+  slack-notify
   spring
   spring-commands-rspec
   staccato

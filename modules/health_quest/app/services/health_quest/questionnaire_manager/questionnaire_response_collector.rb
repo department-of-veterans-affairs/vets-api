@@ -37,9 +37,9 @@ module HealthQuest
           questionnaire = groups.appt_questionnaires[quest_id]
           next if questionnaire.blank?
 
-          questionnaire[:questionnaire_response].store(:id, qr.resource.id)
-          questionnaire[:questionnaire_response].store(:status, qr.resource.status)
-          questionnaire[:questionnaire_response].store(:submitted_on, qr.resource.authored)
+          response_hash = { id: qr.resource.id, status: qr.resource.status, submitted_on: qr.resource.authored }
+
+          questionnaire[:questionnaire_response] << response_hash.with_indifferent_access
         end
       end
     end

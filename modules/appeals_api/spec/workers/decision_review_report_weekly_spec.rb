@@ -8,7 +8,7 @@ describe AppealsApi::DecisionReviewReportWeekly, type: :job do
       with_settings(Settings.modules_appeals_api.reports.decision_review, enabled: true) do
         Timecop.freeze
         date_to = Time.zone.now
-        date_from = 1.week.ago
+        date_from = 1.week.ago.beginning_of_day
 
         expect(AppealsApi::DecisionReviewMailer).to receive(:build).once.with(
           date_from: date_from,
