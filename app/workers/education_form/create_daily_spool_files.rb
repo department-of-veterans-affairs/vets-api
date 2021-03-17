@@ -74,6 +74,7 @@ module EducationForm
       raw_groups.delete_if { |_, v| v.empty? }
     end
 
+    # rubocop:disable Metrics/MethodLength
     # Write out the combined spool files for each region along with recording
     # and tracking successful transfers.
     # Creates or updates an SpoolFileEvent for tracking and to prevent multiple files per RPO per date during retries
@@ -113,6 +114,7 @@ module EducationForm
     ensure
       writer.close
     end
+    # rubocop:enable Metrics/MethodLength
 
     def format_application(data, rpo: 0)
       # This check was added to ensure that the model passes validation before
