@@ -97,4 +97,4 @@ OkComputer::Registry.register 'bgs-claimant', BgsCheck.new('claimant')
 OkComputer::Registry.register 'bgs-contention', BgsCheck.new('contention')
 OkComputer::Registry.register 'vbms', VbmsCheck.new
 
-OkComputer.make_optional %w[vbms bgs-vet_record bgs-claimant bgs-contention]
+OkComputer.make_optional %w[vbms bgs-vet_record bgs-contention]
