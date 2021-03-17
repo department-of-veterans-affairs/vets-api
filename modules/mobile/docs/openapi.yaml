@@ -1971,15 +1971,19 @@ paths:
           New message body.
           
           <strong>NOTES:</strong> 
-          <ul><li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
-          <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
-          <li>File attachment restrictions (as imposed by MHV):
           <ul>
-          <li>User may attach up to 4 files</li>
-          <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
-          <li>Single attachment cannot exceed 3 MB</li>
-          <li>Total attachment cannot exceed 6 MB</li>
-          </ul></li></ul>
+            <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
+            <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
+            <li>
+              File attachment restrictions (as imposed by MHV):
+              <ul>
+                <li>User may attach up to 4 files</li>
+                <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
+                <li>Single attachment cannot exceed 3 MB</li>
+                <li>Total attachment cannot exceed 6 MB</li>
+              </ul>
+            </li>
+          </ul>
         required: true
         content:
           application/json:
@@ -2105,12 +2109,13 @@ paths:
         Send reply to a secure message          
         
         <strong>NOTE:</strong> If including file attachments, this request must be sent as <i>multipart/form-data</i>
-        <br/><br/>File attachment restrictions (as imposed by MHV):
+
+        File attachment restrictions (as imposed by MHV):
         <ul>
-        <li>User may attach up to 4 files</li>
-        <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
-        <li>Single attachment cannot exceed 3 MB</li>
-        <li>Total attachment cannot exceed 6 MB</li>
+          <li>User may attach up to 4 files</li>
+          <li>Accepted formats: doc, docx, jpg, pdf, png, rtf, txt, xls, xlsx</li>
+          <li>Single attachment cannot exceed 3 MB</li>
+          <li>Total attachment cannot exceed 6 MB</li>
         </ul>
       operationId: post_create_message_reply
       security:
