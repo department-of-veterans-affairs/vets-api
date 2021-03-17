@@ -81,7 +81,7 @@ module EducationForm
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
-        spool_file_event = SpoolFileEvent.create(region_id, filename)
+        spool_file_event = SpoolFileEvent.build_event(region_id, filename)
 
         if spool_file_event.successful_at.present?
           log_info("Spool file #{filename} already created for #{region_id} for this run period")
