@@ -592,7 +592,7 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
   end
 
   create_table "spool_file_events", force: :cascade do |t|
-    t.string "rpo"
+    t.integer "rpo"
     t.integer "number_of_submissions"
     t.string "filename"
     t.datetime "successful_at"
