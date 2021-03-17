@@ -95,8 +95,8 @@ module EducationForm
 
             # track and update the records as processed once the file has been successfully written
             track_submissions(region_id)
-            records.each { |r| r.record.update(processed_at: Time.zone.now) }
 
+            records.each { |r| r.record.update(processed_at: Time.zone.now) }
             spool_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
           rescue => e
             exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{e}")
