@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_15_162119) do
+ActiveRecord::Schema.define(version: 2021_03_17_132241) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -589,6 +589,17 @@ ActiveRecord::Schema.define(version: 2021_03_15_162119) do
     t.index ["name"], name: "index_session_activities_on_name"
     t.index ["status"], name: "index_session_activities_on_status"
     t.index ["user_uuid"], name: "index_session_activities_on_user_uuid"
+  end
+
+  create_table "spool_file_events", force: :cascade do |t|
+    t.string "rpo"
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at"
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["rpo", "filename"], name: "index_spool_file_events_uniqueness", unique: true
   end
 
   create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
