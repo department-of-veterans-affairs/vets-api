@@ -124,7 +124,7 @@ describe HealthQuest::Resource::ClientModel::QuestionnaireResponse do
     end
 
     it 'has an authored date' do
-      expect(subject.manufacture(data, user).prepare.authored).to eq(Time.zone.today.to_s)
+      expect(subject.manufacture(data, user).prepare.authored).to include(DateTime.now.in_time_zone.to_date.to_s)
     end
 
     it 'has a subject' do

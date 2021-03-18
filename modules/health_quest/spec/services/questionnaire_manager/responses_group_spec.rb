@@ -45,7 +45,7 @@ describe HealthQuest::QuestionnaireManager::ResponsesGroup do
   end
 
   describe '#appt_id' do
-    let(:base_data) { { appointment: { id: 'I2-HSDF567' } } }
+    let(:base_data) { { appointment: { id: 'I2-HSDF567' }.with_indifferent_access } }
 
     before do
       allow_any_instance_of(subject).to receive(:base_qm).and_return(base_data)
@@ -59,7 +59,7 @@ describe HealthQuest::QuestionnaireManager::ResponsesGroup do
   describe '#qr_responses' do
     let(:qr) { double('QuestionnaireResponse') }
     let(:hashed_qr) { { 'I2-HSDF567' => [qr] } }
-    let(:base_data) { { appointment: { id: 'I2-HSDF567' } } }
+    let(:base_data) { { appointment: { id: 'I2-HSDF567' } }.with_indifferent_access }
 
     before do
       allow_any_instance_of(subject).to receive(:base_qm).and_return(base_data)
@@ -74,7 +74,7 @@ describe HealthQuest::QuestionnaireManager::ResponsesGroup do
   describe '#sip_responses' do
     let(:sip) { double('InProgressForm') }
     let(:hashed_sip) { { 'I2-HSDF567' => [sip] } }
-    let(:base_data) { { appointment: { id: 'I2-HSDF567' } } }
+    let(:base_data) { { appointment: { id: 'I2-HSDF567' } }.with_indifferent_access }
 
     before do
       allow_any_instance_of(subject).to receive(:base_qm).and_return(base_data)
@@ -91,7 +91,7 @@ describe HealthQuest::QuestionnaireManager::ResponsesGroup do
       {
         appointment: { id: 'I2-HSDF567' },
         questionnaire: [{ id: '123-abc', title: 'The Questionnaire' }]
-      }
+      }.with_indifferent_access
     end
 
     before do
@@ -99,7 +99,7 @@ describe HealthQuest::QuestionnaireManager::ResponsesGroup do
     end
 
     it 'returns a hash' do
-      response = { '123-abc' => { id: '123-abc', title: 'The Questionnaire' } }
+      response = { '123-abc' => { id: '123-abc', title: 'The Questionnaire' }.with_indifferent_access }
 
       expect(basic_structure.appt_questionnaires).to eq(response)
     end

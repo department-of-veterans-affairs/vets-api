@@ -24,7 +24,7 @@ EducationForm::Create10203SpoolSubmissionsReport:
   description: "Send the daily 10203 report to the call center about spool file submissions"
 
 EducationForm::Create10203ApplicantDecisionLetters:
-  cron: "45 4 * * MON-FRI America/New_York"
+  every: '2m'
   description: "Send 10203 applicant decision letters to applicants"
 
 Preneeds::DeleteOldUploads:
@@ -191,7 +191,7 @@ AppsApi::FetchConnections:
   description: "Fetches and handles notifications for recent application connections and disconnections"
 
 EducationForm::Process10203Submissions:
-  cron: "0 6-18 * * * America/New_York"
+  every: '2m'
   class: EducationForm::Process10203Submissions
   description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
 

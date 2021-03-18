@@ -65,8 +65,7 @@ module HealthQuest
         end
 
         def set_questionnaire
-          questionnaire_id = data.dig(:questionnaire, :id) || DEFAULT_QUESTIONNAIRE_ID
-
+          questionnaire_id = data.dig(:questionnaire, :id)
           "Questionnaire/#{questionnaire_id}"
         end
 
@@ -79,7 +78,7 @@ module HealthQuest
         end
 
         def set_date
-          Time.zone.today.to_s
+          DateTime.now.in_time_zone.to_datetime.to_s
         end
 
         def set_status

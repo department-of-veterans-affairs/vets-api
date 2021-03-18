@@ -80,23 +80,6 @@ describe Mobile::V0::Appointments::Service do
           }
         )
       end
-
-      it 'increments the VAOS and Mobile success metrics' do
-        expect(StatsD).to receive(:increment).with(
-          'api.vaos.va_mobile.response.total', any_args
-        ).twice
-        expect(StatsD).to receive(:increment).with(
-          'api.external_http_request.VAOS.success', any_args
-        ).twice
-        expect(StatsD).to receive(:increment).once.with(
-          'mobile.appointments.get_appointments.success'
-        )
-        VCR.use_cassette('appointments/get_appointments', match_requests_on: %i[method uri]) do
-          VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
-            service.get_appointments(start_date, end_date, true)
-          end
-        end
-      end
     end
 
     context 'when va fails but cc succeeds' do

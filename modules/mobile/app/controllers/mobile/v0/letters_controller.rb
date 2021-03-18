@@ -27,6 +27,9 @@ module Mobile
         end
 
         response = download_service.download_letter(params[:type], request.body.string)
+
+        StatsD.increment('mobile.letters.download.type', tags: ["type:#{params[:type]}"], sample_rate: 1.0)
+
         send_data response,
                   filename: "#{params[:type]}.pdf",
                   type: 'application/pdf',

@@ -14,10 +14,10 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
         ]
 
         emails.each do |email|
-          expect(described_class).to receive(:perform_async).with(email, :ch33)
+          expect(described_class).to receive(:perform_async).with(email, 'ch33')
         end
 
-        described_class.send_to_emails(emails, :ch33)
+        described_class.send_to_emails(emails, 'ch33')
       end
     end
 
@@ -30,7 +30,7 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
           feature: 'direct_deposit'
         )
 
-        described_class.send_to_emails([], :ch33)
+        described_class.send_to_emails([], 'ch33')
       end
     end
   end
@@ -47,7 +47,7 @@ RSpec.describe VANotifyDdEmailJob, type: :model do
             template_id: dd_type == 'ch33' ? 'edu_template_id' : 'comp_pen_template_id'
           )
 
-          described_class.new.perform(email, dd_type.to_sym)
+          described_class.new.perform(email, dd_type)
         end
       end
     end

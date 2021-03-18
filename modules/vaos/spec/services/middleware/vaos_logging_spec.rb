@@ -34,6 +34,8 @@ describe VAOS::Middleware::VAOSLogging do
     let(:status) { 200 }
 
     it 'user service call logs a success' do
+      expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.va_mobile.response.total:1 #method:POST'\
+        ' #url:/users/v2/session #http_status:')
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
@@ -43,6 +45,8 @@ describe VAOS::Middleware::VAOSLogging do
     end
 
     it 'other requests with X-Vamf-Jwt log a success' do
+      expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.va_mobile.response.total:1 #method:GET '\
+        '#url:/whatever #http_status:')
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
@@ -52,6 +56,8 @@ describe VAOS::Middleware::VAOSLogging do
     end
 
     it 'other requests with X-VAMF-JWT log a success' do
+      expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.va_mobile.response.total:1 #method:GET '\
+        '#url:/user_service_refresh_uri #http_status:')
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
