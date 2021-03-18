@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
@@ -12,6 +13,8 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
        "errorMessage": '',
        "lastUpdated": '2018-04-25 00:02:39' }]
   end
+
+  it_behaves_like 'a monitored worker'
 
   describe '#perform' do
     it 'updates the status of a HigherLevelReview' do
