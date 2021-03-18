@@ -31,7 +31,7 @@ module EVSS
     end
 
     def gender
-      case @user.gender
+      case @user.gender || @user.mpi&.profile&.gender
       when 'F'
         'FEMALE'
       when 'M'
