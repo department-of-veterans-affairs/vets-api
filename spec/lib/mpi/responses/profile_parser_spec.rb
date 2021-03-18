@@ -38,6 +38,7 @@ describe MPI::Responses::ProfileParser do
       end
 
       context 'when name parsing fails' do
+        let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_name_response.xml')) }
         let(:mvi_profile) do
           build(
             :mpi_profile_response,
@@ -54,7 +55,6 @@ describe MPI::Responses::ProfileParser do
         end
 
         it 'sets the names to false' do
-          allow(parser).to receive(:get_patient_name).and_return(nil)
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
       end
