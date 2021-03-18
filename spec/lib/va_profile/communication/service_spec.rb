@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'va_profile/communication/service'
-require 'va_profile/models/communication_item_group'
 
 describe VAProfile::Communication::Service do
   let(:user) { build(:user, :loa3) }
