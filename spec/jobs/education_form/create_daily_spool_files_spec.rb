@@ -182,7 +182,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
-    let(:filename) { '307_09172016_vetsgov.spl' }
+    let(:filename) { '307_09172016_070000_vetsgov.spl' }
     let!(:second_record) { FactoryBot.create(:va1995) }
 
     context 'in the development env' do
