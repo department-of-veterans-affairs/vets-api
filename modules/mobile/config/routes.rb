@@ -25,6 +25,7 @@ Mobile::Engine.routes.draw do
     post '/user/addresses/validate', to: 'addresses#validate'
     post '/user/emails', to: 'emails#create'
     put '/user/emails', to: 'emails#update'
+    delete '/user/emails', to: 'emails#destroy'
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
 
