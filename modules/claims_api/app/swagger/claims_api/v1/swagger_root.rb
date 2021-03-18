@@ -22,7 +22,7 @@ module ClaimsApi
 
         tag do
           key :name, 'Claims'
-          key :description, 'Benefits Claims'
+          key :description, 'Allows authenticated and authorized users to access claims data for a single claim by ID, or for all claims based on Veteran data. No data is returned if the user is not authenticated and authorized.'
         end
 
         tag do
