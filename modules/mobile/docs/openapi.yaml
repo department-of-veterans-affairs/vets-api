@@ -75,13 +75,15 @@ paths:
         - in: query
           name: startDate
           schema:
-            type: datetime
+            type: string
+            format: date-time
           description: The start date for the range of appointments in ISO 8601 UTC format
           example: 2020-10-29T07:00:00.000Z
         - in: query
           name: endDate
           schema:
-            type: datetime
+            type: string
+            format: date-time
           description: The end date for the range of appointments in ISO 8601 UTC format
           example: 2021-11-29T08:00:00.000Z
         - in: query
@@ -2075,11 +2077,13 @@ paths:
                   description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"category":"OTHER","recipient_id":1763526,"body":"test message"}')
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "./schemas/SecureMessageDetail.yml"
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -2093,17 +2097,22 @@ paths:
   /v0/messaging/health/messages/{id}:
     get:
       summary: /v0/messaging/health/messages/{id}
-      description: Get a secure message and mark message as read
+      description: | 
+        Get a secure message and mark message as read
+
+        <strong>NOTE:</strong> Peforming this GET will set readReceipt field as 'READ'
       operationId: get_message
       security:
         - Bearer: []
       responses:
         '200':
+          description: OK
           content:
             application/json:
               schema:
                 $ref: "./schemas/SecureMessageDetail.yml"
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -2137,6 +2146,7 @@ paths:
         '204':
           description: 'The message was moved successfully'
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -2164,6 +2174,7 @@ paths:
         '204':
           description: The message was deleted successfully
         '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
