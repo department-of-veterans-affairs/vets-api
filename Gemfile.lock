@@ -186,7 +186,7 @@ GEM
     attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
     attr_extras (6.2.4)
-    awesome_print (1.8.0)
+    awesome_print (1.9.2)
     aws-eventstream (1.1.0)
     aws-partitions (1.380.0)
     aws-sdk-core (3.109.0)
@@ -928,7 +928,7 @@ DEPENDENCIES
   appeals_api!
   apps_api!
   attr_encrypted (= 3.1.0)
-  awesome_print (~> 1.8)
+  awesome_print (~> 1.9)
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
   benchmark-ips
