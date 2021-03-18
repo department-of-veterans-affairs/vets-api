@@ -33,13 +33,14 @@ describe AppealsApi::CentralMailUpdater do
       expect(appeal_1.status).to eq('caseflow')
     end
 
-    it 'hlr does not accept VBMS Complete' do
+    it 'hlr accepts VBMS Complete but maps it to success' do
       hlr = create(:higher_level_review)
       central_mail_response[0][:uuid] = hlr.id
       allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
 
-      expect { subject.call([hlr]) }
-        .to raise_error(Common::Exceptions::BadGateway)
+      subject.call([hlr])
+      hlr.reload
+      expect(hlr.status).to eq('success')
     end
   end
 

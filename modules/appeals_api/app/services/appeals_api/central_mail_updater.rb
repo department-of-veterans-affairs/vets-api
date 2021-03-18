@@ -26,7 +26,9 @@ module AppealsApi
 
     HLR_CENTRAL_STATUS_ATTRIBUTES = {
       'Received' => { status: 'received' },
+
       'Success' => { status: 'success' },
+      'VBMS Complete' => { status: 'success' },
 
       'In Process' => { status: 'processing' },
       'Processing Success' => { status: 'processing' },
