@@ -27,8 +27,8 @@ module VAOS
         sub: user.icn,
         idType: ID_TYPE,
         iss: ISS,
-        firstName: user.first_name,
-        lastName: user.last_name,
+        firstName: first_name,
+        lastName: last_name,
         authenticationAuthority: AUTHORITY,
         jti: SecureRandom.uuid,
         nbf: 1.minute.ago.to_i,
@@ -38,13 +38,21 @@ module VAOS
         gender: gender,
         dob: parsed_date,
         dateOfBirth: parsed_date,
-        edipid: user.edipi,
-        ssn: user.ssn
+        edipid: edipi,
+        ssn: ssn
       }
     end
 
+    def first_name
+      user.mpi&.profile&.given_names&.first
+    end
+
+    def last_name
+      user.mpi&.profile&.family_name
+    end
+
     def gender
-      type = user.gender
+      type = user.mpi&.profile&.gender
       return '' unless type.is_a?(String)
 
       case type.upcase[0, 1]
@@ -57,6 +65,14 @@ module VAOS
 
     def parsed_date
       Formatters::DateFormatter.format_date(user.birth_date, :number_iso8601)
+    end
+
+    def edipi
+      user.mpi&.profile&.edipi
+    end
+
+    def ssn
+      user.mpi&.profile&.ssn
     end
   end
 end

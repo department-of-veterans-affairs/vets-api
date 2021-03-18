@@ -41,6 +41,14 @@ module HealthQuest
       }
     end
 
+    def first_name
+      user.mpi&.profile&.given_names&.first
+    end
+
+    def last_name
+      user.mpi&.profile&.family_name
+    end
+
     def gender
       type = user.gender_mpi
       return '' unless type.is_a?(String)
@@ -51,6 +59,14 @@ module HealthQuest
       when 'F'
         'FEMALE'
       end
+    end
+
+    def edipi
+      user.mpi&.profile&.edipi
+    end
+
+    def ssn
+      user.mpi&.profile&.ssn
     end
   end
 end
