@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/corgibytes/ruby-debug-ide
-  revision: e1ed54c9b8a6da4f365da1fcf95fdd0e01c2c362
+  revision: 4869a6721579a7d88b7d105929c27325e184a5dd
   branch: feature-add-fixed-port-range
   specs:
     ruby-debug-ide (0.7.2)
@@ -212,7 +212,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     bcp47 (0.3.3)
       i18n
-    benchmark-ips (2.8.2)
+    benchmark-ips (2.8.4)
     bindex (0.8.1)
     bootsnap (1.5.1)
       msgpack (~> 1.0)
@@ -833,7 +833,7 @@ GEM
       faraday (>= 0.9)
       json (>= 1.8)
     socksify (1.7.1)
-    spring (2.1.0)
+    spring (2.1.1)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
     sprockets (4.0.2)
