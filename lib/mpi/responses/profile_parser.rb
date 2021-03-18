@@ -27,6 +27,14 @@ module MPI
       ADDRESS_XPATH = 'patientPerson/addr'
       PHONE = 'patientPerson/telecom'
 
+      PATIENT_PERSON_PREFIX = 'patientPerson/'
+      GENDER_XPATH = 'administrativeGenderCode/@code'
+      DOB_XPATH = 'birthTime/@value'
+      SSN_XPATH = 'asOtherIDs'
+      NAME_XPATH = 'name'
+      ADDRESS_XPATH = 'addr'
+      PHONE = 'telecom'
+
       HISTORICAL_ICN_XPATH = [
         'controlActProcess/subject', # matches SUBJECT_XPATH
         'registrationEvent',
@@ -74,7 +82,7 @@ module MPI
 
       # rubocop:disable Metrics/MethodLength
       def build_mvi_profile(patient)
-        name = parse_name(get_patient_name(patient))
+        name = parse_name(locate_element(patient, PATIENT_PERSON_PREFIX + NAME_XPATH))
         full_mvi_ids = get_extensions(patient.locate('id'))
         parsed_mvi_ids = parse_xml_gcids(patient.locate('id'))
         log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
@@ -82,9 +90,9 @@ module MPI
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
-          gender: locate_element(patient, GENDER_XPATH),
-          birth_date: locate_element(patient, DOB_XPATH),
-          ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
+          gender: locate_element(patient, PATIENT_PERSON_PREFIX + GENDER_XPATH),
+          birth_date: locate_element(patient, PATIENT_PERSON_PREFIX + DOB_XPATH),
+          ssn: parse_ssn(locate_element(patient, PATIENT_PERSON_PREFIX + SSN_XPATH)),
           address: parse_address(patient),
           home_phone: parse_phone(patient),
           full_mvi_ids: full_mvi_ids,
@@ -161,7 +169,7 @@ module MPI
       end
 
       def parse_address(patient)
-        el = locate_element(patient, ADDRESS_XPATH)
+        el = locate_element(patient, PATIENT_PERSON_PREFIX + ADDRESS_XPATH)
         return nil unless el
 
         address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
@@ -170,7 +178,7 @@ module MPI
       end
 
       def parse_phone(patient)
-        el = locate_element(patient, PHONE)
+        el = locate_element(patient, PATIENT_PERSON_PREFIX + PHONE)
         return nil unless el
 
         el.attributes[:value]
