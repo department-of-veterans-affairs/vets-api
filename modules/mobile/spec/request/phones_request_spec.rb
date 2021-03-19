@@ -146,7 +146,7 @@ RSpec.describe 'phones', type: :request do
         VCR.use_cassette('profile/get_phone_status_complete') do
           VCR.use_cassette('profile/get_phone_status_incomplete') do
             VCR.use_cassette('profile/delete_phone_initial') do
-              delete '/mobile/v0/user/emails',
+              delete '/mobile/v0/user/phones',
                 params: telephone.to_json,
                 headers: iam_headers(json_body_headers)
             end
@@ -164,14 +164,14 @@ RSpec.describe 'phones', type: :request do
     
       it 'includes a transaction id' do
         id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
-        expect(id).to eq('d1018742-9df9-467f-88b6-f7af9e2c9894')
+        expect(id).to eq('c3c6502d-f660-409c-9bc9-a7b7ce4f0bc5')
       end
     end
   
     context 'with telephone missing from params' do
       before do
         telephone.phone_number = ''
-        delete('/mobile/v0/user/emails', params: telephone.to_json, headers: iam_headers(json_body_headers))
+        delete('/mobile/v0/user/phones', params: telephone.to_json, headers: iam_headers(json_body_headers))
       end
     
       it 'returns a 422' do
@@ -186,11 +186,11 @@ RSpec.describe 'phones', type: :request do
         message = response.parsed_body['errors'].first
         expect(message).to eq(
           {
-            'title' => "Email address can't be blank",
-            'detail' => "email-address - can't be blank",
+            'title' => "Phone number can't be blank",
+            'detail' => "phone-number - can't be blank",
             'code' => '100',
             'source' => {
-              'pointer' => 'data/attributes/email-address'
+              'pointer' => 'data/attributes/phone-number'
             },
             'status' => '422'
           }
