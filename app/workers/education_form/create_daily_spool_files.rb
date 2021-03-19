@@ -84,7 +84,7 @@ module EducationForm
         filename = "#{region_id}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
         spool_file_event = SpoolFileEvent.build_event(region_id, filename)
 
-        if spool_file_event.successful_at.present?
+        if !Rails.env.production? && spool_file_event.successful_at.present?
           log_info("Spool file #{filename} already created for #{region_id} for this run period")
         else
           log_submissions(records, filename)
