@@ -8,4 +8,6 @@ RSpec.describe V0::NoticeOfDisagreementsController, type: :request do
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
 
   before { sign_in_as(user) }
+
+  it('is present') { expect(described_class).to be_truthy }
 end
