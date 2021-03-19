@@ -213,7 +213,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:file_path) { "tmp/spool_files/#{filename}" }
 
       before do
-        expect(Rails.env).to receive('development?').once.and_return(true)
+        expect(Rails.env).to receive('production?').twice.and_return(false)
       end
 
       after do
@@ -224,10 +224,11 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         subject.perform
 
-        expect(subject).to receive(:log_exception_to_sentry).twice
+        create(:va1995)
+        expect(subject).to receive(:log_info).once
 
-        msg = "Spool file #{filename} already created for 307 for this run period"
-        expect(subject).to receive('log_info').with(msg)
+        msg = 'A spool file for 307 on 09172016 was already created'
+        expect(subject).to receive(:log_info).with(msg)
         subject.perform
       end
     end

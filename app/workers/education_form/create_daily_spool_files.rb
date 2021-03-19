@@ -85,7 +85,7 @@ module EducationForm
         spool_file_event = SpoolFileEvent.build_event(region_id, filename)
 
         if !Rails.env.production? && spool_file_event.successful_at.present?
-          log_info("Spool file #{filename} already created for #{region_id} for this run period")
+          log_info("A spool file for #{region_id} on #{Time.zone.now.strftime('%m%d%Y')} was already created")
         else
           log_submissions(records, filename)
           # create the single textual spool file
