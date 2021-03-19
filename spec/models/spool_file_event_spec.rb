@@ -30,7 +30,7 @@ RSpec.describe SpoolFileEvent, type: :model do
 
     it 'returns a new event' do
       rpo = EducationForm::EducationFacility::FACILITY_IDS[:eastern]
-      filename = "#{rpo}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
+      filename = "#{rpo}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
 
       event = SpoolFileEvent.build_event(rpo, filename)
       expect(event.rpo).to eq(rpo)
