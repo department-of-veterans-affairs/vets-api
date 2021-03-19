@@ -59,14 +59,12 @@ describe AppealsApi::DecisionReviewReport do
 
     expect(subject.nod_by_status_and_count).to eq({
       'error' => 1,
-      'expired' => 0,
       'pending' => 0,
       'processing' => 0,
-      'received' => 0,
       'submitted' => 0,
       'submitting' => 0,
       'success' => 2,
-      'uploaded' => 0
+      'caseflow' => 0
     })
   end
   # rubocop:enable Layout/FirstHashElementIndentation
