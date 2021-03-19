@@ -64,22 +64,22 @@ module ClaimsApi
             :description,
             <<~X
               Establishes a [Disability Compensation Claim](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) in VBMS. Submits any PDF attachments as a multi-part payload and returns an ID. For claims that are not original claims, this endpoint generates a filled 526 PDF along with the submission.
-
+              <br/><br/>
               A 200 response indicates the submission was successful, but the claim has not reached VBMS until it has a “claim established” status. Check claim status using the GET /claims/{id} endpoint.
-
-              **Original claims**
+              <br/><br/>
+              **Original claims**<br/>
               An original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have the Veteran’s wet signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s wet signature. Uploading a PDF for subsequent claims is not required or recommended.
-
+              <br/><br/>
               POST the original claim with the autoCestPDFGenerationDisabled boolean as true. After a 200 response, use the PUT /forms/526/{id} endpoint to upload a scanned PDF of your form, signed in ink, by the Veteran.
-
+              <br/><br/>
               The claim data submitted through the POST endpoint must match the wet-signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.
-
-              **Standard and fully developed claims (FDCs)**
+              <br/><br/>
+              **Standard and fully developed claims (FDCs)**<br/>
               [Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/) are claims certified by the submitter to include all information needed for processing. These claims process faster than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, it will route through the standard claim process.
-
+              <br/><br/>
               To certify a claim for the FDC process, set the standardClaim indicator to false.
-
-              **Flashes and special issues**
+              <br/><br/>
+              **Flashes and special issues**<br/>
               Including flashes and special issues in your 526 claim submission helps VA properly route and prioritize current and future claims for the Veteran and reduces claims processing time.
 
                - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness. See a full list of [supported flashes](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L35).
@@ -207,9 +207,9 @@ module ClaimsApi
             :description,
             <<~X
               Used to upload a completed, wet-signed 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.
-
+              <br/><br/>
               This endpoint works by accepting a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3). Each attachment should be encoded separately rather than encoding the whole payload together as with the Benefits Intake API.
-
+              <br/><br/>
               For other attachments, such as medical records, use the /forms/526/{id}/attachments endpoint.
             X
           )
@@ -513,7 +513,7 @@ module ClaimsApi
             :description,
             <<~X
               Used to attach supporting documents for a 526 claim. For wet-signature PDFs, use the PUT /forms/526/{id} endpoint.
-
+              <br/><br/>
               This endpoint accepts a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3).
             X
           )
