@@ -232,7 +232,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-
     context 'notifies which file failed during initial attempt' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
 
