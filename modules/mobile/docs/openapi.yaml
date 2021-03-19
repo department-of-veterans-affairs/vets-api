@@ -1033,6 +1033,78 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+    delete:
+      summary: /v0/user/emails
+      description: Deletes a user's email address
+      operationId: user.deleteEmailAddress
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The new email address
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/EmailUpdate.yml'
+            example:
+              id: 42,
+              emailAddress: "person42@example.com"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/EmailTransaction.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/user/phones:
     post:
       summary: /v0/user/phones
@@ -1885,7 +1957,7 @@ paths:
     get:
       summary: /v0/messaging/health/folders
       description: List available secure messaging folders
-      operationId: listFolders
+      operationId: get_folders
       security:
         - Bearer: []
       responses:
@@ -1911,7 +1983,7 @@ paths:
     get:
       summary: /v0/messaging/health/folders/{id}
       description: Get a secure messaging folder
-      operationId: getFolder
+      operationId: get_folder
       security:
         - Bearer: []
       responses:
@@ -1937,7 +2009,7 @@ paths:
     get:
       summary: /v0/messaging/health/folders/{id}/messages
       description: List messages in a secure messaging folder
-      operationId: listFolderMessages
+      operationId: get_folder_messages
       security:
         - Bearer: []
       responses:
@@ -1959,13 +2031,167 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages:
+    post:
+      summary: /v0/messaging/health/messages
+      description: Send a new secure message
+      operationId: post_create_message
+      security:
+        - Bearer: []
+      requestBody:
+        description: |
+          New message body.
+          
+          <strong>NOTES:</strong> 
+          <ul><li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
+          <li>Messages can only be replied to for 120 days.  After that, it is considered "expired"</li></ul>
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/SecureMessageNewMessageRequest.yml'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                uploads[]:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                message:
+                  type: string
+                  description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"category":"OTHER","recipient_id":1763526,"body":"test message"}')
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageDetail.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/messaging/health/messages/{id}:
     get:
       summary: /v0/messaging/health/messages/{id}
       description: Get a secure message and mark message as read
-      operationId: getMessage
+      operationId: get_message
       security:
         - Bearer: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageDetail.yml"
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    patch:
+      summary: /v0/messaging/health/messages/{id}/move
+      operationId: post_move_message
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The id of the message that is to be moved
+        - in: query
+          name: folder_id,
+          required: true
+          schema:
+            type: string
+          description: The id of the folder that the message is to be moved to
+      description: Moves a secure message to a specified folder
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: 'The message was moved successfully'
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    delete:
+      summary: /v0/messaging/health/messages/{id}
+      operationId: delete_message
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The id of the message that is to be deleted
+      description: Moves a secure message to the "Deleted" folder
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: The message was deleted successfully
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages/{id}/reply:
+    post:
+      summary: /v0/messaging/health/messages/{id}/reply
+      description: |
+        Send reply to a secure message          
+        
+        <strong>NOTE:</strong> If including file attachments, this request must be sent as <i>multipart/form-data</i>
+      operationId: post_create_message_reply
+      security:
+        - Bearer: []
+      requestBody:
+        description: Reply message body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/SecureMessageReplyRequest.yml'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                uploads[]:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                message:
+                  type: string
+                  description: Stringified JSON with same parameters as if this was an application/json request (e.g. '{"body":"test body with attachment"}')
       responses:
         '200':
           description: OK
@@ -1991,8 +2217,7 @@ paths:
       description: >
         Get a secure message attachment content as a direct binary download.
         Secure messaging supports the following file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.
-
-      operationId: getMessageAttachment
+      operationId: get_attachment
       security:
         - Bearer: []
       responses:
@@ -2025,7 +2250,7 @@ paths:
     get:
       summary: /v0/messaging/health/messages/categories
       description: List available message categories
-      operationId: listMessageCategories
+      operationId: get_categories
       security:
         - Bearer: []
       responses:
@@ -2051,7 +2276,7 @@ paths:
     get:
       summary: /v0/messaging/health/recipients
       description: List available recipients to which messages may be sent
-      operationId: listRecipients
+      operationId: get_triage_teams
       security:
         - Bearer: []
       responses:

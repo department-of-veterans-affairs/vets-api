@@ -36,7 +36,7 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
       it 'does not update statuses' do
         with_settings(Settings.modules_appeals_api, notice_of_disagreement_updater_enabled: false) do
           Sidekiq::Testing.inline! { AppealsApi::NoticeOfDisagreementUploadStatusBatch.new.perform }
-          expect(upload.status).to eq('received')
+          expect(upload.status).to eq('submitted')
         end
       end
     end
