@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AppealsApi
-  module AppealStatus
+  module HlrStatus
     extend ActiveSupport::Concern
 
     STATUSES = %w[pending submitting submitted processing error uploaded received success expired].freeze
