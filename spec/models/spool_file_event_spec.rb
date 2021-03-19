@@ -18,7 +18,8 @@ RSpec.describe SpoolFileEvent, type: :model do
     it 'returns a successful existing event' do
       successful_event = create(:spool_file_event, :successful)
       event = SpoolFileEvent.build_event(successful_event.rpo, successful_event.filename)
-      expect(successful_event).to eq(event)
+      expect(successful_event.id).to eq(event.id)
+      expect(successful_event.rpo).to eq(event.rpo)
     end
 
     it 'returns a non-successful existing event' do
