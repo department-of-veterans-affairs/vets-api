@@ -68,7 +68,7 @@ RSpec.describe BGS::DependencyVerificationService do
 
         diary_due_dates = response[:diaries][:diary].map { |hash| hash[:diary_due_date].to_s }
 
-        expect(diary_due_dates).to eq(%w(2022-03-19T15:48:50-05:00 2022-03-19T15:48:50-05:00 2022-03-19T15:48:50-05:00))
+        expect(diary_due_dates).to eq(%w[2022-03-19T15:48:50-05:00 2022-03-19T15:48:50-05:00 2022-03-19T15:48:50-05:00])
         expect(response[:error_level]).to eq('0')
         expect(response[:diaries][:diary].map { |diary| diary[:award_diary_id] }).to eq(%w[73528 73529 73530])
       end

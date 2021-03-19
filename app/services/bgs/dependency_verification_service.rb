@@ -37,7 +37,7 @@ module BGS
     def updated_diaries(diaries)
       diaries.map do |diary|
         if diary[:diary_reason_type] == '24' && diary[:diary_lc_status_type] == 'PEND'
-            diary.merge!(diary_due_date: (Time.current + 1.year).iso8601)
+          diary.merge!(diary_due_date: (Time.current + 1.year).iso8601)
         end
 
         diary
