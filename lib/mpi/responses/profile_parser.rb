@@ -20,14 +20,10 @@ module MPI
       SUBJECT_XPATH = 'controlActProcess/subject'
       PATIENT_XPATH = 'registrationEvent/subject1/patient'
       STATUS_XPATH = 'statusCode/@code'
-      GENDER_XPATH = 'patientPerson/administrativeGenderCode/@code'
-      DOB_XPATH = 'patientPerson/birthTime/@value'
-      SSN_XPATH = 'patientPerson/asOtherIDs'
-      NAME_XPATH = 'patientPerson/name'
-      ADDRESS_XPATH = 'patientPerson/addr'
-      PHONE = 'patientPerson/telecom'
 
       PATIENT_PERSON_PREFIX = 'patientPerson/'
+      RELATIONSHIP_PREFIX = 'relationshipHolder1/'
+
       GENDER_XPATH = 'administrativeGenderCode/@code'
       DOB_XPATH = 'birthTime/@value'
       SSN_XPATH = 'asOtherIDs'
@@ -45,6 +41,8 @@ module MPI
 
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
+
+      PATIENT_RELATIONSHIP_XPATH = 'patientPerson/personalRelationship'
 
       # Creates a new parser instance.
       #
@@ -110,7 +108,8 @@ module MPI
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
           search_token: locate_element(@original_body, 'id').attributes[:extension],
           cerner_id: parsed_mvi_ids[:cerner_id],
-          cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids]
+          cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids],
+          relationships: parse_relationships(patient.locate(PATIENT_RELATIONSHIP_XPATH))
         )
       end
       # rubocop:enable Metrics/MethodLength
@@ -138,9 +137,47 @@ module MPI
         end
       end
 
-      def get_patient_name(patient)
-        locate_element(patient, NAME_XPATH)
+      def parse_relationships(relationships_array)
+        relationships_array.map { |relationship| build_relationship_mvi_profile(relationship) }
       end
+
+      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/AbcSize
+      def build_relationship_mvi_profile(relationship)
+        relationship_holder = locate_element(relationship, RELATIONSHIP_PREFIX)
+        name = parse_name(locate_element(relationship_holder, NAME_XPATH))
+        full_mvi_ids = get_extensions(relationship_holder.locate('id'))
+        parsed_mvi_ids = parse_xml_gcids(relationship_holder.locate('id'))
+        log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
+        MPI::Models::MviProfile.new(
+          person_type_code: locate_element(relationship, 'code').attributes[:code],
+          given_names: name[:given],
+          family_name: name[:family],
+          suffix: name[:suffix],
+          gender: locate_element(relationship_holder, GENDER_XPATH),
+          birth_date: locate_element(relationship_holder, DOB_XPATH),
+          ssn: parse_ssn(locate_element(relationship_holder, SSN_XPATH)),
+          address: nil,
+          home_phone: locate_element(relationship, PHONE).attributes[:value],
+          full_mvi_ids: full_mvi_ids,
+          icn: parsed_mvi_ids[:icn],
+          mhv_ids: parsed_mvi_ids[:mhv_ids],
+          active_mhv_ids: parsed_mvi_ids[:active_mhv_ids],
+          edipi: sanitize_edipi(parsed_mvi_ids[:edipi]),
+          participant_id: sanitize_id(parsed_mvi_ids[:vba_corp_id]),
+          vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
+          sec_id: parsed_mvi_ids[:sec_id],
+          birls_id: sanitize_id(parsed_mvi_ids[:birls_id]),
+          birls_ids: parsed_mvi_ids[:birls_ids].map { |id| sanitize_id(id) }.compact,
+          vet360_id: parsed_mvi_ids[:vet360_id],
+          # historical_icns: MPI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
+          icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
+          cerner_id: parsed_mvi_ids[:cerner_id],
+          cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids]
+        )
+      end
+      # rubocop:enable Metrics/AbcSize
+      # rubocop:enable Metrics/MethodLength
 
       # name can be a hash or an array of hashes with extra unneeded details
       # given may be an array if it includes middle name
