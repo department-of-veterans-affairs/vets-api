@@ -27,7 +27,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
       file_obj = carrier_wave_sanitized_file&.to_file
       file_obj && MimeMagic.by_magic(file_obj)
     ensure
-      file_obj&.close
+      file_obj.close if file_obj.respond_to? :close
     end
   end
 
