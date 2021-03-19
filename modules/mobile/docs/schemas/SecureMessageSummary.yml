@@ -58,7 +58,7 @@ properties:
       recipientName:
         type: string
         example: "ROE, RICHARD"
-      readRecipt:
+      readReceipt:
         type: string
         nullable: true
         enum: [ READ, null ]
