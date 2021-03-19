@@ -350,7 +350,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       before do
         @md = JSON.parse(valid_metadata)
         allow(VBADocuments::MultipartParser).to receive(:parse) {
-          {'metadata' => @md.to_json, 'content' => valid_doc}
+          { 'metadata' => @md.to_json, 'content' => valid_doc }
         }
         allow(CentralMail::Service).to receive(:new) { client_stub }
         allow(faraday_response).to receive(:status).and_return(200)
@@ -370,7 +370,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         expect(updated.uploaded_pdf['line_of_business']).to eq('CMP')
       end
 
-      ['LOG', 'MED', 'BUR', 'OTH', 'DROC'].each do |future_lob|
+      %w[LOG MED BUR OTH DROC].each do |future_lob|
         it "maps the future line of business #{future_lob} to CMP" do
           @md['businessLine'] = future_lob
           described_class.new.perform(upload.guid)

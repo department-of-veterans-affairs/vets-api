@@ -85,19 +85,18 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     end
 
     context 'line of business' do
-
       before do
         @md = JSON.parse(valid_metadata)
         @upload_submission = VBADocuments::UploadSubmission.new
         @upload_submission.update(status: 'uploaded')
         allow(VBADocuments::MultipartParser).to receive(:parse) {
-          {'metadata' => @md.to_json, 'content' => valid_doc}
+          { 'metadata' => @md.to_json, 'content' => valid_doc }
         }
         allow(CentralMail::Service).to receive(:new) { client_stub }
         allow(faraday_response).to receive(:status).and_return(200)
-        allow(faraday_response).to receive(:body).and_return([[],[]].to_json)
+        allow(faraday_response).to receive(:body).and_return([[], []].to_json)
         allow(faraday_response).to receive(:success?).and_return(true)
-        allow(VBADocuments::PayloadManager).to receive(:download_raw_file) {[Tempfile.new,Time.now]}
+        allow(VBADocuments::PayloadManager).to receive(:download_raw_file) { [Tempfile.new, Time.zone.now] }
         expect(client_stub).to receive(:upload) {
           faraday_response
         }
@@ -121,7 +120,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       # https://github.com/department-of-veterans-affairs/vets-api/pull/6186
       it 'succeeds when giving a status on legacy data' do
         @md['businessLine'] = 'CMP'
-        @upload_submission.metadata={}
+        @upload_submission.metadata = {}
         @upload_submission.save!
         VBADocuments::UploadProcessor.new.perform(@upload_submission.guid)
         get "/services/vba_documents/v1/uploads/#{@upload_submission.guid}"

@@ -50,10 +50,7 @@ module VBADocuments
       # read the PDF content
       data[:content].merge!(read_pdf_metadata(@parts['content']))
       data[:content][:attachments] = []
-      if parts_metadata.key? 'businessLine'
-        data['line_of_business'] = parts_metadata['businessLine']
-        data['submitted_line_of_business'] = VALID_LOB[parts_metadata['businessLine']].to_s
-      end
+      add_line_of_business(data, parts_metadata)
       total_pages = data[:content][:page_count]
       total_documents = 1
 
@@ -74,6 +71,13 @@ module VBADocuments
     end
 
     private
+
+    def add_line_of_business(data, parts_metadata)
+      if parts_metadata.key? 'businessLine'
+        data['line_of_business'] = parts_metadata['businessLine']
+        data['submitted_line_of_business'] = VALID_LOB[parts_metadata['businessLine']].to_s
+      end
+    end
 
     def read_pdf_metadata(content_key)
       # read the PDF content
