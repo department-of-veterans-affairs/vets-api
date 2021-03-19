@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :spool_file_event do
     rpo { EducationForm::EducationFacility::FACILITY_IDS[:western] }
     filename {
-      "#{EducationForm::EducationFacility::FACILITY_IDS[:western]}_#{Time.zone.today.strftime('%m%d%Y')}_vetsgov.spl"
+      "#{EducationForm::EducationFacility::FACILITY_IDS[:western]}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
     }
 
     trait :successful do

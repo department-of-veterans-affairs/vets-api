@@ -182,7 +182,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
-    let(:filename) { '307_09172016_vetsgov.spl' }
+    let(:filename) { '307_09172016_070000_vetsgov.spl' }
     let!(:second_record) { FactoryBot.create(:va1995) }
 
     context 'in the development env' do
@@ -208,42 +208,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
     end
-
-    context 'on first retry attempt with a previous success' do
-      let(:file_path) { "tmp/spool_files/#{filename}" }
-
-      before do
-        expect(Rails.env).to receive('development?').once.and_return(true)
-      end
-
-      after do
-        File.delete(file_path)
-      end
-
-      it 'notifies file was already created for filename and RPO' do
-        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-        subject.perform
-        subject.perform
-        msg = "Spool file #{filename} already created for 307 for this run period"
-        expect(subject).to receive('log_info').with(msg)
-      end
-    end
-
-    context 'notifies which file failed during initial attempt' do
-      let(:file_path) { "tmp/spool_files/#{filename}" }
-
-      before do
-        expect(Rails.env).to receive('development?').once.and_return(true)
-      end
-
-      it 'logs exception to sentry' do
-        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-        expect(subject).to receive(:track_submissions).and_raise('boom')
-        subject.perform
-        expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::DailySpoolFileError))
-      end
-    end
-
+    
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
 
