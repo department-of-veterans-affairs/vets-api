@@ -223,26 +223,35 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     #   it 'notifies file was already created for filename and RPO' do
     #     expect(EducationBenefitsClaim.unprocessed).not_to be_empty
     #     subject.perform
-    #     subject.perform
+    #
     #     msg = "Spool file #{filename} already created for 307 for this run period"
     #     expect(subject).to receive('log_info').with(msg)
-    #   end
-    # end
-    #
-    # context 'notifies which file failed during initial attempt' do
-    #   let(:file_path) { "tmp/spool_files/#{filename}" }
-    #
-    #   before do
-    #     expect(Rails.env).to receive('development?').once.and_return(true)
-    #   end
-    #
-    #   it 'logs exception to sentry' do
-    #     expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-    #     expect(subject).to receive(:track_submissions).and_raise('boom')
     #     subject.perform
-    #     expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::DailySpoolFileError))
     #   end
     # end
+    #
+
+    context 'notifies which file failed during initial attempt' do
+      let(:file_path) { "tmp/spool_files/#{filename}" }
+
+      before do
+        expect(Rails.env).to receive('development?').once.and_return(true)
+        expect(Rails.env).to receive('production?').once.and_return(false)
+      end
+
+      it 'logs exception to sentry' do
+        local_mock = instance_double('SFTPWriter::Local')
+
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+        expect(SFTPWriter::Local).to receive(:new).once.and_return(local_mock)
+        expect(local_mock).to receive(:write).and_raise('boom')
+        expect(local_mock).to receive(:close).once.and_return(true)
+        expect(subject).to receive(:log_exception_to_sentry).exactly(3).times
+        expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::DailySpoolFileError))
+
+        subject.perform
+      end
+    end
 
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
