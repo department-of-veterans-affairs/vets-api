@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/benefits-awards/DiariesService?WSDL
+    uri: https://localhost:4447/benefits-awards/DiariesService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 09 Mar 2021 16:45:56 GMT
+      - Fri, 19 Mar 2021 20:48:48 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -143,10 +143,10 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Tue, 09 Mar 2021 16:45:57 GMT
+  recorded_at: Fri, 19 Mar 2021 20:48:48 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/benefits-awards/DiariesService
+    uri: https://localhost:4447/benefits-awards/DiariesService
     body:
       encoding: UTF-8
       string: |-
@@ -158,7 +158,7 @@ http_interactions:
             <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>83851712386592202</vaws:ExternalUid>
+            <vaws:ExternalUid>95765233180227951</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
@@ -184,7 +184,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 09 Mar 2021 16:45:57 GMT
+      - Fri, 19 Mar 2021 20:48:49 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -220,14 +220,14 @@ http_interactions:
         18</dependencyDecisionTypeDescription><dependencyStatusType>NAWDDEP</dependencyStatusType><dependencyStatusTypeDescription>Not
         an Award Dependent</dependencyStatusTypeDescription><eventDate>2018-04-15T00:00:00-05:00</eventDate><firstName>David</firstName><fullName>David
         jakes</fullName><lastName>jakes</lastName><modifiedAction>U</modifiedAction><modifiedBy>IA</modifiedBy><modifiedDate>2008-04-21T14:14:20-05:00</modifiedDate><modifiedLocation>101</modifiedLocation><modifiedProcess>106072
-        Backfill</modifiedProcess><personID>13018368</personID><relationshipTypeDescription>Child</relationshipTypeDescription><socialSecurityNumber>221551265</socialSecurityNumber><sortDate>2006-05-02T09:47:38-05:00</sortDate><sortOrderNumber>0</sortOrderNumber><veteranID>13014883</veteranID></DependencyDec></DependencyDecs><Diaries><Diary><awardDiaryID>71859</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2014-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
-        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-02-02T17:49:58-06:00</statusDate><veteranID>13014883</veteranID></Diary><Diary><awardDiaryID>71860</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2014-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
-        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-02-02T17:49:58-06:00</statusDate><veteranID>13014883</veteranID></Diary><Diary><awardDiaryID>71861</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2015-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
-        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-02-02T17:49:58-06:00</statusDate><veteranID>13014883</veteranID></Diary></Diaries></ns2:DiaryResponse></ns1:readDiariesResponse></S:Body></S:Envelope>
-  recorded_at: Tue, 09 Mar 2021 16:45:58 GMT
+        Backfill</modifiedProcess><personID>13018368</personID><relationshipTypeDescription>Child</relationshipTypeDescription><socialSecurityNumber>221551265</socialSecurityNumber><sortDate>2006-05-02T09:47:38-05:00</sortDate><sortOrderNumber>0</sortOrderNumber><veteranID>13014883</veteranID></DependencyDec></DependencyDecs><Diaries><Diary><awardDiaryID>73528</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2020-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
+        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:45:34-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:34-05:00</statusDate><veteranID>13014883</veteranID></Diary><Diary><awardDiaryID>73529</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2020-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
+        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:45:35-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:35-05:00</statusDate><veteranID>13014883</veteranID></Diary><Diary><awardDiaryID>73530</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2020-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
+        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:45:35-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:35-05:00</statusDate><veteranID>13014883</veteranID></Diary></Diaries></ns2:DiaryResponse></ns1:readDiariesResponse></S:Body></S:Envelope>
+  recorded_at: Fri, 19 Mar 2021 20:48:50 GMT
 - request:
     method: get
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/benefits-awards/DiariesService?WSDL
+    uri: https://localhost:4447/benefits-awards/DiariesService?WSDL
     body:
       encoding: US-ASCII
       string: ''
@@ -246,7 +246,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 09 Mar 2021 16:46:08 GMT
+      - Fri, 19 Mar 2021 20:49:08 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -368,10 +368,10 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Tue, 09 Mar 2021 16:46:09 GMT
+  recorded_at: Fri, 19 Mar 2021 20:49:09 GMT
 - request:
     method: post
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447/benefits-awards/DiariesService
+    uri: https://localhost:4447/benefits-awards/DiariesService
     body:
       encoding: UTF-8
       string: |-
@@ -383,11 +383,11 @@ http_interactions:
             <vaws:CLIENT_MACHINE>10.0.0.147</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>83851712386592202</vaws:ExternalUid>
+            <vaws:ExternalUid>95765233180227951</vaws:ExternalUid>
             <vaws:ExternalKey>abraham.lincoln@vets.gov</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:updateDiaries><data:AwardKeyInput><awardType>CPL</awardType><beneficiaryID>13014883</beneficiaryID><veteranID>13014883</veteranID></data:AwardKeyInput><data:DiaryInput><awardDiaryID>71859</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2014-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-09T16:46:08Z</statusDate><veteranID>13014883</veteranID></data:DiaryInput><data:DiaryInput><awardDiaryID>71860</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2014-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-09T16:46:08Z</statusDate><veteranID>13014883</veteranID></data:DiaryInput><data:DiaryInput><awardDiaryID>71861</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2015-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-09T16:46:08Z</statusDate><veteranID>13014883</veteranID></data:DiaryInput></tns:updateDiaries></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:updateDiaries><data:AwardKeyInput><awardType>CPL</awardType><beneficiaryID>13014883</beneficiaryID><veteranID>13014883</veteranID></data:AwardKeyInput><data:DiaryInput><awardDiaryID>73528</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2022-03-19T20:48:50Z</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:45:34-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:34-05:00</statusDate><veteranID>13014883</veteranID></data:DiaryInput><data:DiaryInput><awardDiaryID>73529</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2022-03-19T20:48:50Z</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:45:35-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:35-05:00</statusDate><veteranID>13014883</veteranID></data:DiaryInput><data:DiaryInput><awardDiaryID>73530</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2022-03-19T20:48:50Z</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:45:35-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:35-05:00</statusDate><veteranID>13014883</veteranID></data:DiaryInput></tns:updateDiaries></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -409,7 +409,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 09 Mar 2021 16:46:09 GMT
+      - Fri, 19 Mar 2021 20:49:10 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -424,9 +424,9 @@ http_interactions:
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdMABZ3ZWJsb2dpYy5hcHAuYXctd3MtZWFyAAAA1gAAACN3ZWJsb2dpYy53b3JrYXJlYS5TdHJpbmdXb3JrQ29udGV4dAAFMS4wLjAAAA==</work:WorkContext></env:Header><S:Body><ns1:updateDiariesResponse
         xmlns:ns0="http://gov.va.vba.benefits.arch.soap/webfault" xmlns:ns1="http://gov.va.vba.benefits.awards.ws/services"
-        xmlns:ns2="http://gov.va.vba.benefits.awards.ws/data"><ns2:DiaryResponse><errorLevel>0</errorLevel><DependencyDecs/><Diaries><Diary><awardDiaryID>71859</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2014-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
-        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-09T10:46:08-06:00</statusDate><veteranID>13014883</veteranID></Diary><Diary><awardDiaryID>71860</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2014-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
-        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-09T10:46:08-06:00</statusDate><veteranID>13014883</veteranID></Diary><Diary><awardDiaryID>71861</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2015-05-01T00:00:00-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
-        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>I</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-02-02T17:49:58-06:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_create</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-09T10:46:08-06:00</statusDate><veteranID>13014883</veteranID></Diary></Diaries></ns2:DiaryResponse></ns1:updateDiariesResponse></S:Body></S:Envelope>
-  recorded_at: Tue, 09 Mar 2021 16:46:10 GMT
+        xmlns:ns2="http://gov.va.vba.benefits.awards.ws/data"><ns2:DiaryResponse><errorLevel>0</errorLevel><DependencyDecs/><Diaries><Diary><awardDiaryID>73528</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2022-03-19T15:48:50-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
+        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>U</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:49:10-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_update</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:34-05:00</statusDate><veteranID>13014883</veteranID></Diary><Diary><awardDiaryID>73529</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2022-03-19T15:48:50-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
+        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>U</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:49:10-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_update</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:35-05:00</statusDate><veteranID>13014883</veteranID></Diary><Diary><awardDiaryID>73530</awardDiaryID><awardType>CPL</awardType><beneficaryID>13014883</beneficaryID><diaryDueDate>2022-03-19T15:48:50-05:00</diaryDueDate><diaryLcStatusType>PEND</diaryLcStatusType><diaryLcStatusTypeDescription>Pending</diaryLcStatusTypeDescription><diaryReasonType>24</diaryReasonType><diaryReasonTypeDescription>Issue
+        Dependency Verification Form</diaryReasonTypeDescription><fileNumber>546212222</fileNumber><firstNm>Ray</firstNm><lastName>Jakes</lastName><modifiedAction>U</modifiedAction><modifiedBy>VAgovAPI</modifiedBy><modifiedDate>2021-03-19T15:49:10-05:00</modifiedDate><modifiedLocation>281</modifiedLocation><modifiedProcess>VAgovAPI-cp_diary_pkg.do_update</modifiedProcess><ptcpntDiaryID>13018359</ptcpntDiaryID><statusDate>2021-03-19T15:45:35-05:00</statusDate><veteranID>13014883</veteranID></Diary></Diaries></ns2:DiaryResponse></ns1:updateDiariesResponse></S:Body></S:Envelope>
+  recorded_at: Fri, 19 Mar 2021 20:49:10 GMT
 recorded_with: VCR 6.0.0
