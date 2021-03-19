@@ -208,28 +208,30 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
     end
-    #
-    # context 'on first retry attempt with a previous success' do
-    #   let(:file_path) { "tmp/spool_files/#{filename}" }
-    #
-    #   before do
-    #     expect(Rails.env).to receive('development?').once.and_return(true)
-    #   end
-    #
-    #   after do
-    #     File.delete(file_path)
-    #   end
-    #
-    #   it 'notifies file was already created for filename and RPO' do
-    #     expect(EducationBenefitsClaim.unprocessed).not_to be_empty
-    #     subject.perform
-    #
-    #     msg = "Spool file #{filename} already created for 307 for this run period"
-    #     expect(subject).to receive('log_info').with(msg)
-    #     subject.perform
-    #   end
-    # end
-    #
+
+    context 'on first retry attempt with a previous success' do
+      let(:file_path) { "tmp/spool_files/#{filename}" }
+
+      before do
+        expect(Rails.env).to receive('development?').once.and_return(true)
+      end
+
+      after do
+        File.delete(file_path)
+      end
+
+      it 'notifies file was already created for filename and RPO' do
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+        subject.perform
+
+        expect(subject).to receive(:log_exception_to_sentry).twice
+
+        msg = "Spool file #{filename} already created for 307 for this run period"
+        expect(subject).to receive('log_info').with(msg)
+        subject.perform
+      end
+    end
+
 
     context 'notifies which file failed during initial attempt' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
