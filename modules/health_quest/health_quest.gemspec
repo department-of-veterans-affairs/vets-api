@@ -9,8 +9,8 @@ require 'health_quest/version'
 Gem::Specification.new do |spec|
   spec.name        = 'health_quest'
   spec.version     = HealthQuest::VERSION
-  spec.authors     = ['Laurence Guild']
-  spec.email       = ['lguild@governmentcio.com']
+  spec.authors     = ['Dillo Raju']
+  spec.email       = ['draju@governmentcio.com']
   spec.homepage    = 'https://api.va.gov'
   spec.summary     = 'An api.va.gov module'
   spec.description = 'This module was auto-generated please update this description'
