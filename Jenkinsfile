@@ -37,9 +37,9 @@ pipeline {
       }
     }
 
-    stage('Setup Testing DB') {
+    stage('Setup Testing parallel DBs') {
       steps {
-        sh 'env=$RAILS_ENV make db'
+        sh 'env=$RAILS_ENV make spec_parallel_setup'
       }
     }
 
@@ -75,7 +75,7 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        sh 'env=$RAILS_ENV make spec'
+        sh 'env=$RAILS_ENV make spec_parallel'
       }
       post {
         success {
