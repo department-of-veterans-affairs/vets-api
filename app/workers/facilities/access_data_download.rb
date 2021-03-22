@@ -87,7 +87,7 @@ module Facilities
       update_cache(FacilitySatisfaction, facilities)
       logger.info "Updated facility satisfaction cache for #{facilities.size} facilities"
       invalidate_removed(FacilitySatisfaction, facilities.keys)
-    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e, Facilities::AccessDataError => e
+    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError, Facilities::AccessDataError => e
       log_exception_to_sentry(e)
     end
 
@@ -127,7 +127,7 @@ module Facilities
       update_cache(FacilityWaitTime, facilities)
       logger.info "Updated facility wait time cache for #{facilities.size} facilities"
       invalidate_removed(FacilityWaitTime, facilities.keys)
-    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError => e, Facilities::AccessDataError => e
+    rescue Common::Exceptions::BackendServiceException, Common::Client::Errors::ClientError, Facilities::AccessDataError => e
       log_exception_to_sentry(e)
     end
 
