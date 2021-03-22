@@ -8,6 +8,7 @@ require:
   - rubocop-thread_safety
 
 AllCops:
+  NewCops: enable
   TargetRailsVersion: 6.0
   Include:
     - '**/Dangerfile'
