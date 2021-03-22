@@ -127,7 +127,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
         value: {
           errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type',
-                       detail: 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
+                     detail: 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
               '"fiduciary", "insurance", "education", "voc_rehab", "loan_guaranty", "vha", "nca"]' }]
         }
       }
