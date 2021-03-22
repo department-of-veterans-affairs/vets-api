@@ -20,7 +20,6 @@ module BGS
     end
 
     def update_diaries
-      binding.pry
       diaries = read_diaries[:diaries]
       updated_diaries = updated_diaries(diaries)
 
