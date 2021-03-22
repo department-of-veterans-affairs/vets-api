@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module AwsHelpers
+  # rubocop:disable Metrics/AbcSize
   def stub_reports_s3(filename)
     url = 'http://foo'
 
@@ -24,6 +25,7 @@ module AwsHelpers
 
     url
   end
+  # rubocop:enable Metrics/AbcSize
 
   def stub_maintenance_windows_s3(filename)
     s3 = double

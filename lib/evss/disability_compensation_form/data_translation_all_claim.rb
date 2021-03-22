@@ -46,6 +46,7 @@ module EVSS
       #
       # @return [Hash] The translated form ready for submission
       #
+      # rubocop:disable Metrics/AbcSize
       def translate
         output_form['claimantCertification'] = true
         output_form['standardClaim'] = input_form['standardClaim']
@@ -65,6 +66,7 @@ module EVSS
 
         @translated_form
       end
+      # rubocop:enable Metrics/AbcSize
 
       private
 

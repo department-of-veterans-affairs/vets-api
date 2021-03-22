@@ -1538,6 +1538,7 @@ module PdfFill
           extract_country(veteran_contact_information.dig('veteran_address'))
       end
 
+      # rubocop:disable Metrics/AbcSize
       def merge_spouse_helpers
         spouse = @form_data['dependents_application']['spouse_information']
         return if spouse.blank?
@@ -1921,6 +1922,7 @@ module PdfFill
 
         dependent_text
       end
+      # rubocop:enable Metrics/AbcSize
     end
   end
 end

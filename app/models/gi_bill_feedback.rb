@@ -39,7 +39,7 @@ class GIBillFeedback < Common::RedisStore
     { 'profile_data' => profile_data }
   end
 
-  # rubocop:disable Metrics/MethodLength
+  # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
   def transform_form
     transformed = parsed_form.deep_transform_keys(&:underscore)
     transformed.delete('privacy_agreement_accepted')
@@ -72,7 +72,7 @@ class GIBillFeedback < Common::RedisStore
 
     transformed
   end
-  # rubocop:enable Metrics/MethodLength
+  # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
   private
 
