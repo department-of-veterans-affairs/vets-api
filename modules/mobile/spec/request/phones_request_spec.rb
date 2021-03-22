@@ -147,41 +147,41 @@ RSpec.describe 'phones', type: :request do
           VCR.use_cassette('profile/get_phone_status_incomplete') do
             VCR.use_cassette('profile/delete_phone_initial') do
               delete '/mobile/v0/user/phones',
-                params: telephone.to_json,
-                headers: iam_headers(json_body_headers)
+                     params: telephone.to_json,
+                     headers: iam_headers(json_body_headers)
             end
           end
         end
       end
-    
+
       it 'returns a 200' do
         expect(response).to have_http_status(:ok)
       end
-    
+
       it 'matches the expected schema' do
         expect(response.body).to match_json_schema('profile_update_response')
       end
-    
+
       it 'includes a transaction id' do
         id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
         expect(id).to eq('c3c6502d-f660-409c-9bc9-a7b7ce4f0bc5')
       end
     end
-  
+
     context 'with telephone missing from params' do
       before do
         telephone.phone_number = ''
         delete('/mobile/v0/user/phones', params: telephone.to_json, headers: iam_headers(json_body_headers))
       end
-    
+
       it 'returns a 422' do
         expect(response).to have_http_status(:unprocessable_entity)
       end
-    
+
       it 'matches the error schema' do
         expect(response.body).to match_json_schema('errors')
       end
-    
+
       it 'has a helpful error message' do
         message = response.parsed_body['errors'].first
         expect(message).to eq(
