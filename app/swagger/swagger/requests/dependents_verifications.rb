@@ -26,7 +26,6 @@ module Swagger
 
       swagger_path '/v0/dependents_verifications' do
         operation :post do
-          extend Swagger::Responses::ValidationError
           extend Swagger::Responses::SavedForm
 
           key :description, 'Update diaries by sending true'
