@@ -3088,7 +3088,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             '_data' => { 'update_diaries' => 'true' }
           )
         )
-
       end
     end
 
