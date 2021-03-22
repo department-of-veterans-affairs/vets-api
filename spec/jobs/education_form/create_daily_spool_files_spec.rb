@@ -214,7 +214,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       before do
         expect(Rails.env).to receive('development?').twice.and_return(true)
-        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).twice.and_return(true)
       end
 
       after do
