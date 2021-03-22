@@ -33,7 +33,7 @@ module Users
       @list += BetaRegistration.where(user_uuid: user.uuid).pluck(:feature)
       @list
     end
-    # rubocop:enable, Metrics/AbcSize
+    # rubocop:enable Metrics/AbcSize
 
     private
 
