@@ -692,7 +692,7 @@ GEM
     redis (4.1.4)
     redis-namespace (1.7.0)
       redis (>= 3.0.4)
-    regexp_parser (1.6.0)
+    regexp_parser (1.8.2)
     representable (3.0.4)
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
