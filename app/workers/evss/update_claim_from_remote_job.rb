@@ -17,12 +17,9 @@ module EVSS
       ).find_claim_with_docs_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update(data: raw_claim)
       set_status(user_uuid, claim_id, 'SUCCESS')
-    rescue ActiveRecord::ConnectionTimeoutError
+    rescue
       set_status(user_uuid, claim_id, 'FAILED')
       raise
-    # rescue
-    #   set_status(user_uuid, claim_id, 'FAILED')
-    #   raise
     end
 
     private
