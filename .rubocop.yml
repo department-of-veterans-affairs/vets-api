@@ -360,3 +360,11 @@ RSpec/SubjectStub:
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:
   EnforcedStyle: arguments
+
+Lint/DuplicateBranch:
+  Exclude:
+    - 'modules/veteran/app/models/veteran/service/representative.rb'
+    - 'app/models/emis_redis/military_information_v2.rb'
+    - 'app/workers/evss/update_claim_from_remote_job.rb'
+    - 'app/models/emis_redis/military_information.rb'
+    - 'app/controllers/v1/facilities/ccp_controller.rb'

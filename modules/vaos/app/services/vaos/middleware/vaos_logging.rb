@@ -36,11 +36,7 @@ module VAOS
             log(:warn, 'VAOS service call failed!', log_tags(env, start_time, response_env))
           end
         end
-      rescue Timeout::Error, Faraday::TimeoutError => e
-        statsd_increment("#{STATSD_KEY_PREFIX}.fail", env, e)
-        log(:warn, "VAOS service call failed - #{e.message}", log_tags(env, start_time))
-        raise
-      rescue Faraday::ConnectionFailed => e
+      rescue Timeout::Error, Faraday::TimeoutError => e,  Faraday::ConnectionFailed => e
         statsd_increment("#{STATSD_KEY_PREFIX}.fail", env, e)
         log(:warn, "VAOS service call failed - #{e.message}", log_tags(env, start_time))
         raise
