@@ -75,7 +75,9 @@ describe VAProfileRedis::ContactInformation do
           VAProfile::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
 
-        expect(contact_info.redis_namespace).to receive(:set).once if VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
+        if VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
+          expect(contact_info.redis_namespace).to receive(:set).once
+        end
         expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).twice
         expect(contact_info.status).to eq 200
         expect(contact_info.response.person).to have_deep_attributes(person)
