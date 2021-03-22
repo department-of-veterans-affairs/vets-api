@@ -82,7 +82,7 @@ module ClaimsApi
             key :in, :header
             key :description, 'VA username of the person making the request'
             key :example, 'lighthouse'
-            key :required, true
+            key :required, false
             key :type, :string
           end
 
