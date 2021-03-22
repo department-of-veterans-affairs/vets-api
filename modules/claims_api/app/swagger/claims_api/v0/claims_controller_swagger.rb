@@ -18,6 +18,14 @@ module ClaimsApi
           ]
 
           parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
             key :name, :id
             key :in, :path
             key :description, 'The ID of the claim being requested'
@@ -137,7 +145,6 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-
           key :summary, 'All Claims'
           key :description, 'Returns all claims from the system that the user has access to'
           key :operationId, 'findClaims'
@@ -147,6 +154,14 @@ module ClaimsApi
           key :tags, [
             'Claims'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           parameter do
             key :name, 'X-VA-SSN'

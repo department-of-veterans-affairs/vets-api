@@ -9,6 +9,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122' do
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :description, 'Returns a single 2122 JSON schema to auto generate a form'
           key :summary, 'Get 2122 JSON Schema for form'
           key :operationId, 'get2122JsonSchema'
@@ -18,6 +21,14 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           response 200 do
             key :description, 'schema response'
@@ -55,6 +66,9 @@ module ClaimsApi
         end
 
         operation :post do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Accepts 2122 Power of Attorney form submission'
           key :description, 'Accepts JSON payload. Full URL, including query parameters.'
           key :operationId, 'post2122poa'
@@ -62,8 +76,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -182,6 +200,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122/{id}' do
         operation :put do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Upload Power of attorney document'
           key :description, 'Accepts a document binary as part of a multipart payload.'
           key :operationId, 'upload2122Attachments'
@@ -193,19 +214,19 @@ module ClaimsApi
           ]
 
           parameter do
-            key :name, :id
-            key :in, :path
-            key :description, 'UUID given when Power of Attorney was submitted'
-            key :required, true
-            key :type, :uuid
-          end
-
-          parameter do
             key :name, 'apikey'
             key :in, :header
             key :description, 'API Key given to access data'
             key :required, true
             key :type, :string
+          end
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'UUID given when Power of Attorney was submitted'
+            key :required, true
+            key :type, :uuid
           end
 
           parameter do
@@ -336,6 +357,9 @@ module ClaimsApi
         end
 
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Check 2122 Status by ID'
           key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
           key :operationId, 'get2122poa'
@@ -343,8 +367,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -450,6 +478,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122/active' do
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Check active power of attorney status'
           key :description,
               <<~X
@@ -460,8 +491,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :bearer_token, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -567,6 +602,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122/validate' do
         operation :post do
+          security do
+            key :apikey, []
+          end
           key :summary, ' 2122 Power of Attorney form submission dry run'
           key :description, 'Accepts JSON payload.'
           key :operationId, 'validate2122poa'
@@ -574,8 +612,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :bearer_token, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do

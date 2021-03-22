@@ -23,6 +23,14 @@ module ClaimsApi
             'Intent to File'
           ]
 
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
+
           response 200 do
             key :description, 'schema response'
             content 'application/json' do
@@ -378,6 +386,9 @@ module ClaimsApi
 
       swagger_path '/forms/0966/validate' do
         operation :post do
+          security do
+            key :apikey, []
+          end
           key :summary, ' 0966 Intent to File form submission dry run'
           key :description, 'Accepts JSON payload.'
           key :operationId, 'validate0966itf'
@@ -385,8 +396,12 @@ module ClaimsApi
             'Intent to File'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           request_body do
