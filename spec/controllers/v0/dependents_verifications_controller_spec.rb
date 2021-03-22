@@ -21,4 +21,17 @@ RSpec.describe V0::DependentsVerificationsController do
       end
     end
   end
+
+  describe 'POST create' do
+    it 'fires the #update_diaries call' do
+      VCR.use_cassette('bgs/diaries/read') do
+        depenency_verification_service = double('dep_verification')
+
+        expect(depenency_verification_service).to receive(:update_diaries)
+        expect(BGS::DependencyVerificationService).to receive(:new) { depenency_verification_service }
+
+        post(:create, params: {update_diaries: true})
+      end
+    end
+  end
 end

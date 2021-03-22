@@ -8,6 +8,12 @@ module V0
       render json: dependents, serializer: DependentsVerificationsSerializer
     end
 
+    def create
+      dependency_verification_service.update_diaries if params[:update_diaries] == 'true'
+
+      status :ok
+    end
+
     private
 
     def dependency_verification_service
