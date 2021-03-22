@@ -2,10 +2,11 @@
 
 module VAForms
   class Form < ApplicationRecord
-    has_paper_trail only: ['sha256']
+    has_paper_trail only: %i[sha256 form_name first_issued_on last_revision_on row_id title]
 
     validates :title, presence: true
     validates :form_name, presence: true, uniqueness: true
+    validates :row_id, presence: true, uniqueness: true
     validates :url, presence: true
     validates :sha256, presence: true
     validates :valid_pdf, inclusion: { in: [true, false] }
