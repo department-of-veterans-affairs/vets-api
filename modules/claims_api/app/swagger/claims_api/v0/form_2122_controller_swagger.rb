@@ -624,7 +624,7 @@ module ClaimsApi
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -632,7 +632,7 @@ module ClaimsApi
             key :name, 'X-VA-First-Name'
             key :in, :header
             key :description, 'First Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -640,7 +640,7 @@ module ClaimsApi
             key :name, 'X-VA-Last-Name'
             key :in, :header
             key :description, 'Last Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -648,7 +648,7 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -665,6 +665,15 @@ module ClaimsApi
             key :in, :header
             key :description, 'VA username of the person making the request'
             key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
             key :type, :string
           end
 
