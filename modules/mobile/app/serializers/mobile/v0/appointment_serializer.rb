@@ -14,7 +14,8 @@ module Mobile
                  :start_date_local,
                  :start_date_utc,
                  :status,
-                 :time_zone
+                 :time_zone,
+                 :vetext_id
     end
   end
 end

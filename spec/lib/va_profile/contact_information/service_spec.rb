@@ -171,9 +171,10 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
           address.address_line1 = '1494 Martin Luther King Rd'
           address.city = 'Fulton'
           address.state_code = 'MS'
+          address.source_date = '2021-03-10T23:58:10.000Z'
           address.zip_code = '38843'
           response = subject.put_address(address)
-          expect(response.transaction.id).to eq('63e7792c-887e-4d57-b6ed-801edcae2c2d')
+          expect(response.transaction.id).to eq('85b6b6a6-efa8-4e39-add8-7bf01b7b1b71')
           expect(response).to be_ok
         end
       end

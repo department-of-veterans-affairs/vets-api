@@ -15,6 +15,7 @@ path 'modules' do
   gem 'claims_api'
   gem 'covid_research'
   gem 'covid_vaccine'
+  gem 'facilities_api'
   gem 'health_quest'
   gem 'identity'
   gem 'mobile'
@@ -119,6 +120,7 @@ gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
 gem 'sentry-raven'
 gem 'shrine'
+gem 'slack-notify'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
 gem 'strong_migrations'
@@ -164,7 +166,7 @@ end
 
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
-  gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
+  gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'bootsnap', require: false
   gem 'brakeman', '~> 4.7'
   gem 'bundler-audit'

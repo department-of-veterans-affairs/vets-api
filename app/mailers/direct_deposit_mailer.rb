@@ -14,7 +14,7 @@ class DirectDepositMailer < TransactionalEmailMailer
   }.freeze
 
   def build(email, google_analytics_client_id, dd_type)
-    @dd_text = DD_TYPES[dd_type]
+    @dd_text = DD_TYPES[dd_type.to_sym]
     super(email, google_analytics_client_id)
   end
 end

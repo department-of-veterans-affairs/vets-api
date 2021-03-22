@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_05_155617) do
+ActiveRecord::Schema.define(version: 2021_03_17_132241) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -55,12 +55,23 @@ ActiveRecord::Schema.define(version: 2021_03_05_155617) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "appeal_submissions", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "submitted_appeal_uuid"
+    t.string "type_of_appeal"
+    t.string "board_review_otpion"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
     t.string "status", default: "pending", null: false
     t.string "supportable_type"
     t.string "supportable_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
   end
 
@@ -306,6 +317,8 @@ ActiveRecord::Schema.define(version: 2021_03_05_155617) do
     t.string "encrypted_auth_headers_json"
     t.string "encrypted_auth_headers_json_iv"
     t.integer "remaining_entitlement"
+    t.datetime "denial_email_sent_at"
+    t.datetime "confirmation_email_sent_at"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -578,6 +591,17 @@ ActiveRecord::Schema.define(version: 2021_03_05_155617) do
     t.index ["user_uuid"], name: "index_session_activities_on_user_uuid"
   end
 
+  create_table "spool_file_events", force: :cascade do |t|
+    t.integer "rpo"
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at"
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["rpo", "filename"], name: "index_spool_file_events_uniqueness", unique: true
+  end
+
   create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
     t.string "name"
     t.string "title"
@@ -669,6 +693,7 @@ ActiveRecord::Schema.define(version: 2021_03_05_155617) do
     t.uuid "consumer_id"
     t.json "uploaded_pdf"
     t.boolean "use_active_storage", default: false
+    t.jsonb "metadata", default: {}
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end

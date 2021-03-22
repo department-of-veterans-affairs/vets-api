@@ -210,6 +210,8 @@ ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') 
 end
 
 # IAM SSOe session metrics
+StatsD.set('iam_ssoe_oauth.users', 0)
+
 IAMSSOeOAuth::SessionManager.extend StatsD::Instrument
 IAMSSOeOAuth::SessionManager.statsd_count_success :create_user_session,
                                                   'iam_ssoe_oauth.create_user_session'
@@ -218,3 +220,5 @@ IAMSSOeOAuth::SessionManager.statsd_measure :create_user_session,
 StatsD.increment('iam_ssoe_oauth.create_user_session.success', 0)
 StatsD.increment('iam_ssoe_oauth.create_user_session.failure', 0)
 StatsD.increment('iam_ssoe_oauth.inactive_session', 0)
+
+StatsD.increment('iam_ssoe_oauth.auth_type', 0)

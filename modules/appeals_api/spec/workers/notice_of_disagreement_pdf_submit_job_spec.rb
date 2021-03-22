@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
   include FixtureHelpers
@@ -15,6 +16,8 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_doc) { fixture_to_s 'valid_10182.json' }
+
+  it_behaves_like 'a monitored worker'
 
   it 'uploads a valid payload' do
     allow(CentralMail::Service).to receive(:new) { client_stub }
