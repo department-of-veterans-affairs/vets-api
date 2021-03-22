@@ -373,3 +373,7 @@ Lint/DuplicateBranch:
 # factories and pact provider states — which need a tear_down block regardless
 Lint/EmptyBlock:
   Enabled: false
+
+Lint/NoReturnInBeginEndBlocks:
+  Exclude:
+    - 'app/services/form1010cg/service.rb'
