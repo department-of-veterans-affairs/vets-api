@@ -156,6 +156,9 @@ decision_review:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
+  slack:
+    api_token: ''
+    appeals_channel_id: ''
   documentation:
     notice_of_disagreements_v1: false
   higher_level_review_pii_expunge_enabled: true
@@ -808,6 +811,9 @@ google_analytics:
 coronavirus_chatbot:
   app_secret: fake_secret
   directline_uri: northamerica.directline.botframework.com
+  webchat_secret: fake_secret
+
+virtual_agent:
   webchat_secret: fake_secret
 
 # Settings for notifications client

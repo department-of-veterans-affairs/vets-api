@@ -85,7 +85,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   swagger_path '/higher_level_reviews/{uuid}' do
     operation :get, tags: HLR_TAG do
       key :operationId, 'getHigherLevelReview'
-      key :summary, 'Shows a specific Higher-Level Review.'
+      key :summary, 'Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)'
       key :description, 'Returns all of the data associated with a specific Higher-Level Review.'
       parameter name: 'uuid', 'in': 'path', required: true, description: 'Higher-Level Review UUID' do
         schema { key :'$ref', :uuid }

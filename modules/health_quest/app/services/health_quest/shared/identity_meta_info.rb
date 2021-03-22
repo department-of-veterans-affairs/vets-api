@@ -43,13 +43,14 @@ module HealthQuest
       # @return [Hash]
       #
       def identifier_type
-        {
-          coding: [{
-            system: CODING_SYSTEM,
-            code: identifier_code,
-            userSelected: false
-          }]
-        }
+        codeable_concept.tap do |cc|
+          coding = FHIR::Coding.new
+          coding.system = CODING_SYSTEM
+          coding.code = identifier_code
+          coding.userSelected = false
+
+          cc.coding = [coding]
+        end
       end
 
       ##
@@ -58,13 +59,13 @@ module HealthQuest
       # @return [FHIR::Meta]
       #
       def set_meta
-        meta.tap do |m|
-          m.tag = [{
-            system: META_SYSTEM,
-            code: META_CODE,
-            display: META_DISPLAY
-          }]
-        end
+        coding = FHIR::Coding.new
+        coding.system = META_SYSTEM
+        coding.code = META_CODE
+        coding.display = META_DISPLAY
+
+        meta.tag = [coding]
+        meta
       end
 
       ##
@@ -101,6 +102,15 @@ module HealthQuest
       #
       def identifier_code
         raise NotImplementedError "#{self.class} should have implemented identifier_code ..."
+      end
+
+      ##
+      # Method non-implementation warning.
+      #
+      # @return [NotImplementedError]
+      #
+      def codeable_concept
+        raise NotImplementedError "#{self.class} should have implemented codeable_concept ..."
       end
     end
   end

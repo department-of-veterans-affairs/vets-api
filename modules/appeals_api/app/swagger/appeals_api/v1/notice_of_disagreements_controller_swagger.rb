@@ -194,7 +194,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
     operation :get, tags: NOD_TAG do
       key :operationId, 'getNoticeOfDisagreement'
-      key :summary, 'Shows a specific Notice of Disagreement.'
+      key :summary, 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)'
       key :description, 'Returns all of the data associated with a specific Notice of Disagreement.'
       parameter name: 'uuid', 'in': 'path', required: true, description: 'Notice of Disagreement UUID' do
         schema { key :'$ref', :uuid }

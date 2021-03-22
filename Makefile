@@ -137,11 +137,20 @@ endif
 
 .PHONY: spec_parallel_setup
 spec_parallel_setup:  ## Setup the parallel test dbs. This resets the curret test db, as well as the parallel tests dbs
+ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'rake db:reset'"
+else
+	@$(COMPOSE_TEST) $(BASH) -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'rake db:reset'"
+endif
 
 .PHONY: spec_parallel
 spec_parallel:  ## Runs spec tests in parallel
+ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true NOCOVERAGE=true parallel_rspec ${SPEC_PATH}"
+else
+	@$(COMPOSE_TEST) $(BASH) -c "CIRCLE_JOB=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_rspec ${SPEC_PATH}"
+	@$(BASH_TEST) "DISABLE_BOOTSNAP=true RUN_COVERAGE=true bin/rails simplecov:report_coverage"
+endif
 
 .PHONY: up
 up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV
