@@ -11,7 +11,7 @@ module V0
     def create
       dependency_verification_service.update_diaries if params[:update_diaries] == 'true'
 
-      status :ok
+      head :ok
     end
 
     private
