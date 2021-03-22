@@ -20,7 +20,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Countries
+              key :$ref, :Countries
             end
           end
         end
@@ -41,7 +41,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :States
+              key :$ref, :States
             end
           end
         end
@@ -62,7 +62,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Address
+              key :$ref, :Address
             end
           end
         end
@@ -105,7 +105,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Address
+              key :$ref, :Address
             end
           end
         end

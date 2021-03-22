@@ -50,7 +50,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -134,7 +134,7 @@ module ClaimsApi
             key :required, true
             content 'application/json' do
               schema do
-                key :'$ref', :Form526Input
+                key :$ref, :Form526Input
               end
             end
           end
@@ -146,7 +146,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form526Response
+                  key :$ref, :Form526Response
                 end
               end
             end
@@ -161,7 +161,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -177,7 +177,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -295,7 +295,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :ClaimsIndex
+                  key :$ref, :ClaimsIndex
                 end
               end
             end
@@ -310,7 +310,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -326,7 +326,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
@@ -342,7 +342,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -418,7 +418,7 @@ module ClaimsApi
             key :required, true
             content 'application/json' do
               schema do
-                key :'$ref', :Form526Input
+                key :$ref, :Form526Input
               end
             end
           end
@@ -463,7 +463,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -479,7 +479,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -495,7 +495,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -599,7 +599,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :ClaimsShow
+                  key :$ref, :ClaimsShow
                 end
               end
             end
@@ -614,7 +614,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -630,7 +630,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
@@ -646,7 +646,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end

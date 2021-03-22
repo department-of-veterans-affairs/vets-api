@@ -11,22 +11,22 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     let(:faraday_response) { instance_double('Faraday::Response') }
 
     let(:received_element) do
-      [{ "uuid": 'ignored',
-         "status": 'Received',
-         "errorMessage": '',
-         "lastUpdated": '2018-04-25 00:02:39' }]
+      [{ uuid: 'ignored',
+         status: 'Received',
+         errorMessage: '',
+         lastUpdated: '2018-04-25 00:02:39' }]
     end
     let(:processing_element) do
-      [{ "uuid": 'ignored',
-         "status": 'In Process',
-         "errorMessage": '',
-         "lastUpdated": '2018-04-25 00:02:39' }]
+      [{ uuid: 'ignored',
+         status: 'In Process',
+         errorMessage: '',
+         lastUpdated: '2018-04-25 00:02:39' }]
     end
     let(:success_element) do
-      [{ "uuid": 'ignored',
-         "status": 'Success',
-         "errorMessage": '',
-         "lastUpdated": '2018-04-25 00:02:39' }]
+      [{ uuid: 'ignored',
+         status: 'Success',
+         errorMessage: '',
+         lastUpdated: '2018-04-25 00:02:39' }]
     end
 
     context 'with in-flight submissions' do

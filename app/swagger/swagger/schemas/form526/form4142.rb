@@ -10,7 +10,7 @@ module Swagger
           property :limitedConsent, type: :string
           property :providerFacility, type: :array, minItems: 1, maxItems: 100 do
             items type: :object do
-              key :'$ref', :ProviderFacility
+              key :$ref, :ProviderFacility
             end
           end
         end
@@ -25,7 +25,7 @@ module Swagger
           property :providerFacilityName, type: :string, minLength: 1, maxLength: 100
           property :treatmentDateRange, type: :array do
             items do
-              key :'$ref', :DateRangeAllRequired
+              key :$ref, :DateRangeAllRequired
             end
           end
           property :providerFaciltiyAddress, type: :object do
