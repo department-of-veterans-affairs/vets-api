@@ -41,6 +41,19 @@ Style/Documentation:
 Style/ClassAndModuleChildren:
   Enabled: false
 
+# Bug in 1.11.0
+RSpec/FactoryBot/CreateList:
+  Enabled: false
+
+# Bug in 1.11.0
+RSpec/Rails/HttpStatus:
+  Enabled: false
+
+# Bug in 1.11.0
+RSpec/VariableName:
+  Exclude:
+    - spec/jobs/facilities/pssg_download_spec.rb
+
 # This cop forces you to put a return at the beginning of a block of code rather than having an if statement
 # whose body carries to the end of the function. For example:
 #
