@@ -213,7 +213,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:file_path) { "tmp/spool_files/#{filename}" }
 
       before do
-        expect(Rails.env).to receive('production?').twice.and_return(false)
+        Flipper.enable('spool_testing_error_1')
       end
 
       after do
@@ -239,6 +239,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         expect(Rails.env).to receive('development?').once.and_return(true)
         expect(Rails.env).to receive('production?').once.and_return(false)
+        Flipper.enable('spool_testing_error_1')
       end
 
       it 'logs exception to sentry' do
