@@ -18,7 +18,7 @@ module VBADocuments
         text = text + "#{status.upcase}:\n"
         models.each do |m|
           start_time = m.metadata['status'][status]['start']
-          start_time = start_time - ALERT_LOOKBACK.days #todo remove line
+          #start_time = start_time - ALERT_LOOKBACK.days #todo remove line
           puts Time.now.to_i - start_time
           duration = distance_of_time_in_words(Time.now.to_i - start_time)
           text = text + "\tGUID: #{m.guid} for approximately #{duration}\n"
@@ -47,10 +47,11 @@ module VBADocuments
     def spoof_long_flyers
       UploadSubmission.destroy_all
       UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
-        2.times do
+        1.times do
           u = UploadSubmission.new
           u.status = status
-          u.created_at = 15.days.ago
+          u.save!
+          u.metadata['status'][status]['start'] = 15.days.ago.to_i
           u.save!
         end
       end
