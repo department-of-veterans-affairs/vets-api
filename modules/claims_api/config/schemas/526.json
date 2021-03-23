@@ -192,21 +192,21 @@
       "items": {
         "type": "string",
         "enum": [
-           "Agent Orange - Vietnam",
-           "Amyotrophic Lateral Sclerosis",
-           "Blind",
-           "Blue Water Navy",
-           "Formerly Homeless",
-           "GW Undiagnosed Illness",
-           "Hardship",
-           "Homeless",
-           "Medal of Honor",
-           "POW",
-           "Priority Processing - Veteran over age 85",
-           "Purple Heart",
-           "Seriously Injured/Very Seriously Injured",
-           "Specially Adapted Housing Claimed",
-           "Terminally Ill"
+          "Agent Orange - Vietnam",
+          "Amyotrophic Lateral Sclerosis",
+          "Blind",
+          "Blue Water Navy",
+          "Formerly Homeless",
+          "GW Undiagnosed Illness",
+          "Hardship",
+          "Homeless",
+          "Medal of Honor",
+          "POW",
+          "Priority Processing - Veteran over age 85",
+          "Purple Heart",
+          "Seriously Injured/Very Seriously Injured",
+          "Specially Adapted Housing Claimed",
+          "Terminally Ill"
         ]
       }
     }
