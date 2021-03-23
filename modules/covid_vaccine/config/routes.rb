@@ -7,5 +7,7 @@ CovidVaccine::Engine.routes.draw do
     post 'registration/unauthenticated', to: 'registration#create'
     put 'registration/opt_out', to: 'registration#opt_out'
     put 'registration/opt_in', to: 'registration#opt_in'
+
+    get 'facilities/:zip', to: 'facilities#index'
   end
 end
