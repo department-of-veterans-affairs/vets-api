@@ -13,6 +13,8 @@ module HealthQuest
     #   @return [Array]
     # @!attribute organizations
     #   @return [Array]
+    # @!attribute facilities
+    #   @return [Array]
     # @!attribute aggregated_data
     #   @return [Hash]
     # @!attribute patient
@@ -35,6 +37,8 @@ module HealthQuest
     #   @return [HealthQuest::Resource::Factory]
     # @!attribute questionnaire_service
     #   @return [HealthQuest::Resource::Factory]
+    # @!attribute facilities_request
+    #   @return [HealthQuest::Facilities::Request]
     # @!attribute sip_model
     #   @return [InProgressForm]
     # @!attribute transformer
@@ -51,6 +55,7 @@ module HealthQuest
       attr_reader :lighthouse_appointments,
                   :locations,
                   :organizations,
+                  :facilities,
                   :aggregated_data,
                   :patient,
                   :questionnaires,
@@ -64,6 +69,7 @@ module HealthQuest
                   :patient_service,
                   :questionnaire_response_service,
                   :questionnaire_service,
+                  :facilities_request,
                   :sip_model,
                   :transformer,
                   :user
@@ -87,6 +93,7 @@ module HealthQuest
         @patient_service = HealthQuest::Resource::Factory.manufacture(patient_type)
         @questionnaire_service = HealthQuest::Resource::Factory.manufacture(questionnaire_type)
         @questionnaire_response_service = HealthQuest::Resource::Factory.manufacture(questionnaire_response_type)
+        @facilities_request = HealthQuest::Facilities::Request.build
         @request_threads = []
         @sip_model = InProgressForm
         @transformer = Transformer
@@ -134,6 +141,7 @@ module HealthQuest
         # rubocop:disable ThreadSafety/NewThread
         request_threads << Thread.new { @patient = get_patient.resource }
         request_threads << Thread.new { @organizations = get_organizations }
+        request_threads << Thread.new { @facilities = get_facilities }
         request_threads << Thread.new { @questionnaires = get_questionnaires.resource&.entry }
         request_threads << Thread.new { @questionnaire_responses = get_questionnaire_responses.resource&.entry }
         request_threads << Thread.new { @save_in_progress = get_save_in_progress }
@@ -210,6 +218,19 @@ module HealthQuest
       end
 
       ##
+      # Return a list of facilities from the Facilities API
+      # so that we can add phone numbers to our organizations
+      #
+      # @return [Array]
+      #
+      def get_facilities
+        list = locations.map { |loc| loc.resource.identifier.first.value }
+        facilities_ids = list.join(',')
+
+        facilities_request.get(facilities_ids)
+      end
+
+      ##
       # Gets a list of Questionnaires from the PGD.
       #
       # @return [FHIR::Bundle] an object containing the
@@ -259,6 +280,7 @@ module HealthQuest
             lighthouse_appointments: lighthouse_appointments,
             locations: locations,
             organizations: organizations,
+            facilities: facilities,
             questionnaires: questionnaires,
             questionnaire_responses: questionnaire_responses,
             save_in_progress: save_in_progress
