@@ -274,7 +274,7 @@ describe VBADocuments::UploadSubmission, type: :model do
   end
 
   it 'can find submissions that have been in-flight for too long' do
-    states = ['pending', 'uploaded', 'received', 'processing']
+    states = %w(pending uploaded received processing)
     states.each do |state|
       u = VBADocuments::UploadSubmission.new
       u.status = state
@@ -283,13 +283,17 @@ describe VBADocuments::UploadSubmission, type: :model do
     time = Time.zone.now
     Timecop.freeze(time)
     #find nothing
-    ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14).to_a.length
-    expect(ancient_in_flights).to be == 0
+    states.each do |status|
+      ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, status).to_a
+      expect(ancient_in_flights.count).to eq 0
+    end
+
     Timecop.travel(time + 14.days + 1.minute)
     #find four things, one in each state
-    ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14)
-    statuses = ancient_in_flights.pluck(:status)
-    expect(statuses.sort).to eq states.sort
+    states.each do |status|
+      ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, status).to_a
+      expect(ancient_in_flights.count).to eq 1
+    end
   end
   
 end
