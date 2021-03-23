@@ -359,6 +359,40 @@ RSpec/SubjectStub:
     - 'spec/services/form1010cg/service_spec.rb'
     - 'spec/services/form1010cg/auditor_spec.rb'
 
+# Added in v0.81
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
+# Added in v0.82
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Style/ExponentialNotation:
+  Enabled: true
+
+# Added in v0.83
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: true
+
+Style/SlicingWithRange:
+  Enabled: true
+
+# Added in v0.84
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+
 # the default style recently changed, but it's not worth changing
 Rails/FilePath:
   EnforcedStyle: arguments
