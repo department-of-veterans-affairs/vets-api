@@ -410,3 +410,12 @@ Lint/NoReturnInBeginEndBlocks:
 # LOC changed is too high
 Lint/SymbolConversion:
   Enabled: false
+
+Style/HashConversion:
+  Enabled: false
+
+Style/NegatedIfElseCondition:
+  Enabled: false
+
+Style/RedundantArgument:
+  Enabled: false
