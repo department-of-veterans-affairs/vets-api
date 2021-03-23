@@ -6,13 +6,15 @@ module HealthQuest
     # Faraday middleware that logs various semantically relevant attributes needed for debugging and audit purposes
     #
     class HealthQuestLogging < Faraday::Middleware
+      JTI_ERROR_MSG = 'unknown jti'
+
       def initialize(app)
         super(app)
       end
 
       # #call
       #
-      # Logs all outbound request / responses to VAMF api gateway as :info when success and :warn when fail
+      # Logs all outbound token request / responses to the lighthouse as :info when success and :warn when fail
       #
       # Semantic logging tags:
       # jti: The "jti" (JWT ID) claim provides a unique identifier for the JWT.
@@ -30,7 +32,6 @@ module HealthQuest
             jti: jti(env, response_env),
             status: response_env.status,
             duration: Time.current - start_time,
-            # service_name: service_name || 'VAOS Generic', # Need to figure out a clean way to do this with headers
             url: "(#{env.method.upcase}) #{env.url}"
           }
 
@@ -66,7 +67,7 @@ module HealthQuest
       #
       # @return [Boolean] true if user session request, false otherwise
       def user_session_request?(env)
-        env.url.to_s.include?('users/v2/session?processRules=true') ? true : false
+        env.url.to_s.match?(%r{(health\/system\/v1\/token|pgd\/v1\/token)})
       end
 
       # #jti is the value from the JWT key value pair in the response and needed for logging and audit purposes
@@ -75,13 +76,12 @@ module HealthQuest
       # @param response_env [Faraday::Env::Response] The response part of the tree
       # @return [String] The JTI value or "unknown jti" if a parsing or other error is encountered (failing gracefully)
       def jti(env, response_env)
-        if user_session_request?(env)
-          decode_jwt_no_sig_check(response_env.body)['jti']
-        else
-          decode_jwt_no_sig_check(env.response_headers['X-Vamf-Jwt'])['jti']
-        end
+        return JTI_ERROR_MSG unless user_session_request?(env)
+
+        token = JSON.parse(response_env.body)['access_token']
+        decode_jwt_no_sig_check(token)['jti']
       rescue
-        'unknown jti'
+        JTI_ERROR_MSG
       end
     end
   end
