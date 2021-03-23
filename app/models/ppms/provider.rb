@@ -25,7 +25,6 @@ class PPMS::Provider < Common::Base
   attribute :provider_name, String
   attribute :provider_type, String
 
-  # rubocop:disable Metrics/AbcSize
   def initialize(attr = {})
     super(attr)
     new_attr = attr.dup.transform_keys { |k| k.to_s.snakecase.to_sym }
@@ -47,7 +46,6 @@ class PPMS::Provider < Common::Base
 
     self.attributes = new_attr
   end
-  # rubocop:enable Metrics/AbcSize
 
   def set_hexdigest_as_id!
     self.id = Digest::SHA256.hexdigest(attributes.slice(

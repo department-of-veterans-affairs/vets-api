@@ -16,7 +16,6 @@ module SAML
         settings
       end
 
-      # rubocop:disable Metrics/AbcSize
       def base_settings
         idp_metadata_parser = OneLogin::RubySaml::IdpMetadataParser.new
         settings = idp_metadata_parser.parse(File.read(Settings.saml_ssoe.idp_metadata_file))
@@ -37,7 +36,6 @@ module SAML
         settings.security[:signature_method] = XMLSecurity::Document::RSA_SHA1
         settings
       end
-      # rubocop:enable Metrics/AbcSize
 
       def pki_needed?
         Settings.saml_ssoe.request_signing || Settings.saml_ssoe.response_encryption

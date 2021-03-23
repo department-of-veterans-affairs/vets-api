@@ -68,7 +68,6 @@ module VBADocuments
       end
     end
 
-    # rubocop:disable Metrics/AbcSize
     def perfect_metadata(model, parts, timestamp)
       metadata = JSON.parse(parts['metadata'])
       metadata['source'] = "#{model.consumer_name} via VA API"
@@ -91,7 +90,6 @@ module VBADocuments
       metadata['businessLine'] = VALID_LOB[metadata['businessLine']].to_s if metadata.key? 'businessLine'
       metadata
     end
-    # rubocop:enable Metrics/AbcSize
 
     def check_attachment_size(att_parts)
       Thread.current[:checking_attachment] = true # used during unit test only, see upload_processor_spec.rb
