@@ -100,7 +100,7 @@ module EducationForm
             records.each { |r| r.record.update(processed_at: Time.zone.now) }
             spool_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
           rescue => e
-            StatsD.increment("worker.education_benefits_claim.failed_spool_file.#{region}")
+            StatsD.increment("worker.education_benefits_claim.failed_spool_file.#{region_id}")
             attempt_msg = if spool_file_event.retry_attempt.zero?
                             'initial attempt'
                           else
