@@ -26,7 +26,7 @@ module Common
 
       # return only those attributes that have non nil values
       def to_hash
-        Hash[attribute_set.map { |a| [a.name, send(a.name)] if send(a.name).present? }.compact]
+        attribute_set.map { |a| [a.name, send(a.name)] if send(a.name).present? }.compact.to_h
       end
     end
   end

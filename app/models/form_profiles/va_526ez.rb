@@ -112,7 +112,7 @@ class FormProfiles::VA526ez < FormProfile
       primary_phone: [
         vet360_contact_info&.home_phone&.area_code,
         vet360_contact_info&.home_phone&.phone_number
-      ].join('')
+      ].join
     }.compact
   end
 

@@ -10,7 +10,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportDownloader do
   let(:user) { build(:user, :loa3) }
   let(:filenet_id) { 'ABCD-1234' }
   let(:financial_status_report) do
-    report_params = Hash[REDIS_CONFIG[:financial_status_report][:namespace], user.uuid]
+    report_params = { REDIS_CONFIG[:financial_status_report][:namespace] => user.uuid }
     financial_status_report = DebtManagementCenter::FinancialStatusReport.new(report_params)
     financial_status_report.update(filenet_id: filenet_id, uuid: user.uuid)
     financial_status_report
