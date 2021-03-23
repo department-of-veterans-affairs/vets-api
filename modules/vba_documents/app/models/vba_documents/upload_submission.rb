@@ -21,6 +21,10 @@ module VBADocuments
     RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
+    scope :aged_processing, -> (days) {
+      where(status: %w(pending uploaded received processing))
+          .where('created_at < ?', days.to_i.days.ago)
+          .order(created_at: :desc)}
 
     after_save :report_errors
 
