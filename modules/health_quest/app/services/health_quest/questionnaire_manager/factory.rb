@@ -172,14 +172,16 @@ module HealthQuest
       #
       def get_locations
         location_references =
-          lighthouse_appointments.map do |appt|
+          lighthouse_appointments.each_with_object({}) do |appt, acc|
             reference = appt.resource.participant.first.actor.reference
+            location_id = reference.match(ID_MATCHER)[1]
 
-            reference.match(ID_MATCHER)[1]
+            acc[location_id] ||= []
+            acc[location_id] << appt
           end
 
-        location_references.each_with_object([]) do |ref, accumulator|
-          loc = location_service.get(ref)
+        location_references.each_with_object([]) do |(k, _v), accumulator|
+          loc = location_service.get(k)
 
           accumulator << loc
         end
@@ -191,10 +193,17 @@ module HealthQuest
       # @return [Array] a list of Organizations
       #
       def get_organizations
-        locations.each_with_object([]) do |loc, accumulator|
-          reference = loc.resource.managingOrganization.reference
-          org_id = reference.match(ID_MATCHER)[1]
-          org = organization_service.get(org_id)
+        org_references =
+          locations.each_with_object({}) do |loc, acc|
+            reference = loc.resource.managingOrganization.reference
+            org_id = reference.match(ID_MATCHER)[1]
+
+            acc[org_id] ||= []
+            acc[org_id] << loc
+          end
+
+        org_references.each_with_object([]) do |(k, _v), accumulator|
+          org = organization_service.get(k)
 
           accumulator << org
         end
