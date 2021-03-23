@@ -333,7 +333,7 @@ en:
         <<: *external_defaults
         code: 'SM115'
         title: Record not found
-        detail: 'Attachment requested could not be found'
+        detail: 'Entity requested could not be found'
         status: 404
       SM116: # 'The Folder must be empty before delete'
         <<: *external_defaults

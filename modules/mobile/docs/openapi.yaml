@@ -2185,6 +2185,34 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/messages/{id}/thread:
+    get:
+      summary: /v0/messaging/health/messages/{id}/thread
+      description: |
+        Gets a list of message summaries that are related to the message of the passed id. 
+        Does <strong>not</strong> include the message of the passed id itself.
+      operationId: get_message_history
+      security:
+         - Bearer: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/SecureMessageList.yml"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
   /v0/messaging/health/messages/{id}/reply:
     post:
       summary: /v0/messaging/health/messages/{id}/reply
