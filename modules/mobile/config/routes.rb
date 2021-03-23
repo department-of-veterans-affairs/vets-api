@@ -32,6 +32,7 @@ Mobile::Engine.routes.draw do
     delete '/user/emails', to: 'emails#destroy'
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
+    delete '/user/phones', to: 'phones#destroy'
 
     scope :messaging do
       scope :health do
