@@ -20,6 +20,9 @@
             "combinedEffectiveDate": {
               "type": "string"
             },
+            "legalEffectiveDate": {
+              "type": "string"
+            },
             "individualRatings": {
               "type": "array",
               "items": {

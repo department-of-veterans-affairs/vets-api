@@ -156,6 +156,9 @@ decision_review:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
+  slack:
+    api_token: ''
+    appeals_channel_id: ''
   documentation:
     notice_of_disagreements_v1: false
   higher_level_review_pii_expunge_enabled: true
@@ -810,6 +813,9 @@ coronavirus_chatbot:
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
 
+virtual_agent:
+  webchat_secret: fake_secret
+
 # Settings for notifications client
 vanotify:
   client_url: http://fakeapi.com
@@ -851,6 +857,13 @@ genisis:
   service_path: /COVID19Service
   user: TestUser
   pass: bogus
+
+# Settings for the VEText integration (mobile push notifications)
+vetext_push:
+  va_mobile_app_sid: mobile-app-sid
+  base_url: https://vetext1.r01.med.va.gov
+  user: vets-api-username
+  pass: secret
 
 veteran_readiness_and_employment:
   base_url: ~

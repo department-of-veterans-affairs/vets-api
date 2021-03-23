@@ -4,6 +4,7 @@ required:
   - osName
   - osVersion
   - deviceName
+  - appName
 properties:
   deviceToken:
     type: string
@@ -19,4 +20,7 @@ properties:
   deviceName:
     type: string
     example: "Jeff's iPhone"
+  appName:
+    type: string
+    example: "va_mobile_app"
 

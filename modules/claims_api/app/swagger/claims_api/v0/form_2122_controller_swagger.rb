@@ -9,8 +9,11 @@ module ClaimsApi
 
       swagger_path '/forms/2122' do
         operation :get do
-          key :description, 'Returns a single 2122 JSON schema to auto generate a form'
-          key :summary, 'Get 2122 JSON Schema for form'
+          security do
+            key :apikey, []
+          end
+          key :summary, 'Gets schema for POA form.'
+          key :description, 'Returns schema to automatically generate a POA form.'
           key :operationId, 'get2122JsonSchema'
           key :produces, [
             'application/json'
@@ -18,6 +21,14 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           response 200 do
             key :description, 'schema response'
@@ -55,15 +66,35 @@ module ClaimsApi
         end
 
         operation :post do
-          key :summary, 'Accepts 2122 Power of Attorney form submission'
-          key :description, 'Accepts JSON payload. Full URL, including query parameters.'
+          security do
+            key :apikey, []
+          end
+          key :summary, 'Submit a POA form.'
+          key(
+            :description,
+            <<~X
+              The endpoint establishes POA for a representative. The following is required:
+               - poaCode
+               - POA first name
+               - POA last name
+               - Signature, which can be a:
+                 - Base64-encoded image or signature block, allowing the API to auto-populate and attach the VA 21-22 form to the request without requiring a PDF upload, or
+                 - PDF documentation of VA 21-22 form with an ink signature, attached using the PUT /forms/2122/{id} endpoint
+
+              A 200 response means the submission was successful, but does not mean the POA is effective. Check the status of a POA submission by using the GET /forms/2122/{id} endpoint.
+            X
+          )
           key :operationId, 'post2122poa'
           key :tags, [
             'Power of Attorney'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -182,8 +213,16 @@ module ClaimsApi
 
       swagger_path '/forms/2122/{id}' do
         operation :put do
-          key :summary, 'Upload Power of attorney document'
-          key :description, 'Accepts a document binary as part of a multipart payload.'
+          security do
+            key :apikey, []
+          end
+          key :summary, 'Upload a signed 21-22 document.'
+          key(
+            :description,
+            <<~X
+              Accepts a document binary as part of a multipart payload. Use this PUT endpoint after the POST endpoint for uploading the signed 21-22 PDF form.
+            X
+          )
           key :operationId, 'upload2122Attachments'
           key :produces, [
             'application/json'
@@ -193,19 +232,19 @@ module ClaimsApi
           ]
 
           parameter do
-            key :name, :id
-            key :in, :path
-            key :description, 'UUID given when Power of Attorney was submitted'
-            key :required, true
-            key :type, :uuid
-          end
-
-          parameter do
             key :name, 'apikey'
             key :in, :header
             key :description, 'API Key given to access data'
             key :required, true
             key :type, :string
+          end
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'UUID given when Power of Attorney was submitted'
+            key :required, true
+            key :type, :uuid
           end
 
           parameter do
@@ -336,15 +375,22 @@ module ClaimsApi
         end
 
         operation :get do
-          key :summary, 'Check 2122 Status by ID'
-          key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
+          security do
+            key :apikey, []
+          end
+          key :summary, 'Check POA status by ID.'
+          key :description, 'Based on ID, returns a 21-22 submission and current status.'
           key :operationId, 'get2122poa'
           key :tags, [
             'Power of Attorney'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -450,18 +496,27 @@ module ClaimsApi
 
       swagger_path '/forms/2122/active' do
         operation :get do
-          key :summary, 'Check active power of attorney status'
-          key :description,
-              <<~X
-                Returns last Power of Attorney submission sent to this API.
-              X
+          security do
+            key :apikey, []
+          end
+          key :summary, 'Check active POA status.'
+          key(
+            :description,
+            <<~X
+              Returns the last active POA for a Veteran. To check the status of new POA submissions, use the GET /forms/2122/{id} endpoint.
+            X
+          )
           key :operationId, 'getActive2122Poa'
           key :tags, [
             'Power of Attorney'
           ]
 
-          security do
-            key :bearer_token, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -567,22 +622,29 @@ module ClaimsApi
 
       swagger_path '/forms/2122/validate' do
         operation :post do
-          key :summary, ' 2122 Power of Attorney form submission dry run'
-          key :description, 'Accepts JSON payload.'
+          security do
+            key :apikey, []
+          end
+          key :summary, '21-22 POA form submission test run.'
+          key :description, 'Test to make sure the form submission works with your parameters.'
           key :operationId, 'validate2122poa'
           key :tags, [
             'Power of Attorney'
           ]
 
-          security do
-            key :bearer_token, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -590,7 +652,7 @@ module ClaimsApi
             key :name, 'X-VA-First-Name'
             key :in, :header
             key :description, 'First Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -598,7 +660,7 @@ module ClaimsApi
             key :name, 'X-VA-Last-Name'
             key :in, :header
             key :description, 'Last Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -606,7 +668,7 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -623,6 +685,15 @@ module ClaimsApi
             key :in, :header
             key :description, 'VA username of the person making the request'
             key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
             key :type, :string
           end
 

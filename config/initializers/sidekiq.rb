@@ -2,6 +2,7 @@
 
 require 'sidekiq_stats_instrumentation/client_middleware'
 require 'sidekiq_stats_instrumentation/server_middleware'
+require 'sidekiq/retry_monitoring'
 require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
@@ -24,6 +25,7 @@ Sidekiq.configure_server do |config|
   config.server_middleware do |chain|
     chain.add Sidekiq::SemanticLogging
     chain.add SidekiqStatsInstrumentation::ServerMiddleware
+    chain.add Sidekiq::RetryMonitoring
     chain.add Sidekiq::ErrorTag
   end
 
