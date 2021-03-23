@@ -9,8 +9,8 @@ module ClaimsApi
 
       swagger_path '/forms/2122' do
         operation :get do
-          key :summary, 'Get 2122 JSON Schema for form'
-          key :description, 'Returns a single 2122 JSON schema to auto generate a form'
+          key :summary, 'Gets schema for POA form.'
+          key :description, 'Returns schema to automatically generate a POA form.'
           key :operationId, 'get2122JsonSchema'
           key :produces, [
             'application/json'
@@ -58,8 +58,21 @@ module ClaimsApi
         end
 
         operation :post do
-          key :summary, 'Accepts 2122 Power of Attorney payload'
-          key :description, 'Accepts JSON payload. Full URL, including query parameters.'
+          key :summary, 'Submit a POA form.'
+          key(
+            :description,
+            <<~X
+              The endpoint establishes POA for a representative. Once ID.me authorizes the Veteran or VSO via OpenID, this endpoint requests the:
+               - poaCode
+               - POA first name
+               - POA last name
+               - Signature, which can be a:
+                 - Base64-encoded image or signature block, allowing the API to auto-populate and attach the VA 21-22 form to the request without requiring a PDF upload, or
+                 - PDF documentation of VA 21-22 form with an ink signature, attached using the PUT /forms/2122/{id} endpoint
+
+              A 200 response means the submission was successful, but does not mean the POA is effective. Check the status of a POA submission by using the GET /forms/2122/{id} endpoint.
+            X
+          )
           key :operationId, 'post2122'
           key :tags, [
             'Power of Attorney'
@@ -176,8 +189,13 @@ module ClaimsApi
 
       swagger_path '/forms/2122/{id}' do
         operation :put do
-          key :summary, 'Upload 2122 document'
-          key :description, 'Accepts a document binary as part of a multipart payload.'
+          key :summary, 'Upload a signed 21-22 document.'
+          key(
+            :description,
+            <<~X
+              Accepts a document binary as part of a multipart payload. Use this PUT endpoint after the POST endpoint for uploading the signed 21-22 PDF form.
+            X
+          )
           key :operationId, 'upload2122Attachment'
           key :produces, [
             'application/json'
@@ -317,8 +335,8 @@ module ClaimsApi
         end
 
         operation :get do
-          key :summary, 'Check power of attorney status by ID'
-          key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
+          key :summary, 'Check POA status by ID.'
+          key :description, 'Based on ID, returns a 21-22 submission and current status.'
           key :operationId, 'get2122poa'
           key :tags, [
             'Power of Attorney'
@@ -425,13 +443,13 @@ module ClaimsApi
 
       swagger_path '/forms/2122/active' do
         operation :get do
-          key :summary, 'Check active power of attorney status'
-          key :description,
-              <<~X
-                Returns last Power of Attorney submission sent to this API.
-                * Any authenticated user can view any individual's active, and previous, POA.
-                * Returned payload will also include `previous_poa` if a previous POA is detected.
-              X
+          key :summary, 'Check active POA status.'
+          key(
+            :description,
+            <<~X
+              Returns the last active POA for a Veteran. To check the status of new POA submissions, use the GET /forms/2122/{id} endpoint.
+            X
+          )
           key :operationId, 'getActive2122Poa'
           key :tags, [
             'Power of Attorney'
@@ -538,8 +556,8 @@ module ClaimsApi
 
       swagger_path '/forms/2122/validate' do
         operation :post do
-          key :summary, ' 2122 Power of Attorney form submission dry run'
-          key :description, 'Accepts JSON payload.'
+          key :summary, '21-22 POA form submission test run.'
+          key :description, 'Test to make sure the form submission works with your parameters.'
           key :operationId, 'validate2122poa'
           key :tags, [
             'Power of Attorney'

@@ -402,11 +402,6 @@ features:
     enable_in_development: true
     description: >
       Enable frontend application and cta for Search Representative application
-  gibct_state_search:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Include state abbreviation when searching on comparison tool
   dependents_management:
     actor_type: user
     enable_in_development: true
@@ -422,6 +417,18 @@ features:
     enable_in_development: true
     description: >
       Form 526 subforms for unemployability & connected employment information
+  spool_testing_error_1:
+    actor_type: user
+    description: >
+      Support testing of track file spool file creation by RPO
+  spool_testing_error_2:
+    actor_type: user
+    description: >
+      Create notification for when spool file processing fails
+  spool_testing_error_3:
+    actor_type: user
+    description: >
+      Update processing retry functionality
   dependency_verification:
     actor_type: user
     enable_in_development: true

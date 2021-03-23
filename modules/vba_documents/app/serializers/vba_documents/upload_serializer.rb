@@ -16,6 +16,7 @@ module VBADocuments
       def scrub_unnecessary_keys(pdf_hash)
         pdf_hash.delete(DOC_TYPE_KEY.to_s)
         pdf_hash.delete(SOURCE_KEY.to_s)
+        pdf_hash.delete('submitted_line_of_business')
         pdf_hash
       end
     end

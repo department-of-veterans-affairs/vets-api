@@ -12,11 +12,13 @@ module HealthQuest
 
         attr_reader :user,
                     :model,
+                    :codeable_concept,
                     :identifier,
                     :meta,
                     :data,
                     :source_reference,
-                    :subject_reference
+                    :subject_reference,
+                    :narrative
 
         def self.manufacture(data, user)
           new(data, user)
@@ -24,12 +26,14 @@ module HealthQuest
 
         def initialize(data, user)
           @model = ::FHIR::QuestionnaireResponse.new
+          @codeable_concept = ::FHIR::CodeableConcept.new
           @data = data
           @user = user
           @identifier = ::FHIR::Identifier.new
           @meta = ::FHIR::Meta.new
           @source_reference = ::FHIR::Reference.new
           @subject_reference = ::FHIR::Reference.new
+          @narrative = ::FHIR::Narrative.new
         end
 
         def prepare
@@ -47,10 +51,10 @@ module HealthQuest
         end
 
         def set_text
-          {
-            status: 'generated',
-            div: "<div><h1>#{questionnaire_title}</h1></div>"
-          }
+          narrative.tap do |n|
+            n.status = 'generated'
+            n.div = "<div><h1>#{questionnaire_title}</h1></div>"
+          end
         end
 
         def set_subject
@@ -78,7 +82,7 @@ module HealthQuest
         end
 
         def set_date
-          DateTime.now.in_time_zone.to_date.to_s
+          DateTime.now.in_time_zone.to_datetime.to_s
         end
 
         def set_status

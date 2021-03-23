@@ -14,6 +14,10 @@ module VBADocuments
       model.update(uploaded_pdf: inspector.pdf_data)
     end
 
+    def update_size(model, size)
+      model.update(metadata: model.metadata.merge({ 'size' => size }))
+    end
+
     def validate_parts(parts)
       unless parts.key?(META_PART_NAME)
         raise VBADocuments::UploadError.new(code: 'DOC102',
@@ -59,7 +63,7 @@ module VBADocuments
       return if lob.to_s.empty?
 
       unless VALID_LOB.keys.include?(lob)
-        msg = "Invalid businessLine provided, valid values are: #{VALID_LOB.keys.join(',')}"
+        msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{VALID_LOB.keys.join(',')}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
       end
     end
@@ -83,7 +87,7 @@ module VBADocuments
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
-      metadata['businessLine'] = VALID_LOB[metadata['businessLine']] if metadata.key? 'businessLine'
+      metadata['businessLine'] = VALID_LOB[metadata['businessLine']].to_s if metadata.key? 'businessLine'
       metadata
     end
 

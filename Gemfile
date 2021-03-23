@@ -166,7 +166,7 @@ end
 
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
-  gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
+  gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'bootsnap', require: false
   gem 'brakeman', '~> 4.7'
   gem 'bundler-audit'

@@ -20,14 +20,24 @@ describe HealthQuest::Resource::ClientModel::QuestionnaireResponse do
   end
   let(:identifier_hash) do
     {
-      'type' => { coding: [{ system: subject::CODING_SYSTEM, code: 'QuestionnaireResponseID', userSelected: false }] },
+      'type' => {
+        'coding' => [{
+          'system' => subject::CODING_SYSTEM,
+          'code' => 'QuestionnaireResponseID',
+          'userSelected' => false
+        }]
+      },
       'system' => subject::SYSTEM_ID,
       'value' => subject::DEFAULT_QUESTIONNAIRE_ID
     }
   end
   let(:meta_hash) do
     {
-      'tag' => [{ system: subject::META_SYSTEM, code: subject::META_CODE, display: subject::META_DISPLAY }]
+      'tag' => [{
+        'system' => subject::META_SYSTEM,
+        'code' => subject::META_CODE,
+        'display' => subject::META_DISPLAY
+      }]
     }
   end
 
@@ -70,12 +80,20 @@ describe HealthQuest::Resource::ClientModel::QuestionnaireResponse do
       expect(subject.manufacture(data, user).source_reference).to be_an_instance_of(FHIR::Reference)
     end
 
+    it 'has a codeable_concept' do
+      expect(subject.manufacture(data, user).codeable_concept).to be_an_instance_of(FHIR::CodeableConcept)
+    end
+
     it 'has a subject_reference' do
       expect(subject.manufacture(data, user).subject_reference).to be_an_instance_of(FHIR::Reference)
     end
 
     it 'has an instance of a FHIR::Meta' do
       expect(subject.manufacture(data, user).meta).to be_an_instance_of(FHIR::Meta)
+    end
+
+    it 'has a narrative' do
+      expect(subject.manufacture(data, user).narrative).to be_an_instance_of(FHIR::Narrative)
     end
   end
 
@@ -87,11 +105,14 @@ describe HealthQuest::Resource::ClientModel::QuestionnaireResponse do
 
   describe '#identifier_type' do
     it 'returns a hash' do
-      identifier_type_hash = {
-        coding: [{ system: subject::CODING_SYSTEM, code: 'QuestionnaireResponseID', userSelected: false }]
-      }
+      coding = FHIR::Coding.new
+      coding.system = subject::CODING_SYSTEM
+      coding.code = 'QuestionnaireResponseID'
+      coding.userSelected = false
+      codeable_concept = FHIR::CodeableConcept.new
+      codeable_concept.coding = [coding]
 
-      expect(subject.manufacture(data, user).identifier_type).to eq(identifier_type_hash)
+      expect(subject.manufacture(data, user).identifier_type).to eq(codeable_concept)
     end
   end
 
@@ -111,12 +132,11 @@ describe HealthQuest::Resource::ClientModel::QuestionnaireResponse do
     end
 
     it 'has a text hash' do
-      text_hash = {
-        status: 'generated',
-        div: '<div><h1>Pre-Visit Questionnaire</h1></div>'
-      }
+      narrative = FHIR::Narrative.new
+      narrative.status = 'generated'
+      narrative.div = '<div><h1>Pre-Visit Questionnaire</h1></div>'
 
-      expect(subject.manufacture(data, user).prepare.text).to eq(text_hash)
+      expect(subject.manufacture(data, user).prepare.text).to eq(narrative)
     end
 
     it 'has a completed status' do
@@ -124,7 +144,7 @@ describe HealthQuest::Resource::ClientModel::QuestionnaireResponse do
     end
 
     it 'has an authored date' do
-      expect(subject.manufacture(data, user).prepare.authored).to eq(Time.zone.today.to_s)
+      expect(subject.manufacture(data, user).prepare.authored).to include(DateTime.now.in_time_zone.to_date.to_s)
     end
 
     it 'has a subject' do
