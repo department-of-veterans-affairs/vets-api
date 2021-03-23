@@ -406,8 +406,6 @@ Lint/NoReturnInBeginEndBlocks:
   Exclude:
     - 'app/services/form1010cg/service.rb'
 
-# Will implement this in another PR
-# LOC changed is too high
 Lint/SymbolConversion:
   Enabled: false
 
