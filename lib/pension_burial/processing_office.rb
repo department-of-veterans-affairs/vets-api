@@ -4,7 +4,7 @@ require 'csv'
 module PensionBurial
   class ProcessingOffice
     FILE = Rails.root.join('config', 'pension_burial', 'zip_to_facility.csv')
-    MAPPINGS = CSV.read(FILE).to_h
+    MAPPINGS = Hash[CSV.read(FILE)]
     DEFAULT = 'Milwaukee'
 
     PO_BOX = {
