@@ -20,7 +20,7 @@ module AppealsApi
         update_submission!('submitted')
       rescue => e
         log_message_to_sentry('Error saving to S3', :warning, error: e.to_s)
-        update_submission!('Error uploading')
+        update_submission!('s3_error')
         raise
       end
 
