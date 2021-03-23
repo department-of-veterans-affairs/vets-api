@@ -45,6 +45,7 @@ class Form526Submission < ApplicationRecord
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
+  SUBMIT_JOB_CLASSES = ['SubmitForm526AllClaim', 'SubmitForm526'].freeze
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
@@ -205,7 +206,30 @@ class Form526Submission < ApplicationRecord
   def perform_ancillary_jobs_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     # Only run ancillary jobs if submission succeeded
-    submission.perform_ancillary_jobs(options['first_name']) if submission.form526_job_statuses.all?(&:success?)
+    submission.perform_ancillary_jobs(options['first_name']) if submission.jobs_succeeded?
+  end
+
+  def jobs_succeeded?
+    relevant_job_statuses.all?(&:success?)
+  end
+
+  def relevant_job_statuses
+    non_submission_job_statuses + [most_recent_submission_job_status]
+  end
+
+  def non_submission_job_statuses
+    form526_job_statuses.where.not job_class: SUBMIT_JOB_CLASSES
+  end
+
+  def most_recent_submission_job_status
+    statuses = form526_job_statuses.where(job_class: SUBMIT_JOB_CLASSES).order(:updated_at)
+
+    successful_submissions = statuses.where(status: 'success').count
+
+    log_exception_to_sentry e if successful_submissions > 1
+    log_exception_to_sentry e if successful_submissions == 1 && !statuses.last.success?
+
+    statuses.last
   end
 
   # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
