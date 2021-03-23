@@ -434,3 +434,8 @@ features:
     enable_in_development: true
     description: >
       Feature gates the dependency verification modal for updating the diaries service.
+  form10182_nod:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Form 10182 Notice of Disagreement - Request a board appeal
