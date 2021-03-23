@@ -99,8 +99,8 @@ module VAOS
 
     def name
       {
-        first_name: @user.first_name({ mpi: true }),
-        last_name: @user.last_name({ mpi: true })
+        first_name: @user.first_name_mpi,
+        last_name: @user.last_name_mpi
       }
     end
   end

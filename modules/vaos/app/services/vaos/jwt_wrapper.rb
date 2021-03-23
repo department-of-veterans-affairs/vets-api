@@ -27,8 +27,8 @@ module VAOS
         sub: user.icn,
         idType: ID_TYPE,
         iss: ISS,
-        firstName: user.first_name({ mpi: true }),
-        lastName: user.last_name({ mpi: true }),
+        firstName: user.first_name_mpi,
+        lastName: user.last_name_mpi,
         authenticationAuthority: AUTHORITY,
         jti: SecureRandom.uuid,
         nbf: 1.minute.ago.to_i,
@@ -38,13 +38,13 @@ module VAOS
         gender: gender,
         dob: parsed_date,
         dateOfBirth: parsed_date,
-        edipid: user.edipi({ mpi: true }),
-        ssn: user.ssn({ mpi: true })
+        edipid: user.edipi_mpi,
+        ssn: user.ssn_mpi
       }
     end
 
     def gender
-      type = user.gender({ mpi: true })
+      type = user.gender_mpi
       return '' unless type.is_a?(String)
 
       case type.upcase[0, 1]

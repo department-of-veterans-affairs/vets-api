@@ -82,17 +82,17 @@ module VAOS
     # These values ought to be derived from MVI vs user input, except for inpatient and text_messaging_allowed
     def patient=(values_hash)
       @patient = {
-        display_name: "#{@user.last_name({ mpi: true })}, #{@user.first_name({ mpi: true })}",
-        first_name: @user.first_name({ mpi: true }),
-        last_name: @user.last_name({ mpi: true }),
+        display_name: "#{@user.last_name_mpi}, #{@user.first_name_mpi}",
+        first_name: @user.first_name_mpi,
+        last_name: @user.last_name_mpi,
         date_of_birth: birth_date,
         patient_identifier: {
-          unique_id: @user.edipi({ mpi: true })
+          unique_id: @user.edipi_mpi
         },
-        ssn: @user.ssn({ mpi: true }),
+        ssn: @user.ssn_mpi,
         inpatient: values_hash[:inpatient],
         text_messaging_allowed: values_hash[:text_messaging_allowed],
-        id: @user.edipi({ mpi: true }),
+        id: @user.edipi_mpi,
         object_type: 'Patient'
       }.compact
     end
