@@ -11,7 +11,12 @@ module ClaimsApi
             key :apikey, []
           end
           key :summary, 'Find Claim by ID'
-          key :description, 'Returns a single claim if the user has access'
+          key(
+            :description,
+            <<~X
+              Returns data such as processing status for a single claim by ID.
+            X
+          )
           key :operationId, 'findClaimById'
           key :tags, [
             'Claims'
@@ -145,8 +150,13 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-          key :summary, 'All Claims'
-          key :description, 'Returns all claims from the system that the user has access to'
+          key :summary, 'Find all claims for a Veteran.'
+          key(
+            :description,
+            <<~X
+              Uses the Veteran’s metadata in headers to retrieve all claims for that Veteran. An authenticated Veteran making a request with this endpoint will return their own claims, if any.
+            X
+          )
           key :operationId, 'findClaims'
           key :produces, [
             'application/json'
