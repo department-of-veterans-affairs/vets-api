@@ -178,7 +178,6 @@ module V1
       }
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity
     def login_params(type)
       raise Common::Exceptions::RoutingError, type unless REDIRECT_URLS.include?(type)
 
@@ -201,7 +200,6 @@ module V1
         url_service(false).custom_url params[:authn]
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def saml_request_stats
       tracker = url_service.tracker
