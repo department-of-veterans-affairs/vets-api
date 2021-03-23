@@ -1443,13 +1443,20 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-  /v0/push/prefs:
+  /v0/push/prefs/{endpointSid}:
     get:
-      summary: /v0/push/prefs
+      summary: /v0/push/prefs/{endpointSid}
       description: Get the user's push notification preferences
       operationId: getPrefs
       security:
         - Bearer: []
+      parameters:
+        - in: path
+          name: endpointSid
+          required: true
+          schema:
+            type: string
+          description: device endpointSid provided by the register endpoint
       responses:
         '200':
           description: OK
@@ -1506,11 +1513,18 @@ paths:
               schema:
                 $ref: "./schemas/Errors.yml"
     put:
-      summary: /v0/push/prefs
+      summary: /v0/push/prefs/{endpointSid}
       description: Set the user's push notification preferences
       operationId: putPrefs
       security:
         - Bearer: []
+      parameters:
+        - in: path
+          name: endpointSid
+          required: true
+          schema:
+            type: string
+          description: device endpointSid provided by the register endpoint
       requestBody:
         description: Push notification preferences
         required: true
@@ -1576,6 +1590,13 @@ paths:
       operationId: sendNotification
       security:
         - Bearer: []
+      requestBody:
+        description: Template id, endpoint sid, and personalization for template
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/PushSendRequestBody.yml"
       responses:
         '200':
           description: OK
