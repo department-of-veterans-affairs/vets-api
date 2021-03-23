@@ -105,6 +105,21 @@ module VBADocuments
       end
     end
 
+    def self.manual_status_change(guid, from, to)
+      r = find_by_guid guid
+      if r&.status.eql?(from)
+        # record the promotion
+        promotion = {}
+        promotion['promoted_at'] = Time.now.to_i
+        promotion['from_status'] = from
+        promotion['to_status'] = to
+        r.metadata['manual_status_change'] = promotion
+        r.save
+        r.reload
+        r.update(status: to)
+      end
+    end
+
     private
 
     def rewrite_url(url)
