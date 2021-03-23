@@ -294,4 +294,46 @@ RSpec.describe 'address', type: :request do
       end
     end
   end
+
+  describe 'DELETE /v0/profile/addresses' do
+    context 'when the method is DELETE' do
+      let(:frozen_time) { Time.zone.parse('2020-02-13T20:47:45.000Z') }
+      let(:address) do
+        { 'address_line1' => '4041 Victoria Way',
+          'address_line2' => nil,
+          'address_line3' => nil,
+          'address_pou' => 'CORRESPONDENCE',
+          'address_type' => 'DOMESTIC',
+          'city' => 'Lexington',
+          'country_code_iso3' => 'USA',
+          'country_code_fips' => nil,
+          'county_code' => '21067',
+          'county_name' => 'Fayette County',
+          'created_at' => '2019-10-25T17:06:15.000Z',
+          'effective_end_date' => nil,
+          'effective_start_date' => '2020-02-10T17:40:15.000Z',
+          'id' => 138_225,
+          'international_postal_code' => nil,
+          'province' => nil,
+          'source_system_user' => nil,
+          'state_code' => 'KY',
+          'transaction_id' => '537b388e-344a-474e-be12-08d43cf35d69',
+          'updated_at' => '2020-02-10T17:40:25.000Z',
+          'validation_key' => nil,
+          'vet360_id' => '1',
+          'zip_code' => '40515',
+          'zip_code_suffix' => '4655' }
+      end
+
+      it 'effective_end_date gets appended to the request body', :aggregate_failures do
+        VCR.use_cassette('va_profile/contact_information/delete_address_success', VCR::MATCH_EVERYTHING) do
+          # The cassette we're using includes the effectiveEndDate in the body.
+          # So this test will not pass if it's missing
+          delete '/mobile/v0/user/phones', params: address.to_json, headers: json_body_headers
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('va_profile/transaction_response')
+        end
+      end
+    end
+  end
 end
