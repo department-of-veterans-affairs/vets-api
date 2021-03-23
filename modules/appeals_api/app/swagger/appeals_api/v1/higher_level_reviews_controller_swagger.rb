@@ -37,7 +37,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
 
     {
       description: 'Info about a single Higher-Level Review',
-      content: { 'application/json': { schema: schema, examples: { 'HlrFound': { value: example } } } }
+      content: { 'application/json': { schema: schema, examples: { HlrFound: { value: example } } } }
     }
   end.call
 
@@ -48,7 +48,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   hlr_create_parameters = headers.map do |header|
     {
       name: header,
-      'in': 'header',
+      in: 'header',
       description: header_schemas[header]['allOf'][0]['description'],
       required: header_schemas['hlrCreateParameters']['required'].include?(header),
       schema: { '$ref': "#/components/schemas/#{header}" }
@@ -87,8 +87,8 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
       key :operationId, 'getHigherLevelReview'
       key :summary, 'Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)'
       key :description, 'Returns all of the data associated with a specific Higher-Level Review.'
-      parameter name: 'uuid', 'in': 'path', required: true, description: 'Higher-Level Review UUID' do
-        schema { key :'$ref', :uuid }
+      parameter name: 'uuid', in: 'path', required: true, description: 'Higher-Level Review UUID' do
+        schema { key :$ref, :uuid }
       end
       key :responses, '200': response_hlr_show_success, '404': response_hlr_show_not_found
       security do
@@ -105,29 +105,29 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
         'Review as of the `receiptDate` and bound by `benefitType`. Not all issues returned are guaranteed to be ' \
         'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       key :description, desc
-      parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
+      parameter name: 'X-VA-SSN', in: 'header', description: 'veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema '$ref': 'X-VA-SSN'
       end
-      parameter name: 'X-VA-File-Number', 'in': 'header', description: 'veteran\'s file number' do
+      parameter name: 'X-VA-File-Number', in: 'header', description: 'veteran\'s file number' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema type: :string
       end
-      parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
+      parameter name: 'X-VA-Receipt-Date', in: 'header', required: true do
         desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
           'the receipt date of a hypothetical Decision Review must be specified.'
         key :description, desc
-        schema type: :string, 'format': :date
+        schema type: :string, format: :date
       end
-      parameter name: 'benefit_type', 'in': 'path', required: true, description: 'benefit type' do
+      parameter name: 'benefit_type', in: 'path', required: true, description: 'benefit type' do
         schema '$ref': 'hlrCreateBenefitType'
       end
 
       responses = read_json_from_same_dir['responses_contestable_issues.json']
       responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
-        "value": {
-          "errors": [{ "status": 422, "code": 'invalid_benefit_type', "title": 'Invalid Benefit Type',
-                       "detail": 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
+        value: {
+          errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type',
+                     detail: 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
               '"fiduciary", "insurance", "education", "voc_rehab", "loan_guaranty", "vha", "nca"]' }]
         }
       }

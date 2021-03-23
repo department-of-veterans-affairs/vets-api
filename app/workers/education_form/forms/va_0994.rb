@@ -11,36 +11,36 @@ module EducationForm::Forms
     end
 
     HIGH_TECH_AREA_NAMES = {
-      'computerProgramming': 'Computer programming',
-      'dataProcessing': 'Data processing',
-      'computerSoftware': 'Computer software',
-      'informationSciences': 'Information sciences',
-      'mediaApplication': 'Media application'
+      computerProgramming: 'Computer programming',
+      dataProcessing: 'Data processing',
+      computerSoftware: 'Computer software',
+      informationSciences: 'Information sciences',
+      mediaApplication: 'Media application'
     }.freeze
 
     SALARY_TEXT = {
-      'lessThanTwenty': '<$20,000',
-      'twentyToThirtyFive': '$20,000-$35,000',
-      'thirtyFiveToFifty': '$35,000-$50,000',
-      'fiftyToSeventyFive': '$50,000-$75,000',
-      'moreThanSeventyFive': '>$75,000'
+      lessThanTwenty: '<$20,000',
+      twentyToThirtyFive: '$20,000-$35,000',
+      thirtyFiveToFifty: '$35,000-$50,000',
+      fiftyToSeventyFive: '$50,000-$75,000',
+      moreThanSeventyFive: '>$75,000'
     }.freeze
 
     EDUCATION_TEXT = {
-      'some_high_school': 'Some High School',
-      'high_school_diploma_or_GED': 'High school diploma or GED',
-      'some_college': 'Some college',
-      'associates_degree': 'Associate’s degree',
-      'bachelors_degree': 'Bachelor’s degree',
-      'masters_degree': 'Master’s degree',
-      'doctoral_degree': 'Doctoral degree',
-      'other': 'Other'
+      some_high_school: 'Some High School',
+      high_school_diploma_or_GED: 'High school diploma or GED',
+      some_college: 'Some college',
+      associates_degree: 'Associate’s degree',
+      bachelors_degree: 'Bachelor’s degree',
+      masters_degree: 'Master’s degree',
+      doctoral_degree: 'Doctoral degree',
+      other: 'Other'
     }.freeze
 
     COURSE_TYPE_TEXT = {
-      'inPerson': 'In Person',
-      'online': 'Online',
-      'both': 'Both'
+      inPerson: 'In Person',
+      online: 'Online',
+      both: 'Both'
     }.freeze
 
     def applicant_name
