@@ -61,12 +61,12 @@ class User < Common::RedisStore
     pciu&.get_alternate_phone&.to_s
   end
 
-  def first_name(args = { mpi: false })
-    if args[:mpi] == true
-      mpi&.profile&.given_names&.first
-    else
-      identity.first_name || (mhv_icn.present? ? mpi&.profile&.given_names&.first : nil)
-    end
+  def first_name
+    identity.first_name || (mhv_icn.present? ? mpi&.profile&.given_names&.first : nil)
+  end
+
+  def first_name_mpi
+    mpi&.profile&.given_names&.first
   end
 
   def full_name_normalized
@@ -86,20 +86,20 @@ class User < Common::RedisStore
     identity.middle_name || (mhv_icn.present? ? mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
 
-  def last_name(args = { mpi: false })
-    if args[:mpi] == true
-      mpi&.profile&.family_name
-    else
-      identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
-    end
+  def last_name
+    identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
   end
 
-  def gender(args = { mpi: false })
-    if args[:mpi] == true
-      mpi&.profile&.gender
-    else
-      identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
-    end
+  def last_name_mpi
+    mpi&.profile&.family_name
+  end
+
+  def gender
+    identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
+  end
+
+  def gender_mpi
+    mpi&.profile&.gender
   end
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
@@ -134,12 +134,12 @@ class User < Common::RedisStore
     identity.zip || (mhv_icn.present? ? mpi&.profile&.address&.postal_code : nil)
   end
 
-  def ssn(args = { mpi: false })
-    if args[:mpi] == true
-      mpi&.profile&.ssn
-    else
-      identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
-    end
+  def ssn
+    identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
+  end
+
+  def ssn_mpi
+    mpi&.profile&.ssn
   end
 
   def mhv_correlation_id
@@ -179,12 +179,12 @@ class User < Common::RedisStore
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
-  def edipi(args = { mpi: false })
-    if args[:mpi] == true
-      mpi&.profile&.edipi
-    else
-      loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
-    end
+  def edipi
+    loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
+  end
+
+  def edipi_mpi
+    mpi&.profile&.edipi
   end
 
   def sec_id
