@@ -23,8 +23,8 @@ module VBADocuments
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
     scope :aged_processing, -> (days, status) {
       where(status: status)
-          .where('created_at < ?', days.to_i.days.ago)
-          .order(created_at: :desc)}
+          .where("(metadata -> 'status' -> '#{status}' -> 'start')::integer < ?", days.to_i.days.ago.to_i)
+    }
 
     after_save :report_errors
 
