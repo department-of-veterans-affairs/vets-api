@@ -135,7 +135,7 @@ AppealsApi::DecisionReviewReportDaily:
   description: "Daily report of appeals submissions"
 
 AppealsApi::DecisionReviewReportWeekly:
-  cron: "0 23 * * MON America/New_York"
+  cron: "0 23 * * SUN America/New_York"
   class: AppealsApi::DecisionReviewReportWeekly
   description: "Weekly report of appeals submissions"
 

@@ -13,8 +13,8 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-          key :summary, 'Get 0966 JSON Schema for form'
-          key :description, 'Returns a single 0966 JSON schema to auto generate a form'
+          key :summary, 'Get a 0966 schema for a form.'
+          key :description, 'Returns 0966 schema to automatically generate a form.'
           key :operationId, 'get0966JsonSchema'
           key :produces, [
             'application/json'
@@ -62,8 +62,8 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-          key :summary, 'Accepts 0966 Intent to File form submission'
-          key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
+          key :summary, 'Submit form 0966 Intent to File.'
+          key :description, 'Establishes an intent to file for disability compensation, burial, or pension claims.'
           key :operationId, 'post0966itf'
           key :tags, [
             'Intent to File'
@@ -249,8 +249,8 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-          key :summary, 'Returns last active 0966 Intent to File form submission'
-          key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
+          key :summary, 'Returns last active 0966 Intent to File form submission.'
+          key :description, 'Returns the last active 0966 form for a Veteran.'
           key :operationId, 'active0966itf'
           key :tags, [
             'Intent to File'
@@ -378,8 +378,8 @@ module ClaimsApi
 
       swagger_path '/forms/0966/validate' do
         operation :post do
-          key :summary, ' 0966 Intent to File form submission dry run'
-          key :description, 'Accepts JSON payload.'
+          key :summary, 'Test the 0966 Intent to File form submission.'
+          key :description, 'Test to ensure the form submission works with your parameters. Submission is validated against the GET /forms/0966 schema.'
           key :operationId, 'validate0966itf'
           key :tags, [
             'Intent to File'
