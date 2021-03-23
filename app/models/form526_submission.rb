@@ -45,7 +45,7 @@ class Form526Submission < ApplicationRecord
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
-  SUBMIT_JOB_CLASSES = ['SubmitForm526AllClaim', 'SubmitForm526'].freeze
+  SUBMIT_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
@@ -210,26 +210,34 @@ class Form526Submission < ApplicationRecord
   end
 
   def jobs_succeeded?
-    relevant_job_statuses.all?(&:success?)
+    relevant_job_statuses.presence&.all?(&:success?)
   end
 
   def relevant_job_statuses
-    non_submission_job_statuses + [most_recent_submission_job_status]
+    non_submit_job_statuses.to_a + Array.wrap(most_recent_submit_job_status)
   end
 
-  def non_submission_job_statuses
+  def non_submit_job_statuses
     form526_job_statuses.where.not job_class: SUBMIT_JOB_CLASSES
   end
 
-  def most_recent_submission_job_status
-    statuses = form526_job_statuses.where(job_class: SUBMIT_JOB_CLASSES).order(:updated_at)
+  class MultipleSuccesfulSubmitJobsError < StandardError; end
+  class SuccesfulSubmitJobIsntLastSubmitJobError < StandardError; end
 
-    successful_submissions = statuses.where(status: 'success').count
+  def most_recent_submit_job_status
+    submit_job_statuses = form526_job_statuses.where(job_class: SUBMIT_JOB_CLASSES).order(:updated_at)
+    submit_job_statuses.last
+  ensure # that we're not double submitting or submitting after a success
+    successful_submit_job_statuses = submit_job_statuses.where(status: 'success').load
+    id_string = "Form526Submission ID: #{id} (NOTE: no exception thrown, just logging to sentry)"
+    log_exception_to_sentry MultipleSuccesfulSubmitJobsError.new id_string if successful_submit_job_statuses.size > 1
+    if theres_a_successful_submit_job_but_its_not_the_last_submit_job(successful_submit_job_statuses)
+      log_exception_to_sentry SuccesfulSubmitJobIsntLastSubmitJobError.new id_string
+    end
+  end
 
-    log_exception_to_sentry e if successful_submissions > 1
-    log_exception_to_sentry e if successful_submissions == 1 && !statuses.last.success?
-
-    statuses.last
+  def theres_a_successful_submit_job_but_its_not_the_last_submit_job(successful_submit_job_statuses)
+    successful_submit_job_statuses.size == 1 && !successful_submit_job_statuses.last.success?
   end
 
   # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
