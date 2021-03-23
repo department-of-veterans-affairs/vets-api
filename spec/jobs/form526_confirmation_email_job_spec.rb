@@ -14,20 +14,20 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
       let(:email_address) { 'foo@example.com' }
       let(:email_response) do
         {
-          content: {
-            body: '<html><body><h1>Hello</h1> World.</body></html>',
-            from_email: 'from_email',
-            subject: 'Hello World'
+          'content': {
+            'body': '<html><body><h1>Hello</h1> World.</body></html>',
+            'from_email': 'from_email',
+            'subject': 'Hello World'
           },
-          id: '123456789',
-          reference: nil,
-          scheduled_for: nil,
-          template: {
-            id: Settings.vanotify.template_id.form526_confirmation_email,
-            uri: 'template_url',
-            version: 1
+          'id': '123456789',
+          'reference': nil,
+          'scheduled_for': nil,
+          'template': {
+            'id': Settings.vanotify.template_id.form526_confirmation_email,
+            'uri': 'template_url',
+            'version': 1
           },
-          uri: 'url'
+          'uri': 'url'
         }
       end
       let(:personalization_parameters) do
