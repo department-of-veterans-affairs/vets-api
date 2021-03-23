@@ -258,21 +258,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    it 'sets error status for invalid line of business in the metadata' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) {
-        v = valid_parts
-        hash = JSON.parse(v['metadata'])
-        hash['businessLine'] = 'BAD'
-        v['metadata'] = hash.to_json
-        v
-      }
-      described_class.new.perform(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to start_with('Invalid businessLine provided')
-    end
-
     context 'with locked pdf' do
       { 'sets error status for locked pdf attachment' => [:valid_parts_locked_attachment,
                                                           'Invalid PDF content, part attachment1'],
@@ -359,6 +344,55 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(content).to have_key('page_count')
       expect(content).to have_key('dimensions')
       expect(content).to have_key('attachments')
+    end
+
+    context 'with valid line of business' do
+      before do
+        @md = JSON.parse(valid_metadata)
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'metadata' => @md.to_json, 'content' => valid_doc }
+        }
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return('')
+        allow(faraday_response).to receive(:success?).and_return(true)
+        capture_body = nil
+        expect(client_stub).to receive(:upload) { |arg|
+          capture_body = arg
+          faraday_response
+        }
+      end
+
+      it 'records line of business' do
+        @md['businessLine'] = 'CMP'
+        described_class.new.perform(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.uploaded_pdf['line_of_business']).to eq('CMP')
+      end
+
+      %w[LOG MED BUR OTH DROC].each do |future_lob|
+        it "maps the future line of business #{future_lob} to CMP" do
+          @md['businessLine'] = future_lob
+          described_class.new.perform(upload.guid)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.uploaded_pdf['line_of_business']).to eq(future_lob)
+          expect(updated.uploaded_pdf['submitted_line_of_business']).to eq('CMP')
+        end
+      end
+    end
+
+    it 'sets error status and records invalid lines of business' do
+      md = JSON.parse(valid_metadata)
+      md['businessLine'] = 'BAD_STATUS'
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc }
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+      expect(updated.detail).to start_with('Invalid businessLine provided')
+      expect(updated.detail).to match(/BAD_STATUS/)
     end
 
     xit 'sets error status for non-PDF attachment parts' do
