@@ -59,11 +59,11 @@ module AppealsApi
         end
 
         def signature
-          first_last = [first_name('Veteran'), last_name('Veteran')]
-          formatted_name = first_last.map(&:presence).compact.map(&:strip).join(' ')
-          auth_statement = 'signed by digital authentication to api.va.gov'
+          first_last = [first_name('Veteran')&.[](0...90), last_name('Veteran')&.[](0...90)]
+          formatted_name = first_last.map(&:presence).compact.join(' ')
+          auth_statement = '- Signed by digital authentication to api.va.gov'
 
-          "#{formatted_name} - #{auth_statement}"
+          "#{formatted_name}\n#{auth_statement}"
         end
 
         def date_signed
@@ -77,7 +77,7 @@ module AppealsApi
         end
 
         def stamp_text
-          "#{last_name('Veteran')} - #{veteran_ssn.last(4)}"
+          "#{last_name('Veteran').truncate(35)} - #{veteran_ssn.last(4)}"
         end
 
         def representatives_name
@@ -98,7 +98,7 @@ module AppealsApi
             first_name(who),
             initial,
             last_name(who)
-          ].map(&:presence).compact.map(&:strip).join(' ')
+          ].map(&:presence).compact.join(' ')
         end
 
         def first_name(who)

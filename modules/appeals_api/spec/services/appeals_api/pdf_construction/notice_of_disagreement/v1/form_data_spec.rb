@@ -76,7 +76,7 @@ module AppealsApi
           end
 
           describe '#signature' do
-            it { expect(form_data.signature).to eq('Jane Doe - signed by digital authentication to api.va.gov') }
+            it { expect(form_data.signature).to eq("Jane Doe\n- Signed by digital authentication to api.va.gov") }
           end
 
           describe '#date_signed' do
