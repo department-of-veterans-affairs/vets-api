@@ -8,59 +8,103 @@ module VBADocuments
     include ActionView::Helpers::DateHelper
 
     SLACK_URL = Settings.vba_documents.slack_notification_url
-    ALERT_LOOKBACK = Settings.vba_documents.slack_notification_lookback_in_days.to_i
+    ALERT_HUNGTIME = Settings.vba_documents.slack_notification_hung_time_in_days.to_i
+    RENOTIFY_TIME = Settings.vba_documents.slack_renotification_in_minutes.to_i
 
     def perform
-      spoof_long_flyers
-      text = 'ALERT!!\n'
+      alert
+      daily_notification
+    end
+
+    private
+
+    def daily_notification
+      hour = Time.now.utc.hour - 5
+      if hour.eql?(15)
+        text = "Daily Status (worst offenders over past week):\n"
+        UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
+          start_time = UploadSubmission.aged_processing(0, status).where('created_at > ?', 7.days.ago)
+                           .first.metadata['status'][status]['start']
+          duration = distance_of_time_in_words(Time.now.to_i - start_time)
+          text = text + "\tStatus \'#{status}\' for approximately #{duration}\n"
+        end
+        send_to_slack(text)
+      end
+    end
+
+    def alert
+      spoof_long_flyers #todo delete me
+      guids_found = false
+      text = 'ALERT!! GUIDS in flight for too long!\n'
       alert_on = fetch_long_flyers
       alert_on.each_pair do |status,models|
         text = text + "#{status.upcase}:\n"
         models.each do |m|
           start_time = m.metadata['status'][status]['start']
           #start_time = start_time - ALERT_LOOKBACK.days #todo remove line
-          puts Time.now.to_i - start_time
           duration = distance_of_time_in_words(Time.now.to_i - start_time)
           text = text + "\tGUID: #{m.guid} for approximately #{duration}\n"
+          guids_found = true
         end
       end
-      resp = send_to_slack(text)
-      if resp.success?
+      puts "GUIDS found is #{guids_found}"
+      resp = send_to_slack(text) if guids_found
+      if resp&.success?
         add_notification_timestamp(alert_on.values.flatten)
       end
     end
-
-    private
 
     def send_to_slack(text)
       Faraday.post(SLACK_URL, "{\"text\": \"#{text}\"}", "Content-Type" => "application/json")
     end
 
     def add_notification_timestamp(models)
+      time = Time.now.to_i
       models.each do |m|
-        m.metadata['last_slack_notification'] ||= {}
-        m.metadata['last_slack_notification'] = Time.now.to_i
+        m.metadata['last_slack_notification'] = time
         m.save
       end
     end
 
     def spoof_long_flyers
       UploadSubmission.destroy_all
-      UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
-        1.times do
-          u = UploadSubmission.new
-          u.status = status
-          u.save!
-          u.metadata['status'][status]['start'] = 15.days.ago.to_i
-          u.save!
-        end
+      1.times do |i|
+        u = UploadSubmission.new
+        status = 'received'
+        u.status = status
+        u.save!
+        u.metadata['status'][status]['start'] = (15 + i).seconds.ago.to_i
+        u.save!
       end
+      3.times do |i|
+        u = UploadSubmission.new
+        status = 'processing'
+        u.status = status
+        u.save!
+        u.metadata['status'][status]['start'] = (15 + i).hours.ago.to_i
+        u.save!
+      end
+      20.times do |i|
+        status = 'success'
+        u = UploadSubmission.new
+        u.status = status
+        u.save!
+        u.metadata['status'][status]['start'] = (15 + i).minutes.ago.to_i
+        u.save!
+      end
+      puts 'done with spoof'
     end
 
     def fetch_long_flyers
       alerting_on = {}
       UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
-        alerting_on[status] = UploadSubmission.aged_processing(ALERT_LOOKBACK, status)
+        alerting_on[status] = UploadSubmission.aged_processing(ALERT_HUNGTIME, status).limit(10).select do |m|
+          last_notified = m.metadata['last_slack_notification'].to_i #nil to zero
+          delta = Time.now.to_i - last_notified
+          notify = delta > RENOTIFY_TIME*60
+          puts "notify is #{notify} delta is #{delta} with last notified being #{last_notified}"
+          notify
+        end
       end
       alerting_on
     end

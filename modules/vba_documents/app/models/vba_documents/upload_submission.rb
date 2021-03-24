@@ -24,6 +24,7 @@ module VBADocuments
     scope :aged_processing, -> (days, status) {
       where(status: status)
           .where("(metadata -> 'status' -> '#{status}' -> 'start')::integer < ?", days.to_i.days.ago.to_i)
+          .order("(metadata -> 'status' -> '#{status}' -> 'start')::integer asc")
     }
 
     after_save :report_errors
