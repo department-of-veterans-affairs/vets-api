@@ -216,7 +216,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.7.2)
       msgpack (~> 1.0)
-    brakeman (4.9.1)
+    brakeman (5.0.0)
     breakers (0.4.0)
       faraday (>= 0.7.4, < 0.18)
       multi_json (~> 1.0)
@@ -942,7 +942,7 @@ DEPENDENCIES
   betamocks!
   bgs_ext!
   bootsnap
-  brakeman (~> 4.7)
+  brakeman (~> 5.0.0)
   breakers
   bundler-audit
   byebug
