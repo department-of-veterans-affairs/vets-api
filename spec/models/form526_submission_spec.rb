@@ -377,6 +377,8 @@ RSpec.describe Form526Submission do
 
       it 'queues 1 job' do
         expect do
+          subject.form526_job_statuses <<
+            Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
           subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
         end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
       end

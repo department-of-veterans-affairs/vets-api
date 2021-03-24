@@ -45,7 +45,7 @@ class Form526Submission < ApplicationRecord
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
-  SUBMIT_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
+  SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
@@ -210,34 +210,32 @@ class Form526Submission < ApplicationRecord
   end
 
   def jobs_succeeded?
-    relevant_job_statuses.presence&.all?(&:success?)
+    a_submit_form_526_job_succeeded? && all_other_jobs_succeeded_if_any?
   end
 
-  def relevant_job_statuses
-    non_submit_job_statuses.to_a + Array.wrap(most_recent_submit_job_status)
-  end
+  class SubmitForm526JobStatusesError < StandardError; end
 
-  def non_submit_job_statuses
-    form526_job_statuses.where.not job_class: SUBMIT_JOB_CLASSES
-  end
-
-  class MultipleSuccesfulSubmitJobsError < StandardError; end
-  class SuccesfulSubmitJobIsntLastSubmitJobError < StandardError; end
-
-  def most_recent_submit_job_status
-    submit_job_statuses = form526_job_statuses.where(job_class: SUBMIT_JOB_CLASSES).order(:updated_at)
-    submit_job_statuses.last
-  ensure # that we're not double submitting or submitting after a success
-    successful_submit_job_statuses = submit_job_statuses.where(status: 'success').load
-    id_string = "Form526Submission ID: #{id} (NOTE: no exception thrown, just logging to sentry)"
-    log_exception_to_sentry MultipleSuccesfulSubmitJobsError.new id_string if successful_submit_job_statuses.size > 1
-    if theres_a_successful_submit_job_but_its_not_the_last_submit_job(successful_submit_job_statuses)
-      log_exception_to_sentry SuccesfulSubmitJobIsntLastSubmitJobError.new id_string
+  def a_submit_form_526_job_succeeded?
+    submit_form_526_job_statuses = form526_job_statuses.where(job_class: SUBMIT_FORM_526_JOB_CLASSES).order(:updated_at)
+    submit_form_526_job_statuses.presence&.any?(&:success?)
+  ensure
+    successful = submit_form_526_job_statuses.where(status: 'success').load
+    warning = lambda do |message|
+      SubmitForm526JobStatusesError
+        .new "Warning! #{message} for Form526Submission #{id} (NOTE: no exception thrown, just logging to sentry)"
+    end
+    if successful.size > 1
+      log_exception_to_sentry warning.call('There are multiple successful SubmitForm526 job statuses')
+    end
+    if successful.size == 1 && submit_form_526_job_statuses.last.unsuccessful?
+      log_exception_to_sentry(
+        warning.call("There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job")
+      )
     end
   end
 
-  def theres_a_successful_submit_job_but_its_not_the_last_submit_job(successful_submit_job_statuses)
-    successful_submit_job_statuses.size == 1 && !successful_submit_job_statuses.last.success?
+  def all_other_jobs_succeeded_if_any?
+    form526_job_statuses.where.not(job_class: SUBMIT_FORM_526_JOB_CLASSES).all?(&:success?)
   end
 
   # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
@@ -270,7 +268,7 @@ class Form526Submission < ApplicationRecord
   #
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
-    if submission.form526_job_statuses.all?(&:success?)
+    if submission.jobs_succeeded?
       user = User.find(submission.user_uuid)
       if Flipper.enabled?(:form526_confirmation_email, user)
         submission.send_form526_confirmation_email(options['first_name'])
