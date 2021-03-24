@@ -414,15 +414,3 @@ Lint/NoReturnInBeginEndBlocks:
 
 Lint/SymbolConversion:
   Enabled: false
-
-Style/HashConversion:
-  Enabled: false
-
-Style/NegatedIfElseCondition:
-  Enabled: false
-
-Style/RedundantArgument:
-  Enabled: false
-
-Style/IfWithBooleanLiteralBranches:
-  Enabled: false
