@@ -55,7 +55,7 @@ module EducationForm
       true
     rescue => e
       StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
-      log_exception_to_sentry(DailySpoolFileError.new("Error creating spool files.\n\n#{e}"))
+      log_exception(DailySpoolFileError.new("Error creating spool files.\n\n#{e}"))
     end
 
     def group_submissions_by_region(records)
@@ -109,7 +109,7 @@ module EducationForm
                             "attempt #{spool_file_event.retry_attempt}"
                           end
             exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
-            log_exception_to_sentry(exception)
+            log_exception(exception)
             next
           end
         end
@@ -142,7 +142,7 @@ module EducationForm
                   else
                     FormattingError.new("Could not format #{claim.confirmation_number}")
                   end
-      log_exception_to_sentry(exception)
+      log_exception(exception)
     end
 
     private
@@ -181,8 +181,23 @@ module EducationForm
       @stats ||= Hash.new(Hash.new(0))
     end
 
+    def log_exception(exception)
+      log_exception_to_sentry(exception)
+      log_to_slack(exception.to_s)
+    end
+
     def log_info(message)
-      log_exception_to_sentry(DailySpoolFileLogging.new(message), {}, {}, :info)
+      logger.info(message)
+      log_to_slack(message)
+    end
+
+    def log_to_slack(message)
+      return unless Flipper.enabled?(:spool_testing_error_2)
+
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
+                                       channel: '#vsa-education-logs',
+                                       username: 'CreateDailySpoolFiles')
+      client.notify("In #{Settings.vsp_environment}.\n\n#{message}")
     end
   end
 end
