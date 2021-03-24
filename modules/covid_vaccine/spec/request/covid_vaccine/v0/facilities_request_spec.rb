@@ -70,15 +70,9 @@ RSpec.describe 'Covid Vaccine Facilities', type: :request do
                          match_requests_on: %i[method path], &example)
       end
 
-      it 'returns successfully' do
+      it 'returns a 4xx error' do
         get "/covid_vaccine/v0/facilities/#{non_existent_zip}"
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'returns an empty list' do
-        get "/covid_vaccine/v0/facilities/#{non_existent_zip}"
-        body = JSON.parse(response.body)
-        expect(body['data'].length).to eq(0)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 
@@ -87,8 +81,7 @@ RSpec.describe 'Covid Vaccine Facilities', type: :request do
         allow_any_instance_of(Lighthouse::Facilities::Client).to receive(:get_facilities)
           .and_raise(StandardError.new('facilities exception'))
         get "/covid_vaccine/v0/facilities/#{zip}"
-        body = JSON.parse(response.body)
-        expect(body['data'].length).to eq(0)
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end

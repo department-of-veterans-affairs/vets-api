@@ -2,6 +2,8 @@
 
 require 'lighthouse/facilities/client'
 require 'sentry_logging'
+require 'common/exceptions/bad_gateway'
+require 'common/exceptions/unprocessable_entity'
 
 module CovidVaccine
   module V0
@@ -19,7 +21,7 @@ module CovidVaccine
       # return a list of nearby facilities based on provided zipcode
       def facilities_for(zipcode, count = 3)
         zcta_row = ZCTA[zipcode&.[](0...5)]
-        return [] if zcta_row.blank?
+        raise Common::Exceptions::UnprocessableEntity.new(detail: 'Invalid ZIP Code') if zcta_row.blank?
 
         lat = zcta_row[ZCTA_LAT_HEADER]
         lng = zcta_row[ZCTA_LON_HEADER]
@@ -62,7 +64,7 @@ module CovidVaccine
       rescue => e
         # For now just log any exception while getting facilities and return an empty result
         log_exception_to_sentry(e)
-        []
+        raise Common::Exceptions::BadGateway
       end
     end
   end
