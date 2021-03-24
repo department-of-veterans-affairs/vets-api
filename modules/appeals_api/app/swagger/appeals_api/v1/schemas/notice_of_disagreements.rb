@@ -27,7 +27,7 @@ module AppealsApi::V1
             property :attributes do
               key :type, :object
               key :description, 'Required by JSON API standard'
-              key :required, %i[veteran boardReviewOption timezone]
+              key :required, %i[veteran boardReviewOption timezone socOptIn]
 
               property :veteran do
                 key :type, :object
@@ -141,6 +141,11 @@ module AppealsApi::V1
                 key :type, :string
                 key :example, 'America/Chicago'
                 key :description, 'timezone of Veteran'
+              end
+              property :socOptIn do
+                key :type, :boolean
+                key :description, 'Indicates whether or not any contestable issues listed on the form are being
+                                   withdrawn from the legacy appeals process'
               end
             end
           end
@@ -258,6 +263,12 @@ module AppealsApi::V1
                     key :type, :string
                     key :example, 'America/Chicago'
                     key :description, 'the timezone selected for the NOD submission'
+                  end
+
+                  property :socOptIn do
+                    key :type, :boolean
+                    key :description, 'Indicates whether or not any contestable issues listed on the form are being
+                                       withdrawn from the legacy appeals process'
                   end
                 end
               end
