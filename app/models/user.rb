@@ -82,11 +82,6 @@ class User < Common::RedisStore
     identity.middle_name || (mhv_icn.present? ? mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
 
-  # returns a string or nil (never returns a ".blank?" string)
-  def middle_initial(append = '')
-    middle_name.to_s.strip.presence&.then { |name| "#{name.first.upcase}#{append}" }
-  end
-
   def last_name
     identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
   end

@@ -121,7 +121,7 @@ module DecisionReview
     def create_notice_of_disagreement_headers(user)
       headers = {
         'X-VA-First-Name' => user.first_name.to_s.strip, # can be an empty string to accomodate those with 1 legal name
-        'X-VA-Middle-Initial' => user.middle_initial,
+        'X-VA-Middle-Initial' => middle_initial(user),
         'X-VA-Last-Name' => user.last_name.to_s.strip.presence,
         'X-VA-SSN' => user.ssn.to_s.strip.presence,
         'X-VA-File-Number' => nil,
@@ -137,6 +137,10 @@ module DecisionReview
       end
 
       headers
+    end
+
+    def middle_initial(user)
+      user.middle_name.to_s.strip.presence&.first&.upcase
     end
 
     def get_contestable_issues_headers(user)
