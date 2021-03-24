@@ -132,7 +132,7 @@ describe DecisionReview::Service do
   describe '#get_notice_of_disagreement' do
     subject { described_class.new.get_notice_of_disagreement(uuid) }
 
-    let(:uuid) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
+    let(:uuid) { '1234567a-89b0-123c-d456-789e01234f56' }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
