@@ -1049,7 +1049,7 @@ paths:
             description: Allows the API to return camelCase keys rather than snake_case.
             example: 'camel'
       requestBody:
-        description: The new email address
+        description: The email address to delete
         required: true
         content:
           application/json:
@@ -1197,6 +1197,75 @@ paths:
           application/json:
             schema:
               $ref: "./schemas/PhoneUpdate.yml"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/PhoneTransaction.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Unprocessable Entity, usually because of one or more invalid parameters.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '502':
+          description: An upstream service the API depends on returned an error.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+    delete:
+      summary: /v0/user/phones
+      description: Deletes one of a user's phone numbers
+      operationId: user.deletePhone
+      security:
+        - Bearer: [ ]
+      parameters:
+        - in: header
+          name: X-Key-Inflection
+          schema:
+            type: string
+            description: Allows the API to return camelCase keys rather than snake_case.
+            example: 'camel'
+      requestBody:
+        description: The phone number to delete
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/PhoneUpdate.yml'
       responses:
         '200':
           description: OK
@@ -1445,13 +1514,20 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-  /v0/push/prefs:
+  /v0/push/prefs/{endpointSid}:
     get:
-      summary: /v0/push/prefs
+      summary: /v0/push/prefs/{endpointSid}
       description: Get the user's push notification preferences
       operationId: getPrefs
       security:
         - Bearer: []
+      parameters:
+        - in: path
+          name: endpointSid
+          required: true
+          schema:
+            type: string
+          description: device endpointSid provided by the register endpoint
       responses:
         '200':
           description: OK
@@ -1508,11 +1584,18 @@ paths:
               schema:
                 $ref: "./schemas/Errors.yml"
     put:
-      summary: /v0/push/prefs
+      summary: /v0/push/prefs/{endpointSid}
       description: Set the user's push notification preferences
       operationId: putPrefs
       security:
         - Bearer: []
+      parameters:
+        - in: path
+          name: endpointSid
+          required: true
+          schema:
+            type: string
+          description: device endpointSid provided by the register endpoint
       requestBody:
         description: Push notification preferences
         required: true
@@ -1578,6 +1661,13 @@ paths:
       operationId: sendNotification
       security:
         - Bearer: []
+      requestBody:
+        description: Template id, endpoint sid, and personalization for template
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "./schemas/PushSendRequestBody.yml"
       responses:
         '200':
           description: OK
@@ -2217,8 +2307,8 @@ paths:
     post:
       summary: /v0/messaging/health/messages/{id}/reply
       description: |
-        Send reply to a secure message          
-        
+        Send reply to a secure message
+
         <strong>NOTE:</strong> If including file attachments, this request must be sent as <i>multipart/form-data</i>
 
         File attachment restrictions (as imposed by MHV):

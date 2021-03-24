@@ -6,7 +6,6 @@ require 'open3'
 require 'time'
 require 'json'
 require 'pp'
-require 'digest'
 require 'pry'
 require 'net/http'
 require 'uri'
@@ -21,7 +20,10 @@ class LogsProcessor
 
   def self.fetch_data(options)
     ranges(options[:start_date], options[:end_date]).each do |range|
-      command = "awslogs get #{AWS_LOG_PATH} -s '#{range[0]}' -e '#{range[1]}' -f '#{options[:filter_pattern]}'"
+      command = "awslogs get #{AWS_LOG_PATH} \
+                 -s '#{range[0].shellescape}' \
+                 -e '#{range[1].shellescape}' \
+                 -f '#{options[:filter_pattern].shellescape}'"
       puts "Executing #{command}"
       Open3.popen3 command do |_stdin, stdout, stderr, _wait_thr|
         stdout_str = stdout.read
