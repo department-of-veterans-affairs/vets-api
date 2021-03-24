@@ -213,13 +213,15 @@ describe VBADocuments::UploadSubmission, type: :model do
 
       #  rspec ./modules/vba_documents/spec/models/upload_submission_spec.rb
       it 'calculates status averages' do
-        avg_times = VBADocuments::UploadSubmission.avg_status_times(1.year.ago, 1.minute.from_now).first
+        avg_times = VBADocuments::UploadSubmission.status_elapsed_times(1.year.ago, 1.minute.from_now).first
         avg_times_c1 = VBADocuments::UploadSubmission
-                       .avg_status_times(1.year.ago, 1.minute.from_now, 'consumer_1').first
-        expect(avg_times['elapsed_secs'].to_i).to be == 60
+                       .status_elapsed_times(1.year.ago, 1.minute.from_now, 'consumer_1').first
+        expect(avg_times['avg_secs'].to_i).to be == 60
+        expect(avg_times['min_secs'].to_i).to be == 60
+        expect(avg_times['max_secs'].to_i).to be == 60
         expect(avg_times['rowcount'].to_i).to be == @num_times + 1
         expect(avg_times['status']).to eq('pending')
-        expect(avg_times_c1['elapsed_secs'].to_i).to be == 60
+        expect(avg_times_c1['avg_secs'].to_i).to be == 60
         expect(avg_times_c1['rowcount'].to_i).to be == 2
         expect(avg_times_c1['status']).to eq('pending')
       end

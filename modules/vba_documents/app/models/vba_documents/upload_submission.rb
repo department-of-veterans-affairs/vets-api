@@ -98,12 +98,14 @@ module VBADocuments
     end
 
     # data structure
-    # [{"status"=>"pending", "elapsed_secs"=>"16", "rowcount"=>7},
-    # {"status"=>"processing", "elapsed_secs"=>"45", "rowcount" =>2},
-    # {"status"=>"received", "elapsed_secs"=>"45", "rowcount"=>3},
-    # {"status"=>"uploaded", "elapsed_secs"=>"22", "rowcount"=>5}]
-    def self.avg_status_times(from, to, consumer_name = nil)
-      avg_status_sql = avg_sql(consumer_name)
+    # [{"status"=>"vbms", "min_secs"=>816, "max_secs"=>816, "avg_secs"=>"816", "rowcount"=>1},
+    # {"status"=>"pending", "min_secs"=>0, "max_secs"=>23, "avg_secs"=>"9", "rowcount"=>7},
+    # {"status"=>"processing", "min_secs"=>9, "max_secs"=>22, "avg_secs"=>"16", "rowcount"=>2},
+    # {"status"=>"success", "min_secs"=>17, "max_secs"=>38, "avg_secs"=>"26", "rowcount"=>3},
+    # {"status"=>"received", "min_secs"=>10, "max_secs"=>539681, "avg_secs"=>"269846", "rowcount"=>2},
+    # {"status"=>"uploaded", "min_secs"=>0, "max_secs"=>21, "avg_secs"=>"10", "rowcount"=>6}]
+    def self.status_elapsed_times(from, to, consumer_name = nil)
+      avg_status_sql = status_elapsed_time_sql(consumer_name)
       ActiveRecord::Base.connection_pool.with_connection do |c|
         c.raw_connection.exec_params(avg_status_sql, [from, to]).to_a
       end
