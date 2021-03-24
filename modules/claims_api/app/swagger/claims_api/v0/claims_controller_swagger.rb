@@ -11,11 +11,24 @@ module ClaimsApi
             key :apikey, []
           end
           key :summary, 'Find Claim by ID'
-          key :description, 'Returns a single claim if the user has access'
+          key(
+            :description,
+            <<~X
+              Returns data such as processing status for a single claim by ID.
+            X
+          )
           key :operationId, 'findClaimById'
           key :tags, [
             'Claims'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           parameter do
             key :name, :id
@@ -74,7 +87,7 @@ module ClaimsApi
             key :in, :header
             key :description, 'VA username of the person making the request'
             key :example, 'lighthouse'
-            key :required, true
+            key :required, false
             key :type, :string
           end
 
@@ -137,9 +150,13 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-
-          key :summary, 'All Claims'
-          key :description, 'Returns all claims from the system that the user has access to'
+          key :summary, 'Find all claims for a Veteran.'
+          key(
+            :description,
+            <<~X
+              Uses the Veteran’s metadata in headers to retrieve all claims for that Veteran. An authenticated Veteran making a request with this endpoint will return their own claims, if any.
+            X
+          )
           key :operationId, 'findClaims'
           key :produces, [
             'application/json'
@@ -147,6 +164,14 @@ module ClaimsApi
           key :tags, [
             'Claims'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           parameter do
             key :name, 'X-VA-SSN'

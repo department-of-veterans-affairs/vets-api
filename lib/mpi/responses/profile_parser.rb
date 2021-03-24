@@ -73,7 +73,6 @@ module MPI
       private
 
       # rubocop:disable Metrics/MethodLength
-      # rubocop:disable Metrics/AbcSize
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         full_mvi_ids = get_extensions(patient.locate('id'))
@@ -106,7 +105,6 @@ module MPI
           cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids]
         )
       end
-      # rubocop:enable Metrics/AbcSize
       # rubocop:enable Metrics/MethodLength
 
       def get_extensions(id_array)

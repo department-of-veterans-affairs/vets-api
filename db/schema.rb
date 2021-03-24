@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_18_172412) do
+ActiveRecord::Schema.define(version: 2021_03_23_001250) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -228,6 +228,10 @@ ActiveRecord::Schema.define(version: 2021_03_18_172412) do
     t.datetime "updated_at", null: false
     t.string "encrypted_raw_form_data"
     t.string "encrypted_raw_form_data_iv"
+    t.boolean "expanded", default: false, null: false
+    t.boolean "sequestered", default: false, null: false
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
@@ -591,6 +595,17 @@ ActiveRecord::Schema.define(version: 2021_03_18_172412) do
     t.index ["user_uuid"], name: "index_session_activities_on_user_uuid"
   end
 
+  create_table "spool_file_events", force: :cascade do |t|
+    t.integer "rpo"
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at"
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["rpo", "filename"], name: "index_spool_file_events_uniqueness", unique: true
+  end
+
   create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
     t.string "name"
     t.string "title"
@@ -667,7 +682,6 @@ ActiveRecord::Schema.define(version: 2021_03_18_172412) do
     t.jsonb "benefit_categories"
     t.string "form_details_url"
     t.jsonb "va_form_administration"
-    t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 

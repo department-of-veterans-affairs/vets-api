@@ -100,7 +100,6 @@ module EducationForm
     # Claims are sent to different RPOs based first on the location of the school
     # that the claim is relating to (either `school` or `newSchool` in our submissions)
     # or to the applicant's address (either as a relative or the veteran themselves)
-    # rubocop:disable Metrics/CyclomaticComplexity
     def self.routing_address(record, form_type:)
       case form_type.upcase
       when '1990'
@@ -113,8 +112,6 @@ module EducationForm
         record.newSchool&.address || record.veteranAddress
       end
     end
-
-    # rubocop:enable Metrics/CyclomaticComplexity
 
     def self.regional_office_for(model)
       region = region_for(model)

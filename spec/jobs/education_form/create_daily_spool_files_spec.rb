@@ -209,6 +209,53 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
+    context 'on first retry attempt with a previous success' do
+      let(:file_path) { "tmp/spool_files/#{filename}" }
+
+      before do
+        expect(Rails.env).to receive('development?').twice.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).twice.and_return(true)
+      end
+
+      after do
+        File.delete(file_path)
+      end
+
+      it 'notifies file was already created for filename and RPO' do
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+        subject.perform
+
+        create(:va1995)
+        expect(subject).to receive(:log_info).once
+
+        msg = 'A spool file for 307 on 09172016 was already created'
+        expect(subject).to receive(:log_info).with(msg)
+        subject.perform
+      end
+    end
+
+    context 'notifies which file failed during initial attempt' do
+      let(:file_path) { "tmp/spool_files/#{filename}" }
+
+      before do
+        expect(Rails.env).to receive('development?').once.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(true).at_least(:once)
+      end
+
+      it 'logs exception to sentry' do
+        local_mock = instance_double('SFTPWriter::Local')
+
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+        expect(SFTPWriter::Local).to receive(:new).once.and_return(local_mock)
+        expect(local_mock).to receive(:write).and_raise('boom')
+        expect(local_mock).to receive(:close).once.and_return(true)
+        expect(subject).to receive(:log_exception_to_sentry).exactly(3).times
+        expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::DailySpoolFileError))
+
+        subject.perform
+      end
+    end
+
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
 
