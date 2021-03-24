@@ -187,7 +187,7 @@ def update_ids(xml, ids)
     mhv_ids: ids['mhv_ids'], vha_facility_ids: ids['vha_facility_ids']
   }
 
-  new_ids.reject! { |_, v| v.nil? }
+  new_ids.compact!
   current_ids.merge!(new_ids)
 
   updated_ids_element(current_ids, el)

@@ -170,6 +170,35 @@ describe DecisionReview::Service do
     end
   end
 
+  describe '#get_notice_of_disagreement' do
+    subject { described_class.new.get_notice_of_disagreement(uuid) }
+
+    let(:uuid) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
+
+    context '200 response' do
+      it 'returns a properly formatted 200 response' do
+        VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200') do
+          expect(subject).to respond_to :status
+          expect(subject.status).to be 200
+          expect(subject).to respond_to :body
+          expect(subject.body).to be_a Hash
+        end
+      end
+    end
+
+    context '404 response' do
+      let(:uuid) { '0' }
+
+      it 'throws a DR_404 exception' do
+        VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404') do
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
+          )
+        end
+      end
+    end
+  end
+
   describe '#get_higher_level_review_contestable_issues' do
     subject do
       described_class.new.get_higher_level_review_contestable_issues(benefit_type: benefit_type, user: user)
