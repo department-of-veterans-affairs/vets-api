@@ -57,6 +57,23 @@ module DecisionReview
     end
 
     ##
+    # Retrieve a Notice of Disagreement
+    #
+    # @param uuid [uuid] A Notice of Disagreement's UUID (included in a create_notice_of_disagreement response)
+    # @return [Faraday::Response]
+    #
+    def get_notice_of_disagreement(uuid)
+      with_monitoring_and_error_handling do
+        response = perform :get, "notice_of_disagreements/#{uuid}", nil
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema(
+          json: response.body, schema: Schemas::NOD_SHOW_RESPONSE_200, append_to_error_class: ' (NOD)'
+        )
+        response
+      end
+    end
+
+    ##
     # Get Contestable Issues for a Higher-Level Review
     #
     # @param user [User] Veteran who the form is in regard to
