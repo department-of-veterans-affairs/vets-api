@@ -11,6 +11,9 @@ module EducationForm
   class Process10203SubmissionsLogging < StandardError
   end
 
+  class Process10203EVSSError < StandardError
+  end
+
   class Process10203Submissions
     include Sidekiq::Worker
     include SentryLogging
@@ -81,7 +84,7 @@ module EducationForm
       service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
       service.get_gi_bill_status(auth_headers)
     rescue => e
-      Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
+      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve GiBillStatus data: #{e.message}"))
       {}
     end
 
@@ -92,7 +95,7 @@ module EducationForm
       service = EVSS::VSOSearch::Service.new(nil, auth_headers)
       service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
-      Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
+      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}"))
       nil
     end
 

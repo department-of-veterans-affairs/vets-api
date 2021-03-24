@@ -38,7 +38,7 @@ class SimpleCovHelper
     end
   end
 
-  def add_filters
+  def self.add_filters
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'lib/apps/configuration.rb'
@@ -59,12 +59,13 @@ class SimpleCovHelper
     add_filter 'version.rb'
   end
 
-  def add_modules
+  def self.add_modules
     # Modules
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'HealthQuest', 'modules/health_quest'
     add_group 'Identity', 'modules/identity/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'

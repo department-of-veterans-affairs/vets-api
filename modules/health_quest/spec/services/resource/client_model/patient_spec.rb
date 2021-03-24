@@ -9,14 +9,18 @@ describe HealthQuest::Resource::ClientModel::Patient do
   let(:data) { {} }
   let(:identifier_hash) do
     {
-      'type' => { coding: [{ system: subject::CODING_SYSTEM, code: 'ICN', userSelected: false }] },
+      'type' => { 'coding' => [{ 'system' => subject::CODING_SYSTEM, 'code' => 'ICN', 'userSelected' => false }] },
       'system' => subject::SYSTEM_ID,
       'value' => user.icn
     }
   end
   let(:meta_hash) do
     {
-      'tag' => [{ system: subject::META_SYSTEM, code: subject::META_CODE, display: subject::META_DISPLAY }]
+      'tag' => [{
+        'system' => subject::META_SYSTEM,
+        'code' => subject::META_CODE,
+        'display' => subject::META_DISPLAY
+      }]
     }
   end
 
@@ -70,11 +74,14 @@ describe HealthQuest::Resource::ClientModel::Patient do
 
   describe '#identifier_type' do
     it 'returns a hash' do
-      identifier_type_hash = {
-        coding: [{ system: subject::CODING_SYSTEM, code: 'ICN', userSelected: false }]
-      }
+      coding = FHIR::Coding.new
+      coding.system = subject::CODING_SYSTEM
+      coding.code = 'ICN'
+      coding.userSelected = false
+      codeable_concept = FHIR::CodeableConcept.new
+      codeable_concept.coding = [coding]
 
-      expect(subject.manufacture(data, user).identifier_type).to eq(identifier_type_hash)
+      expect(subject.manufacture(data, user).identifier_type).to eq(codeable_concept)
     end
   end
 
