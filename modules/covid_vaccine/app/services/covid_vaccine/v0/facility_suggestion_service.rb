@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
 require 'lighthouse/facilities/client'
+require 'sentry_logging'
 
 module CovidVaccine
   module V0
     class FacilitySuggestionService
+      include SentryLogging
+
       # List of VA "consolidated" facilities, VAMCs that had their
       # VistA instances merged and therefore are VAMCs that may have a
       # longer than 3 digit station ID
@@ -56,9 +59,9 @@ module CovidVaccine
         result = response.select(&allowed_vamcs).map(&elements)
         result = result.first(count)
         result
-      rescue
-        # For now just bail on any exception while getting facilities
-        # TODO Add Sentry logging
+      rescue => e
+        # For now just log any exception while getting facilities and return an empty result
+        log_exception_to_sentry(e)
         []
       end
     end
