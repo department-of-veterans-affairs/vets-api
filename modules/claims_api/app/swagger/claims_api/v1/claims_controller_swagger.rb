@@ -63,14 +63,6 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
           response 200 do
             key :description, 'claims response'
             content 'application/json' do
@@ -167,14 +159,6 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
             key :required, false
             key :type, :string
           end
