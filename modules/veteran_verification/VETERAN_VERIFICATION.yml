@@ -32,18 +32,6 @@ info:
 
     After building your app, we ask that you give us a demo before we set you up with production credentials. Please see the [Path to Production](/go-live) page for more details.
 
-    ## Authorization
-    This API uses the [OpenID Connect](https://openid.net/specs/openid-connect-core-1_0.html) standard (OAuth 2) to allow the person being confirmed to log in and provide digital consent. API requests are authorized using a Bearer token issued through an OpenID Connect service. The token should be submitted as an Authorization header in the form Bearer <token>.
-
-    See our [Authorization Guide](/explore/verification/docs/authorization) for more details
-
-    ## JWS Signing
-    It is possible to receive responses for certain endpoints in this API in the form of a compact JSON Web Signature (JWS). To receive the signed version of the payload, set the `Accept` header to `application/jwt` for an endpoint supporting that functionality. Instead of a JSON response, a token conforming to [RFC 7515](https://tools.ietf.org/html/rfc7515) and [RFC 7519](https://tools.ietf.org/html/rfc7519) unless errors are encountered, which will return JSON.
-
-    To validate the signature of the returned token, capture the `kid` (key id) from the decoded token, call the `/keys` endpoint, and match the `kid` against the same field in the returned keyset to retrieve a public key. The matching public key from the set can be used for verification using the algorithm stated in the `alg` key.
-
-    The `/keys` endpoint returns a JWK keyset compliant with [RFC 7517](https://tools.ietf.org/html/rfc7517), plus one additional field called `pem`, which is the pem version of the public key.
-
     ## Reference
 
     ### Sandbox vs. Production Data
@@ -132,14 +120,22 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ServiceHistoryEpisode'
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceHistoryEpisode'
             application/jwt:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ServiceHistoryToken'
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceHistoryToken'
         '401':
           description: Not authorized
         '404':
@@ -189,6 +185,8 @@ components:
         Body of the disability rating response
       required:
         - combined_disability_rating
+        - combined_effective_date
+        - legal_effective_date
         - individual_ratings
       properties:
         combined_disability_rating:
@@ -196,6 +194,10 @@ components:
           type: integer
           example: 100
         combined_effective_date:
+          description: The effective date of the latest combined disability rating for the Veteran
+          type: datetime
+          example: "2018-03-27T21:00:41.000+0000"
+        legal_effective_date:
           description: When the Veteran could begin claiming benefits for combined disability rating
           type: datetime
           example: "2018-03-27T21:00:41.000+0000"

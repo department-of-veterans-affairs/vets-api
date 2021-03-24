@@ -1,0 +1,14 @@
+type: object
+required:
+  - recipient_id
+  - category
+  - body
+properties:
+  recipient_id:
+    type: number
+    example: 1763526
+  category:
+    type: string
+    example: "OTHER"
+  body:
+    type: string

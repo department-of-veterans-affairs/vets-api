@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_26_193901) do
+ActiveRecord::Schema.define(version: 2021_03_24_135731) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -55,12 +55,23 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "appeal_submissions", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "submitted_appeal_uuid"
+    t.string "type_of_appeal"
+    t.string "board_review_otpion"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
     t.string "status", default: "pending", null: false
     t.string "supportable_type"
     t.string "supportable_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
   end
 
@@ -217,6 +228,10 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.datetime "updated_at", null: false
     t.string "encrypted_raw_form_data"
     t.string "encrypted_raw_form_data_iv"
+    t.boolean "expanded", default: false, null: false
+    t.boolean "sequestered", default: false, null: false
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
@@ -306,6 +321,8 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.string "encrypted_auth_headers_json"
     t.string "encrypted_auth_headers_json_iv"
     t.integer "remaining_entitlement"
+    t.datetime "denial_email_sent_at"
+    t.datetime "confirmation_email_sent_at"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -578,6 +595,17 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.index ["user_uuid"], name: "index_session_activities_on_user_uuid"
   end
 
+  create_table "spool_file_events", force: :cascade do |t|
+    t.integer "rpo"
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at"
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["rpo", "filename"], name: "index_spool_file_events_uniqueness", unique: true
+  end
+
   create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
     t.string "name"
     t.string "title"
@@ -612,8 +640,6 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.string "phone"
     t.string "email"
     t.string "password"
-    t.boolean "standard"
-    t.boolean "available"
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -655,6 +681,8 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.string "related_forms", array: true
     t.jsonb "benefit_categories"
     t.string "form_details_url"
+    t.jsonb "va_form_administration"
+    t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
@@ -670,6 +698,7 @@ ActiveRecord::Schema.define(version: 2021_02_26_193901) do
     t.uuid "consumer_id"
     t.json "uploaded_pdf"
     t.boolean "use_active_storage", default: false
+    t.jsonb "metadata", default: {}
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end

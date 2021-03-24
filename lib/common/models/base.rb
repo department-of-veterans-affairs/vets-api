@@ -24,7 +24,7 @@ module Common
 
       def sortable_attributes
         @sortable_attributes ||= begin
-          Hash[attribute_set.map do |attribute|
+          attribute_set.map do |attribute|
             next unless attribute.options[:sortable]
 
             sortable = attribute.options[:sortable].is_a?(Hash) ? attribute.options[:sortable] : { order: 'ASC' }
@@ -32,7 +32,7 @@ module Common
               @default_sort ||= sortable[:order] == 'DESC' ? "-#{attribute.name}" : attribute.name.to_s
             end
             [attribute.name.to_s, sortable[:order]]
-          end.compact].with_indifferent_access
+          end.compact.to_h.with_indifferent_access
         end
       end
 
@@ -45,9 +45,9 @@ module Common
 
       def filterable_attributes
         @filterable_attributes ||= begin
-          Hash[attribute_set.map do |attribute|
+          attribute_set.map do |attribute|
             [attribute.name.to_s, attribute.options[:filterable]] if attribute.options[:filterable]
-          end.compact].with_indifferent_access
+          end.compact.to_h.with_indifferent_access
         end
       end
     end
@@ -68,7 +68,7 @@ module Common
     end
 
     def changes
-      Hash[changed.map { |k, _v| [k, [@original_attributes[k], attributes[k]]] }]
+      changed.map { |k, _v| [k, [@original_attributes[k], attributes[k]]] }.to_h
     end
   end
 end

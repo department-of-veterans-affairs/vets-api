@@ -41,7 +41,7 @@ module ClaimsApi
           # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless header_request?
           data = power_of_attorney.form_data
-          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id) if data['signatureImages'].present?
+          ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id) if data['signatures'].present?
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -67,11 +67,17 @@ module ClaimsApi
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
-          if power_of_attorney
-            render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          render_poa_not_found and return unless power_of_attorney
+
+          if current_poa
+            lighthouse_poa = power_of_attorney.attributes
+            lighthouse_poa['current_poa'] = current_poa
+            lighthouse_poa['form_data'] = power_of_attorney.form_data
+            combined = ClaimsApi::PowerOfAttorney.new(lighthouse_poa)
+
+            render json: combined, serializer: ClaimsApi::PowerOfAttorneySerializer
           else
-            previous_poa = ClaimsApi::PowerOfAttorney.new(form_data: {}, current_poa: current_poa)
-            render json: previous_poa, serializer: ClaimsApi::PowerOfAttorneySerializer
+            render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
           end
         end
 

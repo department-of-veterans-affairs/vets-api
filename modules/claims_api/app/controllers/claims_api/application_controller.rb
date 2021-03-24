@@ -39,8 +39,6 @@ module ClaimsApi
 
     private
 
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/PerceivedComplexity
     def find_claim
       claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
@@ -60,8 +58,6 @@ module ClaimsApi
                status: :not_found
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/PerceivedComplexity
 
     def fetch_errored(claim)
       if claim.evss_response&.any?
@@ -155,7 +151,7 @@ module ClaimsApi
                 end
       vet.mpi_record?
       vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
-      vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
+      vet.edipi = vet.mpi.profile&.edipi
       vet.participant_id = vet.mpi.profile&.participant_id
       vet
     end

@@ -30,8 +30,8 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_va[:id]).to eq('202006031600983000030800000000000000')
     end
 
-    it 'has a cancel id of the cancel params' do
-      expect(booked_va[:cancel_id]).to eq('MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=')
+    it 'has a cancel id of the encoded cancel params' do
+      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=')
     end
 
     it 'has a type of VA' do
@@ -87,6 +87,10 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has a time zone' do
       expect(booked_va[:time_zone]).to eq('America/Denver')
+    end
+
+    it 'has a vetext id' do
+      expect(booked_va[:vetext_id]).to eq('308;20201103.090000')
     end
   end
 
@@ -369,20 +373,36 @@ describe Mobile::V0::Adapters::VAAppointments do
       subject.parse(JSON.parse(appointment_fixtures_missing_status, symbolize_names: true))[0]
     end
 
-    let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+    context 'with  past appointment' do
+      before { Timecop.freeze(Time.zone.parse('2021-01-13')) }
 
-    it 'includes a hidden status' do
-      expect(booked_va_hidden_status.to_hash).to include(
-        {
-          appointment_type: 'VA',
-          comment: 'Follow-up/Routine: sasdfasdf',
-          healthcare_service: 'FTC CPAP',
-          minutes_duration: 60,
-          start_date_local: DateTime.parse('2021-01-14 13:00:00.000 MST -07:00'),
-          start_date_utc: DateTime.parse('2021-01-14 20:00:00.000 +00:00 +00:00'),
-          status: 'HIDDEN'
-        }
-      )
+      after { Timecop.return }
+
+      let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+
+      it 'does not include a hidden status' do
+        expect(booked_va_hidden_status.to_hash).to include(
+          {
+            status: 'BOOKED'
+          }
+        )
+      end
+    end
+
+    context 'with a future appointment' do
+      before { Timecop.freeze(Time.zone.parse('2021-01-15')) }
+
+      after { Timecop.return }
+
+      let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+
+      it 'includes a hidden status' do
+        expect(booked_va_hidden_status.to_hash).to include(
+          {
+            status: 'HIDDEN'
+          }
+        )
+      end
     end
   end
 end

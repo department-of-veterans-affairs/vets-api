@@ -72,6 +72,14 @@ module Mobile
             build_appointment_model(appointment_hash, facilities)
           end
 
+          facilities.each do |facility_id|
+            StatsD.increment(
+              'mobile.appointments.facilities',
+              tags: ["facility_id:#{facility_id}"],
+              sample_rate: 1.0
+            )
+          end
+
           [appointments, facilities]
         end
 
@@ -92,7 +100,7 @@ module Mobile
           status = status(details, type, start_date_utc)
 
           cancel_id = if booked_va_appointment?(status, type)
-                        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+                        Mobile::V0::Appointment.encode_cancel_id(
                           start_date_local: start_date_local,
                           clinic_id: appointment_hash[:clinic_id],
                           facility_id: facility_id,
@@ -112,10 +120,19 @@ module Mobile
             start_date_local: start_date_local,
             start_date_utc: start_date_utc,
             status: status,
-            time_zone: time_zone
+            time_zone: time_zone,
+            vetext_id: vetext_id(appointment_hash, start_date_local)
           }
 
+          StatsD.increment(
+            'mobile.appointments.type', tags: ["type:#{type}"], sample_rate: 0.1
+          )
+
           Mobile::V0::Appointment.new(adapted_hash)
+        end
+
+        def vetext_id(appointment_hash, start_date_local)
+          "#{appointment_hash[:clinic_id]};#{start_date_local.strftime('%Y%m%d.%H%S%M')}"
         end
 
         # rubocop:enable Metrics/MethodLength

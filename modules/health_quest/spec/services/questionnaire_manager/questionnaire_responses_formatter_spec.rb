@@ -33,7 +33,7 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponsesFormatter do
 
   describe '#to_h' do
     let(:ref) { double('Reference', reference: '/my/Appointment/I2-SLRRT64GFGJAJGX62Q55N') }
-    let(:qr) { double('QuestionnaireResponse', subject: ref) }
+    let(:qr) { double('QuestionnaireResponse', resource: double('Resource', subject: ref)) }
     let(:qr_array) { [qr] }
 
     it 'builds a formatted hash' do
@@ -43,7 +43,7 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponsesFormatter do
 
   describe '#reference' do
     let(:ref) { double('Reference', reference: '/my/Appointment/I2-SLRRT64GFGJAJGX62Q55N') }
-    let(:qr) { double('QuestionnaireResponse', subject: ref) }
+    let(:qr) { double('QuestionnaireResponse', resource: double('Resource', subject: ref)) }
 
     it 'returns a reference field' do
       expect(subject.build([]).reference(qr)).to eq('/my/Appointment/I2-SLRRT64GFGJAJGX62Q55N')

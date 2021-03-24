@@ -2,7 +2,7 @@
 
 require 'csv'
 require 'mpi/models/mvi_profile'
-require 'mpi/responses/id_parser'
+require 'identity/parsers/gc_ids'
 
 namespace :mvi do
   desc 'Given user attributes, run a find candidate query'
@@ -174,14 +174,12 @@ def update_ids(xml, ids)
     'env:Envelope/env:Body/idm:PRPA_IN201306UV02/controlActProcess/subject/registrationEvent/subject1/patient'
   ).first
 
-  current_ids = MPI::Responses::IdParser.new.parse(el.locate('id'))
+  temp_parse_class = Class.new { extend Identity::Parsers::GCIds }
+  current_ids = temp_parse_class.parse_xml_gcids(el.locate('id'))
   current_ids[:participant_id] = current_ids[:vba_corp_id]
 
   el.nodes.delete_if do |n|
-    [
-      MPI::Responses::IdParser::VA_ROOT_OID,
-      MPI::Responses::IdParser::DOD_ROOT_OID
-    ].include? n.attributes[:root]
+    [Identity::Parsers::GCIds::VA_ROOT_OID, Identity::Parsers::GCIds::DOD_ROOT_OID].include? n.attributes[:root]
   end
 
   new_ids = {
@@ -189,7 +187,7 @@ def update_ids(xml, ids)
     mhv_ids: ids['mhv_ids'], vha_facility_ids: ids['vha_facility_ids']
   }
 
-  new_ids.reject! { |_, v| v.nil? }
+  new_ids.compact!
   current_ids.merge!(new_ids)
 
   updated_ids_element(current_ids, el)
@@ -216,8 +214,8 @@ end
 
 def create_root_id(type)
   el = Ox::Element.new('id')
-  edipi_root = MPI::Responses::IdParser::DOD_ROOT_OID
-  correlation_root = MPI::Responses::IdParser::VA_ROOT_OID
+  edipi_root = Identity::Parsers::GCIds::DOD_ROOT_OID
+  correlation_root = Identity::Parsers::GCIds::VA_ROOT_OID
   el[:root] = type == :edipi ? edipi_root : correlation_root
   el
 end

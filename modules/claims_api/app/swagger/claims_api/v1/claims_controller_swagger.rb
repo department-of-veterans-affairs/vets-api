@@ -8,7 +8,12 @@ module ClaimsApi
       swagger_path '/claims/{id}' do
         operation :get do
           key :summary, 'Find Claim by ID'
-          key :description, 'Returns a single claim if the user has access'
+          key(
+            :description,
+            <<~X
+              Returns data such as processing status for a single claim by ID.
+            X
+          )
           key :operationId, 'findClaimById'
           key :tags, [
             'Claims'
@@ -54,14 +59,6 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -123,8 +120,13 @@ module ClaimsApi
 
       swagger_path '/claims' do
         operation :get do
-          key :summary, 'All Claims'
-          key :description, 'Returns all claims from the system that the user has access to'
+          key :summary, 'Find all claims for a Veteran.'
+          key(
+            :description,
+            <<~X
+              Uses the Veteran’s metadata in headers to retrieve all claims for that Veteran. An authenticated Veteran making a request with this endpoint will return their own claims, if any.
+            X
+          )
           key :operationId, 'findClaims'
           key :produces, [
             'application/json'
@@ -165,14 +167,6 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end

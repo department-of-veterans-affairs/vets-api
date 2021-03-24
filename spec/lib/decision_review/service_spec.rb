@@ -46,6 +46,21 @@ describe DecisionReview::Service do
     end
   end
 
+  describe '#create_higher_level_review_headers' do
+    subject { described_class.new.send(:create_higher_level_review_headers, user) }
+
+    let(:user) do
+      name = 'x' * 100
+      build :user, first_name: name, middle_name: name, last_name: name
+    end
+
+    it 'returns a properly formatted 200 response' do
+      expect(subject['X-VA-First-Name']).to eq 'x' * 12
+      expect(subject['X-VA-Middle-Initial']).to eq 'x'
+      expect(subject['X-VA-Last-Name']).to eq 'x' * 18
+    end
+  end
+
   describe '#create_higher_level_review' do
     subject { described_class.new.create_higher_level_review(request_body: body.to_json, user: user) }
 
@@ -106,6 +121,35 @@ describe DecisionReview::Service do
 
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404') do
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
+          )
+        end
+      end
+    end
+  end
+
+  describe '#get_notice_of_disagreement' do
+    subject { described_class.new.get_notice_of_disagreement(uuid) }
+
+    let(:uuid) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
+
+    context '200 response' do
+      it 'returns a properly formatted 200 response' do
+        VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200') do
+          expect(subject).to respond_to :status
+          expect(subject.status).to be 200
+          expect(subject).to respond_to :body
+          expect(subject.body).to be_a Hash
+        end
+      end
+    end
+
+    context '404 response' do
+      let(:uuid) { '0' }
+
+      it 'throws a DR_404 exception' do
+        VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404') do
           expect { subject }.to raise_error(
             an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
           )
