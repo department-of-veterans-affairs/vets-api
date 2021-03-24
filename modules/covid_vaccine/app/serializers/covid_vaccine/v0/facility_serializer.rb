@@ -10,16 +10,9 @@ module CovidVaccine
       attribute(:city) { |x| x[:city] }
       attribute(:state) { |x| x[:state] }
 
-      set_type :suggested_facility
+      set_type :vaccination_facility
 
       set_id { |x| x[:id] }
-      def id
-        object[:id]
-      end
-
-      def type
-        'vaccination_facility'
-      end
     end
   end
 end
