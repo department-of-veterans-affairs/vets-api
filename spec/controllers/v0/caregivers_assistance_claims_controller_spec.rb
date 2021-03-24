@@ -174,11 +174,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         claim
       )
 
-      allow(Raven).to receive(:tags_context).with(
-        controller_name: 'caregivers_assistance_claims',
-        sign_in_method: 'not-signed-in'
-      )
-      expect(Raven).to receive(:tags_context).with(claim_guid: claim.guid)
+      expect(Raven).to receive(:tags_context).once.with(claim_guid: claim.guid)
+      allow(Raven).to receive(:tags_context).with(any_args).and_call_original
 
       expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
       expect(service).to receive(:process_claim!).and_return(submission)
@@ -218,11 +215,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
           claim
         )
 
-        allow(Raven).to receive(:tags_context).with(
-          controller_name: 'caregivers_assistance_claims',
-          sign_in_method: 'not-signed-in'
-        )
-        expect(Raven).to receive(:tags_context).with(claim_guid: claim.guid)
+        expect(Raven).to receive(:tags_context).once.with(claim_guid: claim.guid)
+        allow(Raven).to receive(:tags_context).with(any_args).and_call_original
 
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
@@ -265,12 +259,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
           claim
         )
 
-        allow(Raven).to receive(:tags_context).with(
-          controller_name: 'caregivers_assistance_claims',
-          sign_in_method: 'not-signed-in'
-        )
-        expect(Raven).to receive(:tags_context).with(claim_guid: claim.guid)
-        allow(Raven).to receive(:tags_context).with(claim_guid: claim.guid) # called again when error is raised
+        # called in #create and again when error is raised
+        expect(Raven).to receive(:tags_context).twice.with(claim_guid: claim.guid)
+        allow(Raven).to receive(:tags_context).with(any_args).and_call_original
 
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)
