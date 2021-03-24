@@ -220,17 +220,10 @@ class Form526Submission < ApplicationRecord
     submit_form_526_job_statuses.presence&.any?(&:success?)
   ensure
     successful = submit_form_526_job_statuses.where(status: 'success').load
-    warning = lambda do |message|
-      SubmitForm526JobStatusesError
-        .new "Warning! #{message} for Form526Submission #{id} (NOTE: no exception thrown, just logging to sentry)"
-    end
-    if successful.size > 1
-      log_exception_to_sentry warning.call('There are multiple successful SubmitForm526 job statuses')
-    end
+    warn = ->(message) { log_message_to_sentry(message, :warn, { form_526_submission_id: id }) }
+    warn.call 'There are multiple successful SubmitForm526 job statuses' if successful.size > 1
     if successful.size == 1 && submit_form_526_job_statuses.last.unsuccessful?
-      log_exception_to_sentry(
-        warning.call("There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job")
-      )
+      warn.call "There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job"
     end
   end
 
