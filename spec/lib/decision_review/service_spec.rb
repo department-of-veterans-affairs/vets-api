@@ -104,7 +104,7 @@ describe DecisionReview::Service do
     subject { described_class.new.create_notice_of_disagreement(request_body: body.to_json, user: user) }
 
     let(:body) do
-      JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements', 'NOD_show_response_200.json'
+      JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements', 'valid_NOD_create_request.json'
     end
 
     context '200 response' do
