@@ -74,31 +74,48 @@ module EducationForm
       raw_groups.delete_if { |_, v| v.empty? }
     end
 
+    # rubocop:disable Metrics/MethodLength
     # Write out the combined spool files for each region along with recording
     # and tracking successful transfers.
+    # Creates or updates an SpoolFileEvent for tracking and to prevent multiple files per RPO per date during retries
     def write_files(writer, structured_data:)
       structured_data.each do |region, records|
         region_id = EducationFacility.facility_for(region: region)
         filename = "#{region_id}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
-        log_submissions(records, filename)
-        # create the single textual spool file
-        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+        spool_file_event = SpoolFileEvent.build_event(region_id, filename)
 
-        begin
-          writer.write(contents, filename)
+        if Flipper.enabled?(:spool_testing_error_1) && spool_file_event.successful_at.present?
+          log_info("A spool file for #{region_id} on #{Time.zone.now.strftime('%m%d%Y')} was already created")
+        else
+          log_submissions(records, filename)
+          # create the single textual spool file
+          contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
-          # track and update the records as processed once the file has been successfully written
-          track_submissions(region_id)
-          records.each { |r| r.record.update(processed_at: Time.zone.now) }
-        rescue => e
-          exception = DailySpoolFileError.new("Error creating #{filename}.\n\n#{e}")
-          log_exception_to_sentry(exception)
-          next
+          begin
+            writer.write(contents, filename)
+
+            # track and update the records as processed once the file has been successfully written
+            track_submissions(region_id)
+
+            records.each { |r| r.record.update(processed_at: Time.zone.now) }
+            spool_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
+          rescue => e
+            StatsD.increment("worker.education_benefits_claim.failed_spool_file.#{region_id}")
+            attempt_msg = if spool_file_event.retry_attempt.zero?
+                            'initial attempt'
+                          else
+                            "attempt #{spool_file_event.retry_attempt}"
+                          end
+            exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
+            log_exception_to_sentry(exception)
+            next
+          end
         end
       end
     ensure
       writer.close
     end
+    # rubocop:enable Metrics/MethodLength
 
     def format_application(data, rpo: 0)
       # This check was added to ensure that the model passes validation before

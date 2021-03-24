@@ -8,6 +8,7 @@ require:
   - rubocop-thread_safety
 
 AllCops:
+  NewCops: enable
   TargetRailsVersion: 6.0
   Include:
     - '**/Dangerfile'
@@ -40,6 +41,19 @@ Style/Documentation:
 
 Style/ClassAndModuleChildren:
   Enabled: false
+
+# Bug in 1.11.0
+RSpec/FactoryBot/CreateList:
+  Enabled: false
+
+# Bug in 1.11.0
+RSpec/Rails/HttpStatus:
+  Enabled: false
+
+# Bug in 1.11.0
+RSpec/VariableName:
+  Exclude:
+    - spec/jobs/facilities/pssg_download_spec.rb
 
 # This cop forces you to put a return at the beginning of a block of code rather than having an if statement
 # whose body carries to the end of the function. For example:
@@ -94,7 +108,7 @@ Metrics/ClassLength:
   Max: 400
 
 Metrics/AbcSize:
-  Max: 40
+  Max: 44
 
 # removing rule because get_session implies HTTP GET, and informs method
 Naming/AccessorMethodName:
@@ -130,6 +144,7 @@ Lint/AmbiguousBlockAssociation:
 Naming/FileName:
   Exclude:
     - "Guardfile"
+    - 'spec/lib/decision_review/schemas/NOD_create_request_body_schema_json_spec.rb'
 
 # TODO: REVIEW THESE AND MAKE CHANGES
 
@@ -216,6 +231,7 @@ RSpec/DescribeClass:
     - 'spec/lib/bb/client_spec.rb'
     - 'spec/lib/gi/client_spec.rb'
     - 'spec/lib/sm/client/folders_spec.rb'
+    - 'spec/lib/decision_review/schemas/NOD_create_request_body_schema_json_spec.rb'
 
 # Determined to be too benign and/or numerous to justify changing
 RSpec/AnyInstance:
@@ -343,10 +359,6 @@ RSpec/SubjectStub:
     - 'spec/services/form1010cg/service_spec.rb'
     - 'spec/services/form1010cg/auditor_spec.rb'
 
-# the default style recently changed, but it's not worth changing
-Rails/FilePath:
-  EnforcedStyle: arguments
-
 # Added in v0.81
 Lint/RaiseException:
   Enabled: true
@@ -380,3 +392,31 @@ Style/SlicingWithRange:
 # Added in v0.84
 Lint/DeprecatedOpenSSLConstant:
   Enabled: true
+
+# the default style recently changed, but it's not worth changing
+Rails/FilePath:
+  EnforcedStyle: arguments
+
+# This one doesn’t always make sense, it’s mostly the swagger,
+# factories and pact provider states — which need a tear_down block regardless
+Lint/EmptyBlock:
+  Enabled: false
+
+Lint/NoReturnInBeginEndBlocks:
+  Exclude:
+    - 'app/services/form1010cg/service.rb'
+
+Lint/SymbolConversion:
+  Enabled: false
+
+Style/HashConversion:
+  Enabled: false
+
+Style/NegatedIfElseCondition:
+  Enabled: false
+
+Style/RedundantArgument:
+  Enabled: false
+
+Style/IfWithBooleanLiteralBranches:
+  Enabled: false

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_17_132241) do
+ActiveRecord::Schema.define(version: 2021_03_24_135731) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -228,6 +228,10 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.datetime "updated_at", null: false
     t.string "encrypted_raw_form_data"
     t.string "encrypted_raw_form_data_iv"
+    t.boolean "expanded", default: false, null: false
+    t.boolean "sequestered", default: false, null: false
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
@@ -678,6 +682,7 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.jsonb "benefit_categories"
     t.string "form_details_url"
     t.jsonb "va_form_administration"
+    t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
