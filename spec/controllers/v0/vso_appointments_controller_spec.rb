@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe V0::VSOAppointmentsController, type: :controller do
   context 'before login' do
     it 'rejects a post' do
-      post :create, params: { 'beep': 'boop' }
+      post :create, params: { beep: 'boop' }
       expect(response).to have_http_status(:unauthorized)
     end
   end
@@ -18,7 +18,7 @@ RSpec.describe V0::VSOAppointmentsController, type: :controller do
     end
 
     it 'rejects an incomplete post' do
-      post :create, params: { "beep": 'boop' }
+      post :create, params: { beep: 'boop' }
       expect(response).to have_http_status(:bad_request)
     end
 
@@ -41,17 +41,17 @@ RSpec.describe V0::VSOAppointmentsController, type: :controller do
 
         # This will actually accept camel case, but /shrug
         payload = payload.merge(
-          "veteran_full_name": {
-            "first": 'Graham',
-            "last": 'Testuser'
+          veteran_full_name: {
+            first: 'Graham',
+            last: 'Testuser'
           },
-          "claimant_full_name": {
-            "first": 'the artist formely known as claimant'
+          claimant_full_name: {
+            first: 'the artist formely known as claimant'
           },
-          "claimant_address": {
-            "street": '123 Fake St'
+          claimant_address: {
+            street: '123 Fake St'
           },
-          "appointment_date": '2018-04-09'
+          appointment_date: '2018-04-09'
         )
 
         post :create, params: payload

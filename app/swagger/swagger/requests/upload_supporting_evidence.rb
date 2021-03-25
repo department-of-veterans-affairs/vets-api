@@ -30,7 +30,7 @@ module Swagger
           response 200 do
             key :description, 'Response is ok'
             schema do
-              key :'$ref', :UploadSupportingEvidence
+              key :$ref, :UploadSupportingEvidence
             end
           end
         end

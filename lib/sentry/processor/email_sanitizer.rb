@@ -11,9 +11,9 @@ module Sentry
       def process(value)
         case value
         when Hash
-          !value.frozen? ? value.merge!(value) { |_, v| process v } : value.merge(value) { |_, v| process v }
+          value.frozen? ? value.merge(value) { |_, v| process v } : value.merge!(value) { |_, v| process v }
         when Array
-          !value.frozen? ? value.map! { |v| process v } : value.map { |v| process v }
+          value.frozen? ? value.map { |v| process v } : value.map! { |v| process v }
         when Exception
           sanitized_exception(value)
         when String

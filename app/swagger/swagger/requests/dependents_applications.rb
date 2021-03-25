@@ -18,7 +18,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Dependents
+              key :$ref, :Dependents
             end
           end
         end

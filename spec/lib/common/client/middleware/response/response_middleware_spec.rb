@@ -28,8 +28,8 @@ describe Common::Client::Middleware::Response do
   end
 
   let(:message_json) { attributes_for(:message).to_json }
-  let(:four_o_four) { { "errorCode": 400, "message": 'Record Not Found', "developerMessage": 'blah' }.to_json }
-  let(:i18n_type_error) { { "errorCode": 139, "message": 'server response', "developerMessage": 'blah' }.to_json }
+  let(:four_o_four) { { errorCode: 400, message: 'Record Not Found', developerMessage: 'blah' }.to_json }
+  let(:i18n_type_error) { { errorCode: 139, message: 'server response', developerMessage: 'blah' }.to_json }
   let(:mhv_generic_html) { '<html><body width=100%>Some Error Message</body></html>' }
   let(:mhv_generic_xml) do
     %(

@@ -72,6 +72,7 @@ module ClaimsApi
           if current_poa
             lighthouse_poa = power_of_attorney.attributes
             lighthouse_poa['current_poa'] = current_poa
+            lighthouse_poa['form_data'] = power_of_attorney.form_data
             combined = ClaimsApi::PowerOfAttorney.new(lighthouse_poa)
 
             render json: combined, serializer: ClaimsApi::PowerOfAttorneySerializer

@@ -7,7 +7,7 @@ module Swagger
         base.response 502 do
           key :description, 'Internal server error'
           schema do
-            key :'$ref', :Errors
+            key :$ref, :Errors
           end
         end
       end
