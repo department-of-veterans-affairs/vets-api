@@ -116,7 +116,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       before do
         expect(Rails.env).to receive('development?').once.and_return(true)
-        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
         FactoryBot.create(:va1990_western_region)
