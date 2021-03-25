@@ -13,6 +13,7 @@ module ClaimsApi
     skip_before_action :verify_mpi, only: %i[schema]
 
     def schema
+      response.headers['Deprecation'] = 'true'
       render json: { data: [ClaimsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
     end
 
