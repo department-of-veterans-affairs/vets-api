@@ -71,7 +71,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(false).at_least(:once)
       expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
     end
-    
+
     it 'logs an error if the record is invalid' do
       application_1606.saved_claim.form = {}.to_json
       application_1606.saved_claim.save!(validate: false)
