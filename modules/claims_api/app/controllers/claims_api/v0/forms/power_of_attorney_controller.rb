@@ -8,6 +8,7 @@ module ClaimsApi
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
         include ClaimsApi::DocumentValidations
+        include ClaimsApi::EndpointDeprecation
 
         FORM_NUMBER = '2122'
 
@@ -68,6 +69,7 @@ module ClaimsApi
         end
 
         def validate
+          add_deprecation_headers_to_response(response: response)
           render json: validation_success
         end
 

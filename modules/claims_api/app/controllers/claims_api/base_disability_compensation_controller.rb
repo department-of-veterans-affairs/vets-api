@@ -7,11 +7,13 @@ require 'common/exceptions'
 
 module ClaimsApi
   class BaseDisabilityCompensationController < ClaimsApi::BaseFormController
+    include ClaimsApi::EndpointDeprecation
     STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
     STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
 
     # rubocop:disable Metrics/MethodLength
     def validate_form_526
+      add_deprecation_headers_to_response(response: response)
       service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       auto_claim = ClaimsApi::AutoEstablishedClaim.new(
         status: ClaimsApi::AutoEstablishedClaim::PENDING,

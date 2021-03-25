@@ -7,6 +7,7 @@ module ClaimsApi
   module V0
     module Forms
       class IntentToFileController < ClaimsApi::BaseFormController
+        include ClaimsApi::EndpointDeprecation
         skip_before_action(:authenticate)
         before_action :validate_json_format, if: -> { request.post? }
         before_action :validate_json_schema, only: %i[submit_form_0966 validate]
@@ -52,6 +53,7 @@ module ClaimsApi
         end
 
         def validate
+          add_deprecation_headers_to_response(response: response)
           render json: validation_success
         end
 
