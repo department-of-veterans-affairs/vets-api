@@ -17,45 +17,45 @@ describe HCA::EnrollmentSystem do
   }.freeze
 
   TEST_CHILD = {
-    "childFullName": {
-      "first": 'FirstChildA',
-      "middle": 'MiddleChildA',
-      "last": 'LastChildA',
-      "suffix": 'Jr.'
+    childFullName: {
+      first: 'FirstChildA',
+      middle: 'MiddleChildA',
+      last: 'LastChildA',
+      suffix: 'Jr.'
     },
-    "childRelation": 'Stepson',
-    "childSocialSecurityNumber": '111-22-9876',
-    "childBecameDependent": '1992-04-07',
-    "childDateOfBirth": '1982-05-05',
-    "childDisabledBefore18": true,
-    "childAttendedSchoolLastYear": true,
-    "childEducationExpenses": 45.2,
-    "childCohabitedLastYear": true,
-    "childReceivedSupportLastYear": false,
-    "grossIncome": 991.9,
-    "netIncome": 981.2,
-    "otherIncome": 91.9
+    childRelation: 'Stepson',
+    childSocialSecurityNumber: '111-22-9876',
+    childBecameDependent: '1992-04-07',
+    childDateOfBirth: '1982-05-05',
+    childDisabledBefore18: true,
+    childAttendedSchoolLastYear: true,
+    childEducationExpenses: 45.2,
+    childCohabitedLastYear: true,
+    childReceivedSupportLastYear: false,
+    grossIncome: 991.9,
+    netIncome: 981.2,
+    otherIncome: 91.9
   }.deep_stringify_keys
 
   TEST_CHILD_DEPENDENT = {
-    "fullName": {
-      "first": 'FirstChildA',
-      "middle": 'MiddleChildA',
-      "last": 'LastChildA',
-      "suffix": 'Jr.'
+    fullName: {
+      first: 'FirstChildA',
+      middle: 'MiddleChildA',
+      last: 'LastChildA',
+      suffix: 'Jr.'
     },
-    "dependentRelation": 'Stepson',
-    "socialSecurityNumber": '111-22-9876',
-    "becameDependent": '1992-04-07',
-    "dateOfBirth": '1982-05-05',
-    "disabledBefore18": true,
-    "attendedSchoolLastYear": true,
-    "dependentEducationExpenses": 45.2,
-    "cohabitedLastYear": true,
-    "receivedSupportLastYear": false,
-    "grossIncome": 991.9,
-    "netIncome": 981.2,
-    "otherIncome": 91.9
+    dependentRelation: 'Stepson',
+    socialSecurityNumber: '111-22-9876',
+    becameDependent: '1992-04-07',
+    dateOfBirth: '1982-05-05',
+    disabledBefore18: true,
+    attendedSchoolLastYear: true,
+    dependentEducationExpenses: 45.2,
+    cohabitedLastYear: true,
+    receivedSupportLastYear: false,
+    grossIncome: 991.9,
+    netIncome: 981.2,
+    otherIncome: 91.9
   }.deep_stringify_keys
 
   TEST_SPOUSE = {
@@ -642,10 +642,10 @@ describe HCA::EnrollmentSystem do
     [
       [
         {
-          "insuranceName": 'MyInsruance',
-          "insurancePolicyHolderName": 'FirstName ZZTEST',
-          "insurancePolicyNumber": 'P1234',
-          "insuranceGroupCode": 'G1234'
+          insuranceName: 'MyInsruance',
+          insurancePolicyHolderName: 'FirstName ZZTEST',
+          insurancePolicyNumber: 'P1234',
+          insuranceGroupCode: 'G1234'
         }.stringify_keys,
         {
           'companyName' => 'MyInsruance',
@@ -664,18 +664,18 @@ describe HCA::EnrollmentSystem do
     [
       [
         {
-          "veteranFullName": {
-            "first": 'FirstName',
-            "middle": 'MiddleName',
-            "last": 'ZZTEST',
-            "suffix": 'Jr.'
+          veteranFullName: {
+            first: 'FirstName',
+            middle: 'MiddleName',
+            last: 'ZZTEST',
+            suffix: 'Jr.'
           },
-          "mothersMaidenName": 'Maiden',
-          "veteranSocialSecurityNumber": '111-11-1234',
-          "gender": 'F',
-          "cityOfBirth": 'Springfield',
-          "stateOfBirth": 'AK',
-          "veteranDateOfBirth": '1923-01-02'
+          mothersMaidenName: 'Maiden',
+          veteranSocialSecurityNumber: '111-11-1234',
+          gender: 'F',
+          cityOfBirth: 'Springfield',
+          stateOfBirth: 'AK',
+          veteranDateOfBirth: '1923-01-02'
         }.deep_stringify_keys,
         {
           'firstName' => 'FIRSTNAME',
@@ -755,18 +755,18 @@ describe HCA::EnrollmentSystem do
           'vaMedicalFacility' => '608'
         },
         {
-          "dischargeDueToDisability": true,
-          "militaryServiceSiteRecords": {
-            "militaryServiceSiteRecord": {
-              "militaryServiceEpisodes": {
-                "militaryServiceEpisode": {
-                  "dischargeType": 3,
-                  "startDate": '03/07/1980',
-                  "endDate": '07/08/1984',
-                  "serviceBranch": 7
+          dischargeDueToDisability: true,
+          militaryServiceSiteRecords: {
+            militaryServiceSiteRecord: {
+              militaryServiceEpisodes: {
+                militaryServiceEpisode: {
+                  dischargeType: 3,
+                  startDate: '03/07/1980',
+                  endDate: '07/08/1984',
+                  serviceBranch: 7
                 }
               },
-              "site": '608'
+              site: '608'
             }
           }
         }.deep_stringify_keys
@@ -780,31 +780,31 @@ describe HCA::EnrollmentSystem do
     [
       [
         {
-          "providers": [
+          providers: [
             {
-              "insuranceName": 'MyInsruance',
-              "insurancePolicyHolderName": 'FirstName ZZTEST',
-              "insurancePolicyNumber": 'P1234',
-              "insuranceGroupCode": 'G1234'
+              insuranceName: 'MyInsruance',
+              insurancePolicyHolderName: 'FirstName ZZTEST',
+              insurancePolicyNumber: 'P1234',
+              insuranceGroupCode: 'G1234'
             }
           ],
-          "isEnrolledMedicarePartA": true,
-          "medicarePartAEffectiveDate": '1999-10-16'
+          isEnrolledMedicarePartA: true,
+          medicarePartAEffectiveDate: '1999-10-16'
         }.deep_stringify_keys,
         {
-          "insurance": [
+          insurance: [
             {
-              "companyName": 'MyInsruance',
-              "policyHolderName": 'FirstName ZZTEST',
-              "policyNumber": 'P1234',
-              "groupNumber": 'G1234',
-              "insuranceMappingTypeName": 'PI'
+              companyName: 'MyInsruance',
+              policyHolderName: 'FirstName ZZTEST',
+              policyNumber: 'P1234',
+              groupNumber: 'G1234',
+              insuranceMappingTypeName: 'PI'
             },
             {
-              "companyName": 'Medicare',
-              "enrolledInPartA": true,
-              "insuranceMappingTypeName": 'MDCR',
-              "partAEffectiveDate": '10/16/1999'
+              companyName: 'Medicare',
+              enrolledInPartA: true,
+              insuranceMappingTypeName: 'MDCR',
+              partAEffectiveDate: '10/16/1999'
             }
           ]
         }.deep_stringify_keys
@@ -818,27 +818,27 @@ describe HCA::EnrollmentSystem do
     [
       [
         {
-          "isMedicaidEligible": true,
-          "exposedToRadiation": true,
-          "radiumTreatments": true,
-          "isVaServiceConnected": false,
-          "swAsiaCombat": true,
-          "vietnamService": true,
-          "campLejeune": true
+          isMedicaidEligible: true,
+          exposedToRadiation: true,
+          radiumTreatments: true,
+          isVaServiceConnected: false,
+          swAsiaCombat: true,
+          vietnamService: true,
+          campLejeune: true
         }.deep_stringify_keys,
         {
-          "eligibleForMedicaid": true,
-          "noseThroatRadiumInfo": {
-            "receivingTreatment": true
+          eligibleForMedicaid: true,
+          noseThroatRadiumInfo: {
+            receivingTreatment: true
           },
-          "serviceConnectionAward": {
-            "serviceConnectedIndicator": false
+          serviceConnectionAward: {
+            serviceConnectedIndicator: false
           },
-          "specialFactors": {
-            "agentOrangeInd": true,
-            "envContaminantsInd": true,
-            "campLejeuneInd": true,
-            "radiationExposureInd": true
+          specialFactors: {
+            agentOrangeInd: true,
+            envContaminantsInd: true,
+            campLejeuneInd: true,
+            radiationExposureInd: true
           }
         }.deep_stringify_keys
       ]
@@ -857,12 +857,12 @@ describe HCA::EnrollmentSystem do
       ],
       [
         {
-          "deductibleMedicalExpenses": 33.3,
-          "deductibleFuneralExpenses": 44.44,
-          "deductibleEducationExpenses": 77.77,
-          "veteranGrossIncome": 123.33,
-          "veteranNetIncome": 90.11,
-          "veteranOtherIncome": 10.1,
+          deductibleMedicalExpenses: 33.3,
+          deductibleFuneralExpenses: 44.44,
+          deductibleEducationExpenses: 77.77,
+          veteranGrossIncome: 123.33,
+          veteranNetIncome: 90.11,
+          veteranOtherIncome: 10.1,
           'dependents' => [TEST_CHILD_DEPENDENT]
         }.merge(SPOUSE_FINANCIALS).deep_stringify_keys,
         {
@@ -1080,24 +1080,24 @@ describe HCA::EnrollmentSystem do
     [
       [
         {
-          "veteranAddress": {
-            "street": '123 NW 5th St',
-            "street2": '',
-            "street3": '',
-            "city": 'Ontario',
-            "country": 'CAN',
-            "state": 'ON',
-            "provinceCode": 'ProvinceName',
-            "postalCode": '21231'
+          veteranAddress: {
+            street: '123 NW 5th St',
+            street2: '',
+            street3: '',
+            city: 'Ontario',
+            country: 'CAN',
+            state: 'ON',
+            provinceCode: 'ProvinceName',
+            postalCode: '21231'
           },
           wantsInitialVaContact: true,
-          "email": 'foo@example.com',
-          "homePhone": '1231241234',
-          "isSpanishHispanicLatino": true,
-          "isWhite": true,
-          "maritalStatus": 'Married',
-          "vaMedicalFacility": '608',
-          "isEssentialAcaCoverage": true
+          email: 'foo@example.com',
+          homePhone: '1231241234',
+          isSpanishHispanicLatino: true,
+          isWhite: true,
+          maritalStatus: 'Married',
+          vaMedicalFacility: '608',
+          isEssentialAcaCoverage: true
         }.deep_stringify_keys,
         {
           'appointmentRequestResponse' => true,
@@ -1123,34 +1123,34 @@ describe HCA::EnrollmentSystem do
       ],
       [
         {
-          "veteranAddress": {
-            "street": '123 NW 5th St',
-            "street2": '',
-            "street3": '',
-            "city": 'Ontario',
-            "country": 'CAN',
-            "state": 'ON',
-            "provinceCode": 'ProvinceName',
-            "postalCode": '21231'
+          veteranAddress: {
+            street: '123 NW 5th St',
+            street2: '',
+            street3: '',
+            city: 'Ontario',
+            country: 'CAN',
+            state: 'ON',
+            provinceCode: 'ProvinceName',
+            postalCode: '21231'
           },
-          "veteranHomeAddress": {
-            "street": '567 SW 9th Ave.',
-            "street2": '#102',
-            "street3": '',
-            "city": 'Ontario',
-            "country": 'CAN',
-            "state": 'ON',
-            "provinceCode": 'ProvinceName',
-            "postalCode": '21231'
+          veteranHomeAddress: {
+            street: '567 SW 9th Ave.',
+            street2: '#102',
+            street3: '',
+            city: 'Ontario',
+            country: 'CAN',
+            state: 'ON',
+            provinceCode: 'ProvinceName',
+            postalCode: '21231'
           },
           wantsInitialVaContact: true,
-          "email": 'foo@example.com',
-          "homePhone": '1231241234',
-          "isSpanishHispanicLatino": true,
-          "isWhite": true,
-          "maritalStatus": 'Married',
-          "vaMedicalFacility": '608',
-          "isEssentialAcaCoverage": true
+          email: 'foo@example.com',
+          homePhone: '1231241234',
+          isSpanishHispanicLatino: true,
+          isWhite: true,
+          maritalStatus: 'Married',
+          vaMedicalFacility: '608',
+          isEssentialAcaCoverage: true
         }.deep_stringify_keys,
         {
           'appointmentRequestResponse' => true,
@@ -1399,18 +1399,18 @@ describe HCA::EnrollmentSystem do
 
     let(:expected) do
       {
-        "dischargeDueToDisability": true,
-        "militaryServiceSiteRecords": {
-          "militaryServiceSiteRecord": {
-            "militaryServiceEpisodes": {
-              "militaryServiceEpisode": {
-                "dischargeType": '',
-                "startDate": '03/07/1980',
-                "endDate": discharge_date.strftime('%m/%d/%Y'),
-                "serviceBranch": 7
+        dischargeDueToDisability: true,
+        militaryServiceSiteRecords: {
+          militaryServiceSiteRecord: {
+            militaryServiceEpisodes: {
+              militaryServiceEpisode: {
+                dischargeType: '',
+                startDate: '03/07/1980',
+                endDate: discharge_date.strftime('%m/%d/%Y'),
+                serviceBranch: 7
               }
             },
-            "site": '608'
+            site: '608'
           }
         }
       }.deep_stringify_keys

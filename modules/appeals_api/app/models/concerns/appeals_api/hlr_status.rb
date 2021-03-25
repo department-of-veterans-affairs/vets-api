@@ -12,7 +12,7 @@ module AppealsApi
     included do
       scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
 
-      validates :status, inclusion: { 'in': STATUSES }
+      validates :status, inclusion: { in: STATUSES }
     end
   end
 end

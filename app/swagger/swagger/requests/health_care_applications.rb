@@ -67,7 +67,7 @@ module Swagger
           response 200 do
             key :description, 'submit health care application response'
             schema do
-              key :'$ref', :HealthCareApplicationSubmissionResponse
+              key :$ref, :HealthCareApplicationSubmissionResponse
             end
           end
         end
@@ -151,7 +151,7 @@ module Swagger
             key :description, 'health care application health check response'
 
             schema do
-              key :'$ref', :HealthCareApplicationHealthcheckResponse
+              key :$ref, :HealthCareApplicationHealthcheckResponse
             end
           end
         end

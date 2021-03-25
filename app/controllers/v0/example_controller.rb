@@ -7,16 +7,16 @@ module V0
     before_action :authenticate, only: [:welcome]
 
     def index
-      render json: { "message": 'Welcome to the vets.gov API' }
+      render json: { message: 'Welcome to the vets.gov API' }
     end
 
     def limited
-      render json: { "message": 'Rate limited action' }
+      render json: { message: 'Rate limited action' }
     end
 
     def welcome
       msg = "You are logged in as #{@current_user.email}"
-      render json: { "message": msg }
+      render json: { message: msg }
     end
   end
 end

@@ -29,24 +29,24 @@ class VSOAppointmentForm
 
   def to_pdf_args
     {
-      "nameofvet": name_to_s(@appt.veteran_full_name),
-      "SSNno": @appt.veteran_ssn,
-      "filenumber": @appt.va_file_number,
-      "insno": @appt.insurance_number,
-      "claimantname": name_to_s(@appt.claimant_full_name),
-      "address": address_to_s(@appt.claimant_address),
-      "emailaddress": @appt.claimant_email,
-      "daytime": @appt.claimant_daytime_phone,
-      "eveningphonenumber": @appt.claimant_evening_phone,
-      "relationship": @appt.relationship,
-      "Dateappt": @appt.appointment_date,
-      "nameofservice": @appt.organization_name,
+      nameofvet: name_to_s(@appt.veteran_full_name),
+      SSNno: @appt.veteran_ssn,
+      filenumber: @appt.va_file_number,
+      insno: @appt.insurance_number,
+      claimantname: name_to_s(@appt.claimant_full_name),
+      address: address_to_s(@appt.claimant_address),
+      emailaddress: @appt.claimant_email,
+      daytime: @appt.claimant_daytime_phone,
+      eveningphonenumber: @appt.claimant_evening_phone,
+      relationship: @appt.relationship,
+      Dateappt: @appt.appointment_date,
+      nameofservice: @appt.organization_name,
       "e-mailaddressoftheorganizationnamedinitem3a": @appt.organization_email,
-      "jobtitile": "#{@appt.organization_representative_name}, #{@appt.organization_representative_title}",
-      "drugabuse": @appt.disclosure_exception_drug_abuse ? 1 : 0,
-      "alcoholismoralcohoabuse": @appt.disclosure_exception_alcoholism ? 1 : 0,
-      "infectionwiththehumanimmunodeficiencyvirushiv": @appt.disclosure_exception_hiv ? 1 : 0,
-      "sicklecellanemia": @appt.disclosure_exception_sickle_cell_anemia ? 1 : 0
+      jobtitile: "#{@appt.organization_representative_name}, #{@appt.organization_representative_title}",
+      drugabuse: @appt.disclosure_exception_drug_abuse ? 1 : 0,
+      alcoholismoralcohoabuse: @appt.disclosure_exception_alcoholism ? 1 : 0,
+      infectionwiththehumanimmunodeficiencyvirushiv: @appt.disclosure_exception_hiv ? 1 : 0,
+      sicklecellanemia: @appt.disclosure_exception_sickle_cell_anemia ? 1 : 0
     }.transform_keys { |k| "F[0].Page_1[0].#{k}[0]" }
   end
 
@@ -60,17 +60,17 @@ class VSOAppointmentForm
 
   def get_metadata(path)
     {
-      "numberAttachments": 0,
-      "veteranFirstName": @appt.veteran_full_name.first,
-      "veteranLastName": @appt.veteran_full_name.last,
-      "source": 'Vets.gov',
-      "uuid": SecureRandom.uuid,
-      "zipCode": @appt.claimant_address.postal_code,
-      "receiveDt": Time.zone.now.strftime('%Y-%m-%d %H:%M:%S'),
-      "fileNumber": @appt.va_file_number,
-      "hashV": Digest::SHA256.file(path).hexdigest,
-      "docType": 'burial',
-      "numberPages": 2
+      numberAttachments: 0,
+      veteranFirstName: @appt.veteran_full_name.first,
+      veteranLastName: @appt.veteran_full_name.last,
+      source: 'Vets.gov',
+      uuid: SecureRandom.uuid,
+      zipCode: @appt.claimant_address.postal_code,
+      receiveDt: Time.zone.now.strftime('%Y-%m-%d %H:%M:%S'),
+      fileNumber: @appt.va_file_number,
+      hashV: Digest::SHA256.file(path).hexdigest,
+      docType: 'burial',
+      numberPages: 2
     }
   end
 
@@ -84,9 +84,9 @@ class VSOAppointmentForm
     end
 
     body = {
-      "token": Settings.central_mail.upload.token,
-      "document": Faraday::UploadIO.new(path, Mime[:pdf].to_s),
-      "metadata": get_metadata(path).to_json
+      token: Settings.central_mail.upload.token,
+      document: Faraday::UploadIO.new(path, Mime[:pdf].to_s),
+      metadata: get_metadata(path).to_json
     }
 
     with_monitoring { conn.post '/VADocument/upload', body }

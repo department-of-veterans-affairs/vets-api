@@ -6,8 +6,8 @@ module V0
 
     def status
       app_status = {
-        "git_revision": AppInfo::GIT_REVISION,
-        "db_url": nil
+        git_revision: AppInfo::GIT_REVISION,
+        db_url: nil
       }
       render json: app_status
     end

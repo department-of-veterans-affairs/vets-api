@@ -46,7 +46,7 @@ module Swagger
               property :currentlyBuriedPersons, type: :array, description: 'data about claimants' do
                 items do
                   property :name, type: :object do
-                    key :'$ref', :PreneedName
+                    key :$ref, :PreneedName
                   end
                   property :cemeteryNumber, type: :string, example: '234'
                 end
@@ -65,21 +65,21 @@ module Swagger
                 property :applicantRelationshipToClaimant, type: :string, example: 'Authorized Agent/Rep'
                 property :completingReason, type: :string, example: 'a reason'
                 property :mailingAddress, type: :object do
-                  key :'$ref', :PreneedAddress
+                  key :$ref, :PreneedAddress
                 end
                 property :name, type: :object do
-                  key :'$ref', :PreneedName
+                  key :$ref, :PreneedName
                 end
               end
               property :claimant, type: :object do
                 property :address, type: :object do
-                  key :'$ref', :PreneedAddress
+                  key :$ref, :PreneedAddress
                 end
                 property :dateOfBirth, type: :string, example: '1960-12-30'
                 property :desiredCemetery, type: :string, example: '234'
                 property :email, type: :string, example: 'jon.doe@example.com'
                 property :name, type: :object do
-                  key :'$ref', :PreneedName
+                  key :$ref, :PreneedName
                 end
                 property :phoneNumber, type: :string, example: '5551235454'
                 property :relationshipToVet, type: :string, example: '2'
@@ -87,10 +87,10 @@ module Swagger
               end
               property :veteran, type: :object do
                 property :address, type: :object do
-                  key :'$ref', :PreneedAddress
+                  key :$ref, :PreneedAddress
                 end
                 property :currentName, type: :object do
-                  key :'$ref', :PreneedName
+                  key :$ref, :PreneedName
                 end
                 property :dateOfBirth, type: :string, example: '1960-12-30'
                 property :dateOfDeath, type: :string, example: '1990-12-30'
@@ -101,7 +101,7 @@ module Swagger
                 property :militaryStatus, type: :string, example: 'D'
                 property :placeOfBirth, type: :string, example: '140 Rock Creek Church Rd NW'
                 property :serviceName, type: :object do
-                  key :'$ref', :PreneedName
+                  key :$ref, :PreneedName
                 end
 
                 property :race, type: :object, description: 'veteran ethnicities' do
@@ -179,7 +179,7 @@ module Swagger
           response 200 do
             key :description, 'Response is ok'
             schema do
-              key :'$ref', :UploadSupportingEvidence
+              key :$ref, :UploadSupportingEvidence
             end
           end
         end
