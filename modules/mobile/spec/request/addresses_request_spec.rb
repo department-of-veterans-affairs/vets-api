@@ -178,6 +178,85 @@ RSpec.describe 'address', type: :request do
         end
       end
     end
+
+    describe 'DELETE /mobile/v0/user/addresses' do
+      context 'with a valid address that takes two tries to complete' do
+        before do
+          VCR.use_cassette('profile/get_address_status_complete') do
+            VCR.use_cassette('profile/get_address_status_incomplete') do
+              VCR.use_cassette('profile/put_address_initial') do
+                delete '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+              end
+            end
+          end
+        end
+
+        it 'returns a 200' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'matches the expected schema' do
+          expect(response.body).to match_json_schema('profile_update_response')
+        end
+
+        it 'includes a transaction id' do
+          id = JSON.parse(response.body).dig('data', 'attributes', 'transactionId')
+          expect(id).to eq('1f450c8e-4bb2-4f5d-a5f3-0d907941625a')
+        end
+      end
+
+      context 'when it has not completed within the timeout window (< 60s)' do
+        before do
+          allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService)
+              .to receive(:seconds_elapsed_since).and_return(61)
+
+          VCR.use_cassette('profile/get_address_status_complete') do
+            VCR.use_cassette('profile/get_address_status_incomplete_2') do
+              VCR.use_cassette('profile/get_address_status_incomplete') do
+                VCR.use_cassette('profile/put_address_initial') do
+                  delete '/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers)
+                end
+              end
+            end
+          end
+        end
+
+        it 'returns a gateway timeout error' do
+          expect(response).to have_http_status(:gateway_timeout)
+        end
+      end
+
+      context 'with missing address params' do
+        before do
+          address.address_line1 = ''
+
+          put('/mobile/v0/user/addresses', params: address.to_json, headers: iam_headers(json_body_headers))
+        end
+
+        it 'returns a 422' do
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'matches the error schema' do
+          expect(response.body).to match_json_schema('errors')
+        end
+
+        it 'has a helpful error message' do
+          message = response.parsed_body['errors'].first
+          expect(message).to eq(
+                                 {
+                                     'title' => "Address line1 can't be blank",
+                                     'detail' => "address-line1 - can't be blank",
+                                     'code' => '100',
+                                     'source' => {
+                                         'pointer' => 'data/attributes/address-line1'
+                                     },
+                                     'status' => '422'
+                                 }
+                             )
+        end
+      end
+    end
   end
 
   describe 'POST /mobile/v0/user/addresses/validate' do
@@ -291,48 +370,6 @@ RSpec.describe 'address', type: :request do
             'validationKey' => -646_932_106
           }
         )
-      end
-    end
-  end
-
-  describe 'DELETE /v0/profile/addresses' do
-    context 'when the method is DELETE' do
-      let(:frozen_time) { Time.zone.parse('2020-02-13T20:47:45.000Z') }
-      let(:address) do
-        { 'address_line1' => '4041 Victoria Way',
-          'address_line2' => nil,
-          'address_line3' => nil,
-          'address_pou' => 'CORRESPONDENCE',
-          'address_type' => 'DOMESTIC',
-          'city' => 'Lexington',
-          'country_code_iso3' => 'USA',
-          'country_code_fips' => nil,
-          'county_code' => '21067',
-          'county_name' => 'Fayette County',
-          'created_at' => '2019-10-25T17:06:15.000Z',
-          'effective_end_date' => nil,
-          'effective_start_date' => '2020-02-10T17:40:15.000Z',
-          'id' => 138_225,
-          'international_postal_code' => nil,
-          'province' => nil,
-          'source_system_user' => nil,
-          'state_code' => 'KY',
-          'transaction_id' => '537b388e-344a-474e-be12-08d43cf35d69',
-          'updated_at' => '2020-02-10T17:40:25.000Z',
-          'validation_key' => nil,
-          'vet360_id' => '1',
-          'zip_code' => '40515',
-          'zip_code_suffix' => '4655' }
-      end
-
-      it 'effective_end_date gets appended to the request body', :aggregate_failures do
-        VCR.use_cassette('va_profile/contact_information/delete_address_success', VCR::MATCH_EVERYTHING) do
-          # The cassette we're using includes the effectiveEndDate in the body.
-          # So this test will not pass if it's missing
-          delete '/mobile/v0/user/phones', params: address.to_json, headers: json_body_headers
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('va_profile/transaction_response')
-        end
       end
     end
   end

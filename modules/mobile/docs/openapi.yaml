@@ -816,12 +816,41 @@ paths:
             description: Allows the API to return camelCase keys rather than snake_case.
             example: 'camel'
       requestBody:
-        description: The address to delete
+        description: A domestic, internation, or military address
         required: true
         content:
           application/json:
             schema:
-              $ref: './schemas/AddressUpdate.yml'
+              $ref: '#./schemas/AddressUpdate.yml'
+            examples:
+              Using Suggested Address:
+                value:
+                  addressMetaData:
+                    confidenceScore: 100
+                    addressType: Domestic
+                    deliveryPointValidation: CONFIRMED
+                    residentialDeliveryIndicator: RESIDENTIAL
+                  addressLine1: "1493 Martin Luther King Rd"
+                  addressPou: "RESIDENCE/CHOICE"
+                  addressType: "DOMESTIC"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  id: 181513
+              Using Overridden Address:
+                value:
+                  addressLine1: "1493 Martin Luther King Rd"
+                  addressPou: "RESIDENCE/CHOICE"
+                  addressType: "DOMESTIC"
+                  city: "Fulton"
+                  countryName: "United States"
+                  countryCodeIso3: "USA"
+                  stateCode: "MS"
+                  zipCode: "38843"
+                  id: 181513
+                  validationKey: -1206619807
       responses:
         '200':
           description: OK
