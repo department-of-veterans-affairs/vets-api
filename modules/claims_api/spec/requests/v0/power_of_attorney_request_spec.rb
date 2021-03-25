@@ -93,10 +93,10 @@ RSpec.describe 'Power of Attorney ', type: :request do
     describe '#upload_power_of_attorney_document' do
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:binary_params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
       let(:base64_params) do
-        { 'attachment': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+        { attachment: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
       end
 
       it 'submit binary and change the document status' do

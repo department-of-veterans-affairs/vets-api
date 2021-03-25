@@ -23,7 +23,7 @@ module VBADocuments
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :DocumentUploadSubmission
+                  key :$ref, :DocumentUploadSubmission
                 end
               end
             end

@@ -11,7 +11,7 @@ module Swagger
         property :errors do
           key :type, :array
           items do
-            key :'$ref', :Error
+            key :$ref, :Error
           end
         end
       end

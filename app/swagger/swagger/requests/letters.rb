@@ -19,7 +19,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Letters
+              key :$ref, :Letters
             end
           end
         end
@@ -39,7 +39,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :LetterBeneficiary
+              key :$ref, :LetterBeneficiary
             end
           end
         end
