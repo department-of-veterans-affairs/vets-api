@@ -7,7 +7,6 @@ require 'common/exceptions'
 
 module ClaimsApi
   class BaseDisabilityCompensationController < ClaimsApi::BaseFormController
-    include ClaimsApi::EndpointDeprecation
     STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
     STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
 
@@ -37,11 +36,6 @@ module ClaimsApi
       raise e
     end
     # rubocop:enable Metrics/MethodLength
-
-    def schema
-      add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
-      super
-    end
 
     private
 
