@@ -215,6 +215,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         expect(Rails.env).to receive('development?').twice.and_return(true)
         expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).twice.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false)
       end
 
       after do
@@ -240,6 +241,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         expect(Rails.env).to receive('development?').once.and_return(true)
         expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(true).at_least(:once)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
       end
 
       it 'logs exception to sentry' do
@@ -249,7 +251,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(SFTPWriter::Local).to receive(:new).once.and_return(local_mock)
         expect(local_mock).to receive(:write).and_raise('boom')
         expect(local_mock).to receive(:close).once.and_return(true)
-        expect(subject).to receive(:log_exception_to_sentry).exactly(3).times
         expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::DailySpoolFileError))
 
         subject.perform
