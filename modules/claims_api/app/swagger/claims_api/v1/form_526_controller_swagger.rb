@@ -9,6 +9,7 @@ module ClaimsApi
 
       swagger_path '/forms/526' do
         operation :get do
+          key :deprecated, true
           key :summary, 'Get a 526 schema for a claim.'
           key :description, 'Returns a single 526 schema to automatically generate a form. Using this GET endpoint allows users to download our current validations.'
           key :operationId, 'get526JsonSchema'
@@ -338,6 +339,7 @@ module ClaimsApi
 
       swagger_path '/forms/526/validate' do
         operation :post do
+          key :deprecated, true
           key :summary, 'Validates a 526 claim form submission.'
           key :description, 'Test to make sure the form submission works with your parameters. Submission validates against the schema returned by the GET /forms/526 endpoint.'
           key :operationId, 'post526ClaimValidate'
