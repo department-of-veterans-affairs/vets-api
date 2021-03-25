@@ -8,13 +8,11 @@ require 'claims_api/special_issue_mappers/bgs'
 
 module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
-    include ClaimsApi::EndpointDeprecation
     # schema endpoint should be wide open
     skip_before_action :authenticate, only: %i[schema]
     skip_before_action :verify_mpi, only: %i[schema]
 
     def schema
-      add_deprecation_headers_to_response(response: response)
       render json: { data: [ClaimsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
     end
 
