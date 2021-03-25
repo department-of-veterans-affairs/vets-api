@@ -21,9 +21,12 @@ module VBADocuments
     RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
-    scope :aged_processing, -> (days, status) {
+
+    # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
+    scope :aged_processing, -> (look_back, unit_of_measure, status) {
       where(status: status)
-          .where("(metadata -> 'status' -> '#{status}' -> 'start')::integer < ?", days.to_i.days.ago.to_i)
+          .where("(metadata -> 'status' -> '#{status}' -> 'start')::integer < ?",
+                 look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
           .order("(metadata -> 'status' -> '#{status}' -> 'start')::integer asc")
     }
 
