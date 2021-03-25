@@ -75,6 +75,7 @@ module ClaimsApi
         end
 
         def validate_form_526
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
           super
         end
 

@@ -69,7 +69,7 @@ module ClaimsApi
         end
 
         def validate
-          add_deprecation_headers_to_response(response: response)
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
           render json: validation_success
         end
 
