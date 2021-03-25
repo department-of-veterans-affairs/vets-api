@@ -87,6 +87,11 @@ module ClaimsApi
           render json: validation_success
         end
 
+        def schema
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
+          super
+        end
+
         private
 
         def current_poa

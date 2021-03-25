@@ -9,6 +9,7 @@ module ClaimsApi
       class DisabilityCompensationController < BaseDisabilityCompensationController
         include ClaimsApi::PoaVerification
         include ClaimsApi::DocumentValidations
+        include ClaimsApi::EndpointDeprecation
 
         FORM_NUMBER = '526'
 
@@ -81,6 +82,11 @@ module ClaimsApi
         end
 
         def validate_form_526
+          super
+        end
+
+        def schema
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           super
         end
 
