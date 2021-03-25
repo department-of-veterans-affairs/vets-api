@@ -10,10 +10,10 @@ module OpenidAuth
 
       def initialize
         @okta_response = {
-          "commands": [
+          commands: [
             {
-              "type": 'com.okta.assertion.patch',
-              "value": []
+              type: 'com.okta.assertion.patch',
+              value: []
             }
           ]
         }
@@ -67,9 +67,9 @@ module OpenidAuth
 
       def create_replace_stanza(path_variable, value)
         replace_stanza = {
-          "op": 'replace',
-          "path": "/claims/#{path_variable}/attributeValues/0/value",
-          "value": value
+          op: 'replace',
+          path: "/claims/#{path_variable}/attributeValues/0/value",
+          value: value
         }
 
         @okta_response[:commands][0][:value].push(replace_stanza)
@@ -79,18 +79,18 @@ module OpenidAuth
         # TODO: add futher args to specify name_format, type
 
         add_stanza = {
-          "op": 'add',
-          "path": "/claims/#{path_variable}",
-          "value": {
-            "attributes": {
-              "NameFormat": 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
+          op: 'add',
+          path: "/claims/#{path_variable}",
+          value: {
+            attributes: {
+              NameFormat: 'urn:oasis:names:tc:SAML:2.0:attrname-format:basic'
             },
-            "attributeValues": [
+            attributeValues: [
               {
-                "attributes": {
+                attributes: {
                   "xsi:type": 'xs:string'
                 },
-                "value": value
+                value: value
               }
             ]
           }

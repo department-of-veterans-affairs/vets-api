@@ -19,7 +19,7 @@ module Swagger
               key :description, 'prescription tracking response'
 
               schema do
-                key :'$ref', :Trackings
+                key :$ref, :Trackings
               end
             end
 
@@ -27,7 +27,7 @@ module Swagger
               key :description, 'prescription not available'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end

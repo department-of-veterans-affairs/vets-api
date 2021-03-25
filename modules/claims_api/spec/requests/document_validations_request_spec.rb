@@ -18,7 +18,7 @@ RSpec.describe 'Document Validations Requests', type: :request do
 
     context 'with a large pdf' do
       let(:params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/18x22.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/18x22.pdf") }
       end
 
       it 'returns an error if the file is too large' do
@@ -30,7 +30,7 @@ RSpec.describe 'Document Validations Requests', type: :request do
 
     context 'with a normal pdf' do
       let(:params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
 
       it 'returns an success' do
@@ -42,7 +42,7 @@ RSpec.describe 'Document Validations Requests', type: :request do
 
     context 'with an explicit form pdf' do
       let(:params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/21-526EZ.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/21-526EZ.pdf") }
       end
 
       it 'returns an success' do
@@ -55,7 +55,7 @@ RSpec.describe 'Document Validations Requests', type: :request do
     context 'with a non pdf' do
       let(:params) do
         path = Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/form_2122_json_api.json")
-        { 'attachment': path }
+        { attachment: path }
       end
 
       it 'returns a failure' do

@@ -16,7 +16,7 @@ module Swagger
               key :description, 'autocomplete response'
 
               schema do
-                key :'$ref', :GibctCalculatorConstants
+                key :$ref, :GibctCalculatorConstants
               end
             end
           end

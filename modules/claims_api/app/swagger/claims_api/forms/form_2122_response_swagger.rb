@@ -62,12 +62,12 @@ module ClaimsApi
         schema :Veteran do
           property :address do
             key :type, :object
-            key :'$ref', :Address
+            key :$ref, :Address
           end
 
           property :phone do
             key :type, :object
-            key :'$ref', :Phone
+            key :$ref, :Phone
           end
 
           property :email do
@@ -118,12 +118,12 @@ module ClaimsApi
 
           property :address do
             key :type, :object
-            key :'$ref', :Address
+            key :$ref, :Address
           end
 
           property :phone do
             key :type, :object
-            key :'$ref', :Phone
+            key :$ref, :Phone
           end
 
           property :relationship do
@@ -183,7 +183,7 @@ module ClaimsApi
 
                 property :address do
                   key :type, :object
-                  key :'$ref', :Address
+                  key :$ref, :Address
                 end
 
                 property :jobTitle do
@@ -208,12 +208,12 @@ module ClaimsApi
 
               property :veteran do
                 key :type, :object
-                key :'$ref', :Veteran
+                key :$ref, :Veteran
               end
 
               property :claimant do
                 key :type, :object
-                key :'$ref', :Claimant
+                key :$ref, :Claimant
               end
 
               property :signatures do
