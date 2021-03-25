@@ -825,6 +825,7 @@ vanotify:
       template_id:
         form526_confirmation_email: fake_template_id
         covid_vaccine_registration: fake_template_id
+        covid_vaccine_confirmation: fake_template_id
     lighthouse:
       api_key: fake_secret
       template_id:
@@ -838,6 +839,7 @@ vanotify:
     connection_template: fake_template_id
     disconnection_template: fake_template_id
     covid_vaccine_registration: fake_template_id
+    covid_vaccine_confirmation: fake_template_id
     direct_deposit_edu: edu_template_id
     direct_deposit_comp_pen: comp_pen_template_id
   mock: false
