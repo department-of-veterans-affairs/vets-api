@@ -60,12 +60,12 @@ pipeline {
       }
     }
 
-    stage('Lint All Files') {
-      when { branch 'master' }
-      steps {
-        sh 'env=$RAILS_ENV make lint'
-      }
-    }
+    // stage('Lint All Files') {
+    //   when { branch 'master' }
+    //   steps {
+    //     sh 'env=$RAILS_ENV make lint'
+    //   }
+    // }
 
     stage('Security Scan') {
       steps {
@@ -73,26 +73,26 @@ pipeline {
       }
     }
 
-    stage('Run tests') {
-      steps {
-        sh 'env=$RAILS_ENV make spec_parallel'
-      }
-      post {
-        success {
-          archiveArtifacts artifacts: "coverage/**"
-          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
-          junit 'log/*.xml'
-        }
-      }
-    }
+    // stage('Run tests') {
+    //   steps {
+    //     sh 'env=$RAILS_ENV make spec_parallel'
+    //   }
+    //   post {
+    //     success {
+    //       archiveArtifacts artifacts: "coverage/**"
+    //       publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+    //       junit 'log/*.xml'
+    //     }
+    //   }
+    // }
 
-    stage('Run Danger Bot') {
-      steps {
-        withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
-          sh 'env=$RAILS_ENV make danger'
-        }
-      }
-    }
+    // stage('Run Danger Bot') {
+    //   steps {
+    //     withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
+    //       sh 'env=$RAILS_ENV make danger'
+    //     }
+    //   }
+    // }
 
     stage('Review') {
       when { not { branch 'master' } }
