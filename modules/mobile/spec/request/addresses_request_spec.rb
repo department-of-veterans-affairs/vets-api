@@ -208,7 +208,7 @@ RSpec.describe 'address', type: :request do
       context 'when it has not completed within the timeout window (< 60s)' do
         before do
           allow_any_instance_of(Mobile::V0::Profile::SyncUpdateService)
-              .to receive(:seconds_elapsed_since).and_return(61)
+            .to receive(:seconds_elapsed_since).and_return(61)
 
           VCR.use_cassette('profile/get_address_status_complete') do
             VCR.use_cassette('profile/get_address_status_incomplete_2') do
@@ -244,16 +244,16 @@ RSpec.describe 'address', type: :request do
         it 'has a helpful error message' do
           message = response.parsed_body['errors'].first
           expect(message).to eq(
-                                 {
-                                     'title' => "Address line1 can't be blank",
-                                     'detail' => "address-line1 - can't be blank",
-                                     'code' => '100',
-                                     'source' => {
-                                         'pointer' => 'data/attributes/address-line1'
-                                     },
-                                     'status' => '422'
-                                 }
-                             )
+            {
+              'title' => "Address line1 can't be blank",
+              'detail' => "address-line1 - can't be blank",
+              'code' => '100',
+              'source' => {
+                'pointer' => 'data/attributes/address-line1'
+              },
+              'status' => '422'
+            }
+          )
         end
       end
     end
