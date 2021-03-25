@@ -55,7 +55,7 @@ module VBADocuments
     def self.create_file_from_base64(infile)
       FileUtils.mkdir_p '/tmp/vets-api'
       if infile.is_a? String
-        contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile}`
+        contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile.shellescape}`
       else
         # We are a stringio and are in memory.
         content = infile.read

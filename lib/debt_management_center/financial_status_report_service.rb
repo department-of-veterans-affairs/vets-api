@@ -51,7 +51,7 @@ module DebtManagementCenter
     private
 
     def update_filenet_id(filenet_id)
-      fsr_params = Hash[REDIS_CONFIG[:financial_status_report][:namespace], @user.uuid]
+      fsr_params = { REDIS_CONFIG[:financial_status_report][:namespace] => @user.uuid }
       pdf = DebtManagementCenter::FinancialStatusReport.new(fsr_params)
       pdf.update(filenet_id: filenet_id, uuid: @user.uuid)
     end

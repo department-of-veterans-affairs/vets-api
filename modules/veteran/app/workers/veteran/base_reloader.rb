@@ -25,7 +25,7 @@ module Veteran
       headers = doc.xpath('//table/tr').first.children.map { |child| child.children.text.scrub }
       doc.xpath('//table/tr').map do |line|
         row = line.children.map { |child| child.children.text.scrub }
-        Hash[headers.zip(row)].delete_if { |k, _v| k.blank? } unless headers == row
+        headers.zip(row).to_h.delete_if { |k, _v| k.blank? } unless headers == row
       end.compact.uniq
     end
   end
