@@ -201,6 +201,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
               parsed = JSON.parse(response.body)
               expect(response.status).to eq(200)
+              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
               expect(parsed['data']['attributes']['previous_poa']).to eq('HelloWorld')
             end
           end
