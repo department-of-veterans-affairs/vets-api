@@ -10,18 +10,18 @@ RSpec::Matchers.define :encrypt_attr do |attribute|
   end
 
   failure_message do |model|
-    if !model.class.column_names.include?(encrypted_attribute)
-      "#{encrypted_attribute} must be a column on #{model.class} for encryption to work"
-    else
+    if model.class.column_names.include?(encrypted_attribute)
       "#{attribute} should use attr_encrypted on #{model.class}"
+    else
+      "#{encrypted_attribute} must be a column on #{model.class} for encryption to work"
     end
   end
 
   failure_message_when_negated do |model|
-    if !model.class.column_names.include?(encrypted_attribute)
-      "#{encrypted_attribute} shouldn't be a column on #{model.class}"
-    else
+    if model.class.column_names.include?(encrypted_attribute)
       "#{attribute} should not use attr_encrypted on #{model.class}"
+    else
+      "#{encrypted_attribute} shouldn't be a column on #{model.class}"
     end
   end
 end
