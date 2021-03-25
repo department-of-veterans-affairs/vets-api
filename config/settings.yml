@@ -845,6 +845,11 @@ vanotify:
     connected_applications: https://www.va.gov/profile/connected-applications
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
 
+# Settings for contact us form
+contact_us:
+  ping_url: https://nonprod.integration.d365.va.gov/veis/patsr.lob.whh.avtest/api/ping
+  test_url: https://staging-api.va.gov
+
 # Settings to connect to the drupal forms graphql api
 va_forms:
   drupal_username: ~

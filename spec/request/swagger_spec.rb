@@ -3003,7 +3003,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       describe 'GET v0/contact_us/inquiries' do
-        context 'logged in' do
+        skip 'logged in' do
           let(:user) { build(:user, :loa3) }
           let(:headers) do
             { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
@@ -3017,7 +3017,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         context 'not logged in' do
-          it 'returns a 401' do
+          skip 'returns a 401' do
             expect(subject).to validate(:get, '/v0/contact_us/inquiries', 401)
           end
         end
