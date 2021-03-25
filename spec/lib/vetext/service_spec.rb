@@ -85,17 +85,17 @@ describe 'VEText::Service' do
     let(:get_preferences_body) do
       [
         {
-          "auto_opt_in": false,
-          "endpoint_sid": '8c258cbe573c462f912e7dd74585a5a9',
-          "preference_id": 'appointment_reminders',
-          "preference_name": 'Appointment Reminders',
-          "value": true
+          auto_opt_in: false,
+          endpoint_sid: '8c258cbe573c462f912e7dd74585a5a9',
+          preference_id: 'appointment_reminders',
+          preference_name: 'Appointment Reminders',
+          value: true
         }, {
-          "auto_opt_in": false,
-          "endpoint_sid": '8c258cbe573c462f912e7dd74585a5a9',
-          "preference_id": 'claim_status_updates',
-          "preference_name": 'Claim Status Updates',
-          "value": true
+          auto_opt_in: false,
+          endpoint_sid: '8c258cbe573c462f912e7dd74585a5a9',
+          preference_id: 'claim_status_updates',
+          preference_name: 'Claim Status Updates',
+          value: true
         }
       ]
     end
@@ -136,7 +136,7 @@ describe 'VEText::Service' do
   describe '#set_preference' do
     let(:set_preference_body) do
       {
-        "success": true
+        success: true
       }
     end
 
@@ -182,7 +182,7 @@ describe 'VEText::Service' do
   describe '#send_notification' do
     let(:response_body) do
       {
-        "success": true
+        success: true
       }
     end
 

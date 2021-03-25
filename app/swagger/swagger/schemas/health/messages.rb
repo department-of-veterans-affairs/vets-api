@@ -11,7 +11,7 @@ module Swagger
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
-              key :'$ref', :DataAttributes
+              key :$ref, :DataAttributes
             end
           end
 
@@ -24,7 +24,7 @@ module Swagger
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
-              key :'$ref', :DataAttributes
+              key :$ref, :DataAttributes
             end
           end
 
