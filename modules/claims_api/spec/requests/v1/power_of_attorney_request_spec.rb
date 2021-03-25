@@ -7,7 +7,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
-      'X-VA-EDIPI': '1007697216',
       'X-Consumer-Username': 'TestConsumer',
       'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
@@ -202,6 +201,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
               parsed = JSON.parse(response.body)
               expect(response.status).to eq(200)
+              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
               expect(parsed['data']['attributes']['previous_poa']).to eq('HelloWorld')
             end
           end

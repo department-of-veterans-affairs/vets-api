@@ -136,20 +136,20 @@ else
 endif
 
 .PHONY: spec_parallel_setup
-spec_parallel_setup:  ## Setup the parallel test dbs. This resets the curret test db, as well as the parallel tests dbs
+spec_parallel_setup:  ## Setup the parallel test dbs. This resets the current test db, as well as the parallel test dbs
 ifeq ($(ENV_ARG), dev)
-	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'rake db:reset'"
+	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset'"
 else
-	@$(COMPOSE_TEST) $(BASH) -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'rake db:reset'"
+	@$(COMPOSE_TEST) $(BASH) -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset'"
 endif
 
 .PHONY: spec_parallel
 spec_parallel:  ## Runs spec tests in parallel
 ifeq ($(ENV_ARG), dev)
-	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true NOCOVERAGE=true parallel_rspec ${SPEC_PATH}"
+	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true NOCOVERAGE=true bundle exec parallel_rspec ${SPEC_PATH}"
 else
-	@$(COMPOSE_TEST) $(BASH) -c "CIRCLE_JOB=true RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_rspec ${SPEC_PATH}"
-	@$(BASH_TEST) "DISABLE_BOOTSNAP=true RUN_COVERAGE=true bin/rails simplecov:report_coverage"
+	@$(COMPOSE_TEST) $(BASH) -c "CIRCLE_JOB=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_rspec ${SPEC_PATH}"
+	@$(BASH_TEST) "DISABLE_BOOTSNAP=true RUN_COVERAGE=true bundle exec rake simplecov:report_coverage"
 endif
 
 .PHONY: up

@@ -9,6 +9,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122' do
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Gets schema for POA form.'
           key :description, 'Returns schema to automatically generate a POA form.'
           key :operationId, 'get2122JsonSchema'
@@ -18,6 +21,14 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           response 200 do
             key :description, 'schema response'
@@ -55,6 +66,9 @@ module ClaimsApi
         end
 
         operation :post do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Submit a POA form.'
           key(
             :description,
@@ -75,8 +89,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -108,14 +126,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
             key :type, :string
           end
 
@@ -195,6 +205,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122/{id}' do
         operation :put do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Upload a signed 21-22 document.'
           key(
             :description,
@@ -211,19 +224,19 @@ module ClaimsApi
           ]
 
           parameter do
-            key :name, :id
-            key :in, :path
-            key :description, 'UUID given when Power of Attorney was submitted'
-            key :required, true
-            key :type, :uuid
-          end
-
-          parameter do
             key :name, 'apikey'
             key :in, :header
             key :description, 'API Key given to access data'
             key :required, true
             key :type, :string
+          end
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'UUID given when Power of Attorney was submitted'
+            key :required, true
+            key :type, :uuid
           end
 
           parameter do
@@ -255,14 +268,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
             key :type, :string
           end
 
@@ -354,6 +359,9 @@ module ClaimsApi
         end
 
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Check POA status by ID.'
           key :description, 'Based on ID, returns a 21-22 submission and current status.'
           key :operationId, 'get2122poa'
@@ -361,8 +369,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -468,6 +480,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122/active' do
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Check active POA status.'
           key(
             :description,
@@ -480,8 +495,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :bearer_token, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -587,6 +606,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122/validate' do
         operation :post do
+          security do
+            key :apikey, []
+          end
           key :summary, '21-22 POA form submission test run.'
           key :description, 'Test to make sure the form submission works with your parameters.'
           key :operationId, 'validate2122poa'
@@ -594,15 +616,19 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :bearer_token, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -610,7 +636,7 @@ module ClaimsApi
             key :name, 'X-VA-First-Name'
             key :in, :header
             key :description, 'First Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -618,7 +644,7 @@ module ClaimsApi
             key :name, 'X-VA-Last-Name'
             key :in, :header
             key :description, 'Last Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -626,15 +652,7 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -643,6 +661,15 @@ module ClaimsApi
             key :in, :header
             key :description, 'VA username of the person making the request'
             key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
             key :type, :string
           end
 

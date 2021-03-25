@@ -23,6 +23,14 @@ module ClaimsApi
           ]
 
           parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
             key :name, :id
             key :in, :path
             key :description, 'The ID of the claim being requested'
@@ -67,19 +75,11 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-User'
             key :in, :header
             key :description, 'VA username of the person making the request'
             key :example, 'lighthouse'
-            key :required, true
+            key :required, false
             key :type, :string
           end
 
@@ -142,7 +142,6 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-
           key :summary, 'Find all claims for a Veteran.'
           key(
             :description,
@@ -157,6 +156,14 @@ module ClaimsApi
           key :tags, [
             'Claims'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           parameter do
             key :name, 'X-VA-SSN'
@@ -191,14 +198,6 @@ module ClaimsApi
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :example, '1954-12-15'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
             key :type, :string
           end
 

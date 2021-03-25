@@ -99,37 +99,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :maxLength, 10
       end
 
-      parameter do
-        key :name, 'X-VA-Claimant-First-Name'
-        key :in, :header
-        key :required, false
-        key :description, 'The first name of the benefits claimant (if applicable)'
-        key :maxLength, 16
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Middle-Initial'
-        key :in, :header
-        key :required, false
-        key :description, 'The middle initial of the benefits claimant (if applicable)'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Last-Name'
-        key :in, :header
-        key :required, false
-        key :description, 'The last name of the benefits claimant (if applicable)'
-        key :maxLength, 36
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Birth-Date'
-        key :in, :header
-        key :required, false
-        key :description, 'The birth date of the benefits claimant (if applicable)'
-        key :maxLength, 10
-      end
-
       request_body do
         key :required, true
         content 'application/json' do
@@ -419,34 +388,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :in, :header
         key :required, false
         key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-First-Name'
-        key :in, :header
-        key :required, false
-        key :description, 'The first name of the benefits claimant (if applicable)'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Middle-Initial'
-        key :in, :header
-        key :required, false
-        key :description, 'The middle initial of the benefits claimant (if applicable)'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Last-Name'
-        key :in, :header
-        key :required, false
-        key :description, 'The last name of the benefits claimant (if applicable)'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Birth-Date'
-        key :in, :header
-        key :required, false
-        key :description, 'The birth date of the benefits claimant (if applicable)'
       end
 
       request_body do

@@ -22,6 +22,14 @@ module ClaimsApi
             'Disability'
           ]
 
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
+
           response 200 do
             key :description, 'schema response'
             content 'application/json' do
@@ -94,6 +102,14 @@ module ClaimsApi
           ]
 
           parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran being represented'
@@ -122,14 +138,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
             key :type, :string
           end
 
@@ -205,6 +213,9 @@ module ClaimsApi
 
       swagger_path '/forms/526/{id}' do
         operation :put do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Upload a 526 document.'
           key(
             :description,
@@ -225,19 +236,19 @@ module ClaimsApi
           ]
 
           parameter do
-            key :name, :id
-            key :in, :path
-            key :description, 'UUID given when Disability Claim was submitted'
-            key :required, true
-            key :type, :uuid
-          end
-
-          parameter do
             key :name, 'apikey'
             key :in, :header
             key :description, 'API Key given to access data'
             key :required, true
             key :type, :string
+          end
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'UUID given when Disability Claim was submitted'
+            key :required, true
+            key :type, :uuid
           end
 
           parameter do
@@ -269,14 +280,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
             key :type, :string
           end
 
@@ -377,6 +380,14 @@ module ClaimsApi
           ]
 
           parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran being represented'
@@ -405,14 +416,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
             key :type, :string
           end
 
@@ -512,6 +515,9 @@ module ClaimsApi
 
       swagger_path '/forms/526/{id}/attachments' do
         operation :post do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Upload documents supporting a 526 claim.'
           key(
             :description,
@@ -528,6 +534,14 @@ module ClaimsApi
           key :tags, [
             'Disability'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           parameter do
             key :name, :id
@@ -566,14 +580,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
             key :type, :string
           end
 

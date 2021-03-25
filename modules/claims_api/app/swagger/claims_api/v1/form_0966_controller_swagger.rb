@@ -105,14 +105,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-User'
             key :in, :header
             key :description, 'VA username of the person making the request'
@@ -265,14 +257,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-User'
             key :in, :header
             key :description, 'VA username of the person making the request'
@@ -346,6 +330,38 @@ module ClaimsApi
 
           security do
             key :bearer_token, []
+          end
+
+          parameter do
+            key :name, 'X-VA-SSN'
+            key :in, :header
+            key :description, 'SSN of Veteran being represented'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-First-Name'
+            key :in, :header
+            key :description, 'First Name of Veteran being represented'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Last-Name'
+            key :in, :header
+            key :description, 'Last Name of Veteran being represented'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Birth-Date'
+            key :in, :header
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
+            key :required, false
+            key :type, :string
           end
 
           request_body do
