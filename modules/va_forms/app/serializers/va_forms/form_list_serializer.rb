@@ -17,6 +17,5 @@ module VAForms
     def last_sha256_change
       object.versions.last.created_at&.strftime('%Y-%m-%d')
     end
-
-    end
+  end
 end
