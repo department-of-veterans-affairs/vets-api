@@ -59,7 +59,7 @@ module ClaimsApi
       resolve_homelessness_situation_type_mappings!
 
       {
-        "form526": form_data
+        form526: form_data
       }.to_json
     end
 

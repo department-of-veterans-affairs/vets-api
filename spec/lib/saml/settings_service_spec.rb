@@ -27,7 +27,7 @@ RSpec.describe SAML::SettingsService do
       end
 
       it 'defaults to signed authn requests when no setting exists' do
-        with_settings(Settings.saml, 'authn_requests_signed': nil) do
+        with_settings(Settings.saml, authn_requests_signed: nil) do
           Settings.saml.delete_field(:authn_requests_signed)
           expect(SAML::SettingsService.merged_saml_settings(true).security[:authn_requests_signed])
             .to eq(true)
@@ -35,7 +35,7 @@ RSpec.describe SAML::SettingsService do
       end
 
       it 'honors the local authn_requests_signed setting' do
-        with_settings(Settings.saml, 'authn_requests_signed': false) do
+        with_settings(Settings.saml, authn_requests_signed: false) do
           expect(SAML::SettingsService.merged_saml_settings(true).security[:authn_requests_signed])
             .to eq(false)
         end

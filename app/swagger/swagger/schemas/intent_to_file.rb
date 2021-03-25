@@ -41,7 +41,7 @@ module Swagger
             property :intent_to_file do
               key :type, :array
               items do
-                key :'$ref', :IntentToFileBase
+                key :$ref, :IntentToFileBase
               end
             end
           end
@@ -55,7 +55,7 @@ module Swagger
           property :attributes, type: :object do
             key :required, %i[intent_to_file]
             property :intent_to_file, type: :object do
-              key :'$ref', :IntentToFileBase
+              key :$ref, :IntentToFileBase
             end
           end
           property :id, type: :string, example: nil
