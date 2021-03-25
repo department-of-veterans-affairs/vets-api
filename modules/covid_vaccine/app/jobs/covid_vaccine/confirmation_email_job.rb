@@ -15,7 +15,7 @@ module CovidVaccine
     def perform(email, date, sid)
       submission = CovidVaccine::V0::RegistrationSubmission.find_by(sid: sid)
       if submission.nil?
-        log_message_to_sentry('No SID found!', :warn, {email: email, sid: sid})
+        log_message_to_sentry('No SID found!', :warn, { email: email, sid: sid })
         return
       end
       return if submission.email_confirmation_id.present?
@@ -28,15 +28,9 @@ module CovidVaccine
         template_id ||= Settings.vanotify.template_id.covid_vaccine_registration
       end
 
-      email_response = notify_client.send_email(
-        email_address: email,
-        template_id: template_id,
-        personalisation: {
-          'date' => date,
-          'confirmation_id' => sid
-        },
-        reference: sid
-      )
+      email_response = notify_client.send_email(email_address: email, template_id: template_id,
+                                                personalisation: { 'date' => date, 'confirmation_id' => sid },
+                                                reference: sid)
       handle_success(submission, email_response)
     rescue => e
       handle_errors(e, sid)

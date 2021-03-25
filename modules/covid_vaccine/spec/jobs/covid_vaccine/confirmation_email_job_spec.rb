@@ -25,7 +25,7 @@ RSpec.describe CovidVaccine::ConfirmationEmailJob, type: :worker do
     end
 
     context 'with a valid submission that already has email confirmation id' do
-      before(:each) { create(:covid_vax_registration, sid: confirmation_id, email_confirmation_id: '1234') }
+      before { create(:covid_vax_registration, sid: confirmation_id, email_confirmation_id: '1234') }
 
       it 'the service is not invoked and we return right away' do
         expect(VaNotify::Service).not_to receive(:new)
@@ -35,7 +35,8 @@ RSpec.describe CovidVaccine::ConfirmationEmailJob, type: :worker do
 
     context 'with a valid submission that does not have email confirmation id' do
       let(:submission) { create(:covid_vax_registration, sid: confirmation_id) }
-      before(:each) { submission }
+
+      before { submission }
 
       it 'the service is initialized with the correct parameters with enabled toggle' do
         Flipper.enable(:vanotify_service_enhancement)
@@ -60,7 +61,7 @@ RSpec.describe CovidVaccine::ConfirmationEmailJob, type: :worker do
         with_settings(
           Settings.vanotify, { api_key: test_service_api_key }
         ) do
-          expect(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)          
+          expect(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)
           expect(submission.email_confirmation_id).to be_nil
           described_class.new.perform(email, date, confirmation_id)
           expect(submission.reload.email_confirmation_id).to eq('VANotifyID')
