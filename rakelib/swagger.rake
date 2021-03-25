@@ -86,5 +86,5 @@ def render_type(type, enum)
 end
 
 def render_indent(indent)
-  Array.new(indent).map { '  ' }.join('')
+  Array.new(indent).map { '  ' }.join
 end

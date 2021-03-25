@@ -123,14 +123,14 @@ module EducationForm::Forms
       state = program.courseType == 'online' && program.location&.state.blank? ? 'N/A' : program.location&.state
 
       [
-        ["\n  Provider name: ", program.providerName].join(''),
-        ["\n  Program name: ", program.programName].join(''),
-        ["\n  Course type: ", course_type_name(program.courseType)].join(''),
+        ["\n  Provider name: ", program.providerName].join,
+        ["\n  Program name: ", program.programName].join,
+        ["\n  Course type: ", course_type_name(program.courseType)].join,
         "\n  Location:",
-        ["\n    City: ", city].join(''),
-        ["\n    State: ", state].join(''),
-        ["\n  Planned start date: ", program.plannedStartDate].join('')
-      ].join('')
+        ["\n    City: ", city].join,
+        ["\n    State: ", state].join,
+        ["\n  Planned start date: ", program.plannedStartDate].join
+      ].join
     end
 
     def program_text
