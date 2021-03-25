@@ -7,7 +7,7 @@ RSpec.describe 'VA Forms', type: :request do
 
   let!(:form) do
     create(:va_form)
-    create(:va_form, form_name: '527')
+    create(:va_form, form_name: '527', row_id: '4157')
     create(:deleted_va_form)
   end
   let(:base_url) { '/services/va_forms/v0/forms' }
