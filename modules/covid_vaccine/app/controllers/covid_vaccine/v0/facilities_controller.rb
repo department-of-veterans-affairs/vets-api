@@ -6,7 +6,6 @@ require_relative '../../../services/covid_vaccine/v0/facility_suggestion_service
 module CovidVaccine
   module V0
     class FacilitiesController < CovidVaccine::ApplicationController
-      include IgnoreNotFound
       skip_before_action :validate_session
 
       def index

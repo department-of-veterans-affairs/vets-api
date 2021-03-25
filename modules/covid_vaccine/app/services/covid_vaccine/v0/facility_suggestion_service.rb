@@ -59,8 +59,7 @@ module CovidVaccine
                                          per_page: 50, type: 'health')
 
         result = response.select(&allowed_vamcs).map(&elements)
-        result = result.first(count)
-        result
+        result.first(count)
       rescue => e
         # For now just log any exception while getting facilities and return an empty result
         log_exception_to_sentry(e)
