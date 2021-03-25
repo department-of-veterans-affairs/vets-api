@@ -12,7 +12,6 @@ module ClaimsApi
 
     # rubocop:disable Metrics/MethodLength
     def validate_form_526
-      add_deprecation_headers_to_response(response: response)
       service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       auto_claim = ClaimsApi::AutoEstablishedClaim.new(
         status: ClaimsApi::AutoEstablishedClaim::PENDING,
