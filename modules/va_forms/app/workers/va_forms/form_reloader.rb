@@ -74,6 +74,7 @@ module VAForms
 
     def init_attributes(form)
       mapped = {
+        row_id: form['fieldVaFormRowId'],
         title: form['fieldVaFormName'],
         pages: form['fieldVaFormNumPages'],
         language: form.dig('langcode', 'value'),
