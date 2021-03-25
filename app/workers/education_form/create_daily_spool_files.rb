@@ -31,31 +31,32 @@ module EducationForm
     # because the execution of the query itself is deferred until the
     # data is accessed by the code inside of the method.
     def perform
-      records = EducationBenefitsClaim.unprocessed.includes(:saved_claim, :education_stem_automated_decision).where(
-        saved_claims: {
-          form_id: LIVE_FORM_TYPES
-        },
-        education_stem_automated_decisions: { automated_decision_state: AUTOMATED_DECISIONS_STATES }
-      )
-      return false if federal_holiday?
+      begin
+        records = EducationBenefitsClaim.unprocessed.includes(:saved_claim, :education_stem_automated_decision).where(
+          saved_claims: {
+            form_id: LIVE_FORM_TYPES
+          },
+          education_stem_automated_decisions: { automated_decision_state: AUTOMATED_DECISIONS_STATES }
+        )
+        return false if federal_holiday?
 
-      # Group the formatted records into different regions
-      if records.count.zero?
-        log_info('No records to process.')
-        return true
-      else
-        log_info("Processing #{records.count} application(s)")
+        # Group the formatted records into different regions
+        if records.count.zero?
+          log_info('No records to process.')
+          return true
+        else
+          log_info("Processing #{records.count} application(s)")
+        end
+        regional_data = group_submissions_by_region(records)
+        formatted_records = format_records(regional_data)
+        # Create a remote file for each region, and write the records into them
+        writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
+        write_files(writer, structured_data: formatted_records)
+      rescue => e
+        StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
+        log_exception_to_sentry(DailySpoolFileError.new("Error creating spool files.\n\n#{e}"))
       end
-      regional_data = group_submissions_by_region(records)
-      formatted_records = format_records(regional_data)
-      # Create a remote file for each region, and write the records into them
-      writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
-      write_files(writer, structured_data: formatted_records)
-
       true
-    rescue => e
-      StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
-      log_exception_to_sentry(DailySpoolFileError.new("Error creating spool files.\n\n#{e}"))
     end
 
     def group_submissions_by_region(records)
