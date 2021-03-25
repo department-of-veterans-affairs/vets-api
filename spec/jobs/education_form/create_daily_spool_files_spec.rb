@@ -17,6 +17,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context 'scheduling' do
     before do
       allow(Rails.env).to receive('development?').and_return(true)
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(false).at_least(:once)
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
     end
 
     context 'job only runs on business days', run_at: '2016-12-31 00:00:00 EDT' do
@@ -65,6 +67,11 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#format_application' do
+    before do
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(false).at_least(:once)
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
+    end
+    
     it 'logs an error if the record is invalid' do
       application_1606.saved_claim.form = {}.to_json
       application_1606.saved_claim.save!(validate: false)
@@ -111,6 +118,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       before do
         expect(Rails.env).to receive('development?').once.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(false).at_least(:once)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
         FactoryBot.create(:va1990_western_region)
@@ -261,6 +270,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(false).at_least(:once)
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
 
       key_path = "#{::Rails.root}/spec/fixtures/files/idme_cert.crt" # any readable file will work for this spec
       with_settings(Settings.edu.sftp, host: 'localhost', key_path: key_path) do
