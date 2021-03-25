@@ -37,9 +37,8 @@ class SimpleCovHelper
       SimpleCov::Result.from_hash(hash_result)
     end
 
-    SimpleCov::ResultMerger.merge_results(*results).tap do |result|
-      SimpleCov::ResultMerger.store_result(result)
-    end
+    result = SimpleCov::ResultMerger.merge_results(*results)
+    SimpleCov::ResultMerger.store_result(result)
   end
 
   def self.add_filters
