@@ -7,6 +7,7 @@ module ClaimsApi
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
         include ClaimsApi::DocumentValidations
+        include ClaimsApi::EndpointDeprecation
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.write]
@@ -82,6 +83,7 @@ module ClaimsApi
         end
 
         def validate
+          add_deprecation_headers_to_response(response: response)
           render json: validation_success
         end
 
