@@ -11,6 +11,7 @@ module VBADocuments
     IN_FLIGHT_HUNGTIME = Settings.vba_documents.slack.in_flight_notification_hung_time_in_days.to_i
     RENOTIFY_TIME = Settings.vba_documents.slack.renotification_in_minutes.to_i
     UPDATE_HUNGTIME = Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
+    DAILY_NOTIFICATION_HOUR = Settings.vba_documents.slack.daily_notification_hour.to_i
 
     def perform
       {long_flyers_alerted: long_flyers_alert,
@@ -22,10 +23,10 @@ module VBADocuments
 
     def daily_notification
       hour = Time.now.utc.hour - 5
-      if hour.eql?(15)
+      if hour.eql?(DAILY_NOTIFICATION_HOUR)
         text = "Daily Status (worst offenders over past week):\n"
         UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
-          start_time = UploadSubmission.aged_processing(0, status).where('created_at > ?', 7.days.ago)
+          start_time = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago)
                            .first.metadata['status'][status]['start']
           duration = distance_of_time_in_words(Time.now.to_i - start_time)
           text = text + "\tStatus \'#{status}\' for #{duration}\n"
@@ -36,14 +37,14 @@ module VBADocuments
     end
 
     def update_stalled_alert
-      spoof_stalled_updates #todo delete me
+      # spoof_stalled_updates #todo delete me
       alert_on = fetch_stuck_in_state(['uploaded'], UPDATE_HUNGTIME, :minutes)
       text = 'ALERT!! GUIDS in updated for too long!\n'
       alert(alert_on, text)
     end
 
     def long_flyers_alert
-      spoof_long_flyers #todo delete me
+      # spoof_long_flyers #todo delete me
       alert_on = fetch_stuck_in_state(UploadSubmission::IN_FLIGHT_STATUSES, IN_FLIGHT_HUNGTIME, :days)
       text = 'ALERT!! GUIDS in flight for too long!\n'
       alert(alert_on, text)
