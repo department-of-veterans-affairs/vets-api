@@ -26,7 +26,7 @@ module CovidVaccine
                                                  reference: submission.submission_uuid)
       handle_success(submission, notify_response)
     rescue => e
-      handle_errors(e, submission&.submission_uuid)
+      handle_errors(e, record_id)
     end
 
     def handle_success(submission, notify_response)
@@ -34,8 +34,8 @@ module CovidVaccine
       StatsD.increment(STATSD_SUCCESS_NAME)
     end
 
-    def handle_errors(ex, submission_uuid)
-      log_exception_to_sentry(ex, { submission_uuid: submission_uuid })
+    def handle_errors(ex, record_id)
+      log_exception_to_sentry(ex, { record_id: record_id })
       StatsD.increment(STATSD_ERROR_NAME)
 
       if ex.respond_to?(:status_code)
