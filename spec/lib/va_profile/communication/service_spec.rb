@@ -2,12 +2,25 @@
 
 require 'rails_helper'
 require 'va_profile/communication/service'
-require 'va_profile/models/communication_item_group'
 
 describe VAProfile::Communication::Service do
   let(:user) { build(:user, :loa3) }
 
+  before do
+    allow(user).to receive(:vet360_id).and_return('18277')
+  end
+
   subject { described_class.new(user) }
+
+  describe '#update_communication_permission' do
+    context 'without an existing communication permission' do
+      it 'posts to communication-permissions' do
+        VCR.use_cassette('va_profile/communication/post_communication_permissions') do
+          subject.update_communication_permission(build(:communication_item))
+        end
+      end
+    end
+  end
 
   describe '#communication_items' do
     it 'gets communication items' do
