@@ -503,7 +503,7 @@ GEM
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
-    jwt (2.2.1)
+    jwt (2.2.2)
     kramdown (2.3.0)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -1062,8 +1062,6 @@ DEPENDENCIES
   sentry-raven
   shrine
   sidekiq (~> 5.0)
-  sidekiq-ent!
-  sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov (< 0.18)
   slack-notify
