@@ -15,7 +15,6 @@ module CovidVaccine
     # submission_id is the CovidVaccine::V0::ExpandedRegistrationSubmission record id, not to be confused with sid
     def perform(submission_id)
       expanded_reg_sub = CovidVaccine::V0::ExpandedRegistrationSubmission.find(submission_id)
-      return false if expanded_reg_sub.nil?
       return false if expanded_reg_sub.email_confirmation_id.present?
 
       notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
