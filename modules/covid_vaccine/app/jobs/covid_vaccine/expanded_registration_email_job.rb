@@ -12,19 +12,19 @@ module CovidVaccine
     STATSD_ERROR_NAME = 'worker.covid_vaccine_expanded_registration_email.error'
     STATSD_SUCCESS_NAME = 'worker.covid_vaccine_expanded_registration_email.success'
 
-    def perform(record_id, email, date)
+    def perform(record_id, email, datestring)
       submission = CovidVaccine::V0::ExpandedRegistrationSubmission.find_by(id: record_id)
       if submission.nil?
         log_message_to_sentry('No Record found!', :warn, { record_id: record_id, email: email })
         return
       end
       return if submission.email_confirmation_id.present?
-      
+
       notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
       template_id ||= Settings.vanotify.services.va_gov.template_id.covid_vaccine_registration
 
       notify_response = notify_client.send_email(email_address: email, template_id: template_id,
-                                                 personalisation: { 'date' => date,
+                                                 personalisation: { 'date' => datestring,
                                                                     'confirmation_id' => submission.submission_uuid },
                                                  reference: submission.submission_uuid)
       handle_success(submission, notify_response)

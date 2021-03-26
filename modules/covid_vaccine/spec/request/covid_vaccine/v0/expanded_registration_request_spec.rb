@@ -128,9 +128,9 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
           .to change(CovidVaccine::V0::ExpandedRegistrationSubmission, :count).by(1)
       end
 
-      xit 'kicks off the email confirmation job' do
+      it 'kicks off the email confirmation job' do
         expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
-          .to change(CovidVaccine::SubmissionJob.jobs, :size).by(1)
+          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
       end
     end
   end

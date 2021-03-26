@@ -14,8 +14,11 @@ module CovidVaccine
         record = CovidVaccine::V0::ExpandedRegistrationSubmission.create!({ submission_uuid: SecureRandom.uuid,
                                                                             raw_form_data: raw_form_data })
 
-        # TODO: perform_async email confirmation job
-        # CovidVaccine::SubmissionJob.perform_async(record.id)
+        formatted_date = record.created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+        CovidVaccine::ExpandedRegistrationEmailJob.perform_async(record.id,
+                                                                 raw_form_data[:email],
+                                                                 formatted_date)
+
         render json: record, serializer: CovidVaccine::V0::ExpandedRegistrationSerializer, status: :created
       end
 
