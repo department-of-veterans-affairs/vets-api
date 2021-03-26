@@ -14,7 +14,7 @@ module VAProfile
       def update_communication_permission(communication_item)
         communication_item.va_profile_id = @user.vet360_id
 
-        perform(:post, "#{get_path_ids}communication-permissions", communication_item.in_json)
+        perform(:post, "#{get_path_ids}communication-permissions", communication_item.in_json).body
       end
 
       def communication_items

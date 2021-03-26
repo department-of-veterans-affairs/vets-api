@@ -16,7 +16,24 @@ describe VAProfile::Communication::Service do
     context 'without an existing communication permission' do
       it 'posts to communication-permissions', run_at: '2021-03-24T22:38:21Z' do
         VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do
-          subject.update_communication_permission(build(:communication_item))
+          res = subject.update_communication_permission(build(:communication_item))
+          expect(res).to eq(
+            {"tx_audit_id"=>"3e776301-4794-402a-8a99-67d473232b6c",
+             "status"=>"COMPLETED_SUCCESS",
+             "bio"=>
+              {"create_date"=>"2021-03-24T22:38:21Z",
+               "update_date"=>"2021-03-24T22:38:21Z",
+               "tx_audit_id"=>"3e776301-4794-402a-8a99-67d473232b6c",
+               "source_system"=>"VETSGOV",
+               "source_date"=>"2021-03-24T22:38:21Z",
+               "communication_permission_id"=>46,
+               "va_profile_id"=>18277,
+               "communication_channel_id"=>1,
+               "communication_item_id"=>2,
+               "communication_channel_name"=>"Text",
+               "communication_item_common_name"=>"RX Prescription Refill Reminder",
+               "allowed"=>false}}
+          )
         end
       end
     end
