@@ -8,10 +8,7 @@ module VBADocuments
     def process_manual_status_changes(guids, from, to, error = {})
       # validate parameters passed
       raise INVALID_PARAMETERS if ([from, to] & UploadSubmission::ALL_STATUSES) != [from, to]
-
-      if to.eql? 'error'
-        raise ERROR_STATUS_VALIDATION unless error.keys == %w[code detail]
-      end
+      raise ERROR_STATUS_VALIDATION if to.eql?('error') && error.keys != %w[code detail]
 
       invalid_guids = []
       guids.each do |g|
