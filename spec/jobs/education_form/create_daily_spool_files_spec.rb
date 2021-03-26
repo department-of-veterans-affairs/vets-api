@@ -62,6 +62,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'does not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
       # Sanity check that this *is* an informal holiday we're testing
       expect(Holidays.on(Time.zone.today, :us, :informal).first[:name]).to eq("April Fool's Day")
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
       expect(subject).to receive(:write_files)
       expect(subject.perform).to be true
     end
@@ -128,6 +129,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       it 'processes the valid messages' do
         expect(subject).to receive(:log_exception_to_sentry).at_least(:once)
+        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
         expect(Dir[spool_files].count).to eq(2)
       end
