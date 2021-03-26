@@ -10,8 +10,8 @@ class SpoolFileEvent < ApplicationRecord
   def self.build_event(rpo, filename)
     filename_rpo_date = filename.match(/(.+)_(.+)_/)[1]
     find_by_sql = sanitize_sql_for_conditions(['rpo = :rpo AND filename like :filename',
-                                               rpo: rpo,
-                                               filename: "#{filename_rpo_date}%"])
+                                               { rpo: rpo,
+                                                 filename: "#{filename_rpo_date}%" }])
     event = find_by(find_by_sql)
     if event.present?
       event.update(retry_attempt: event.retry_attempt + 1) if event.successful_at.nil?

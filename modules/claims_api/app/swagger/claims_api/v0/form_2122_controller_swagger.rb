@@ -9,6 +9,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122' do
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Gets schema for POA form.'
           key :description, 'Returns schema to automatically generate a POA form.'
           key :operationId, 'get2122JsonSchema'
@@ -18,6 +21,14 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           response 200 do
             key :description, 'schema response'
@@ -46,7 +57,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -55,6 +66,9 @@ module ClaimsApi
         end
 
         operation :post do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Submit a POA form.'
           key(
             :description,
@@ -74,149 +88,6 @@ module ClaimsApi
           key :tags, [
             'Power of Attorney'
           ]
-
-          security do
-            key :apikey, []
-          end
-
-          parameter do
-            key :name, 'X-VA-SSN'
-            key :in, :header
-            key :description, 'SSN of Veteran being represented'
-            key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-First-Name'
-            key :in, :header
-            key :description, 'First Name of Veteran being represented'
-            key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-Last-Name'
-            key :in, :header
-            key :description, 'Last Name of Veteran being represented'
-            key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-Birth-Date'
-            key :in, :header
-            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-LOA'
-            key :in, :header
-            key :description, 'The level of assurance of the user making the request'
-            key :example, '3'
-            key :required, true
-            key :type, :string
-          end
-
-          request_body do
-            key :description, 'JSON API Payload of Veteran being submitted'
-            key :required, true
-            content 'application/json' do
-              schema do
-                key :'$ref', :Form2122Input
-              end
-            end
-          end
-
-          response 200 do
-            key :description, '0966 response'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:data]
-                property :data do
-                  key :'$ref', :Form2122Output
-                end
-              end
-            end
-          end
-
-          response 401 do
-            key :description, 'Unauthorized'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:errors]
-                property :errors do
-                  key :type, :array
-                  items do
-                    key :'$ref', :NotAuthorizedModel
-                  end
-                end
-              end
-            end
-          end
-
-          response 422 do
-            key :description, 'Unprocessable entity'
-            content 'application/json' do
-              schema do
-                key :type, :object
-                key :required, [:errors]
-                property :errors do
-                  key :type, :array
-                  items do
-                    key :'$ref', :UnprocessableEntityModel
-                  end
-                end
-              end
-            end
-          end
-        end
-      end
-
-      swagger_path '/forms/2122/{id}' do
-        operation :put do
-          key :summary, 'Upload a signed 21-22 document.'
-          key(
-            :description,
-            <<~X
-              Accepts a document binary as part of a multipart payload. Use this PUT endpoint after the POST endpoint for uploading the signed 21-22 PDF form.
-            X
-          )
-          key :operationId, 'upload2122Attachments'
-          key :produces, [
-            'application/json'
-          ]
-          key :tags, [
-            'Power of Attorney'
-          ]
-
-          parameter do
-            key :name, :id
-            key :in, :path
-            key :description, 'UUID given when Power of Attorney was submitted'
-            key :required, true
-            key :type, :uuid
-          end
 
           parameter do
             key :name, 'apikey'
@@ -259,10 +130,144 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-EDIPI'
+            key :name, 'X-VA-User'
             key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
+            key :description, 'VA username of the person making the request'
             key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
+          request_body do
+            key :description, 'JSON API Payload of Veteran being submitted'
+            key :required, true
+            content 'application/json' do
+              schema do
+                key :$ref, :Form2122Input
+              end
+            end
+          end
+
+          response 200 do
+            key :description, '0966 response'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :$ref, :Form2122Output
+                end
+              end
+            end
+          end
+
+          response 401 do
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :UnprocessableEntityModel
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      swagger_path '/forms/2122/{id}' do
+        operation :put do
+          security do
+            key :apikey, []
+          end
+          key :summary, 'Upload a signed 21-22 document.'
+          key(
+            :description,
+            <<~X
+              Accepts a document binary as part of a multipart payload. Use this PUT endpoint after the POST endpoint for uploading the signed 21-22 PDF form.
+            X
+          )
+          key :operationId, 'upload2122Attachments'
+          key :produces, [
+            'application/json'
+          ]
+          key :tags, [
+            'Power of Attorney'
+          ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, :id
+            key :in, :path
+            key :description, 'UUID given when Power of Attorney was submitted'
+            key :required, true
+            key :type, :uuid
+          end
+
+          parameter do
+            key :name, 'X-VA-SSN'
+            key :in, :header
+            key :description, 'SSN of Veteran being represented'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-First-Name'
+            key :in, :header
+            key :description, 'First Name of Veteran being represented'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Last-Name'
+            key :in, :header
+            key :description, 'Last Name of Veteran being represented'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Birth-Date'
+            key :in, :header
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
+            key :required, true
             key :type, :string
           end
 
@@ -298,7 +303,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form2122Output
+                  key :$ref, :Form2122Output
                 end
               end
             end
@@ -313,7 +318,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -329,7 +334,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
@@ -345,7 +350,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -354,6 +359,9 @@ module ClaimsApi
         end
 
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Check POA status by ID.'
           key :description, 'Based on ID, returns a 21-22 submission and current status.'
           key :operationId, 'get2122poa'
@@ -361,8 +369,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -426,7 +438,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form2122Output
+                  key :$ref, :Form2122Output
                 end
               end
             end
@@ -441,7 +453,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -457,7 +469,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
@@ -468,6 +480,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122/active' do
         operation :get do
+          security do
+            key :apikey, []
+          end
           key :summary, 'Check active POA status.'
           key(
             :description,
@@ -480,8 +495,12 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :bearer_token, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
@@ -545,7 +564,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form2122NoPreviousPOAOutput
+                  key :$ref, :Form2122NoPreviousPOAOutput
                 end
               end
             end
@@ -560,7 +579,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -576,7 +595,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NoPOAFound
+                    key :$ref, :NoPOAFound
                   end
                 end
               end
@@ -587,6 +606,9 @@ module ClaimsApi
 
       swagger_path '/forms/2122/validate' do
         operation :post do
+          security do
+            key :apikey, []
+          end
           key :summary, '21-22 POA form submission test run.'
           key :description, 'Test to make sure the form submission works with your parameters.'
           key :operationId, 'validate2122poa'
@@ -594,15 +616,19 @@ module ClaimsApi
             'Power of Attorney'
           ]
 
-          security do
-            key :bearer_token, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
           end
 
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
             key :description, 'SSN of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -610,7 +636,7 @@ module ClaimsApi
             key :name, 'X-VA-First-Name'
             key :in, :header
             key :description, 'First Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -618,7 +644,7 @@ module ClaimsApi
             key :name, 'X-VA-Last-Name'
             key :in, :header
             key :description, 'Last Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -626,15 +652,7 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
@@ -646,12 +664,21 @@ module ClaimsApi
             key :type, :string
           end
 
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
+          end
+
           request_body do
             key :description, 'JSON API Payload of Veteran requesting POA change'
             key :required, true
             content 'application/json' do
               schema do
-                key :'$ref', :Form2122Input
+                key :$ref, :Form2122Input
               end
             end
           end
@@ -692,7 +719,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -708,7 +735,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end

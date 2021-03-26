@@ -98,7 +98,7 @@ RSpec.describe EducationForm::EducationFacility do
         form = education_benefits_claim.parsed_form
         form['newSchool'] = {
           'address' => {
-            'state': 'IL'
+            state: 'IL'
           }
         }
         education_benefits_claim.saved_claim.form = form.to_json
@@ -132,7 +132,7 @@ RSpec.describe EducationForm::EducationFacility do
         form = education_benefits_claim.parsed_form
         form['educationProgram'] = {
           'address' => {
-            'country': 'PHL'
+            country: 'PHL'
           }
         }
         education_benefits_claim.saved_claim.form = form.to_json

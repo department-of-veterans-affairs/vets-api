@@ -8,10 +8,10 @@ describe AppealsApi::CentralMailUpdater do
   let(:appeal_1) { create(:notice_of_disagreement) }
   let(:appeal_2) { create(:notice_of_disagreement) }
   let(:central_mail_response) do
-    [{ "uuid": appeal_1.id,
-       "status": 'In Process',
-       "errorMessage": '',
-       "lastUpdated": '2018-04-25 00:02:39' }]
+    [{ uuid: appeal_1.id,
+       status: 'In Process',
+       errorMessage: '',
+       lastUpdated: '2018-04-25 00:02:39' }]
   end
 
   before do
@@ -141,14 +141,14 @@ describe AppealsApi::CentralMailUpdater do
     context 'it ignores central mail responses without a uuid (invalid or missing)' do
       before do
         central_mail_response[1] = {
-          "status": 'In Process',
-          "errorMessage": '',
+          status: 'In Process',
+          errorMessage: '',
           lastUpdated: '2018-04-25 00:02:39'
         }
         central_mail_response[2] = {
-          "uuid": '00000000-0000-0000-0000-000000000000',
-          "status": 'In Process',
-          "errorMessage": '',
+          uuid: '00000000-0000-0000-0000-000000000000',
+          status: 'In Process',
+          errorMessage: '',
           lastUpdated: '2018-04-25 00:02:39'
         }
         allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)

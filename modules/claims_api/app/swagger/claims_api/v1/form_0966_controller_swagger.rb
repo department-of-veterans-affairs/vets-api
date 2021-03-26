@@ -52,7 +52,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -100,14 +100,6 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
             key :required, false
             key :type, :string
           end
@@ -164,7 +156,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form0966Output
+                  key :$ref, :Form0966Output
                 end
               end
             end
@@ -179,7 +171,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -195,7 +187,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ForbiddenModel
+                    key :$ref, :ForbiddenModel
                   end
                 end
               end
@@ -211,7 +203,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -265,14 +257,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-User'
             key :in, :header
             key :description, 'VA username of the person making the request'
@@ -295,7 +279,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form0966Output
+                  key :$ref, :Form0966Output
                 end
               end
             end
@@ -310,7 +294,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -326,7 +310,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -346,6 +330,38 @@ module ClaimsApi
 
           security do
             key :bearer_token, []
+          end
+
+          parameter do
+            key :name, 'X-VA-SSN'
+            key :in, :header
+            key :description, 'SSN of Veteran being represented'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-First-Name'
+            key :in, :header
+            key :description, 'First Name of Veteran being represented'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Last-Name'
+            key :in, :header
+            key :description, 'Last Name of Veteran being represented'
+            key :required, false
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Birth-Date'
+            key :in, :header
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
+            key :required, false
+            key :type, :string
           end
 
           request_body do
@@ -415,7 +431,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -431,7 +447,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
