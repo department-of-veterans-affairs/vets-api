@@ -14,9 +14,17 @@ module VBADocuments
     DAILY_NOTIFICATION_HOUR = Settings.vba_documents.slack.daily_notification_hour.to_i
 
     def perform
-      {long_flyers_alerted: long_flyers_alert,
-       upload_stalled_alerted: upload_stalled_alert,
-       daily_notification: daily_notification}
+      return unless Settings.vba_documents.slack.enabled
+
+      Rails.logger.info('VBADocuments::SlackNotifier starting.')
+      begin
+        results = { long_flyers_alerted: long_flyers_alert,
+                    upload_stalled_alerted: upload_stalled_alert,
+                    daily_notification: daily_notification }
+      rescue => e
+        results = e
+      end
+      Rails.logger.info('VBADocuments::SlackNotifier had results', results)
     end
 
     private
@@ -28,9 +36,10 @@ module VBADocuments
         UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
           model = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
           next unless model
+
           start_time = model.metadata['status'][status]['start']
           duration = distance_of_time_in_words(Time.now.to_i - start_time)
-          text = text + "\tStatus \'#{status}\' for #{duration}\n"
+          text += "\tStatus \'#{status}\' for #{duration}\n"
         end
         resp = send_to_slack(text)
       end
@@ -52,7 +61,7 @@ module VBADocuments
     end
 
     def send_to_slack(text)
-      Faraday.post(SLACK_URL, "{\"text\": \"#{text}\"}", "Content-Type" => "application/json")
+      Faraday.post(SLACK_URL, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
     end
 
     def add_notification_timestamp(models)
@@ -63,82 +72,79 @@ module VBADocuments
       end
     end
 
-    def spoof_stalled_updates #todo delete method
-      3.times do |i|
-        u = UploadSubmission.new
-        status = 'uploaded'
-        u.status = status
-        u.save!
-        u.metadata['status'][status]['start'] = (6 + i).hours.ago.to_i
-        u.save!
-      end
-    end
+    # def spoof_stalled_updates
+    #   # TODO: delete method
+    #   3.times do |i|
+    #     u = UploadSubmission.new
+    #     status = 'uploaded'
+    #     u.status = status
+    #     u.save!
+    #     u.metadata['status'][status]['start'] = (6 + i).hours.ago.to_i
+    #     u.save!
+    #   end
+    # end
 
-    def spoof_long_flyers #todo delete method
-      UploadSubmission.destroy_all
-      1.times do |i|
-        u = UploadSubmission.new
-        status = 'received'
-        u.status = status
-        u.save!
-        u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
-        u.save!
-      end
-      3.times do |i|
-        u = UploadSubmission.new
-        status = 'processing'
-        u.status = status
-        u.save!
-        u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
-        u.save!
-      end
-      20.times do |i|
-        status = 'success'
-        u = UploadSubmission.new
-        u.status = status
-        u.save!
-        u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
-        u.save!
-      end
-      puts 'done with spoof'
-    end
+    # def spoof_long_flyers
+    #   # TODO: delete method
+    #   UploadSubmission.destroy_all
+    #   1.times do |i|
+    #     u = UploadSubmission.new
+    #     status = 'received'
+    #     u.status = status
+    #     u.save!
+    #     u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
+    #     u.save!
+    #   end
+    #   3.times do |i|
+    #     u = UploadSubmission.new
+    #     status = 'processing'
+    #     u.status = status
+    #     u.save!
+    #     u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
+    #     u.save!
+    #   end
+    #   20.times do |i|
+    #     status = 'success'
+    #     u = UploadSubmission.new
+    #     u.status = status
+    #     u.save!
+    #     u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
+    #     u.save!
+    #   end
+    # end
 
     def alert(alert_on, initial_text)
       guids_found = false
       text = initial_text
-      alert_on.each_pair do |status,models|
-        text = text + "#{status.upcase}:\n"
+      alert_on.each_pair do |status, models|
+        text += "#{status.upcase}:\n"
         models.each do |m|
           start_time = m.metadata['status'][status]['start']
           duration = distance_of_time_in_words(Time.now.to_i - start_time)
-          text = text + "\tGUID: #{m.guid} for #{duration}\n"
+          text += "\tGUID: #{m.guid} for #{duration}\n"
           guids_found = true
         end
       end
       resp = send_to_slack(text) if guids_found
-      if resp&.success?
-        add_notification_timestamp(alert_on.values.flatten)
-      end
+      add_notification_timestamp(alert_on.values.flatten) if resp&.success?
       resp&.success?
     end
 
     def fetch_stuck_in_state(states, hungtime, unit_of_measure)
       alerting_on = {}
       states.each do |status|
-        alerting_on[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status).limit(10).select do |m|
-          last_notified = m.metadata['last_slack_notification'].to_i #nil to zero
+        alerting_on[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status)
+                                              .limit(10).select do |m|
+          last_notified = m.metadata['last_slack_notification'].to_i # nil to zero
           delta = Time.now.to_i - last_notified
-          notify = delta > RENOTIFY_TIME*60
-          #puts "notify is #{notify} for status #{status} delta is #{delta} with last notified being #{last_notified}"
+          notify = delta > RENOTIFY_TIME * 60
+          # puts "notify is #{notify} for status #{status} delta is #{delta} with last notified being #{last_notified}"
           notify
         end
       end
       alerting_on
     end
-
   end
 end
-=begin
-load('./modules/vba_documents/app/workers/vba_documents/slack_notifier.rb')
-SlackNotifier.new.perform
-=end
+# load('./modules/vba_documents/app/workers/vba_documents/slack_notifier.rb')
+# SlackNotifier.new.perform

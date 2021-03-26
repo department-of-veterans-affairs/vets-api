@@ -23,11 +23,11 @@ module VBADocuments
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 
     # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
-    scope :aged_processing, -> (look_back, unit_of_measure, status) {
+    scope :aged_processing, lambda { |look_back, unit_of_measure, status|
       where(status: status)
-          .where("(metadata -> 'status' -> '#{status}' -> 'start')::integer < ?",
-                 look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
-          .order("(metadata -> 'status' -> '#{status}' -> 'start')::integer asc")
+        .where("(metadata -> 'status' -> '#{status}' -> 'start')::integer < ?",
+               look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
+        .order("(metadata -> 'status' -> '#{status}' -> 'start')::integer asc")
     }
 
     after_save :report_errors

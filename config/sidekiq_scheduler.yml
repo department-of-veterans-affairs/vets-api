@@ -94,6 +94,11 @@ MaintenanceWindowRefresh:
   class: PagerDuty::PollMaintenanceWindows
   description: "Poll PagerDuty API for maintenance window information"
 
+VBADocuments::SlackNotifier:
+  every: "1h"
+  class: VBADocuments::SlackNotifier
+  description: "Notifies slack channel if certain benefits states get stuck"
+
 VBADocuments::UploadScanner:
   cron: "0,30 * * * * * America/New_York"
   class: VBADocuments::UploadScanner
