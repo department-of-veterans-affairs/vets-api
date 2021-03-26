@@ -138,16 +138,16 @@ RSpec.describe 'Disability Claims ', type: :request do
         with_okta_user(scopes) do |auth_header|
           par = json_data
           par['data']['attributes']['veteran']['homelessness'] = {
-            "pointOfContact": {
-              "pointOfContactName": 'John Doe',
-              "primaryPhone": {
-                "areaCode": '555',
-                "phoneNumber": '555-5555'
+            pointOfContact: {
+              pointOfContactName: 'John Doe',
+              primaryPhone: {
+                areaCode: '555',
+                phoneNumber: '555-5555'
               }
             },
-            "currentlyHomeless": {
-              "homelessSituationType": 'NOT_A_HOMELESS_TYPE',
-              "otherLivingSituation": 'other living situations'
+            currentlyHomeless: {
+              homelessSituationType: 'NOT_A_HOMELESS_TYPE',
+              otherLivingSituation: 'other living situations'
             }
           }
           post path, params: par.to_json, headers: headers.merge(auth_header)
@@ -160,16 +160,16 @@ RSpec.describe 'Disability Claims ', type: :request do
         with_okta_user(scopes) do |auth_header|
           par = json_data
           par['data']['attributes']['veteran']['homelessness'] = {
-            "pointOfContact": {
-              "pointOfContactName": 'John Doe',
-              "primaryPhone": {
-                "areaCode": '555',
-                "phoneNumber": '555-5555'
+            pointOfContact: {
+              pointOfContactName: 'John Doe',
+              primaryPhone: {
+                areaCode: '555',
+                phoneNumber: '555-5555'
               }
             },
-            "homelessnessRisk": {
-              "homelessnessRiskSituationType": 'NOT_RISK_TYPE',
-              "otherLivingSituation": 'other living situations'
+            homelessnessRisk: {
+              homelessnessRiskSituationType: 'NOT_RISK_TYPE',
+              otherLivingSituation: 'other living situations'
             }
           }
           post path, params: par.to_json, headers: headers.merge(auth_header)
@@ -405,12 +405,12 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
     let(:binary_params) do
-      { 'attachment1': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
-        'attachment2': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+      { attachment1: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
+        attachment2: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
     end
     let(:base64_params) do
-      { 'attachment1': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf"),
-        'attachment2': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+      { attachment1: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf"),
+        attachment2: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
     end
 
     it 'upload 526 binary form through PUT' do

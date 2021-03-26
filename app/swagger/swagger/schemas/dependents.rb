@@ -14,7 +14,7 @@ module Swagger
             property :persons do
               items do
                 key :type, :object
-                key :'$ref', :Persons
+                key :$ref, :Persons
               end
             end
           end

@@ -6,6 +6,8 @@ require 'sftp_writer/factory'
 
 module EducationForm
   WINDOWS_NOTEPAD_LINEBREAK = "\r\n"
+  STATSD_KEY = 'worker.education_benefits_claim'
+  STATSD_FAILURE_METRIC = "#{STATSD_KEY}.failed_spool_file"
 
   class FormattingError < StandardError
   end
@@ -28,30 +30,32 @@ module EducationForm
     # Setting the default value to the `unprocessed` scope is safe
     # because the execution of the query itself is deferred until the
     # data is accessed by the code inside of the method.
-    def perform(
-      records: EducationBenefitsClaim.unprocessed.includes(:saved_claim, :education_stem_automated_decision).where(
-        saved_claims: {
-          form_id: LIVE_FORM_TYPES
-        },
-        education_stem_automated_decisions: { automated_decision_state: AUTOMATED_DECISIONS_STATES }
-      )
-    )
+    def perform
+      begin
+        records = EducationBenefitsClaim.unprocessed.includes(:saved_claim, :education_stem_automated_decision).where(
+          saved_claims: {
+            form_id: LIVE_FORM_TYPES
+          },
+          education_stem_automated_decisions: { automated_decision_state: AUTOMATED_DECISIONS_STATES }
+        )
+        return false if federal_holiday?
 
-      return false if federal_holiday?
-
-      # Group the formatted records into different regions
-      if records.count.zero?
-        log_info('No records to process.')
-        return true
-      else
-        log_info("Processing #{records.count} application(s)")
+        # Group the formatted records into different regions
+        if records.count.zero?
+          log_info('No records to process.')
+          return true
+        else
+          log_info("Processing #{records.count} application(s)")
+        end
+        regional_data = group_submissions_by_region(records)
+        formatted_records = format_records(regional_data)
+        # Create a remote file for each region, and write the records into them
+        writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
+        write_files(writer, structured_data: formatted_records)
+      rescue => e
+        StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
+        log_exception_to_sentry(DailySpoolFileError.new("Error creating spool files.\n\n#{e}"))
       end
-      regional_data = group_submissions_by_region(records)
-      formatted_records = format_records(regional_data)
-      # Create a remote file for each region, and write the records into them
-      writer = SFTPWriter::Factory.get_writer(Settings.edu.sftp).new(Settings.edu.sftp, logger: logger)
-      write_files(writer, structured_data: formatted_records)
-
       true
     end
 
@@ -74,7 +78,6 @@ module EducationForm
       raw_groups.delete_if { |_, v| v.empty? }
     end
 
-    # rubocop:disable Metrics/MethodLength
     # Write out the combined spool files for each region along with recording
     # and tracking successful transfers.
     # Creates or updates an SpoolFileEvent for tracking and to prevent multiple files per RPO per date during retries
@@ -100,7 +103,7 @@ module EducationForm
             records.each { |r| r.record.update(processed_at: Time.zone.now) }
             spool_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
           rescue => e
-            StatsD.increment("worker.education_benefits_claim.failed_spool_file.#{region_id}")
+            StatsD.increment("#{STATSD_FAILURE_METRIC}.#{region_id}")
             attempt_msg = if spool_file_event.retry_attempt.zero?
                             'initial attempt'
                           else
@@ -115,7 +118,6 @@ module EducationForm
     ensure
       writer.close
     end
-    # rubocop:enable Metrics/MethodLength
 
     def format_application(data, rpo: 0)
       # This check was added to ensure that the model passes validation before
@@ -135,7 +137,7 @@ module EducationForm
     end
 
     def inform_on_error(claim, region, error = nil)
-      StatsD.increment("worker.education_benefits_claim.failed_formatting.#{region}.22-#{claim.form_type}")
+      StatsD.increment("#{STATSD_KEY}.failed_formatting.#{region}.22-#{claim.form_type}")
       exception = if error.present?
                     FormattingError.new("Could not format #{claim.confirmation_number}.\n\n#{error}")
                   else
@@ -168,7 +170,7 @@ module EducationForm
     # per-rpo, rather than the number of records that were *prepared* to be sent.
     def track_submissions(region_id)
       stats[region_id].each do |type, count|
-        StatsD.gauge("worker.education_benefits_claim.transmissions.#{region_id}.#{type}", count)
+        StatsD.gauge("#{STATSD_KEY}.transmissions.#{region_id}.#{type}", count)
       end
     end
 
