@@ -53,12 +53,12 @@ class VetPaymentHistorySerializer < ActiveModel::Serializer
 
   def process_return_payment(payment)
     @returned_payments << {
-      'returned_check_issue_dt': payment[:payment_date],
-      'returned_check_cancel_dt': payment[:return_payment][:return_date],
-      'returned_check_amount': ActiveSupport::NumberHelper.number_to_currency(payment[:payment_amount]),
-      'returned_check_number': payment[:return_payment][:check_trace_number],
-      'returned_check_type': payment[:payment_type],
-      'return_reason': payment[:return_payment][:return_reason]
+      returned_check_issue_dt: payment[:payment_date],
+      returned_check_cancel_dt: payment[:return_payment][:return_date],
+      returned_check_amount: ActiveSupport::NumberHelper.number_to_currency(payment[:payment_amount]),
+      returned_check_number: payment[:return_payment][:check_trace_number],
+      returned_check_type: payment[:payment_type],
+      return_reason: payment[:return_payment][:return_reason]
     }
   end
 

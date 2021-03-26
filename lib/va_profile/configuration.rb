@@ -5,6 +5,8 @@ require_relative 'models/base'
 
 module VAProfile
   class Configuration < Common::Client::Configuration::REST
+    SETTINGS = Settings.va_profile || Settings.vet360
+
     def self.base_request_headers
       super.merge('cufSystemName' => VAProfile::Models::Base::SOURCE_SYSTEM)
     end

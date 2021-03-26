@@ -119,8 +119,8 @@ bip:
   claims:
     url: "https://claims-uat.dev8.bip.va.gov"
 
-# Settings for Vet360
-vet360:
+# Settings for VAProfile
+va_profile:
   url: "https://int.vet360.va.gov"
   contact_information:
     cache_enabled: false
@@ -825,21 +825,13 @@ vanotify:
       template_id:
         form526_confirmation_email: fake_template_id
         covid_vaccine_registration: fake_template_id
+        direct_deposit_edu: edu_template_id
+        direct_deposit_comp_pen: comp_pen_template_id
     lighthouse:
       api_key: fake_secret
       template_id:
         disconnection_template: fake_template_id
         connection_template: fake_template_id
-
-  # will be removed once the vanotify_service_enhancement feature toggle is removed
-  api_key: fake_secret
-  template_id:
-    form526_confirmation_email: fake_template_id
-    connection_template: fake_template_id
-    disconnection_template: fake_template_id
-    covid_vaccine_registration: fake_template_id
-    direct_deposit_edu: edu_template_id
-    direct_deposit_comp_pen: comp_pen_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications

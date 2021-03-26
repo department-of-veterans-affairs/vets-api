@@ -42,6 +42,10 @@ features:
     description: >
       Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
       Note: When this is enabled, the 'Sign in' button will be hidden
+  covid_vaccine_registration_frontend_enable_expanded_eligibility:
+    actor_type: user
+    description: >
+      Toggles the 'continue' button to launch the new expanded eligibility VAFS app
   covid_vaccine_registration:
     actor_type: user
     description: >
@@ -410,11 +414,6 @@ features:
     enable_in_development: true
     description: >
       Manage dependent removal from view dependent page
-  vanotify_service_enhancement:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Allow consumer to use service specific VaNotify client. Owned by va-notify team.
   subform_8940_4192:
     actor_type: user
     enable_in_development: true
