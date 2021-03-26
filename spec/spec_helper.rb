@@ -68,7 +68,7 @@ unless ENV['NOCOVERAGE']
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     # End Modules
 
-    SimpleCov.minimum_coverage_by_file 90 unless ENV['CIRCLE_JOB']
+    SimpleCov.minimum_coverage_by_file 30 unless ENV['CIRCLE_JOB']
     SimpleCov.refuse_coverage_drop unless ENV['CIRCLE_JOB']
   end
 end
