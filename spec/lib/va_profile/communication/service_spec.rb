@@ -14,8 +14,8 @@ describe VAProfile::Communication::Service do
 
   describe '#update_communication_permission' do
     context 'without an existing communication permission' do
-      it 'posts to communication-permissions' do
-        VCR.use_cassette('va_profile/communication/post_communication_permissions') do
+      it 'posts to communication-permissions', run_at: '2021-03-24T22:38:21Z' do
+        VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do
           subject.update_communication_permission(build(:communication_item))
         end
       end
