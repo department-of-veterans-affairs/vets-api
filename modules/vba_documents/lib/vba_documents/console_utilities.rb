@@ -10,7 +10,7 @@ module VBADocuments
       raise INVALID_PARAMETERS if ([from, to] & UploadSubmission::ALL_STATUSES) != [from, to]
 
       if to.eql? 'error'
-        raise ERROR_STATUS_VALIDATION unless error.keys == ['code', 'detail']
+        raise ERROR_STATUS_VALIDATION unless error.keys == %w[code detail]
       end
 
       invalid_guids = []
@@ -18,13 +18,13 @@ module VBADocuments
         invalid_guid = manual_status_change(g, from, to, error)
         invalid_guids << g if invalid_guid
       end
-      puts "invalid GUIDs are: #{invalid_guids}"
+      invalid_guids
     end
 
     private
 
     def manual_status_change(guid, from, to, error)
-      r = UploadSubmission.find_by_guid guid
+      r = UploadSubmission.find_by guid: guid
       if r&.status.eql?(from)
         UploadSubmission.transaction do
           # record the promotion
@@ -47,12 +47,10 @@ module VBADocuments
   end
 end
 
-=begin
-require './modules/vba_documents/lib/vba_documents/console_utilities.rb'
-include VBADocuments
-include ConsoleUtilities
-error_hash = {'code'=>'DOC102', 'detail'=>'duplicates...'}
-from = 'success'
-to = 'vbms'
-invalid_guids = process_manual_status_changes(guids,from,to,error_hash)
-=end
+# require './modules/vba_documents/lib/vba_documents/console_utilities.rb'
+# include VBADocuments
+# include ConsoleUtilities
+# error_hash = {'code'=>'DOC102', 'detail'=>'duplicates...'}
+# from = 'success'
+# to = 'vbms'
+# invalid_guids = process_manual_status_changes(guids,from,to,error_hash)
