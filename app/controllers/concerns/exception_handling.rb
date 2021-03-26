@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'common/client/errors'
+require 'json_schema/json_api_missing_attribute'
 
 module ExceptionHandling
   extend ActiveSupport::Concern
@@ -9,7 +10,8 @@ module ExceptionHandling
   # In addition to Common::Exceptions::BackendServiceException that have sentry_type :none the following exceptions
   # will also be skipped.
   SKIP_SENTRY_EXCEPTION_TYPES = [
-    Breakers::OutageException
+    Breakers::OutageException,
+    JsonSchema::JsonApiMissingAttribute
   ].freeze
 
   private
@@ -44,6 +46,8 @@ module ExceptionHandling
         when Common::Client::Errors::ClientError
           # SSLError, ConnectionFailed, SerializationError, etc
           Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
+        when JsonSchema::JsonApiMissingAttribute
+          exception
         else
           Common::Exceptions::InternalServerError.new(exception)
         end
@@ -60,7 +64,12 @@ module ExceptionHandling
   # rubocop:enable Metrics/BlockLength
 
   def render_errors(va_exception)
-    render json: { errors: va_exception.errors }, status: va_exception.status_code
+    case va_exception
+    when JsonSchema::JsonApiMissingAttribute
+      render json: va_exception.to_json_api, status: va_exception.code
+    else
+      render json: { errors: va_exception.errors }, status: va_exception.status_code
+    end
   end
 
   def report_original_exception(exception)
