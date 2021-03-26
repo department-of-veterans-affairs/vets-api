@@ -7,6 +7,7 @@ require 'va_profile/models/telephone'
 require 'va_profile/models/permission'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
+require 'va_profile/configuration'
 
 module VAProfileRedis
   # Facade for VAProfile::ContactInformation::Service. The user_serializer delegates
@@ -178,7 +179,7 @@ module VAProfileRedis
     end
 
     def response_from_redis_or_service
-      return contact_info_service.get_person unless Settings.vet360.contact_information.cache_enabled
+      return contact_info_service.get_person unless VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
 
       do_cached_with(key: @user.uuid) do
         contact_info_service.get_person
