@@ -12,24 +12,21 @@ module CovidVaccine
     STATSD_ERROR_NAME = 'worker.covid_vaccine_expanded_registration_email.error'
     STATSD_SUCCESS_NAME = 'worker.covid_vaccine_expanded_registration_email.success'
 
-    def perform(record_id, email, datestring)
-      submission = CovidVaccine::V0::ExpandedRegistrationSubmission.find_by(id: record_id)
-      if submission.nil?
-        log_message_to_sentry('No Record found!', :warn, { record_id: record_id, email: email })
-        return
-      end
+    def perform(record_id)
+      submission = CovidVaccine::V0::ExpandedRegistrationSubmission.find(record_id)
       return if submission.email_confirmation_id.present?
 
-      notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
-      template_id ||= Settings.vanotify.services.va_gov.template_id.covid_vaccine_registration
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+      template_id = Settings.vanotify.services.va_gov.template_id.covid_vaccine_registration
+      email_address = submission.raw_form_data[:email]
 
-      notify_response = notify_client.send_email(email_address: email, template_id: template_id,
-                                                 personalisation: { 'date' => datestring,
+      notify_response = notify_client.send_email(email_address: email_address, template_id: template_id,
+                                                 personalisation: { 'date' => formatted_date(submission.created_at),
                                                                     'confirmation_id' => submission.submission_uuid },
                                                  reference: submission.submission_uuid)
       handle_success(submission, notify_response)
     rescue => e
-      handle_errors(e, submission.submission_uuid)
+      handle_errors(e, submission&.submission_uuid)
     end
 
     def handle_success(submission, notify_response)
@@ -46,6 +43,12 @@ module CovidVaccine
       else
         raise ex
       end
+    end
+
+    private
+
+    def formatted_date(created_at)
+      created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
   end
 end
