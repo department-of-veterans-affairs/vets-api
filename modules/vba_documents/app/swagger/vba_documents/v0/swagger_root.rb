@@ -15,34 +15,34 @@ module VBADocuments
           end
         end
 
-        tag do
-          key :name, 'document_uploads'
-          key :description, 'VA Benefits document upload functionality'
-          externalDocs do
-            key :description, 'Find more info here'
-            key :url, 'https://developer.va.gov'
-          end
-        end
-
-        server do
-          key :url, 'https://sandbox-api.va.gov/services/vba_documents/{version}'
-          key :description, 'VA.gov API sandbox environment'
-          variable :version do
-            key :default, 'v0'
-          end
-        end
-
-        server do
-          key :url, 'https://api.va.gov/services/vba_documents/{version}'
-          key :description, 'VA.gov API production environment'
-          variable :version do
-            key :default, 'v0'
-          end
-        end
-
-        key :basePath, '/services/vba_documents/v0'
-        key :consumes, ['application/json']
-        key :produces, ['application/json']
+        # tag do
+        #   key :name, 'document_uploads'
+        #   key :description, 'VA Benefits document upload functionality'
+        #   externalDocs do
+        #     key :description, 'Find more info here'
+        #     key :url, 'https://developer.va.gov'
+        #   end
+        # end
+        #
+        # server do
+        #   key :url, 'https://sandbox-api.va.gov/services/vba_documents/{version}'
+        #   key :description, 'VA.gov API sandbox environment'
+        #   variable :version do
+        #     key :default, 'v0'
+        #   end
+        # end
+        #
+        # server do
+        #   key :url, 'https://api.va.gov/services/vba_documents/{version}'
+        #   key :description, 'VA.gov API production environment'
+        #   variable :version do
+        #     key :default, 'v0'
+        #   end
+        # end
+        #
+        # key :basePath, '/services/vba_documents/v0'
+        # key :consumes, ['application/json']
+        # key :produces, ['application/json']
       end
     end
   end
