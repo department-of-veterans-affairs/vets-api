@@ -6,7 +6,7 @@ module VAProfile
       # TODO add validation
       attribute :id, Integer
       attribute :name, String
-      attribute :va_profile_id, String
+      attribute :va_profile_id, Integer
 
       attribute :communication_channels, Array[VAProfile::Models::CommunicationChannel]
 
