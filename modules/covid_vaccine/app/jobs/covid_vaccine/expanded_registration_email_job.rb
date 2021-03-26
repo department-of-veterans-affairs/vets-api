@@ -17,8 +17,8 @@ module CovidVaccine
       expanded_reg_sub = CovidVaccine::V0::ExpandedRegistrationSubmission.find(submission_id)
       return false if expanded_reg_sub.email_confirmation_id.present?
 
-      notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
-      template_id ||= Settings.vanotify.services.va_gov.template_id.covid_vaccine_expanded_registration
+      notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+      template_id = Settings.vanotify.services.va_gov.template_id.covid_vaccine_expanded_registration
 
       email_response = notify_client.send_email(email_address: expanded_reg_sub.email,
                                                 template_id: template_id,
