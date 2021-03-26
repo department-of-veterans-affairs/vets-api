@@ -105,6 +105,10 @@ paths:
                       $ref: '#/components/schemas/FacilityCancelReason'
         '403':
           description: Forbidden, the request contained valid data and was understood by the server, but the server is refusing action. This may be due to the user not having the necessary permissions. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors" 
   '/systems':
     get:
       tags:
