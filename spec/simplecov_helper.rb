@@ -33,8 +33,7 @@ class SimpleCovHelper
 
   def merge_results
     SimpleCov.collate all_results
-  rescue RuntimeError => e
-    puts e
+  rescue RuntimeError
     nil
   end
 
