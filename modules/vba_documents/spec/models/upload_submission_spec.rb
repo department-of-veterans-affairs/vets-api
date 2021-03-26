@@ -286,14 +286,14 @@ describe VBADocuments::UploadSubmission, type: :model do
     Timecop.freeze(time)
     #find nothing
     states.each do |status|
-      ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, status).to_a
+      ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, :days, status).to_a
       expect(ancient_in_flights.count).to eq 0
     end
 
     Timecop.travel(time + 14.days + 1.minute)
     #find four things, one in each state
     states.each do |status|
-      ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, status).to_a
+      ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, :days, status).to_a
       expect(ancient_in_flights.count).to eq 1
     end
   end
