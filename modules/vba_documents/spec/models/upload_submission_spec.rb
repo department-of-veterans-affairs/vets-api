@@ -14,46 +14,46 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:faraday_response) { instance_double('Faraday::Response') }
 
   let(:received_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Received',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{"uuid": 'ignored',
+       "status": 'Received',
+       "errorMessage": '',
+       "lastUpdated": '2018-04-25 00:02:39'}]].to_json
   end
   let(:processing_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'In Process',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{"uuid": 'ignored',
+       "status": 'In Process',
+       "errorMessage": '',
+       "lastUpdated": '2018-04-25 00:02:39'}]].to_json
   end
   let(:success_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Success',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{"uuid": 'ignored',
+       "status": 'Success',
+       "errorMessage": '',
+       "lastUpdated": '2018-04-25 00:02:39'}]].to_json
   end
   let(:processing_success_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Processing Success',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{"uuid": 'ignored',
+       "status": 'Processing Success',
+       "errorMessage": '',
+       "lastUpdated": '2018-04-25 00:02:39'}]].to_json
   end
   let(:error_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Error',
-        "errorMessage": 'Invalid splines',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{"uuid": 'ignored',
+       "status": 'Error',
+       "errorMessage": 'Invalid splines',
+       "lastUpdated": '2018-04-25 00:02:39'}]].to_json
   end
   let(:processing_error_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Processing Error',
-        "errorMessage": 'Invalid splines',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{"uuid": 'ignored',
+       "status": 'Processing Error',
+       "errorMessage": 'Invalid splines',
+       "lastUpdated": '2018-04-25 00:02:39'}]].to_json
   end
   let(:nonsense_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Whowhatnow?',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{"uuid": 'ignored',
+       "status": 'Whowhatnow?',
+       "errorMessage": '',
+       "lastUpdated": '2018-04-25 00:02:39'}]].to_json
   end
   let(:empty_body) do
     [[]].to_json
@@ -215,7 +215,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       it 'calculates status averages' do
         avg_times = VBADocuments::UploadSubmission.status_elapsed_times(1.year.ago, 1.minute.from_now).first
         avg_times_c1 = VBADocuments::UploadSubmission
-                       .status_elapsed_times(1.year.ago, 1.minute.from_now, 'consumer_1').first
+                           .status_elapsed_times(1.year.ago, 1.minute.from_now, 'consumer_1').first
         expect(avg_times['avg_secs'].to_i).to be == 60
         expect(avg_times['min_secs'].to_i).to be == 60
         expect(avg_times['max_secs'].to_i).to be == 60
@@ -275,27 +275,48 @@ describe VBADocuments::UploadSubmission, type: :model do
     end
   end
 
-  it 'can find submissions that have been in-flight for too long' do
-    states = %w(pending uploaded received processing)
-    states.each do |state|
-      u = VBADocuments::UploadSubmission.new
-      u.status = state
-      u.save!
-    end
-    time = Time.zone.now
-    Timecop.freeze(time)
-    #find nothing
-    states.each do |status|
-      ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, :days, status).to_a
-      expect(ancient_in_flights.count).to eq 0
+  context 'aged_processing' do
+    it 'can find submissions that have been in-flight for too long' do
+      states = %w(pending uploaded received processing)
+      states.each do |state|
+        u = VBADocuments::UploadSubmission.new
+        u.status = state
+        u.save!
+      end
+      time = Time.zone.now
+      Timecop.freeze(time)
+      #find nothing
+      states.each do |status|
+        ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, :days, status).to_a
+        expect(ancient_in_flights.count).to eq 0
+      end
+
+      Timecop.travel(time + 14.days + 1.minute)
+      #find four things, one in each state
+      states.each do |status|
+        ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, :days, status).to_a
+        expect(ancient_in_flights.count).to eq 1
+      end
     end
 
-    Timecop.travel(time + 14.days + 1.minute)
-    #find four things, one in each state
-    states.each do |status|
-      ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, :days, status).to_a
-      expect(ancient_in_flights.count).to eq 1
+    it 'can order the aged_processing' do
+      status = 'uploaded'
+      3.times do |i|
+        [:days, :minutes, :hours].each do |unit|
+          u = VBADocuments::UploadSubmission.new
+          u.status = status
+          u.save!
+          u.metadata['status'][status]['start'] = i.send(unit).ago.to_i
+          u.save!
+        end
+      end
+      models = nil
+      Timecop.travel(1.second.from_now) do
+        models = VBADocuments::UploadSubmission.aged_processing(0, :days, status)
+      end
+      times = []
+      models.each { |e| times << e.metadata['status'][status]['start'] }
+      expect(times.sort).to eq times
     end
   end
-  
 end
