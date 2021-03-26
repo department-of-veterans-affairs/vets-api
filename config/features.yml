@@ -418,7 +418,7 @@ features:
   spool_testing_error_1:
     actor_type: user
     description: >
-      Enables spool_file_events tracking rows to used to prevent multiple spool files per RPO per date
+      Enables spool_file_events tracking rows to be used to prevent multiple spool files per RPO per date
   spool_testing_error_2:
     actor_type: user
     description: >
