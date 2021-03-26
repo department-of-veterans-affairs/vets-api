@@ -12,15 +12,6 @@ RSpec.describe VAForms::FormReloader, type: :job do
   end
 
   describe 'importer' do
-    # it 'loads the initial set of data' do
-    #   VCR.use_cassette('va_forms/gql_forms') do
-    #     allow_any_instance_of(VAForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
-    #     expect do
-    #       form_reloader.perform
-    #     end.to change { VAForms::Form.count }.by(1)
-    #   end
-    # end
-
     it 'gets the sha256 when contents are a Tempfile' do
       VCR.use_cassette('va_forms/tempfile') do
         url = 'http://www.vba.va.gov/pubs/forms/26-8599.pdf'
