@@ -12,6 +12,14 @@ RSpec.describe CovidVaccine::ExpandedRegistrationEmailJob, type: :worker do
     create(:covid_vax_expanded_registration, email_confirmation_id: email_confirmation_id)
   end
 
+  around do |example|
+    with_settings(Settings.vanotify, client_url: 'https://fake-vanotify-host.example.com') do
+      with_settings(Settings.vanotify.services.va_gov, api_key: "testkey-#{SecureRandom.uuid}-#{SecureRandom.uuid}") do
+        example.run
+      end
+    end
+  end
+
   describe '#perform' do
     it 'logs message to sentry and returns if no submission exists' do
       with_settings(Settings.sentry, dsn: 'T') do

@@ -19,7 +19,7 @@ module CovidVaccine
         return
       end
       return if submission.email_confirmation_id.present?
-
+      
       notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
       template_id ||= Settings.vanotify.services.va_gov.template_id.covid_vaccine_registration
 
