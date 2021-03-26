@@ -139,7 +139,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-  '/appointments/{type}':
+  '/appointments':
     get:
       tags:
         - appointments
@@ -148,9 +148,9 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - in: path
+        - in: query
           required: true
-          name: "type"
+          name: type
           description: "type of appointment, e.g. 'va' or 'cc' (community care)"
           schema:
             type: string
