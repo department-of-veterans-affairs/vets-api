@@ -53,7 +53,7 @@ pipeline {
                               change_types: ['modified', 'added']).join(' ')
           } catch(IOException e) {
             echo "WARNING: Unable to fetch changed PR files from Github!"
-            echo "${e}"           
+            echo "${e}"
           }
         }
         sh """env=$RAILS_ENV make files='${files_to_lint}' lint"""
@@ -78,7 +78,18 @@ pipeline {
         sh 'env=$RAILS_ENV make spec_parallel'
       }
       post {
-        success {
+        always {
+          stash includes: '/srv/vets-api/src/coverage/**', name: 'parallel-test-results'
+        }
+      }
+    }
+
+    stage('Reporting') {
+      steps {
+        unstash 'parallel-test-results'
+      }
+      post {
+        always {
           archiveArtifacts artifacts: "coverage/**"
           publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
           junit 'log/*.xml'
