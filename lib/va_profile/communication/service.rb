@@ -21,8 +21,11 @@ module VAProfile
         ).body
       end
 
+      def get_communication_permissions
+      end
+
       def communication_items
-        VAProfile::Models::CommunicationItemGroup.create_groups(perform(:get, 'communication-items').body)
+        perform(:get, 'communication-items').body
       end
 
       private
