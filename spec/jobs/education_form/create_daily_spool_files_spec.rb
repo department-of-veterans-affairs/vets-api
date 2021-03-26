@@ -17,7 +17,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   context 'scheduling' do
     before do
       allow(Rails.env).to receive('development?').and_return(true)
-      expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
     end
 
     context 'job only runs on business days', run_at: '2016-12-31 00:00:00 EDT' do
@@ -43,6 +42,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'skips observed holidays' do
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(false).at_least(:once)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
+
         possible_runs.each do |day, should_run|
           Timecop.freeze(Time.zone.parse(day.to_s).beginning_of_day) do
             expect(subject.perform).to be(should_run)
@@ -66,15 +68,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#format_application' do
-    before do
-      expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
-    end
-
     it 'logs an error if the record is invalid' do
       application_1606.saved_claim.form = {}.to_json
       application_1606.saved_claim.save!(validate: false)
 
       expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
 
       subject.format_application(EducationBenefitsClaim.find(application_1606.id))
     end
