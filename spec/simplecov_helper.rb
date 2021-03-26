@@ -5,7 +5,7 @@ require 'active_support/inflector'
 require 'simplecov'
 
 class SimpleCovHelper
-  def self.report_coverage(base_dir: './coverage')
+  def self.report_coverage(base_dir: './coverage_results')
     SimpleCov.start 'rails' do
       skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
 
@@ -32,7 +32,9 @@ class SimpleCovHelper
   end
 
   def merge_results
-    SimpleCov.collate Dir.glob(File.join(SimpleCov.coverage_path, '*', '.resultset.json'))
+    SimpleCov.collate all_results
+  rescue RuntimeError
+    nil
   end
 
   def self.add_filters
