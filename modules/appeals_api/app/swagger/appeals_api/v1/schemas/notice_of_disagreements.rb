@@ -377,6 +377,13 @@ module AppealsApi::V1
             end
           end
         end
+
+        schema :evidenceSubmissionStatus do
+          key :type, :string
+          # TODO: update with actual values
+          key :enum, AppealsApi::NodStatus::STATUSES
+          key :example, 'submitted'
+        end
       end
     end
   end
