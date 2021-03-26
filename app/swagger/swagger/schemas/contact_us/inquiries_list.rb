@@ -9,7 +9,7 @@ module Swagger
         swagger_schema :InquiriesList do
           property :inquiries, type: :array do
             items do
-              key :'$ref', :InquirySummary
+              key :$ref, :InquirySummary
             end
           end
         end

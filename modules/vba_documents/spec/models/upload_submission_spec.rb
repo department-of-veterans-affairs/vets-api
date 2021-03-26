@@ -14,46 +14,46 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:faraday_response) { instance_double('Faraday::Response') }
 
   let(:received_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Received',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{ uuid: 'ignored',
+        status: 'Received',
+        errorMessage: '',
+        lastUpdated: '2018-04-25 00:02:39' }]].to_json
   end
   let(:processing_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'In Process',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{ uuid: 'ignored',
+        status: 'In Process',
+        errorMessage: '',
+        lastUpdated: '2018-04-25 00:02:39' }]].to_json
   end
   let(:success_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Success',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{ uuid: 'ignored',
+        status: 'Success',
+        errorMessage: '',
+        lastUpdated: '2018-04-25 00:02:39' }]].to_json
   end
   let(:processing_success_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Processing Success',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{ uuid: 'ignored',
+        status: 'Processing Success',
+        errorMessage: '',
+        lastUpdated: '2018-04-25 00:02:39' }]].to_json
   end
   let(:error_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Error',
-        "errorMessage": 'Invalid splines',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{ uuid: 'ignored',
+        status: 'Error',
+        errorMessage: 'Invalid splines',
+        lastUpdated: '2018-04-25 00:02:39' }]].to_json
   end
   let(:processing_error_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Processing Error',
-        "errorMessage": 'Invalid splines',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{ uuid: 'ignored',
+        status: 'Processing Error',
+        errorMessage: 'Invalid splines',
+        lastUpdated: '2018-04-25 00:02:39' }]].to_json
   end
   let(:nonsense_body) do
-    [[{ "uuid": 'ignored',
-        "status": 'Whowhatnow?',
-        "errorMessage": '',
-        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+    [[{ uuid: 'ignored',
+        status: 'Whowhatnow?',
+        errorMessage: '',
+        lastUpdated: '2018-04-25 00:02:39' }]].to_json
   end
   let(:empty_body) do
     [[]].to_json

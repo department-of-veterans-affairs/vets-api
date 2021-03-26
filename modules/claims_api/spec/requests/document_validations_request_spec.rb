@@ -8,7 +8,6 @@ RSpec.describe 'Document Validations Requests', type: :request do
       { 'X-VA-SSN': '796-04-3735',
         'X-VA-First-Name': 'WESLEY',
         'X-VA-Last-Name': 'FORD',
-        'X-VA-EDIPI': '1007697216',
         'X-Consumer-Username': 'TestConsumer',
         'X-VA-User': 'adhoc.test.user',
         'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
@@ -19,7 +18,7 @@ RSpec.describe 'Document Validations Requests', type: :request do
 
     context 'with a large pdf' do
       let(:params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/18x22.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/18x22.pdf") }
       end
 
       it 'returns an error if the file is too large' do
@@ -31,7 +30,7 @@ RSpec.describe 'Document Validations Requests', type: :request do
 
     context 'with a normal pdf' do
       let(:params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
 
       it 'returns an success' do
@@ -43,7 +42,7 @@ RSpec.describe 'Document Validations Requests', type: :request do
 
     context 'with an explicit form pdf' do
       let(:params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/21-526EZ.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/21-526EZ.pdf") }
       end
 
       it 'returns an success' do
@@ -56,7 +55,7 @@ RSpec.describe 'Document Validations Requests', type: :request do
     context 'with a non pdf' do
       let(:params) do
         path = Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/form_2122_json_api.json")
-        { 'attachment': path }
+        { attachment: path }
       end
 
       it 'returns a failure' do
