@@ -14,7 +14,7 @@ module Swagger
           response 200 do
             key :description, 'Webchat Token'
             schema do
-              key :'$ref', :VirtualAgentWebchatToken
+              key :$ref, :VirtualAgentWebchatToken
             end
           end
         end

@@ -43,8 +43,8 @@ module CentralMail
 
     def status(uuid_or_list)
       body = {
-        'token': Settings.central_mail.upload.token,
-        'uuid': [*uuid_or_list].to_json
+        token: Settings.central_mail.upload.token,
+        uuid: [*uuid_or_list].to_json
       }
 
       response = request(

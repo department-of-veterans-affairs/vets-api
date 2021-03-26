@@ -15,7 +15,7 @@ module Swagger
               property :rated_disabilities do
                 items do
                   key :type, :object
-                  key :'$ref', :RatedDisability
+                  key :$ref, :RatedDisability
                 end
               end
             end
@@ -46,7 +46,7 @@ module Swagger
           property :special_issues do
             items do
               key :type, :object
-              key :'$ref', :SpecialIssue
+              key :$ref, :SpecialIssue
             end
           end
         end

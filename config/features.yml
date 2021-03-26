@@ -9,6 +9,9 @@
 # The actor_type should be either `user` for features you want to be "sticky" for a logged in user (default)
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
 features:
+  can_upload_10_10cg_poa:
+    actor_type: cookie_id
+    description: Allows users to upload POA documentation when completing the 10-10CG.
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -39,6 +42,10 @@ features:
     description: >
       Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
       Note: When this is enabled, the 'Sign in' button will be hidden
+  covid_vaccine_registration_frontend_enable_expanded_eligibility:
+    actor_type: user
+    description: >
+      Toggles the 'continue' button to launch the new expanded eligibility VAFS app
   covid_vaccine_registration:
     actor_type: user
     description: >
@@ -407,11 +414,6 @@ features:
     enable_in_development: true
     description: >
       Manage dependent removal from view dependent page
-  vanotify_service_enhancement:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Allow consumer to use service specific VaNotify client. Owned by va-notify team.
   subform_8940_4192:
     actor_type: user
     enable_in_development: true
