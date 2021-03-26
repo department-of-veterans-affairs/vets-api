@@ -81,6 +81,7 @@ pipeline {
         success {
           archiveArtifacts artifacts: "coverage/**"
           publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+          archiveArtifacts artifacts: "log/*.xml"
           junit 'log/*.xml'
         }
       }
