@@ -74,6 +74,10 @@ paths:
           description: Message body may contain multiple status codes depending on how many subrequests were made.
         '403':
           description: Forbidden, user does not have access to VAOS scheduling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
     post:
       tags:
         - appointments
@@ -91,11 +95,23 @@ paths:
         '204':
           description: The server successfully created the appointment, and is not returning any content.
         '400':
-          description: Bad Request, the server cannot or will not process the request due to an apparent client error
+          description: Bad Request, the server cannot or will not process the request due to an apparent client error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '403':
           description: Forbidden, user does not have access to VAOS scheduling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '409':
           description: Conflict, indicates that the request could not be processed because of conflict in the current state of the appointment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/appointments/{type}/{id}':
     get:
       tags:
@@ -130,8 +146,16 @@ paths:
                     $ref:  "#/components/schemas/VAAppointment"
         '403':
           description: Forbidden, user does not have access to VAOS scheduling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '404':  
           description: Not Found, appointment resource not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/appointments/cancel':
     put:
       tags: 
@@ -184,10 +208,23 @@ paths:
           description: The server successfully cancelled the appointment, and is not returning any content.
         '409':
           description: Conflict, indicates that the request could not be processed because of conflict in the current state of the appointment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
         '422':
           description: Unprocessable Entity, the request was well-formed but was unable to be followed due to parameter validation errors.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '403':
           description: Forbidden, the server is refusing action. This may be due to the user not having the necessary permissions to cancel an appointment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/systems':
     get:
       tags:
