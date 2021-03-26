@@ -13,6 +13,36 @@ describe VAProfile::Communication::Service do
   subject { described_class.new(user) }
 
   describe '#update_communication_permission' do
+    context 'with an existing communication permission' do
+      it 'puts to communication-permissions', run_at: '2021-03-24T23:46:17Z' do
+        communication_item = build(:communication_item)
+        communication_item.communication_channels[0].communication_permission.id = 46
+        communication_item.communication_channels[0].communication_permission.allowed = true
+
+        VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
+          res = subject.update_communication_permission(communication_item)
+          expect(res).to eq(
+            {"tx_audit_id"=>"924b24a5-609d-48ff-ab2e-9f5ac8770e93",
+             "status"=>"COMPLETED_SUCCESS",
+             "bio"=>
+              {"create_date"=>"2021-03-24T22:38:21Z",
+               "update_date"=>"2021-03-24T23:46:17Z",
+               "tx_audit_id"=>"924b24a5-609d-48ff-ab2e-9f5ac8770e93",
+               "source_system"=>"VETSGOV",
+               "source_date"=>"2021-03-24T23:46:17Z",
+               "communication_permission_id"=>46,
+               "va_profile_id"=>18277,
+               "communication_channel_id"=>1,
+               "communication_item_id"=>2,
+               "communication_channel_name"=>"Text",
+               "communication_item_common_name"=>"RX Prescription Refill Reminder",
+               "allowed"=>true}}
+
+          )
+        end
+      end
+    end
+
     context 'without an existing communication permission' do
       it 'posts to communication-permissions', run_at: '2021-03-24T22:38:21Z' do
         VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do

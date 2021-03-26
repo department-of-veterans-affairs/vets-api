@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4433/communication-hub/communication/v1/2.16.840.1.113883.4.349/18277%5EPI%5E200VETS%5EUSDVA/communication-permissions
+    uri: https://int.vet360.va.gov/communication-hub/communication/v1/2.16.840.1.113883.4.349/18277%5EPI%5E200VETS%5EUSDVA/communication-permissions
     body:
       encoding: UTF-8
-      string: '{"bio":{"communicationPermissionId":46,"allowed":true,"communicationChannelId":1,"communicationItemId":2,"vaProfileId":18277,"sourceDate":"2021-03-24T23:46:17Z"}}'
+      string: '{"bio":{"allowed":true,"communicationChannelId":1,"communicationItemId":2,"vaProfileId":18277,"sourceDate":"2021-03-24T23:46:17Z","communicationPermissionId":46}}'
     headers:
       Accept:
       - application/json
