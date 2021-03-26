@@ -105,31 +105,7 @@ module VBADocuments
       end
     end
 
-    def self.process_manual_status_changes(guids, from, to)
-      invalid_guids = []
-      guids.each do |g|
-        invalid_guid = manual_status_change(g, from, to)
-        invalid_guids << g if invalid_guid
-      end
-    end
-
     private
-
-    def self.manual_status_change(guid, from, to)
-      r = find_by_guid guid
-      if r&.status.eql?(from)
-        # record the promotion
-        promotion = {}
-        promotion['promoted_at'] = Time.now.to_i
-        promotion['from_status'] = from
-        promotion['to_status'] = to
-        r.metadata['manual_status_change'] = promotion
-        r.save
-        r.reload
-        r.update(status: to)
-      end
-      r.nil?
-    end
 
     def rewrite_url(url)
       rewritten = url.sub!(Settings.vba_documents.location.prefix, Settings.vba_documents.location.replacement)
