@@ -4,7 +4,7 @@ require 'rails_helper'
 #require_relative '../support/vba_document_fixtures'
 
 RSpec.describe VBADocuments::SlackNotifier, type: :job do
-  # include VBADocuments::Fixtures
+
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:slack_settings) { {
       'in_flight_notification_hung_time_in_days' => 14,
@@ -13,16 +13,16 @@ RSpec.describe VBADocuments::SlackNotifier, type: :job do
       'daily_notification_hour' => 7
   } }
 
-  context 'daily notification' do
+  before do
+    allow(faraday_response).to receive(:success?).and_return(true)
+    @job = described_class.new
+    allow(@job).to receive(:send_to_slack) {
+      faraday_response
+    }
+    @results = nil
+  end
 
-    before do
-      allow(faraday_response).to receive(:success?).and_return(true)
-      @job = described_class.new
-      allow(@job).to receive(:send_to_slack) {
-        faraday_response
-      }
-      @results = nil
-    end
+  context 'daily notification' do
 
     it 'does the daily notification at the correct hour' do
       with_settings(Settings.vba_documents.slack, slack_settings) do
@@ -33,6 +33,7 @@ RSpec.describe VBADocuments::SlackNotifier, type: :job do
         expect(@results[:daily_notification]).to be(true)
       end
     end
+
     it 'does not do the daily notification at the incorrect hour' do
       with_settings(Settings.vba_documents.slack, slack_settings) do
         Timecop.freeze(1616657401) do
@@ -44,5 +45,78 @@ RSpec.describe VBADocuments::SlackNotifier, type: :job do
       end
     end
   end
+
+  context 'long_flyers only' do
+    before do
+      u = VBADocuments::UploadSubmission.new
+      status = 'success'
+      u.status = status
+      u.save!
+      u.metadata['status'][status]['start'] = 5.years.ago.to_i
+      u.save!
+    end
+
+    it "notifies when submission are in flight for too long" do
+      with_settings(Settings.vba_documents.slack, slack_settings) do
+        @results = @job.perform
+        expect(@results[:long_flyers_alerted]).to be(true)
+        expect(@results[:upload_stalled_alerted]).to be(nil)
+      end
+    end
+
+    it "does not over notify even when submissions are in flight for too long" do
+      with_settings(Settings.vba_documents.slack, slack_settings) do
+        @job.perform
+        @results = @job.perform
+        expect(@results[:long_flyers_alerted]).to be(nil)
+        travel_time = Settings.vba_documents.slack.renotification_in_minutes + 1
+        Timecop.travel(travel_time.minutes.from_now) do
+          @results = @job.perform
+          expect(@results[:long_flyers_alerted]).to be(true)
+          Timecop.travel(1.minutes.from_now) do
+          @results = @job.perform
+          expect(@results[:long_flyers_alerted]).to be(nil)
+          end
+        end
+      end
+    end
+  end
+
+  context 'stalled uploads only' do
+    before do
+      u = VBADocuments::UploadSubmission.new
+      status = 'uploaded'
+      u.status = status
+      u.save!
+      u.metadata['status'][status]['start'] = 5.years.ago.to_i
+      u.save!
+    end
+
+    it "notifies when submission are in uploaded for too long" do
+      with_settings(Settings.vba_documents.slack, slack_settings) do
+        @results = @job.perform
+        expect(@results[:upload_stalled_alerted]).to be(true)
+        expect(@results[:long_flyers_alerted]).to be(nil)
+      end
+    end
+
+    it "does not over notify even when submissions are in uploaded for too long" do
+      with_settings(Settings.vba_documents.slack, slack_settings) do
+        @job.perform
+        @results = @job.perform
+        expect(@results[:upload_stalled_alerted]).to be(nil)
+        travel_time = Settings.vba_documents.slack.renotification_in_minutes + 1
+        Timecop.travel(travel_time.minutes.from_now) do
+          @results = @job.perform
+          expect(@results[:upload_stalled_alerted]).to be(true)
+          Timecop.travel(1.minutes.from_now) do
+            @results = @job.perform
+            expect(@results[:upload_stalled_alerted]).to be(nil)
+          end
+        end
+      end
+    end
+  end
+
 end
 

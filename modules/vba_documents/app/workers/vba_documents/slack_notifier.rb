@@ -10,12 +10,12 @@ module VBADocuments
     SLACK_URL = Settings.vba_documents.slack.notification_url
     IN_FLIGHT_HUNGTIME = Settings.vba_documents.slack.in_flight_notification_hung_time_in_days.to_i
     RENOTIFY_TIME = Settings.vba_documents.slack.renotification_in_minutes.to_i
-    UPDATE_HUNGTIME = Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
+    UPLOAD_HUNGTIME = Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
     DAILY_NOTIFICATION_HOUR = Settings.vba_documents.slack.daily_notification_hour.to_i
 
     def perform
       {long_flyers_alerted: long_flyers_alert,
-       update_stalled_alerted: update_stalled_alert,
+       upload_stalled_alerted: upload_stalled_alert,
        daily_notification: daily_notification}
     end
 
@@ -26,8 +26,9 @@ module VBADocuments
       if hour.eql?(DAILY_NOTIFICATION_HOUR)
         text = "Daily Status (worst offenders over past week):\n"
         UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
-          start_time = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago)
-                           .first.metadata['status'][status]['start']
+          model = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
+          next unless model
+          start_time = model.metadata['status'][status]['start']
           duration = distance_of_time_in_words(Time.now.to_i - start_time)
           text = text + "\tStatus \'#{status}\' for #{duration}\n"
         end
@@ -36,9 +37,9 @@ module VBADocuments
       resp&.success?
     end
 
-    def update_stalled_alert
+    def upload_stalled_alert
       # spoof_stalled_updates #todo delete me
-      alert_on = fetch_stuck_in_state(['uploaded'], UPDATE_HUNGTIME, :minutes)
+      alert_on = fetch_stuck_in_state(['uploaded'], UPLOAD_HUNGTIME, :minutes)
       text = 'ALERT!! GUIDS in updated for too long!\n'
       alert(alert_on, text)
     end
@@ -62,7 +63,7 @@ module VBADocuments
       end
     end
 
-    def spoof_stalled_updates
+    def spoof_stalled_updates #todo delete method
       3.times do |i|
         u = UploadSubmission.new
         status = 'uploaded'
@@ -73,7 +74,7 @@ module VBADocuments
       end
     end
 
-    def spoof_long_flyers
+    def spoof_long_flyers #todo delete method
       UploadSubmission.destroy_all
       1.times do |i|
         u = UploadSubmission.new
