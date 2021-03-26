@@ -147,6 +147,7 @@ endif
 spec_parallel:  ## Runs spec tests in parallel
 ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true NOCOVERAGE=true bundle exec parallel_rspec ${SPEC_PATH}"
+	@$(BASH_TEST) "DISABLE_BOOTSNAP=true RUN_COVERAGE=true bundle exec rake simplecov:report_coverage"
 else
 	@$(COMPOSE_TEST) $(BASH) -c "CIRCLE_JOB=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_rspec ${SPEC_PATH}"
 	@$(BASH_TEST) "DISABLE_BOOTSNAP=true RUN_COVERAGE=true bundle exec rake simplecov:report_coverage"
