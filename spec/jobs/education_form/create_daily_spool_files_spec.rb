@@ -145,6 +145,18 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(subject).to receive('log_info').with('No records to process.').once
         expect(subject.perform).to be(true)
       end
+
+      it 'notifies slack', run_at: '2017-02-21 00:00:00 EDT' do
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(true).once
+
+        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+
+        with_settings(Settings.edu,
+                      audit_enabled: true,
+                      slack: OpenStruct.new(webhook_url: 'https://example.com')) do
+          described_class.new.perform
+        end
+      end
     end
   end
 
