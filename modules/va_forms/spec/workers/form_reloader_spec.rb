@@ -19,7 +19,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
     #       form_reloader.perform
     #     end.to change { VAForms::Form.count }.by(1)
     #   end
-    end
+    # end
 
     it 'gets the sha256 when contents are a Tempfile' do
       VCR.use_cassette('va_forms/tempfile') do
