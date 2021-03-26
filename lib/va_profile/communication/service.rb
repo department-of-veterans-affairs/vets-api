@@ -7,6 +7,9 @@ module VAProfile
     class Service < VAProfile::Service
       configuration VAProfile::Communication::Configuration
 
+      def create_communication_permission
+      end
+
       def communication_items
         VAProfile::Models::CommunicationItemGroup.create_groups(perform(:get, 'communication-items').body)
       end
