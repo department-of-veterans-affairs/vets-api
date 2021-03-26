@@ -73,7 +73,7 @@ module VBADocuments
     end
 
     # def spoof_stalled_updates
-    #   # TODO: delete method
+    #   # TODO: delete method.
     #   3.times do |i|
     #     u = UploadSubmission.new
     #     status = 'uploaded'
@@ -85,7 +85,7 @@ module VBADocuments
     # end
 
     # def spoof_long_flyers
-    #   # TODO: delete method
+    #   # TODO: delete method.
     #   UploadSubmission.destroy_all
     #   1.times do |i|
     #     u = UploadSubmission.new
