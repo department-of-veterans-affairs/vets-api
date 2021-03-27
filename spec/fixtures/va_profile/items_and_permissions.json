@@ -6,7 +6,6 @@
       {
         "id": 1,
         "name": "Health Appointment Reminder",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 1,
@@ -22,7 +21,6 @@
       {
         "id": 2,
         "name": "RX Prescription Refill Reminder",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 1,
@@ -38,7 +36,6 @@
       {
         "id": 3,
         "name": "Scheduled Appointment Confirmation",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 1,
@@ -57,7 +54,6 @@
       {
         "id": 4,
         "name": "Form 22-1990 Submission Confirmation",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 1,
@@ -82,7 +78,6 @@
       {
         "id": 5,
         "name": "Form 526-EZ Submission Confirmation",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 2,
@@ -95,7 +90,6 @@
       {
         "id": 6,
         "name": "Disability Compensation Status Update",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 2,
@@ -108,7 +102,6 @@
       {
         "id": 7,
         "name": "Compensation and Pension (C&P) Exam Reminder",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 1,
@@ -133,7 +126,6 @@
       {
         "id": 8,
         "name": "Pension Payment Confirmation – Monthly",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 2,
@@ -152,7 +144,6 @@
       {
         "id": 9,
         "name": "Education.Accession.Empty.A21.365",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 2,
@@ -171,7 +162,6 @@
       {
         "id": 10,
         "name": "Insurance.Accession.Married.A2.1",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 2,
@@ -184,7 +174,6 @@
       {
         "id": 11,
         "name": "Insurance.Accession.Empty.A.1",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 2,
@@ -203,7 +192,6 @@
       {
         "id": 12,
         "name": "HomeLoan.Accession.Empty.A15.270",
-        "va_profile_id": null,
         "communication_channels": [
           {
             "id": 2,

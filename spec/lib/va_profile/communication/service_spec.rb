@@ -18,7 +18,7 @@ describe VAProfile::Communication::Service do
         VCR.use_cassette('va_profile/communication/communication_items', VCR::MATCH_EVERYTHING) do
           res = subject.get_items_and_permissions
 
-          # expect(JSON.parse(res.to_json)).to eq(get_fixture('va_profile/items_and_permissions'))
+          expect(JSON.parse(res.to_json)).to eq(get_fixture('va_profile/items_and_permissions'))
         end
       end
     end
