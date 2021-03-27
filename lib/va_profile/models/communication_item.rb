@@ -6,7 +6,6 @@ module VAProfile
       # TODO add validation
       attribute :id, Integer
       attribute :name, String
-      attribute :va_profile_id, Integer
 
       attribute :communication_channels, Array[VAProfile::Models::CommunicationChannel]
 
@@ -14,7 +13,7 @@ module VAProfile
         communication_channels[0].communication_permission.id.present? ? :put : :post
       end
 
-      def in_json
+      def in_json(va_profile_id)
         communication_channel = communication_channels[0]
 
         {
@@ -22,7 +21,7 @@ module VAProfile
             allowed: communication_channel.communication_permission.allowed,
             communicationChannelId: communication_channel.id,
             communicationItemId: id,
-            vaProfileId: va_profile_id,
+            vaProfileId: va_profile_id.to_i,
             sourceDate: Time.zone.now.iso8601
           }.merge(lambda do
             communication_permission = communication_channel.communication_permission

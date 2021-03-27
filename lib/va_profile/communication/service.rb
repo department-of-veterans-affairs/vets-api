@@ -13,11 +13,9 @@ module VAProfile
 
       # TODO add monitoring
       def update_communication_permission(communication_item)
-        communication_item.va_profile_id = @user.vet360_id
-
         perform(
           communication_item.http_verb,
-          "#{get_path_ids}communication-permissions", communication_item.in_json
+          "#{get_path_ids}communication-permissions", communication_item.in_json(@user.vet360_id)
         ).body
       end
 
