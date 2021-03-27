@@ -12,6 +12,43 @@ describe VAProfile::Communication::Service do
 
   subject { described_class.new(user) }
 
+  describe '#get_communication_permissions' do
+    it 'gets the users communication permissions' do
+      VCR.use_cassette('va_profile/communication/get_communication_permissions', VCR::MATCH_EVERYTHING) do
+        res = subject.get_communication_permissions
+        expect(res).to eq(
+          {"tx_audit_id"=>"9ac95d0f-42b8-45a3-9d18-f07e1e81e97f",
+           "status"=>"COMPLETED_SUCCESS",
+           "bios"=>
+            [{"create_date"=>"2021-03-23T23:19:55Z",
+              "update_date"=>"2021-03-23T23:19:55Z",
+              "tx_audit_id"=>"7a1ed4b3-1749-4faa-95de-439e965cfd2a",
+              "source_system"=>"VETSGOV",
+              "source_date"=>"2021-03-23T23:19:55Z",
+              "communication_permission_id"=>21,
+              "va_profile_id"=>18277,
+              "communication_channel_id"=>1,
+              "communication_item_id"=>1,
+              "communication_channel_name"=>"Text",
+              "communication_item_common_name"=>"Health Appointment Reminder",
+              "allowed"=>true},
+             {"create_date"=>"2021-03-24T22:38:21Z",
+              "update_date"=>"2021-03-24T22:38:21Z",
+              "tx_audit_id"=>"3e776301-4794-402a-8a99-67d473232b6c",
+              "source_system"=>"VETSGOV",
+              "source_date"=>"2021-03-24T22:38:21Z",
+              "communication_permission_id"=>46,
+              "va_profile_id"=>18277,
+              "communication_channel_id"=>1,
+              "communication_item_id"=>2,
+              "communication_channel_name"=>"Text",
+              "communication_item_common_name"=>"RX Prescription Refill Reminder",
+              "allowed"=>false}]}
+        )
+      end
+    end
+  end
+
   describe '#update_communication_permission' do
     context 'with an existing communication permission' do
       it 'puts to communication-permissions', run_at: '2021-03-24T23:46:17Z' do

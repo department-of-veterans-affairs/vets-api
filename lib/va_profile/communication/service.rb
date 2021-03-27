@@ -22,6 +22,7 @@ module VAProfile
       end
 
       def get_communication_permissions
+        perform(:get, "#{get_path_ids}communication-permissions").body
       end
 
       def communication_items
