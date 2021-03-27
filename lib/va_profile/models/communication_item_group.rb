@@ -8,10 +8,10 @@ module VAProfile
 
       attribute :communication_items, Array[VAProfile::Models::CommunicationItem], default: []
 
-      def self.create_groups(res)
+      def self.create_groups(items_res, permission_res)
         groups = {}
 
-        res['bios'].each do |communication_item|
+        items_res['bios'].each do |communication_item|
           communication_item_group = communication_item['communication_item_groups'][0]
           communication_group_id = communication_item_group['communication_group_id']
 
@@ -26,11 +26,25 @@ module VAProfile
             communication_channels: communication_item['communication_item_channels'].map do |communication_item_channel|
               communication_channel = communication_item_channel['communication_channel']
 
-              VAProfile::Models::CommunicationChannel.new(
+              communication_channel_model = VAProfile::Models::CommunicationChannel.new(
                 id: communication_channel['communication_channel_id'],
                 name: communication_channel['name'],
                 description: communication_channel['description']
               )
+
+              permission = permission_res['bios'].find do |permission|
+                permission['communication_item_id'] == communication_item['communication_item_id'] &&
+                  permission['communication_channel_id'] == communication_channel['communication_channel_id']
+              end.tap do |permission|
+                next if permission.nil?
+
+                communication_channel_model.communication_permission = VAProfile::Models::CommunicationPermission.new(
+                  id: permission['communication_permission_id'],
+                  allowed: permission['allowed']
+                )
+              end
+
+              communication_channel_model
             end
           )
         end

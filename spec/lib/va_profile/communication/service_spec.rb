@@ -12,6 +12,18 @@ describe VAProfile::Communication::Service do
 
   subject { described_class.new(user) }
 
+  describe '#get_items_and_permissions' do
+    it 'creates the right communication groups' do
+      VCR.use_cassette('va_profile/communication/get_communication_permissions', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('va_profile/communication/communication_items', VCR::MATCH_EVERYTHING) do
+          res = subject.get_items_and_permissions
+
+          expect(JSON.parse(res.to_json)).to eq(get_fixture('va_profile/items_and_permissions'))
+        end
+      end
+    end
+  end
+
   describe '#get_communication_permissions' do
     it 'gets the users communication permissions' do
       VCR.use_cassette('va_profile/communication/get_communication_permissions', VCR::MATCH_EVERYTHING) do
