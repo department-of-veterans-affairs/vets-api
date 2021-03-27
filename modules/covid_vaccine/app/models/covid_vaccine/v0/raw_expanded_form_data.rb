@@ -5,8 +5,8 @@ module CovidVaccine
     class RawExpandedFormData
       include ActiveModel::Validations
 
-      ATTRIBUTES = %w[first_name last_name ssn birth_date email vaccine_interest preferred_facility 
-        address_line1 city state zip_code].freeze
+      ATTRIBUTES = %w[first_name last_name ssn birth_date email vaccine_interest preferred_facility
+                      address_line1 city state zip_code].freeze
       ZIP_REGEX = /\A^\d{5}(-\d{4})?$\z/.freeze
 
       attr_accessor(*ATTRIBUTES)
@@ -22,7 +22,6 @@ module CovidVaccine
       validates :city, presence: true
       validates :state, presence: true
       validates :zip_code, format: { with: ZIP_REGEX, message: 'should be in the form 12345 or 12345-1234' }
-
 
       def initialize(attributes = {})
         attributes.each do |name, value|
