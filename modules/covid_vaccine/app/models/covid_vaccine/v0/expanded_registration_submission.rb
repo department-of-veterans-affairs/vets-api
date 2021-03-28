@@ -68,8 +68,8 @@ module CovidVaccine
 
       def csv_row
         raw_form_data.values_at('first_name', 'middle_name', 'last_name') +
-          [csv_birth_date] + 
-          [raw_form_data['ssn']] + 
+          [csv_birth_date] +
+          [raw_form_data['ssn']] +
           [csv_birth_sex] +
           [icn] +
           [csv_address] +
