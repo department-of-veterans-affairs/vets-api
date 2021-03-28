@@ -8,11 +8,11 @@ module CovidVaccine
       # CSV Constants
       VA_AGENCY_IDENTIFIER = 8
 
-      aasm do
+      aasm(:state) do
         # Fire off job for email confirmation to the user that submission has been received
         # Fire off job to determine EMIS eligibility to kick off after hours; transition to eligible or ineligible
         state :sequestered, initial: true
-        state :eligible_us, :eligibile_non_us, :ineligible, :enrollment_pending, :enrollment_complete,
+        state :eligible_us, :eligible_non_us, :ineligible, :enrollment_pending, :enrollment_complete,
               :enrollment_failed, :registered
 
         # ICN and EMIS lookup both satisfactory or no lookup possible; transitions to eligible
@@ -54,7 +54,7 @@ module CovidVaccine
       # We want records that have acceptable discharge status, country, state, zip and facility
       def self.to_csv(separater = '^')
         CSV.generate(col_sep: separater) do |csv|
-          eligible.order('created_at DESC').each do |es|
+          eligible_us.order('created_at DESC').each do |es|
             csv << es.send(:csv_row)
           end
         end
@@ -67,19 +67,19 @@ module CovidVaccine
       end
 
       def csv_row
-        raw_form_data.values_at(:first_name, :middle_name, :last_name, :birth_date, :ssn, :gender) +
+        raw_form_data.values_at('first_name', 'middle_name', 'last_name', 'birth_date', 'ssn', 'gender') +
           [icn] +
           [csv_address] +
-          raw_form_data.values_at(:city, :state, :zip, :phone, :email, :preferred_facility) +
+          raw_form_data.values_at('city', 'state', 'zip_code', 'phone', 'email', 'preferred_facility') +
           [VA_AGENCY_IDENTIFIER]
       end
 
       def csv_address
-        "#{raw_form_data[:address_line_1]} #{raw_form_data[:address_line_2]} #{raw_form_data[:address_line_3]}".strip
+        "#{raw_form_data['address_line1']} #{raw_form_data['address_line2']} #{raw_form_data['address_line3']}".strip
       end
 
       def icn
-        eligibility_info[:icn]
+        eligibility_info&.fetch('icn', nil)
       end
     end
   end

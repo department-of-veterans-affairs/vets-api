@@ -27,15 +27,43 @@ FactoryBot.define do
     raw_form_data {
       {
         'vaccine_interest' => 'INTERESTED',
-        'zip_code' => '97212',
+        'gender' => 'M',
+        'zip_code' => '20420',
         'zip_code_details' => 'YES',
         'phone' => '808-555-1212',
         'email' => 'vets.gov.user+0@gmail.com',
         'first_name' => 'Jon',
         'last_name' => 'Doe',
         'birth_date' => '1900-01-01',
-        'ssn' => '6665123456'
+        'ssn' => '666512345',
+        'country' => 'United States',
+        'preferred_facility' => '123',
+        'address_line1' => '810 Vermont Avenue',
+        'city' => 'Washington',
+        'state' => 'District of Columbia'
       }
     }
+
+    trait :non_us do
+      raw_form_data {
+        {
+          'vaccine_interest' => 'INTERESTED',
+          'gender' => 'F',
+          'zip_code' => '1000',
+          'zip_code_details' => 'YES',
+          'phone' => '808-555-1212',
+          'email' => 'vets.gov.user+0@gmail.com',
+          'first_name' => 'Jane',
+          'last_name' => 'Doe',
+          'birth_date' => '1900-01-01',
+          'ssn' => '666512345',
+          'country' => 'Philippines',
+          'preferred_facility' => '123',
+          'address_line1' => '1201 Roxas Blvd',
+          'city' => 'Manila',
+          'state' => 'Ermita'
+        }
+      }
+    end
   end
 end
