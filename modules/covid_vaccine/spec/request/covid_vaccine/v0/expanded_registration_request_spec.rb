@@ -8,15 +8,16 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
   let(:registration_attributes) do
     {
       vaccine_interest: 'yes',
-      authenticated: true,
       first_name: 'Jane',
       last_name: 'Doe',
       birth_date: '1952-02-02',
       phone: '555-555-1234',
       email: 'jane.doe@email.com',
-      ssn: '000-00-0022',
+      ssn: '000000022',
       zip_code: '94402',
-      zip_code_details: 'yes'
+      address_line1: '123 Fake Street',
+      city: 'Springfield',
+      state: 'CA'
     }
   end
 
@@ -39,19 +40,11 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
     end
 
     context 'when encountering an Internal Server Error' do
-      let(:registration_attributes) do
-        {
-          vaccine_interest: 'yes',
-          email: 'jane.doe@email.com',
-          zip_code: '94402',
-          date_vaccine_reeceived: ''
-        }
-      end
-
       it 'raises a BackendServiceException' do
         expect(CovidVaccine::V0::ExpandedRegistrationSubmission).to receive(:create!)
           .and_raise(ActiveRecord::RecordInvalid.new(nil))
         post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+
         expect(response).to have_http_status(:internal_server_error)
         # TODO: Add more thorough expectation
       end
@@ -71,6 +64,42 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
           {
             'errors' => [
               {
+                'title' => "First name can't be blank",
+                'detail' => "first-name - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/first-name'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => "Last name can't be blank",
+                'detail' => "last-name - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/last-name'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => 'Ssn should be in the form 123121234',
+                'detail' => 'ssn - should be in the form 123121234',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/ssn'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => 'Birth date should be in the form yyyy-mm-dd',
+                'detail' => 'birth-date - should be in the form yyyy-mm-dd',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/birth-date'
+                },
+                'status' => '422'
+              },
+              {
                 'title' => 'Email is invalid',
                 'detail' => 'email - is invalid',
                 'code' => '100',
@@ -80,11 +109,29 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
                 'status' => '422'
               },
               {
-                'title' => "Vaccine interest can't be blank",
-                'detail' => "vaccine-interest - can't be blank",
+                'title' => "Address line1 can't be blank",
+                'detail' => "address-line1 - can't be blank",
                 'code' => '100',
                 'source' => {
-                  'pointer' => 'data/attributes/vaccine-interest'
+                  'pointer' => 'data/attributes/address-line1'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => "City can't be blank",
+                'detail' => "city - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/city'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => "State can't be blank",
+                'detail' => "state - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/state'
                 },
                 'status' => '422'
               },
@@ -106,12 +153,6 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
         invalid_date_attributes = registration_attributes.merge({ birth_date: '2000-01-XX' })
         post '/covid_vaccine/v0/expanded_registration', params: { registration: invalid_date_attributes }
         expect(response).to have_http_status(:unprocessable_entity)
-      end
-
-      it 'allows a non-existent date' do
-        blank_date_attributes = registration_attributes.merge({ birth_date: '' })
-        post '/covid_vaccine/v0/expanded_registration', params: { registration: blank_date_attributes }
-        expect(response).to have_http_status(:created)
       end
 
       it 'returns a submission summary' do

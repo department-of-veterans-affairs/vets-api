@@ -13,11 +13,12 @@ module CovidVaccine
 
       validates :first_name, presence: true
       validates :last_name, presence: true
-      validates :ssn, format: { with: /^\d{9}$/, message: 'should be in the form 123121234' }
+      validates :ssn, format: { with: /\A\d{9}\z/, message: 'should be in the form 123121234' }
       validates :birth_date, format: { with: /\A\d{4}-\d{2}-\d{2}\z/, message: 'should be in the form yyyy-mm-dd' }
       validates :email, format: { with: URI::MailTo::EMAIL_REGEXP }
-      validates :vaccine_interest, presence: true
-      validates :preferred_facility, presence: true
+      # validates :vaccine_interest, presence: true
+      # TODO: Check whether this is required or not
+      # validates :preferred_facility, presence: true
       validates :address_line1, presence: true
       validates :city, presence: true
       validates :state, presence: true
