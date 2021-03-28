@@ -6,7 +6,6 @@ FactoryBot.define do
     state { 'sequestered' }
     vetext_sid { nil }
 
-    # TODO: Update
     form_data {
       {
         vaccine_interest: 'INTERESTED',
@@ -26,21 +25,29 @@ FactoryBot.define do
 
     raw_form_data {
       {
-        'vaccine_interest' => 'INTERESTED',
-        'gender' => 'M',
-        'zip_code' => '20420',
-        'zip_code_details' => 'YES',
-        'phone' => '808-555-1212',
-        'email' => 'vets.gov.user+0@gmail.com',
         'first_name' => 'Jon',
+        'middle_name' => nil,
         'last_name' => 'Doe',
+        'ssn' => '8085551212',
         'birth_date' => '1900-01-01',
-        'ssn' => '666512345',
-        'country' => 'United States',
-        'preferred_facility' => '123',
+        'birth_sex' => 'Male',
+        'applicant_type' => 'veteran',
+        'last_branch_of_service' => 'Navy',
+        'character_of_service' => 'Honorable',
+        'date_range' => { 'from' => '1980-03-XX', 'to' => '1984-01-XX' },
+        'preferred_facility' => 'vha_684',
+        'email_address' => 'vets.gov.user+0@gmail.com',
+        'phone' => '808-555-1212',
+        'sms_acknowledgement' => true,
         'address_line1' => '810 Vermont Avenue',
+        'address_line2' => nil,
+        'address_line3' => nil,
         'city' => 'Washington',
-        'state' => 'District of Columbia'
+        'state_code' => 'DC',
+        'zip_code' => '20420',
+        'country_name' => 'USA',
+        'compliance_agreement' => true,
+        'privacy_agreement_accepted' => true
       }
     }
 
