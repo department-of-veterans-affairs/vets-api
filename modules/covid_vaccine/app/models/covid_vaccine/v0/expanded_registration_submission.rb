@@ -63,15 +63,32 @@ module CovidVaccine
       private
 
       def country_us?
-        raw_form_data[:country].in?('US', 'United States')
+        raw_form_data[:country_name] == 'USA'
       end
 
       def csv_row
-        raw_form_data.values_at('first_name', 'middle_name', 'last_name', 'birth_date', 'ssn', 'gender') +
+        raw_form_data.values_at('first_name', 'middle_name', 'last_name') +
+          [csv_birth_date] + 
+          [raw_form_data['ssn']] + 
+          [csv_birth_sex] +
           [icn] +
           [csv_address] +
-          raw_form_data.values_at('city', 'state', 'zip_code', 'phone', 'email', 'preferred_facility') +
+          raw_form_data.values_at('city', 'state_code', 'zip_code') +
+          [csv_phone] +
+          raw_form_data.values_at('email_address', 'preferred_facility') +
           [VA_AGENCY_IDENTIFIER]
+      end
+
+      def csv_phone
+        raw_form_data['phone'].delete('-').insert(0, '(').insert(4, ')')
+      end
+
+      def csv_birth_date
+        Date.parse(raw_form_data['birth_date']).strftime('%m/%d/%Y')
+      end
+
+      def csv_birth_sex
+        raw_form_data['birth_sex'][0]
       end
 
       def csv_address

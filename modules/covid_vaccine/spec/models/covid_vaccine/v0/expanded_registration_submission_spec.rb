@@ -12,8 +12,8 @@ RSpec.describe CovidVaccine::V0::ExpandedRegistrationSubmission, type: :model do
 
     it 'generates CSV of eligible submissions residing in United States ordered by created_at DESC' do
       expect(described_class.to_csv).to eq(
-        'Jon^^Doe^1900-01-01^666512345^M^^810 Vermont Avenue^Washington^District of Columbia^20420^808-555-1212^'\
-        "vets.gov.user+0@gmail.com^123^8\n"
+        'Jon^^Doe^01/01/1900^666112222^M^^810 Vermont Avenue^Washington^DC^20420^(808)5551212^'\
+        "vets.gov.user+0@gmail.com^vha_684^8\n"
       )
     end
   end
