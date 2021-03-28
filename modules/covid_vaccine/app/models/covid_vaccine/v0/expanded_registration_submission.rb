@@ -16,7 +16,7 @@ module CovidVaccine
               :enrollment_failed, :registered
 
         # ICN and EMIS lookup both satisfactory or no lookup possible; transitions to eligible
-        event :emis_eligibility_criteria_passeds do
+        event :emis_eligibility_criteria_passed do
           transitions from: :sequestered, to: :eligible_us, if: :country_us?
           transitions from: :sequestered, to: :eligible_non_us, unless: :country_us?
         end
