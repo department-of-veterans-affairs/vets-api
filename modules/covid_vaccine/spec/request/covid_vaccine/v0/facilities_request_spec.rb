@@ -70,9 +70,11 @@ RSpec.describe 'Covid Vaccine Facilities', type: :request do
                          match_requests_on: %i[method path], &example)
       end
 
-      it 'returns a 4xx error' do
+      it 'returns an empty list' do
         get "/covid_vaccine/v0/facilities/#{non_existent_zip}"
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:ok)
+        body = JSON.parse(response.body)
+        expect(body['data'].length).to eq(0)
       end
     end
 

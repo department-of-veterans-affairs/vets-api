@@ -21,7 +21,7 @@ module CovidVaccine
       # return a list of nearby facilities based on provided zipcode
       def facilities_for(zipcode, count = 3)
         zcta_row = ZCTA[zipcode&.[](0...5)]
-        raise Common::Exceptions::UnprocessableEntity.new(detail: 'Invalid ZIP Code') if zcta_row.blank?
+        return [] if zcta_row.blank?
 
         lat = zcta_row[ZCTA_LAT_HEADER]
         lng = zcta_row[ZCTA_LON_HEADER]
