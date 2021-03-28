@@ -16,7 +16,7 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
       address_line1: '123 Fake Street',
       city: 'Springfield',
       state_code: 'CA',
-      zip_code: '94402',
+      zip_code: '94402'
     }
   end
 
