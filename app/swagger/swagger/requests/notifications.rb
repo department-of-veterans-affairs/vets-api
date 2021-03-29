@@ -39,7 +39,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Notification
+              key :$ref, :Notification
             end
           end
         end
@@ -70,7 +70,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Notification
+              key :$ref, :Notification
             end
           end
         end
@@ -110,7 +110,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Notification
+              key :$ref, :Notification
             end
           end
         end
@@ -141,7 +141,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :DismissedStatus
+              key :$ref, :DismissedStatus
             end
           end
         end
@@ -188,7 +188,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :DismissedStatus
+              key :$ref, :DismissedStatus
             end
           end
         end
@@ -233,7 +233,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :DismissedStatus
+              key :$ref, :DismissedStatus
             end
           end
         end

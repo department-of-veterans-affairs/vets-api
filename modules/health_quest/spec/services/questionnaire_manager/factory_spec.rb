@@ -16,6 +16,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
   let(:default_appointments) { double('FHIR::ClientReply', resource: double('Entry', entry: [])) }
   let(:default_location) { [double('FHIR::Location')] }
   let(:default_organization) { [double('FHIR::Organization')] }
+  let(:default_facilities) { [double('Facilities')] }
   let(:appointments) { { data: [{}, {}] } }
 
   before do
@@ -49,6 +50,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
       expect(factory.respond_to?(:lighthouse_appointments)).to eq(true)
       expect(factory.respond_to?(:locations)).to eq(true)
       expect(factory.respond_to?(:organizations)).to eq(true)
+      expect(factory.respond_to?(:facilities)).to eq(true)
       expect(factory.respond_to?(:aggregated_data)).to eq(true)
       expect(factory.respond_to?(:patient)).to eq(true)
       expect(factory.respond_to?(:questionnaires)).to eq(true)
@@ -58,6 +60,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
       expect(factory.respond_to?(:organization_service)).to eq(true)
       expect(factory.respond_to?(:patient_service)).to eq(true)
       expect(factory.respond_to?(:questionnaire_service)).to eq(true)
+      expect(factory.respond_to?(:facilities_request)).to eq(true)
       expect(factory.respond_to?(:sip_model)).to eq(true)
       expect(factory.respond_to?(:transformer)).to eq(true)
       expect(factory.respond_to?(:user)).to eq(true)
@@ -84,6 +87,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
       allow_any_instance_of(subject).to receive(:get_lighthouse_appointments).and_return(appointments_client_reply)
       allow_any_instance_of(subject).to receive(:get_locations).and_return(default_location)
       allow_any_instance_of(subject).to receive(:get_organizations).and_return(default_organization)
+      allow_any_instance_of(subject).to receive(:get_facilities).and_return(default_facilities)
       allow_any_instance_of(subject).to receive(:get_save_in_progress).and_return([{}])
       allow_any_instance_of(subject)
         .to receive(:get_questionnaire_responses).and_return(questionnaire_response_client_reply)
@@ -243,6 +247,26 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
     it 'returns an array of organizations' do
       expect(described_class.manufacture(user).get_organizations).to eq([default_organization])
+    end
+  end
+
+  describe '#get_facilities' do
+    let(:facilities) { [] }
+    let(:locations) do
+      [
+        double('FHIR::Location',
+               resource: double('FHIR::Bundle',
+                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')]))
+      ]
+    end
+
+    before do
+      allow_any_instance_of(subject).to receive(:locations).and_return(locations)
+      allow_any_instance_of(HealthQuest::Facilities::Request).to receive(:get).with(anything).and_return(facilities)
+    end
+
+    it 'returns an array of facilities' do
+      expect(described_class.manufacture(user).get_facilities).to eq(facilities)
     end
   end
 

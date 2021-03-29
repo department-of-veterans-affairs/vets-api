@@ -14,15 +14,15 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   read_json_from_same_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
   ERROR_500_EXAMPLE = {
-    "errors": [
+    errors: [
       {
-        "status": '500',
-        "detail": 'An unknown error has occurred.',
-        "code": '151',
-        "title": 'Internal Server Error'
+        status: '500',
+        detail: 'An unknown error has occurred.',
+        code: '151',
+        title: 'Internal Server Error'
       }
     ],
-    "status": 500
+    status: 500
   }.freeze
 
   swagger_path '/notice_of_disagreements' do
@@ -103,7 +103,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :required, true
         content 'application/json' do
           schema do
-            key :'$ref', :nodCreateInput
+            key :$ref, :nodCreateInput
           end
         end
       end
@@ -112,7 +112,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :description, '10182 success response'
         content 'application/json' do
           schema do
-            key :'$ref', :nodCreateResponse
+            key :$ref, :nodCreateResponse
           end
         end
       end
@@ -126,7 +126,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :array
 
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
 
@@ -149,7 +149,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
             property :errors do
               key :type, :array
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
           end
@@ -165,8 +165,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'getNoticeOfDisagreement'
       key :summary, 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)'
       key :description, 'Returns all of the data associated with a specific Notice of Disagreement.'
-      parameter name: 'uuid', 'in': 'path', required: true, description: 'Notice of Disagreement UUID' do
-        schema { key :'$ref', :uuid }
+      parameter name: 'uuid', in: 'path', required: true, description: 'Notice of Disagreement UUID' do
+        schema { key :$ref, :uuid }
       end
 
       response 200 do
@@ -178,7 +178,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
             property :data do
               property :id do
-                key :'$ref', :uuid
+                key :$ref, :uuid
               end
 
               property :type do
@@ -192,16 +192,16 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
                 property :status do
                   key :type, :string
                   key :description, 'nodStatus'
-                  key :'$ref', '#/components/schemas/nodStatus'
+                  key :$ref, '#/components/schemas/nodStatus'
                 end
                 property :updatedAt do
-                  key :'$ref', '#/components/schemas/timeStamp'
+                  key :$ref, '#/components/schemas/timeStamp'
                 end
                 property :createdAt do
-                  key :'$ref', '#/components/schemas/timeStamp'
+                  key :$ref, '#/components/schemas/timeStamp'
                 end
                 property :formData do
-                  key :'$ref', '#/components/schemas/nodCreateInput'
+                  key :$ref, '#/components/schemas/nodCreateInput'
                 end
               end
             end
@@ -250,22 +250,22 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       'Associate these results when creating a new Notice of Disagreement.'
       key :description, description
 
-      parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
+      parameter name: 'X-VA-SSN', in: 'header', description: 'veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema '$ref': 'X-VA-SSN'
       end
 
-      parameter name: 'X-VA-File-Number', 'in': 'header', description: 'veteran\'s file number' do
+      parameter name: 'X-VA-File-Number', in: 'header', description: 'veteran\'s file number' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema type: :string
       end
 
-      parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
+      parameter name: 'X-VA-Receipt-Date', in: 'header', required: true do
         desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
           'the receipt date of a hypothetical Decision Review must be specified.'
         key :description, desc
 
-        schema type: :string, 'format': :date
+        schema type: :string, format: :date
       end
 
       key :responses, read_json_from_same_dir['responses_contestable_issues.json']
@@ -322,7 +322,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :array
 
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
           end
@@ -394,7 +394,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :required, true
         content 'application/json' do
           schema do
-            key :'$ref', :nodCreateInput
+            key :$ref, :nodCreateInput
           end
         end
       end
@@ -433,7 +433,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :array
 
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
 
@@ -456,7 +456,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :array
 
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
           end
