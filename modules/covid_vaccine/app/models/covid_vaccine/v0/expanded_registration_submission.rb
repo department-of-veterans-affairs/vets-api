@@ -52,7 +52,7 @@ module CovidVaccine
                                         marshaler: JsonMarshal::Marshaller
 
       # We want records that have acceptable discharge status, country, state, zip and facility
-      def self.to_csv(separater = '^')
+      def self.to_csv(separator = '^')
         CSV.generate(col_sep: separator) do |csv|
           eligible_us.order('created_at DESC').each do |es|
             csv << es.send(:csv_row).map { |e| e&.delete('"^') }
