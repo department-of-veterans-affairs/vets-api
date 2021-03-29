@@ -1,1 +1,0 @@
-Version 0.0.1 of the Benefits Intake API was removed on March 29, 2021. Refer to [version 1.0.0](https://developer.va.gov/explore/benefits/docs/benefits?version=current) of the API and related documentation. For more information,[contact us](https://developer.va.gov/support/contact-us) or visit our [Google Developer Forum.](https://groups.google.com/forum/m/#!forum/va-lighthouse)
