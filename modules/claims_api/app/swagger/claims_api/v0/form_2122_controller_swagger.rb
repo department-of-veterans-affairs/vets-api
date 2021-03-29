@@ -130,14 +130,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-LOA'
             key :in, :header
             key :description, 'The level of assurance of the user making the request'
@@ -268,14 +260,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
             key :type, :string
           end
 
@@ -414,15 +398,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :example, 'lighthouse'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-LOA'
             key :in, :header
             key :description, 'The level of assurance of the user making the request'
@@ -540,15 +515,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :example, 'lighthouse'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'X-VA-LOA'
             key :in, :header
             key :description, 'The level of assurance of the user making the request'
@@ -653,14 +619,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
             key :type, :string
           end
 
