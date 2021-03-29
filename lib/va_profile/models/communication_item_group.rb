@@ -4,10 +4,7 @@ require_relative 'communication_item'
 module VAProfile
   module Models
     class CommunicationItemGroup < CommunicationBase
-      attribute :name, Types::Strict::String
-      attribute :description, Types::Strict::String
-
-      attribute :communication_items, Types::Array.of(VAProfile::Models::CommunicationItem)
+      attr_accessor :name, :description, :communication_items
 
       def self.create_groups(items_res, permission_res)
         groups = {}
@@ -40,7 +37,7 @@ module VAProfile
               end.tap do |permission|
                 next if permission.nil?
 
-                communication_channel_model.attributes[:communication_permission] = VAProfile::Models::CommunicationPermission.new(
+                communication_channel_model.communication_permission = VAProfile::Models::CommunicationPermission.new(
                   id: permission['communication_permission_id'],
                   allowed: permission['allowed']
                 )

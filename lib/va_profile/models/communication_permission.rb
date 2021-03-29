@@ -1,8 +1,7 @@
 module VAProfile
   module Models
     class CommunicationPermission < CommunicationBase
-      attribute :id, Types::Strict::Integer
-      attribute :allowed, Types::Strict::Bool
+      attr_accessor :id, :allowed
     end
   end
 end

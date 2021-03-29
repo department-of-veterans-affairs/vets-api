@@ -1,13 +1,11 @@
+require_relative 'communication_base'
 require_relative 'communication_channel'
 
 module VAProfile
   module Models
     class CommunicationItem < CommunicationBase
       # TODO add validation
-      attribute :id, Types::Integer.optional
-      attribute :name, Types::Strict::String
-
-      attribute :communication_channels, Types::Strict::Array.of(VAProfile::Models::CommunicationChannel)
+      attr_accessor :id, :name, :communication_channels
 
       validates :id, :communication_channels, presence: true
 
