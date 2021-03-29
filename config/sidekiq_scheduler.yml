@@ -97,7 +97,7 @@ MaintenanceWindowRefresh:
 VBADocuments::SlackNotifier:
   cron: "0 0 * * * * America/New_York"
   class: VBADocuments::SlackNotifier
-  description: "Notifies slack channel if certain benefits states get stuck"
+  description: "Notifies slack channel if certain benefits states get stuck at the top of every hour"
 
 VBADocuments::UploadScanner:
   cron: "0,30 * * * * * America/New_York"
