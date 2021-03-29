@@ -706,7 +706,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
               property :type do
                 key :type, :string
-                # maybe not?
                 key :enum, [:evidenceSubmission]
               end
 
