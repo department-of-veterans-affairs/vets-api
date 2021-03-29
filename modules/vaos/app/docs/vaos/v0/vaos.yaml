@@ -77,6 +77,22 @@ paths:
                         $ref: "#/components/schemas/CCAppointment"
                       meta:
                         $ref: "#/components/schemas/Pagination"
+  '/cc_eligibility':
+    get:
+      tags:
+        - cc_eligibility
+      summary: Returns cc eligibility status for a user
+      operationId: getEligibility
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Eligibility retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CCEligibility"
+
   '/systems':
     get:
       tags:
@@ -303,6 +319,25 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    CCEligibility:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties:
+        id:
+          type: "string"
+          example: ""
+        type:
+          type: "string"
+          example: ""
+        attributes:
+          type: "object"
+          properties:
+            eligible:
+              type: "boolean"
+              example: true
     System:
       type: "object"
       properties:
