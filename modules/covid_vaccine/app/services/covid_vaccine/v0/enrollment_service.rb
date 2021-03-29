@@ -25,11 +25,11 @@ module CovidVaccine
 
       # TODO: TBD
       def remote_file_path
-        '' + file_name
+        "/#{file_name}"
       end
 
       def file_name
-        @timestamp + '_vaccine_enrollment.csv'
+        "#{@timestamp}_saves_lives_act_#{records.size}_records.csv"
       end
 
       def sftp_host
