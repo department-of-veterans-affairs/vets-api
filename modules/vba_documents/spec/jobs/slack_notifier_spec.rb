@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require './modules/vba_documents/app/workers/vba_documents/slack_notifier'
 # require_relative '../support/vba_document_fixtures'
 
 RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
@@ -21,7 +22,6 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     slack_settings.each_pair do |k, v|
       Settings.vba_documents.slack.send("#{k}=".to_sym, v)
     end
-    require './modules/vba_documents/app/workers/vba_documents/slack_notifier'
     allow(faraday_response).to receive(:success?).and_return(true)
     @job = VBADocuments::SlackNotifier.new
     allow(@job).to receive(:send_to_slack) {
