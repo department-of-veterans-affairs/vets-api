@@ -426,7 +426,7 @@ features:
   spool_testing_error_3:
     actor_type: user
     description: >
-      Update processing retry functionality
+      Enables email notifications for CreateDailySpoolFiles errors
   dependency_verification:
     actor_type: user
     enable_in_development: true
