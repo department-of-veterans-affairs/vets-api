@@ -51,58 +51,10 @@ module CovidVaccine
       attr_encrypted :eligibility_info, key: Settings.db_encryption_key, marshal: true,
                                         marshaler: JsonMarshal::Marshaller
 
-      # We want records that have acceptable discharge status, country, state, zip and facility
-      def self.to_csv(separator = '^')
-        CSV.generate(col_sep: separator) do |csv|
-          eligible_us.order('created_at DESC').each do |es|
-            csv << es.send(:csv_row).map { |e| e&.delete('"^') }
-          end
-        end
-      end
-
       private
 
       def country_us?
         raw_form_data[:country_name] == 'USA'
-      end
-
-      def csv_row
-        raw_form_data
-          .values_at('first_name', 'middle_name', 'last_name')
-          .append(csv_birth_date)
-          .append(raw_form_data['ssn'])
-          .append(csv_birth_sex)
-          .append(icn)
-          .append(csv_address)
-          .concat(raw_form_data.values_at('city', 'state_code', 'zip_code'))
-          .append(csv_phone)
-          .append(raw_form_data['email_address'])
-          .append(csv_preferred_facility)
-          .append(VA_AGENCY_IDENTIFIER)
-      end
-
-      def csv_preferred_facility
-        raw_form_data['preferred_facility'].delete_prefix('vha_')
-      end
-
-      def csv_phone
-        raw_form_data['phone'].delete('-').insert(0, '(').insert(4, ')')
-      end
-
-      def csv_birth_date
-        Date.parse(raw_form_data['birth_date']).strftime('%m/%d/%Y')
-      end
-
-      def csv_birth_sex
-        raw_form_data['birth_sex'][0]
-      end
-
-      def csv_address
-        "#{raw_form_data['address_line1']} #{raw_form_data['address_line2']} #{raw_form_data['address_line3']}".strip
-      end
-
-      def icn
-        eligibility_info&.fetch('icn', nil)
       end
     end
   end
