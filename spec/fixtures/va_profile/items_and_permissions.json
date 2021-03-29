@@ -40,8 +40,7 @@
           {
             "id": 1,
             "name": "Text",
-            "description": "SMS Notification",
-            "communication_permission": null
+            "description": "SMS Notification"
           }
         ]
       }
@@ -58,14 +57,12 @@
           {
             "id": 1,
             "name": "Text",
-            "description": "SMS Notification",
-            "communication_permission": null
+            "description": "SMS Notification"
           },
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       }
@@ -82,8 +79,7 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       },
@@ -94,8 +90,7 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       },
@@ -106,14 +101,12 @@
           {
             "id": 1,
             "name": "Text",
-            "description": "SMS Notification",
-            "communication_permission": null
+            "description": "SMS Notification"
           },
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       }
@@ -130,8 +123,7 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       }
@@ -148,8 +140,7 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       }
@@ -166,8 +157,7 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       },
@@ -178,8 +168,7 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       }
@@ -196,8 +185,7 @@
           {
             "id": 2,
             "name": "Email",
-            "description": "Email Notification",
-            "communication_permission": null
+            "description": "Email Notification"
           }
         ]
       }

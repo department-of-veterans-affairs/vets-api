@@ -2,12 +2,14 @@ require_relative 'communication_channel'
 
 module VAProfile
   module Models
-    class CommunicationItem < Base
+    class CommunicationItem < CommunicationBase
       # TODO add validation
-      attribute :id, Integer
-      attribute :name, String
+      attribute :id, Types::Integer.optional
+      attribute :name, Types::Strict::String
 
-      attribute :communication_channels, Array[VAProfile::Models::CommunicationChannel]
+      attribute :communication_channels, Types::Strict::Array.of(VAProfile::Models::CommunicationChannel)
+
+      validates :id, :communication_channels, presence: true
 
       def http_verb
         communication_channels[0].communication_permission.id.present? ? :put : :post
