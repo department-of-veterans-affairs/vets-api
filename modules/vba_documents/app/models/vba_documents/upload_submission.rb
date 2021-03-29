@@ -27,7 +27,7 @@ module VBADocuments
       where(status: status)
         .where("(metadata -> 'status' -> ? -> 'start')::integer < ?", status,
                look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
-        .order(->{"(metadata -> 'status' -> '#{status}' -> 'start')::integer asc"}.call)
+        .order(-> { "(metadata -> 'status' -> '#{status}' -> 'start')::integer asc" }.call)
     }
 
     after_save :report_errors
