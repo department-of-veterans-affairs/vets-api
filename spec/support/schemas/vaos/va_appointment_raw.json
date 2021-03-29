@@ -22,6 +22,7 @@
           "items": {
             "type": "object",
             "properties": {
+              "id": { "type": "string" },
               "appointment_length": { "type": ["string", null] },
               "appointment_time": { "type": "string", "format": "date-time" },
               "clinic": {
