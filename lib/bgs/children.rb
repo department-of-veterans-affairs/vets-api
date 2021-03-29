@@ -68,7 +68,7 @@ module BGS
           {
             living_expenses_paid: formatted_info['living_expenses_paid'],
             guardian_particpant_id: guardian_participant[:vnp_ptcpnt_id],
-            'type': 'stepchild'
+            type: 'stepchild'
           }
         )
       end
@@ -97,10 +97,10 @@ module BGS
         'Child',
         'Biological',
         {
-          'event_date': formatted_info['event_date'],
-          'type': event_type,
-          'child_prevly_married_ind': formatted_info['ever_married_ind'],
-          'dep_has_income_ind': formatted_info['dependent_income']
+          event_date: formatted_info['event_date'],
+          type: event_type,
+          child_prevly_married_ind: formatted_info['ever_married_ind'],
+          dep_has_income_ind: formatted_info['dependent_income']
         }
       )
     end

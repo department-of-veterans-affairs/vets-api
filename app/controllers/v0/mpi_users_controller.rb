@@ -27,7 +27,7 @@ module V0
       add_response = @current_user.mpi.mvi_add_person
       raise add_response.error unless add_response.ok?
 
-      render json: { "message": 'Success' }
+      render json: { message: 'Success' }
     end
   end
 end

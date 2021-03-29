@@ -18,7 +18,7 @@ RSpec.describe Preneeds::Attachment do
         attachmentType: { attachmentTypeId: 1 },
         dataHandler: {
           "inc:Include": '',
-          'attributes!': {
+          attributes!: {
             "inc:Include": {
               href: "cid:#{hex}", "xmlns:inc": 'http://www.w3.org/2004/08/xop/include'
             }

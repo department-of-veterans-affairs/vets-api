@@ -18,7 +18,7 @@ module Swagger
 
           response 200 do
             key :description, 'get saved form summaries'
-            schema { key :'$ref', :InProgressFormsResponse }
+            schema { key :$ref, :InProgressFormsResponse }
           end
         end
       end
@@ -42,7 +42,7 @@ module Swagger
 
           response 200 do
             key :description, 'delete form response'
-            schema { key :'$ref', :InProgressFormResponse }
+            schema { key :$ref, :InProgressFormResponse }
           end
         end
 
@@ -64,7 +64,7 @@ module Swagger
 
           response 200 do
             key :description, 'get form response'
-            schema { key :'$ref', :InProgressFormShowResponse }
+            schema { key :$ref, :InProgressFormShowResponse }
           end
         end
 
@@ -99,7 +99,7 @@ module Swagger
 
           response 200 do
             key :description, 'update form response'
-            schema { key :'$ref', :InProgressFormResponse }
+            schema { key :$ref, :InProgressFormResponse }
           end
         end
       end

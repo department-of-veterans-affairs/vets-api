@@ -7,7 +7,7 @@ module Swagger
         base.response 400 do
           key :description, 'Backend service error'
           schema do
-            key :'$ref', :Errors
+            key :$ref, :Errors
           end
         end
       end
