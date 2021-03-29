@@ -16,4 +16,8 @@ class Form526JobStatus < ApplicationRecord
   def success?
     status == STATUS[:success]
   end
+
+  def unsuccessful?
+    !success?
+  end
 end
