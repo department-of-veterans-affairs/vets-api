@@ -9,5 +9,7 @@ CovidVaccine::Engine.routes.draw do
     put 'registration/opt_in', to: 'registration#opt_in'
 
     get 'facilities/:zip', to: 'facilities#index'
+
+    post 'expanded_registration', to: 'expanded_registration#create'
   end
 end

@@ -36,10 +36,9 @@ module CovidVaccine
       def nearest_facilities(lat, lng, count)
         client = Lighthouse::Facilities::Client.new
 
-        # TODO: Change this to use allowlist
         allowed_vamcs = proc do |f|
           id = f.id.delete_prefix('vha_')
-          id.length == 3 or CONSOLIDATED_FACILITIES.include?(id)
+          allowed_facilities.include?(id)
         end
 
         elements = proc do |f|
@@ -64,6 +63,10 @@ module CovidVaccine
         # For now just log any exception while getting facilities and return an empty result
         log_exception_to_sentry(e)
         raise Common::Exceptions::BadGateway
+      end
+
+      def allowed_facilities
+        @allowed_facilities ||= Settings.covid_vaccine.allowed_facilities.map(&:to_s)
       end
     end
   end
