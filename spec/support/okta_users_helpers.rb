@@ -12,7 +12,9 @@ def with_okta_configured(&block)
   ) do
     with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
       VCR.use_cassette('okta/metadata') do
-        yield block
+        VCR.use_cassette('okta/openid-user') do
+          yield block
+        end
       end
     end
   end
