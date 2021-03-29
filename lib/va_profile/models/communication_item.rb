@@ -4,7 +4,6 @@ require_relative 'communication_channel'
 module VAProfile
   module Models
     class CommunicationItem < CommunicationBase
-      # TODO add validation
       attr_accessor :id, :name, :communication_channels
 
       validates :id, :communication_channels, presence: true
