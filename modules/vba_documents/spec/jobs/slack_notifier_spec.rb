@@ -10,7 +10,8 @@ RSpec.describe VBADocuments::SlackNotifier, type: :job do
       'in_flight_notification_hung_time_in_days' => 14,
       'renotification_in_minutes' => 240,
       'update_stalled_notification_in_minutes' => 180,
-      'daily_notification_hour' => 7
+      'daily_notification_hour' => 7,
+      'notification_url' => ''
     }
   end
 
