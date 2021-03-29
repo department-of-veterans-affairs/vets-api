@@ -147,7 +147,6 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
 
       it 'returns a submission summary' do
         post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
-
         expect(response).to have_http_status(:created)
         body = JSON.parse(response.body)
         expect(body['data']['id']).to eq('')
