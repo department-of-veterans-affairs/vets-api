@@ -70,7 +70,7 @@ FactoryBot.define do
           'city' => 'Manila',
           'state_code' => 'Ermita',
           'zip_code' => '1000',
-          'country' => 'Philippines'
+          'country_name' => 'Philippines'
         }
       }
     end

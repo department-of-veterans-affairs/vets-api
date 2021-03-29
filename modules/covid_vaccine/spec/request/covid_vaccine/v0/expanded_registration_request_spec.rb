@@ -7,6 +7,7 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
 
   let(:registration_attributes) do
     {
+      applicant_type: 'veteran',
       first_name: 'Jane',
       last_name: 'Doe',
       birth_date: '1952-02-02',
@@ -162,6 +163,13 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
         expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
           .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
       end
+
+      it 'logs an audit record with appropriate applicant type' do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with('Covid_Vaccine Expanded_Submission',
+                                                    hash_including(applicant_type: 'veteran'))
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+      end
     end
 
     context 'with a spouse submission' do
@@ -177,6 +185,13 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
       it 'records the submission for processing' do
         expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
           .to change(CovidVaccine::V0::ExpandedRegistrationSubmission, :count).by(1)
+      end
+
+      it 'logs an audit record with appropriate applicant type' do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with('Covid_Vaccine Expanded_Submission',
+                                                    hash_including(applicant_type: 'spouse'))
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
       end
     end
   end

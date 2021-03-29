@@ -13,7 +13,7 @@ module CovidVaccine
         raw_form_data = params[:registration]
         record = CovidVaccine::V0::ExpandedRegistrationSubmission.create!({ submission_uuid: SecureRandom.uuid,
                                                                             raw_form_data: raw_form_data })
-
+        audit_log(raw_form_data)
         CovidVaccine::ExpandedRegistrationEmailJob.perform_async(record.id)
         render json: record, serializer: CovidVaccine::V0::ExpandedRegistrationSerializer, status: :created
       end
@@ -27,6 +27,17 @@ module CovidVaccine
 
       def check_flipper
         routing_error unless Flipper.enabled?(:covid_vaccine_registration_expanded)
+      end
+
+      def audit_log(raw_form_data)
+        log_attrs = {
+          applicant_type: raw_form_data[:applicant_type],
+          country_name: raw_form_data[:country_name],
+          state_code: raw_form_data[:state_code],
+          preferred_facility: raw_form_data[:preferred_facility],
+          has_email: raw_form_data[:email_address].present?
+        }
+        Rails.logger.info('Covid_Vaccine Expanded_Submission', log_attrs)
       end
     end
   end
