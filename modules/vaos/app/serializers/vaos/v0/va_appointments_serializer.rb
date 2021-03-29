@@ -9,7 +9,7 @@ module VAOS
 
       set_type :va_appointments
 
-      attributes :start_date, :sta6aid, :clinic_id, :clinic_friendly_name, :facility_id, :community_care
+      attributes :start_date, :sta6aid, :clinic_id, :clinic_friendly_name, :facility_id, :char4, :community_care
 
       attribute :vds_appointments do |object|
         Array.wrap(object&.vds_appointments).map do |vds|
