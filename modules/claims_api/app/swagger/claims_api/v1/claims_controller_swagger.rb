@@ -63,14 +63,6 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
           response 200 do
             key :description, 'claims response'
             content 'application/json' do
@@ -78,7 +70,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :ClaimsShow
+                  key :$ref, :ClaimsShow
                 end
               end
             end
@@ -93,7 +85,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -109,7 +101,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
@@ -171,14 +163,6 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
           response 200 do
             key :description, 'claim response'
             content 'application/json' do
@@ -188,7 +172,7 @@ module ClaimsApi
                 property :data do
                   key :type, :array
                   items do
-                    key :'$ref', :ClaimsIndex
+                    key :$ref, :ClaimsIndex
                   end
                 end
               end
@@ -204,7 +188,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -220,7 +204,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end

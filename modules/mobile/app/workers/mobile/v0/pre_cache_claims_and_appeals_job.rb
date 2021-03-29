@@ -11,12 +11,12 @@ module Mobile
         user = IAMUser.find(uuid)
         response = claims_proxy(user).get_claims_and_appeals
 
-        if !response[:errors].size.positive?
+        if response[:errors].size.positive?
+          Rails.logger.warn('mobile claims pre-cache set failed', user_uuid: uuid, errors: response[:errors])
+        else
           json = JSON.dump(response[:data])
           Mobile::V0::ClaimOverview.set_cached(user, json)
           Rails.logger.info('mobile claims pre-cache set succeeded', user_uuid: uuid)
-        else
-          Rails.logger.warn('mobile claims pre-cache set failed', user_uuid: uuid, errors: response[:errors])
         end
       end
 

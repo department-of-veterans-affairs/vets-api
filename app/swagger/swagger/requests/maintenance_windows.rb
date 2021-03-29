@@ -15,7 +15,7 @@ module Swagger
             key :description, 'get list of scheduled maintenance windows'
 
             schema do
-              key :'$ref', :MaintenanceWindows
+              key :$ref, :MaintenanceWindows
             end
           end
         end

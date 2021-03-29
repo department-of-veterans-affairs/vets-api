@@ -36,7 +36,7 @@ module VAForms
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :FormsIndex
+                  key :$ref, :FormsIndex
                 end
               end
             end
@@ -79,7 +79,7 @@ module VAForms
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :FormShow
+                  key :$ref, :FormShow
                 end
               end
             end
