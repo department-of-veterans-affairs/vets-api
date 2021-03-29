@@ -6,7 +6,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"email_address":"vets.gov.user+0@gmail.com","template_id":"999edcfa-5b8a-4322-ada7-4ab60baf66d3","personalisation":{"date":"March
-        29, 2021 4:10 p.m. UTC","confirmation_id":"0b946c9e-3441-4fd1-a15c-d30804ce2784"},"reference":"0b946c9e-3441-4fd1-a15c-d30804ce2784"}'
+        29, 2021 4:43 p.m. UTC","confirmation_id":"3f3fdeb6-9d65-4503-89c4-43a223515581"},"reference":"3f3fdeb6-9d65-4503-89c4-43a223515581"}'
     headers:
       Accept:
       - "*/*"
@@ -24,7 +24,7 @@ http_interactions:
       message: CREATED
     headers:
       Date:
-      - Mon, 29 Mar 2021 16:10:25 GMT
+      - Mon, 29 Mar 2021 16:43:50 GMT
       Content-Type:
       - application/json
       Content-Length:
@@ -75,8 +75,8 @@ http_interactions:
         COVID-19 vaccine plans. If someone forwarded this email to you, you can [sign
         up to receive future updates](https://www.va.gov/health-care/covid-19-vaccine/stay-informed/?utm_source=VANotify&utm_medium=email&utm_campaign=covid_19_vaccine).\r\n\r\nPlease
         don\u2019t reply to this email. If you need to contact us, go to https://www.va.gov.","subject":"Thank
-        you for signing up for COVID-19 vaccine updates"},"id":"6b4a71ed-68c7-4c8e-809d-a57193b12ed5","reference":"0b946c9e-3441-4fd1-a15c-d30804ce2784","scheduled_for":null,"template":{"id":"999edcfa-5b8a-4322-ada7-4ab60baf66d3","uri":"https://staging.api.notifications.va.gov/services/5e5cded3-3c76-46a3-9eef-cb63589e76be/templates/999edcfa-5b8a-4322-ada7-4ab60baf66d3","version":7},"uri":"https://staging.api.notifications.va.gov/v2/notifications/6b4a71ed-68c7-4c8e-809d-a57193b12ed5"}
+        you for signing up for COVID-19 vaccine updates"},"id":"a4bf29d9-7543-486d-bc31-934b95cfe7e3","reference":"3f3fdeb6-9d65-4503-89c4-43a223515581","scheduled_for":null,"template":{"id":"999edcfa-5b8a-4322-ada7-4ab60baf66d3","uri":"https://staging.api.notifications.va.gov/services/5e5cded3-3c76-46a3-9eef-cb63589e76be/templates/999edcfa-5b8a-4322-ada7-4ab60baf66d3","version":7},"uri":"https://staging.api.notifications.va.gov/v2/notifications/a4bf29d9-7543-486d-bc31-934b95cfe7e3"}
 
         '
-  recorded_at: Mon, 29 Mar 2021 16:10:25 GMT
+  recorded_at: Mon, 29 Mar 2021 16:43:50 GMT
 recorded_with: VCR 6.0.0
