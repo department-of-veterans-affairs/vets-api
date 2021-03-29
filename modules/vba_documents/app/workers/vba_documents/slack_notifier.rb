@@ -25,6 +25,7 @@ module VBADocuments
         results = e
       end
       Rails.logger.info('VBADocuments::SlackNotifier had results', results)
+      results
     end
 
     private
@@ -49,7 +50,7 @@ module VBADocuments
     def upload_stalled_alert
       # spoof_stalled_updates #todo delete me
       alert_on = fetch_stuck_in_state(['uploaded'], UPLOAD_HUNGTIME, :minutes)
-      text = 'ALERT!! GUIDS in updated for too long!\n'
+      text = 'ALERT!! GUIDS in uploaded for too long!\n'
       alert(alert_on, text)
     end
 
@@ -73,7 +74,7 @@ module VBADocuments
     end
 
     # def spoof_stalled_updates
-    #   # TODO: delete method.
+    # #   # TODO: delete method.
     #   3.times do |i|
     #     u = UploadSubmission.new
     #     status = 'uploaded'
