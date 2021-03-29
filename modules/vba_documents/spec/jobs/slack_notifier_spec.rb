@@ -7,12 +7,12 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:slack_settings) do
     {
-        in_flight_notification_hung_time_in_days: 14,
-        renotification_in_minutes: 240,
-        update_stalled_notification_in_minutes: 180,
-        daily_notification_hour: 7,
-        notification_url: '',
-        enabled: true
+      in_flight_notification_hung_time_in_days: 14,
+      renotification_in_minutes: 240,
+      update_stalled_notification_in_minutes: 180,
+      daily_notification_hour: 7,
+      notification_url: '',
+      enabled: true
     }
   end
 
@@ -31,7 +31,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   end
 
   after do
-    Settings.vba_documents.slack= nil
+    Settings.vba_documents.slack = nil
   end
 
   context 'daily notification' do
@@ -41,7 +41,6 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
         @results = @job.perform
       end
       expect(@results[:daily_notification]).to be(true)
-
     end
 
     it 'does not do the daily notification at the incorrect hour' do
