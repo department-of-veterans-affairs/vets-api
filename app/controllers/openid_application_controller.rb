@@ -10,6 +10,7 @@ require 'oidc/key_service'
 require 'okta/user_profile'
 require 'okta/service'
 require 'jwt'
+require 'base64'
 
 class OpenidApplicationController < ApplicationController
   skip_before_action :verify_authenticity_token
@@ -34,9 +35,16 @@ class OpenidApplicationController < ApplicationController
   def authenticate_token
     return false if token.blank?
 
+    if ssoi_token?
+      token.payload[:last_login_type] = 'ssoi'
+    end
+
     # issued for a client vs a user
-    if token.client_credentials_token?
+    if token.client_credentials_token? || token.ssoi_token?
       token.payload[:icn] = fetch_smart_launch_context if token.payload['scp'].include?('launch/patient')
+      if token.payload['scp'].include?('launch')
+        token.payload[:launch] = JSON.parse(Base64.decode64(fetch_smart_launch_context))
+      end
       return true
     end
 
@@ -73,6 +81,18 @@ class OpenidApplicationController < ApplicationController
     # this class so we can exclude them from Sentry without needing to know
     # all the classes used by our dependencies.
     Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
+  end
+
+  def ssoi_token?
+    profile = fetch_profile(token.identifiers.okta_uid)
+    if profile.attrs['last_login_type'] == 'ssoi'
+      token.payload['last_login_type'] = 'ssoi'
+      token.payload['icn'] = profile.attrs['icn']
+      token.payload['npi'] = profile.attrs['npi']
+      token.payload['vista_id'] = profile.attrs['vista_id']
+      true
+    end
+    false
   end
 
   def establish_session
