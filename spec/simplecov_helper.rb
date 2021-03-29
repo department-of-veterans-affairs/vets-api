@@ -32,10 +32,9 @@ class SimpleCovHelper
   end
 
   def merge_results
-    results = all_results.map { |file| SimpleCov::Result.from_hash(JSON.parse(File.read(file))) }
-    SimpleCov::ResultMerger.merge_results(*results).tap do |result|
-      SimpleCov::ResultMerger.store_result(result)
-    end
+    SimpleCov.collate all_results
+  rescue RuntimeError
+    nil
   end
 
   def self.add_filters

@@ -156,9 +156,7 @@ group :test do
   gem 'rspec-retry'
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
-  # < 0.18 required due to bug with reporting to CodeClimate
-  # https://github.com/codeclimate/test-reporter/issues/418
-  gem 'simplecov', '< 0.18', require: false
+  gem 'simplecov', require: false
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick', '>= 1.6.1'
@@ -168,7 +166,7 @@ end
 group :development, :test do
   gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'bootsnap', require: false
-  gem 'brakeman', '~> 4.7'
+  gem 'brakeman', '~> 5.0.0'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'

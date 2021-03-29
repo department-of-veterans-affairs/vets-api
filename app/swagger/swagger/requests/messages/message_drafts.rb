@@ -14,7 +14,7 @@ module Swagger
 
             parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
               schema do
-                key :'$ref', :MessageInput
+                key :$ref, :MessageInput
               end
             end
 
@@ -22,7 +22,7 @@ module Swagger
               key :description, 'create draft message response'
 
               schema do
-                key :'$ref', :Message
+                key :$ref, :Message
               end
             end
           end
@@ -38,7 +38,7 @@ module Swagger
               parameter name: :id, in: :path, type: :integer, required: true, description: 'message draft id'
               parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
                 schema do
-                  key :'$ref', :MessageInput
+                  key :$ref, :MessageInput
                 end
               end
 
@@ -58,7 +58,7 @@ module Swagger
             parameter name: :reply_id, in: :path, type: :integer, required: true, description: 'message replied to id'
             parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
               schema do
-                key :'$ref', :MessageInput
+                key :$ref, :MessageInput
               end
             end
 
@@ -66,7 +66,7 @@ module Swagger
               key :description, 'create reply message draft response'
 
               schema do
-                key :'$ref', :Message
+                key :$ref, :Message
               end
             end
           end
@@ -82,7 +82,7 @@ module Swagger
             parameter name: :draft_id, in: :path, type: :integer, required: true, description: 'message draft updated'
             parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
               schema do
-                key :'$ref', :MessageInput
+                key :$ref, :MessageInput
               end
             end
 

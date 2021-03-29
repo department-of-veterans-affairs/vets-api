@@ -1017,10 +1017,10 @@ module PdfFill
             first_key: 'full_name',
             'supporting_stepchild' => {
               'supporting_stepchild_yes' => {
-                'key': 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[79]'
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[79]'
               },
               'supporting_stepchild_no' => {
-                'key': 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[78]'
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[78]'
               }
             }, # end of supporting_stepchild
             'full_name' => {
@@ -1124,9 +1124,9 @@ module PdfFill
             }, # end of address
             # 21F. DATE STEPCHILD LEFT VETERAN'S HOUSEHOLD (MM-DD-YYYY)
             'living_expenses_paid' => {
-              'more_than_half' => { 'key': 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
-              'half' => { 'key': 'step_children.living_expenses_paid.half[%iterator%]' },
-              'less_than_half' => { 'key': 'step_children.living_expenses_paid.less_than_half[%iterator%]' }
+              'more_than_half' => { key: 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
+              'half' => { key: 'step_children.living_expenses_paid.half[%iterator%]' },
+              'less_than_half' => { key: 'step_children.living_expenses_paid.less_than_half[%iterator%]' }
             } # end of living_expenses_paid
           }, # end of step_children
           # -----------------  SECTION VI: VETERAN/CLAIMANT REPORTING DEATH OF A DEPENDENT  ----------------- #
@@ -1134,15 +1134,15 @@ module PdfFill
             limit: 2,
             first_key: 'full_name',
             'dependent_type' => {
-              'spouse' => { 'key': 'deaths.dependent_type.spouse[%iterator%]' },
-              'minor_child' => { 'key': 'deaths.dependent_type.minor_child[%iterator%]' },
-              'stepchild' => { 'key': 'deaths.dependent_type.stepchild[%iterator%]' },
-              'adopted' => { 'key': 'deaths.dependent_type.adopted[%iterator%]' },
-              'dependent_parent' => { 'key': 'deaths.dependent_type.dependent_parent[%iterator%]' },
+              'spouse' => { key: 'deaths.dependent_type.spouse[%iterator%]' },
+              'minor_child' => { key: 'deaths.dependent_type.minor_child[%iterator%]' },
+              'stepchild' => { key: 'deaths.dependent_type.stepchild[%iterator%]' },
+              'adopted' => { key: 'deaths.dependent_type.adopted[%iterator%]' },
+              'dependent_parent' => { key: 'deaths.dependent_type.dependent_parent[%iterator%]' },
               'child_incapable_self_support' => {
-                'key': 'deaths.dependent_type.child_incapable_self_support[%iterator%]'
+                key: 'deaths.dependent_type.child_incapable_self_support[%iterator%]'
               },
-              '18_23_years_old_in_school' => { 'key': 'deaths.dependent_type.18_23_years_old_in_school[%iterator%]' }
+              '18_23_years_old_in_school' => { key: 'deaths.dependent_type.18_23_years_old_in_school[%iterator%]' }
             },
             'full_name' => {
               'first' => {
