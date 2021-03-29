@@ -16,10 +16,6 @@ module DebtManagementCenter
 
     STATSD_KEY_PREFIX = 'api.dmc'
 
-    def initialize(user)
-      @user = user
-    end
-
     ##
     # Submit a financial status report to the Debt Management Center
     #
@@ -29,6 +25,7 @@ module DebtManagementCenter
     def submit_financial_status_report(form)
       with_monitoring_and_error_handling do
         form = camelize(form)
+        form['personalIdentification']['fileNumber'] = @file_number
         response = DebtManagementCenter::FinancialStatusReportResponse.new(
           perform(:post, 'financial-status-report/formtopdf', form).body
         )
