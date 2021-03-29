@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 456ba74f7ab19c105e69abf795943afb1007f127
+  revision: 7f003afd86f73155568cfc81676999beedea8032
   branch: master
   specs:
-    vets_json_schema (18.6.8)
+    vets_json_schema (18.6.9)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -503,8 +503,8 @@ GEM
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
-    jwt (2.2.1)
-    kramdown (2.3.0)
+    jwt (2.2.2)
+    kramdown (2.3.1)
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
@@ -564,7 +564,7 @@ GEM
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.9.0)
-    okcomputer (1.18.2)
+    okcomputer (1.18.4)
     olive_branch (3.0.0)
       multi_json
       oj
@@ -754,7 +754,7 @@ GEM
     rspec-support (3.10.0)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (1.11.0)
+    rubocop (1.12.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)

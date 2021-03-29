@@ -99,6 +99,8 @@ edu:
     pass: ~
     user: ~
     port: ~
+  slack:
+    webhook_url: https://example.com
 
 dependents:
   prefill: true
