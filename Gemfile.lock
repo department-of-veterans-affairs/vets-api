@@ -603,7 +603,7 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.2)
-    parallel_tests (3.5.2)
+    parallel_tests (3.6.0)
       parallel
     parser (3.0.0.0)
       ast (~> 2.4.1)
