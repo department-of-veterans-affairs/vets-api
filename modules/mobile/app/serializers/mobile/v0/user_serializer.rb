@@ -52,6 +52,8 @@ module Mobile
         value&.to_h&.slice(*keys)
       end
 
+      Rails.logger.info('user hash', user)
+
       attribute :profile do |user|
         {
           first_name: user.first_name,
