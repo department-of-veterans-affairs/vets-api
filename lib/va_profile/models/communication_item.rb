@@ -8,6 +8,7 @@ module VAProfile
       attr_accessor :id, :name, :communication_channels
 
       validates :id, :communication_channels, presence: true
+      validates :communication_channels, length: { maximum: 1, too_long: 'must have only one communication channel' }
 
       def http_verb
         communication_channels[0].communication_permission.id.present? ? :put : :post
