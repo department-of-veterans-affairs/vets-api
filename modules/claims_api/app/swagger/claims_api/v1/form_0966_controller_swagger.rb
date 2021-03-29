@@ -52,7 +52,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -104,14 +104,6 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
           request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
@@ -156,7 +148,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form0966Output
+                  key :$ref, :Form0966Output
                 end
               end
             end
@@ -171,7 +163,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -187,7 +179,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ForbiddenModel
+                    key :$ref, :ForbiddenModel
                   end
                 end
               end
@@ -203,7 +195,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -257,14 +249,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'type'
             key :in, :query
             key :description, 'The type of 0966 you wish to get the active submission for'
@@ -279,7 +263,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form0966Output
+                  key :$ref, :Form0966Output
                 end
               end
             end
@@ -294,7 +278,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -310,7 +294,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -431,7 +415,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -447,7 +431,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
