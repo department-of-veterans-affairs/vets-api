@@ -86,9 +86,9 @@ class OpenidApplicationController < ApplicationController
       token.payload['icn'] = profile.attrs['icn']
       token.payload['npi'] = profile.attrs['npi']
       token.payload['vista_id'] = profile.attrs['vista_id']
-      true
+      return true
     end
-    false
+    return false
   end
 
   def establish_session
