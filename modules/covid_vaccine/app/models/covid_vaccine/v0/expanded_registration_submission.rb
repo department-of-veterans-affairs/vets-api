@@ -6,7 +6,7 @@ module CovidVaccine
       include AASM
 
       # CSV Constants
-      VA_AGENCY_IDENTIFIER = 8
+      VA_AGENCY_IDENTIFIER = '8'
 
       aasm(:state) do
         # Fire off job for email confirmation to the user that submission has been received
@@ -55,7 +55,7 @@ module CovidVaccine
       def self.to_csv(separater = '^')
         CSV.generate(col_sep: separater) do |csv|
           eligible_us.order('created_at DESC').each do |es|
-            csv << es.send(:csv_row)
+            csv << es.send(:csv_row).map { |e| e&.delete('"^') }
           end
         end
       end
@@ -67,16 +67,22 @@ module CovidVaccine
       end
 
       def csv_row
-        raw_form_data.values_at('first_name', 'middle_name', 'last_name') +
-          [csv_birth_date] +
-          [raw_form_data['ssn']] +
-          [csv_birth_sex] +
-          [icn] +
-          [csv_address] +
-          raw_form_data.values_at('city', 'state_code', 'zip_code') +
-          [csv_phone] +
-          raw_form_data.values_at('email_address', 'preferred_facility') +
-          [VA_AGENCY_IDENTIFIER]
+        raw_form_data
+          .values_at('first_name', 'middle_name', 'last_name')
+          .append(csv_birth_date)
+          .append(raw_form_data['ssn'])
+          .append(csv_birth_sex)
+          .append(icn)
+          .append(csv_address)
+          .concat(raw_form_data.values_at('city', 'state_code', 'zip_code'))
+          .append(csv_phone)
+          .append(raw_form_data['email_address'])
+          .append(csv_preferred_facility)
+          .append(VA_AGENCY_IDENTIFIER)
+      end
+
+      def csv_preferred_facility
+        raw_form_data['preferred_facility'].delete_prefix('vha_')
       end
 
       def csv_phone
