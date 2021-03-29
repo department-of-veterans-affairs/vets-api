@@ -25,9 +25,9 @@ module VBADocuments
     # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
     scope :aged_processing, lambda { |look_back, unit_of_measure, status|
       where(status: status)
-          .where("(metadata -> 'status' -> ? -> 'start')::integer < ?", status,
-                 look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
-          .order("(metadata -> 'status' -> '#{status}' -> 'start')::integer asc")
+        .where("(metadata -> 'status' -> ? -> 'start')::integer < ?", status,
+               look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
+        .order("(metadata -> 'status' -> '#{status}' -> 'start')::integer asc")
     }
 
     after_save :report_errors
