@@ -59,10 +59,10 @@ end
 # extract individual options...
 # start date
 begin
-  start_date = if !arguments[:sdt].nil?
-                 Date.parse(arguments[:sdt])
-               else
+  start_date = if arguments[:sdt].nil?
                  Time.current.to_date - 1
+               else
+                 Date.parse(arguments[:sdt])
                end
 rescue ArgumentError
   puts "\nUnable to parse start date #{arguments[:sdt]}"
@@ -71,10 +71,10 @@ end
 
 # end date
 begin
-  end_date = if !arguments[:edt].nil?
-               Date.parse(arguments[:edt])
-             else
+  end_date = if arguments[:edt].nil?
                Time.current.to_date
+             else
+               Date.parse(arguments[:edt])
              end
 rescue ArgumentError
   puts "\nUnable to parse end date #{arguments[:edt]}"
@@ -82,10 +82,10 @@ rescue ArgumentError
 end
 
 # filter pattern
-filter_pattern = if !arguments[:fp].nil?
-                   arguments[:fp]
-                 else
+filter_pattern = if arguments[:fp].nil?
                    '{($.message="VAOS*") && ($.payload.url="*")}'
+                 else
+                   arguments[:fp]
                  end
 
 #
