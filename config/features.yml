@@ -427,11 +427,11 @@ features:
   spool_testing_error_1:
     actor_type: user
     description: >
-      Support testing of track file spool file creation by RPO
+      Enables spool_file_events tracking rows to be used to prevent multiple spool files per RPO per date
   spool_testing_error_2:
     actor_type: user
     description: >
-      Create notification for when spool file processing fails
+      Enables Slack notifications for CreateDailySpoolFiles
   spool_testing_error_3:
     actor_type: user
     description: >
