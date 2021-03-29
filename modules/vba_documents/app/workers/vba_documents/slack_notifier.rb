@@ -9,7 +9,8 @@ module VBADocuments
 
     def perform
       return unless Settings.vba_documents.slack.enabled
-      SlackNotifier.fetch_settings
+
+      fetch_settings
       Rails.logger.info('VBADocuments::SlackNotifier starting.')
       begin
         results = { long_flyers_alerted: long_flyers_alert,
@@ -22,19 +23,19 @@ module VBADocuments
       results
     end
 
-    private
-
-    def self.fetch_settings
-      @@slack_url ||= Settings.vba_documents.slack.notification_url
-      @@in_flight_hungtime ||= Settings.vba_documents.slack.in_flight_notification_hung_time_in_days.to_i
-      @@renotify_time ||= Settings.vba_documents.slack.renotification_in_minutes.to_i
-      @@upload_hungtime ||= Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
-      @@daily_notification_hour ||= Settings.vba_documents.slack.daily_notification_hour.to_i
+    def fetch_settings
+      @slack_url = Settings.vba_documents.slack.notification_url
+      @in_flight_hungtime = Settings.vba_documents.slack.in_flight_notification_hung_time_in_days.to_i
+      @renotify_time = Settings.vba_documents.slack.renotification_in_minutes.to_i
+      @upload_hungtime = Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
+      @daily_notification_hour = Settings.vba_documents.slack.daily_notification_hour.to_i
     end
+
+    private
 
     def daily_notification
       hour = Time.now.utc.hour - 5
-      if hour.eql?(@@daily_notification_hour)
+      if hour.eql?(@daily_notification_hour)
         text = "Daily Status (worst offenders over past week):\n"
         UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
           model = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
@@ -51,20 +52,20 @@ module VBADocuments
 
     def upload_stalled_alert
       # spoof_stalled_updates #todo delete me
-      alert_on = fetch_stuck_in_state(['uploaded'], @@upload_hungtime, :minutes)
+      alert_on = fetch_stuck_in_state(['uploaded'], @upload_hungtime, :minutes)
       text = 'ALERT!! GUIDS in uploaded for too long!\n'
       alert(alert_on, text)
     end
 
     def long_flyers_alert
       # spoof_long_flyers #todo delete me
-      alert_on = fetch_stuck_in_state(UploadSubmission::IN_FLIGHT_STATUSES, @@in_flight_hungtime, :days)
+      alert_on = fetch_stuck_in_state(UploadSubmission::IN_FLIGHT_STATUSES, @in_flight_hungtime, :days)
       text = 'ALERT!! GUIDS in flight for too long!\n'
       alert(alert_on, text)
     end
 
     def send_to_slack(text)
-      Faraday.post(@@slack_url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
+      Faraday.post(@slack_url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
     end
 
     def add_notification_timestamp(models)
@@ -140,7 +141,7 @@ module VBADocuments
                                               .limit(10).select do |m|
           last_notified = m.metadata['last_slack_notification'].to_i # nil to zero
           delta = Time.now.to_i - last_notified
-          notify = delta > @@renotify_time * 60
+          notify = delta > @renotify_time * 60
           # puts "notify is #{notify} for status #{status} delta is #{delta} with last notified being #{last_notified}"
           notify
         end
