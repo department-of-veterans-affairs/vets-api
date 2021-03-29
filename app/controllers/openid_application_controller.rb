@@ -35,12 +35,8 @@ class OpenidApplicationController < ApplicationController
   def authenticate_token
     return false if token.blank?
 
-    if ssoi_token?
-      token.payload[:last_login_type] = 'ssoi'
-    end
-
     # issued for a client vs a user
-    if token.client_credentials_token? || token.ssoi_token?
+    if token.client_credentials_token? || ssoi_token?
       token.payload[:icn] = fetch_smart_launch_context if token.payload['scp'].include?('launch/patient')
       if token.payload['scp'].include?('launch')
         token.payload[:launch] = JSON.parse(Base64.decode64(fetch_smart_launch_context))
