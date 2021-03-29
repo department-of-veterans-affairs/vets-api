@@ -59,11 +59,8 @@ module AppealsApi
         end
 
         def signature
-          first_last = [first_name('Veteran')&.[](0...90), last_name('Veteran')&.[](0...90)]
-          formatted_name = first_last.map(&:presence).compact.join(' ')
-          auth_statement = '- Signed by digital authentication to api.va.gov'
-
-          "#{formatted_name}\n#{auth_statement}"
+          # 180 characters is the max allowed by the Name field on the pdf
+          "#{veteran_name[0...180]}\n- Signed by digital authentication to api.va.gov"
         end
 
         def date_signed
