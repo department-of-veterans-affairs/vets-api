@@ -28,7 +28,7 @@ module VBADocuments
         .where("(metadata -> 'status' -> ? -> 'start')::integer < ?", status,
                look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
         .order(-> { "(metadata -> 'status' -> '#{status}' -> 'start')::integer asc" }.call)
-      # lambda above stops security scan from finding false positive sql injection.
+      # lambda above stops security scan from finding false positive sql injection!
     }
 
     after_save :report_errors
