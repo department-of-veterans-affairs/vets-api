@@ -8,7 +8,7 @@ RSpec.describe V0::NoticeOfDisagreements::ContestableIssuesController, type: :re
 
   before { sign_in_as(user) }
 
-  describe '#create' do
+  describe '#index' do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?',
                                    'V0::NoticeOfDisagreements::ContestableIssuesController#index exception % (NOD)'
