@@ -13,7 +13,7 @@ module AppsApi
       @time_period = 120.minutes.ago.utc.iso8601
       @connection_template = Settings.vanotify.services.lighthouse.template_id.connection_template
       @disconnection_template = Settings.vanotify.services.lighthouse.template_id.disconnection_template
-      #@notify_client = VaNotify::Service.new(Settings.vanotify.services.lighthouse.api_key)
+      @notify_client = VaNotify::Service.new(Settings.vanotify.services.lighthouse.api_key)
       @connection_event = 'app.oauth2.as.consent.grant'
       @disconnection_event = 'app.oauth2.as.token.revoke'
       @staging_flag = Settings.directory.staging_flag
@@ -85,7 +85,7 @@ module AppsApi
 
       # check if there is a member with the same email
       # and time as our parsed_hash to detect duplicates
-      current_event = { 'email' => parsed_hash[:user_email], 'time' => parsed_hash[:time] }
+      current_event = { 'email' => parsed_hash[:user_email], 'time' => parsed_hash[:options][:time] }
       members.each do |member|
         member_hash = Redis.current.hgetall(member)
         already_handled = true if current_event.eql? member_hash

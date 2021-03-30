@@ -148,7 +148,7 @@ describe AppsApi::NotificationService do
     # lib/va_notify/configuration.rb#initialize contains:
     # @notify_client ||= Notifications::Client.new(api_key, client_url)
     allow(Notifications::Client).to receive(:new).and_return(notification_client)
-    allow(notification_client).to receive(:send_email)
+    allow(notification_client).to receive(:send_email).and_return(true)
   end
 
   describe '#initialize' do
@@ -227,40 +227,39 @@ describe AppsApi::NotificationService do
   describe 'validating events' do
     context 'and the event is a connection' do
       it 'does not validate invalid connection events' do
-        expect(subject.event_is_invalid?(returned_hash,invalid_connection_event)).to be(true)
+        expect(subject.event_is_invalid?(returned_hash, invalid_connection_event)).to be(true)
       end
 
       it 'validates valid connection events' do
-        expect(subject.event_is_invalid?(returned_hash,valid_connection_event)).to be(false)
+        expect(subject.event_is_invalid?(returned_hash, valid_connection_event)).to be(false)
       end
     end
 
     context 'and the event is a disconnection' do
       it 'does not validate invalid disconnection events' do
-        expect(subject.event_is_invalid?(returned_hash,invalid_disconnection_event)).to be(true)
+        expect(subject.event_is_invalid?(returned_hash, invalid_disconnection_event)).to be(true)
       end
 
       it 'validates valid disconnection events' do
-        expect(subject.event_is_invalid?(returned_hash,valid_disconnection_event)).to be(false)
+        expect(subject.event_is_invalid?(returned_hash, valid_disconnection_event)).to be(false)
       end
     end
 
     context 'when the event has already been processed' do
       it 'does not process an event that has already been processed' do
         subject.instance_variable_set(:@handled_events, ['1234fakeuuid'])
-        expect(subject.event_is_invalid?(returned_hash,invalid_connection_event)).to be(true)
+        expect(subject.event_is_invalid?(returned_hash, invalid_connection_event)).to be(true)
       end
 
       it 'ignores events that have not been processed' do
-        expect(subject.event_is_invalid?(returned_hash,valid_connection_event)).to be(false)
+        expect(subject.event_is_invalid?(returned_hash, valid_connection_event)).to be(false)
       end
     end
   end
 
   describe 'event_already_handled?' do
     it 'correctly checks if an event uuid has been processed' do
-      Redis.current.hmset('1234fakeuuid', 'email','johndoe@email.com', 'time',Time.now)
-      Redis.current.sadd('apps_notification_events','1234fakeuuid')
+      subject.mark_event_as_handled(returned_hash)
       expect(subject.event_already_handled?(returned_hash)).to be(true)
     end
   end
