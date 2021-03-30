@@ -13,6 +13,7 @@ RSpec.describe VAForms::Form, type: :model do
       form.pages = 2
       form.sha256 = 'somelongsha'
       form.valid_pdf = true
+      form.row_id = 4909
       form.save
       form.reload
       expect(form.last_revision_on).to eq(form.first_issued_on)
