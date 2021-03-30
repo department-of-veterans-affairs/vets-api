@@ -24,6 +24,10 @@ module CovidVaccine
         form_data = CovidVaccine::V0::RawExpandedFormData.new(params[:registration] || {})
         raise Common::Exceptions::ValidationErrors, form_data unless form_data.valid?
       end
+
+      def check_flipper
+        routing_error unless Flipper.enabled?(:covid_vaccine_registration_expanded)
+      end
     end
   end
 end
