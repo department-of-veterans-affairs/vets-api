@@ -20,8 +20,6 @@ module OpenidAuth
         # Ensure the token has `act` and `launch` keys.
         payload_object = setup_structure
 
-        payload_object.launch = token.payload[:launch] if token.payload['scp'].include?('launch')
-
         if token.ssoi_token?
           payload_object.act[:icn] = token.payload['icn']
           payload_object.act[:npi] = token.payload['npi']
@@ -42,13 +40,14 @@ module OpenidAuth
 
         payload_object
       end
-      
+
       def setup_structure
         payload_object = OpenStruct.new(token.payload.merge(act: {}, launch: {}))
         payload_object.act[:icn] = nil
         payload_object.act[:npi] = nil
         payload_object.act[:sec_id] = nil
         payload_object.act[:vista_id] = nil
+        payload_object.launch = token.payload[:launch] if token.payload['scp'].include?('launch')
 
         payload_object
       end
