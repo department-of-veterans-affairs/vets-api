@@ -9,12 +9,18 @@ module VAProfile
       validates :id, :communication_channels, presence: true
       validates :communication_channels, length: { maximum: 1, too_long: 'must have only one communication channel' }
 
+      validate :communication_channel_valid
+
       def http_verb
         communication_channels[0].communication_permission.id.present? ? :put : :post
       end
 
+      def first_communication_channel
+        communication_channels[0]
+      end
+
       def in_json(va_profile_id)
-        communication_channel = communication_channels[0]
+        communication_channel = first_communication_channel
 
         {
           bio: {
@@ -33,6 +39,14 @@ module VAProfile
             end
           end.call)
         }.to_json
+      end
+
+      private
+
+      def communication_channel_valid
+        if communication_channels.present? && !first_communication_channel.valid?
+          errors.add(:communication_channels, first_communication_channel.errors.full_messages.join(','))
+        end
       end
     end
   end
