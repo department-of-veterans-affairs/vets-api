@@ -110,7 +110,7 @@ module EducationForm
                             "attempt #{spool_file_event.retry_attempt}"
                           end
             exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
-            log_exception(exception)
+            log_exception(exception, region)
             next
           end
         end
@@ -182,9 +182,10 @@ module EducationForm
       @stats ||= Hash.new(Hash.new(0))
     end
 
-    def log_exception(exception)
+    def log_exception(exception, region = nil)
       log_exception_to_sentry(exception)
       log_to_slack(exception.to_s)
+      log_to_email(region)
     end
 
     def log_info(message)
@@ -197,8 +198,14 @@ module EducationForm
 
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#vsa-education-logs',
-                                       username: 'CreateDailySpoolFiles')
-      client.notify("In #{Settings.vsp_environment}.\n\n#{message}")
+                                       username: "#{self.class.name} - #{Settings.vsp_environment}")
+      client.notify(message)
+    end
+
+    def log_to_email(region)
+      return unless Flipper.enabled?(:spool_testing_error_3)
+
+      CreateDailySpoolFilesMailer.build(region).deliver_now
     end
   end
 end
