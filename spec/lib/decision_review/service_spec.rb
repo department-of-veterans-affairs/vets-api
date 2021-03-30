@@ -104,7 +104,9 @@ describe DecisionReview::Service do
     subject { described_class.new.create_notice_of_disagreement(request_body: body.to_json, user: user) }
 
     let(:body) do
-      JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements', 'valid_NOD_create_request.json'
+      JSON.parse File.read(
+        Rails.root.join('spec', 'fixtures', 'notice_of_disagreements', 'valid_NOD_create_request.json')
+      )
     end
 
     context '200 response' do
@@ -173,7 +175,7 @@ describe DecisionReview::Service do
   describe '#get_notice_of_disagreement' do
     subject { described_class.new.get_notice_of_disagreement(uuid) }
 
-    let(:uuid) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
+    let(:uuid) { '1234567a-89b0-123c-d456-789e01234f56' }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do

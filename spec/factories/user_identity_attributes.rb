@@ -16,12 +16,12 @@ FactoryBot.define do
       ssn { '796111863' }
       mhv_icn { nil }
       mhv_account_type { nil }
-      sign_in { Hash[[[:service_name, 'idme']]] }
-      loa { Hash[[[:current, LOA::ONE], [:highest, LOA::THREE]]] }
+      sign_in { [[:service_name, 'idme']].to_h }
+      loa { [[:current, LOA::ONE], [:highest, LOA::THREE]].to_h }
 
       trait :loa3 do
         authn_context { 'http://idmanagement.gov/ns/assurance/loa/3/vets' }
-        loa { Hash[[[:current, LOA::THREE], [:highest, LOA::THREE]]] }
+        loa { [[:current, LOA::THREE], [:highest, LOA::THREE]].to_h }
       end
     end
 
@@ -37,8 +37,8 @@ FactoryBot.define do
       ssn { nil }
       mhv_icn { nil }
       mhv_account_type { 'Basic' }
-      sign_in { Hash[[[:service_name, 'myhealthevet']]] }
-      loa { Hash[[[:current, LOA::ONE], [:highest, LOA::THREE]]] }
+      sign_in { [[:service_name, 'myhealthevet']].to_h }
+      loa { [[:current, LOA::ONE], [:highest, LOA::THREE]].to_h }
     end
 
     factory :dslogon_user_identity_attrs do
@@ -53,8 +53,8 @@ FactoryBot.define do
       ssn { nil }
       mhv_icn { nil }
       mhv_account_type { nil }
-      sign_in { Hash[[[:service_name, 'dslogon']]] }
-      loa { Hash[[[:current, LOA::ONE], [:highest, LOA::THREE]]] }
+      sign_in { [[:service_name, 'dslogon']].to_h }
+      loa { [[:current, LOA::ONE], [:highest, LOA::THREE]].to_h }
     end
   end
 end
