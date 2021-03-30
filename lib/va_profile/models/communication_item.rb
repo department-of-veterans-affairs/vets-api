@@ -20,25 +20,11 @@ module VAProfile
           communication_channels: communication_res['communication_item_channels'].map do |communication_item_channel|
             communication_channel = communication_item_channel['communication_channel']
 
-            communication_channel_model = VAProfile::Models::CommunicationChannel.new(
-              id: communication_channel['communication_channel_id'],
-              name: communication_channel['name'],
-              description: communication_channel['description']
+            VAProfile::Models::CommunicationChannel.create_from_api(
+              communication_channel,
+              communication_res['communication_item_id'],
+              permission_res
             )
-
-            permission = permission_res['bios'].find do |permission|
-              permission['communication_item_id'] == communication_res['communication_item_id'] &&
-                permission['communication_channel_id'] == communication_channel['communication_channel_id']
-            end.tap do |permission|
-              next if permission.nil?
-
-              communication_channel_model.communication_permission = VAProfile::Models::CommunicationPermission.new(
-                id: permission['communication_permission_id'],
-                allowed: permission['allowed']
-              )
-            end
-
-            communication_channel_model
           end
         )
       end
