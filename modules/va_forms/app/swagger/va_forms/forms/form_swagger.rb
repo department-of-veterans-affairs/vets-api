@@ -24,49 +24,47 @@ module VAForms
               key :type, :string
               key :example, 'VA10192'
             end
-
             property :url do
               key :description, I18n.t('va_forms.field_descriptions.url')
               key :type, :string
               key :example, 'https://www.va.gov/vaforms/va/pdf/VA10192.pdf'
             end
-
             property :title do
               key :description, I18n.t('va_forms.field_descriptions.title')
               key :type, :string
               key :example, 'Information for Pre-Complaint Processing'
             end
-
             property :first_issued_on do
               key :description, I18n.t('va_forms.field_descriptions.first_issued_on')
               key :type, :string
               key :example, '2012-01-01'
               key :format, 'date'
             end
-
             property :last_revised_on do
               key :description, I18n.t('va_forms.field_descriptions.last_revised_on')
               key :type, :string
               key :example, '2012-01-01'
               key :format, 'date'
             end
-
             property :pages do
               key :description, I18n.t('va_forms.field_descriptions.pages')
               key :type, :integer
               key :example, 3
             end
-
             property :valid_pdf do
               key :description, I18n.t('va_forms.field_descriptions.valid_pdf')
               key :type, :boolean
               key :example, true
             end
-
             property :sha256 do
               key :description, I18n.t('va_forms.field_descriptions.sha256')
               key :type, :string
               key :example, '5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7'
+            end
+            property :last_sha256_change do
+              key :description, I18n.t('va_forms.field_descriptions.last_sha256_change')
+              key :type, :string
+              key :example, '2019-05-30T12:32:11.458Z'
             end
             property :form_usage do
               key :description, I18n.t('va_forms.field_descriptions.form_usage')

@@ -23,6 +23,8 @@ module DecisionReview
     HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200'
     HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200'
     HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
+    REQUIRED_CREATE_NOTICE_OF_DISAGREEMENT_HEADERS = %w[X-VA-Veteran-First-Name X-VA-Veteran-Last-Name
+                                                        X-VA-Veteran-SSN X-VA-Veteran-Birth-Date].freeze
 
     ##
     # Create a Higher-Level Review
@@ -37,6 +39,25 @@ module DecisionReview
         response = perform :post, 'higher_level_reviews', request_body, headers
         raise_schema_error_unless_200_status response.status
         validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA, append_to_error_class: ' (HLR)'
+        response
+      end
+    end
+
+    ##
+    # Create a Notice of Disagreement
+    #
+    # @param request_body [JSON] JSON serialized version of a Notice of Disagreement Form (10182)
+    # @param user [User] Veteran who the form is in regard to
+    # @return [Faraday::Response]
+    #
+    def create_notice_of_disagreement(request_body:, user:)
+      with_monitoring_and_error_handling do
+        headers = create_notice_of_disagreement_headers(user)
+        response = perform :post, 'notice_of_disagreements', request_body, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema(
+          json: response.body, schema: Schemas::NOD_CREATE_RESPONSE_200, append_to_error_class: ' (NOD)'
+        )
         response
       end
     end
@@ -134,6 +155,31 @@ module DecisionReview
         'X-VA-Service-Number' => nil,
         'X-VA-Insurance-Policy-Number' => nil
       }.compact
+    end
+
+    def create_notice_of_disagreement_headers(user)
+      headers = {
+        'X-VA-Veteran-First-Name' => user.first_name.to_s.strip, # can be an empty string for those with 1 legal name
+        'X-VA-Veteran-Middle-Initial' => middle_initial(user),
+        'X-VA-Veteran-Last-Name' => user.last_name.to_s.strip.presence,
+        'X-VA-Veteran-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-Veteran-File-Number' => nil,
+        'X-VA-Veteran-Birth-Date' => user.birth_date.to_s.strip.presence
+      }.compact
+
+      missing_required_fields = REQUIRED_CREATE_NOTICE_OF_DISAGREEMENT_HEADERS - headers.keys
+      if missing_required_fields.present?
+        raise Common::Exceptions::Forbidden.new(
+          source: "#{self.class}##{__method__}",
+          detail: { missing_required_fields: missing_required_fields }
+        )
+      end
+
+      headers
+    end
+
+    def middle_initial(user)
+      user.middle_name.to_s.strip.presence&.first&.upcase
     end
 
     def get_contestable_issues_headers(user)
