@@ -11,7 +11,7 @@ module AppsApi
 
       def index
         render json: {
-          data: DirectoryApplication.order('LOWER(name)').paginate(page: params[:page], per_page:)
+          data: DirectoryApplication.order('LOWER(name)').paginate(page: params[:page], per_page: 2)
         }
       end
 
