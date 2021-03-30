@@ -1,3 +1,4 @@
+require_relative 'communication_base'
 require_relative 'communication_permission'
 
 module VAProfile
