@@ -358,35 +358,6 @@ RSpec.describe User, type: :model do
         end
       end
 
-      context 'explicit MPI getter methods' do
-        let(:mvi_profile) { build(:mvi_profile) }
-        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
-
-        before do
-          stub_mpi(mvi_profile)
-        end
-
-        it 'fetches first_name from MPI' do
-          expect(user.first_name_mpi).to be(user.mpi.profile.given_names.first)
-        end
-
-        it 'fetches last_name from MPI' do
-          expect(user.last_name_mpi).to be(user.mpi.profile.family_name)
-        end
-
-        it 'fetches gender from MPI' do
-          expect(user.gender_mpi).to be(user.mpi.profile.gender)
-        end
-
-        it 'fetches edipi from MPI' do
-          expect(user.edipi_mpi).to be(user.mpi.profile.edipi)
-        end
-
-        it 'fetches ssn from MPI' do
-          expect(user.ssn_mpi).to be(user.mpi.profile.ssn)
-        end
-      end
-
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
