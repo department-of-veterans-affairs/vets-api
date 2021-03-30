@@ -12,7 +12,7 @@ module VAProfile
       validate :communication_channel_valid
 
       def http_verb
-        communication_channels[0].communication_permission.id.present? ? :put : :post
+        first_communication_channel.communication_permission.id.present? ? :put : :post
       end
 
       def first_communication_channel
