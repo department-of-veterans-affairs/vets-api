@@ -36,9 +36,17 @@ module AppealsApi
           allow(uploader).to receive(:log_message_to_sentry)
 
           expect { uploader.process! }.to raise_error(RuntimeError)
+          evidence = appeal.evidence_submissions.first
           expect(uploader).to have_received(:log_message_to_sentry)
-            .with('Error saving to S3', :warning, error: 'RuntimeError')
-          expect(appeal.evidence_submissions.first.status).to eq('s3_error')
+            .with(
+              'Error saving to S3',
+              :warning,
+              error: 'RuntimeError',
+              evidence_guid: evidence.id,
+              supportable_id: evidence.supportable_id,
+              supportable_type: evidence.supportable_type
+            )
+          expect(evidence.status).to eq('s3_error')
         end
 
         it 'marks the created submission \'submitted\'' do

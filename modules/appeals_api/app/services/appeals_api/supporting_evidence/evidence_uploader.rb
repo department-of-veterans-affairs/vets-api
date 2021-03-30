@@ -19,7 +19,14 @@ module AppealsApi
         uploader.store!(document)
         update_submission!('submitted')
       rescue => e
-        log_message_to_sentry('Error saving to S3', :warning, error: e.to_s)
+        log_message_to_sentry(
+          'Error saving to S3',
+          :warning,
+          error: e.to_s,
+          evidence_guid: @submission.id,
+          supportable_type: @submission.supportable_type,
+          supportable_id: @submission.supportable_id
+        )
         update_submission!('s3_error')
         raise
       end
