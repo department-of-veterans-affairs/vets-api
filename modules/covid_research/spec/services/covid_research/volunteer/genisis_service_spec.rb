@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
+require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
+
 require_relative '../../../../app/services/covid_research/volunteer/genisis_service.rb'
-require_relative '../../../covid_research_spec_helper.rb'
 
 RSpec.configure do |c|
-  c.include CovidResearchSpecHelper
   c.include StatsD::Instrument::Matchers
 end
 
