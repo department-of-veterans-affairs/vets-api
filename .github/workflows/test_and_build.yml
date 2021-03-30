@@ -27,8 +27,6 @@ jobs:
           POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api_test
           POSTGRES_PASSWORD: ""
-        ports:
-          - 127.0.0.1:5432
 
       redis:
         image: circleci/redis:3.2-alpine
