@@ -32,6 +32,7 @@
               "pages": { "type": "integer" },
               "valid_pdf": { "type": "boolean" },
               "sha256": { "type": "string" },
+              "last_sha256_change": { "type": ["string", "null"] },
               "form_usage": { "type": ["string", "null"] },
               "form_tool_intro": { "type": ["string", "null"] },
               "form_tool_url": { "type": ["string", "null"] },
