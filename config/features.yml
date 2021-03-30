@@ -240,6 +240,16 @@ features:
     actor_type: user
     description: >
       Enables debt letters
+  show_financial_status_report_wizard:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the Wizard for VA Form 5655 (Financial Status Report)
+  show_financial_status_report:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables VA Form 5655 (Financial Status Report)
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: >
