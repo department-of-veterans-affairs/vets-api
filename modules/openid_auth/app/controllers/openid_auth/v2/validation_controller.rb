@@ -31,9 +31,7 @@ module OpenidAuth
           payload_object.act[:vista_id] = token.payload['vista_id']
         end
 
-        if token.payload['scp'].include?('launch')
-          payload_object.launch = token.payload[:launch]
-        end
+        payload_object.launch = token.payload[:launch] if token.payload['scp'].include?('launch')
 
         # Sometimes we'll already have an `icn` in the token. If we do, copy if down into `act`
         # for consistency. Otherwise use the ICN value we used to look up the MVI attributes.
