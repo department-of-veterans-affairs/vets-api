@@ -40,8 +40,6 @@ you expect to be called to duty for 30 days or more?: <%= yesno_or_blank(@applic
 <% if Flipper.enabled?(:edu_form_omb_and_expiration) -%>
 Enter the date you expect to be released from active duty: <%= @applicant.expectedReleaseDate %>
 
-<% end -%>
-<% if Flipper.enabled?(:edu_form_omb_and_expiration) -%>
 Do you expect to be called to active duty while enrolled
 in a VET TEC program?: <%= yesno_or_blank(@applicant.expectedActiveDutyStatusChange) %>
 <% end -%>
