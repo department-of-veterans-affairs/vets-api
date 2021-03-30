@@ -42,12 +42,12 @@ module CovidVaccine
 
       def csv
         @csv ||= CSV.generate(col_sep: '^') do |csv|
+          csv << MAPPER.keys
           @mapped_rows.each do |row|
             csv << row.map { |field| field&.delete('"^') }
           end
         end
-      end
-
+    
       def io
         @io ||= StringIO.new(csv)
       end
