@@ -7,8 +7,7 @@ require 'common/client/errors'
 require 'search_click_tracking/configuration'
 
 module SearchClickTracking
-  # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
-  # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
+  # This class builds a wrapper around Search.gov web click tracking API.
   #
   # @see https://search.usa.gov/sites/7378/api_instructions
   #

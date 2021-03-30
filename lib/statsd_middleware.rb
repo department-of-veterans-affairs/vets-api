@@ -57,6 +57,7 @@ class StatsdMiddleware
     request-debt-help-5655
     resources-and-support
     search
+    search-typeahead
     search-click-tracking
     static-pages
     terms-and-conditions

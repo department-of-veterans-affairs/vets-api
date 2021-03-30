@@ -707,6 +707,12 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      SEARCH_TYPEAHEAD_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'SEARCH_TYPEAHEAD_400'
+        detail: 'Missing Query'
+        status: 400
       SEARCH_CLICK_TRACKING_400:
         <<: *external_defaults
         title: Bad Request

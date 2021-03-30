@@ -165,6 +165,7 @@ module V0
       Swagger::Requests::Profile,
       Swagger::Requests::Search,
       Swagger::Requests::SearchClickTracking,
+      Swagger::Requests::SearchTypeahead,
       Swagger::Requests::TermsAndConditions,
       Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,

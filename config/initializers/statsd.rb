@@ -13,6 +13,7 @@ require 'saml/user'
 require 'stats_d_metric'
 require 'search/service'
 require 'search_click_tracking/service'
+require 'search_typeahead/service'
 require 'va_profile/exceptions/parser'
 require 'va_profile/service'
 require 'va_notify/service'
@@ -132,6 +133,9 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
+
+# init Search Typeahead
+StatsD.increment("#{SearchTypeahead::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:400'])
 
 # init SearchClickTracking
 StatsD.increment("#{SearchClickTracking::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:400'])
