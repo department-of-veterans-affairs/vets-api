@@ -9,7 +9,7 @@ describe VAProfile::Models::CommunicationPermission, type: :model do
 
     %w[allowed].each do |attr|
       it "validates presence of #{attr}" do
-        expect_attr_invalid(communication_permission, attr, "can't be blank")
+        expect_attr_invalid(communication_permission, attr, 'must be set')
       end
     end
   end
