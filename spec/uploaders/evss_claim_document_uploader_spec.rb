@@ -103,13 +103,13 @@ RSpec.describe EVSSClaimDocumentUploader do
     [
       {
         path: 'files/doctors-note.gif',
-        final_filename: 'converted_doctors-note.gif.png',
+        final_filename: 'converted_doctors-note_gif.png',
         description: 'misnamed png',
         binary_or_name_changes: true
       },
       {
         path: 'files/doctors-note.jpg',
-        final_filename: 'converted_doctors-note.jpg.png',
+        final_filename: 'converted_doctors-note_jpg.png',
         description: 'misnamed png',
         binary_or_name_changes: true
       },
@@ -121,13 +121,13 @@ RSpec.describe EVSSClaimDocumentUploader do
       },
       {
         path: 'evss_claim/image.TIF',
-        final_filename: 'converted_image.TIF.jpeg',
+        final_filename: 'converted_image_TIF.jpg',
         description: 'ext and filetype match /BUT/ tifs not allowed',
         binary_or_name_changes: true
       },
       {
         path: 'evss_claim/secretly_a_jpg.tif',
-        final_filename: 'converted_secretly_a_jpg.tif.jpeg',
+        final_filename: 'converted_secretly_a_jpg_tif.jpg',
         description: 'misnamed jpg',
         binary_or_name_changes: true
       },
