@@ -82,17 +82,17 @@ module VAOS
     # These values ought to be derived from MVI vs user input, except for inpatient and text_messaging_allowed
     def patient=(values_hash)
       @patient = {
-        display_name: "#{last_name}, #{first_name}",
-        first_name: first_name,
-        last_name: last_name,
+        display_name: "#{@user.last_name_mpi}, #{@user.first_name_mpi}",
+        first_name: @user.first_name_mpi,
+        last_name: @user.last_name_mpi,
         date_of_birth: birth_date,
         patient_identifier: {
-          unique_id: edipi
+          unique_id: @user.edipi_mpi
         },
-        ssn: ssn,
+        ssn: @user.ssn_mpi,
         inpatient: values_hash[:inpatient],
         text_messaging_allowed: values_hash[:text_messaging_allowed],
-        id: edipi,
+        id: @user.edipi_mpi,
         object_type: 'Patient'
       }.compact
     end
@@ -133,24 +133,8 @@ module VAOS
       }
     end
 
-    def first_name
-      @user.mpi&.profile&.given_names&.first
-    end
-
-    def last_name
-      @user.mpi&.profile&.family_name
-    end
-
     def birth_date
       Formatters::DateFormatter.format_date(@user.birth_date, :month_day_year)
-    end
-
-    def edipi
-      @user.mpi&.profile&.edipi
-    end
-
-    def ssn
-      @user.mpi&.profile&.ssn
     end
   end
 end

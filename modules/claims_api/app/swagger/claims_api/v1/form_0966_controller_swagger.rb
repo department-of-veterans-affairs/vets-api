@@ -10,6 +10,7 @@ module ClaimsApi
 
       swagger_path '/forms/0966' do
         operation :get do
+          key :deprecated, true
           key :summary, 'Get a 0966 schema for a form.'
           key :description, 'Returns 0966 schema to automatically generate a form.'
           key :operationId, 'get0966JsonSchema'
@@ -100,14 +101,6 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
             key :required, false
             key :type, :string
           end
@@ -257,14 +250,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'type'
             key :in, :query
             key :description, 'The type of 0966 you wish to get the active submission for'
@@ -321,6 +306,7 @@ module ClaimsApi
 
       swagger_path '/forms/0966/validate' do
         operation :post do
+          key :deprecated, true
           key :summary, 'Test the 0966 Intent to File form submission.'
           key :description, 'Test to ensure the form submission works with your parameters. Submission is validated against the GET /forms/0966 schema.'
           key :operationId, 'validate0966itf'

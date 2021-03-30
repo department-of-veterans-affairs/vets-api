@@ -27,9 +27,9 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
   describe 'registration#create' do
     context 'feature disabled' do
       around do |example|
-        Flipper.disable(:covid_vaccine_registration)
+        Flipper.disable(:covid_vaccine_registration_expanded)
         example.run
-        Flipper.enable(:covid_vaccine_registration)
+        Flipper.enable(:covid_vaccine_registration_expanded)
       end
 
       it 'returns a 404 route not found' do
@@ -147,7 +147,6 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
 
       it 'returns a submission summary' do
         post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
-
         expect(response).to have_http_status(:created)
         body = JSON.parse(response.body)
         expect(body['data']['id']).to eq('')
