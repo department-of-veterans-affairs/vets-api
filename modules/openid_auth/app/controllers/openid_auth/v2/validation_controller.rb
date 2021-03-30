@@ -17,7 +17,10 @@ module OpenidAuth
       private
 
       def validated_payload
+
+        # Ensure the token has `act` and `launch` keys.
         payload_object = setup_structure
+
         payload_object.launch = token.payload[:launch] if token.payload['scp'].include?('launch')
 
         if token.ssoi_token?
@@ -32,7 +35,7 @@ module OpenidAuth
         # for consistency. Otherwise use the ICN value we used to look up the MVI attributes.
         payload_object.act[:icn] = payload_object.try(:icn)
 
-        # Client Credentials & SSOi tokens will not populate the @current_user, so only fill if not that token type
+        # Client Credentials will not populate the @current_user, so only fill if not that token type
         unless token.client_credentials_token? || !payload_object[:icn].nil?
           payload_object.act[:icn] = @current_user.icn
           payload_object.launch[:patient] = @current_user.icn
@@ -41,7 +44,7 @@ module OpenidAuth
         payload_object
       end
 
-      # Ensure the token has `act` and `launch` keys.
+
       def setup_structure
         payload_object = OpenStruct.new(token.payload.merge(act: {}, launch: {}))
         payload_object.act[:icn] = nil
