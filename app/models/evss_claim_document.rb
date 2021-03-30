@@ -132,6 +132,7 @@ class EVSSClaimDocument < Common::Base
 
   def normalize_file_name
     return if !file_name || file_name.frozen?
+
     # remove all but the last "."  in the file name
     file_name.gsub!(/[.](?=.*[.])/, '')
   end
