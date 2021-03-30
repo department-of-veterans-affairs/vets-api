@@ -819,7 +819,7 @@ GEM
       sidekiq-pro (>= 4.0.4)
     sidekiq-pro (5.0.0)
       concurrent-ruby (>= 1.0.5)
-      sidekiq (>= 5.2.7)  
+      sidekiq (>= 5.2.7)
     sidekiq-scheduler (3.0.1)
       e2mmap
       redis (>= 3, < 5)
