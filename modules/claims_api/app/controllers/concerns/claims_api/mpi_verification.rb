@@ -6,7 +6,7 @@ module ClaimsApi
 
     included do
       def verify_mpi
-        raise Common::Exceptions::ParameterMissing, 'MPI user' unless target_veteran.mpi_record?
+        raise ::Common::Exceptions::ParameterMissing, 'MPI user' unless target_veteran.mpi_record?
       end
     end
   end

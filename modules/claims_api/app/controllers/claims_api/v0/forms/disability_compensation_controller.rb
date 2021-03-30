@@ -38,7 +38,7 @@ module ClaimsApi
           end
 
           if auto_claim.errors.present?
-            raise Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
