@@ -25,7 +25,7 @@ jobs:
         image: circleci/postgres:11.5-postgis-ram # 11.5 engine on AWS RDS
         env:
           POSTGRES_USER: vets-api
-          POSTGRES_DB: vets-api_test
+          POSTGRES_DB: vets-api-test
           POSTGRES_PASSWORD: ""
 
       redis:
