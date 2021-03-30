@@ -20,7 +20,7 @@ module Swagger
           response 200 do
             key :description, 'get user response'
             schema do
-              key :'$ref', :UserData
+              key :$ref, :UserData
             end
           end
 
@@ -29,7 +29,7 @@ module Swagger
             schema do
               allOf do
                 schema do
-                  key :'$ref', :UserInternalServices
+                  key :$ref, :UserInternalServices
                 end
                 schema do
                   property :data, type: :object do
@@ -65,10 +65,10 @@ module Swagger
       swagger_schema :UserData, required: %i[data meta] do
         allOf do
           schema do
-            key :'$ref', :Vet360ContactInformation
+            key :$ref, :Vet360ContactInformation
           end
           schema do
-            key :'$ref', :UserInternalServices
+            key :$ref, :UserInternalServices
           end
           schema do
             property :data, type: :object do

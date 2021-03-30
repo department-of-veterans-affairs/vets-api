@@ -86,7 +86,7 @@ module VAOS
       #
       # @return [Boolean] true if user session request, false otherwise
       def user_session_request?(env)
-        env.url.to_s.include?('users/v2/session?processRules=true') ? true : false
+        env.url.to_s.include?('users/v2/session?processRules=true')
       end
 
       # #jti is the value from the JWT key value pair in the response and needed for logging and audit purposes

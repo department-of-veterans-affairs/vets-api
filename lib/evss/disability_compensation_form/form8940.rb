@@ -36,20 +36,20 @@ module EVSS
 
       def full_name
         {
-          "first": @user.first_name,
-          "middle": @user.middle_name,
-          "last": @user.last_name
+          first: @user.first_name,
+          middle: @user.middle_name,
+          last: @user.last_name
         }
       end
 
       def address(data)
         {
-          "city": data['city'],
-          "country": data['country'],
-          "postalCode": data['zipCode'],
-          "street": data['addressLine1'],
-          "street2": data['addressLine2'],
-          "state": data['state']
+          city: data['city'],
+          country: data['country'],
+          postalCode: data['zipCode'],
+          street: data['addressLine1'],
+          street2: data['addressLine2'],
+          state: data['state']
         }
       end
     end

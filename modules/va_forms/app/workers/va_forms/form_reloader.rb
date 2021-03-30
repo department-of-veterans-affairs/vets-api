@@ -57,7 +57,7 @@ module VAForms
     end
 
     def build_and_save_form(form)
-      va_form = VAForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
+      va_form = VAForms::Form.find_or_initialize_by row_id: form['fieldVaFormRowId']
       attrs = init_attributes(form)
       url = form['fieldVaFormUrl']['uri']
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
@@ -74,6 +74,7 @@ module VAForms
 
     def init_attributes(form)
       mapped = {
+        form_name: form['fieldVaFormNumber'],
         title: form['fieldVaFormName'],
         pages: form['fieldVaFormNumPages'],
         language: form.dig('langcode', 'value'),
