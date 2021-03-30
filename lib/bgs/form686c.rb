@@ -82,9 +82,10 @@ module BGS
       # search through the "selectable_options" hash and check if any of the "REMOVE_CHILD_OPTIONS" are set to true
       return 'MANUAL_VAGOV' if REMOVE_CHILD_OPTIONS.any? { |child_option| selectable_options[child_option] }
 
-      if selectable_options['report_death']
-        # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
-        return 'MANUAL_VAGOV' if dependents_app['deaths'].any? { |h| DEPENDENT_OPTIONS.include?(h['dependent_type']) }
+      # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
+      if selectable_options['report_death'] &&
+         dependents_app['deaths'].any? { |h| DEPENDENT_OPTIONS.include?(h['dependent_type']) }
+        return 'MANUAL_VAGOV'
       end
 
       'Started'
