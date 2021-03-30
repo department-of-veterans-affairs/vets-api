@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require VAForms::Engine.root.join('spec', 'rails_helper.rb')
 
 RSpec.describe VAForms::FormReloader, type: :job do
   subject { described_class }

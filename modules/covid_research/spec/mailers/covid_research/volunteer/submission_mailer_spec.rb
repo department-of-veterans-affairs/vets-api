@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 
 RSpec.describe CovidResearch::Volunteer::SubmissionMailer, type: :mailer do
   let(:recipient) { 'recipient@example.com' }

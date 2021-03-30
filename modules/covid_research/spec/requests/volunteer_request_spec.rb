@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../covid_research_spec_helper.rb'
-
-RSpec.configure do |c|
-  c.include CovidResearchSpecHelper
-end
+require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 
 RSpec.describe 'covid research volunteer submissions', type: :request do
   describe 'POST /covid-research/volunteer/create' do
