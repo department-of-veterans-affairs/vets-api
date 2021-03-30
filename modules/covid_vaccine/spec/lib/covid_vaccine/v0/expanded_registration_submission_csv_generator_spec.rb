@@ -18,7 +18,6 @@ describe CovidVaccine::V0::ExpandedRegistrationSubmissionCSVGenerator do
   describe '#csv' do
     it 'generates CSV string based on records provided' do
       expect(subject.csv).to be_a(String)
-      binding.pry
       expect(subject.csv).to eq(
         File.read('modules/covid_vaccine/spec/fixtures/csv_string.txt')
       )
