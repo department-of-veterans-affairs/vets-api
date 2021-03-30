@@ -104,7 +104,7 @@ class EVSSClaimDocument < Common::Base
   end
 
   def unencrypted_pdf?
-    return unless file_name.match?(/\.pdf$/i)
+    return unless file_name.match?(/\.pdf$/i) && file_obj
 
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, I18n.t('errors.messages.uploads.encrypted')) if metadata.encrypted?
@@ -119,7 +119,7 @@ class EVSSClaimDocument < Common::Base
   end
 
   def normalize_text
-    return unless file_name.match?(/\.txt$/i)
+    return unless file_name.match?(/\.txt$/i) && file_obj
 
     text = file_obj.read
     text = text.encode(EVSS_TEXT_ENCODING)
@@ -131,6 +131,7 @@ class EVSSClaimDocument < Common::Base
   end
 
   def normalize_file_name
+    return if !file_name || file_name.frozen?
     # remove all but the last "."  in the file name
     file_name.gsub!(/[.](?=.*[.])/, '')
   end
