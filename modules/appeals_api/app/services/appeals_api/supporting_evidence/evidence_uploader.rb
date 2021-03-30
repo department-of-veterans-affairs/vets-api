@@ -27,7 +27,7 @@ module AppealsApi
           supportable_type: @submission.supportable_type,
           supportable_id: @submission.supportable_id
         )
-        update_submission!('s3_error')
+        update_submission!('error')
         raise
       end
 
