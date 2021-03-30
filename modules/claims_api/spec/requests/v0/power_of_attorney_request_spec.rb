@@ -8,7 +8,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
       'X-Consumer-Username': 'Abe Lincoln',
-      'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M',
       'X-VA-LOA': '3' }
