@@ -7,7 +7,7 @@ module VAProfile
     class CommunicationPermission < CommunicationBase
       attr_accessor :id, :allowed
 
-      validates :allowed, presence: true
+      validates :allowed, inclusion: [true, false]
     end
   end
 end
