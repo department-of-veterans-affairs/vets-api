@@ -19,6 +19,10 @@ module OpenidAuth
       def validated_payload
         # Ensure the token has `act` and `launch` keys.
         payload_object = OpenStruct.new(token.payload.merge(act: {}, launch: {}))
+        payload_object.act[:icn] = nil
+        payload_object.act[:npi] = nil
+        payload_object.act[:sec_id] = nil
+        payload_object.act[:vista_id] = nil
 
         if token.ssoi_token?
           payload_object.act[:icn] = token.payload['icn']
