@@ -19,7 +19,7 @@ class EVSSClaimDocument < Common::Base
   validates(:file_name, presence: true)
   validate :known_document_type?
   validate :unencrypted_pdf?
-  before_validation :normalize_text, :convert_to_unlocked_pdf
+  before_validation :normalize_text, :convert_to_unlocked_pdf, :normalize_file_name
 
   # rubocop:disable Layout/LineLength
   DOCUMENT_TYPES = {
@@ -128,5 +128,10 @@ class EVSSClaimDocument < Common::Base
     file_obj.tempfile.rewind
   rescue Encoding::UndefinedConversionError
     errors.add(:base, I18n.t('errors.messages.uploads.ascii_encoded'))
+  end
+
+  def normalize_file_name
+    # remove all but the last "."  in the file name
+    file_name.gsub!(/[.](?=.*[.])/, '')
   end
 end

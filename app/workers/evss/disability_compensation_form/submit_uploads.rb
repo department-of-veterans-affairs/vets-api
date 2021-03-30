@@ -30,6 +30,8 @@ module EVSS
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
 
           document_data = create_document_data(upload_data)
+          raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+
           client = EVSS::DocumentsService.new(submission.auth_headers)
           client.upload(file_body, document_data)
         end
