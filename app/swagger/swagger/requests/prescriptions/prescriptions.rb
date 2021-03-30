@@ -21,7 +21,7 @@ module Swagger
               key :description, 'prescription index response'
 
               schema do
-                key :'$ref', :Prescriptions
+                key :$ref, :Prescriptions
               end
             end
           end
@@ -41,7 +41,7 @@ module Swagger
               key :description, 'active prescription index response'
 
               schema do
-                key :'$ref', :Prescriptions
+                key :$ref, :Prescriptions
               end
             end
           end
@@ -59,7 +59,7 @@ module Swagger
               key :description, 'prescription show response'
 
               schema do
-                key :'$ref', :Prescription
+                key :$ref, :Prescription
               end
             end
 
@@ -67,7 +67,7 @@ module Swagger
               key :description, 'Record not available'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -89,7 +89,7 @@ module Swagger
               key :description, 'prescription not refillable'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
 
@@ -97,7 +97,7 @@ module Swagger
               key :description, 'prescription not available'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end

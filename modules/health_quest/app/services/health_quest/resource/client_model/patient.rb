@@ -8,7 +8,7 @@ module HealthQuest
 
         NAME_USE = 'official'
 
-        attr_reader :data, :model, :identifier, :meta, :user
+        attr_reader :data, :model, :identifier, :meta, :user, :codeable_concept
 
         def self.manufacture(data, user)
           new(data, user)
@@ -17,6 +17,7 @@ module HealthQuest
         def initialize(data, user)
           @data = data || {}
           @model = ::FHIR::Patient.new
+          @codeable_concept = ::FHIR::CodeableConcept.new
           @user = user
           @identifier = ::FHIR::Identifier.new
           @meta = ::FHIR::Meta.new

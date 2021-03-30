@@ -11,16 +11,16 @@ module Swagger
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
-              key :'$ref', :PrescriptionBase
+              key :$ref, :PrescriptionBase
             end
           end
 
           property :meta do
-            key :'$ref', :MetaFailedStationListSortPagination
+            key :$ref, :MetaFailedStationListSortPagination
           end
 
           property :links do
-            key :'$ref', :LinksAll
+            key :$ref, :LinksAll
           end
         end
 
@@ -28,11 +28,11 @@ module Swagger
           key :required, %i[data meta]
 
           property :data, type: :object do
-            key :'$ref', :PrescriptionBase
+            key :$ref, :PrescriptionBase
           end
 
           property :meta do
-            key :'$ref', :MetaFailedStationList
+            key :$ref, :MetaFailedStationList
           end
         end
 
@@ -65,7 +65,7 @@ module Swagger
             property :is_trackable, type: :boolean
           end
           property :links do
-            key :'$ref', :LinksSelf
+            key :$ref, :LinksSelf
           end
         end
       end

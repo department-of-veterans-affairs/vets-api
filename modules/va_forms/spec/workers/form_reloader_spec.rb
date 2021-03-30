@@ -98,6 +98,10 @@ RSpec.describe VAForms::FormReloader, type: :job do
         expect(@form.va_form_administration).to eq('Veterans Benefits Administration')
       end
 
+      it 'loads row id' do
+        expect(@form.row_id).to eq(5382)
+      end
+
       it 'loads form type' do
         expect(@form.form_type).to eq('benefit')
       end

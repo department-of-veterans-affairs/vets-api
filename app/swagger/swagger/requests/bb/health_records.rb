@@ -16,7 +16,7 @@ module Swagger
               key :description, 'health records refresh response'
 
               schema do
-                key :'$ref', :HealthRecordsRefresh
+                key :$ref, :HealthRecordsRefresh
               end
             end
 
@@ -24,7 +24,7 @@ module Swagger
               key :description, 'forbidden user'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -40,7 +40,7 @@ module Swagger
               key :description, 'heath records eligible data classes list'
 
               schema do
-                key :'$ref', :HealthRecordsEligibleDataClasses
+                key :$ref, :HealthRecordsEligibleDataClasses
               end
             end
           end
@@ -67,7 +67,7 @@ module Swagger
               key :description, 'health records backend error response'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -99,7 +99,7 @@ module Swagger
               key :description, 'health records missing required parameter response'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
