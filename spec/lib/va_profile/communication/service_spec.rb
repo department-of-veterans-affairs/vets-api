@@ -25,6 +25,15 @@ describe VAProfile::Communication::Service do
   end
 
   describe '#get_communication_permissions' do
+    it 'increments statsd' do
+      allow(StatsD).to receive(:increment)
+      expect(StatsD).to receive(:increment).with('api.va_profile.communication.get_communication_permissions.total')
+
+      VCR.use_cassette('va_profile/communication/get_communication_permissions', VCR::MATCH_EVERYTHING) do
+        subject.get_communication_permissions
+      end
+    end
+
     it 'gets the users communication permissions' do
       VCR.use_cassette('va_profile/communication/get_communication_permissions', VCR::MATCH_EVERYTHING) do
         res = subject.get_communication_permissions
