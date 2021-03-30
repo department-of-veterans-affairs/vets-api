@@ -15,7 +15,7 @@ describe VAProfile::Models::CommunicationChannel, type: :model do
 
     it 'validates communication_permission' do
       communication_channel.communication_permission = build(:communication_permission, allowed: nil)
-      expect_attr_invalid(communication_channel, :communication_permission, "Allowed can't be blank")
+      expect_attr_invalid(communication_channel, :communication_permission, 'Allowed must be set')
     end
   end
 end

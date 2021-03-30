@@ -7,7 +7,7 @@ module VAProfile
     class CommunicationPermission < CommunicationBase
       attr_accessor :id, :allowed
 
-      validates :allowed, inclusion: [true, false]
+      validates :allowed, inclusion: { in: [true, false], message: 'must be set' }
     end
   end
 end
