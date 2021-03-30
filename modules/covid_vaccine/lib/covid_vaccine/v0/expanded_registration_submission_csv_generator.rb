@@ -48,7 +48,7 @@ module CovidVaccine
           end
         end
       end
-    
+
       def io
         @io ||= StringIO.new(csv)
       end

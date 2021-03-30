@@ -7,10 +7,9 @@ describe CovidVaccine::V0::ExpandedRegistrationSubmissionCSVGenerator do
   subject do
     fixture_file = YAML.load_file('modules/covid_vaccine/spec/fixtures/expanded_registration_submissions.yml')
     records = fixture_file.values.map do |fixture|
-      FactoryBot.build(:covid_vax_expanded_registration, 
-        raw_form_data: fixture['raw_form_data'], 
-        eligibility_info: fixture['eligibility_info']
-      )
+      FactoryBot.build(:covid_vax_expanded_registration,
+                       raw_form_data: fixture['raw_form_data'],
+                       eligibility_info: fixture['eligibility_info'])
     end
     described_class.new(records)
   end
