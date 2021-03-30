@@ -65,6 +65,10 @@ class User < Common::RedisStore
     identity.first_name || (mhv_icn.present? ? mpi&.profile&.given_names&.first : nil)
   end
 
+  def first_name_mpi
+    mpi&.profile&.given_names&.first
+  end
+
   def full_name_normalized
     {
       first: first_name&.capitalize,
@@ -86,8 +90,16 @@ class User < Common::RedisStore
     identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
   end
 
+  def last_name_mpi
+    mpi&.profile&.family_name
+  end
+
   def gender
     identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
+  end
+
+  def gender_mpi
+    mpi&.profile&.gender
   end
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
@@ -124,6 +136,10 @@ class User < Common::RedisStore
 
   def ssn
     identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
+  end
+
+  def ssn_mpi
+    mpi&.profile&.ssn
   end
 
   def mhv_correlation_id
@@ -165,6 +181,10 @@ class User < Common::RedisStore
 
   def edipi
     loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
+  end
+
+  def edipi_mpi
+    mpi&.profile&.edipi
   end
 
   def sec_id
