@@ -38,8 +38,7 @@ Are you in the Selected Reserve or National Guard and do
 you expect to be called to duty for 30 days or more?: <%= yesno_or_blank(@applicant.activeDutyDuringVetTec) %>
 <% end -%>
 <% if Flipper.enabled?(:edu_form_omb_and_expiration) -%>
-Enter the date you expect to be released from active duty:
-<%= @applicant.expectedReleaseDate %>
+Enter the date you expect to be released from active duty: <%= @applicant.expectedReleaseDate %>
 
 <% end -%>
 <% if Flipper.enabled?(:edu_form_omb_and_expiration) -%>
