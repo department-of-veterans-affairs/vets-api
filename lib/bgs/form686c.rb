@@ -85,6 +85,7 @@ module BGS
       if selectable_options['report_death']
         relationships = %w[CHILD DEPENDENT_PARENT]
         return 'MANUAL_VAGOV' if dependents_app['deaths'].any? { |h| relationships.include?(h['dependent_type']) }
+      end
 
       'Started'
     end
