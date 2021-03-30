@@ -67,15 +67,21 @@ module FacilitiesApi
     end
 
     def ppms_search
-      if ppms_params[:type] == 'provider' && ppms_params[:specialties] == ['261QU0200X']
+      if urgent_care?
         api.pos_locator(ppms_params)
       elsif ppms_params[:type] == 'provider'
         api.provider_locator(ppms_provider_params)
       elsif ppms_params[:type] == 'pharmacy'
         api.provider_locator(ppms_params.merge(specialties: ['3336C0003X']))
-      elsif ppms_params[:type] == 'urgent_care'
-        api.pos_locator(ppms_params)
       end
+    end
+
+    def urgent_care?
+      provider_urgent_care? || ppms_params[:type] == 'urgent_care'
+    end
+
+    def provider_urgent_care?
+      ppms_params[:type] == 'provider' && ppms_params[:specialties] == ['261QU0200X']
     end
 
     def resource_path(options)
