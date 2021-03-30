@@ -47,6 +47,7 @@ module CovidVaccine
             csv << row.map { |field| field&.delete('"^') }
           end
         end
+      end
     
       def io
         @io ||= StringIO.new(csv)

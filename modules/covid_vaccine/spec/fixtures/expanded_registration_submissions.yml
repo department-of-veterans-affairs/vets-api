@@ -12,8 +12,8 @@ fixture_1:
     address_line1: 9371 Signal Station Dr
     city: Manassas
     state_code: VA
-    zip_code: 20111-8258
-    country: USA
+    zip_code: '20111-8258'
+    country_name: USA
     email: Fred.Regpatient@va.gov
     phone: 888-123-0001
     preferred_facility: '523'
@@ -30,8 +30,8 @@ fixture_2:
     address_line1: 3433 THIRD ST
     city: ST PETERSBURG
     state_code: FL
-    zip_code: 33701
-    country: USA
+    zip_code: '33701'
+    country_name: USA
     email: Patty.Regpatient@va.gov
     phone: 888-123-0002
     preferred_facility: '674'
@@ -48,8 +48,8 @@ fixture_3:
     address_line1: 10307 VENITIA REAL AVE APT 202
     city: TAMPA
     state_code: FL
-    zip_code: 33647-4010
-    country: USA
+    zip_code: '33647-4010'
+    country_name: USA
     email: Sally.Regpatient@va.gov
     phone: 888-123-0003
     preferred_facility: '552'
@@ -66,8 +66,8 @@ fixture_4:
     address_line1: 10307 Venitia Real Ave Apt 201
     city: Tampa
     state_code: FL
-    zip_code: 33647-4010
-    country: USA
+    zip_code: '33647-4010'
+    country_name: USA
     email: Martin.Regpatient@va.gov
     phone: 888-123-0004
     preferred_facility: '623'
@@ -84,8 +84,8 @@ fixture_5:
     address_line1: 810 Vermont Ave
     city: Washington
     state_code: DC
-    zip_code: 20001
-    country: USA
+    zip_code: '20001'
+    country_name: USA
     email: Alfred.Regpatient@va.gov
     phone: 888-123-0005
     preferred_facility: '623'
@@ -102,8 +102,8 @@ fixture_6:
     address_line1: 3422 GREENE ST
     city: TAMPA
     state_code: FL
-    zip_code: 33615
-    country: USA
+    zip_code: '33615'
+    country_name: USA
     email: Six.Regpatient@va.gov
     phone: 888-123-0006
     preferred_facility: '623'
@@ -120,8 +120,8 @@ fixture_7:
     address_line1: 44 DENSTRATH RD
     city: EDZELL
     state_code: SCOTLAND
-    zip_code: 0368918
-    country: GBR
+    zip_code: '0368918'
+    country_name: GBR
     email: Joey.Regpatient@va.gov
     phone: 888-123-0007
     preferred_facility: '623'
@@ -138,8 +138,8 @@ fixture_8:
     address_line1: Unknown
     city: Unknown
     state_code: Unknown  
-    zip_code: Unkown
-    country: Unknown
+    zip_code: 'Unkown'
+    country_name: Unknown
     email: Vetcheck.Regpatient@va.gov
     phone: 888-123-0008
     preferred_facility: '123'
@@ -156,8 +156,8 @@ fixture_9:
     address_line1: 3305 W Alline Ave
     city: Tampa
     state_code: FL
-    zip_code: 33611-2721
-    country: USA
+    zip_code: '33611-2721'
+    country_name: USA
     email: Gary.Regpatient@va.gov
     phone: 888-123-0009
     preferred_facility: '987'
