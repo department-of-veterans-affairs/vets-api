@@ -25,8 +25,5 @@ OpenidAuth::Engine.routes.draw do
     namespace :v1, defaults: { format: 'json' } do
       get 'validation', to: 'validation#index'
     end
-    namespace :v2, defaults: { format: 'json' } do
-      get 'validation', to: 'validation#index'
-    end
   end
 end
