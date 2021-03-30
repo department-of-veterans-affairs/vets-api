@@ -18,7 +18,7 @@ unless ENV['NOCOVERAGE']
   require 'simplecov'
 
   SimpleCov.start 'rails' do
-    # track_files '**/{app,lib}/**/*.rb'
+    track_files '**/{app,lib}/**/*.rb'
 
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
