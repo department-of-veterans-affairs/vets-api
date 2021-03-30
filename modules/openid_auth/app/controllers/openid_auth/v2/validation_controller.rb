@@ -17,7 +17,6 @@ module OpenidAuth
       private
 
       def validated_payload
-
         # Ensure the token has `act` and `launch` keys.
         payload_object = setup_structure
 
@@ -43,8 +42,7 @@ module OpenidAuth
 
         payload_object
       end
-
-
+      
       def setup_structure
         payload_object = OpenStruct.new(token.payload.merge(act: {}, launch: {}))
         payload_object.act[:icn] = nil
