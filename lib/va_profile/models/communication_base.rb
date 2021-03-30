@@ -1,5 +1,3 @@
-require 'common/models/resource'
-
 module VAProfile
   module Models
     class CommunicationBase
