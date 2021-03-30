@@ -112,9 +112,9 @@ module ClaimsApi
     end
 
     def check_source_user
-      if !header('X-VA-User') && request.headers['X-Consumer-Username']
+      if request.headers['X-Consumer-Username']
         request.headers['X-VA-User'] = request.headers['X-Consumer-Username']
-      elsif !request.headers['X-Consumer-Username']
+      else
         log_message_to_sentry('Kong no longer sending X-Consumer-Username', :error,
                               body: request.body)
         validate_headers(['X-Consumer-Username'])
@@ -151,7 +151,7 @@ module ClaimsApi
                 end
       vet.mpi_record?
       vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
-      vet.edipi = header('X-VA-EDIPI') || vet.mpi.profile&.edipi
+      vet.edipi = vet.mpi.profile&.edipi
       vet.participant_id = vet.mpi.profile&.participant_id
       vet
     end

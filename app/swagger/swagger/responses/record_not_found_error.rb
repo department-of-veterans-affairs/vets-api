@@ -7,7 +7,7 @@ module Swagger
         base.response 404 do
           key :description, 'Record not found'
           schema do
-            key :'$ref', :Errors
+            key :$ref, :Errors
           end
         end
       end
