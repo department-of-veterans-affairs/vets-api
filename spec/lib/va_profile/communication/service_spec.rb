@@ -118,10 +118,10 @@ describe VAProfile::Communication::Service do
     end
   end
 
-  describe '#communication_items' do
+  describe '#get_communication_items' do
     it 'gets communication items' do
       VCR.use_cassette('va_profile/communication/communication_items', VCR::MATCH_EVERYTHING) do
-        res = subject.communication_items
+        res = subject.get_communication_items
 
         expect(res).to eq(get_fixture('va_profile/communication_items'))
       end
