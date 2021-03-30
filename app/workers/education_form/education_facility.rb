@@ -67,6 +67,10 @@ module EducationForm
       FACILITY_IDS[region]
     end
 
+    def self.rpo_name(region:)
+      RPO_NAMES[region]
+    end
+
     def self.region_for(model)
       record = model.open_struct_form
       address = routing_address(record, form_type: model.form_type)
