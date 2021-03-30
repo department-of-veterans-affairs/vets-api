@@ -1,6 +1,6 @@
 openapi: '3.0.0'
 info:
-  version: 0.0.1
+  version: v0
   title: VAOS
   description: |
     ## The API for managing Veterans Affairs Online Scheduling
@@ -26,7 +26,7 @@ servers:
       version:
         default: v0
 paths:
-  '/appointments':
+  '/appointments/{type}':
     get:
       tags:
         - appointments
@@ -77,6 +77,72 @@ paths:
                         $ref: "#/components/schemas/CCAppointment"
                       meta:
                         $ref: "#/components/schemas/Pagination"
+  '/facilities':
+    get:
+      tags:
+        - facilities
+      operationId:  getFacilities
+      summary:  Returns a list of facility records for the given facility codes 
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: facility_codes
+          schema:
+            type: array
+            items: 
+              type: string
+          style: form
+          explode: false
+          example: facility_codes[]=405&facility_codes[]=516
+      responses:
+        '200':
+          description: OK, Facility information retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Facility"
+                    example:
+                      - id: "405"
+                        type: facility
+                        attributes:
+                          institution_code: "405"
+                          city: White River Junction
+                          state_abbrev: VT
+                          authoritative_name: White River Junction VA Medical Center
+                          root_station_code:  "983"
+                          admin_parent: true
+                          parent_station_code: "405"
+                      - id: "516"
+                        type: facility
+                        attributes:
+                          institution_code: "516"
+                          city: Bay Pines
+                          state_abbrev: FL
+                          authoritative_name: C.W. Bill Young Department of Veterans Affairs Medical Center
+                          root_station_code:  "983"
+                          admin_parent: true
+                          parent_station_code: "516"                      
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/facilities/limits':
+    get:
+      tags:
+        - facilities
+      responses:
+        '200':
+          description: OK
   '/systems':
     get:
       tags:
@@ -303,6 +369,42 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    Facility:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties: 
+        id:
+          type: "string"
+        type:
+          type: "string"
+        attributes:
+          type: "object"
+          required:
+            - "institution_code"
+            - "city"
+            - "state_abbrev"
+            - "authoritative_name"
+            - "root_station_code"
+            - "admin_parent"
+            - "parent_station_code"
+          properties:
+            institution_code:
+              type: "string"
+            city:
+              type: "string"
+            state_abbrev:
+              type: "string"
+            authoritative_name:
+              type: "string"
+            root_station_code:
+              type: "string"
+            admin_parent:
+              type: "boolean"
+            parent_station_code:
+              type: "string"
     System:
       type: "object"
       properties:
