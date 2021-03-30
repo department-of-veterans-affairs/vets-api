@@ -127,6 +127,18 @@ module HealthQuest
       end
 
       ##
+      # Factory method for generating a PDF document containing questions and answers
+      # and demographics information filled out by the patient for a pre-visit questionnaire.
+      # This will return the questionnaire_response_id string for the time being.
+      #
+      # @param questionnaire_response_id [String]
+      # @return [String]
+      #
+      def generate_questionnaire_response_pdf(questionnaire_response_id)
+        questionnaire_response_id
+      end
+
+      ##
       # Multi-Threaded and independent requests to the PGD, Health API, and vets-api to cut down on network overhead.
       # Sets the patient, questionnaires, questionnaire_responses and save_in_progress instance variables
       # independently by calling the separate endpoints through different threads. Any exception raised
@@ -148,6 +160,28 @@ module HealthQuest
         # rubocop:enable ThreadSafety/NewThread
 
         request_threads.each(&:join)
+      end
+
+      ##
+      # Calls the `combine` transformer object method and passes the appointment,
+      # questionnaire_response, questionnaire and SIP data as key/value arguments.
+      #
+      # @return [Hash] the final aggregated data structure for the UI/FE
+      #
+      def compose
+        @compose ||= begin
+          @aggregated_data = transformer.manufacture(
+            lighthouse_appointments: lighthouse_appointments,
+            locations: locations,
+            organizations: organizations,
+            facilities: facilities,
+            questionnaires: questionnaires,
+            questionnaire_responses: questionnaire_responses,
+            save_in_progress: save_in_progress
+          )
+
+          aggregated_data.combine
+        end
       end
 
       ##
@@ -266,28 +300,6 @@ module HealthQuest
           .where('form_id LIKE ?', "%#{HEALTH_CARE_FORM_PREFIX}%")
           .where(user_uuid: user.uuid)
           .to_a
-      end
-
-      ##
-      # Calls the `combine` transformer object method and passes the appointment,
-      # questionnaire_response, questionnaire and SIP data as key/value arguments.
-      #
-      # @return [Hash] the final aggregated data structure for the UI/FE
-      #
-      def compose
-        @compose ||= begin
-          @aggregated_data = transformer.manufacture(
-            lighthouse_appointments: lighthouse_appointments,
-            locations: locations,
-            organizations: organizations,
-            facilities: facilities,
-            questionnaires: questionnaires,
-            questionnaire_responses: questionnaire_responses,
-            save_in_progress: save_in_progress
-          )
-
-          aggregated_data.combine
-        end
       end
 
       ##
