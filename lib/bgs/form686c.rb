@@ -12,6 +12,11 @@ require_relative 'children'
 
 module BGS
   class Form686c
+    REMOVE_CHILD_OPTIONS = %w[report_child18_or_older_is_not_attending_school
+                              report_stepchild_not_in_household
+                              report_marriage_of_child_under18].freeze
+    DEPENDENT_OPTIONS = %w[CHILD DEPENDENT_PARENT].freeze
+
     def initialize(user)
       @user = user
     end
@@ -74,11 +79,12 @@ module BGS
       selectable_options = payload['view:selectable686_options']
       dependents_app = payload['dependents_application']
 
-      return 'MANUAL_VAGOV' if selectable_options['report_child18_or_older_is_not_attending_school']
+      # search through the "selectable_options" hash and check if any of the "REMOVE_CHILD_OPTIONS" are set to true
+      return 'MANUAL_VAGOV' if REMOVE_CHILD_OPTIONS.any? { |child_option| selectable_options[child_option] }
 
       if selectable_options['report_death']
-        relationships = %w[CHILD DEPENDENT_PARENT]
-        return 'MANUAL_VAGOV' if dependents_app['deaths'].any? { |h| relationships.include?(h['dependent_type']) }
+        # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
+        return 'MANUAL_VAGOV' if dependents_app['deaths'].any? { |h| DEPENDENT_OPTIONS.include?(h['dependent_type']) }
       end
 
       'Started'
