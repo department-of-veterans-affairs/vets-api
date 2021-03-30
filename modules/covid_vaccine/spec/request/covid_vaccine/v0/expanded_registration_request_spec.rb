@@ -7,16 +7,16 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
 
   let(:registration_attributes) do
     {
-      vaccine_interest: 'yes',
-      authenticated: true,
       first_name: 'Jane',
       last_name: 'Doe',
       birth_date: '1952-02-02',
       phone: '555-555-1234',
-      email: 'jane.doe@email.com',
-      ssn: '000-00-0022',
-      zip_code: '94402',
-      zip_code_details: 'yes'
+      email_address: 'jane.doe@email.com',
+      ssn: '000000022',
+      address_line1: '123 Fake Street',
+      city: 'Springfield',
+      state_code: 'CA',
+      zip_code: '94402'
     }
   end
 
@@ -27,9 +27,9 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
   describe 'registration#create' do
     context 'feature disabled' do
       around do |example|
-        Flipper.disable(:covid_vaccine_registration)
+        Flipper.disable(:covid_vaccine_registration_expanded)
         example.run
-        Flipper.enable(:covid_vaccine_registration)
+        Flipper.enable(:covid_vaccine_registration_expanded)
       end
 
       it 'returns a 404 route not found' do
@@ -39,19 +39,11 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
     end
 
     context 'when encountering an Internal Server Error' do
-      let(:registration_attributes) do
-        {
-          vaccine_interest: 'yes',
-          email: 'jane.doe@email.com',
-          zip_code: '94402',
-          date_vaccine_reeceived: ''
-        }
-      end
-
       it 'raises a BackendServiceException' do
         expect(CovidVaccine::V0::ExpandedRegistrationSubmission).to receive(:create!)
           .and_raise(ActiveRecord::RecordInvalid.new(nil))
         post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+
         expect(response).to have_http_status(:internal_server_error)
         # TODO: Add more thorough expectation
       end
@@ -71,20 +63,65 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
           {
             'errors' => [
               {
-                'title' => 'Email is invalid',
-                'detail' => 'email - is invalid',
+                'title' => "First name can't be blank",
+                'detail' => "first-name - can't be blank",
                 'code' => '100',
                 'source' => {
-                  'pointer' => 'data/attributes/email'
+                  'pointer' => 'data/attributes/first-name'
                 },
                 'status' => '422'
               },
               {
-                'title' => "Vaccine interest can't be blank",
-                'detail' => "vaccine-interest - can't be blank",
+                'title' => "Last name can't be blank",
+                'detail' => "last-name - can't be blank",
                 'code' => '100',
                 'source' => {
-                  'pointer' => 'data/attributes/vaccine-interest'
+                  'pointer' => 'data/attributes/last-name'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => 'Ssn should be in the form 123121234',
+                'detail' => 'ssn - should be in the form 123121234',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/ssn'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => 'Birth date should be in the form yyyy-mm-dd',
+                'detail' => 'birth-date - should be in the form yyyy-mm-dd',
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/birth-date'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => "Address line1 can't be blank",
+                'detail' => "address-line1 - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/address-line1'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => "City can't be blank",
+                'detail' => "city - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/city'
+                },
+                'status' => '422'
+              },
+              {
+                'title' => "State code can't be blank",
+                'detail' => "state-code - can't be blank",
+                'code' => '100',
+                'source' => {
+                  'pointer' => 'data/attributes/state-code'
                 },
                 'status' => '422'
               },
@@ -108,15 +145,8 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
 
-      it 'allows a non-existent date' do
-        blank_date_attributes = registration_attributes.merge({ birth_date: '' })
-        post '/covid_vaccine/v0/expanded_registration', params: { registration: blank_date_attributes }
-        expect(response).to have_http_status(:created)
-      end
-
       it 'returns a submission summary' do
         post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
-
         expect(response).to have_http_status(:created)
         body = JSON.parse(response.body)
         expect(body['data']['id']).to eq('')
@@ -131,6 +161,22 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
       it 'kicks off the email confirmation job' do
         expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
           .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+      end
+    end
+
+    context 'with a spouse submission' do
+      let(:registration_attributes) do
+        build(:covid_vax_expanded_registration, :spouse).raw_form_data.symbolize_keys
+      end
+
+      it 'accepts the submission' do
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'records the submission for processing' do
+        expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::V0::ExpandedRegistrationSubmission, :count).by(1)
       end
     end
   end

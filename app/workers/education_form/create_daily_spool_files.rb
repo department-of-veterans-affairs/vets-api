@@ -54,7 +54,7 @@ module EducationForm
         write_files(writer, structured_data: formatted_records)
       rescue => e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
-        log_exception_to_sentry(DailySpoolFileError.new("Error creating spool files.\n\n#{e}"))
+        log_exception(DailySpoolFileError.new("Error creating spool files.\n\n#{e}"))
       end
       true
     end
@@ -110,7 +110,7 @@ module EducationForm
                             "attempt #{spool_file_event.retry_attempt}"
                           end
             exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
-            log_exception_to_sentry(exception)
+            log_exception(exception, region)
             next
           end
         end
@@ -143,7 +143,7 @@ module EducationForm
                   else
                     FormattingError.new("Could not format #{claim.confirmation_number}")
                   end
-      log_exception_to_sentry(exception)
+      log_exception(exception)
     end
 
     private
@@ -182,8 +182,30 @@ module EducationForm
       @stats ||= Hash.new(Hash.new(0))
     end
 
+    def log_exception(exception, region = nil)
+      log_exception_to_sentry(exception)
+      log_to_slack(exception.to_s)
+      log_to_email(region)
+    end
+
     def log_info(message)
-      log_exception_to_sentry(DailySpoolFileLogging.new(message), {}, {}, :info)
+      logger.info(message)
+      log_to_slack(message)
+    end
+
+    def log_to_slack(message)
+      return unless Flipper.enabled?(:spool_testing_error_2)
+
+      client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
+                                       channel: '#vsa-education-logs',
+                                       username: "#{self.class.name} - #{Settings.vsp_environment}")
+      client.notify(message)
+    end
+
+    def log_to_email(region)
+      return unless Flipper.enabled?(:spool_testing_error_3)
+
+      CreateDailySpoolFilesMailer.build(region).deliver_now
     end
   end
 end
