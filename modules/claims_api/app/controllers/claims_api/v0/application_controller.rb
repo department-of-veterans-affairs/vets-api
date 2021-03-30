@@ -57,7 +57,7 @@ module ClaimsApi
       def check_loa_level
         return if header('X-VA-LOA').try(:to_i) == 3
 
-        raise Common::Exceptions::Unauthorized
+        raise ::Common::Exceptions::Unauthorized
       end
 
       def veteran_from_headers(with_gender: false)

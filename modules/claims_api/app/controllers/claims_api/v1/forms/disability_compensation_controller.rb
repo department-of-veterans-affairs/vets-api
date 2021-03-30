@@ -43,7 +43,7 @@ module ClaimsApi
           end
 
           if auto_claim.errors.present?
-            raise Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: auto_claim.errors.messages.to_s)
           end
 
           unless form_attributes['autoCestPDFGenerationDisabled'] == true
@@ -90,7 +90,7 @@ module ClaimsApi
           validate_documents_page_size
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          raise Common::Exceptions::ResourceNotFound.new(detail: "Claim not found: #{params[:id]}") unless claim
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: "Claim not found: #{params[:id]}") unless claim
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build

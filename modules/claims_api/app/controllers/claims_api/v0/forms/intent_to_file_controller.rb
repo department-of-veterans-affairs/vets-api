@@ -46,7 +46,7 @@ module ClaimsApi
                          bgs_response
                        end
           message = "No Intent to file is on record for #{target_veteran_name} of type #{active_param}"
-          raise Common::Exceptions::RecordNotFound, 'active', detail: message if bgs_active.blank?
+          raise ::Common::Exceptions::RecordNotFound, 'active', detail: message if bgs_active.blank?
 
           render json: bgs_active, serializer: ClaimsApi::IntentToFileSerializer
         end
@@ -96,7 +96,7 @@ module ClaimsApi
           return unless active_param && !ITF_TYPES.include?(active_param)
 
           message = "Must include either compensation, pension or burial as a 'type' parameter."
-          raise Common::Exceptions::UnprocessableEntity.new(detail: message)
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
         end
 
         def form_type
