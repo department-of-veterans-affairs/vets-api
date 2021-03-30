@@ -21,33 +21,8 @@ module VAProfile
             communication_items: []
           )
 
-          groups[communication_group_id].communication_items << VAProfile::Models::CommunicationItem.new(
-            id: communication_item['communication_item_id'],
-            name: communication_item['common_name'],
-            communication_channels: communication_item['communication_item_channels'].map do |communication_item_channel|
-              communication_channel = communication_item_channel['communication_channel']
-
-              communication_channel_model = VAProfile::Models::CommunicationChannel.new(
-                id: communication_channel['communication_channel_id'],
-                name: communication_channel['name'],
-                description: communication_channel['description']
-              )
-
-              permission = permission_res['bios'].find do |permission|
-                permission['communication_item_id'] == communication_item['communication_item_id'] &&
-                  permission['communication_channel_id'] == communication_channel['communication_channel_id']
-              end.tap do |permission|
-                next if permission.nil?
-
-                communication_channel_model.communication_permission = VAProfile::Models::CommunicationPermission.new(
-                  id: permission['communication_permission_id'],
-                  allowed: permission['allowed']
-                )
-              end
-
-              communication_channel_model
-            end
-          )
+          groups[communication_group_id].communication_items <<
+            VAProfile::Models::CommunicationItem.create_from_api(communication_item, permission_res)
         end
 
         groups.values
