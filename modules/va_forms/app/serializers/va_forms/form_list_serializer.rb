@@ -9,10 +9,8 @@ module VAForms
                :form_usage, :form_tool_intro, :form_tool_url, :form_details_url,
                :form_type, :language, :deleted_at, :related_forms, :benefit_categories,
                :va_form_administration
-
     def id
       object.form_name
     end
-
   end
 end
