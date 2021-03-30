@@ -11,8 +11,6 @@ module CovidVaccine
         @timestamp = Time.now.utc.strftime('%Y%m%d%H%M%S')
       end
 
-      20210329_saves_livees_act_20_records.csv
-
       def send_enrollment_csv
         Net::SFTP.start(sftp_host, sftp_username, password: sftp_password) do |sftp|
           sftp.upload!(csv_as_io, remote_file_path, name: file_name, progress: EnrollmentHandler.new)
@@ -30,7 +28,7 @@ module CovidVaccine
       end
 
       def file_name
-        "#{@timestamp}_saves_lives_act_#{records.size}_records.csv"
+        "#{@timestamp}_saves_lives_act_#{records.size}_records.txt"
       end
 
       def sftp_host

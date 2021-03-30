@@ -14,7 +14,7 @@ fixture_1:
     state_code: VA
     zip_code: '20111-8258'
     country_name: USA
-    email: Fred.Regpatient@va.gov
+    email_address: Fred.Regpatient@va.gov
     phone: 888-123-0001
     preferred_facility: '523'
 fixture_2:
@@ -32,7 +32,7 @@ fixture_2:
     state_code: FL
     zip_code: '33701'
     country_name: USA
-    email: Patty.Regpatient@va.gov
+    email_address: Patty.Regpatient@va.gov
     phone: 888-123-0002
     preferred_facility: '674'
 fixture_3:
@@ -50,7 +50,7 @@ fixture_3:
     state_code: FL
     zip_code: '33647-4010'
     country_name: USA
-    email: Sally.Regpatient@va.gov
+    email_address: Sally.Regpatient@va.gov
     phone: 888-123-0003
     preferred_facility: '528A7'
 fixture_4:
@@ -68,7 +68,7 @@ fixture_4:
     state_code: FL
     zip_code: '33647-4010'
     country_name: USA
-    email: Martin.Regpatient@va.gov
+    email_address: Martin.Regpatient@va.gov
     phone: 888-123-0004
     preferred_facility: '612A4'
 fixture_5:
@@ -86,7 +86,7 @@ fixture_5:
     state_code: DC
     zip_code: '20001'
     country_name: USA
-    email: Alfred.Regpatient@va.gov
+    email_address: Alfred.Regpatient@va.gov
     phone: 888-123-0005
     preferred_facility: '623'
 fixture_6:
@@ -104,7 +104,7 @@ fixture_6:
     state_code: FL
     zip_code: '33615'
     country_name: USA
-    email: Six.Regpatient@va.gov
+    email_address: Six.Regpatient@va.gov
     phone: 888-123-0006
     preferred_facility: '757'
 fixture_7:
@@ -122,7 +122,7 @@ fixture_7:
     state_code: SCOTLAND
     zip_code: '0368918'
     country_name: GBR
-    email: Joey.Regpatient@va.gov
+    email_address: Joey.Regpatient@va.gov
     phone: 888-123-0007
     preferred_facility: '648'
 fixture_8:
@@ -140,7 +140,7 @@ fixture_8:
     state_code: Unknown  
     zip_code: 'Unkown'
     country_name: Unknown
-    email: Vetcheck.Regpatient@va.gov
+    email_address: Vetcheck.Regpatient@va.gov
     phone: 888-123-0008
     preferred_facility: '989'
 fixture_9:
@@ -158,6 +158,6 @@ fixture_9:
     state_code: FL
     zip_code: '33611-2721'
     country_name: USA
-    email: Gary.Regpatient@va.gov
+    email_address: Gary.Regpatient@va.gov
     phone: 888-123-0009
     preferred_facility: '989'
