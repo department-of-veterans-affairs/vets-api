@@ -46,7 +46,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor/bundle
-          key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
       - name: Install Dependencies
         run: bundle install --path vendor/bundle
       - name: Setup database
