@@ -75,8 +75,8 @@ module ClaimsApi
         log_message_to_sentry('Authentication Error in claims',
                               :warning,
                               body: e.message)
-        render json: { errors: [{ status: 401, detail: 'User not a valid or authorized Veteran for this end point.' }] },
-               status: :unauthorized
+        message = 'User not a valid or authorized Veteran for this end point.'
+        render json: { errors: [{ status: 401, detail: message }] }, status: :unauthorized
       end
     end
   end

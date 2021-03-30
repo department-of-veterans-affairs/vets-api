@@ -18,7 +18,7 @@ module ClaimsApi
                status: :not_found
       end
 
-      def show
+      def show # rubocop:disable Metrics/MethodLength
         claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
         if claim && claim.status == 'errored'
@@ -30,7 +30,7 @@ module ClaimsApi
           render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
         elsif /^\d{2,20}$/.match?(params[:id])
           evss_claim = claims_service.update_from_remote(params[:id])
-          # Note: source doesn't seem to be accessible within a remote evss_claim
+          # NOTE: source doesn't seem to be accessible within a remote evss_claim
           render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
         else
           render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
