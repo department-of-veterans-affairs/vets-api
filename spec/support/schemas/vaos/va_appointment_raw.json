@@ -14,6 +14,7 @@
         "clinic_friendly_name": { "type": ["string", null] },
         "facility_id": { "type": ["string", null] },
         "char4": { "type": ["string", null] },
+        "phone_only": { "type": ["boolean", null] },
         "community_care": { "type": ["boolean", null] },
         "vds_appointments": {
           "type": "array",

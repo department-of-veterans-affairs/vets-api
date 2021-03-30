@@ -53,6 +53,12 @@
             null
           ]
         },
+        "phoneOnly": { 
+          "type": [
+            "boolean",
+            null
+          ] 
+        },
         "communityCare": {
           "type": [
             "boolean",
