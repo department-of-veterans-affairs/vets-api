@@ -67,7 +67,7 @@ RSpec.describe EducationForm::Create10203ApplicantDecisionLetters, type: :model,
                    build(:education_stem_automated_decision, :with_poa, :denied))
 
         expect(StemApplicantDenialMailer).to receive(:build).and_raise(StandardError.new)
-        expect(subject).to receive('log_exception_to_sentry').with(any_args).twice
+        expect(subject).to receive('log_exception_to_sentry').with(any_args).once
         expect(subject.perform).to be(true)
       end
     end

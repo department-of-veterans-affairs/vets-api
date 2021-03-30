@@ -12,8 +12,8 @@ module Mobile
         resource = PushStruct.new(id, preferences)
         super(resource, options)
       end
-    end
 
-    PushStruct = Struct.new(:id, :preferences)
+      PushStruct = Struct.new(:id, :preferences)
+    end
   end
 end

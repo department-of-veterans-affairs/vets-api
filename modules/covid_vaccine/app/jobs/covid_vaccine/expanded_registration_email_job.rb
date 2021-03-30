@@ -17,8 +17,8 @@ module CovidVaccine
       return if submission.email_confirmation_id.present?
 
       notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
-      template_id = Settings.vanotify.services.va_gov.template_id.covid_vaccine_registration
-      email_address = submission.raw_form_data[:email]
+      template_id = Settings.vanotify.services.va_gov.template_id.covid_vaccine_expanded_registration
+      email_address = submission.raw_form_data['email_address']
 
       notify_response = notify_client.send_email(email_address: email_address, template_id: template_id,
                                                  personalisation: { 'date' => formatted_date(submission.created_at),
