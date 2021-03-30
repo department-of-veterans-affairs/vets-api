@@ -352,10 +352,8 @@ components:
       properties:
         id:
           type: "string"
-          example: ""
         type:
           type: "string"
-          example: ""
         attributes:
           type: "object"
           properties:
