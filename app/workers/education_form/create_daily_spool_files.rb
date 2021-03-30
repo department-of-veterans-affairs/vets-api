@@ -198,7 +198,7 @@ module EducationForm
 
       client = SlackNotify::Client.new(webhook_url: Settings.edu.slack.webhook_url,
                                        channel: '#vsa-education-logs',
-                                       username: "CreateDailySpoolFiles - #{Settings.vsp_environment}")
+                                       username: "#{self.class.name} - #{Settings.vsp_environment}")
       client.notify(message)
     end
 
