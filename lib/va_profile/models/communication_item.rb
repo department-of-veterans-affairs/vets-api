@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'communication_base'
 require_relative 'communication_channel'
 
