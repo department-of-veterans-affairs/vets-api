@@ -296,4 +296,13 @@ describe HealthQuest::QuestionnaireManager::Factory do
       expect(described_class.new(user).create_questionnaire_response(data)).to eq(client_reply)
     end
   end
+
+  describe '#generate_questionnaire_response_pdf' do
+    let(:questionnaire_response_id) { '1bc-123-345' }
+
+    it 'returns the id for now' do
+      expect(described_class.new(user).generate_questionnaire_response_pdf(questionnaire_response_id))
+        .to eq(questionnaire_response_id)
+    end
+  end
 end
