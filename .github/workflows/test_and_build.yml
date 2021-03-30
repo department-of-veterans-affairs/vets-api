@@ -50,7 +50,7 @@ jobs:
       - name: Install Dependencies
         run: bundle install --path vendor/bundle
       - name: Setup database
-        run: bundle exec rake db:create db:schema:load
+        run: bundle exec rake db:setup
       - name: Run Specs
         run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
 
