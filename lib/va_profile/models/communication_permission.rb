@@ -1,3 +1,5 @@
+require_relative 'communication_base'
+
 module VAProfile
   module Models
     class CommunicationPermission < CommunicationBase
