@@ -15,7 +15,7 @@ module Common
       end
 
       def errors
-        detail = @detail.present? ? @detail : { id: @id }
+        detail = @detail.presence || { id: @id }
         Array(SerializableError.new(i18n_interpolated(detail: detail)))
       end
     end

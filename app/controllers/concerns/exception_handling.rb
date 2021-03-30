@@ -39,15 +39,13 @@ module ExceptionHandling
           Common::Exceptions::Unauthorized.new(detail: exception.detail)
         when ActionController::ParameterMissing
           Common::Exceptions::ParameterMissing.new(exception.param)
-        when Common::Exceptions::BaseError
+        when Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute
           exception
         when Breakers::OutageException
           Common::Exceptions::ServiceOutage.new(exception.outage)
         when Common::Client::Errors::ClientError
           # SSLError, ConnectionFailed, SerializationError, etc
           Common::Exceptions::ServiceOutage.new(nil, detail: 'Backend Service Outage')
-        when JsonSchema::JsonApiMissingAttribute
-          exception
         else
           Common::Exceptions::InternalServerError.new(exception)
         end
