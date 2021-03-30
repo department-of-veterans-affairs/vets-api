@@ -23,6 +23,29 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/dependents_verifications' do
+        operation :post do
+          extend Swagger::Responses::SavedForm
+
+          key :description, 'Update diaries by sending true'
+          key :operationId, 'adDependentsVerifications'
+          key :tags, %w[dependents_verifications]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :form
+            key :in, :body
+            key :description, 'Veteran Diary verification'
+            key :required, true
+
+            schema do
+              key :type, :string
+            end
+          end
+        end
+      end
     end
   end
 end
