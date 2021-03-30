@@ -52,7 +52,7 @@ fixture_3:
     country_name: USA
     email: Sally.Regpatient@va.gov
     phone: 888-123-0003
-    preferred_facility: '552'
+    preferred_facility: '528A7'
 fixture_4:
   eligibility_info:
     icn: 1013466806V345060
@@ -70,7 +70,7 @@ fixture_4:
     country_name: USA
     email: Martin.Regpatient@va.gov
     phone: 888-123-0004
-    preferred_facility: '623'
+    preferred_facility: '612A4'
 fixture_5:
   eligibility_info:
     icn: 1013180344V903214
@@ -106,7 +106,7 @@ fixture_6:
     country_name: USA
     email: Six.Regpatient@va.gov
     phone: 888-123-0006
-    preferred_facility: '623'
+    preferred_facility: '757'
 fixture_7:
   eligibility_info:
     icn: 1012894957V497399
@@ -124,7 +124,7 @@ fixture_7:
     country_name: GBR
     email: Joey.Regpatient@va.gov
     phone: 888-123-0007
-    preferred_facility: '623'
+    preferred_facility: '648'
 fixture_8:
   eligibility_info:
     icn: 1013220419V930463
@@ -142,7 +142,7 @@ fixture_8:
     country_name: Unknown
     email: Vetcheck.Regpatient@va.gov
     phone: 888-123-0008
-    preferred_facility: '123'
+    preferred_facility: '989'
 fixture_9:
   eligibility_info:
     icn: 1013126026V456239
@@ -160,4 +160,4 @@ fixture_9:
     country_name: USA
     email: Gary.Regpatient@va.gov
     phone: 888-123-0009
-    preferred_facility: '987'
+    preferred_facility: '989'

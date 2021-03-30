@@ -27,7 +27,7 @@ describe CovidVaccine::V0::ExpandedRegistrationSubmissionCSVGenerator do
   describe '#io' do
     it 'generates IO String suitable for SFTP' do
       expect(subject.io).to be_a(StringIO)
-      expect(subject.io.size).to eq(1215)
+      expect(subject.io.size).to eq(1219)
     end
   end
 end
