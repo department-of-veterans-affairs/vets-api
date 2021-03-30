@@ -25,7 +25,7 @@ module ClaimsApi
         # POST to submit disability claim.
         #
         # @return [JSON] Record in pending state
-        def submit_form_526
+        def submit_form_526 # rubocop:disable Metrics/MethodLength
           validate_json_schema
           validate_initial_claim
 
