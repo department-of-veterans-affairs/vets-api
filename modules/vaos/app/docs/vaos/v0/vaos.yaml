@@ -1,6 +1,6 @@
 openapi: '3.0.0'
 info:
-  version: v0
+  version: 0.0.1
   title: VAOS
   description: |
     ## The API for managing Veterans Affairs Online Scheduling
@@ -26,7 +26,7 @@ servers:
       version:
         default: v0
 paths:
-  '/appointments/{type}':
+  '/appointments':
     get:
       tags:
         - appointments
