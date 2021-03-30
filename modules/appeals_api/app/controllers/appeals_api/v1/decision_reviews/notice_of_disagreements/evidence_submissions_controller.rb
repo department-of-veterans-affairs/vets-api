@@ -18,13 +18,27 @@ module AppealsApi::V1
         end
 
         def create
-          status, error = AppealsApi::FileValidator.new(params[:document]).call
+          url = rewrite_url(signed_url(params[:uuid]))
 
-          if status == :ok
-            render json: { document: params[:document], uuid: params[:uuid] }
-          else
-            render json: { errors: [error] }, status: 422
-          end
+          render json: { uuid: params[:uuid], url: url }
+        end
+
+        private
+
+        def rewrite_url(url)
+          rewritten = url.sub!(Settings.modules_appeals_api.evidence_submissions.location.prefix,
+                               Settings.modules_appeals_api.evidence_submissions.location.replacement)
+          raise 'Unable to provide document upload location' unless rewritten
+
+          rewritten
+        end
+
+        def signed_url(uuid)
+          s3 = Aws::S3::Resource.new(region: Settings.modules_appeals_api.s3.region,
+                                     access_key_id: Settings.modules_appeals_api.s3.aws_access_key_id,
+                                     secret_access_key: Settings.modules_appeals_api.s3.aws_secret_access_key)
+          obj = s3.bucket(Settings.modules_appeals_api.s3.bucket).object(uuid)
+          obj.presigned_url(:put, {})
         end
       end
     end

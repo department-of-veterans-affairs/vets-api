@@ -30,20 +30,22 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
   end
 
   describe '#create' do
-    let(:uploaded_file) { Rack::Test::UploadedFile }
-
-    it 'successfully responds to a valid document upload' do
-      valid_doc = fixture_filepath('expected_10182_minimum.pdf')
-      valid_params = { document: uploaded_file.new(valid_doc), uuid: '1234' }
-      post(path, params: valid_params)
-      expect(response).to have_http_status(:ok)
-    end
-
-    it 'responds with an error document upload is invalid' do
-      oversize_doc = fixture_filepath('oversize_11x17.pdf')
-      invalid_params = { document: uploaded_file.new(oversize_doc), uuid: '6789' }
-      post(path, params: invalid_params)
-      expect(response).to have_http_status(:unprocessable_entity)
+    it 'returns a UUID and location' do
+      with_settings(Settings.modules_appeals_api.evidence_submissions.location,
+                    prefix: 'https://fake.s3.url/foo/',
+                    replacement: 'https://api.vets.gov/proxy/') do
+        s3_client = instance_double(Aws::S3::Resource)
+        allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+        s3_bucket = instance_double(Aws::S3::Bucket)
+        s3_object = instance_double(Aws::S3::Object)
+        allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+        allow(s3_bucket).to receive(:object).and_return(s3_object)
+        allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
+        put(path, params: { uuid: '1979' })
+        json = JSON.parse(response.body)
+        expect(json['uuid']).to eq('1979')
+        expect(json['url']).to eq('https://api.vets.gov/proxy/uuid')
+      end
     end
   end
 end

@@ -22,7 +22,8 @@ AppealsApi::Engine.routes.draw do
       end
       namespace :notice_of_disagreements do
         get 'contestable_issues', to: 'contestable_issues#index'
-        resources :evidence_submissions, only: %i[create show]
+        resources :evidence_submissions, only: %i[show]
+        put 'evidence_submissions', to: 'evidence_submissions#create'
       end
       resources :notice_of_disagreements, only: %i[create show] do
         collection do
