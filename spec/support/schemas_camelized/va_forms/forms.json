@@ -54,10 +54,7 @@
               },
               "sha256": {
                 "type": "string"
-              },
-              "lastSha256Change": {
-                "type": ["string", "null"]
-              },
+              }
               "formUsage": {
                 "type": ["string", "null"]
               },
