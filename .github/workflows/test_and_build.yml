@@ -1,28 +1,40 @@
 name: test_and_build
 on: [push]
-
-
 jobs:
   specs:
 
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby: [2.6.6]
 
+    runs-on: ubuntu-latest
     container:
       image: timbru31/ruby-node:latest
+    env:
+      BUNDLE_JOBS: 2
+      BUNDLE_RETRY: 3
+      LANG: en_US.UTF-8
+      PGHOST: postgres
+      PGUSER: vets-api
+      RAILS_ENV: test
+      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+      "Settings.binaries.clamdscan": "clamscan"
 
     services:
       postgres:
-        image: postgres:11
+        image: postgres:11.5
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ""
+          POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api_test
+          POSTGRES_PASSWORD: ""
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
       redis:
         image: circleci/redis:3.2-alpine
+
 
     steps:
       # This Docker file changes sets USER to circleci instead of using the default user, so we need to update file permissions for this image to work on GH Actions.
@@ -36,7 +48,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: vendor/bundle
-          key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
+          key: ${{ runner.os }}-gems-${{ hashFiles('**/Gemfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
       - name: Install Dependencies
         run: bundle install --path vendor/bundle
       - name: Setup database
@@ -48,12 +62,6 @@ jobs:
           POSTGRES_DB: vets-api_test
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
         run: bundle exec rake db:create db:schema:load
-      - name: Run rspec
-        env:
-          RAILS_ENV: test
-          POSTGRES_HOST: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ""
-          POSTGRES_DB: vets-api_test
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+      - name: Run Specs
         run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
+
