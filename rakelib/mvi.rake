@@ -44,35 +44,22 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
   end
 
-  desc 'Given a CSV with ICNs, append attributes needed to stage the user as ID.me LOA3' do
-    task :idme_saml_stage_attributes, [:csvfile] => [:environment] do |_, args|
-      raise 'No input CSV provided' unless args[:csvfile]
+  desc 'Given a CSV with ICNs, append attributes needed to stage the user as ID.me LOA3'
+  task :idme_saml_stage_attributes, [:csvfile] => [:environment] do |_, args|
+    raise 'No input CSV provided' unless args[:csvfile]
 
-      CSV.open(args[:csvfile] + '.out', 'w', write_headers: true) do |dest|
-        existing_headers = CSV.open(args[:csvfile], &:readline)
-        appended_headers = %w[first_name middle_name last_name gender birth_date ssn address]
-        CSV.open(args[:csvfile], headers: true) do |source|
-          dest << (existing_headers + appended_headers)
-          source.each do |row|
-            user_identity = UserIdentity.new(
-              uuid: SecureRandom.uuid,
-              email: 'fakeemail@needed_for_object_validation.gov',
-              mhv_icn: row['icn'], # HACK: because the presence of this attribute results in ICN based MVI lookup
-              loa: {
-                current: LOA::THREE,
-                highest: LOA::THREE
-              }
-            )
-
-            # Not persisting any users, user_identities, or caching MVI by doing it this way.
-            user = User.new(uuid: user_identity.uuid)
-            user.instance_variable_set(:@identity, user_identity)
-            mpi = MPIData.for_user(user)
-            response = mpi.send(:mpi_service).find_profile(user_identity)
-
+    CSV.open(args[:csvfile] + '.out', 'w', write_headers: true) do |dest|
+      existing_headers = CSV.open(args[:csvfile], &:readline)
+      appended_headers = %w[first_name middle_name last_name gender birth_date ssn address]
+      CSV.open(args[:csvfile], headers: true) do |source|
+        dest << (existing_headers + appended_headers)
+        source.each do |row|
+          ui = OpenStruct.new(mhv_icn: row['icn'], valid?: true)
+          response = MPI::Service.new.find_profile(ui)
+          if response.status == 'OK'
             appended_headers.each do |column_name|
               case column_name
-              when 'address'
+              when 'address'l
                 row['address'] = response.profile.address.to_json
               when 'first_name'
                 row['first_name'] = response.profile.given_names.first
@@ -86,13 +73,15 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
             end
 
             dest << row
+          else
+            next
           end
         end
       end
     end
   end
 
-  desc 'Build mock MVI yaml database for users in given CSV'
+  desc 'Build mock MVI yaml database for users in given CSV' do
   task :mock_database, [:csvfile] => [:environment] do |_, args|
     raise 'No input CSV provided' unless args[:csvfile]
 
