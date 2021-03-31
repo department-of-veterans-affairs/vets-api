@@ -5,7 +5,7 @@ module VAForms
     type :va_form
 
     attributes :form_name, :url, :title, :first_issued_on,
-               :last_revision_on, :pages, :sha256, :valid_pdf,
+               :last_revision_on, :pages, :sha256, :last_sha256_change, :valid_pdf,
                :form_usage, :form_tool_intro, :form_tool_url, :form_details_url,
                :form_type, :language, :deleted_at, :related_forms, :benefit_categories,
                :va_form_administration
@@ -13,5 +13,10 @@ module VAForms
     def id
       object.form_name
     end
+
+    def last_sha256_change
+      object.versions.last.try(:created_at&.try(strftime('%Y-%m-%d'))) if @item.respond_to?(:versions)
+    end
+
   end
 end
