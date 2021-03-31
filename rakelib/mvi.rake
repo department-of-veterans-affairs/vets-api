@@ -81,7 +81,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
   end
 
-  desc 'Build mock MVI yaml database for users in given CSV' do
+  desc 'Build mock MVI yaml database for users in given CSV'
   task :mock_database, [:csvfile] => [:environment] do |_, args|
     raise 'No input CSV provided' unless args[:csvfile]
 
