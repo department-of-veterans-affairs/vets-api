@@ -42,10 +42,19 @@ features:
     description: >
       Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
       Note: When this is enabled, the 'Sign in' button will be hidden
+  covid_vaccine_registration_frontend_enable_expanded_eligibility:
+    actor_type: user
+    description: >
+      Toggles the 'continue' button to launch the new expanded eligibility VAFS app
   covid_vaccine_registration:
     actor_type: user
     description: >
       Toggles availability of covid vaccine form API.
+  covid_vaccine_registration_expanded:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggles availability of covid vaccine expanded registration form API.
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
@@ -231,6 +240,16 @@ features:
     actor_type: user
     description: >
       Enables debt letters
+  show_financial_status_report_wizard:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the Wizard for VA Form 5655 (Financial Status Report)
+  show_financial_status_report:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables VA Form 5655 (Financial Status Report)
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: >
@@ -418,15 +437,15 @@ features:
   spool_testing_error_1:
     actor_type: user
     description: >
-      Support testing of track file spool file creation by RPO
+      Enables spool_file_events tracking rows to be used to prevent multiple spool files per RPO per date
   spool_testing_error_2:
     actor_type: user
     description: >
-      Create notification for when spool file processing fails
+      Enables Slack notifications for CreateDailySpoolFiles
   spool_testing_error_3:
     actor_type: user
     description: >
-      Update processing retry functionality
+      Enables email notifications for CreateDailySpoolFiles errors
   dependency_verification:
     actor_type: user
     enable_in_development: true

@@ -102,7 +102,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :dependents_verifications, only: :index
+    resources :dependents_verifications, only: %i[create index]
 
     if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
