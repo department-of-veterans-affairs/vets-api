@@ -61,7 +61,7 @@ jobs:
         LANG: en_US.UTF-8
         "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
         "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
-         "Settings.binaries.clamdscan": "clamscan"        
+        "Settings.binaries.clamdscan": "clamscan"        
       run: |
         bundle exec rails db:create
         bundle exec rails db:schema:load
