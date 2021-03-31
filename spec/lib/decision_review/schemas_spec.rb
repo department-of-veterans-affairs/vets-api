@@ -29,4 +29,13 @@ describe DecisionReview::Schemas do
       include_examples 'test schema'
     end
   end
+
+  describe '::NOD_CONTESTABLE_ISSUES_RESPONSE_200' do
+    let(:schema) { described_class::NOD_CONTESTABLE_ISSUES_RESPONSE_200 }
+    let(:json) do
+      hash_from_json_file 'spec', 'fixtures', 'notice_of_disagreements', 'NOD_contestable_issues_response_200.json'
+    end
+
+    include_examples 'test schema'
+  end
 end
