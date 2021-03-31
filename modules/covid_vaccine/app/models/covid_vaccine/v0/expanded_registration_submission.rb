@@ -3,13 +3,40 @@
 module CovidVaccine
   module V0
     class ExpandedRegistrationSubmission < ApplicationRecord
-      # Processing States
-      SEQUESTERED = 'sequestered'
-      INELIGIBLE = 'ineligible'
-      ENROLLMENT_PENDING = 'enrollment_pending'
-      ENROLLMENT_COMPLETE = 'enrollment_complete'
-      ENROLLMENT_FAILED = 'enrollment_failed'
-      REGISTERED = 'registered'
+      include AASM
+
+      aasm(:state) do
+        # Fire off job for email confirmation to the user that submission has been received
+        # Fire off job to determine EMIS eligibility to kick off after hours; transition to eligible or ineligible
+        state :sequestered, initial: true
+        state :eligible, :ineligible, :enrollment_pending, :enrollment_complete,
+              :enrollment_failed, :registered
+
+        # ICN and EMIS lookup both satisfactory or no lookup possible; transitions to eligible
+        event :emis_eligibility_criteria_passed do
+          transitions from: :sequestered, to: :eligible
+        end
+
+        # ICN and EMIS returns unsatisfatory eligibility results; transitions to ineligible
+        event :emis_eligibility_failed do
+          transitions from: :sequestered, to: :ineligible
+        end
+
+        # Batch id is updated based on time that batch was submitted; transitions to enrollment_pending
+        event :submitted_for_enrollment do
+          transitions from: :eligible_us, to: :enrollment_pending
+        end
+
+        # Enrollment returned a success; transitions to enrollment_complete
+        event :enrolled_successfully do
+          transitions from: :enrollment_pending, to: :enrollment_complete
+        end
+
+        # Enrollment returned a failure; transitions to enrollment_failed
+        event :failed_enrollment do
+          transitions from: :enrollment_pending, to: :enrollment_failed
+        end
+      end
 
       after_initialize do |reg|
         reg.form_data&.symbolize_keys!
