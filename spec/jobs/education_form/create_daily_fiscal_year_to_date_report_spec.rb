@@ -11,7 +11,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
     described_class.new
   end
 
-  let(:date) { Time.zone.today - 1.day } 
+  let(:date) { Time.zone.today - 1.day }
 
   before do
     allow_any_instance_of(EducationBenefitsClaim).to receive(:create_education_benefits_submission)
