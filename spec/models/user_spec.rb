@@ -745,7 +745,6 @@ RSpec.describe User, type: :model do
       context 'when birth_date attribute cannot be retrieved from UserIdentity or MPI object' do
         before do
           allow(user.identity).to receive(:birth_date).and_return nil
-          allow(user.identity).to receive(:something).and_return nil
         end
 
         it 'logs a cannot find birth date message to Rails logger' do
@@ -755,6 +754,10 @@ RSpec.describe User, type: :model do
 
         it 'returns nil' do
           expect(user.birth_date).to eq nil
+        end
+
+        it 'does not equal 400' do
+          expect(user.birth_date).not_to eq 400
         end
       end
     end
