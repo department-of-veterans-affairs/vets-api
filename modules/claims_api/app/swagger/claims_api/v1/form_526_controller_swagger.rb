@@ -9,6 +9,7 @@ module ClaimsApi
 
       swagger_path '/forms/526' do
         operation :get do
+          key :deprecated, true
           key :summary, 'Get a 526 schema for a claim.'
           key :description, 'Returns a single 526 schema to automatically generate a form. Using this GET endpoint allows users to download our current validations.'
           key :operationId, 'get526JsonSchema'
@@ -50,7 +51,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -127,28 +128,12 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
           request_body do
             key :description, 'JSON API Payload of Veteran being submitted'
             key :required, true
             content 'application/json' do
               schema do
-                key :'$ref', :Form526Input
+                key :$ref, :Form526Input
               end
             end
           end
@@ -160,7 +145,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form526Response
+                  key :$ref, :Form526Response
                 end
               end
             end
@@ -175,7 +160,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -191,7 +176,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -266,22 +251,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'attachment'
             key :in, :formData
             key :type, :file
@@ -296,7 +265,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :ClaimsIndex
+                  key :$ref, :ClaimsIndex
                 end
               end
             end
@@ -311,7 +280,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -327,7 +296,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
@@ -343,7 +312,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -354,6 +323,7 @@ module ClaimsApi
 
       swagger_path '/forms/526/validate' do
         operation :post do
+          key :deprecated, true
           key :summary, 'Validates a 526 claim form submission.'
           key :description, 'Test to make sure the form submission works with your parameters. Submission validates against the schema returned by the GET /forms/526 endpoint.'
           key :operationId, 'post526ClaimValidate'
@@ -397,22 +367,6 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, true
-            key :type, :string
-          end
-
           request_body do
             key :name, 'payload'
             key :in, :body
@@ -420,7 +374,7 @@ module ClaimsApi
             key :required, true
             content 'application/json' do
               schema do
-                key :'$ref', :Form526Input
+                key :$ref, :Form526Input
               end
             end
           end
@@ -465,7 +419,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -481,7 +435,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -497,7 +451,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -570,22 +524,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'attachment1'
             key :in, :formData
             key :type, :file
@@ -608,7 +546,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :ClaimsShow
+                  key :$ref, :ClaimsShow
                 end
               end
             end
@@ -623,7 +561,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -639,7 +577,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
@@ -655,7 +593,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :UnprocessableEntityModel
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end

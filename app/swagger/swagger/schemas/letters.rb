@@ -14,7 +14,7 @@ module Swagger
             property :letters do
               key :type, :array
               items do
-                key :'$ref', :Letter
+                key :$ref, :Letter
               end
             end
             property :full_name, type: :string, example: 'Mark Webb'

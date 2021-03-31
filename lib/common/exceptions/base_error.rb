@@ -43,7 +43,7 @@ module Common
       end
 
       def i18n_interpolated(options = {})
-        merge_values = Hash[options.map { |attribute, opts| [attribute, i18n_field(attribute, opts)] }]
+        merge_values = options.map { |attribute, opts| [attribute, i18n_field(attribute, opts)] }.to_h
         i18n_data.merge(merge_values)
       end
     end

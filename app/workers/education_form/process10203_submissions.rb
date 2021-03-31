@@ -8,9 +8,6 @@ module EducationForm
   class FormattingError < StandardError
   end
 
-  class Process10203SubmissionsLogging < StandardError
-  end
-
   class Process10203EVSSError < StandardError
   end
 
@@ -204,7 +201,7 @@ module EducationForm
     end
 
     def log_info(message)
-      log_exception_to_sentry(Process10203SubmissionsLogging.new(message), {}, {}, :info)
+      logger.info(message)
     end
   end
 end
