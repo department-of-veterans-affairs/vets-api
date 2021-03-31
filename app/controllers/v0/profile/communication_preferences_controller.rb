@@ -14,8 +14,31 @@ module V0
         )
       end
 
+      def create
+        communication_item = VAProfile::Models::CommunicationItem.new(
+          allowed_params
+        )
+
+        render(json: service.update_communication_permission(communication_item))
+      end
+
       def service
         VAProfile::Communication::Service.new(current_user)
+      end
+
+      private
+
+      def allowed_params
+        params.require(:communication_item).permit(
+          :id,
+          communication_channels: [
+            :id,
+            communication_permission: [
+              :allowed,
+              :id
+            ]
+          ]
+        )
       end
     end
   end

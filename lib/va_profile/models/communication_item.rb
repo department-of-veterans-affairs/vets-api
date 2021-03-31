@@ -29,6 +29,16 @@ module VAProfile
         )
       end
 
+      def communication_channels=(arr)
+        if arr[0].present? && !arr[0].is_a?(CommunicationChannel)
+          @communication_channels = arr.map do |hash|
+            CommunicationChannel.new(hash)
+          end
+        else
+          @communication_channels = arr
+        end
+      end
+
       def http_verb
         first_communication_channel.communication_permission.id.present? ? :put : :post
       end

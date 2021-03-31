@@ -34,6 +34,14 @@ module VAProfile
         communication_channel_model
       end
 
+      def communication_permission=(permission)
+        if permission.present? && !permission.is_a?(CommunicationPermission)
+          @communication_permission = CommunicationPermission.new(permission)
+        else
+          @communication_permission = permission
+        end
+      end
+
       private
 
       def communication_permission_valid
