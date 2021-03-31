@@ -1,7 +1,7 @@
 name: test_and_build
 on: [push]
 jobs:
-  specs:
+  linting:
 
     strategy:
       matrix:
