@@ -9,15 +9,13 @@ describe HealthQuest::Shared::IdentityMetaInfo do
 
   let(:resource) { Object.new.extend(subject) }
   let(:identifier_type_hash) do
-    {
-      coding: [
-        {
-          system: 'https://pki.dmdc.osd.mil/milconnect',
-          code: 'RESOURCEID',
-          userSelected: false
-        }
-      ]
-    }
+    coding = FHIR::Coding.new
+    coding.system = 'https://pki.dmdc.osd.mil/milconnect'
+    coding.code = 'RESOURCEID'
+    coding.userSelected = false
+    codeable_concept = FHIR::CodeableConcept.new
+    codeable_concept.coding = [coding]
+    codeable_concept
   end
 
   describe '#identifier' do
@@ -69,13 +67,11 @@ describe HealthQuest::Shared::IdentityMetaInfo do
   describe '#set_meta' do
     it 'returns the models meta' do
       meta_hash = {
-        'tag' => [
-          {
-            system: 'https://api.va.gov/services/pgd',
-            code: '66a5960c-68ee-4689-88ae-4c7cccf7ca79',
-            display: 'VA GOV CLIPBOARD'
-          }
-        ]
+        'tag' => [{
+          'system' => subject::META_SYSTEM,
+          'code' => subject::META_CODE,
+          'display' => subject::META_DISPLAY
+        }]
       }
       allow(resource).to receive(:meta).and_return(FHIR::Meta.new)
 
@@ -86,6 +82,7 @@ describe HealthQuest::Shared::IdentityMetaInfo do
   describe '#identifier_type' do
     it 'returns a hash' do
       allow(resource).to receive(:identifier_code).and_return('RESOURCEID')
+      allow(resource).to receive(:codeable_concept).and_return(FHIR::CodeableConcept.new)
 
       expect(resource.identifier_type).to eq(identifier_type_hash)
     end
@@ -94,10 +91,17 @@ describe HealthQuest::Shared::IdentityMetaInfo do
   describe '#set_identifiers' do
     it 'returns the models identifier' do
       set_identifiers_hash = {
-        'type' => identifier_type_hash,
+        'type' => {
+          'coding' => [{
+            'system' => 'https://pki.dmdc.osd.mil/milconnect',
+            'code' => 'RESOURCEID',
+            'userSelected' => false
+          }]
+        },
         'system' => 'urn:uuid:2.16.840.1.113883.4.349',
         'value' => '123456'
       }
+
       allow(resource).to receive(:identifier).and_return(FHIR::Identifier.new)
       allow(resource).to receive(:identifier_value).and_return('123456')
       allow(resource).to receive(:identifier_type).and_return(identifier_type_hash)

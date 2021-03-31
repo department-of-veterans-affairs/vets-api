@@ -8,7 +8,12 @@ module ClaimsApi
       swagger_path '/claims/{id}' do
         operation :get do
           key :summary, 'Find Claim by ID'
-          key :description, 'Returns a single claim if the user has access'
+          key(
+            :description,
+            <<~X
+              Returns data such as processing status for a single claim by ID.
+            X
+          )
           key :operationId, 'findClaimById'
           key :tags, [
             'Claims'
@@ -58,22 +63,6 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
           response 200 do
             key :description, 'claims response'
             content 'application/json' do
@@ -81,7 +70,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :ClaimsShow
+                  key :$ref, :ClaimsShow
                 end
               end
             end
@@ -96,7 +85,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -112,7 +101,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
@@ -123,8 +112,13 @@ module ClaimsApi
 
       swagger_path '/claims' do
         operation :get do
-          key :summary, 'All Claims'
-          key :description, 'Returns all claims from the system that the user has access to'
+          key :summary, 'Find all claims for a Veteran.'
+          key(
+            :description,
+            <<~X
+              Uses the Veteran’s metadata in headers to retrieve all claims for that Veteran. An authenticated Veteran making a request with this endpoint will return their own claims, if any.
+            X
+          )
           key :operationId, 'findClaims'
           key :produces, [
             'application/json'
@@ -169,22 +163,6 @@ module ClaimsApi
             key :type, :string
           end
 
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran being represented'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
           response 200 do
             key :description, 'claim response'
             content 'application/json' do
@@ -194,7 +172,7 @@ module ClaimsApi
                 property :data do
                   key :type, :array
                   items do
-                    key :'$ref', :ClaimsIndex
+                    key :$ref, :ClaimsIndex
                   end
                 end
               end
@@ -210,7 +188,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotAuthorizedModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -226,7 +204,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :NotFoundModel
+                    key :$ref, :NotFoundModel
                   end
                 end
               end

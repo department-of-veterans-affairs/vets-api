@@ -8,9 +8,27 @@ module AppealsApi
 
     CENTRAL_MAIL_ERROR_STATUSES = ['Error', 'Processing Error'].freeze
 
-    CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES = {
-      'Received' => { status: 'received' },
+    NOD_CENTRAL_STATUS_ATTRIBUTES = {
+      # we are consolidating submitted/received into one status for clarity
+      'Received' => { status: 'submitted' },
       'Success' => { status: 'success' },
+
+      'In Process' => { status: 'processing' },
+      'Processing Success' => { status: 'processing' },
+
+      'Error' => { status: 'error', code: 'DOC202' },
+      'Processing Error' => { status: 'error', code: 'DOC202' },
+
+      'VBMS Complete' => { status: 'caseflow' }
+    }.freeze
+
+    CENTRAL_MAIL_STATUSES = NOD_CENTRAL_STATUS_ATTRIBUTES.to_a.map { |_, x| x.fetch(:status) }.uniq.freeze
+
+    HLR_CENTRAL_STATUS_ATTRIBUTES = {
+      'Received' => { status: 'received' },
+
+      'Success' => { status: 'success' },
+      'VBMS Complete' => { status: 'success' },
 
       'In Process' => { status: 'processing' },
       'Processing Success' => { status: 'processing' },
@@ -63,15 +81,28 @@ module AppealsApi
       end
     end
 
-    def update_appeal_status!(appeal, status)
-      attributes = CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.fetch(status.status) do
-        log_message_to_sentry('Unknown status value from Central Mail API', :warning, status: status.status)
+    def update_appeal_status!(appeal, central_mail_status)
+      attributes = central_mail_status_lookup(appeal).fetch(central_mail_status.status) do
+        log_message_to_sentry(
+          'Unknown status value from Central Mail API',
+          :warning,
+          status: central_mail_status.status
+        )
         raise Common::Exceptions::BadGateway
       end
 
-      attributes = attributes.merge(detail: "Downstream status: #{status.error_message}") if status.error?
+      if central_mail_status.error?
+        attributes = attributes.merge(detail: "Downstream status: #{central_mail_status.error_message}")
+      end
 
       appeal.update! attributes
+    end
+
+    def central_mail_status_lookup(appeal)
+      case appeal
+      when AppealsApi::NoticeOfDisagreement then NOD_CENTRAL_STATUS_ATTRIBUTES
+      when AppealsApi::HigherLevelReview then HLR_CENTRAL_STATUS_ATTRIBUTES
+      end
     end
   end
 end

@@ -9,7 +9,7 @@ class Swagger::V1::Schemas::Errors
     property :errors do
       key :type, :array
       items do
-        key :'$ref', :Error
+        key :$ref, :Error
       end
     end
   end
