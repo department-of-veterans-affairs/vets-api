@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require './modules/vba_documents/app/workers/vba_documents/slack_notifier'
-# require_relative '../support/vba_document_fixtures'
 
 RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   let(:faraday_response) { instance_double('Faraday::Response') }

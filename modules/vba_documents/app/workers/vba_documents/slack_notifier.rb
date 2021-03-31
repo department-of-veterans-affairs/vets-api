@@ -7,15 +7,17 @@ module VBADocuments
     include Sidekiq::Worker
     include ActionView::Helpers::DateHelper
 
+    AGED_PROCESSING_QUERY_LIMIT = 10
+
     def perform
       return unless Settings.vba_documents.slack.enabled
 
       fetch_settings
       Rails.logger.info('VBADocuments::SlackNotifier starting.')
       begin
-        results = { long_flyers_alerted: long_flyers_alert,
-                    upload_stalled_alerted: upload_stalled_alert,
-                    daily_notification: daily_notification }
+        results = {long_flyers_alerted: long_flyers_alert,
+                   upload_stalled_alerted: upload_stalled_alert,
+                   daily_notification: daily_notification}
       rescue => e
         results = e
       end
@@ -34,10 +36,11 @@ module VBADocuments
     private
 
     def daily_notification
-      hour = Time.now.utc.hour - 5
+      hour = Time.now.utc.hour + Time.zone_offset('EST')/(60*60)
       if hour.eql?(@daily_notification_hour)
         text = "Daily Status (worst offenders over past week):\n"
-        UploadSubmission::IN_FLIGHT_STATUSES.each do |status|
+        statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded']
+        statuses.each do |status|
           model = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
           next unless model
 
@@ -51,16 +54,14 @@ module VBADocuments
     end
 
     def upload_stalled_alert
-      # spoof_stalled_updates #todo delete me
       alert_on = fetch_stuck_in_state(['uploaded'], @upload_hungtime, :minutes)
-      text = 'ALERT!! GUIDS in uploaded for too long!\n'
+      text = 'ALERT - GUIDS in uploaded for too long! (Top 10 shown)\n'
       alert(alert_on, text)
     end
 
     def long_flyers_alert
-      # spoof_long_flyers #todo delete me
       alert_on = fetch_stuck_in_state(UploadSubmission::IN_FLIGHT_STATUSES, @in_flight_hungtime, :days)
-      text = 'ALERT!! GUIDS in flight for too long!\n'
+      text = 'ALERT - GUIDS in flight for too long! (Top 10 shown)\n'
       alert(alert_on, text)
     end
 
@@ -76,52 +77,12 @@ module VBADocuments
       end
     end
 
-    # def spoof_stalled_updates
-    # #   # TODO: delete method.
-    #   3.times do |i|
-    #     u = UploadSubmission.new
-    #     status = 'uploaded'
-    #     u.status = status
-    #     u.save!
-    #     u.metadata['status'][status]['start'] = (6 + i).hours.ago.to_i
-    #     u.save!
-    #   end
-    # end
-
-    # def spoof_long_flyers
-    #   # TODO: delete method.
-    #   UploadSubmission.destroy_all
-    #   1.times do |i|
-    #     u = UploadSubmission.new
-    #     status = 'received'
-    #     u.status = status
-    #     u.save!
-    #     u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
-    #     u.save!
-    #   end
-    #   3.times do |i|
-    #     u = UploadSubmission.new
-    #     status = 'processing'
-    #     u.status = status
-    #     u.save!
-    #     u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
-    #     u.save!
-    #   end
-    #   20.times do |i|
-    #     status = 'success'
-    #     u = UploadSubmission.new
-    #     u.status = status
-    #     u.save!
-    #     u.metadata['status'][status]['start'] = (15 + i).days.ago.to_i
-    #     u.save!
-    #   end
-    # end
-
     def alert(alert_on, initial_text)
       guids_found = false
       text = initial_text
-      alert_on.each_pair do |status, models|
-        text += "#{status.upcase}:\n"
+      alert_on.first.each_pair do |status, models|
+        count = alert_on.last[status]
+        text += "#{status.upcase} (total #{count}):\n"
         models.each do |m|
           start_time = m.metadata['status'][status]['start']
           duration = distance_of_time_in_words(Time.now.to_i - start_time)
@@ -130,23 +91,24 @@ module VBADocuments
         end
       end
       resp = send_to_slack(text) if guids_found
-      add_notification_timestamp(alert_on.values.flatten) if resp&.success?
+      add_notification_timestamp(alert_on.first.values.flatten) if resp&.success?
       resp&.success?
     end
 
-    def fetch_stuck_in_state(states, hungtime, unit_of_measure)
+    def fetch_stuck_in_state(statuses, hungtime, unit_of_measure)
       alerting_on = {}
-      states.each do |status|
+      status_counts = {}
+      statuses.each do |status|
+        status_counts[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status).count
         alerting_on[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status)
-                                              .limit(10).select do |m|
+                                  .limit(AGED_PROCESSING_QUERY_LIMIT).select do |m|
           last_notified = m.metadata['last_slack_notification'].to_i # nil to zero
           delta = Time.now.to_i - last_notified
           notify = delta > @renotify_time * 60
-          # puts "notify is #{notify} for status #{status} delta is #{delta} with last notified being #{last_notified}"
           notify
         end
       end
-      alerting_on
+      [alerting_on, status_counts]
     end
   end
 end
