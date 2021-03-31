@@ -101,7 +101,7 @@ PATH
       sidekiq
     vaos (0.1.0)
       sidekiq
-    vba_documents (0.0.1)
+    vba_documents (1.0.0)
       aws-sdk-s3 (~> 1)
       sidekiq
     veteran (0.0.1)
