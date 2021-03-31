@@ -17,6 +17,5 @@ module VAForms
     def last_sha256_change
       object.versions.last.try(:created_at&.try(strftime('%Y-%m-%d'))) if @item.respond_to?(:versions)
     end
-
   end
 end
