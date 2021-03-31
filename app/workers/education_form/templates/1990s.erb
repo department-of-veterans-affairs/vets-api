@@ -16,22 +16,20 @@ Name: <%= applicant_name(@applicant.veteranFullName) %>
 
 Date of Birth: <%= @applicant.dateOfBirth %>
 
-Sex of Applicant: <%= @applicant.applicantGender %>
-
 Mailing Address:
 <%= full_address_with_street3(@applicant.address) %>
 
-Day Time Telephone Number: <%= @applicant.mobilePhone %>
+Phone Number: <%= @applicant.mobilePhone %>
 
 Email Address: <%= @applicant.emailAddress %>
 
 DIRECT DEPOSIT INFORMATION:
 
+Bank Name: <%= @applicant.bankName %>
+
 Account Type: <%= bank_account_type %>
 
-Routing or Transit Number: <%= bank_routing_number %>
-
-Account Number: <%= bank_account_number %>
+Routing or Transit Number: <%= bank_routing_number %> Account Number: <%= bank_account_number %>
 
 
                        PROGRAM INFORMATION
