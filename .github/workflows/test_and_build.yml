@@ -13,7 +13,7 @@ jobs:
       BUNDLE_JOBS: 2
       BUNDLE_RETRY: 3
       LANG: en_US.UTF-8
-      PGHOST: postgres
+      PGHOST: localhost
       PGUSER: vets-api
       RAILS_ENV: test
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
