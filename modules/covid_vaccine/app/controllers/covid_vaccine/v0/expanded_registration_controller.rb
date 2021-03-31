@@ -35,9 +35,10 @@ module CovidVaccine
           country_name: raw_form_data[:country_name],
           state_code: raw_form_data[:state_code],
           preferred_facility: raw_form_data[:preferred_facility],
-          has_email: raw_form_data[:email_address].present?
+          has_email: raw_form_data[:email_address].present?,
+          sms_acknowledgement: raw_form_data[:sms_acknowledgement]
         }
-        Rails.logger.info('Covid_Vaccine Expanded_Submission', log_attrs)
+        Rails.logger.info('Covid_Vaccine Expanded_Submission', log_attrs.to_json)
       end
     end
   end
