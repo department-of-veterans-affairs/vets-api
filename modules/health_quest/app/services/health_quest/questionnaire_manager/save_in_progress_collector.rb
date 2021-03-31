@@ -39,7 +39,9 @@ module HealthQuest
           questionnaire = groups.appt_questionnaires[sip_quest_id]
           next if questionnaire.blank?
 
-          questionnaire[:questionnaire_response].store(:status, IN_PROGRESS_STATUS)
+          response_hash = { form_id: sip.form_id, status: IN_PROGRESS_STATUS }
+
+          questionnaire[:questionnaire_response] << response_hash.with_indifferent_access
         end
       end
     end

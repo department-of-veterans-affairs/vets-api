@@ -40,12 +40,12 @@ module Mobile
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
         message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
-        create_message_params = { message: message_params }.merge(upload_params)
+        create_message_params = { message: message_params.to_h }.merge(upload_params)
 
         client_response = if message.uploads.present?
                             client.post_create_message_with_attachment(create_message_params)
                           else
-                            client.post_create_message(message_params)
+                            client.post_create_message(message_params.to_h)
                           end
 
         render json: client_response,
@@ -75,12 +75,12 @@ module Mobile
         raise Common::Exceptions::ValidationErrors, message unless message.valid?
 
         message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
-        create_message_params = { message: message_params }.merge(upload_params)
+        create_message_params = { message: message_params.to_h }.merge(upload_params)
 
         client_response = if message.uploads.present?
                             client.post_create_message_reply_with_attachment(params[:id], create_message_params)
                           else
-                            client.post_create_message_reply(params[:id], message_params)
+                            client.post_create_message_reply(params[:id], message_params.to_h)
                           end
 
         render json: client_response,
@@ -104,8 +104,14 @@ module Mobile
 
       private
 
+      # When we get message parameters as part of a multipart payload (i.e. with attachments),
+      # ActionController::Parameters leaves the message part as a string so we have to turn it into
+      # an object
       def message_params
-        @message_params ||= params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+        @message_params ||= begin
+          params[:message] = JSON.parse(params[:message]) if params[:message].is_a?(String)
+          params.require(:message).permit(:draft_id, :category, :body, :recipient_id, :subject)
+        end
       end
 
       def upload_params

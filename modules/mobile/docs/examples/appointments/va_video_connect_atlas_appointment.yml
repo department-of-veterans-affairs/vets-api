@@ -3,6 +3,7 @@ data:
     id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
     attributes:
       appointmentType: VA_VIDEO_CONNECT_ATLAS
+      cancelId: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment: Please log on 5 minutes before the start of your appointment
       clinicId: ~
       facilityId: ~
@@ -27,3 +28,4 @@ data:
       startDateUtc: 2019-04-20T18:15:00.000Z
       status: BOOKED
       timeZone: America/Los_Angeles
+      vetextId: 308;20210106.140000

@@ -46,7 +46,6 @@ RSpec.describe EducationForm::Create10203SpoolSubmissionsReport, type: :aws_help
     describe '#perform' do
       before do
         expect(FeatureFlipper).to receive(:send_edu_report_email?).once.and_return(true)
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(true)
       end
 
       after do

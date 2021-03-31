@@ -8,10 +8,10 @@ describe AppealsApi::CentralMailUpdater do
   let(:appeal_1) { create(:notice_of_disagreement) }
   let(:appeal_2) { create(:notice_of_disagreement) }
   let(:central_mail_response) do
-    [{ "uuid": appeal_1.id,
-       "status": 'In Process',
-       "errorMessage": '',
-       "lastUpdated": '2018-04-25 00:02:39' }]
+    [{ uuid: appeal_1.id,
+       status: 'In Process',
+       errorMessage: '',
+       lastUpdated: '2018-04-25 00:02:39' }]
   end
 
   before do
@@ -19,11 +19,36 @@ describe AppealsApi::CentralMailUpdater do
     allow(client_stub).to receive(:status).and_return(faraday_response)
   end
 
-  context 'when verifying status structures' do
-    let(:appeal_statuses) { AppealsApi::AppealStatus::STATUSES }
+  context 'uses different statuses/attributes matching for nod and hlr' do
+    before do
+      allow(faraday_response).to receive(:success?).and_return(true)
+      central_mail_response[0][:status] = 'VBMS Complete'
+    end
 
-    it 'fails if one or more CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES keys or values is mismatched' do
-      status_hashes = described_class::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.values
+    it 'nod accepts VBMS Complete' do
+      allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
+
+      subject.call([appeal_1])
+      appeal_1.reload
+      expect(appeal_1.status).to eq('caseflow')
+    end
+
+    it 'hlr accepts VBMS Complete but maps it to success' do
+      hlr = create(:higher_level_review)
+      central_mail_response[0][:uuid] = hlr.id
+      allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
+
+      subject.call([hlr])
+      hlr.reload
+      expect(hlr.status).to eq('success')
+    end
+  end
+
+  context 'when verifying status structures' do
+    let(:appeal_statuses) { AppealsApi::NodStatus::STATUSES }
+
+    it 'fails if one or more NOD_CENTRAL_STATUS_ATTRIBUTES keys or values is mismatched' do
+      status_hashes = described_class::NOD_CENTRAL_STATUS_ATTRIBUTES.values
       status_attr_keys = status_hashes.map(&:keys).flatten
       status_attr_values = status_hashes.map { |attr| attr[:status] }.uniq
 
@@ -32,7 +57,7 @@ describe AppealsApi::CentralMailUpdater do
     end
 
     it 'fails if error statuses are mismatched' do
-      central_mail_statuses = described_class::CENTRAL_MAIL_STATUS_TO_APPEAL_ATTRIBUTES.keys
+      central_mail_statuses = described_class::NOD_CENTRAL_STATUS_ATTRIBUTES.keys
       error_statuses = described_class::CENTRAL_MAIL_ERROR_STATUSES
 
       expect(central_mail_statuses).to include(*error_statuses)
@@ -116,14 +141,14 @@ describe AppealsApi::CentralMailUpdater do
     context 'it ignores central mail responses without a uuid (invalid or missing)' do
       before do
         central_mail_response[1] = {
-          "status": 'In Process',
-          "errorMessage": '',
+          status: 'In Process',
+          errorMessage: '',
           lastUpdated: '2018-04-25 00:02:39'
         }
         central_mail_response[2] = {
-          "uuid": '00000000-0000-0000-0000-000000000000',
-          "status": 'In Process',
-          "errorMessage": '',
+          uuid: '00000000-0000-0000-0000-000000000000',
+          status: 'In Process',
+          errorMessage: '',
           lastUpdated: '2018-04-25 00:02:39'
         }
         allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)

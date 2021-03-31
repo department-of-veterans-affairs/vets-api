@@ -24,7 +24,7 @@ module Mobile
       end
 
       def cancel
-        decoded_cancel_params = Mobile::V0::Contracts::CancelAppointment.decode_cancel_id(params[:id])
+        decoded_cancel_params = Mobile::V0::Appointment.decode_cancel_id(params[:id])
         contract = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
         raise Mobile::V0::Exceptions::ValidationErrors, contract if contract.failure?
 
@@ -35,13 +35,13 @@ module Mobile
       private
 
       def fetch_cached_or_service(validated_params)
-        json = Mobile::V0::Appointment.get_cached_appointments(@current_user) if validated_params[:use_cache]
+        json = nil
+        json = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
 
         # if JSON has been retrieved from redis, delete the cached version and return recovered appointments
         # otherwise fetch appointments from the upstream service
         if json
           Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
-          Mobile::V0::Appointment.delete_cached_appointments(@current_user)
           json
         else
           Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)

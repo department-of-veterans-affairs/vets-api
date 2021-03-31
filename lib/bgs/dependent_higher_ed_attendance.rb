@@ -23,7 +23,10 @@ module BGS
         participant,
         'Child',
         'Biological',
-        { 'type': '674' }
+        {
+          type: '674',
+          dep_has_income_ind: formatted_info['dependent_income']
+        }
       )
     end
 

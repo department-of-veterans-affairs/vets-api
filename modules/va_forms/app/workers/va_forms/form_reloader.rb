@@ -57,7 +57,7 @@ module VAForms
     end
 
     def build_and_save_form(form)
-      va_form = VAForms::Form.find_or_initialize_by form_name: form['fieldVaFormNumber']
+      va_form = VAForms::Form.find_or_initialize_by row_id: form['fieldVaFormRowId']
       attrs = init_attributes(form)
       url = form['fieldVaFormUrl']['uri']
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
@@ -74,6 +74,7 @@ module VAForms
 
     def init_attributes(form)
       mapped = {
+        form_name: form['fieldVaFormNumber'],
         title: form['fieldVaFormName'],
         pages: form['fieldVaFormNumPages'],
         language: form.dig('langcode', 'value'),
@@ -83,7 +84,8 @@ module VAForms
         form_tool_url: form.dig('fieldVaFormToolUrl', 'uri'),
         deleted_at: form.dig('fieldVaFormDeletedDate', 'value'),
         related_forms: form['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
-        benefit_categories: map_benefit_categories(form['fieldBenefitCategories'])
+        benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
+        va_form_administration: form.dig('fieldVaFormAdministration', 'entity', 'entityLabel')
       }
       mapped[:form_details_url] = "#{FORM_BASE_URL}#{form.dig('entityUrl', 'path')}" if form['entityPublished']
       mapped
