@@ -8,7 +8,10 @@ module V0
       before_action { authorize :vet360, :access? }
 
       def index
-        render text: 'OK'
+        render(
+          json: { communication_groups: service.get_items_and_permissions },
+          serializer: CommunicationGroupsSerializer
+        )
       end
 
       def service
