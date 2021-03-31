@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
-class SavedClaim::EducationBenefits::VA1990s < SavedClaim::EducationBenefits
+class SavedClaim::EducationBenefits::VA1990S < SavedClaim::EducationBenefits
   add_form_and_validation('22-1990S')
 end
