@@ -38,7 +38,7 @@ module CovidVaccine
           has_email: raw_form_data[:email_address].present?,
           sms_acknowledgement: raw_form_data[:sms_acknowledgement]
         }
-        Rails.logger.info('Covid_Vaccine Expanded_Submission', log_attrs.to_json)
+        Rails.logger.info('Covid_Vaccine Expanded_Submission', log_attrs)
       end
     end
   end
