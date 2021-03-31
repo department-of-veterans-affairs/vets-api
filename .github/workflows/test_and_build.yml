@@ -49,6 +49,8 @@ jobs:
           key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
       - name: Install Dependencies
         run: bundle install --path vendor/bundle
+      - name: Lint code with Rubocop
+        run: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress --format RuboCop::Formatter::JUnitFormatter --out ./ci/rubocop.xml --format html --out ./ci/rubocop.html
 #       - name: Setup database
 #         env:
 #           RAILS_ENV: test
@@ -57,6 +59,6 @@ jobs:
 #           POSTGRES_PASSWORD: ""
 #           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
 #         run: bundle exec rake db:create db:schema:load
-      - name: Run Specs
-        run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
+#       - name: Run Specs
+#         run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
 
