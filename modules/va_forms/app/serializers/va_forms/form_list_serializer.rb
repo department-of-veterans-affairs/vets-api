@@ -13,6 +13,5 @@ module VAForms
     def id
       object.form_name
     end
-
   end
 end
