@@ -75,6 +75,33 @@ FactoryBot.define do
       }
     end
 
+    trait :canada do
+      default_raw_options {
+        {
+          'preferred_facility' => 'vha_358',
+          'address_line1' => '6393 NW Marine Dr',
+          'city' => 'Vancouver',
+          'state_code' => 'BC',
+          'zip_code' => 'V6T 1Z2',
+          'country_name' => 'Canada'
+        }
+      }
+    end
+
+    trait :mexico do
+      default_raw_options {
+        {
+          'preferred_facility' => 'vha_358',
+          'address_line1' => 'Calz Independencia 998',
+          'address_line2' => 'Centro Cívico',
+          'city' => 'Mexicali',
+          'state_code' => 'BC',
+          'zip_code' => '21000',
+          'country_name' => 'Mexico'
+        }
+      }
+    end
+
     trait :spouse do
       default_raw_options {
         {
