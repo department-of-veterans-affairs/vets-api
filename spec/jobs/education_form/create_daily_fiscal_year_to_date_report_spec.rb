@@ -11,7 +11,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
     described_class.new
   end
 
-  let(:date) { Time.zone.today - 1.day }
+  let(:date) { Time.zone.today - 1.day } 
 
   before do
     allow_any_instance_of(EducationBenefitsClaim).to receive(:create_education_benefits_submission)
@@ -75,7 +75,9 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       %w[1995 1990e 5490 1990n 5495 10203].each do |form_type|
         create(:education_benefits_submission, form_type: form_type, created_at: date)
       end
-      create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
+      %w[0993 1990s].each do |form_type|
+        create(:education_benefits_submission, form_type: form_type, created_at: date, region: :western)
+      end
       create(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
     end
