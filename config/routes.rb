@@ -32,6 +32,7 @@ Rails.application.routes.draw do
     resources :debt_letters, only: %i[index show]
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
+    resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
 
     resources :preferred_facilities, only: %i[index create destroy]
 
@@ -101,7 +102,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :dependents_verifications, only: :index
+    resources :dependents_verifications, only: %i[create index]
 
     if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
@@ -180,11 +181,6 @@ Rails.application.routes.draw do
 
         resource :preferences, only: %i[show update], controller: 'messaging_preferences'
       end
-    end
-
-    scope :facilities, module: 'facilities' do
-      resources :va, only: %i[index show], defaults: { format: :json }
-      get 'suggested', to: 'va#suggested'
     end
 
     scope :gi, module: 'gids' do
@@ -361,6 +357,7 @@ Rails.application.routes.draw do
   # Modules
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
+  # mount FacilitiesApi::Engine, at: '/facilities_api'
   mount HealthQuest::Engine, at: '/health_quest'
   mount Mobile::Engine, at: '/mobile'
   mount VAOS::Engine, at: '/vaos'

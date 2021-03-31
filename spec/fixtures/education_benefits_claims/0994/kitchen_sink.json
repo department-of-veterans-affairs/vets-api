@@ -63,5 +63,7 @@
   "currentSalary": "lessThanTwenty",
   "highestLevelofEducation": "other",
   "otherEducation": "Other Education Type",
-  "privacyAgreementAccepted": true
+  "privacyAgreementAccepted": true,
+  "expectedActiveDutyStatusChange": true,
+  "expectedReleaseDate": "2025-01-01"
 }

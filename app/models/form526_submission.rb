@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 class Form526Submission < ApplicationRecord
+  include SentryLogging
+
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
   #
@@ -41,6 +45,7 @@ class Form526Submission < ApplicationRecord
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
+  SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
@@ -61,6 +66,36 @@ class Form526Submission < ApplicationRecord
     end
 
     jids.first
+  end
+
+  # Runs the start method above but first looks to see if the veteran has BIRLS IDs that previous start
+  # attempts haven't used before (if so, swaps one of those into auth_headers).
+  # If all BIRLS IDs for a veteran have been tried, does nothing and returns nil.
+  # Note: this assumes that the current BIRLS ID has been used (that `start` has been attempted once).
+  #
+  # @return [String] the job id of the first job in the batch, i.e the 526 submit job
+  # @return [NilClass] all BIRLS IDs for the veteran have been tried
+  #
+  def start_but_use_a_birls_id_that_hasnt_been_tried_yet!(
+    extra_content_for_sentry: {},
+    silence_errors_and_log_to_sentry: false
+  )
+    untried_birls_id = birls_ids_that_havent_been_tried_yet.first
+    return unless untried_birls_id
+
+    self.birls_id = untried_birls_id
+    save!
+    start
+  rescue => e
+    # 1) why have the 'silence_errors_and_log_to_sentry' option? (why not rethrow the error?)
+    # This method is primarily intended to be triggered by a running Sidekiq job that has hit a dead end
+    # (exhausted, or non-retryable error). One of the places this method is called is inside a
+    # `sidekiq_retries_exhausted` block. It seems like the value of self for that block won't be the
+    # Sidekiq job instance (so no access to the log_exception_to_sentry method). Also, rethrowing the error
+    # (and letting it bubble up to Sidekiq) might trigger the current job to retry (which we don't want).
+    raise unless silence_errors_and_log_to_sentry
+
+    log_exception_to_sentry e, extra_content_for_sentry
   end
 
   def get_first_name
@@ -137,6 +172,12 @@ class Form526Submission < ApplicationRecord
     timestamp_string
   end
 
+  def mark_birls_id_as_tried!(*args, **kwargs)
+    timestamp_string = mark_birls_id_as_tried(*args, **kwargs)
+    save!
+    timestamp_string
+  end
+
   def birls_ids_that_havent_been_tried_yet
     add_birls_ids birls_id if birls_id.present?
     birls_ids_tried_hash.select { |_id, timestamps| timestamps.blank? }.keys
@@ -165,7 +206,29 @@ class Form526Submission < ApplicationRecord
   def perform_ancillary_jobs_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     # Only run ancillary jobs if submission succeeded
-    submission.perform_ancillary_jobs(options['first_name']) if submission.form526_job_statuses.all?(&:success?)
+    submission.perform_ancillary_jobs(options['first_name']) if submission.jobs_succeeded?
+  end
+
+  def jobs_succeeded?
+    a_submit_form_526_job_succeeded? && all_other_jobs_succeeded_if_any?
+  end
+
+  class SubmitForm526JobStatusesError < StandardError; end
+
+  def a_submit_form_526_job_succeeded?
+    submit_form_526_job_statuses = form526_job_statuses.where(job_class: SUBMIT_FORM_526_JOB_CLASSES).order(:updated_at)
+    submit_form_526_job_statuses.presence&.any?(&:success?)
+  ensure
+    successful = submit_form_526_job_statuses.where(status: 'success').load
+    warn = ->(message) { log_message_to_sentry(message, :warn, { form_526_submission_id: id }) }
+    warn.call 'There are multiple successful SubmitForm526 job statuses' if successful.size > 1
+    if successful.size == 1 && submit_form_526_job_statuses.last.unsuccessful?
+      warn.call "There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job"
+    end
+  end
+
+  def all_other_jobs_succeeded_if_any?
+    form526_job_statuses.where.not(job_class: SUBMIT_FORM_526_JOB_CLASSES).all?(&:success?)
   end
 
   # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
@@ -198,7 +261,7 @@ class Form526Submission < ApplicationRecord
   #
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
-    if submission.form526_job_statuses.all?(&:success?)
+    if submission.jobs_succeeded?
       user = User.find(submission.user_uuid)
       if Flipper.enabled?(:form526_confirmation_email, user)
         submission.send_form526_confirmation_email(options['first_name'])

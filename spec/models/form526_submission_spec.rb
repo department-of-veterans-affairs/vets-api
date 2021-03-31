@@ -31,6 +31,31 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe '#start_but_use_a_birls_id_that_hasnt_been_tried_yet!' do
+    before do
+      Sidekiq::Worker.clear_all
+      Settings.mvi.edipi_search = true
+    end
+
+    context 'when it is all claims' do
+      it 'queues an all claims job' do
+        expect(subject.birls_id).to be_truthy
+        expect(subject.birls_ids.count).to eq 1
+        subject.birls_ids_tried = { subject.birls_id => ['some timestamp'] }.to_json
+        subject.save!
+        expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet! }.to(
+          change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(0)
+        )
+        next_birls_id = subject.birls_id + 'cat'
+        subject.add_birls_ids next_birls_id
+        expect { subject.start_but_use_a_birls_id_that_hasnt_been_tried_yet! }.to(
+          change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(1)
+        )
+        expect(subject.birls_id).to eq next_birls_id
+      end
+    end
+  end
+
   describe '#form' do
     it 'returns the form as a hash' do
       expect(subject.form).to eq(JSON.parse(form_json))
@@ -351,9 +376,46 @@ RSpec.describe Form526Submission do
       end
 
       it 'queues 1 job' do
+        subject.form526_job_statuses <<
+          Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
         expect do
           subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
         end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
+      end
+
+      it 'warns when there are multiple successful submit526 jobs' do
+        2.times do |index|
+          subject.form526_job_statuses << Form526JobStatus.new(
+            job_class: 'SubmitForm526AllClaim',
+            status: Form526JobStatus::STATUS[:success],
+            job_id: index
+          )
+        end
+        expect(Form526JobStatus.all.count).to eq 2
+        expect_any_instance_of(Form526Submission).to receive(:log_message_to_sentry).with(
+          'There are multiple successful SubmitForm526 job statuses',
+          :warn,
+          { form_526_submission_id: subject.id }
+        )
+        subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+      end
+
+      it "warns when there's a successful submit526 job, but it's not the most recent submit526 job" do
+        %i[success retryable_error].each_with_index do |status, index|
+          subject.form526_job_statuses << Form526JobStatus.new(
+            job_class: 'SubmitForm526AllClaim',
+            status: Form526JobStatus::STATUS[status],
+            job_id: index,
+            updated_at: Time.zone.now + index.days
+          )
+        end
+        expect(Form526JobStatus.all.count).to eq 2
+        expect_any_instance_of(Form526Submission).to receive(:log_message_to_sentry).with(
+          "There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job",
+          :warn,
+          { form_526_submission_id: subject.id }
+        )
+        subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
       end
     end
   end

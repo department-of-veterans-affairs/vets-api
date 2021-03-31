@@ -36,7 +36,7 @@ module VAForms
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :FormsIndex
+                  key :$ref, :FormsIndex
                 end
               end
             end
@@ -69,6 +69,7 @@ module VAForms
             key :description, 'The VA form_name of the form being requested'
             key :required, true
             key :type, :string
+            key :example, '10-10EZ'
           end
 
           response 200 do
@@ -78,7 +79,7 @@ module VAForms
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :FormShow
+                  key :$ref, :FormShow
                 end
               end
             end

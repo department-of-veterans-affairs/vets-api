@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/corgibytes/ruby-debug-ide
-  revision: e1ed54c9b8a6da4f365da1fcf95fdd0e01c2c362
+  revision: 4869a6721579a7d88b7d105929c27325e184a5dd
   branch: feature-add-fixed-port-range
   specs:
     ruby-debug-ide (0.7.2)
@@ -42,9 +42,9 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 72ee9286b9bab6d97ba49d2d9f9b45c83d39b113
+  revision: 4eba200159ceff1b4df0fe8d4c406ff41c18598b
   specs:
-    bgs_ext (0.20.0)
+    bgs_ext (0.21.0)
       httpclient
       nokogiri (>= 1.8.5)
       savon (~> 2.12)
@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: fe46f30b91ad4cbf6fe73833a16d4ec990f48eb6
+  revision: 7f003afd86f73155568cfc81676999beedea8032
   branch: master
   specs:
-    vets_json_schema (18.6.7)
+    vets_json_schema (18.6.9)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -86,7 +86,9 @@ PATH
       sidekiq
     covid_vaccine (0.1.0)
       sidekiq
+    facilities_api (0.1.0)
     health_quest (0.1.0)
+    identity (0.1.0)
     mobile (0.1.0)
       dry-validation
     openid_auth (0.0.1)
@@ -157,7 +159,7 @@ GEM
     activerecord (6.0.3.5)
       activemodel (= 6.0.3.5)
       activesupport (= 6.0.3.5)
-    activerecord-import (1.0.4)
+    activerecord-import (1.0.8)
       activerecord (>= 3.2)
     activerecord-postgis-adapter (6.0.0)
       activerecord (~> 6.0)
@@ -180,11 +182,11 @@ GEM
     akami (1.3.1)
       gyoku (>= 0.4.0)
       nokogiri
-    ast (2.4.1)
+    ast (2.4.2)
     attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
     attr_extras (6.2.4)
-    awesome_print (1.8.0)
+    awesome_print (1.9.2)
     aws-eventstream (1.1.0)
     aws-partitions (1.380.0)
     aws-sdk-core (3.109.0)
@@ -210,18 +212,18 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     bcp47 (0.3.3)
       i18n
-    benchmark-ips (2.8.2)
+    benchmark-ips (2.8.4)
     bindex (0.8.1)
-    bootsnap (1.5.1)
+    bootsnap (1.7.3)
       msgpack (~> 1.0)
-    brakeman (4.9.0)
+    brakeman (5.0.0)
     breakers (0.4.0)
       faraday (>= 0.7.4, < 0.18)
       multi_json (~> 1.0)
     builder (3.2.4)
-    bundler-audit (0.7.0.1)
+    bundler-audit (0.8.0)
       bundler (>= 1.2.0, < 3)
-      thor (>= 0.18, < 2)
+      thor (~> 1.0)
     byebug (11.1.3)
     carrierwave (2.2.0)
       activemodel (>= 5.0.0)
@@ -248,7 +250,7 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     colored2 (3.1.2)
-    combine_pdf (1.0.16)
+    combine_pdf (1.0.21)
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.1.8)
     config (2.2.1)
@@ -261,7 +263,7 @@ GEM
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     crass (1.0.6)
-    danger (8.0.4)
+    danger (8.2.3)
       claide (~> 1.0)
       claide-plugins (>= 0.9.2)
       colored2 (~> 3.1)
@@ -269,12 +271,17 @@ GEM
       faraday (>= 0.9.0, < 2.0)
       faraday-http-cache (~> 2.0)
       git (~> 1.7)
-      kramdown (~> 2.0)
+      kramdown (~> 2.3)
       kramdown-parser-gfm (~> 1.0)
       no_proxy_fix
       octokit (~> 4.7)
-      terminal-table (~> 1)
-    database_cleaner (1.8.5)
+      terminal-table (>= 1, < 4)
+    database_cleaner (2.0.1)
+      database_cleaner-active_record (~> 2.0.0)
+    database_cleaner-active_record (2.0.0)
+      activerecord (>= 5.a)
+      database_cleaner-core (~> 2.0.0)
+    database_cleaner-core (2.0.1)
     date_time_precision (0.8.1)
     date_validator (0.9.0)
       activemodel
@@ -288,7 +295,7 @@ GEM
     descendants_tracker (0.0.4)
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.4.4)
-    docile (1.3.2)
+    docile (1.3.5)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     down (5.2.0)
@@ -351,7 +358,7 @@ GEM
     factory_bot_rails (6.1.0)
       factory_bot (~> 6.1.0)
       railties (>= 5.0.0)
-    faker (2.13.0)
+    faker (2.17.0)
       i18n (>= 1.6, < 2)
     fakeredis (0.8.0)
       redis (~> 4.1)
@@ -410,12 +417,12 @@ GEM
       flipper (~> 0.17.2)
       rack (>= 1.4, < 3)
       rack-protection (>= 1.5.3, < 2.1.0)
-    foreman (0.87.1)
+    foreman (0.87.2)
     formatador (0.2.5)
     fugit (1.3.3)
       et-orbi (~> 1.1, >= 1.1.8)
       raabro (~> 1.1)
-    fuubar (2.5.0)
+    fuubar (2.5.1)
       rspec-core (~> 3.0)
       ruby-progressbar (~> 1.4)
     git (1.7.0)
@@ -457,9 +464,9 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
-    guard-rubocop (1.3.0)
+    guard-rubocop (1.4.0)
       guard (~> 2.0)
-      rubocop (~> 0.20)
+      rubocop (< 2.0)
     gyoku (1.3.1)
       builder (>= 2.1.2)
     hana (1.3.5)
@@ -483,10 +490,10 @@ GEM
     iniparse (1.5.0)
     iso_country_codes (0.7.8)
     jmespath (1.4.0)
-    json (2.3.1)
+    json (2.5.1)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    json_schemer (0.2.8)
+    json_schemer (0.2.16)
       ecma-re-validator (~> 0.2)
       hana (~> 1.3)
       regexp_parser (~> 1.5)
@@ -496,8 +503,8 @@ GEM
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
-    jwt (2.2.1)
-    kramdown (2.3.0)
+    jwt (2.2.2)
+    kramdown (2.3.1)
       rexml
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
@@ -520,7 +527,8 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2020.0512)
-    mimemagic (0.3.5)
+    mimemagic (0.3.7)
+      nokogiri (~> 1.11.2)
     mini_magick (4.10.1)
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
@@ -537,7 +545,7 @@ GEM
     netrc (0.11.0)
     nio4r (2.5.5)
     no_proxy_fix (0.1.2)
-    nokogiri (1.11.1)
+    nokogiri (1.11.2)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nori (2.6.0)
@@ -556,7 +564,7 @@ GEM
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.9.0)
-    okcomputer (1.18.2)
+    okcomputer (1.18.4)
     olive_branch (3.0.0)
       multi_json
       oj
@@ -564,11 +572,11 @@ GEM
     open4 (1.3.4)
     operating_hours (0.1.0)
     os (1.1.1)
-    overcommit (0.53.0)
-      childprocess (>= 0.6.3, < 4)
+    overcommit (0.57.0)
+      childprocess (>= 0.6.3, < 5)
       iniparse (~> 1.4)
     ox (2.13.2)
-    pact (1.55.7)
+    pact (1.57.0)
       pact-mock_service (~> 3.0, >= 3.3.1)
       pact-support (~> 1.15)
       rack-test (>= 0.6.3, < 2.0.0)
@@ -576,7 +584,7 @@ GEM
       term-ansicolor (~> 1.0)
       thor (>= 0.20, < 2.0)
       webrick (~> 1.3)
-    pact-mock_service (3.7.0)
+    pact-mock_service (3.8.0)
       filelock (~> 1.1)
       find_a_port (~> 1.0.1)
       json
@@ -595,9 +603,9 @@ GEM
       activerecord (>= 4.2)
       request_store (~> 1.1)
     parallel (1.19.2)
-    parallel_tests (3.4.0)
+    parallel_tests (3.6.0)
       parallel
-    parser (2.7.1.4)
+    parser (3.0.0.0)
       ast (~> 2.4.1)
     patience_diff (1.1.0)
       trollop (~> 1.16)
@@ -607,8 +615,8 @@ GEM
       safe_shell (>= 1.0.3, < 2.0)
     pdf-inspector (1.3.0)
       pdf-reader (>= 1.0, < 3.0.a)
-    pdf-reader (2.4.0)
-      Ascii85 (~> 1.0.0)
+    pdf-reader (2.4.2)
+      Ascii85 (~> 1.0)
       afm (~> 0.2.1)
       hashery (~> 2.0)
       ruby-rc4
@@ -647,7 +655,7 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
-    rack-vcr (0.1.5)
+    rack-vcr (0.1.6)
       vcr (>= 2.9)
     rails (6.0.3.5)
       actioncable (= 6.0.3.5)
@@ -690,7 +698,7 @@ GEM
     redis (4.1.4)
     redis-namespace (1.7.0)
       redis (>= 3.0.4)
-    regexp_parser (1.6.0)
+    regexp_parser (1.8.2)
     representable (3.0.4)
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
@@ -733,38 +741,40 @@ GEM
     rspec-mocks (3.10.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.10.0)
-    rspec-rails (4.0.1)
-      actionpack (>= 4.2)
-      activesupport (>= 4.2)
-      railties (>= 4.2)
-      rspec-core (~> 3.9)
-      rspec-expectations (~> 3.9)
-      rspec-mocks (~> 3.9)
-      rspec-support (~> 3.9)
+    rspec-rails (5.0.1)
+      actionpack (>= 5.2)
+      activesupport (>= 5.2)
+      railties (>= 5.2)
+      rspec-core (~> 3.10)
+      rspec-expectations (~> 3.10)
+      rspec-mocks (~> 3.10)
+      rspec-support (~> 3.10)
     rspec-retry (0.6.2)
       rspec-core (> 3.3)
     rspec-support (3.10.0)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (0.84.0)
+    rubocop (1.12.0)
       parallel (~> 1.10)
-      parser (>= 2.7.0.1)
+      parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
       rexml
-      rubocop-ast (>= 0.0.3)
+      rubocop-ast (>= 1.2.0, < 2.0)
       ruby-progressbar (~> 1.7)
-      unicode-display_width (>= 1.4.0, < 2.0)
-    rubocop-ast (0.3.0)
-      parser (>= 2.7.1.4)
+      unicode-display_width (>= 1.4.0, < 3.0)
+    rubocop-ast (1.4.1)
+      parser (>= 2.7.1.5)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.6.0)
+    rubocop-rails (2.9.1)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
-      rubocop (>= 0.82.0)
-    rubocop-rspec (1.41.0)
-      rubocop (>= 0.68.1)
-    rubocop-thread_safety (0.4.0)
-      rubocop (>= 0.51.0)
+      rubocop (>= 0.90.0, < 2.0)
+    rubocop-rspec (2.2.0)
+      rubocop (~> 1.0)
+      rubocop-ast (>= 1.1.0)
+    rubocop-thread_safety (0.4.2)
+      rubocop (>= 0.53.0)
     ruby-progressbar (1.10.1)
     ruby-rc4 (0.1.5)
     ruby-saml (1.11.0)
@@ -822,13 +832,17 @@ GEM
       faraday (~> 0.9)
       jwt (>= 1.5, < 3.0)
       multi_json (~> 1.10)
-    simplecov (0.17.1)
+    simplecov (0.21.2)
       docile (~> 1.1)
-      json (>= 1.8, < 3)
-      simplecov-html (~> 0.10.0)
-    simplecov-html (0.10.2)
+      simplecov-html (~> 0.11)
+      simplecov_json_formatter (~> 0.1)
+    simplecov-html (0.12.3)
+    simplecov_json_formatter (0.1.2)
+    slack-notify (0.6.0)
+      faraday (>= 0.9)
+      json (>= 1.8)
     socksify (1.7.1)
-    spring (2.1.0)
+    spring (2.1.1)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
     sprockets (4.0.2)
@@ -841,9 +855,9 @@ GEM
     ssrf_filter (1.0.7)
     staccato (0.5.3)
     statsd-instrument (2.6.0)
-    strong_migrations (0.7.3)
+    strong_migrations (0.7.6)
       activerecord (>= 5)
-    super_diff (0.5.2)
+    super_diff (0.6.1)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -857,7 +871,7 @@ GEM
     thread_safe (0.3.6)
     thwait (0.1.0)
     tilt (2.0.10)
-    timecop (0.9.1)
+    timecop (0.9.4)
     tins (1.26.0)
       sync
     trollop (1.16.2)
@@ -884,16 +898,16 @@ GEM
       addressable
       httpi (~> 2.0)
       nokogiri (>= 1.4.2)
-    web-console (3.7.0)
-      actionview (>= 5.0)
-      activemodel (>= 5.0)
+    web-console (4.1.0)
+      actionview (>= 6.0.0)
+      activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
-      railties (>= 5.0)
-    webmock (3.8.3)
+      railties (>= 6.0.0)
+    webmock (3.12.2)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
-    webrick (1.6.1)
+    webrick (1.7.0)
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
@@ -907,7 +921,7 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.7.3)
       nokogiri (~> 1.5)
-    yard (0.9.25)
+    yard (0.9.26)
     zeitwerk (2.4.2)
 
 PLATFORMS
@@ -923,14 +937,14 @@ DEPENDENCIES
   appeals_api!
   apps_api!
   attr_encrypted (= 3.1.0)
-  awesome_print (~> 1.8)
+  awesome_print (~> 1.9)
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
   benchmark-ips
   betamocks!
   bgs_ext!
   bootsnap
-  brakeman (~> 4.7)
+  brakeman (~> 5.0.0)
   breakers
   bundler-audit
   byebug
@@ -949,6 +963,7 @@ DEPENDENCIES
   debase
   dry-struct
   dry-types
+  facilities_api!
   factory_bot_rails (> 5)
   faker
   fakeredis
@@ -975,6 +990,7 @@ DEPENDENCIES
   holidays
   httpclient
   ice_nine
+  identity!
   iso_country_codes
   json (>= 2.3.0)
   json-schema
@@ -1050,7 +1066,8 @@ DEPENDENCIES
   sidekiq-ent!
   sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
-  simplecov (< 0.18)
+  simplecov
+  slack-notify
   spring
   spring-commands-rspec
   staccato

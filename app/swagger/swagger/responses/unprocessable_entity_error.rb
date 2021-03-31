@@ -7,7 +7,7 @@ module Swagger
         base.response 422 do
           key :description, 'Unprocessable Entity'
           schema do
-            key :'$ref', :Errors
+            key :$ref, :Errors
           end
         end
       end
