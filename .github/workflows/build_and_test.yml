@@ -1,0 +1,64 @@
+# This is a basic workflow to help you get started with Actions
+
+name: test_and_build
+
+# Controls when the action will run. 
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: timbru31/ruby-node:latest
+
+    services:
+      postgres:
+        image: postgres:11.5
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: vets-api_test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+      redis:
+        image: circleci/redis:3.2-alpine
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup app dependencies
+      run: |
+        gem install bundler -v 1.17.3 --no-document
+        bundle install --jobs 4 --retry 3
+
+    - name: Run rubocop
+      run: bundle exec rubocop
+
+    - name: Run brakeman
+      run: bundle exec brakeman
+
+    - name: Setup database
+      env:
+        RAILS_ENV: test
+        POSTGRES_HOST: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: ""
+        POSTGRES_DB: vets-api_test
+        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+      run: |
+        bundle exec rails db:create
+        bundle exec rails db:schema:load
+
+    - name: Run rspec
+      env:
+        RAILS_ENV: test
+        POSTGRES_HOST: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: ""
+        POSTGRES_DB: vets-api_test
+        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+      run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
