@@ -28,26 +28,31 @@ describe CovidVaccine::V0::EnrollmentService do
   end
 
   context 'sftp interactions' do
-    let(:host) { }
-    let(:username) { }
-    let(:password) { }
-    let(:timestamp) { Time.now.utc.parse('2021-03-31T08:00:00Z') }
+    let(:host) { 'fake_host' }
+    let(:username) { 'fake_username' }
+    let(:password) {'fake_password' }
+    let(:sftp_connection_double) { double(:sftp_connection_double, upload!: true, download!: true) }
+    let(:sftp_double) { double(:sftp, sftp: sftp_connection_double) } 
+    let(:timestamp) { Time.zone.parse('2021-03-31T08:00:00Z') }
     let(:name) { "#{timestamp.strftime('%Y%m%d%H%M%S')}_saves_lives_act_#{records.size}_records.txt" }
+    let(:handler) { CovidVaccine::V0::EnrollmentHandler }
 
     it 'responds to send_enrollment_file' do
-      Timecop.freeze()
-      expect(Net::SFTP).to receive(:start).with(host, username, password: password).and_yield(sftp_double)
-      expect(sftp_double).to receive(:upload!).with(subject.io, "/#{name}", name: name, progress: EnrollmentHandler.new)
+      Timecop.freeze(timestamp)
+      expect(Net::SFTP).to receive(:start).with(host, username, password: password).and_yield(sftp_connection_double)
+      expect(sftp_connection_double)
+        .to receive(:upload!).with(subject.io, "/#{name}", name: name, progress: instance_of(handler))
       subject.send_enrollment_file
       Timecop.return
     end
 
     it 'responds to send_enrollment_file with a suffix on filename' do
-      Timecop.freeze()
+      Timecop.freeze(timestamp)
       n = name + '_TEST'
-      expect(Net::SFTP).to receive(:start).with(host, username, password: password).and_yield(sftp_double)
-      expect(sftp_double).to receive(:upload!).with(subject.io, "/#{n}", name: n, progress: EnrollmentHandler.new)
-      subject.send_enrollment_file('_TEST')
+      expect(Net::SFTP).to receive(:start).with(host, username, password: password).and_yield(sftp_connection_double)
+      expect(sftp_connection_double)
+        .to receive(:upload!).with(subject.io, "/#{n}", name: n, progress: instance_of(handler))
+      subject.send_enrollment_file(file_name_suffix: '_TEST')
       Timecop.return
     end
   end

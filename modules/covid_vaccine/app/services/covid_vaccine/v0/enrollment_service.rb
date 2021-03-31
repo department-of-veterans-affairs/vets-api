@@ -12,7 +12,7 @@ module CovidVaccine
       end
 
       attr_reader :records, :io
-      
+
       def send_enrollment_file(file_name_suffix: '')
         file_name = generated_file_name + file_name_suffix
 
