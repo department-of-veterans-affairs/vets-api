@@ -9,6 +9,7 @@ module ClaimsApi
 
       swagger_path '/forms/2122' do
         operation :get do
+          key :deprecated, true
           security do
             key :apikey, []
           end
@@ -572,6 +573,7 @@ module ClaimsApi
 
       swagger_path '/forms/2122/validate' do
         operation :post do
+          key :deprecated, true
           security do
             key :apikey, []
           end

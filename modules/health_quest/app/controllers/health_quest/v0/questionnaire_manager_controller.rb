@@ -25,7 +25,10 @@ module HealthQuest
       private
 
       def questionnaire_response_params
-        params.require(:questionnaireResponse).permit!
+        params.require(:questionnaireResponse)
+              .permit(appointment: [:id],
+                      questionnaire: %i[id title],
+                      item: [:linkId, :text, { answer: [:valueString] }])
       end
 
       def factory
