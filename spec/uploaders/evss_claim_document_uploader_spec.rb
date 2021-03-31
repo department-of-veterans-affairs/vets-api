@@ -127,13 +127,13 @@ RSpec.describe EVSSClaimDocumentUploader do
       },
       {
         path: 'evss_claim/secretly_a_jpg.tif',
-        final_filename: "converted_secretly_a_jpg_tif.jpeg",
+        final_filename: 'converted_secretly_a_jpg_tif.jpeg',
         description: 'misnamed jpg',
         binary_or_name_changes: true
       },
       {
         path: 'evss_claim/secretly_a_tif.jpg',
-        final_filename: "converted_secretly_a_tif.jpeg",
+        final_filename: 'converted_secretly_a_tif.jpeg',
         description: "converted, but file extension doesn't change",
         binary_or_name_changes: true
       }
