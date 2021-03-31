@@ -29,7 +29,7 @@ module Common
       private
 
       def i18n_interpolated(path, options = {})
-        merge_values = Hash[options.map { |attr, opts| [attr, i18n_field("#{path}.#{attr}", opts)] }]
+        merge_values = options.map { |attr, opts| [attr, i18n_field("#{path}.#{attr}", opts)] }.to_h
         i18n_data[path].merge(merge_values)
       end
 
@@ -92,8 +92,7 @@ module Common
       end
 
       def schema(_error)
-        data = i18n_interpolated :schema
-        data
+        i18n_interpolated :schema
       end
 
       def array_items(error)

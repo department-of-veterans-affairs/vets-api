@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
+require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
   include FixtureHelpers
@@ -15,6 +16,8 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_doc) { fixture_to_s 'valid_10182.json' }
+
+  it_behaves_like 'a monitored worker'
 
   it 'uploads a valid payload' do
     allow(CentralMail::Service).to receive(:new) { client_stub }
@@ -81,13 +84,12 @@ RSpec.describe AppealsApi::NoticeOfDisagreementPdfSubmitJob, type: :job do
       submit_job_worker = described_class.new
       allow(submit_job_worker).to receive(:upload_to_central_mail).and_raise(RuntimeError, 'runtime error!')
 
-      begin
+      expect do
         submit_job_worker.perform(notice_of_disagreement.id)
-      rescue
-        expect(notice_of_disagreement.reload.status).to eq('error')
-        expect(notice_of_disagreement.reload.code).to eq('RuntimeError')
-        expect(notice_of_disagreement.reload.detail).to eq('runtime error!')
-      end
+      end.to raise_error(RuntimeError, 'runtime error!')
+
+      notice_of_disagreement.reload
+      expect(notice_of_disagreement.status).to eq('error')
     end
   end
 end

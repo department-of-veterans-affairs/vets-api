@@ -99,7 +99,23 @@ edu:
     pass: ~
     user: ~
     port: ~
-
+  slack:
+    webhook_url: https://example.com
+  spool_error:
+    emails:
+      - Joseph.Preisser@va.gov
+      - Shay.Norton-Leonard@va.gov
+      - PIERRE.BROWN@va.gov
+      - VAVBAHIN/TIMS@vba.va.gov
+      - EDUAPPMGMT.VBACO@VA.GOV
+    staging_emails:
+      - sonntag_adam@bah.com
+      - shawkey_daniel@bah.com
+      - neel_darrell@bah.com
+      - turner_desiree@bah.com
+      - mccurdy_devin@bah.com
+      - roth_matthew@bah.com
+      - delli-gatti_michael@bah.com
 dependents:
   prefill: true
 
@@ -156,6 +172,9 @@ decision_review:
 
 # Settings for modules/appeals_api
 modules_appeals_api:
+  slack:
+    api_token: ''
+    appeals_channel_id: ''
   documentation:
     notice_of_disagreements_v1: false
   higher_level_review_pii_expunge_enabled: true
@@ -180,6 +199,13 @@ modules_appeals_api:
         - laura.trager@adhocteam.us
         - nathan.wright@oddball.io
   schema_dir: config/schemas
+  s3:
+    uploads_enabled: false
+    aws_access_key_id: "aws_access_key_id"
+    aws_secret_access_key: "aws_secret_access_key"
+    region: "region"
+    bucket: "bucket"
+
 
 vre_counseling:
   prefill: true
@@ -297,6 +323,11 @@ mhv:
   account:
     mock: false
 
+# Settings for alternate MHV integration for mobile app
+mhv_mobile:
+  sm:
+    app_token: fake-app-token
+
 # Settings for Master Veteran Index
 mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
@@ -380,6 +411,7 @@ preneeds:
 # Settings for VBA Document upload service module
 vba_documents:
   report_enabled: false
+  monthly_report: false
   location:
     prefix: http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
@@ -397,6 +429,7 @@ vba_documents:
 #Settings for Claims Api Module
 claims_api:
   report_enabled: false
+  audit_enabled: false
   s3:
     enabled: false
     aws_access_key_id: ~
@@ -405,6 +438,11 @@ claims_api:
     bucket: ~
   disability_claims_mock_override: false
   schema_dir: config/schemas
+  slack:
+    webhook_url: https://example.com
+  claims_pending_reporting:
+    threshold: ~
+    environment_name: ~
 
 redis:
   host: localhost
@@ -534,6 +572,10 @@ oidc:
   base_api_url: https://example.com
   base_api_token: ~
   smart_launch_url: ~
+  issuers:
+    - prefix: "https://example.com/"
+      metadata: "/.well-known/openid-configuration"
+      proxy: "https://example.com/"
 
 sentry:
   dsn: ~
@@ -621,6 +663,7 @@ flipper:
     - devinmccurdy@gmail.com
     - draju@governmentcio.com
     - ed.mangimelli@adhocteam.us
+    - elder_joseph@bah.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
@@ -647,6 +690,7 @@ flipper:
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
+    - mccurdy_devin@bah.com
     - mdewey@governmentcio.com
     - micah@adhocteam.us
     - michael.fleet@oddball.io
@@ -674,6 +718,7 @@ flipper:
     - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
+    - turner_desiree@bah.com
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
@@ -694,6 +739,8 @@ bgs:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
+  staging_flag: ~
+  health_server_id: ~
 
 va_mobile:
   url: "https://veteran.apps.va.gov"
@@ -713,15 +760,40 @@ hqva_mobile:
   key_path: /srv/vets-api/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
+  facilities:
+    url: "https://api.va.gov"
+    ids_path: "/v1/facilities/va"
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"
+    pgd_token_path: "/oauth2/pgd/v1/token"
+    health_api_path: "/services/fhir/v0/r4"
+    health_token_path: "/oauth2/health/system/v1/token"
     host: "sandbox-api.va.gov"
-    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    pgd_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    health_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7"
     claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     redis_session_prefix: "healthquest_lighthouse"
+    health_api: "health_api"
+    pgd_api: "pgd_api"
     mock: false
     key_path: /srv/vets-api/secret/health-quest.lighthouse.key
+    pgd_api_scopes:
+      - "launch/patient"
+      - "patient/Observation.read"
+      - "patient/Observation.write"
+      - "patient/Questionnaire.read"
+      - "patient/Questionnaire.write"
+      - "patient/QuestionnaireResponse.read"
+      - "patient/QuestionnaireResponse.write"
+    health_api_scopes:
+      - "launch/patient"
+      - "patient/Appointment.read"
+      - "patient/Location.read"
+      - "patient/Organization.read"
+      - "patient/Patient.read"
 
 lighthouse:
   api_key: fake_key
@@ -760,14 +832,33 @@ coronavirus_chatbot:
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
 
+covid_vaccine:
+  allowed_facilities: [402,405,436,437,438,442,459,460,463,501,502,503,504,506,508,509,512,515,516,517,518,519,520,521,523,526,528,529,531,534,537,538,539,540,541,542,544,546,548,549,550,552,553,554,556,557,558,561,562,564,565,568,570,573,575,578,580,581,583,585,586,589,590,593,595,596,598,600,603,605,607,608,610,612,613,614,618,619,620,621,623,626,629,630,631,632,635,636,637,640,642,644,646,648,649,650,652,653,654,655,656,657,658,659,660,662,663,664,666,667,668,671,672,673,674,675,676,678,679,687,688,689,691,692,693,695,740,756,757]
+
+virtual_agent:
+  webchat_secret: fake_secret
+
 # Settings for notifications client
 vanotify:
   client_url: http://fakeapi.com
-  api_key: fake_secret
-  template_id:
-    form526_confirmation_email: fake_template_id
-    covid_vaccine_registration: fake_template_id
+  services:
+    va_gov:
+      api_key: fake_secret
+      template_id:
+        form526_confirmation_email: fake_template_id
+        covid_vaccine_registration: fake_template_id
+        covid_vaccine_expanded_registration: fake_template_id
+        direct_deposit_edu: edu_template_id
+        direct_deposit_comp_pen: comp_pen_template_id
+    lighthouse:
+      api_key: fake_secret
+      template_id:
+        disconnection_template: fake_template_id
+        connection_template: fake_template_id
   mock: false
+  links:
+    connected_applications: https://www.va.gov/profile/connected-applications
+    password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
@@ -781,6 +872,13 @@ genisis:
   service_path: /COVID19Service
   user: TestUser
   pass: bogus
+
+# Settings for the VEText integration (mobile push notifications)
+vetext_push:
+  va_mobile_app_sid: mobile-app-sid
+  base_url: https://vetext1.r01.med.va.gov
+  user: vets-api-username
+  pass: secret
 
 veteran_readiness_and_employment:
   base_url: ~

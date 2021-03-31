@@ -8,6 +8,7 @@ module ClaimsApi
     module Forms
       class PowerOfAttorneyController < ClaimsApi::BaseFormController
         include ClaimsApi::DocumentValidations
+        include ClaimsApi::EndpointDeprecation
 
         FORM_NUMBER = '2122'
 
@@ -54,17 +55,27 @@ module ClaimsApi
         def status
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
                                                                                           source_name: source_name)
+          render_poa_not_found and return unless power_of_attorney
+
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
+          render_poa_not_found and return unless power_of_attorney
+
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
         def validate
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
           render json: validation_success
+        end
+
+        def schema
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
+          super
         end
 
         private
@@ -93,6 +104,10 @@ module ClaimsApi
               }
             }
           }
+        end
+
+        def render_poa_not_found
+          render json: { errors: [{ status: 404, detail: 'POA not found' }] }, status: :not_found
         end
       end
     end

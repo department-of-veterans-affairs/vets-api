@@ -12,14 +12,15 @@ class Form526ConfirmationEmailJob
   STATSD_SUCCESS_NAME = 'worker.form526_confirmation_email.success'
 
   def perform(personalization_parameters)
-    @notify_client ||= VaNotify::Service.new
+    @notify_client ||= VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
+    @template_id ||= Settings.vanotify.services.va_gov.template_id.form526_confirmation_email
     @notify_client.send_email(
       email_address: personalization_parameters['email'],
-      template_id: Settings.vanotify.template_id.form526_confirmation_email,
+      template_id: @template_id,
       personalisation: {
         'claim_id' => personalization_parameters['submitted_claim_id'],
         'date_submitted' => personalization_parameters['date_submitted'],
-        'full_name' => personalization_parameters['full_name']
+        'first_name' => personalization_parameters['first_name']
       }
     )
     StatsD.increment(STATSD_SUCCESS_NAME)

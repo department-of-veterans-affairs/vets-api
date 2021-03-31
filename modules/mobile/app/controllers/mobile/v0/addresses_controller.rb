@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'mobile/application_controller'
-require 'vet360/address_validation/service'
+require 'va_profile/address_validation/service'
 
 module Mobile
   module V0
@@ -20,8 +20,15 @@ module Mobile
         )
       end
 
+      def destroy
+        delete_params = address_params.to_h.merge(effective_end_date: Time.now.utc.iso8601)
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :address, params: delete_params, update: true)
+        )
+      end
+
       def validate
-        address = Vet360::Models::ValidationAddress.new(address_params)
+        address = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
         response = validation_service.address_suggestions(address).as_json
@@ -59,7 +66,7 @@ module Mobile
       end
 
       def validation_service
-        Vet360::AddressValidation::Service.new
+        VAProfile::AddressValidation::Service.new
       end
     end
   end

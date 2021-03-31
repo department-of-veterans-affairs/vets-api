@@ -8,8 +8,11 @@ module ClaimsApi
     module Forms
       class IntentToFileController < BaseFormController
         include ClaimsApi::PoaVerification
+        include ClaimsApi::EndpointDeprecation
 
-        before_action { permit_scopes %w[claim.write] }
+        before_action except: %i[schema] do
+          permit_scopes %w[claim.write]
+        end
         before_action :validate_json_schema, only: %i[submit_form_0966 validate]
         before_action :check_for_type, only: %i[active]
 
@@ -53,7 +56,13 @@ module ClaimsApi
         end
 
         def validate
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           render json: validation_success
+        end
+
+        def schema
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
+          super
         end
 
         private

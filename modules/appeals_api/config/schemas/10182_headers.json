@@ -15,7 +15,8 @@
         "X-VA-Veteran-SSN":             { "$ref": "#/definitions/nodCreateHeadersSsn" },
         "X-VA-Veteran-File-Number":     { "$ref": "#/definitions/nodCreateHeadersFileNumber" },
         "X-VA-Veteran-Birth-Date":      { "$ref": "#/definitions/nodCreateHeadersBirthDate" },
-        "X-Consumer-Username":          { "$ref": "#/definitions/nodCreateHeadersConsumerUsername"}
+        "X-Consumer-Username":          { "$ref": "#/definitions/nodCreateHeadersConsumerUsername"},
+        "X-Consumer-ID":                { "$ref": "#/definitions/nodCreateHeadersConsumerId"}
       },
       "required": [
         "X-VA-Veteran-First-Name",
@@ -39,7 +40,6 @@
         { "description": "first name" },
         {
           "type": "string",
-          "maxLength": 16,
           "$comment": "can be whitespace, to accommodate those with 1 legal name"
         }
       ]
@@ -57,7 +57,6 @@
     "nodCreateHeadersLastName": {
       "allOf": [
         { "description": "last name" },
-        { "maxLength": 36 },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },
@@ -85,6 +84,14 @@
     "nodCreateHeadersConsumerUsername": {
       "allOf": [
         { "description": "Consumer Username (passed from Kong)" },
+        { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
+      ]
+    },
+
+
+    "nodCreateHeadersConsumerId": {
+      "allOf": [
+        { "description": "Consumer GUID" },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },

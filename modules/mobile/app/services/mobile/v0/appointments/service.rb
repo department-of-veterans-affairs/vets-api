@@ -20,7 +20,7 @@ module Mobile
         #
         # @return Hash two lists of appointments, va and cc (community care)
         #
-        def get_appointments(start_date, end_date, use_cache = true)
+        def get_appointments(start_date, end_date, use_cache = false)
           params = {
             startDate: start_date.utc.iso8601,
             endDate: end_date.utc.iso8601,
@@ -36,7 +36,6 @@ module Mobile
             responses[:va], errors[:va] = parallel_get(va_url, params)
           end
 
-          StatsD.increment('mobile.appointments.get_appointments.success')
           [responses, errors]
         end
 
@@ -81,7 +80,6 @@ module Mobile
             detail: e.message
           }
 
-          StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
         end
 
@@ -97,7 +95,6 @@ module Mobile
             detail: e.response_values[:detail]
           }
 
-          StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
         end
 

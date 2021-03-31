@@ -47,6 +47,24 @@ module VBADocuments
             key :example, '21-22'
             key :description, 'VBA form number of the document'
           end
+
+          property :businessLine do
+            key :type, :string
+            key :example, 'CMP'
+            key :enum, %i[CMP PMC INS EDU VRE BVA FID OTH]
+            key :description,
+                <<~DESCRIPTION
+                  Optional parameter (can be missing or empty).  The values are:<br><br>
+                  CMP - Compensation requests such as those related to disability, unemployment, and pandemic claims<br><br>
+                  PMC - Pension requests including survivor’s pension<br><br>
+                  INS - Insurance such as life insurance, disability insurance, and other health insurance<br><br>
+                  EDU - Education benefits, programs, and affiliations<br><br>
+                  VRE - Veteran Readiness & Employment such as employment questionnaires, employment discrimination, employment verification<br><br>
+                  BVA - Board of Veteran Appeals<br><br>
+                  FID - Fiduciary / financial appointee, including family member benefits<br><br>
+                  OTH - Other (this value if used, will be treated as CMP)<br>
+                DESCRIPTION
+          end
         end
       end
     end

@@ -5,8 +5,20 @@ module FailedRequestLoggable
 
   class_methods do
     def exception_hash(exception)
-      %i[message backtrace key response_values original_status original_body errors status_code sentry_type]
-        .reduce({}) { |hash, key| hash.merge({ key => exception.try(key) }) }
+      hash = {}
+      %i[
+        as_json attributes backtrace errors
+        inspect instance_values key message
+        original_body original_status
+        response_values sentry_type
+        serializable_hash status_code
+        to_a to_h to_json to_s
+      ].each do |method|
+        hash[method] = exception.send method
+      rescue
+        nil
+      end
+      hash
     end
   end
 

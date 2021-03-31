@@ -13,8 +13,8 @@ require 'saml/user'
 require 'stats_d_metric'
 require 'search/service'
 require 'search_click_tracking/service'
-require 'vet360/exceptions/parser'
-require 'vet360/service'
+require 'va_profile/exceptions/parser'
+require 'va_profile/service'
 require 'va_notify/service'
 
 host = Settings.statsd.host
@@ -110,14 +110,14 @@ StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
 StatsD.increment("#{MPI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
 
 # init Vet360
-Vet360::Exceptions::Parser.instance.known_keys.each do |key|
-  StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ["exception:#{key}"])
+VAProfile::Exceptions::Parser.instance.known_keys.each do |key|
+  StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ["exception:#{key}"])
 end
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.total_operations", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.failure", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.success", 0)
-StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.total_operations", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.success", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.failure", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.init_vet360_id.success", 0)
+StatsD.increment("#{VAProfile::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure", 0)
 
 # init eMIS
 StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", 0, tags: ['present:true', 'present:false'])
@@ -210,6 +210,8 @@ ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') 
 end
 
 # IAM SSOe session metrics
+StatsD.set('iam_ssoe_oauth.users', 0)
+
 IAMSSOeOAuth::SessionManager.extend StatsD::Instrument
 IAMSSOeOAuth::SessionManager.statsd_count_success :create_user_session,
                                                   'iam_ssoe_oauth.create_user_session'
@@ -218,3 +220,5 @@ IAMSSOeOAuth::SessionManager.statsd_measure :create_user_session,
 StatsD.increment('iam_ssoe_oauth.create_user_session.success', 0)
 StatsD.increment('iam_ssoe_oauth.create_user_session.failure', 0)
 StatsD.increment('iam_ssoe_oauth.inactive_session', 0)
+
+StatsD.increment('iam_ssoe_oauth.auth_type', 0)

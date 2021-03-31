@@ -129,6 +129,7 @@ module V0
       Swagger::Requests::ClaimStatus,
       Swagger::Requests::DebtLetters,
       Swagger::Requests::DependentsApplications,
+      Swagger::Requests::DependentsVerifications,
       Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::DisabilityCompensationInProgressForms,
       Swagger::Requests::EducationBenefitsClaims,
@@ -167,10 +168,10 @@ module V0
       Swagger::Requests::TermsAndConditions,
       Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,
-      Swagger::Requests::VAFacilities,
       Swagger::Requests::CaregiversAssistanceClaims,
       Swagger::Requests::EducationCareerCounselingClaims,
       Swagger::Requests::VeteranReadinessEmploymentClaims,
+      Swagger::Requests::VirtualAgentToken,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::ForbiddenError,
       Swagger::Responses::RecordNotFoundError,
@@ -186,6 +187,7 @@ module V0
       Swagger::Schemas::Countries,
       Swagger::Schemas::ConnectedApplications,
       Swagger::Schemas::Dependents,
+      Swagger::Schemas::DependentsVerifications,
       Swagger::Schemas::DismissedStatus,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
@@ -228,7 +230,6 @@ module V0
       Swagger::Schemas::States,
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::UploadSupportingEvidence,
-      Swagger::Schemas::VAFacilities,
       Swagger::Schemas::UserInternalServices,
       Swagger::Schemas::Permission,
       Swagger::Schemas::ValidVAFileNumber,
@@ -241,6 +242,7 @@ module V0
       Swagger::Schemas::Vet360::Countries,
       Swagger::Schemas::Vet360::States,
       Swagger::Schemas::Vet360::Zipcodes,
+      Swagger::Schemas::VirtualAgentWebchatToken,
       self
     ].freeze
 

@@ -27,42 +27,37 @@ RSpec.describe 'appointments', type: :request do
     after { Timecop.return }
 
     context 'with a missing params' do
-      it 'returns a bad request error' do
-        get '/mobile/v0/appointments', headers: iam_headers, params: nil
+      before do
+        VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: nil
+            end
+          end
+        end
+      end
 
-        expect(response).to have_http_status(:bad_request)
-        expect(response.parsed_body).to eq(
-          {
-            'errors' => [
-              {
-                'title' => 'Invalid field value',
-                'detail' => '"" is not a valid value for "startDate"',
-                'code' => '103',
-                'status' => '400'
-              }
-            ]
-          }
-        )
+      it 'defaults to a range of -3 months and + 6 months' do
+        expect(response).to have_http_status(:ok)
       end
     end
 
     context 'with an invalid date in params' do
       let(:start_date) { 42 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { startDate: start_date, endDate: end_date } }
+      let(:params) { { startDate: start_date, endDate: end_date, useCache: true } }
 
       it 'returns a bad request error' do
         get '/mobile/v0/appointments', headers: iam_headers, params: params
 
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:unprocessable_entity)
         expect(response.parsed_body).to eq(
           {
             'errors' => [
               {
-                'title' => 'Invalid field value',
-                'detail' => '"42" is not a valid value for "startDate"',
-                'code' => '103',
-                'status' => '400'
+                'title' => 'Validation Error',
+                'detail' => 'start_date must be a date time',
+                'code' => 'MOBL_422_validation_error', 'status' => '422'
               }
             ]
           }
@@ -73,7 +68,7 @@ RSpec.describe 'appointments', type: :request do
     context 'with valid params' do
       let(:start_date) { Time.now.utc.iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { startDate: start_date, endDate: end_date } }
+      let(:params) { { startDate: start_date, endDate: end_date, useCache: true } }
 
       context 'with a user has mixed upcoming appointments' do
         before do
@@ -108,7 +103,7 @@ RSpec.describe 'appointments', type: :request do
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'VA',
-                'cancelId' => 'MjAyMDExMDMwOTAwMDA=-MzA4-NDQy-Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
                 'comment' => nil,
                 'healthcareService' => 'CHY PC KILPATRICK',
                 'location' => {
@@ -133,7 +128,8 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
                 'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
                 'status' => 'BOOKED',
-                'timeZone' => 'America/Denver'
+                'timeZone' => 'America/Denver',
+                'vetextId' => '308;20201103.090000'
               }
             }
           )
@@ -175,10 +171,59 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-01T22:30:00.000-05:00',
                 'startDateUtc' => '2020-11-02T03:30:00.000Z',
                 'status' => 'BOOKED',
-                'timeZone' => 'America/New_York'
+                'timeZone' => 'America/New_York',
+                'vetextId' => nil
               }
             }
           )
+        end
+      end
+
+      context 'with the cached flag set to false' do
+        let(:start_date) { Time.now.utc.iso8601 }
+        let(:end_date) { (Time.now.utc + 3.months).iso8601 }
+        let(:params) { { startDate: start_date, endDate: end_date, useCache: false } }
+
+        before do
+          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments_cache_false', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('appointments/get_appointments_cache_false', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: iam_headers, params: params
+              end
+            end
+          end
+        end
+
+        it 'returns an ok response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'matches the expected schema' do
+          expect(response.body).to match_json_schema('appointments')
+        end
+      end
+
+      context 'with no cached flag (defaults to false)' do
+        let(:start_date) { Time.now.utc.iso8601 }
+        let(:end_date) { (Time.now.utc + 3.months).iso8601 }
+        let(:params) { { startDate: start_date, endDate: end_date } }
+
+        before do
+          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments_cache_false', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('appointments/get_appointments_cache_false', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: iam_headers, params: params
+              end
+            end
+          end
+        end
+
+        it 'returns an ok response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'matches the expected schema' do
+          expect(response.body).to match_json_schema('appointments')
         end
       end
 
@@ -259,6 +304,38 @@ RSpec.describe 'appointments', type: :request do
           expect(response.parsed_body['data'].size).to eq(33)
         end
       end
+
+      context 'when there are cached appointments' do
+        let(:user) { FactoryBot.build(:iam_user) }
+        let(:params) { { useCache: true } }
+
+        before do
+          va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json')
+          cc_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'cc_appointments.json')
+          va_json = File.read(va_path)
+          cc_json = File.read(cc_path)
+          va_appointments = Mobile::V0::Adapters::VAAppointments.new.parse(
+            JSON.parse(va_json, symbolize_names: true)
+          )[0]
+          cc_appointments = Mobile::V0::Adapters::CommunityCareAppointments.new.parse(
+            JSON.parse(cc_json, symbolize_names: true)
+          )
+
+          appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
+          options = { meta: { errors: nil } }
+          json = Mobile::V0::AppointmentSerializer.new(appointments, options).serialized_json
+
+          Mobile::V0::Appointment.set_cached(user, json)
+        end
+
+        after { Timecop.return }
+
+        it 'retrieves the cached appointments rather than hitting the service' do
+          expect_any_instance_of(VAOS::AppointmentService).not_to receive(:get_appointments)
+          get '/mobile/v0/appointments', headers: iam_headers, params: params
+          expect(response).to have_http_status(:ok)
+        end
+      end
     end
   end
 
@@ -281,7 +358,7 @@ RSpec.describe 'appointments', type: :request do
 
     context 'with valid params' do
       let(:cancel_id) do
-        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+        Mobile::V0::Appointment.encode_cancel_id(
           start_date_local: DateTime.parse('2019-11-15T13:00:00'),
           clinic_id: '437',
           facility_id: '983',
@@ -331,7 +408,7 @@ RSpec.describe 'appointments', type: :request do
 
     context 'when appointment can be cancelled' do
       let(:cancel_id) do
-        Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+        Mobile::V0::Appointment.encode_cancel_id(
           start_date_local: DateTime.parse('2019-11-15T13:00:00'),
           clinic_id: '437',
           facility_id: '983',
@@ -352,7 +429,7 @@ RSpec.describe 'appointments', type: :request do
 
       context 'when appointment can be cancelled but fails' do
         let(:cancel_id) do
-          Mobile::V0::Contracts::CancelAppointment.encode_cancel_id(
+          Mobile::V0::Appointment.encode_cancel_id(
             start_date_local: DateTime.parse('2019-11-20T17:00:00'),
             clinic_id: '437',
             facility_id: '983',

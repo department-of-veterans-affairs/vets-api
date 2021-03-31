@@ -6,15 +6,47 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
   include SetAWSConfig
   include ValidateEVSSFileSize
 
+  class << self
+    def tiff?(mimemagic_object: nil, carrier_wave_sanitized_file: nil)
+      return mimemagic_object.type == 'image/tiff' if mimemagic_object
+
+      carrier_wave_sanitized_file&.content_type == 'image/tiff'
+    end
+
+    def incorrect_extension?(extension:, mimemagic_object:)
+      extension = extension.to_s.downcase
+      true_extensions = extensions_from_mimemagic_object(mimemagic_object).map(&:downcase)
+      true_extensions.present? && !extension.in?(true_extensions)
+    end
+
+    def extensions_from_mimemagic_object(mimemagic_object)
+      mimemagic_object&.extensions || []
+    end
+
+    def inspect_binary(carrier_wave_sanitized_file)
+      file_obj = carrier_wave_sanitized_file&.to_file
+      file_obj && MimeMagic.by_magic(file_obj)
+    ensure
+      file_obj.close if file_obj.respond_to? :close
+    end
+  end
+
   def size_range
     1.byte...150.megabytes
   end
 
-  version :converted, if: :tiff? do
-    process(convert: :jpg)
+  version :converted, if: :tiff_or_incorrect_extension? do
+    process(convert: :jpg, if: :tiff?)
 
-    def full_filename(file)
-      "converted_#{file}.jpg"
+    def full_filename(original_name_for_file)
+      name = "converted_#{original_name_for_file}"
+      extension = CarrierWave::SanitizedFile.new(nil).send(:split_extension, original_name_for_file)[1]
+      mimemagic_object = self.class.inspect_binary file
+      if self.class.incorrect_extension?(extension: extension, mimemagic_object: mimemagic_object)
+        extension = self.class.extensions_from_mimemagic_object(mimemagic_object).first
+        return "#{name}.#{extension}"
+      end
+      name
     end
   end
 
@@ -56,7 +88,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     store_dir
   end
 
-  def extension_whitelist
+  def extension_allowlist
     %w[pdf gif tiff tif jpeg jpg bmp txt]
   end
 
@@ -66,8 +98,22 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   private
 
-  def tiff?(file)
-    file.content_type == 'image/tiff'
+  def tiff?(carrier_wave_sanitized_file)
+    self.class.tiff?(
+      carrier_wave_sanitized_file: carrier_wave_sanitized_file,
+      mimemagic_object: self.class.inspect_binary(carrier_wave_sanitized_file)
+    )
+  end
+
+  def tiff_or_incorrect_extension?(carrier_wave_sanitized_file)
+    mimemagic_object = self.class.inspect_binary carrier_wave_sanitized_file
+    self.class.tiff?(
+      carrier_wave_sanitized_file: carrier_wave_sanitized_file,
+      mimemagic_object: mimemagic_object
+    ) || self.class.incorrect_extension?(
+      extension: carrier_wave_sanitized_file.extension,
+      mimemagic_object: mimemagic_object
+    )
   end
 
   def set_storage_options!

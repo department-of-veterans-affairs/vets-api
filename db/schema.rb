@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_04_185948) do
+ActiveRecord::Schema.define(version: 2021_03_30_170327) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -32,6 +32,50 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.index ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true
     t.index ["sec_id"], name: "index_accounts_on_sec_id"
     t.index ["uuid"], name: "index_accounts_on_uuid", unique: true
+  end
+
+  create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
+    t.bigint "blob_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
+  end
+
+  create_table "active_storage_blobs", force: :cascade do |t|
+    t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
+    t.text "metadata"
+    t.bigint "byte_size", null: false
+    t.string "checksum", null: false
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "appeal_submissions", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "submitted_appeal_uuid"
+    t.string "type_of_appeal"
+    t.string "board_review_otpion"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "appeals_api_evidence_submissions", force: :cascade do |t|
+    t.string "status", default: "pending", null: false
+    t.string "supportable_type"
+    t.string "supportable_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "encrypted_file_data"
+    t.string "encrypted_file_data_iv"
+    t.string "source"
+    t.string "code"
+    t.string "details"
+    t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
   end
 
   create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -178,6 +222,29 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.uuid "auto_established_claim_id"
   end
 
+  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "submission_uuid", null: false
+    t.string "vetext_sid"
+    t.boolean "sequestered", default: true, null: false
+    t.string "state"
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
+    t.string "batch_id"
+    t.string "encrypted_raw_form_data"
+    t.string "encrypted_raw_form_data_iv"
+    t.string "encrypted_eligibility_info"
+    t.string "encrypted_eligibility_info_iv"
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["encrypted_eligibility_info_iv"], name: "index_covid_vaccine_expanded_on_el_iv", unique: true
+    t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_expanded_on_form_iv", unique: true
+    t.index ["encrypted_raw_form_data_iv"], name: "index_covid_vaccine_expanded_on_raw_iv", unique: true
+    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
+    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
+  end
+
   create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
     t.string "sid"
     t.uuid "account_id"
@@ -187,6 +254,10 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.datetime "updated_at", null: false
     t.string "encrypted_raw_form_data"
     t.string "encrypted_raw_form_data_iv"
+    t.boolean "expanded", default: false, null: false
+    t.boolean "sequestered", default: false, null: false
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
@@ -275,6 +346,9 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.boolean "poa"
     t.string "encrypted_auth_headers_json"
     t.string "encrypted_auth_headers_json_iv"
+    t.integer "remaining_entitlement"
+    t.datetime "denial_email_sent_at"
+    t.datetime "confirmation_email_sent_at"
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
   end
@@ -547,6 +621,17 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.index ["user_uuid"], name: "index_session_activities_on_user_uuid"
   end
 
+  create_table "spool_file_events", force: :cascade do |t|
+    t.integer "rpo"
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at"
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["rpo", "filename"], name: "index_spool_file_events_uniqueness", unique: true
+  end
+
   create_table "terms_and_conditions", id: :serial, force: :cascade do |t|
     t.string "name"
     t.string "title"
@@ -581,15 +666,14 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.string "phone"
     t.string "email"
     t.string "password"
-    t.boolean "standard"
-    t.boolean "available"
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
+    t.text "services"
+    t.uuid "idme_uuid"
   end
 
   create_table "user_preferences", id: :serial, force: :cascade do |t|
@@ -623,6 +707,8 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.string "related_forms", array: true
     t.jsonb "benefit_categories"
     t.string "form_details_url"
+    t.jsonb "va_form_administration"
+    t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
@@ -637,6 +723,8 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.string "consumer_name"
     t.uuid "consumer_id"
     t.json "uploaded_pdf"
+    t.boolean "use_active_storage", default: false
+    t.jsonb "metadata", default: {}
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
@@ -688,4 +776,5 @@ ActiveRecord::Schema.define(version: 2021_02_04_185948) do
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
   end
 
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
 end

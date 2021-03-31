@@ -18,7 +18,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :IntentToFiles
+              key :$ref, :IntentToFiles
             end
           end
         end
@@ -45,7 +45,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :IntentToFile
+              key :$ref, :IntentToFile
             end
           end
         end
@@ -72,7 +72,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :IntentToFile
+              key :$ref, :IntentToFile
             end
           end
         end

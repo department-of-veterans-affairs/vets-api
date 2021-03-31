@@ -7,9 +7,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
-      'X-VA-EDIPI': '1007697216',
       'X-Consumer-Username': 'TestConsumer',
-      'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
@@ -25,9 +23,9 @@ RSpec.describe 'Power of Attorney ', type: :request do
     let(:path) { '/services/claims/v1/forms/2122' }
     let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '2122.json')) }
 
-    it 'returns a successful get response with json schema' do
-      with_okta_user(scopes) do |auth_header|
-        get path, headers: headers.merge(auth_header)
+    describe 'schema' do
+      it 'returns a successful get response with json schema' do
+        get path
         json_schema = JSON.parse(response.body)['data'][0]
         expect(json_schema).to eq(JSON.parse(schema))
       end
@@ -90,25 +88,15 @@ RSpec.describe 'Power of Attorney ', type: :request do
           expect(parsed['data']['attributes']['status']).to eq('submitted')
         end
       end
-
-      it 'return the active status of a PoA without a GUID' do
-        with_okta_user(scopes) do |auth_header|
-          get('/services/claims/v1/forms/2122/active',
-              params: nil, headers: headers.merge(auth_header))
-          parsed = JSON.parse(response.body)
-          expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-          expect(parsed['data']['attributes']['previous_poa']).to eq('A01')
-        end
-      end
     end
 
     describe '#upload_power_of_attorney_document' do
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:binary_params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
       let(:base64_params) do
-        { 'attachment': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+        { attachment: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
       end
 
       it 'submit binary and change the document status' do
@@ -159,6 +147,63 @@ RSpec.describe 'Power of Attorney ', type: :request do
         with_okta_user(scopes) do |auth_header|
           post "#{path}/validate", params: 'hello', headers: headers.merge(auth_header)
           expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+
+    describe '#active' do
+      context 'when there is no Lighthouse active power of attorney' do
+        it 'returns a 404' do
+          with_okta_user(scopes) do |auth_header|
+            allow(ClaimsApi::PowerOfAttorney).to receive(:find_using_identifier_and_source).and_return(nil)
+            get('/services/claims/v1/forms/2122/active',
+                params: nil, headers: headers.merge(auth_header))
+
+            expect(response.status).to eq(404)
+          end
+        end
+      end
+
+      context 'when there is a Lightouse active power of attorney' do
+        let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
+        let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
+
+        context 'when there is no BGS active power of attorney' do
+          it "the 'previous_poa' attribute is nil" do
+            with_okta_user(scopes) do |auth_header|
+              expect(ClaimsApi::PowerOfAttorney).to receive(
+                :find_using_identifier_and_source
+              ).and_return(power_of_attorney)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              expect(bgs_poa_verifier).to receive(:current_poa).and_return(nil)
+              get('/services/claims/v1/forms/2122/active',
+                  params: nil, headers: headers.merge(auth_header))
+
+              parsed = JSON.parse(response.body)
+              expect(response.status).to eq(200)
+              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
+              expect(parsed['data']['attributes']['previous_poa']).to eq(nil)
+            end
+          end
+        end
+
+        context 'when there is a BGS active power of attorney' do
+          it "the 'previous_poa' attribute is populated" do
+            with_okta_user(scopes) do |auth_header|
+              expect(ClaimsApi::PowerOfAttorney).to receive(
+                :find_using_identifier_and_source
+              ).and_return(power_of_attorney)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              expect(bgs_poa_verifier).to receive(:current_poa).and_return('HelloWorld')
+              get('/services/claims/v1/forms/2122/active',
+                  params: nil, headers: headers.merge(auth_header))
+
+              parsed = JSON.parse(response.body)
+              expect(response.status).to eq(200)
+              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
+              expect(parsed['data']['attributes']['previous_poa']).to eq('HelloWorld')
+            end
+          end
         end
       end
     end

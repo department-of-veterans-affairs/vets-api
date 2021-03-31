@@ -5,7 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class HigherLevelReview < ApplicationRecord
-    include CentralMailStatus
+    include HlrStatus
 
     def self.past?(date)
       date < Time.zone.today
@@ -35,6 +35,8 @@ module AppealsApi
       :contestable_issue_dates_are_valid_dates,
       if: proc { |a| a.form_data.present? }
     )
+
+    has_many :evidence_submissions, as: :supportable, dependent: :destroy
 
     def pdf_structure(version)
       Object.const_get(

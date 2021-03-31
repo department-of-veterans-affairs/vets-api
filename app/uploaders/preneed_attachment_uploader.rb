@@ -25,7 +25,7 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def extension_whitelist
+  def extension_allowlist
     %w[pdf jpg jpeg png]
   end
 

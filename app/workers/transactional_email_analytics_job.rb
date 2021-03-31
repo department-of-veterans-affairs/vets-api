@@ -44,7 +44,8 @@ class TransactionalEmailAnalyticsJob
       SchoolCertifyingOfficialsMailer,
       DirectDepositMailer,
       HCASubmissionFailureMailer,
-      StemApplicantScoMailer
+      StemApplicantScoMailer,
+      StemApplicantDenialMailer
     ]
   end
 

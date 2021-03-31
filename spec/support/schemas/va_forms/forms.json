@@ -32,6 +32,7 @@
               "pages": { "type": "integer" },
               "valid_pdf": { "type": "boolean" },
               "sha256": { "type": "string" },
+              "last_sha256_change": { "type": ["string", "null"] },
               "form_usage": { "type": ["string", "null"] },
               "form_tool_intro": { "type": ["string", "null"] },
               "form_tool_url": { "type": ["string", "null"] },
@@ -46,7 +47,8 @@
                 "type": ["array", "null"],
                 "items": { "type": "string" }
               },
-              "benefit_categories": { "type": ["array", "null"] }
+              "benefit_categories": { "type": ["array", "null"] },
+              "va_form_administration": { "type": ["array", "null"] }
             }
           }
         }

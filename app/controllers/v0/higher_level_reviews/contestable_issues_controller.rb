@@ -10,7 +10,7 @@ module V0
       rescue => e
         log_exception_to_personal_information_log(
           e,
-          error_class: "#{self.class.name}#index exception",
+          error_class: "#{self.class.name}#index exception #{e.class} (HLR)",
           benefit_type: params[:benefit_type]
         )
         raise

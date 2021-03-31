@@ -112,4 +112,109 @@ RSpec.describe 'health_quest questionnaire_manager', type: :request do
       end
     end
   end
+
+  describe 'POST questionnaire manager' do
+    context 'loa1 user' do
+      before do
+        sign_in_as(current_user)
+      end
+
+      let(:current_user) { build(:user, :loa1) }
+
+      it 'has forbidden status' do
+        post '/health_quest/v0/questionnaire_manager'
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'has access denied message' do
+        post '/health_quest/v0/questionnaire_manager'
+
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq(access_denied_message)
+      end
+    end
+
+    context 'health quest user' do
+      let(:current_user) { build(:user, :health_quest) }
+      let(:session_store) { double('SessionStore', token: '123abc') }
+      let(:client_reply) do
+        double('FHIR::ClientReply', response: { body: { 'resourceType' => 'QuestionnaireResponse' } })
+      end
+      let(:data) do
+        {
+          appointment: { id: 'abc123' },
+          questionnaire: { id: '123-abc-345-def', title: 'test' },
+          item: []
+        }
+      end
+
+      before do
+        sign_in_as(current_user)
+        allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
+        allow_any_instance_of(HealthQuest::Resource::Query).to receive(:create)
+          .with(anything, anything).and_return(client_reply)
+      end
+
+      it 'returns a QuestionnaireResponse FHIR response type' do
+        post '/health_quest/v0/questionnaire_manager', params: { questionnaireResponse: data }
+
+        expect(JSON.parse(response.body)).to eq({ 'resourceType' => 'QuestionnaireResponse' })
+      end
+    end
+  end
+
+  describe 'GET questionnaire_manager#show' do
+    context 'loa1 user' do
+      before do
+        sign_in_as(current_user)
+      end
+
+      let(:current_user) { build(:user, :loa1) }
+
+      it 'has forbidden status' do
+        get '/health_quest/v0/questionnaire_manager/123-1bc'
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it 'has access denied message' do
+        get '/health_quest/v0/questionnaire_manager/123-1bc'
+
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq(access_denied_message)
+      end
+    end
+
+    context 'health quest user' do
+      let(:current_user) { build(:user, :health_quest) }
+      let(:session_store) { double('SessionStore', token: '123abc') }
+      let(:questionnaire_response_id) { '123-1bc' }
+
+      before do
+        sign_in_as(current_user)
+        allow_any_instance_of(HealthQuest::Lighthouse::Session).to receive(:retrieve).and_return(session_store)
+        allow_any_instance_of(HealthQuest::QuestionnaireManager::Factory)
+          .to receive(:generate_questionnaire_response_pdf).with(anything).and_return(questionnaire_response_id)
+      end
+
+      it 'returns the questionnaire_response_id for now' do
+        get '/health_quest/v0/questionnaire_manager/123-1bc'
+
+        expect(response.body).to eq('123-1bc')
+      end
+
+      it 'returns the questionnaire_response type' do
+        get '/health_quest/v0/questionnaire_manager/123-1bc'
+
+        expect(response.headers['Content-Type']).to eq('application/pdf')
+      end
+
+      it 'returns the questionnaire_response disposition' do
+        content_disposition = "inline; filename=\"questionnaire_response\"; filename*=UTF-8''questionnaire_response"
+
+        get '/health_quest/v0/questionnaire_manager/123-1bc'
+
+        expect(response.headers['Content-Disposition']).to eq(content_disposition)
+      end
+    end
+  end
 end
