@@ -20,8 +20,8 @@ module Mobile
       end
 
       def index
-        response = fetch_all_cached_or_service(params)
-        render json: { data: response[:data], meta: { errors: response[:errors] } }, status: response[:status]
+        json, status = fetch_all_cached_or_service(params)
+        render json: json, status: status
       end
 
       def get_claim
@@ -53,7 +53,7 @@ module Mobile
         end
 
         if json
-          { data: JSON.parse(json), errors: nil, status: :ok }
+          [json, :ok]
         else
           claims_proxy.get_claims_and_appeals
         end

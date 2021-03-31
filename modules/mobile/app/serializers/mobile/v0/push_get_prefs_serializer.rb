@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class PushGetPrefsSerializer
-      include FastJsonapi::ObjectSerializer
+      include JSONAPI::Serializer
 
       set_type :pushGetPrefs
       attributes :preferences

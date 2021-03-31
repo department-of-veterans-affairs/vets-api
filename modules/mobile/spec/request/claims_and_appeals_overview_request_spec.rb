@@ -81,7 +81,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/server_error') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
-            binding.pry
             expect(response).to have_http_status(:multi_status)
             parsed_response_contents = response.parsed_body.dig('data')
             expect(parsed_response_contents[0].dig('type')).to eq('claim')
