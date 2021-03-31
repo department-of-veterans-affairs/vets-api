@@ -39,21 +39,21 @@ jobs:
           key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
       - name: Install Dependencies
         run: bundle install --path vendor/bundle
-    - name: Setup database
-      env:
-        RAILS_ENV: test
-        POSTGRES_HOST: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: ""
-        POSTGRES_DB: vets-api_test
-        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-      run: bundle exec rake db:create db:schema:load
-    - name: Run rspec
-      env:
-        RAILS_ENV: test
-        POSTGRES_HOST: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: ""
-        POSTGRES_DB: vets-api_test
-        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-      run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
+      - name: Setup database
+        env:
+          RAILS_ENV: test
+          POSTGRES_HOST: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ""
+          POSTGRES_DB: vets-api_test
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        run: bundle exec rake db:create db:schema:load
+      - name: Run rspec
+        env:
+          RAILS_ENV: test
+          POSTGRES_HOST: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ""
+          POSTGRES_DB: vets-api_test
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
