@@ -39,6 +39,9 @@
               },
               "sha256": {
                 "type":"string"
+              },
+              "lastSha256Change": {
+                "type": ["string", "null"]
               }
             }
           }
