@@ -17,7 +17,5 @@ module EducationForm::Forms
 
       "#{@applicant.programCity}, #{@applicant.programState}"
     end
-
-
   end
 end
