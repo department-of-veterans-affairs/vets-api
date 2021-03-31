@@ -3,16 +3,16 @@
 require 'rails_helper'
 
 describe CovidVaccine::V0::EnrollmentService do
-  subject do 
+  subject do
     described_class.new(records)
   end
 
   let(:records) do
     fixture_file = YAML.load_file('modules/covid_vaccine/spec/fixtures/expanded_registration_submissions.yml')
-    records = fixture_file.values.map do |fixture|
+    fixture_file.values.map do |fixture|
       FactoryBot.build(:covid_vax_expanded_registration,
-                        raw_form_data: fixture['raw_form_data'],
-                        eligibility_info: fixture['eligibility_info'])
+                       raw_form_data: fixture['raw_form_data'],
+                       eligibility_info: fixture['eligibility_info'])
     end
   end
 
@@ -30,9 +30,9 @@ describe CovidVaccine::V0::EnrollmentService do
   context 'sftp interactions' do
     let(:host) { 'fake_host' }
     let(:username) { 'fake_username' }
-    let(:password) {'fake_password' }
+    let(:password) { 'fake_password' }
     let(:sftp_connection_double) { double(:sftp_connection_double, upload!: true, download!: true) }
-    let(:sftp_double) { double(:sftp, sftp: sftp_connection_double) } 
+    let(:sftp_double) { double(:sftp, sftp: sftp_connection_double) }
     let(:timestamp) { Time.zone.parse('2021-03-31T08:00:00Z') }
     let(:name) { "#{timestamp.strftime('%Y%m%d%H%M%S')}_saves_lives_act_#{records.size}_records.txt" }
     let(:handler) { CovidVaccine::V0::EnrollmentHandler }
