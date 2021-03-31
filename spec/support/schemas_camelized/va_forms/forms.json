@@ -54,7 +54,7 @@
               },
               "sha256": {
                 "type": "string"
-              }
+              },
               "formUsage": {
                 "type": ["string", "null"]
               },
