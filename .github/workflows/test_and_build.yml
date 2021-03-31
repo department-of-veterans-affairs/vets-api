@@ -13,7 +13,7 @@ jobs:
       BUNDLE_JOBS: 2
       BUNDLE_RETRY: 3
       LANG: en_US.UTF-8
-      PGHOST: postgres
+      PGHOST: localhost
       PGUSER: vets-api
       RAILS_ENV: test
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
@@ -29,7 +29,7 @@ jobs:
           POSTGRES_PASSWORD: ""
         ports:
           - 5432:5432
-
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
       redis:
         image: circleci/redis:3.2-alpine
@@ -53,7 +53,7 @@ jobs:
       - name: Install Dependencies
         run: bundle install --path vendor/bundle
       - name: Setup database
-        run: bundle exec rake db:setup
+        run: bundle exec rake db:create db:schema:load
       - name: Run Specs
         run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
 
