@@ -15,7 +15,7 @@ module VAForms
     end
 
     def last_sha256_change
-      object.versions.last.created_at&.strftime('%Y-%m-%d') if @object.respond_to?(:versions)
+      object.versions.last.created_at&.strftime('%Y-%m-%d') if defined? object.versions.last.created_at
     end
   end
 end
