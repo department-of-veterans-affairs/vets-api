@@ -178,7 +178,7 @@ RSpec/ContextMethod:
     - 'spec/request/evss_claims_async_spec.rb'
     - 'spec/services/users/profile_spec.rb'
 
-# Offense count: 151
+# Offense count: 152
 # Cop supports --auto-correct.
 # Configuration parameters: AllowConsecutiveOneLiners.
 RSpec/EmptyLineAfterExample:
@@ -191,7 +191,7 @@ RSpec/EmptyLineAfterExample:
 RSpec/FactoryBot/FactoryClassName:
   Enabled: false
 
-# Offense count: 887
+# Offense count: 889
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
   Max: 36
@@ -218,6 +218,15 @@ RSpec/RepeatedExampleGroupDescription:
 RSpec/StubbedMock:
   Enabled: false
 
+# Offense count: 2
+# Cop supports --auto-correct.
+# Configuration parameters: Include.
+# Include: app/models/**/*.rb
+Rails/ActiveRecordCallbacksOrder:
+  Exclude:
+    - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
+    - 'modules/vba_documents/app/models/vba_documents/upload_submission.rb'
+
 # Offense count: 10
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -234,9 +243,78 @@ Rails/HttpStatus:
 
 # Offense count: 1
 # Cop supports --auto-correct.
+Rails/IndexBy:
+  Exclude:
+    - 'config/initializers/zcta.rb'
+
+# Offense count: 21
+# Cop supports --auto-correct.
+# Configuration parameters: Include.
+# Include: config/routes.rb, config/routes/**/*.rb
+Rails/MatchRoute:
+  Exclude:
+    - 'modules/appeals_api/config/routes.rb'
+    - 'modules/apps_api/config/routes.rb'
+    - 'modules/claims_api/config/routes.rb'
+    - 'modules/va_forms/config/routes.rb'
+    - 'modules/vba_documents/config/routes.rb'
+
+# Offense count: 9
+# Cop supports --auto-correct.
+Rails/NegateInclude:
+  Exclude:
+    - 'app/workers/education_form/create_daily_fiscal_year_to_date_report.rb'
+    - 'app/workers/education_form/create_daily_year_to_date_report.rb'
+    - 'lib/common/client/base.rb'
+    - 'lib/common/models/collection.rb'
+    - 'lib/sentry/processor/pii_sanitizer.rb'
+    - 'modules/claims_api/app/controllers/claims_api/v0/forms/intent_to_file_controller.rb'
+    - 'modules/claims_api/app/controllers/claims_api/v1/forms/intent_to_file_controller.rb'
+    - 'modules/veteran_confirmation/app/controllers/veteran_confirmation/v0/veteran_status_controller.rb'
+    - 'rakelib/form526.rake'
+
+# Offense count: 8
+# Cop supports --auto-correct.
+Rails/Pluck:
+  Exclude:
+    - 'app/serializers/evss_claim_detail_serializer.rb'
+    - 'app/workers/pager_duty/poll_maintenance_windows.rb'
+    - 'lib/bb/client.rb'
+    - 'modules/appeals_api/spec/services/appeals_api/central_mail_updater_spec.rb'
+    - 'modules/claims_api/app/workers/claims_api/special_issue_updater.rb'
+    - 'modules/vaos/spec/services/systems_service_spec.rb'
+    - 'spec/lib/common/exceptions/detailed_schema_errors_spec.rb'
+    - 'spec/services/bgs/dependency_verification_service_spec.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
 Rails/RedundantForeignKey:
   Exclude:
     - 'app/models/form526_submission.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: conservative, aggressive
+Rails/ShortI18n:
+  Exclude:
+    - 'app/uploaders/validate_evss_file_size.rb'
+
+# Offense count: 4
+# Configuration parameters: ForbiddenMethods, AllowedMethods.
+# ForbiddenMethods: decrement!, decrement_counter, increment!, increment_counter, insert, insert!, insert_all, insert_all!, toggle!, touch, touch_all, update_all, update_attribute, update_column, update_columns, update_counters, upsert, upsert_all
+Rails/SkipsModelValidations:
+  Exclude:
+    - 'app/workers/evss/disability_compensation_form/job_status.rb'
+    - 'spec/jobs/evss/disability_compensation_form/submit_form526_all_claim_spec.rb'
+    - 'spec/models/form526_job_status_spec.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Rails/SquishedSQLHeredocs:
+  Exclude:
+    - 'app/models/facilities_query/radial_query.rb'
+    - 'modules/vba_documents/app/workers/vba_documents/upload_remover.rb'
 
 # Offense count: 9
 # Configuration parameters: Include.
@@ -251,6 +329,12 @@ Rails/UniqueValidationWithoutIndex:
     - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
     - 'modules/claims_api/app/models/claims_api/power_of_attorney.rb'
     - 'modules/va_forms/app/models/va_forms/form.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+Rails/WhereNot:
+  Exclude:
+    - 'modules/claims_api/lib/tasks/claims_tasks.rake'
 
 # Offense count: 24
 # Cop supports --auto-correct.
