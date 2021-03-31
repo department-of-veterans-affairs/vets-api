@@ -8,6 +8,10 @@ module VAProfile
       attr_accessor :id, :allowed
 
       validates :allowed, inclusion: { in: [true, false], message: 'must be set' }
+
+      def id=(val)
+        @id = val&.to_i
+      end
     end
   end
 end

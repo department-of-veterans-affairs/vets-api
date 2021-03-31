@@ -10,6 +10,49 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
     sign_in_as(user)
   end
 
+  describe '#update' do
+    it 'updates a communication_permission', run_at: '2021-03-24T23:46:17Z' do
+      VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
+        patch(
+          :update,
+          params: {
+            id: 46,
+            communication_item: {
+              id: 2,
+              communication_channels: [
+                {
+                  id: 1,
+                  communication_permission: {
+                    allowed: true
+                  }
+                }
+              ]
+            }
+          },
+          as: :json
+        )
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)).to eq(
+          {"tx_audit_id"=>"924b24a5-609d-48ff-ab2e-9f5ac8770e93",
+           "status"=>"COMPLETED_SUCCESS",
+           "bio"=>
+            {"create_date"=>"2021-03-24T22:38:21Z",
+             "update_date"=>"2021-03-24T23:46:17Z",
+             "tx_audit_id"=>"924b24a5-609d-48ff-ab2e-9f5ac8770e93",
+             "source_system"=>"VETSGOV",
+             "source_date"=>"2021-03-24T23:46:17Z",
+             "communication_permission_id"=>46,
+             "va_profile_id"=>18277,
+             "communication_channel_id"=>1,
+             "communication_item_id"=>2,
+             "communication_channel_name"=>"Text",
+             "communication_item_common_name"=>"RX Prescription Refill Reminder",
+             "allowed"=>true}}
+        )
+      end
+    end
+  end
+
   describe '#create' do
     it 'creates a communication permission', run_at: '2021-03-24T22:38:21Z' do
       VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do
