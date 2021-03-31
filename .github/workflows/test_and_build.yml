@@ -28,7 +28,7 @@ jobs:
           POSTGRES_DB: vets-api_test
           POSTGRES_PASSWORD: ""
         ports:
-          - 54320:5432
+          - 5432:5432
 
 
       redis:
