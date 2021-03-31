@@ -11,7 +11,7 @@ module ClaimsApi
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
       rescue EVSS::ErrorMiddleware::EVSSError => e
-        log_message_to_sentry('Error in claims v1',
+        log_message_to_sentry('Error in claims v0',
                               :warning,
                               body: e.message)
         render json: { errors: [{ status: 404, detail: 'Claims not found' }] },
