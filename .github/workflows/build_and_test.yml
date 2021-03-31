@@ -1,77 +1,68 @@
-# This is a basic workflow to help you get started with Actions
-
-name: build_and_test
-
-# Controls when the action will run. 
+name: test_and_build
 on: [push]
-
 jobs:
-  build:
-
+  linting:
     runs-on: ubuntu-latest
-
-    container:
-      image: timbru31/ruby-node:latest
+    container: circleci/ruby:2.6.6-stretch
+    env:
+      BUNDLE_JOBS: 2
+      BUNDLE_RETRY: 3
+      LANG: en_US.UTF-8
+      PGHOST: postgres
+      PGUSER: vets-api
+      RAILS_ENV: test
+      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+      "Settings.binaries.clamdscan": "clamscan"
 
     services:
       postgres:
-        image: postgres:11.5
+        image: circleci/postgres:11.5-postgis-ram # 11.5 engine on AWS RDS
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api_test
-          BUNDLE_JOBS: 2
-          BUNDLE_RETRY: 3
-          LANG: en_US.UTF-8
-          RAILS_ENV: test
-          "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
-          "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
-          "Settings.binaries.clamdscan": "clamscan"
+          POSTGRES_PASSWORD: ""
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
       redis:
         image: circleci/redis:3.2-alpine
 
+
     steps:
-    - uses: actions/checkout@v1
+      # This Docker file changes sets USER to circleci instead of using the default user, so we need to update file permissions for this image to work on GH Actions.
+      # See https://docs.github.com/actions/reference/virtual-environments-for-github-hosted-runners#docker-container-filesystem
+      - name: Setup file system permissions
+        run: sudo chmod -R 777 $GITHUB_WORKSPACE /github /__w/_temp
+     
+      - uses: actions/checkout@v2 #checkout step
+      - name: Install dependencies (pdftk, poppler, imagemagick)
+        run: sudo apt install imagemagick pdftk poppler-utils
 
-    - name: Setup app dependencies
-      run: |
-        gem install bundler -v 1.17.3 --no-document
-        bundle install --jobs 4 --retry 3
+      - name: Gem Cache
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
 
-    - name: Run rubocop
-      run: bundle exec rubocop
+      - name: Install Dependencies
+        run: bundle install --path vendor/bundle
+  
+      - name: Audit bundled gems for CVE issues
+        run:  bundle exec bundle-audit check --update
+        
+      - name: Static security analysis using Brakeman
+        run:  bundle exec brakeman --exit-on-warn --run-all-checks --confidence-level=2
+ 
+      - name: Lint code with Rubocop
+        run: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress
+#         env:
+#           RAILS_ENV: test
+#           POSTGRES_USER: postgres
+#           POSTGRES_DB: vets-api_test          
+#           POSTGRES_PASSWORD: ""
+#           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+#         run: bundle exec rake db:create db:schema:load
+#       - name: Run Specs
+#         run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
 
-    - name: Run brakeman
-      run: bundle exec brakeman
-
-    - name: Setup database
-      env:
-        RAILS_ENV: test
-        POSTGRES_HOST: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: ""
-        POSTGRES_DB: vets-api_test
-        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-        BUNDLE_JOBS: 2
-        BUNDLE_RETRY: 3
-        LANG: en_US.UTF-8
-        "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
-        "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
-        "Settings.binaries.clamdscan": "clamscan"        
-      run: |
-        bundle exec rails db:create
-        bundle exec rails db:schema:load
-
-    - name: Run rspec
-      env:
-        RAILS_ENV: test
-        POSTGRES_HOST: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: ""
-        POSTGRES_DB: vets-api_test
-        POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
-      run: bundle exec rspec --pattern spec/**/*_spec.rb --pattern modules/*/spec/**/*_spec.rb --format progress --format RspecJunitFormatter -o ./rspec/rspec.xml --format html --out ./ci/rspec.html
