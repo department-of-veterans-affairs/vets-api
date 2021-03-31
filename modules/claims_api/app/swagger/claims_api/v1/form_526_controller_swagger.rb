@@ -9,6 +9,7 @@ module ClaimsApi
 
       swagger_path '/forms/526' do
         operation :get do
+          key :deprecated, true
           key :summary, 'Get a 526 schema for a claim.'
           key :description, 'Returns a single 526 schema to automatically generate a form. Using this GET endpoint allows users to download our current validations.'
           key :operationId, 'get526JsonSchema'
@@ -123,14 +124,6 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
             key :required, false
             key :type, :string
           end
@@ -258,14 +251,6 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
             key :name, 'attachment'
             key :in, :formData
             key :type, :file
@@ -338,6 +323,7 @@ module ClaimsApi
 
       swagger_path '/forms/526/validate' do
         operation :post do
+          key :deprecated, true
           key :summary, 'Validates a 526 claim form submission.'
           key :description, 'Test to make sure the form submission works with your parameters. Submission validates against the schema returned by the GET /forms/526 endpoint.'
           key :operationId, 'post526ClaimValidate'
@@ -378,14 +364,6 @@ module ClaimsApi
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
             key :type, :string
           end
 
@@ -541,14 +519,6 @@ module ClaimsApi
             key :name, 'X-VA-Birth-Date'
             key :in, :header
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
             key :required, false
             key :type, :string
           end
