@@ -117,6 +117,7 @@ jobs:
       - name: Setup Database
         env:
           RAILS_ENV: test
+          POSTGRES_HOST: postgres            
           POSTGRES_USER: postgres
           POSTGRES_DB: vets-api_test          
           POSTGRES_PASSWORD: postgres
