@@ -1210,6 +1210,59 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
+    context 'with a notice of disagreement (NOD) form' do
+      let(:schema_name) { '10182' }
+      let(:schema) { DecisionReview::Schemas::NOD_CREATE_REQUEST }
+      let(:form_profile) { described_class.for(form_id: schema_name, user: user) }
+      let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
+
+      before do
+        allow_any_instance_of(BGS::PeopleService).to(
+          receive(:find_person_by_participant_id).and_return({ file_nbr: '1234567890' })
+        )
+        allow_any_instance_of(VAProfile::Models::Address).to(
+          receive(:address_line3).and_return('suite 500')
+        )
+      end
+
+      it 'street3 returns VAProfile address_line3' do
+        expect(form_profile.send(:vet360_mailing_address)&.address_line3).to eq form_profile.send :street3
+      end
+
+      it 'prefills' do
+        veteran = prefill.dig 'data', 'attributes', 'veteran'
+        address = veteran['address']
+        phone = veteran['phone']
+        expect(address['addressLine1']).to be_a String
+        expect(address['addressLine2']).to be_a String
+        expect(address['addressLine3']).to be_a(String).or be_nil
+        expect(address['city']).to be_a String
+        expect(address['stateCode']).to be_a String
+        expect(address['zipCode5']).to be_a String
+        expect(address['countryName']).to be_a String
+        expect(address['internationalPostalCode']).to be_a(String).or be_nil
+        expect(phone['areaCode']).to be_a String
+        expect(phone['phoneNumber']).to be_a String
+        expect(veteran['emailAddressText']).to be_a String
+        non_prefill = prefill['nonPrefill']
+        expect(non_prefill['veteranSsnLastFour']).to be_a String
+        expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
+      end
+
+      it 'prefills an object that passes the schema' do
+        full_example = JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
+                                                            'valid_NOD_create_request.json'
+
+        test_data = full_example.deep_merge prefill
+        errors = JSON::Validator.fully_validate(
+          schema,
+          test_data,
+          validate_schema: true
+        )
+        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+      end
+    end
+
     context 'with a pension application form' do
       it 'returns the va profile mapped to the pension form' do
         expect_prefilled('21P-527EZ')
