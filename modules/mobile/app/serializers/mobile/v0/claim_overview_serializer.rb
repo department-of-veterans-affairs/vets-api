@@ -10,7 +10,7 @@ module Mobile
 
       def self.record_hash(record, fieldset, params = {})
         h = super
-        h[:type] = record.type
+        h[:type] = record.class.name.split('::').last.underscore.to_sym
         h
       end
     end

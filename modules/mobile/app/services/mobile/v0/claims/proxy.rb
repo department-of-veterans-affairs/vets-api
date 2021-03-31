@@ -18,9 +18,15 @@ module Mobile
           full_list = []
           errors = []
 
-          claims[:errors].nil? ? full_list.push(claims[:list]) : errors.push(claims[:errors])
-          appeals[:errors].nil? ? full_list.push(appeals[:list]) : errors.push(appeals[:errors])
-          data = serialize_list(full_list.flatten)
+          claims[:errors].nil? ? full_list.push(*claims[:list]) : errors.push(claims[:errors])
+          appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
+          data = Mobile::V0::Adapters::ClaimsOverview.new.parse(full_list)
+
+          options = {
+            meta: {
+              errors: errors
+            }
+          }
 
           status = case errors.size
                    when 1
@@ -31,7 +37,7 @@ module Mobile
                      :ok
                    end
 
-          { data: data, errors: errors, status: status }
+          [Mobile::V0::ClaimOverviewSerializer.new(data, options), status]
         end
 
         def get_claim(id)
@@ -140,8 +146,8 @@ module Mobile
         end
 
         def serialize_list(full_list)
-          adapted_full_list = full_list.map { |entry| Mobile::V0::Adapters::ClaimsOverview.new.parse(entry) }
-          adapted_full_list = adapted_full_list.sort_by { |entry| entry[:updated_at] }.reverse!
+          adapted_full_list = Mobile::V0::Adapters::ClaimsOverview.new.parse(full_list)
+          adapted_full_list = adapted_full_list.sort_by { |entry| entry.updated_at }.reverse!
           adapted_full_list.map do |entry|
             JSON.parse(Mobile::V0::ClaimOverviewSerializer.new(entry).serialized_json)['data']
           end
