@@ -756,8 +756,8 @@ RSpec.describe User, type: :model do
           expect(user.birth_date).to eq nil
         end
 
-        it 'does not equal 400' do
-          expect(user.birth_date).not_to eq 400
+        it 'does not equal 500' do
+          expect(user.birth_date).not_to eq 500
         end
       end
     end
