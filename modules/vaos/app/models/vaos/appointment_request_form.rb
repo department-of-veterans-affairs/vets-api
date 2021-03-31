@@ -59,7 +59,7 @@ module VAOS
       @appointment_request_id = @id # ensure these are the same (and the FE doesn't have to pass in redundant data)
       @unique_id = @id # ensure these are the same (and the FE doesn't have to pass in redundant data)
       @date = Time.current.strftime('%Y-%m-%dT%H:%M:%S.%L%z') if @id.blank? # only set for create in proper format
-      @patient_id = edipi
+      @patient_id = user.edipi_mpi
       super(json_hash)
     end
 
