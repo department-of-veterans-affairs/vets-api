@@ -52,10 +52,9 @@ jobs:
       - name: Setup database
         env:
           RAILS_ENV: test
-          POSTGRES_HOST: postgres
           POSTGRES_USER: postgres
+          POSTGRES_DB: vets-api_test          
           POSTGRES_PASSWORD: ""
-          POSTGRES_DB: vets-api_test
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
         run: bundle exec rake db:create db:schema:load
       - name: Run Specs
