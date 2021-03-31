@@ -11,6 +11,7 @@ jobs:
       PGHOST: postgres
       PGUSER: vets-api
       RAILS_ENV: test
+      "Settings.test_database_url": "postgis://vets-api:postgres@postgres:5432/vets_api_test"     
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.binaries.clamdscan": "clamscan"
