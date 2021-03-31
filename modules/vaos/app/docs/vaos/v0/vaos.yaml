@@ -134,6 +134,18 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/facilities/limits':
     get:
       tags:
@@ -185,7 +197,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"          
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/systems':
     get:
       tags:
