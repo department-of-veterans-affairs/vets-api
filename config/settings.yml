@@ -99,7 +99,23 @@ edu:
     pass: ~
     user: ~
     port: ~
-
+  slack:
+    webhook_url: https://example.com
+  spool_error:
+    emails:
+      - Joseph.Preisser@va.gov
+      - Shay.Norton-Leonard@va.gov
+      - PIERRE.BROWN@va.gov
+      - VAVBAHIN/TIMS@vba.va.gov
+      - EDUAPPMGMT.VBACO@VA.GOV
+    staging_emails:
+      - sonntag_adam@bah.com
+      - shawkey_daniel@bah.com
+      - neel_darrell@bah.com
+      - turner_desiree@bah.com
+      - mccurdy_devin@bah.com
+      - roth_matthew@bah.com
+      - delli-gatti_michael@bah.com
 dependents:
   prefill: true
 

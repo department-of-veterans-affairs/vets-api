@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
+require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 require_relative '../../../../app/serializers/covid_research/volunteer/name_serializer.rb'
 
 RSpec.describe CovidResearch::Volunteer::NameSerializer do
