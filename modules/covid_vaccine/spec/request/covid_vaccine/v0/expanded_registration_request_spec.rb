@@ -190,5 +190,12 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
         expect(response).to have_http_status(:created)
       end
     end
+
+    it 'accepts submission with a nil country' do
+      attrs = build(:covid_vax_expanded_registration,
+                    raw_options: { 'country_name' => nil }).raw_form_data.symbolize_keys
+      post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+      expect(response).to have_http_status(:created)
+    end
   end
 end
