@@ -116,6 +116,27 @@ module DecisionReview
       end
     end
 
+    ##
+    # Get Contestable Issues for a Notice of Disagreement
+    #
+    # @param user [User] Veteran who the form is in regard to
+    # @return [Faraday::Response]
+    #
+    def get_notice_of_disagreement_contestable_issues(user:)
+      with_monitoring_and_error_handling do
+        path = 'notice_of_disagreements/contestable_issues'
+        headers = get_contestable_issues_headers(user)
+        response = perform :get, path, nil, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema(
+          json: response.body,
+          schema: Schemas::NOD_CONTESTABLE_ISSUES_RESPONSE_200,
+          append_to_error_class: ' (NOD)'
+        )
+        response
+      end
+    end
+
     private
 
     def create_higher_level_review_headers(user)
