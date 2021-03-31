@@ -1,5 +1,14 @@
 <%= header %>
-<%= benefit_type %>
+*INIT*
+<%= @applicant.veteranFullName.first %>
+<%= @applicant.veteranFullName.middle %>
+<%= @applicant.veteranFullName.last %>
+<%= @applicant.veteranSocialSecurityNumber %>
+<%= @applicant.veteranSocialSecurityNumber %>
+V1990S
+
+<%= @applicant.providerName %>
+VRRAP
 *START*
 VA Form 22-1990S
 MAR 2021
@@ -10,9 +19,9 @@ APPLICATION FOR VETERAN RAPID RETRAINING ASSISTANCE PROGRAM
                         APPLICANT INFORMATION
                         ---------------------
 
-Social Security Number: <%= applicant_ssn(@applicant.veteranSocialSecurityNumber) %>
+Social Security Number: <%= @applicant.veteranSocialSecurityNumber %>
 
-Name: <%= applicant_name(@applicant.veteranFullName) %>
+Name: <%= @applicant.veteranFullName %>
 
 Date of Birth: <%= @applicant.dateOfBirth %>
 
