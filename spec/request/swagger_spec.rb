@@ -494,13 +494,13 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       context 'financial status report create' do
         it 'validates the route' do
           VCR.use_cassette('dmc/submit_fsr') do
-            VCR.use_cassette('dmc/find_person_by_participant_id') do
+            VCR.use_cassette('bgs/people_service/person_data') do
               expect(subject).to validate(
                 :post,
                 '/v0/financial_status_reports',
                 200,
                 headers.merge(
-                  '_data' => fsr_data.to_json
+                  '_data' => fsr_data
                 )
               )
             end
