@@ -80,7 +80,7 @@ module MPI
 
       def build_mvi_profile(patient)
         historical_icns = @original_body.locate(HISTORICAL_ICN_XPATH)
-        profile_identity_hash = create_mvi_profile_identity(locate_element(patient, PATIENT_PERSON_PREFIX))
+        profile_identity_hash = create_mvi_profile_identity(patient, PATIENT_PERSON_PREFIX)
         profile_ids_hash = create_mvi_profile_ids(patient, historical_icns)
         misc_hash = {
           search_token: locate_element(@original_body, 'id').attributes[:extension],
@@ -96,13 +96,14 @@ module MPI
 
       def build_relationship_mvi_profile(relationship)
         relationship_component = locate_element(relationship, RELATIONSHIP_PREFIX)
-        relationship_identity_hash = create_mvi_profile_identity(relationship_component)
+        relationship_identity_hash = create_mvi_profile_identity(relationship, RELATIONSHIP_PREFIX)
         relationship_ids_hash = create_mvi_profile_ids(relationship_component)
 
         MPI::Models::MviProfileRelationship.new(relationship_identity_hash.merge(relationship_ids_hash))
       end
 
-      def create_mvi_profile_identity(person_component)
+      def create_mvi_profile_identity(person, person_prefix)
+        person_component = locate_element(person, person_prefix)
         name = parse_name(locate_element(person_component, NAME_XPATH))
 
         {
@@ -113,7 +114,7 @@ module MPI
           birth_date: locate_element(person_component, DOB_XPATH),
           ssn: parse_ssn(locate_element(person_component, SSN_XPATH)),
           address: parse_address(person_component),
-          home_phone: parse_phone(person_component),
+          home_phone: parse_phone(person, person_prefix),
           person_type_code: nil
         }
       end
@@ -200,8 +201,8 @@ module MPI
         MPI::Models::MviProfileAddress.new(address_hash)
       end
 
-      def parse_phone(person)
-        el = locate_element(person, PHONE)
+      def parse_phone(person, person_prefix)
+        el = locate_element(person, PHONE) || locate_element(person, person_prefix + PHONE)
         return nil unless el
 
         el.attributes[:value]

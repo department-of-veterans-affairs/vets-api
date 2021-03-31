@@ -6,7 +6,7 @@ require_relative 'mvi_profile_address'
 module MPI
   module Models
     module MviProfileIdentity
-      include Virtus.model
+      include Virtus.module
 
       attribute :given_names, Array[String]
       attribute :family_name, String

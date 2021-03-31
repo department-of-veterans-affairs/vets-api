@@ -3,7 +3,7 @@
 module MPI
   module Models
     module MviProfileIds
-      include Virtus.model
+      include Virtus.module
 
       attribute :full_mvi_ids, Array[String]
       attribute :icn, String

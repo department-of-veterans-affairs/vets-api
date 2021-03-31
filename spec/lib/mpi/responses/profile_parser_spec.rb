@@ -165,7 +165,7 @@ describe MPI::Responses::ProfileParser do
       let(:mpi_profile_relationship_component) do
         build(
           :mpi_profile_relationship,
-          person_type_code: 'DEL',
+          person_type_code: nil,
           given_names: %w[Mark],
           family_name: 'Webb',
           suffix: 'Jr',
