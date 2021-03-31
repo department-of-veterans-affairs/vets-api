@@ -50,8 +50,7 @@ jobs:
       - name: Install Dependencies
         run: bundle install --path vendor/bundle
       - name: Lint code with Rubocop
-        run: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress --format RuboCop::Formatter::JUnitFormatter --out ./ci/rubocop.xml --format html --out ./ci/rubocop.html
-#       - name: Setup database
+        run: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress
 #         env:
 #           RAILS_ENV: test
 #           POSTGRES_USER: postgres
