@@ -121,7 +121,7 @@ RSpec.describe EVSSClaimDocumentUploader do
       },
       {
         path: 'evss_claim/image.TIF',
-        final_filename: 'converted_image_TIF.jpg',
+        final_filename: 'converted_image_TIF.jpeg',
         description: 'ext and filetype match /BUT/ tifs not allowed',
         binary_or_name_changes: true
       },
@@ -133,7 +133,7 @@ RSpec.describe EVSSClaimDocumentUploader do
       },
       {
         path: 'evss_claim/secretly_a_tif.jpg',
-        final_filename: 'converted_secretly_a_tif.jpeg',
+        final_filename: 'converted_secretly_a_tif.jpg',
         description: "converted, but file extension doesn't change",
         binary_or_name_changes: true
       }
