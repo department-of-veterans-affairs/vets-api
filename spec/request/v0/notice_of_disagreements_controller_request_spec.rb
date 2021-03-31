@@ -9,8 +9,6 @@ RSpec.describe V0::NoticeOfDisagreementsController, type: :request do
 
   before { sign_in_as(user) }
 
-  it('is present') { expect(described_class).to be_truthy }
-
   describe '#create' do
     def personal_information_logs
       PersonalInformationLog.where 'error_class like ?', 'V0::NoticeOfDisagreementsController#create exception % (NOD)'
@@ -48,6 +46,20 @@ RSpec.describe V0::NoticeOfDisagreementsController, type: :request do
         %w[message backtrace key response_values original_status original_body]
           .each { |key| expect(pil.data['error'][key]).to be_truthy }
         expect(pil.data['additional_data']['request']['body']).not_to be_empty
+      end
+    end
+  end
+
+  describe '#show' do
+    subject { get "/v0/notice_of_disagreements/#{uuid}" }
+
+    let(:uuid) { '1234567a-89b0-123c-d456-789e01234f56' }
+
+    it 'shows an HLR' do
+      VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200') do
+        subject
+        expect(response).to be_successful
+        expect(JSON.parse(response.body)['data']['id']).to eq uuid
       end
     end
   end

@@ -56,4 +56,8 @@ module DecisionReview::Schemas
   NOD_SHOW_RESPONSE_200['$ref'] = '#/definitions/root'
 
   NOD_CREATE_RESPONSE_200 = NOD_SHOW_RESPONSE_200
+
+  NOD_CONTESTABLE_ISSUES_RESPONSE_200 = JSON.parse File.read(
+    Rails.root.join('lib', 'decision_review', 'schemas', 'NOD_contestable_issues_response_200_body_schema.json')
+  )
 end
