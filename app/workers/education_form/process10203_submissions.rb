@@ -8,7 +8,7 @@ module EducationForm
   class FormattingError < StandardError
   end
 
-  class Process10203SubmissionsLogging < StandardError
+  class Process10203EVSSError < StandardError
   end
 
   class Process10203Submissions
@@ -81,7 +81,7 @@ module EducationForm
       service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
       service.get_gi_bill_status(auth_headers)
     rescue => e
-      Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
+      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve GiBillStatus data: #{e.message}"))
       {}
     end
 
@@ -92,7 +92,7 @@ module EducationForm
       service = EVSS::VSOSearch::Service.new(nil, auth_headers)
       service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
-      Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
+      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}"))
       nil
     end
 
@@ -201,7 +201,7 @@ module EducationForm
     end
 
     def log_info(message)
-      log_exception_to_sentry(Process10203SubmissionsLogging.new(message), {}, {}, :info)
+      logger.info(message)
     end
   end
 end

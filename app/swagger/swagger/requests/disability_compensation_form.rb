@@ -21,7 +21,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :RatedDisabilities
+              key :$ref, :RatedDisabilities
             end
           end
         end
@@ -49,7 +49,7 @@ module Swagger
           response 200 do
             key :description, 'Returns a list of conditions'
             schema do
-              key :'$ref', :SuggestedConditions
+              key :$ref, :SuggestedConditions
             end
           end
         end
@@ -73,14 +73,14 @@ module Swagger
             key :description, 'Disability Compensation form data'
             key :required, true
             schema do
-              key :'$ref', :Form526SubmitV2
+              key :$ref, :Form526SubmitV2
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :SubmitDisabilityForm
+              key :$ref, :SubmitDisabilityForm
             end
           end
         end
@@ -109,7 +109,7 @@ module Swagger
           response 200 do
             key :description, 'Returns the status of a given submission'
             schema do
-              key :'$ref', :JobStatus
+              key :$ref, :JobStatus
             end
           end
         end
@@ -129,7 +129,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :RatingInfo
+              key :$ref, :RatingInfo
             end
           end
         end
@@ -150,7 +150,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :SeparationLocations
+              key :$ref, :SeparationLocations
             end
           end
 
@@ -158,7 +158,7 @@ module Swagger
             key :description, 'forbidden user'
 
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
         end

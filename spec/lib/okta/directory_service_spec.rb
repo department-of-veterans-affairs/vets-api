@@ -11,19 +11,19 @@ RSpec.describe Okta::DirectoryService do
     {
       'body' => [
         {
-          'id': 'dsfdsafdsfdsl',
-          'name': 'launch/patient',
-          'displayName': 'Patient ID',
-          'description': 'Your unique VA ID number....',
-          'system': false,
-          'metadataPublish': 'ALL_CLIENTS',
-          'consent': 'REQUIRED',
-          'default': false,
-          '_links': {
-            'self': {
-              'href': 'fakewebsite',
-              'hints': {
-                'allow': %w[
+          id: 'dsfdsafdsfdsl',
+          name: 'launch/patient',
+          displayName: 'Patient ID',
+          description: 'Your unique VA ID number....',
+          system: false,
+          metadataPublish: 'ALL_CLIENTS',
+          consent: 'REQUIRED',
+          default: false,
+          _links: {
+            self: {
+              href: 'fakewebsite',
+              hints: {
+                allow: %w[
                   GET
                   PUT
                   DELETE
@@ -33,19 +33,19 @@ RSpec.describe Okta::DirectoryService do
           }
         },
         {
-          'id': 'fdsafdsaff',
-          'name': 'patient/AllergyIntolerance.read',
-          'displayName': 'Allergies',
-          'description': 'A list of any substances.....',
-          'system': false,
-          'metadataPublish': 'ALL_CLIENTS',
-          'consent': 'REQUIRED',
-          'default': false,
-          '_links': {
-            'self': {
-              'href': 'fakewebsite',
-              'hints': {
-                'allow': %w[
+          id: 'fdsafdsaff',
+          name: 'patient/AllergyIntolerance.read',
+          displayName: 'Allergies',
+          description: 'A list of any substances.....',
+          system: false,
+          metadataPublish: 'ALL_CLIENTS',
+          consent: 'REQUIRED',
+          default: false,
+          _links: {
+            self: {
+              href: 'fakewebsite',
+              hints: {
+                allow: %w[
                   GET
                   PUT
                   DELETE
@@ -55,19 +55,19 @@ RSpec.describe Okta::DirectoryService do
           }
         },
         {
-          'id': 'fdsafdsaff',
-          'name': 'email',
-          'displayName': 'email',
-          'description': 'email',
-          'system': false,
-          'metadataPublish': 'ALL_CLIENTS',
-          'consent': 'REQUIRED',
-          'default': false,
-          '_links': {
-            'self': {
-              'href': 'fakewebsite',
-              'hints': {
-                'allow': %w[
+          id: 'fdsafdsaff',
+          name: 'email',
+          displayName: 'email',
+          description: 'email',
+          system: false,
+          metadataPublish: 'ALL_CLIENTS',
+          consent: 'REQUIRED',
+          default: false,
+          _links: {
+            self: {
+              href: 'fakewebsite',
+              hints: {
+                allow: %w[
                   GET
                   PUT
                   DELETE

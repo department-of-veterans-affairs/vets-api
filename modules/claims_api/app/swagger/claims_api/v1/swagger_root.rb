@@ -22,22 +22,22 @@ module ClaimsApi
 
         tag do
           key :name, 'Claims'
-          key :description, 'Benefits Claims'
+          key :description, 'Allows authenticated and authorized users to access claims data for a single claim by ID, or for all claims based on Veteran data. No data is returned if the user is not authenticated and authorized.'
         end
 
         tag do
           key :name, 'Disability'
-          key :description, '526 Claim Submissions'
+          key :description, 'Used for 526 claims.'
         end
 
         tag do
           key :name, 'Intent to File'
-          key :description, '0966 Submissions'
+          key :description, 'Used for 0966 submissions.'
         end
 
         tag do
           key :name, 'Power of Attorney'
-          key :description, '2122 Submissions'
+          key :description, 'Used for 21-22 and 21-22a form submissions.'
         end
 
         server do

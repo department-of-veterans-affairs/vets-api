@@ -24,7 +24,7 @@ module Swagger
           response 200 do
             key :description, 'Successful forms query'
             schema do
-              key :'$ref', :Forms
+              key :$ref, :Forms
             end
           end
         end

@@ -8,13 +8,12 @@ module Sentry
 
       # largely duplicated code from from the raven-ruby lib as recommended in their doc
       # https://github.com/getsentry/raven-ruby/blob/master/lib/raven/processor/utf8conversion.rb#L9
-      # rubocop:disable Metrics/CyclomaticComplexity
       def process(value)
         case value
         when Hash
-          !value.frozen? ? value.merge!(value) { |_, v| process v } : value.merge(value) { |_, v| process v }
+          value.frozen? ? value.merge(value) { |_, v| process v } : value.merge!(value) { |_, v| process v }
         when Array
-          !value.frozen? ? value.map! { |v| process v } : value.map { |v| process v }
+          value.frozen? ? value.map { |v| process v } : value.map! { |v| process v }
         when Exception
           sanitized_exception(value)
         when String
@@ -23,7 +22,6 @@ module Sentry
           value
         end
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
 
       private
 
