@@ -1,0 +1,163 @@
+
+fixture_1:
+  eligibility_info:
+    icn: 1011216309V534497
+  raw_form_data:
+    first_name: Fred
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Male
+    birth_date: '1953-03-04'
+    ssn: '666328412'
+    address_line1: 9371 Signal Station Dr
+    city: Manassas
+    state_code: VA
+    zip_code: '20111-8258'
+    country_name: USA
+    email_address: Fred.Regpatient@va.gov
+    phone: 888-123-0001
+    preferred_facility: '523'
+fixture_2:
+  eligibility_info:
+    icn: 1013048546V390049
+  raw_form_data:
+    first_name: Patty
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Female
+    birth_date: '1987-03-22'
+    ssn: '666059255'
+    address_line1: 3433 THIRD ST
+    city: ST PETERSBURG
+    state_code: FL
+    zip_code: '33701'
+    country_name: USA
+    email_address: Patty.Regpatient@va.gov
+    phone: 888-123-0002
+    preferred_facility: '674'
+fixture_3:
+  eligibility_info:
+    icn: 1013124799V130873
+  raw_form_data:
+    first_name: Sally
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Female
+    birth_date: '1980-03-11'
+    ssn: '661059120'
+    address_line1: 10307 VENITIA REAL AVE APT 202
+    city: TAMPA
+    state_code: FL
+    zip_code: '33647-4010'
+    country_name: USA
+    email_address: Sally.Regpatient@va.gov
+    phone: 888-123-0003
+    preferred_facility: '528A7'
+fixture_4:
+  eligibility_info:
+    icn: 1013466806V345060
+  raw_form_data:
+    first_name: Martin
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Male
+    birth_date: '1950-01-01'
+    ssn: '669029484'
+    address_line1: 10307 Venitia Real Ave Apt 201
+    city: Tampa
+    state_code: FL
+    zip_code: '33647-4010'
+    country_name: USA
+    email_address: Martin.Regpatient@va.gov
+    phone: 888-123-0004
+    preferred_facility: '612A4'
+fixture_5:
+  eligibility_info:
+    icn: 1013180344V903214
+  raw_form_data:
+    first_name: Alfred
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Male
+    birth_date: '1978-02-11'
+    ssn: '628503403'
+    address_line1: 810 Vermont Ave
+    city: Washington
+    state_code: DC
+    zip_code: '20001'
+    country_name: USA
+    email_address: Alfred.Regpatient@va.gov
+    phone: 888-123-0005
+    preferred_facility: '623'
+fixture_6:
+  eligibility_info:
+    icn: 1011190932V659004
+  raw_form_data:
+    first_name: Six
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Male
+    birth_date: '1907-12-31'
+    ssn: '666384023'
+    address_line1: 3422 GREENE ST
+    city: TAMPA
+    state_code: FL
+    zip_code: '33615'
+    country_name: USA
+    email_address: Six.Regpatient@va.gov
+    phone: 888-123-0006
+    preferred_facility: '757'
+fixture_7:
+  eligibility_info:
+    icn: 1012894957V497399
+  raw_form_data:
+    first_name: Joey
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Male
+    birth_date: '1950-11-18'
+    ssn: '620589933'
+    address_line1: 44 DENSTRATH RD
+    city: EDZELL
+    state_code: SCOTLAND
+    zip_code: '0368918'
+    country_name: GBR
+    email_address: Joey.Regpatient@va.gov
+    phone: 888-123-0007
+    preferred_facility: '648'
+fixture_8:
+  eligibility_info:
+    icn: 1013220419V930463
+  raw_form_data:
+    first_name: Vetcheck
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Female
+    birth_date: '1960-03-01'
+    ssn: '662049004'
+    address_line1: Unknown
+    city: Unknown
+    state_code: Unknown  
+    zip_code: 'Unkown'
+    country_name: Unknown
+    email_address: Vetcheck.Regpatient@va.gov
+    phone: 888-123-0008
+    preferred_facility: '989'
+fixture_9:
+  eligibility_info:
+    icn: 1013126026V456239
+  raw_form_data:
+    first_name: Gary
+    middle_name: 
+    last_name: Regpatient
+    birth_sex: Male
+    birth_date: '1975-03-01'
+    ssn: '661035829'
+    address_line1: 3305 W Alline Ave
+    city: Tampa
+    state_code: FL
+    zip_code: '33611-2721'
+    country_name: USA
+    email_address: Gary.Regpatient@va.gov
+    phone: 888-123-0009
+    preferred_facility: '989'

@@ -30,11 +30,11 @@ module Swagger
 
       swagger_schema :PersonalData do
         property :veteran_full_name, type: :object do
-          key :'$ref', :FullName
+          key :$ref, :FullName
         end
 
         property :address, type: :object do
-          key :'$ref', :Address
+          key :$ref, :Address
         end
 
         property :telephone_number, type: :string
@@ -43,7 +43,7 @@ module Swagger
         property :married, type: :boolean
 
         property :spouse_full_name, type: :object do
-          key :'$ref', :FullName
+          key :$ref, :FullName
         end
 
         property :ages_of_other_dependents, type: :array do
@@ -61,7 +61,7 @@ module Swagger
             property :present, type: :boolean
             property :employer_name, type: :string
             property :employer_address, type: :object do
-              key :'$ref', :Address
+              key :$ref, :Address
             end
           end
         end
@@ -132,7 +132,7 @@ module Swagger
       swagger_schema :InstallmentContractsAndOtherDebts do
         property :creditor_name, type: :string
         property :creditor_address, type: :object do
-          key :'$ref', :Address
+          key :$ref, :Address
         end
         property :date_started, type: :string
         property :purpose, type: :string
@@ -163,43 +163,43 @@ module Swagger
         key :required, [:personal_identification]
 
         property :personal_identification, type: :object do
-          key :'$ref', :PersonalIdentification
+          key :$ref, :PersonalIdentification
         end
 
         property :personal_data, type: :object do
-          key :'$ref', :PersonalData
+          key :$ref, :PersonalData
         end
 
         property :income, type: :array do
           items do
-            key :'$ref', :Income
+            key :$ref, :Income
           end
         end
 
         property :expenses, type: :object do
-          key :'$ref', :Expenses
+          key :$ref, :Expenses
         end
 
         property :discretionary_income, type: :object do
-          key :'$ref', :DiscretionaryIncome
+          key :$ref, :DiscretionaryIncome
         end
 
         property :assets, type: :object do
-          key :'$ref', :Assets
+          key :$ref, :Assets
         end
 
         property :installment_contracts_and_other_debts, type: :array do
           items do
-            key :'$ref', :InstallmentContractsAndOtherDebts
+            key :$ref, :InstallmentContractsAndOtherDebts
           end
         end
 
         property :total_of_installment_contracts_and_other_debts, type: :object do
-          key :'$ref', :TotalOfInstallmentContractsAndOtherDebts
+          key :$ref, :TotalOfInstallmentContractsAndOtherDebts
         end
 
         property :additional_data do
-          key :'$ref', :AdditionalData
+          key :$ref, :AdditionalData
         end
       end
     end

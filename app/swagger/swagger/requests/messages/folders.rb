@@ -19,7 +19,7 @@ module Swagger
               key :description, 'folders response'
 
               schema do
-                key :'$ref', :Folders
+                key :$ref, :Folders
               end
             end
           end
@@ -39,7 +39,7 @@ module Swagger
               key :description, 'folder messages response'
 
               schema do
-                key :'$ref', :Messages
+                key :$ref, :Messages
               end
             end
 
@@ -47,7 +47,7 @@ module Swagger
               key :description, 'folder show messages response error'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -65,7 +65,7 @@ module Swagger
               key :description, 'folder show response'
 
               schema do
-                key :'$ref', :Folder
+                key :$ref, :Folder
               end
             end
 
@@ -73,7 +73,7 @@ module Swagger
               key :description, 'folder show response error'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -96,7 +96,7 @@ module Swagger
               key :description, 'create folder response'
 
               schema do
-                key :'$ref', :Folder
+                key :$ref, :Folder
               end
             end
           end
@@ -118,7 +118,7 @@ module Swagger
               key :description, 'folder delete response error'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
