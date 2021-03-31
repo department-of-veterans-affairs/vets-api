@@ -9,9 +9,9 @@ module EducationForm::Forms
     LEARNING_FORMAT = {
       'inPerson': 'In person',
       'online': 'Online',
-      'onlineAndInPerson': 'Online and in person',
+      'onlineAndInPerson': 'Online and in person'
     }.freeze
-    
+
     def applicant_ssn
       @applicant.veteranSocialSecurityNumber
     end
@@ -25,7 +25,7 @@ module EducationForm::Forms
 
       "#{@applicant.programCity}, #{@applicant.programState}"
     end
-    
+
     def full_address_with_street3(address, indent: false)
       return '' if address.nil?
 
@@ -38,6 +38,5 @@ module EducationForm::Forms
         address.country
       ].compact.join(seperator).upcase
     end
-
   end
 end
