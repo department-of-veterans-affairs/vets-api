@@ -20,6 +20,13 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: vets-api_test
+          BUNDLE_JOBS: 2
+          BUNDLE_RETRY: 3
+          LANG: en_US.UTF-8
+          RAILS_ENV: test
+          "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+          "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+          "Settings.binaries.clamdscan": "clamscan"
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
@@ -49,6 +56,12 @@ jobs:
         POSTGRES_PASSWORD: ""
         POSTGRES_DB: vets-api_test
         POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+        BUNDLE_JOBS: 2
+        BUNDLE_RETRY: 3
+        LANG: en_US.UTF-8
+        "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+        "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+         "Settings.binaries.clamdscan": "clamscan"        
       run: |
         bundle exec rails db:create
         bundle exec rails db:schema:load
