@@ -108,6 +108,7 @@ class FormProfile
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
+    '10182' => ::FormProfiles::VA10182,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '22-1990' => ::FormProfiles::VA1990,
