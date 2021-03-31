@@ -11,6 +11,8 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
   end
 
   describe '#update' do
+    # TODO dry
+    # TODO validations
     it 'updates a communication_permission', run_at: '2021-03-24T23:46:17Z' do
       VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
         patch(
