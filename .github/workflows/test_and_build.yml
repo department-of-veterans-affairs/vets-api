@@ -2,11 +2,6 @@ name: test_and_build
 on: [push]
 jobs:
   linting:
-
-    strategy:
-      matrix:
-        ruby: [2.6.6]
-
     runs-on: ubuntu-latest
     container: circleci/ruby:2.6.6-stretch
     env:
@@ -39,16 +34,26 @@ jobs:
       # See https://docs.github.com/actions/reference/virtual-environments-for-github-hosted-runners#docker-container-filesystem
       - name: Setup file system permissions
         run: sudo chmod -R 777 $GITHUB_WORKSPACE /github /__w/_temp
+     
       - uses: actions/checkout@v2 #checkout step
       - name: Install dependencies (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
+
       - name: Gem Cache
         uses: actions/cache@v2
         with:
           path: vendor/bundle
           key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
+
       - name: Install Dependencies
         run: bundle install --path vendor/bundle
+  
+      - name: Audit bundled gems for CVE issues
+        run:  bundle exec bundle-audit check --update
+        
+      - name: Static security analysis using Brakeman
+        run:  bundle exec brakeman --exit-on-warn --run-all-checks --confidence-level=2
+ 
       - name: Lint code with Rubocop
         run: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress
 #         env:
