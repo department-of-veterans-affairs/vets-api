@@ -15,9 +15,9 @@ module VBADocuments
       fetch_settings
       Rails.logger.info('VBADocuments::SlackNotifier starting.')
       begin
-        results = {long_flyers_alerted: long_flyers_alert,
-                   upload_stalled_alerted: upload_stalled_alert,
-                   daily_notification: daily_notification}
+        results = { long_flyers_alerted: long_flyers_alert,
+                    upload_stalled_alerted: upload_stalled_alert,
+                    daily_notification: daily_notification }
       rescue => e
         results = e
       end
@@ -36,7 +36,7 @@ module VBADocuments
     private
 
     def daily_notification
-      hour = Time.now.utc.hour + Time.zone_offset('EST')/(60*60)
+      hour = Time.now.utc.hour + Time.zone_offset('EST') / (60 * 60)
       if hour.eql?(@daily_notification_hour)
         text = "Daily Status (worst offenders over past week):\n"
         statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded']
@@ -101,7 +101,7 @@ module VBADocuments
       statuses.each do |status|
         status_counts[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status).count
         alerting_on[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status)
-                                  .limit(AGED_PROCESSING_QUERY_LIMIT).select do |m|
+                                              .limit(AGED_PROCESSING_QUERY_LIMIT).select do |m|
           last_notified = m.metadata['last_slack_notification'].to_i # nil to zero
           delta = Time.now.to_i - last_notified
           notify = delta > @renotify_time * 60
