@@ -54,7 +54,7 @@ module CovidVaccine
       private
 
       def country_us?
-        raw_form_data[:country_name] == 'USA'
+        raw_form_data['country_name'] == 'USA'
       end
     end
   end
