@@ -52,6 +52,14 @@ module Mobile
         value&.to_h&.slice(*keys)
       end
 
+      # def facility(facility_id)
+      #   cerner_facility_ids = user.va_profile.cerner_facility_ids || []
+      #   {
+      #     facility_id: facility_id,
+      #     is_cerner: cerner_facility_ids.include?(facility_id)
+      #   }
+      # end
+
       attribute :profile do |user|
         {
           first_name: user.first_name,
@@ -67,6 +75,7 @@ module Mobile
           mobile_phone_number: filter_keys(user.vet360_contact_info&.mobile_phone, PHONE_KEYS),
           work_phone_number: filter_keys(user.vet360_contact_info&.work_phone, PHONE_KEYS),
           fax_number: filter_keys(user.vet360_contact_info&.fax_number, PHONE_KEYS)
+          # health_facilities: user.va_treatment_facility_ids.map { |id| facility(id) }
         }
       end
 
