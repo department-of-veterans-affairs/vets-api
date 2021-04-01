@@ -3,7 +3,7 @@
 module EducationForm::Forms
   class VA1990s < Base
     def header_form_type
-      '1990S'
+      'V1990S'
     end
 
     LEARNING_FORMAT = {
