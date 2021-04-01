@@ -21,6 +21,14 @@ describe CovidVaccine::V0::FacilityResolver do
       end
     end
 
+    describe 'submission includes unmapped facility name' do
+      it 'returns nil' do
+        sub = create(:covid_vax_expanded_registration,
+                     raw_options: { 'preferred_facility' => 'Fake VA Medical Center' })
+        expect(subject.resolve(sub)).to be_nil
+      end
+    end
+
     describe 'submission includes ambiguous facility name' do
       it 'returns the closest facility by zip for Fayetteville NC' do
         VCR.use_cassette('covid_vaccine/facilities/query_27330', match_requests_on: %i[path query]) do
