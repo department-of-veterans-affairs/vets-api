@@ -54,6 +54,7 @@
                     <family>LITTLE</family>
                     <suffix>JR</suffix>
                   </name>
+                  <telecom value="1112223333" use="HP"/>
                   <administrativeGenderCode code="M"/>
                   <birthTime value="19901004"/>
                   <multipleBirthInd value="false"/>
