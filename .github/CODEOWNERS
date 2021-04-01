@@ -29,6 +29,7 @@ lib/saml @department-of-veterans-affairs/vsp-identity
 # covid_vaccine product
 modules/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 spec/support/*/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
+rakelib/covid_vaccine.rake @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
 
 # health_quest product
 modules/health_quest  @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
