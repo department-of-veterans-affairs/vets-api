@@ -647,7 +647,7 @@ GEM
     raabro (1.1.6)
     racc (1.5.2)
     rack (2.2.3)
-    rack-attack (6.2.2)
+    rack-attack (6.5.0)
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
