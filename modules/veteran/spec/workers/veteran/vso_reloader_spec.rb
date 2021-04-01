@@ -55,7 +55,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
 
     context 'with an client error' do
       before do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Common::Client::Errors::ClientError)
       end
 
       it 'notifies slack' do
