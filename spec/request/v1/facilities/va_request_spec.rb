@@ -5,12 +5,6 @@ require 'rails_helper'
 RSpec.shared_examples 'paginated request from params with expected IDs' do |request_params, ids, mobile = nil|
   let(:params) { request_params }
 
-  it 'self has instrument method' do
-    expect(
-      $LOADED_FEATURES.grep(%r{rspec-instrumentation-matcher-0\.0\.9/lib/rspec-instrumentation-matcher\.rb})
-    ).to be_present
-  end
-
   context request_params do
     before do
       get '/v1/facilities/va', params: params
