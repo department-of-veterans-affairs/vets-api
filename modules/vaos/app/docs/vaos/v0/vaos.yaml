@@ -283,6 +283,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"        
   '/facilities/{facility_id}/cancel_reasons':
     get:
       tags:
