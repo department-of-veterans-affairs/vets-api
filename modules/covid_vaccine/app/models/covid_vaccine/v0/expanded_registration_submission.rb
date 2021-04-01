@@ -8,18 +8,18 @@ module CovidVaccine
       aasm(:state) do
         # Fire off job for email confirmation to the user that submission has been received
         # Fire off job to determine EMIS eligibility to kick off after hours; transition to eligible or ineligible
-        state :sequestered, initial: true
+        state :received, initial: true
         state :eligible, :ineligible, :enrollment_pending, :enrollment_complete,
               :enrollment_failed, :registered
 
         # ICN and EMIS lookup both satisfactory or no lookup possible; transitions to eligible
-        event :emis_eligibility_criteria_passed do
-          transitions from: :sequestered, to: :eligible
+        event :eligibility_passed do
+          transitions from: :received, to: :eligible
         end
 
         # ICN and EMIS returns unsatisfatory eligibility results; transitions to ineligible
-        event :emis_eligibility_failed do
-          transitions from: :sequestered, to: :ineligible
+        event :eligibility_failed do
+          transitions from: :received, to: :ineligible
         end
 
         # Batch id is updated based on time that batch was submitted; transitions to enrollment_pending
@@ -28,7 +28,7 @@ module CovidVaccine
         end
 
         # Enrollment returned a success; transitions to enrollment_complete
-        event :enrolled_successfully do
+        event :detected_enrollment do
           transitions from: :enrollment_pending, to: :enrollment_complete
         end
 

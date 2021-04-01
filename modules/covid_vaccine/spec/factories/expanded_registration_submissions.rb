@@ -7,7 +7,7 @@
 FactoryBot.define do
   factory :covid_vax_expanded_registration, class: 'CovidVaccine::V0::ExpandedRegistrationSubmission' do
     submission_uuid { SecureRandom.uuid }
-    state { 'sequestered' }
+    state { 'received' }
     vetext_sid { nil }
     transient do
       base_raw_data {
