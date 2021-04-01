@@ -41,5 +41,27 @@ RSpec.describe Veteran::VSOReloader, type: :job do
         expect(Veteran::Service::Representative.last.poa_codes).to include('091')
       end
     end
+
+    context 'with a failed connection' do
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::ConnectionFailed)
+      end
+
+      it 'notifies slack' do
+        Veteran::VSOReloader.new.perform
+        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      end
+    end
+
+    context 'with an client error' do
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
+      end
+
+      it 'notifies slack' do
+        Veteran::VSOReloader.new.perform
+        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      end
+    end
   end
 end
