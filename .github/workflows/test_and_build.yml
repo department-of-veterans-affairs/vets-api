@@ -3,7 +3,6 @@ on: [push]
 jobs:
   linting:
     runs-on: ubuntu-latest
-    container: circleci/ruby:2.6.6-stretch
     env:
       BUNDLE_JOBS: 2
       BUNDLE_RETRY: 3
@@ -21,7 +20,7 @@ jobs:
         env:
           POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api_test
-          POSTGRES_PASSWORD: ""
+          POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
 
@@ -30,12 +29,8 @@ jobs:
 
 
     steps:
-      # This Docker file changes sets USER to circleci instead of using the default user, so we need to update file permissions for this image to work on GH Actions.
-      # See https://docs.github.com/actions/reference/virtual-environments-for-github-hosted-runners#docker-container-filesystem
-      - name: Setup file system permissions
-        run: sudo chmod -R 777 $GITHUB_WORKSPACE /github /__w/_temp
-     
       - uses: actions/checkout@v2 #checkout step
+      - uses: ruby/setup-ruby@v1      
       - name: Install dependencies (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
 
