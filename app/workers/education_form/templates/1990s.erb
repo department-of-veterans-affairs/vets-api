@@ -21,7 +21,7 @@ APPLICANT INFORMATION
 
 Social Security Number: <%= @applicant.veteranSocialSecurityNumber %>
 
-Name: <%= @applicant.veteranFullName %>
+Name: <%= full_name(@applicant.veteranFullName) %>
 
 Date of Birth: <%= @applicant.dateOfBirth %>
 
@@ -33,8 +33,6 @@ Phone Number: <%= @applicant.mobilePhone %>
 Email Address: <%= @applicant.emailAddress %>
 
 DIRECT DEPOSIT INFORMATION:
-
-Bank Name: <%= @applicant.bankName %>
 
 Account Type: <%= bank_account_type %>
 

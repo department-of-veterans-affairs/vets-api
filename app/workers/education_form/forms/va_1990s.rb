@@ -17,5 +17,23 @@ module EducationForm::Forms
 
       "#{@applicant.programCity}, #{@applicant.programState}"
     end
+
+    def bank_routing_number
+      if @applicant.bankAccount&.routingNumber.present?
+        @applicant.bankAccount.routingNumber
+      end
+    end
+
+    def bank_account_number
+      if @applicant.bankAccount&.accountNumber.present?
+        @applicant.bankAccount.accountNumber
+      end
+    end
+
+    def bank_account_type
+      if @applicant.bankAccount&.accountType.present?
+        @applicant.bankAccount.accountType
+      end
+    end
   end
 end
