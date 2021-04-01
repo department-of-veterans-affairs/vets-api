@@ -7,9 +7,9 @@ module EducationForm::Forms
     end
 
     LEARNING_FORMAT = {
-        'inPerson': 'In person',
-        'online': 'Online',
-        'onlineAndInPerson': 'Online and in person'
+      'inPerson': 'In person',
+      'online': 'Online',
+      'onlineAndInPerson': 'Online and in person'
     }.freeze
 
     def location
@@ -19,21 +19,15 @@ module EducationForm::Forms
     end
 
     def bank_routing_number
-      if @applicant.bankAccount&.routingNumber.present?
-        @applicant.bankAccount.routingNumber
-      end
+      @applicant.bankAccount.routingNumber if @applicant.bankAccount&.routingNumber.present?
     end
 
     def bank_account_number
-      if @applicant.bankAccount&.accountNumber.present?
-        @applicant.bankAccount.accountNumber
-      end
+      @applicant.bankAccount.accountNumber if @applicant.bankAccount&.accountNumber.present?
     end
 
     def bank_account_type
-      if @applicant.bankAccount&.accountType.present?
-        @applicant.bankAccount.accountType
-      end
+      @applicant.bankAccount.accountType if @applicant.bankAccount&.accountType.present?
     end
   end
 end
