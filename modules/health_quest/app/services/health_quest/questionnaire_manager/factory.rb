@@ -21,6 +21,8 @@ module HealthQuest
     #   @return [FHIR::Patient]
     # @!attribute questionnaires
     #   @return [Array]
+    # @!attribute questionnaire_response
+    #   @return [HealthQuest::QuestionnaireResponse]
     # @!attribute questionnaire_responses
     #   @return [Array]
     # @!attribute save_in_progress
@@ -51,6 +53,7 @@ module HealthQuest
       HEALTH_CARE_FORM_PREFIX = 'HC-QSTNR'
       USE_CONTEXT_DELIMITER = ','
       ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
+      SUCCESS_STATUS = '201'
 
       attr_reader :lighthouse_appointments,
                   :locations,
@@ -59,6 +62,7 @@ module HealthQuest
                   :aggregated_data,
                   :patient,
                   :questionnaires,
+                  :questionnaire_response,
                   :questionnaire_responses,
                   :request_threads,
                   :save_in_progress,
@@ -87,6 +91,7 @@ module HealthQuest
       def initialize(user)
         @aggregated_data = default_response
         @user = user
+        @questionnaire_response = HealthQuest::QuestionnaireResponse.new
         @lighthouse_appointment_service = HealthQuest::Resource::Factory.manufacture(appointment_type)
         @location_service = HealthQuest::Resource::Factory.manufacture(location_type)
         @organization_service = HealthQuest::Resource::Factory.manufacture(organization_type)
@@ -117,13 +122,31 @@ module HealthQuest
       end
 
       ##
-      # Create a QuestionnaireResponse resource
+      # Create a QuestionnaireResponse resource in the Lighthouse PGD.
+      # If the resource creation is successful, then store an encrypted snapshot of
+      # the User's demographics and the submitted answers to the Questionnaire so
+      # that we can construct a PDF for the signed in Patient.
       #
       # @param data [Hash] questionnaire answers and appointment data hash.
       # @return [FHIR::ClientReply] an instance of ClientReply
       #
       def create_questionnaire_response(data)
-        questionnaire_response_service.create(data.to_h.with_indifferent_access)
+        attrs = data.to_h.with_indifferent_access
+        response = questionnaire_response_service.create(attrs)
+
+        response.tap do |resp|
+          if resp.response[:code] == SUCCESS_STATUS
+            questionnaire_response.tap do |qr|
+              qr.user_uuid = user.uuid
+              qr.appointment_id = attrs.dig(:appointment, :id)
+              qr.questionnaire_response_id = resp.resource.id
+              qr.user = user
+              qr.questionnaire_response_data = data
+
+              qr.save
+            end
+          end
+        end
       end
 
       ##
