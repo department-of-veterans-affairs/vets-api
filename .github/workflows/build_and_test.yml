@@ -69,7 +69,7 @@ jobs:
       BUNDLE_JOBS: 2
       BUNDLE_RETRY: 3
       LANG: en_US.UTF-8
-      PGHOST: localhost
+      PGHOST: postgres
       PGUSER: vets-api
       RAILS_ENV: test
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"   
