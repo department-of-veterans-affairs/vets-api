@@ -24,6 +24,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
 
       redis:
         image: circleci/redis:3.2-alpine
@@ -69,7 +70,7 @@ jobs:
       BUNDLE_JOBS: 2
       BUNDLE_RETRY: 3
       LANG: en_US.UTF-8
-      PGHOST: postgres
+      PGHOST: localhost
       PGUSER: vets-api
       RAILS_ENV: test
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"   
@@ -86,7 +87,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
-
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
       redis:
         image: circleci/redis:3.2-alpine
 
