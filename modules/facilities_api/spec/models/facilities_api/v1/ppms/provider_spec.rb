@@ -10,7 +10,7 @@ module FacilitiesApi
     end
   end
 
-  RSpec.describe V1::PPMS::Provider, type: :model do
+  RSpec.describe V1::PPMS::Provider, type: :model, team: :facilities do
     context 'Creating' do
       it 'defaults to false' do
         provider = V1::PPMS::Provider.new
@@ -67,7 +67,7 @@ module FacilitiesApi
       it 'sets the provider_type to GroupPracticeOrAgency' do
         provider = V1::PPMS::Provider.new(provider_type: 'SomeType')
         expect(provider.provider_type).to eql('SomeType')
-        provider.set_group_practive_or_agency!
+        provider.set_group_practice_or_agency!
         expect(provider.provider_type).to eql('GroupPracticeOrAgency')
       end
     end

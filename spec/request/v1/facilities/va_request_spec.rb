@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'rspec-instrumentation-matcher'
 
 RSpec.shared_examples 'paginated request from params with expected IDs' do |request_params, ids, mobile = nil|
   let(:params) { request_params }
