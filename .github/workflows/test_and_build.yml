@@ -16,7 +16,7 @@ jobs:
 
     services:
       postgres:
-        image: circleci/postgres:11.5-postgis-ram # 11.5 engine on AWS RDS
+        image: postgis/postgis:11-2.5
         env:
           POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api_test
