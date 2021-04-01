@@ -12,7 +12,7 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
 
 ## Base setup
 
-1. Clone thee `vets-api` repo:
+1. Clone the `vets-api` repo:
 
    ```bash
    git clone https://github.com/department-of-veterans-affairs/vets-api.git
