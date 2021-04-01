@@ -30,11 +30,11 @@ module V0
         render(json: service.update_communication_permission(communication_item))
       end
 
+      private
+
       def service
         VAProfile::Communication::Service.new(current_user)
       end
-
-      private
 
       def build_communication_item
         VAProfile::Models::CommunicationItem.new(
