@@ -19,12 +19,12 @@ describe CovidVaccine::V0::EnrollmentService do
   it 'responds to #records' do
     expect(subject.records).to be_an(Array)
     expect(subject.records.first).to be_a(CovidVaccine::V0::ExpandedRegistrationSubmission)
-    expect(subject.records.size).to eq(9)
+    expect(subject.records.size).to eq(12)
   end
 
   it 'responds to #io' do
     expect(subject.io).to be_a(StringIO)
-    expect(subject.io.size).to eq(1426)
+    expect(subject.io.size).to eq(1497)
   end
 
   context 'sftp interactions' do
@@ -34,7 +34,7 @@ describe CovidVaccine::V0::EnrollmentService do
     let(:sftp_connection_double) { double(:sftp_connection_double, upload!: true, download!: true) }
     let(:sftp_double) { double(:sftp, sftp: sftp_connection_double) }
     let(:timestamp) { Time.zone.parse('2021-03-31T08:00:00Z') }
-    let(:name) { "#{timestamp.strftime('%Y%m%d%H%M%S')}_saves_lives_act_#{records.size}_records.txt" }
+    let(:name) { "DHS_load_#{timestamp.strftime('%Y%m%d%H%M%S')}_SLA_#{records.size}_records.txt" }
     let(:handler) { CovidVaccine::V0::EnrollmentHandler }
 
     it 'responds to send_enrollment_file' do
@@ -48,11 +48,11 @@ describe CovidVaccine::V0::EnrollmentService do
 
     it 'responds to send_enrollment_file with a suffix on filename' do
       Timecop.freeze(timestamp)
-      n = name + '_TEST'
+      n = 'TESTING_' + name
       expect(Net::SFTP).to receive(:start).with(host, username, password: password).and_yield(sftp_connection_double)
       expect(sftp_connection_double)
         .to receive(:upload!).with(subject.io, "/#{n}", name: n, progress: instance_of(handler))
-      subject.send_enrollment_file(file_name_suffix: '_TEST')
+      subject.send_enrollment_file(file_name_prefix: 'TESTING_')
       Timecop.return
     end
   end

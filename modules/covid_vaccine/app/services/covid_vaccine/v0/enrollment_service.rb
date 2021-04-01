@@ -13,8 +13,8 @@ module CovidVaccine
 
       attr_reader :records, :io
 
-      def send_enrollment_file(file_name_suffix: '')
-        file_name = generated_file_name + file_name_suffix
+      def send_enrollment_file(file_name_prefix: '')
+        file_name = file_name_prefix + generated_file_name
 
         Net::SFTP.start(sftp_host, sftp_username, password: sftp_password) do |sftp|
           sftp.upload!(@io, remote_file_path(file_name), name: file_name, progress: EnrollmentHandler.new)
@@ -28,7 +28,7 @@ module CovidVaccine
       end
 
       def generated_file_name
-        "#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_saves_lives_act_#{@records.size}_records.txt"
+        "DHS_load_#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_SLA_#{@records.size}_records.txt"
       end
 
       def sftp_host
