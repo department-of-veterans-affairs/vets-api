@@ -85,6 +85,15 @@ paths:
       operationId: getCCSupportedSites
       security:
         - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: supported_sites
+          description: "supported sites for appointment request"
+          schema:
+            type: array
+            items:
+              type: "string"
       responses:
         '200':
           description: CC supported sites retrieved successfully
