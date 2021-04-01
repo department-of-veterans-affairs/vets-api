@@ -39,7 +39,12 @@ class OpenidApplicationController < ApplicationController
     if token.client_credentials_token? || ssoi_token?
       token.payload[:icn] = fetch_smart_launch_context if token.payload['scp'].include?('launch/patient')
       if token.payload['scp'].include?('launch')
-        token.payload[:launch] = JSON.parse(Base64.decode64(fetch_smart_launch_context))
+        launch = fetch_smart_launch_context
+        if base64_json?(launch)
+          token.payload[:launch] = JSON.parse(Base64.decode64(launch))
+        else
+          token.payload[:launch] = {:icn => launch}
+        end
       end
       return true
     end
@@ -63,6 +68,13 @@ class OpenidApplicationController < ApplicationController
       # Future block for opaque tokens
       raise error_klass('Invalid token.')
     end
+  end
+
+  def base64_json?(launch_string)
+    JSON.parse(Base64.decode64(launch_string))
+    true
+  rescue JSON::ParserError
+    false
   end
 
   def jwt?(token_string)
