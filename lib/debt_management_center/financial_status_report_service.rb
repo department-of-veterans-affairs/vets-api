@@ -25,7 +25,7 @@ module DebtManagementCenter
     def submit_financial_status_report(form)
       with_monitoring_and_error_handling do
         form = camelize(form)
-        raise_client_error unless form.has_key?('personalIdentification')
+        raise_client_error unless form.key?('personalIdentification')
         form['personalIdentification']['fileNumber'] = @file_number
         response = DebtManagementCenter::FinancialStatusReportResponse.new(
           perform(:post, 'financial-status-report/formtopdf', form).body
