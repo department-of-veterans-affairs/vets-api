@@ -255,8 +255,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-        '403':
-          description: Forbidden, the server is refusing action. This may be due to the user not having the necessary permissions to cancel an appointment.
+  '/cc_eligibility/{service_type}':
+    get:
+      tags:
+        - cc_eligibility
+      summary: Returns cc eligibility status for a user
+      operationId: getEligibility
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "service_type"
+          description: "type of service, e.g. 'PrimaryCare' "
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Eligibility retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CCEligibility"
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -273,6 +295,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+
   '/systems':
     get:
       tags:
@@ -499,6 +522,23 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    CCEligibility:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties:
+        id:
+          type: "string"
+        type:
+          type: "string"
+        attributes:
+          type: "object"
+          properties:
+            eligible:
+              type: "boolean"
+              example: true
     System:
       type: "object"
       properties:
