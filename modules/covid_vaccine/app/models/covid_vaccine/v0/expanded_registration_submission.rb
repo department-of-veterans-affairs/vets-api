@@ -24,7 +24,7 @@ module CovidVaccine
 
         # Batch id is updated based on time that batch was submitted; transitions to enrollment_pending
         event :submitted_for_enrollment do
-          transitions from: :eligible_us, to: :enrollment_pending
+          transitions from: :received, to: :enrollment_pending
         end
 
         # Enrollment returned a success; transitions to enrollment_complete
