@@ -686,6 +686,42 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    Facility:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties: 
+        id:
+          type: "string"
+        type:
+          type: "string"
+        attributes:
+          type: "object"
+          required:
+            - "institution_code"
+            - "city"
+            - "state_abbrev"
+            - "authoritative_name"
+            - "root_station_code"
+            - "admin_parent"
+            - "parent_station_code"
+          properties:
+            institution_code:
+              type: "string"
+            city:
+              type: "string"
+            state_abbrev:
+              type: "string"
+            authoritative_name:
+              type: "string"
+            root_station_code:
+              type: "string"
+            admin_parent:
+              type: "boolean"
+            parent_station_code:
+              type: "string"                              
     FacilityCancelReason:
       type: object
       required: 
@@ -716,8 +752,9 @@ components:
             type:
               type: string
               example: "B"
+            inactive:
               type: boolean
-              example: false  
+              example: false                     
     CCEligibility:
       type: "object"
       required:
