@@ -78,7 +78,6 @@ module AppsApi
     end
 
     def event_already_handled?(parsed_hash)
-      already_handled = false
       # get all members of the notification_events set
       members = Redis.current.smembers('apps_notification_events')
       return false if members.nil?
@@ -88,9 +87,9 @@ module AppsApi
       current_event = { 'email' => parsed_hash[:user_email], 'time' => parsed_hash[:options][:time] }
       members.each do |member|
         member_hash = Redis.current.hgetall(member)
-        already_handled = true if current_event.eql? member_hash
+        return true if current_event.eql? member_hash
       end
-      already_handled
+      false
     end
 
     def event_unsuccessful?(event)
