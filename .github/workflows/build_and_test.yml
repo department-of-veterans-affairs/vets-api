@@ -69,7 +69,7 @@ jobs:
       BUNDLE_JOBS: 2
       BUNDLE_RETRY: 3
       LANG: en_US.UTF-8
-      PGHOST: postgres
+      PGHOST: localhost
       PGUSER: vets-api
       RAILS_ENV: test
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"   
@@ -112,6 +112,7 @@ jobs:
           POSTGRES_DB: vets-api_test
           POSTGRES_PASSWORD: postgres
           RAILS_ENV: test
+          POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"  
         run: bundle exec rake db:setup
