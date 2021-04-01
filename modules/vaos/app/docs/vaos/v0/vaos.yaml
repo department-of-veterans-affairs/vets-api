@@ -554,6 +554,39 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    FacilityCancelReason:
+      type: object
+      required: 
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "1"
+        type:
+          type: string
+          example: "cancel_reason"
+        attributes:
+          type: object
+          required:
+            - number
+            - text
+            - type
+            - inactive
+          properties:
+            number:
+              type: string
+              example: "1"
+            text:
+              type: string
+              example: "WEATHER"    
+            type:
+              type: string
+              example: "B"
+            inactive:
+              type: boolean
+              example: false  
     CCEligibility:
       type: "object"
       required:
