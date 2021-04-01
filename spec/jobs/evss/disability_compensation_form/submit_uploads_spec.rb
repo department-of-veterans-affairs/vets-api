@@ -25,7 +25,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   describe 'perform' do
     let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
     let(:client) { double(:client) }
-    let(:document_data) { double(:document_data) }
+    let(:document_data) { double(:document_data, valid?: true) }
 
     before do
       allow(EVSS::DocumentsService)
