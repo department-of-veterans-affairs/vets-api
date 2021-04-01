@@ -10,7 +10,7 @@ jobs:
       PGHOST: postgres
       PGUSER: vets-api
       RAILS_ENV: test
-      "Settings.test_database_url": "postgis://vets-api:postgres@postgres:5432/vets_api_test"     
+      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"     
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.binaries.clamdscan": "clamscan"
@@ -65,7 +65,6 @@ jobs:
 
   tests:
     runs-on: ubuntu-latest
-    container: circleci/ruby:2.6.6-stretch
     env:
       BUNDLE_JOBS: 2
       BUNDLE_RETRY: 3
@@ -73,6 +72,7 @@ jobs:
       PGHOST: postgres
       PGUSER: vets-api
       RAILS_ENV: test
+      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"   
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.binaries.clamdscan": "clamscan"
