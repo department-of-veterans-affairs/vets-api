@@ -290,7 +290,12 @@ class Form526Submission < ApplicationRecord
 
   def submit_uploads
     # Put uploads on a one minute delay because of shared workload with EVSS
-    EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(60.seconds, id, form[FORM_526_UPLOADS])
+    uploads = form[FORM_526_UPLOADS]
+    delay = 60.seconds
+    uploads.each do |upload|
+      EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, [upload])
+      delay += 15.seconds
+    end
   end
 
   def upload_bdd_instructions

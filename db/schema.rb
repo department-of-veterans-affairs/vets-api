@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_25_230116) do
+ActiveRecord::Schema.define(version: 2021_03_30_170327) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -72,6 +72,9 @@ ActiveRecord::Schema.define(version: 2021_03_25_230116) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
+    t.string "source"
+    t.string "code"
+    t.string "details"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
   end
 
