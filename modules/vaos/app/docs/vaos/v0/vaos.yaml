@@ -85,6 +85,13 @@ paths:
       operationId: getEligibility
       security:
         - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "service_type"
+          description: "type of service, e.g. 'PrimaryCare' "
+          schema:
+            type: string
       responses:
         '200':
           description: Eligibility retrieved successfully
