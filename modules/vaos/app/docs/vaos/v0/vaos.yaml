@@ -754,7 +754,7 @@ components:
               example: "B"
             inactive:
               type: boolean
-              example: false                     
+              example: false
     CCEligibility:
       type: "object"
       required:
