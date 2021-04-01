@@ -110,7 +110,7 @@ class MHVAccountsService
       is_veteran: user.veteran?,
       province: nil, # TODO: We need to determine if this is something that could actually happen (non USA)
       email: user.email,
-      home_phone: user.va_profile&.home_phone,
+      home_phone: user.home_phone,
       sign_in_partners: 'VA.GOV',
       terms_version: mhv_account.terms_and_conditions_accepted.terms_and_conditions.version,
       terms_accepted_date: mhv_account.terms_and_conditions_accepted.created_at

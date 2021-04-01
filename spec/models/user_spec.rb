@@ -366,6 +366,10 @@ RSpec.describe User, type: :model do
           stub_mpi(mvi_profile)
         end
 
+        it 'fetches given_names from MPI' do
+          expect(user.given_names).to be(user.mpi.profile.given_names)
+        end
+
         it 'fetches first_name from MPI' do
           expect(user.first_name_mpi).to be(user.mpi.profile.given_names.first)
         end
@@ -384,6 +388,26 @@ RSpec.describe User, type: :model do
 
         it 'fetches ssn from MPI' do
           expect(user.ssn_mpi).to be(user.mpi.profile.ssn)
+        end
+
+        it 'fetches home_phone from MPI' do
+          expect(user.home_phone).to be(user.mpi.profile.home_phone)
+        end
+
+        it 'fetches mhv_ids from MPI' do
+          expect(user.mhv_ids).to be(user.mpi.profile.mhv_ids)
+        end
+
+        it 'fetches active_mhv_ids from MPI' do
+          expect(user.active_mhv_ids).to be(user.mpi.profile.active_mhv_ids)
+        end
+
+        it 'fetches sec_id from MPI' do
+          expect(user.sec_id_mpi).to be(user.mpi.profile.sec_id)
+        end
+
+        it 'fetches historical_icns from MPI' do
+          expect(user.historical_icns).to be(user.mpi.profile.historical_icns)
         end
       end
 

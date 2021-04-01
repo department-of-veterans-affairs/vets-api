@@ -63,19 +63,19 @@ class User < Common::RedisStore
   end
 
   def home_phone
-    mpi&.profile&.home_phone
+    mpi_profile&.home_phone
   end
 
   def first_name
-    identity.first_name || (mhv_icn.present? ? mpi&.profile&.given_names&.first : nil)
+    identity.first_name || (mhv_icn.present? ? first_name_mpi : nil)
   end
 
   def first_name_mpi
-    given_names_mpi&.first
+    given_names&.first
   end
 
-  def given_names_mpi
-    mpi&.profile&.given_names
+  def given_names
+    mpi_profile&.given_names
   end
 
   def full_name_normalized
@@ -100,7 +100,7 @@ class User < Common::RedisStore
   end
 
   def last_name_mpi
-    mpi&.profile&.family_name
+    mpi_profile&.family_name
   end
 
   def gender
@@ -108,7 +108,7 @@ class User < Common::RedisStore
   end
 
   def gender_mpi
-    mpi&.profile&.gender
+    mpi_profile&.gender
   end
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
@@ -191,10 +191,19 @@ class User < Common::RedisStore
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
-  delegate :status, to: :mpi
-  delegate :error, to: :mpi
+  delegate :status, to: :mpi, prefix: true
+  delegate :error, to: :mpi, prefix: true
+  delegate :cerner_id, to: :mpi
+  delegate :cerner_facility_ids, to: :mpi
 
   # emis attributes
+  # def cerner_id
+  #   mpi_profile.cerner_id
+  # end
+
+  # def cerner_facility_ids
+  #   mpi_profile.cerner_facility_ids
+  # end
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
