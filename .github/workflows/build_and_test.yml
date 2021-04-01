@@ -117,6 +117,7 @@ jobs:
 
       - name: Setup Database
         env:
+          POSTGRES_HOST: postgres
           RAILS_ENV: test
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@postgres:5432/vets_api_test"  
