@@ -169,11 +169,11 @@ module EducationForm::Forms
 
       seperator = indent ? "\n        " : "\n"
       [
-          address.street,
-          address.street2,
-          address.street3,
-          [address.city, address.state, address.postalCode].compact.join(', '),
-          address.country
+        address.street,
+        address.street2,
+        address.street3,
+        [address.city, address.state, address.postalCode].compact.join(', '),
+        address.country
       ].compact.join(seperator).upcase
     end
 
