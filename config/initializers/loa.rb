@@ -17,4 +17,9 @@ module LOA
   # authentication context values but currently only the LOA3 one is used
   # within vets-api
   IDME_LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3'
+
+  # Login.gov
+  LOGIN_LOA1 = 'http://idmanagement.gov/ns/assurance/ial/1'
+  LOGIN_LOA2 = 'http://idmanagement.gov/ns/assurance/ial/2'
+  LOGIN_LOA3 = 'http://idmanagement.gov/ns/assurance/ial/2'
 end

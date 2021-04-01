@@ -11,7 +11,7 @@ module V1
   class SessionsController < ApplicationController
     skip_before_action :verify_authenticity_token
 
-    REDIRECT_URLS = %w[signup mhv dslogon idme custom mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme login custom mfa verify slo].freeze
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_SAMLREQUEST_KEY = 'api.auth.saml_request'
     STATSD_SSO_SAMLRESPONSE_KEY = 'api.auth.saml_response'
@@ -190,6 +190,8 @@ module V1
         url_service.dslogon_url
       when 'idme'
         url_service.idme_url
+      when 'login'
+        url_service.login_url
       when 'mfa'
         url_service.mfa_url
       when 'verify'
@@ -361,7 +363,7 @@ module V1
                                                 session: @session_object,
                                                 user: current_user,
                                                 params: params,
-                                                loa3_context: LOA::IDME_LOA3)
+                                                loa3_context: LOA::LOGIN_LOA3)
     end
   end
 end

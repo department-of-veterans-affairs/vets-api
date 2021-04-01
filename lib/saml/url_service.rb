@@ -91,6 +91,11 @@ module SAML
       build_sso_url(LOA::IDME_LOA1_VETS)
     end
 
+    def login_url
+      @type = 'login'
+      build_sso_url(LOA::LOGIN_LOA1)
+    end
+
     def custom_url(authn)
       @type = 'custom'
       build_sso_url(authn)
