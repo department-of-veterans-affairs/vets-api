@@ -117,6 +117,26 @@ describe 'form526 rake tasks', type: :request do
       expect { silently { run_rake_task } }.not_to raise_error
     end
   end
+
+  describe 'rake form526:mpi' do
+    let(:submission) { create :form526_submission }
+    let(:mvi_profile) { build :mvi_profile }
+    let(:profile_response) do
+      MPI::Responses::FindProfileResponse.new(
+        status: MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+        profile: mvi_profile
+      )
+    end
+    let(:run_rake_task) do
+      Rake::Task['form526:mpi'].reenable
+      Rake.application.invoke_task "form526:mpi[#{submission.id}]"
+    end
+
+    it 'runs without errors' do
+      allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
+      expect { silently { run_rake_task } }.not_to raise_error
+    end
+  end
 end
 
 def silently
