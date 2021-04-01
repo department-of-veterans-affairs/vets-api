@@ -27,7 +27,7 @@ module CovidVaccine
         return id_for_facility(supplied_value, supplied_zip) if supplied_value&.present?
 
         id_for_zip(supplied_zip)
-      rescue Common::Exceptions::UnprocessableEntity => e
+      rescue Common::Exceptions::UnprocessableEntity
         nil
       rescue => e
         log_exception_to_sentry(e)
