@@ -40,7 +40,7 @@ class OpenidApplicationController < ApplicationController
       token.payload[:icn] = fetch_smart_launch_context if token.payload['scp'].include?('launch/patient')
       if token.payload['scp'].include?('launch')
         launch = fetch_smart_launch_context
-        token.payload[:launch] = base64_json?(launch)? JSON.parse(Base64.decode64(launch)) : { icn: launch }
+        token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { icn: launch }
       end
       return true
     end
