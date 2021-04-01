@@ -34,6 +34,25 @@ paths:
       operationId: getAppointmentRequests
       security:
         - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: start_date
+          description: "start date of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: end_date
+          description: "end date of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: id
+          description: "id of appointment"
+          schema:
+            type: string
       responses:
         '200':
           description: Appointment requests retrieved successfully
@@ -90,6 +109,67 @@ paths:
       operationId: postAppointmentRequests
       security:
         - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: option_date1
+          description: "option_date1 of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: option_time1
+          description: "option_time1 of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: option_date2
+          description: "option_date2 of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: option_time2
+          description: "option_time2 of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: option_date3
+          description: "option_date3 of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: option_time3
+          description: "option_time3 of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: appointment_type
+          description: "type of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: visit_type
+          description: "visit type of appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: phone_number
+          description: "phone number for appointment"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: facility
+          description: "facility details of appointment"
+          schema:
+            type: object
       responses:
         '200':
           description: Appointment requests retrieved successfully
@@ -190,7 +270,7 @@ paths:
                         $ref: "#/components/schemas/CCAppointment"
                       meta:
                         $ref: "#/components/schemas/Pagination"
-  '/cc_eligibility':
+  '/cc_eligibility/{service_type}':
     get:
       tags:
         - cc_eligibility
