@@ -60,7 +60,8 @@ module VBADocuments
     end
 
     def long_flyers_alert
-      alert_on = fetch_stuck_in_state(UploadSubmission::IN_FLIGHT_STATUSES, @in_flight_hungtime, :days)
+      statuses = UploadSubmission::IN_FLIGHT_STATUSES - ['success']
+      alert_on = fetch_stuck_in_state(statuses, @in_flight_hungtime, :days)
       text = 'ALERT - GUIDS in flight for too long! (Top 10 shown)\n'
       alert(alert_on, text)
     end
