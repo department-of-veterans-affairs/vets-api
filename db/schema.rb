@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_30_170327) do
+ActiveRecord::Schema.define(version: 2021_04_01_071242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -241,6 +241,7 @@ ActiveRecord::Schema.define(version: 2021_03_30_170327) do
     t.index ["encrypted_eligibility_info_iv"], name: "index_covid_vaccine_expanded_on_el_iv", unique: true
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_expanded_on_form_iv", unique: true
     t.index ["encrypted_raw_form_data_iv"], name: "index_covid_vaccine_expanded_on_raw_iv", unique: true
+    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
     t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
     t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
   end

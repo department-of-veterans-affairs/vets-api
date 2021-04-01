@@ -7,9 +7,7 @@ describe CovidVaccine::V0::ExpandedRegistrationSubmissionCSVGenerator do
   subject do
     fixture_file = YAML.load_file('modules/covid_vaccine/spec/fixtures/expanded_registration_submissions.yml')
     records = fixture_file.values.map do |fixture|
-      FactoryBot.build(:covid_vax_expanded_registration,
-                       raw_form_data: fixture['raw_form_data'],
-                       eligibility_info: fixture['eligibility_info'])
+      FactoryBot.build(:covid_vax_expanded_registration, raw_form_data: fixture['raw_form_data'])
     end
     described_class.new(records)
   end
@@ -26,7 +24,7 @@ describe CovidVaccine::V0::ExpandedRegistrationSubmissionCSVGenerator do
   describe '#io' do
     it 'generates IO String suitable for SFTP' do
       expect(subject.io).to be_a(StringIO)
-      expect(subject.io.size).to eq(1426)
+      expect(subject.io.size).to eq(1497)
     end
   end
 end

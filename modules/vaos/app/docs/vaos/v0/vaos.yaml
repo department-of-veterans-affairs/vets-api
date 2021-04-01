@@ -34,16 +34,28 @@ paths:
       operationId: getAppointments
       security:
         - bearerAuth: []
-      parameters:
-        - in: path
+      parameters: 
+        - in: query
           required: true
-          name: "type"
+          name: type
           description: "type of appointment, e.g. 'va' or 'cc' (community care)"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: start_date
+          description: "start date for appointments search"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: end_date
+          description: "end date for appointments search"
           schema:
             type: string
       responses:
         '200':
-          description: Systems retrieved successfully
+          description: Appointments retrieved successfully
           content:
             application/json:
               schema:
@@ -57,26 +69,264 @@ paths:
                         - $ref: "#/components/schemas/VAAppointment"
                         - $ref: "#/components/schemas/CCAppointment"
                   meta:
-                    $ref: "#/components/schemas/Pagination"
-              examples:
-                va_type:
-                  summary: Example of a 'va' type response
-                  value:
-                    data:
-                      type: array
-                      items:
-                        $ref: "#/components/schemas/VAAppointment"
-                      meta:
-                        $ref: "#/components/schemas/Pagination"
-                cc_type:
-                  summary: Example of a 'cc' type response
-                  value:
-                    data:
-                      type: array
-                      items:
-                        $ref: "#/components/schemas/CCAppointment"
-                      meta:
-                        $ref: "#/components/schemas/Pagination"
+                    $ref: "#/components/schemas/Pagination" 
+        '207':
+          description: Message body may contain multiple status codes depending on how many subrequests were made.
+        '403':
+          description: Forbidden, user does not have access to VAOS scheduling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    post:
+      tags:
+        - appointments
+      summary: Creates an appointment.
+      operationId: createAppointment
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppBody"
+      responses:
+        '204':
+          description: The server successfully created the appointment, and is not returning any content.
+        '400':
+          description: Bad Request, the server cannot or will not process the request due to an apparent client error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '403':
+          description: Forbidden, user does not have access to VAOS scheduling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '409':
+          description: Conflict, indicates that the request could not be processed because of conflict in the current state of the appointment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/appointments/{type}/{id}':
+    get:
+      tags:
+        - appointments
+      summary: Returns an appointment of whose id is {id}
+      operationId: getAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "type"
+          description: "type of appointment, e.g. 'va' or 'cc' (community care)"
+          schema:
+            type: string
+        - in: path
+          required: true
+          name: id
+          description: "the id of appointment"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Appointment retrieved successfully
+          content:
+            application/json:
+              schema:
+                required: 
+                  - data
+                properties:
+                  data:
+                    $ref:  "#/components/schemas/VAAppointment"
+        '403':
+          description: Forbidden, user does not have access to VAOS scheduling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':  
+          description: Not Found, appointment resource not found.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/appointments/cancel':
+    put:
+      tags: 
+        - appointments
+      summary: Cancels an appointment
+      operationId: cancelAppointment
+      security: 
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: appointment_time
+          description: The date and time of the appointment. 
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: facility_id
+          description: The facitlity id where the appointment was scheduled.
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: cancel_code
+          description: The code used in cancelling the appointment.
+          schema:
+            type: string
+        - in: query
+          name: clinic_id
+          description: The clinic id where the appointment was scheduled.
+          schema:
+            type: string
+        - in: query
+          name: cancel_reason
+          description: The reason the appointment was cancelled.
+          schema:
+            type: string
+        - in: query
+          name: remarks
+          description: Any remarks entered when cancelling the appointment.
+          schema:
+            type: string
+        - in: query
+          name: clinic_name
+          description: The name of the clinic where the appointment was scheduled.
+          schema:
+            type: string
+      responses:
+        '204':
+          description: The server successfully cancelled the appointment, and is not returning any content.
+        '409':
+          description: Conflict, indicates that the request could not be processed because of conflict in the current state of the appointment.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
+        '422':
+          description: Unprocessable Entity, the request was well-formed but was unable to be followed due to parameter validation errors.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/cc_eligibility/{service_type}':
+    get:
+      tags:
+        - cc_eligibility
+      summary: Returns cc eligibility status for a user
+      operationId: getEligibility
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "service_type"
+          description: "type of service, e.g. 'PrimaryCare' "
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Eligibility retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CCEligibility"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"        
+  '/facilities/{facility_id}/cancel_reasons':
+    get:
+      tags:
+        - facilities
+      summary: Returns a list of cancel reasons from the facility
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "facility_id"
+          schema: 
+            type: string
+      responses:
+        '200':
+          description: OK, returns a list of cancel reasons for the facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FacilityCancelReason'
+        '403':
+          description: Forbidden, the request contained valid data and was understood by the server, but the server is refusing action. This may be due to the user not having the necessary permissions. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors" 
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/facilities':
     get:
       tags:
@@ -436,42 +686,55 @@ components:
                 type: "string"
               detail:
                 type: "string"
-    Facility:
+    FacilityCancelReason:
+      type: object
+      required: 
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "1"
+        type:
+          type: string
+          example: "cancel_reason"
+        attributes:
+          type: object
+          required:
+            - number
+            - text
+            - type
+            - inactive
+          properties:
+            number:
+              type: string
+              example: "1"
+            text:
+              type: string
+              example: "WEATHER"    
+            type:
+              type: string
+              example: "B"
+              type: boolean
+              example: false  
+    CCEligibility:
       type: "object"
       required:
         - "id"
         - "type"
         - "attributes"
-      properties: 
+      properties:
         id:
           type: "string"
         type:
           type: "string"
         attributes:
           type: "object"
-          required:
-            - "institution_code"
-            - "city"
-            - "state_abbrev"
-            - "authoritative_name"
-            - "root_station_code"
-            - "admin_parent"
-            - "parent_station_code"
           properties:
-            institution_code:
-              type: "string"
-            city:
-              type: "string"
-            state_abbrev:
-              type: "string"
-            authoritative_name:
-              type: "string"
-            root_station_code:
-              type: "string"
-            admin_parent:
+            eligible:
               type: "boolean"
-            parent_station_code:
-              type: "string"
+              example: true
     System:
       type: "object"
       properties:
@@ -621,10 +884,10 @@ components:
               properties:
                 first_name:
                   type: "string"
-                  example: ""
+                  example: "John"
                 last_name:
                   type: "string"
-                  example: ""
+                  example: "Doe"
               type: "object"
             provider_practice:
               type: "string"
@@ -662,6 +925,81 @@ components:
               type: "string"
               example: "-04:00 EDT"
           type: "object"
+    CreateAppBody:
+      type: "object"
+      properties:
+        scheduling_request_type:
+          type: string
+          example: "NEXT_AVAILABLE_APPT"
+        type:
+          type: string
+          example: "REGULAR"
+        appointment_kind:
+          type: string
+          example:  "TRADITIONAL"
+        appointment_type:
+          type: string
+          example: "Primary Care"
+        scheduling_method:
+          type: string
+          example: "direct"
+        appt_type:
+          type: string
+          example: "P"
+        purpose:
+          type: string
+          example: "9"
+        lvl:
+          type: string
+          example: "1"
+        ekg:
+          type: string
+          example: ""
+        lab:
+          type: string
+          example: ""
+        x_ray:
+          type: string
+          example: ""
+        desired_date:
+          type: string
+          example: "2020-02-07T00:00:00.000+00:00"
+        date_time:
+          type: string
+          example: "2020-02-07T21:00:00.000+00:00"
+        duration:
+          type: integer
+          example: 30
+        booking_notes:
+          type: string
+          example: "Follow-up/Routine: abdominal pain"
+        preferred_email:
+          type: string
+          example: "test@va.gov"
+        time_zone:
+          type: string
+          example: "America/Denver"
+        clinic:
+          type: "object"
+          properties:
+            site_code:
+              type: string
+              example: "983"
+            clinic_id:
+              type: string
+              example: "308"
+            clinic_name:
+              type: string
+              example: "CHY PC KILPATRICK"
+            clinic_friendly_location_name:
+              type: string
+              example: "Green Team Clinic1"
+            institution_name:
+              type: string
+              example: "CHYSHR-Cheyenne VA Medical Center"
+            institution_code:
+              type: string
+              example: "983"
     VAAppointment:
       type: "object"
       properties:
@@ -687,6 +1025,9 @@ components:
             clinic_id:
               type: "string"
               example: "408"
+            clinic_friendly_name:
+              type: "string"
+              example: "Main St. Clinic"
             facility_id:
               type: "string"
               example: "983"
