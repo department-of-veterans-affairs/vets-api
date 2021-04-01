@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'decision_review/schemas'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
@@ -1212,7 +1213,10 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a notice of disagreement (NOD) form' do
       let(:schema_name) { '10182' }
-      let(:schema) { DecisionReview::Schemas::NOD_CREATE_REQUEST }
+      let(:schema) do
+        DecisionReview::Schemas::NOD_CREATE_REQUEST.merge "$schema": 'http://json-schema.org/draft-04/schema#'
+      end
+
       let(:form_profile) { described_class.for(form_id: schema_name, user: user) }
       let(:prefill) { Oj.load(form_profile.prefill.to_json)['form_data'] }
 
@@ -1253,7 +1257,7 @@ RSpec.describe FormProfile, type: :model do
         full_example = JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
                                                             'valid_NOD_create_request.json'
 
-        test_data = full_example.deep_merge prefill
+        test_data = full_example.deep_merge prefill.except('nonPrefill')
         errors = JSON::Validator.fully_validate(
           schema,
           test_data,
