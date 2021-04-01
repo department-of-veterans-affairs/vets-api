@@ -62,12 +62,20 @@ class User < Common::RedisStore
     pciu&.get_alternate_phone&.to_s
   end
 
+  def home_phone
+    mpi&.profile&.home_phone
+  end
+
   def first_name
     identity.first_name || (mhv_icn.present? ? mpi&.profile&.given_names&.first : nil)
   end
 
   def first_name_mpi
-    mpi&.profile&.given_names&.first
+    given_names_mpi&.first
+  end
+
+  def given_names_mpi
+    mpi&.profile&.given_names
   end
 
   def full_name_normalized
@@ -140,7 +148,7 @@ class User < Common::RedisStore
   end
 
   def ssn_mpi
-    mpi&.profile&.ssn
+    mpi_profile&.ssn
   end
 
   def mhv_correlation_id
@@ -152,11 +160,19 @@ class User < Common::RedisStore
   end
 
   def mhv_account_state
-    return 'DEACTIVATED' if (va_profile.mhv_ids.to_a - va_profile.active_mhv_ids.to_a).any?
-    return 'MULTIPLE' if va_profile.active_mhv_ids.to_a.size > 1
+    return 'DEACTIVATED' if (mhv_ids.to_a - active_mhv_ids.to_a).any?
+    return 'MULTIPLE' if active_mhv_ids.to_a.size > 1
     return 'NONE' if mhv_correlation_id.blank?
 
     'OK'
+  end
+
+  def mhv_ids
+    mpi_profile&.mhv_ids
+  end
+
+  def active_mhv_ids
+    mpi_profile&.active_mhv_ids
   end
 
   def loa
@@ -175,6 +191,8 @@ class User < Common::RedisStore
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
+  delegate :status, to: :mpi
+  delegate :error, to: :mpi
 
   # emis attributes
   delegate :military_person?, to: :veteran_status
@@ -189,11 +207,19 @@ class User < Common::RedisStore
   end
 
   def sec_id
-    identity.sec_id || va_profile&.sec_id
+    identity.sec_id || mpi_profile&.sec_id
+  end
+
+  def sec_id_mpi
+    mpi_profile&.sec_id
   end
 
   def icn
     identity&.icn || mpi&.icn
+  end
+
+  def historical_icns
+    mpi_profile&.historical_icns
   end
 
   def birls_id
@@ -256,7 +282,7 @@ class User < Common::RedisStore
   # User's profile contains a list of VHA facility-specific identifiers.
   # Facilities in the defined range are treating facilities
   def va_treatment_facility_ids
-    facilities = va_profile&.vha_facility_ids
+    facilities = mpi_profile&.vha_facility_ids
     facilities.to_a.select do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
         Settings.mhv.facility_specific.include?(f)
