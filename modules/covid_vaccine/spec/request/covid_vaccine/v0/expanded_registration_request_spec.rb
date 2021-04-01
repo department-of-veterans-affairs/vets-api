@@ -125,15 +125,6 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
                   'pointer' => 'data/attributes/state-code'
                 },
                 'status' => '422'
-              },
-              {
-                'title' => 'Zip code should be in the form 12345 or 12345-1234',
-                'detail' => 'zip-code - should be in the form 12345 or 12345-1234',
-                'code' => '100',
-                'source' => {
-                  'pointer' => 'data/attributes/zip-code'
-                },
-                'status' => '422'
               }
             ]
           }
@@ -193,6 +184,33 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
                                                     /"applicant_type":"spouse"/)
         post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
       end
+    end
+
+    context 'with non-US submissions' do
+      it 'accepts a Canada address' do
+        attrs = build(:covid_vax_expanded_registration, :canada).raw_form_data.symbolize_keys
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'accepts a Mexico address' do
+        attrs = build(:covid_vax_expanded_registration, :mexico).raw_form_data.symbolize_keys
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'accepts a Phillipines address' do
+        attrs = build(:covid_vax_expanded_registration, :non_us).raw_form_data.symbolize_keys
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    it 'accepts submission with a nil country' do
+      attrs = build(:covid_vax_expanded_registration,
+                    raw_options: { 'country_name' => nil }).raw_form_data.symbolize_keys
+      post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+      expect(response).to have_http_status(:created)
     end
   end
 end
