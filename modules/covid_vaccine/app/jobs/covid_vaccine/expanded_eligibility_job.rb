@@ -44,6 +44,7 @@ module CovidVaccine
         submission.eligibility_failed
       end
       submission.save!
+      audit_log(submission)
       StatsD.increment(STATSD_SUCCESS_NAME)
     end
 
@@ -54,6 +55,16 @@ module CovidVaccine
     end
 
     private
+
+    def audit_log(submission)
+      log_attrs = {
+        applicant_type: submission.raw_form_data['applicant_type'],
+        eligible: submission.eligibility_info[:eligible],
+        ineligible_reason: submission.eligibility_info[:ineligible_reason],
+        has_icn: submission.eligibility_info[:icn].present?
+      }
+      Rails.logger.info('Covid_Vaccine Expanded_Eligibility', log_attrs)
+    end
 
     def veteran?(submission)
       submission.raw_form_data['applicant_type'] == 'veteran'
