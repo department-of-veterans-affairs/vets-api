@@ -24,20 +24,20 @@ module CovidVaccine
       validates :veteran_birth_date, format: { with: /\A\d{4}-\d{2}-\d{2}\z/,
                                                message: 'should be in the form yyyy-mm-dd' }, allow_blank: true
       validates :email_address, format: { with: URI::MailTo::EMAIL_REGEXP }, allow_blank: true
-      # TODO: Check whether this is required or not, and if so, whether may be multi-value
-      # validates :preferred_facility, presence: true
       validates :address_line1, presence: true
       validates :city, presence: true
       validates :state_code, presence: true
-      validates :zip_code, format: { with: ZIP_REGEX, message: 'should be in the form 12345 or 12345-1234' }
-
-      # TODO: Conditional validation of veteran_ssn veteran_birth_date presence if non-veteran applicant_type
-      # TODO: Conditional validation of date_range[from] and date_range[to] if veteran appplicant_type
+      validates :zip_code, format: { with: ZIP_REGEX, message: 'should be in the form 12345 or 12345-1234' },
+                           if: :us_address?
 
       def initialize(attributes = {})
         attributes.each do |name, value|
           send("#{name}=", value) if name.to_s.in?(ATTRIBUTES)
         end
+      end
+
+      def us_address?
+        country_name == 'USA'
       end
     end
   end

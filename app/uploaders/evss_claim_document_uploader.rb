@@ -44,7 +44,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
       mimemagic_object = self.class.inspect_binary file
       if self.class.incorrect_extension?(extension: extension, mimemagic_object: mimemagic_object)
         extension = self.class.extensions_from_mimemagic_object(mimemagic_object).first
-        return "#{name}.#{extension}"
+        return "#{name.gsub('.', '_')}.#{extension}"
       end
       name
     end
