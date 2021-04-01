@@ -25,7 +25,7 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
           VCR.use_cassette('appeals/appeals') do
             expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
             subject.perform(user.uuid)
-            expect(JSON.parse(Mobile::V0::ClaimOverview.get_cached(user)).first).to eq(
+            expect(JSON.parse(Mobile::V0::ClaimOverview.get_cached(user))['data'].first).to eq(
               {
                 'id' => 'SC1678',
                 'type' => 'appeal',

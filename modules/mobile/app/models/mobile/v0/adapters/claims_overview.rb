@@ -13,7 +13,7 @@ module Mobile
         private
 
         def parse_claim(entry)
-          Mobile::V0::Claim.new(
+          Mobile::V0::ClaimOverview.new(
             {
               id: entry['evss_id'].to_s,
               type: 'claim',
@@ -30,7 +30,7 @@ module Mobile
         def parse_appeal(entry)
           subtype = entry['type']
           filed_index = subtype == 'legacyAppeal' ? 1 : 0
-          Mobile::V0::Appeal.new(
+          Mobile::V0::ClaimOverview.new(
             {
               id: entry['id'],
               type: 'appeal',
