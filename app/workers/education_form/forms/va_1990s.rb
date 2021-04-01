@@ -29,5 +29,9 @@ module EducationForm::Forms
     def bank_account_type
       @applicant.bankAccount.accountType if @applicant.bankAccount&.accountType.present?
     end
+
+    def school_name
+      @applicant.providerName
+    end
   end
 end
