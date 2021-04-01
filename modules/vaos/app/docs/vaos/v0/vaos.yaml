@@ -469,64 +469,46 @@ components:
               example: "408"
             appointment_time:
               type: "string"
-              example: ""
             option_date1:
               type: "string"
-              example: ""
             option_time1:
               type: "string"
-              example: ""
             option_date2:
               type: "string"
-              example: ""
             option_time2:
               type: "string"
-              example: ""
             option_date3:
               type: "string"
-              example: ""
             option_time3:
               type: "string"
-              example: ""
             status:
               type: "string"
-              example: ""
             appointment_type:
               type: "string"
-              example: ""
             visit_type:
               type: "string"
-              example: ""
             reason_for_visit:
               type: "string"
-              example: ""
             additional_information:
               type: "string"
-              example: ""
             facility:
               type: "object"
               properties:
                 name:
                   type: "string"
-                  example: ""
                 facility_code:
                   type: "string"
                   example: "60"
                 type:
                   type: "string"
-                  example: ""
                 address:
                   type: "string"
-                  example: ""
                 state:
                   type: "string"
-                  example: ""
                 city:
                   type: "string"
-                  example: ""
                 parent_site_code:
                   type: "string"
-                  example: ""
               required:
                 - "name"
                 - "facility_code"
@@ -536,19 +518,15 @@ components:
                 - "parent_site_code"
             email:
               type: "string"
-              example: ""
             text_messaging_allowed:
               type: "boolean"
               example: true
             phone_number:
               type: "string"
-              example: ""
             purpose_of_visit:
               type: "string"
-              example: ""
             provider_id:
               type: "string"
-              example: ""
             second_request:
               type: "boolean"
               example: true
@@ -579,22 +557,17 @@ components:
                 properties:
                   appointment_request_detail_code_id:
                     type: "string"
-                    example: ""
                   created_date:
                     type: "string"
-                    example: ""
                   detail_code:
                     type: "object"
                     properties:
                       code:
                         type: "string"
-                        example: ""
                       provider_message:
                         type: "string"
-                        example: ""
                       veteran_message:
                         type: "string"
-                        example: ""
                     required:
                       - "code"
                       - "provider_message"
@@ -617,24 +590,18 @@ components:
               example: true
             booked_appt_date_time:
               type: "string"
-              example: ""
             type_of_care_id:
               type: "string"
-              example: ""
             friendly_location_name:
               type: "string"
-              example: ""
             cc_appointment_request:
               $ref: "#/components/schemas/CCAppointmentRequest"
             date:
               type: "string"
-              example: ""
             assinging_authority:
               type: "string"
-              example: ""
             created_date:
               type: "string"
-              example: ""
       required:
         - "id"
         - "type"
@@ -655,22 +622,17 @@ components:
       properties:
         data_identifier:
           type: "object"
-          example: {}
         has_veteran_new_message:
           type: "boolean"
           example: true
         preferred_state:
           type: "string"
-          example: ""
         preferred_city:
           type: "string"
-          example: ""
         preferred_zip_code:
           type: "string"
-          example: ""
         preferred_language:
           type: "string"
-          example: ""
         distance_willing_to_travel:
           type: "integer"
           example: "25"
@@ -697,13 +659,10 @@ components:
             properties:
               first_name:
                 type: "string"
-                example: ""
               last_name:
                 type: "string"
-                example: ""
               practice_name:
                 type: "string"
-                example: ""
               address:
                 type: "object"
               preferred_order:
@@ -863,10 +822,8 @@ components:
               properties:
                 first_name:
                   type: "string"
-                  example: ""
                 last_name:
                   type: "string"
-                  example: ""
               type: "object"
             provider_practice:
               type: "string"
@@ -896,7 +853,6 @@ components:
               type: "object"
             instructions_to_veteran:
               type: "string"
-              example: ""
             appointment_time:
               type: "string"
               example: "09/20/2020 16:29:00"
