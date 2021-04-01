@@ -288,7 +288,39 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"
+                $ref: "#/components/schemas/Errors"        
+  '/facilities/{facility_id}/cancel_reasons':
+    get:
+      tags:
+        - facilities
+      summary: Returns a list of cancel reasons from the facility
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "facility_id"
+          schema: 
+            type: string
+      responses:
+        '200':
+          description: OK, returns a list of cancel reasons for the facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FacilityCancelReason'
+        '403':
+          description: Forbidden, the request contained valid data and was understood by the server, but the server is refusing action. This may be due to the user not having the necessary permissions. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors" 
         '502':
           description: Error in the upstream service
           content:
@@ -528,6 +560,39 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    FacilityCancelReason:
+      type: object
+      required: 
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "1"
+        type:
+          type: string
+          example: "cancel_reason"
+        attributes:
+          type: object
+          required:
+            - number
+            - text
+            - type
+            - inactive
+          properties:
+            number:
+              type: string
+              example: "1"
+            text:
+              type: string
+              example: "WEATHER"    
+            type:
+              type: string
+              example: "B"
+            inactive:
+              type: boolean
+              example: false  
     CCEligibility:
       type: "object"
       required:
