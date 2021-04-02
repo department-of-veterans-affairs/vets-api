@@ -19,7 +19,7 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
-    LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495 0993 0994 10203].map { |t| "22-#{t.upcase}" }.freeze
+    LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495 0993 0994 10203 1990S].map { |t| "22-#{t.upcase}" }.freeze
     AUTOMATED_DECISIONS_STATES = [nil, 'denied', 'processed'].freeze
     include Sidekiq::Worker
     include SentryLogging
@@ -32,12 +32,13 @@ module EducationForm
     # data is accessed by the code inside of the method.
     def perform
       begin
-        records = EducationBenefitsClaim.unprocessed.includes(:saved_claim, :education_stem_automated_decision).where(
-          saved_claims: {
-            form_id: LIVE_FORM_TYPES
-          },
-          education_stem_automated_decisions: { automated_decision_state: AUTOMATED_DECISIONS_STATES }
-        )
+        records = EducationBenefitsClaim
+                  .unprocessed.joins(:saved_claim).includes(:education_stem_automated_decision).where(
+                    saved_claims: {
+                      form_id: LIVE_FORM_TYPES
+                    },
+                    education_stem_automated_decisions: { automated_decision_state: AUTOMATED_DECISIONS_STATES }
+                  )
         return false if federal_holiday?
 
         # Group the formatted records into different regions
