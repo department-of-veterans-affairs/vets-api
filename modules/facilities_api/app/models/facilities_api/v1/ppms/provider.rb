@@ -51,7 +51,7 @@ module FacilitiesApi
       ).to_a.join('|'))
     end
 
-    def set_group_practive_or_agency!
+    def set_group_practice_or_agency!
       self.provider_type = 'GroupPracticeOrAgency'
     end
 

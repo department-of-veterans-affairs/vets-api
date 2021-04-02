@@ -10,7 +10,7 @@ RSpec.describe OpenidUserIdentity, type: :model do
 
   describe '.build_from_okta_profile' do
     it 'is compatible with the okta profile' do
-      with_okta_configured do
+      with_okta_profile_configured do
         okta_response = okta_service.user('00u1zlqhuo3yLa2Xs2p7')
         profile = Okta::UserProfile.new(okta_response.body['profile'])
         identity = OpenidUserIdentity.build_from_okta_profile(uuid: 'abc123', profile: profile, ttl: some_ttl)

@@ -37,15 +37,11 @@ module FacilitiesApi
           providers = body[offset, per_page].map do |attr|
             provider = FacilitiesApi::V1::PPMS::Provider.new(attr)
             provider.set_hexdigest_as_id!
-            provider.set_group_practive_or_agency!
+            provider.set_group_practice_or_agency!
             provider
           end.uniq(&:id)
 
           paginate_response(providers)
-        end
-
-        def provider
-          FacilitiesApi::V1::PPMS::Provider.new(body)
         end
 
         private

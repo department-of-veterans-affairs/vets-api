@@ -47,6 +47,18 @@
             null
           ]
         },
+        "char4": {
+          "type": [
+            "string",
+            null
+          ]
+        },
+        "phoneOnly": { 
+          "type": [
+            "boolean",
+            null
+          ] 
+        },
         "communityCare": {
           "type": [
             "boolean",
@@ -60,6 +72,9 @@
           "items": {
             "type": "object",
             "properties": {
+              "id": {
+                "type": "string"
+              },
               "appointmentLength": {
                 "type": [
                   "string",
