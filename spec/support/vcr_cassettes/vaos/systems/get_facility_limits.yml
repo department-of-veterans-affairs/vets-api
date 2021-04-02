@@ -61,7 +61,8 @@ http_interactions:
         string: |-
           {
             "numberOfRequests" : 0,
-            "requestLimit" : 1
+            "requestLimit" : 1,
+            "institutionCode" : "688"
           }
         http_version:
     recorded_at: Wed, 20 Nov 2019 23:10:11 GMT
