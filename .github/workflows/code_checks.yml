@@ -4,10 +4,7 @@ jobs:
   linting:
     runs-on: ubuntu-20.04
     env:
-      RAILS_ENV: test
-      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
-      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
-      "Settings.binaries.clamdscan": "clamscan"    
+      RAILS_ENV: test 
 
     services:
       postgres:
