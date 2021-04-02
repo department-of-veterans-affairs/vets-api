@@ -60,7 +60,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       before do
         expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
         expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
-          { regional_office: { number: '319' } }
+          { regional_office: { number: '325' } }
         )
       end
 
