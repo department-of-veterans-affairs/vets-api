@@ -55,7 +55,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   context 'long_flyers only' do
     before do
       u = VBADocuments::UploadSubmission.new
-      status = 'success'
+      status = 'received'
       u.status = status
       u.save!
       u.metadata['status'][status]['start'] = 5.years.ago.to_i
