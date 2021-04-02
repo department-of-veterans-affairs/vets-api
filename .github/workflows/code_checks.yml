@@ -44,8 +44,8 @@ jobs:
       - name: Run bundle-audit (checks gems for CVE issues)
         run:  bundle exec bundle-audit check --update
         
-      - name: Run Brakeman (static security analysis)
-        run:  bundle exec brakeman --ensure-latest
+#       - name: Run Brakeman (static security analysis)
+#         run:  bundle exec brakeman --ensure-latest
  
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
