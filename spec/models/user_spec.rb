@@ -165,8 +165,8 @@ RSpec.describe User, type: :model do
     it 'returns false if user is not loa3?' do
       allow(user).to receive(:loa3?).and_return(false)
       expect(user).not_to be_loa3
-      expect(user.identity&.ssn).to eq(user.ssn)
-      expect(user.va_profile&.ssn).to be_falsey
+      expect(user.ssn).to eq(user.ssn)
+      expect(user.ssn_mpi).to be_falsey
       expect(user).not_to be_ssn_mismatch
     end
 
@@ -175,8 +175,8 @@ RSpec.describe User, type: :model do
 
       it 'returns false' do
         expect(user).to be_loa3
-        expect(user.identity&.ssn).to be_falsey
-        expect(user.va_profile&.ssn).to be_truthy
+        expect(user.ssn).to be_falsey
+        expect(user.ssn_mpi).to be_truthy
         expect(user).not_to be_ssn_mismatch
       end
     end
@@ -186,8 +186,8 @@ RSpec.describe User, type: :model do
 
       it 'returns false' do
         expect(user).to be_loa3
-        expect(user.identity&.ssn).to be_truthy
-        expect(user.va_profile&.ssn).to be_falsey
+        expect(user.ssn).to be_truthy
+        expect(user.ssn_mpi).to be_falsey
         expect(user).not_to be_ssn_mismatch
       end
     end
@@ -197,8 +197,8 @@ RSpec.describe User, type: :model do
 
       it 'returns false if user identity ssn is nil' do
         expect(user).to be_loa3
-        expect(user.identity&.ssn).to be_truthy
-        expect(user.va_profile&.ssn).to be_truthy
+        expect(user.ssn).to be_truthy
+        expect(user.ssn_mpi).to be_truthy
         expect(user).not_to be_ssn_mismatch
       end
     end
@@ -418,7 +418,7 @@ RSpec.describe User, type: :model do
         before { stub_mpi(mvi_profile) }
 
         it 'fetches first_name from MVI' do
-          expect(user.first_name).to be(user.va_profile.given_names.first)
+          expect(user.first_name).to be(user.first_name_mpi)
         end
 
         context 'when given_names has no middle_name' do
@@ -446,15 +446,15 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches last_name from MVI' do
-          expect(user.last_name).to be(user.va_profile.family_name)
+          expect(user.last_name).to be(user.last_name_mpi)
         end
 
         it 'fetches gender from MVI' do
-          expect(user.gender).to be(user.va_profile.gender)
+          expect(user.gender).to be(user.gender_mpi)
         end
 
         it 'fetches properly parsed birth_date from MVI' do
-          expect(user.birth_date).to eq(Date.parse(user.va_profile.birth_date).iso8601)
+          expect(user.birth_date).to eq(Date.parse(user.mpi_profile_birth_date).iso8601)
         end
 
         it 'fetches address data from MPI and stores it as a hash' do
@@ -466,7 +466,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches ssn from MVI' do
-          expect(user.ssn).to be(user.va_profile.ssn)
+          expect(user.ssn).to be(user.ssn_mpi)
         end
       end
 

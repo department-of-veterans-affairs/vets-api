@@ -62,53 +62,10 @@ class User < Common::RedisStore
     pciu&.get_alternate_phone&.to_s
   end
 
-  def home_phone
-    mpi_profile&.home_phone
-  end
+  # Identity getter methods
 
-  def first_name
-    identity.first_name || (mhv_icn.present? ? first_name_mpi : nil)
-  end
-
-  def first_name_mpi
-    given_names&.first
-  end
-
-  def given_names
-    mpi_profile&.given_names
-  end
-
-  def full_name_normalized
-    {
-      first: first_name&.capitalize,
-      middle: middle_name&.capitalize,
-      last: last_name&.capitalize,
-      suffix: va_profile&.normalized_suffix
-    }
-  end
-
-  def ssn_normalized
-    ssn&.gsub(/[^\d]/, '')
-  end
-
-  def middle_name
-    identity.middle_name || (mhv_icn.present? ? mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
-  end
-
-  def last_name
-    identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
-  end
-
-  def last_name_mpi
-    mpi_profile&.family_name
-  end
-
-  def gender
-    identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
-  end
-
-  def gender_mpi
-    mpi_profile&.gender
+  def birls_id
+    identity&.birls_id || mpi&.birls_id
   end
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
@@ -124,8 +81,74 @@ class User < Common::RedisStore
       Rails.logger.info "[User] Cannot find birth date for User with uuid: #{uuid}"
       return nil
     end
-
     Formatters::DateFormatter.format_date(birth_date)
+  end
+
+  def first_name
+    identity.first_name || (mhv_icn.present? ? first_name_mpi : nil)
+  end
+
+  def full_name_normalized
+    {
+      first: first_name&.capitalize,
+      middle: middle_name&.capitalize,
+      last: last_name&.capitalize,
+      suffix: mpi_profile&.normalized_suffix
+    }
+  end
+
+  def gender
+    identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
+  end
+
+  def icn
+    identity&.icn || mpi&.icn
+  end
+
+  def loa
+    identity&.loa || {}
+  end
+
+  def mhv_account_type
+    identity.mhv_account_type || MHVAccountTypeService.new(self).mhv_account_type
+  end
+
+  def mhv_correlation_id
+    identity.mhv_correlation_id || mpi.mhv_correlation_id
+  end
+
+  def middle_name
+    identity.middle_name || (mhv_icn.present? ? mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
+  end
+
+  def last_name
+    identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
+  end
+
+  def participant_id
+    identity&.participant_id || mpi&.participant_id
+  end
+
+  def sec_id
+    identity.sec_id || mpi_profile&.sec_id
+  end
+
+  def ssn
+    identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
+  end
+
+  def ssn_normalized
+    ssn&.gsub(/[^\d]/, '')
+  end
+
+  def zip
+    identity.zip || (mhv_icn.present? ? mpi&.profile&.address&.postal_code : nil)
+  end
+
+  # MPI getter methods
+
+  def active_mhv_ids
+    mpi_profile&.active_mhv_ids
   end
 
   def address
@@ -139,24 +162,32 @@ class User < Common::RedisStore
     }
   end
 
-  def zip
-    identity.zip || (mhv_icn.present? ? mpi&.profile&.address&.postal_code : nil)
+  def edipi_mpi
+    mpi&.profile&.edipi
   end
 
-  def ssn
-    identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
+  def first_name_mpi
+    given_names&.first
   end
 
-  def ssn_mpi
-    mpi_profile&.ssn
+  def gender_mpi
+    mpi_profile&.gender
   end
 
-  def mhv_correlation_id
-    identity.mhv_correlation_id || mpi.mhv_correlation_id
+  def given_names
+    mpi_profile&.given_names
   end
 
-  def mhv_account_type
-    identity.mhv_account_type || MHVAccountTypeService.new(self).mhv_account_type
+  def historical_icns
+    mpi_profile&.historical_icns
+  end
+
+  def home_phone
+    mpi_profile&.home_phone
+  end
+
+  def last_name_mpi
+    mpi_profile&.family_name
   end
 
   def mhv_account_state
@@ -171,14 +202,42 @@ class User < Common::RedisStore
     mpi_profile&.mhv_ids
   end
 
-  def active_mhv_ids
-    mpi_profile&.active_mhv_ids
+  def mpi_profile_birth_date
+    return nil unless mpi_profile
+
+    if mpi_profile.birth_date.nil?
+      Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
+      return nil
+    end
+
+    mpi_profile.birth_date
   end
 
-  def loa
-    identity&.loa || {}
+  def sec_id_mpi
+    mpi_profile&.sec_id
   end
 
+  def ssn_mpi
+    mpi_profile&.ssn
+  end
+
+  def suffix
+    mpi&.profile&.suffix
+  end
+
+  def va_profile
+    mpi.profile
+  end
+
+  def va_profile_error
+    mpi.error
+  end
+
+  def va_profile_status
+    mpi.status
+  end
+
+  # identity attributes
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
@@ -197,58 +256,11 @@ class User < Common::RedisStore
   delegate :cerner_facility_ids, to: :mpi
 
   # emis attributes
-  # def cerner_id
-  #   mpi_profile.cerner_id
-  # end
-
-  # def cerner_facility_ids
-  #   mpi_profile.cerner_facility_ids
-  # end
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
   def edipi
     loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
-  end
-
-  def edipi_mpi
-    mpi&.profile&.edipi
-  end
-
-  def sec_id
-    identity.sec_id || mpi_profile&.sec_id
-  end
-
-  def sec_id_mpi
-    mpi_profile&.sec_id
-  end
-
-  def icn
-    identity&.icn || mpi&.icn
-  end
-
-  def historical_icns
-    mpi_profile&.historical_icns
-  end
-
-  def birls_id
-    identity&.birls_id || mpi&.birls_id
-  end
-
-  def participant_id
-    identity&.participant_id || mpi&.participant_id
-  end
-
-  def va_profile
-    mpi.profile
-  end
-
-  def va_profile_status
-    mpi.status
-  end
-
-  def va_profile_error
-    mpi.error
   end
 
   # LOA1 no longer just means ID.me LOA1.
@@ -274,9 +286,9 @@ class User < Common::RedisStore
   end
 
   def ssn_mismatch?
-    return false unless loa3? && identity&.ssn && va_profile&.ssn
+    return false unless loa3? && identity&.ssn && ssn_mpi
 
-    identity.ssn != va_profile.ssn
+    identity.ssn != ssn_mpi
   end
 
   def can_access_user_profile?
@@ -415,6 +427,7 @@ class User < Common::RedisStore
     email&.downcase || account_uuid
   end
 
+<<<<<<< HEAD
   def relationships
     @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
   end
@@ -451,6 +464,9 @@ class User < Common::RedisStore
 
   def mpi_profile_relationships
     return [] unless mpi_profile
+=======
+  private
+>>>>>>> spec updates and organizes identity & mpi getter methods
 
     mpi_profile.relationships
   end
