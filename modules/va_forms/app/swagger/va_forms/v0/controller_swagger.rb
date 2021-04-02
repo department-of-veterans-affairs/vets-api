@@ -97,7 +97,6 @@ module VAForms
           response 404 do
             key :description, 'Not Found'
           end
-
         end
       end
     end
