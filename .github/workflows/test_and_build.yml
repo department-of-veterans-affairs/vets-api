@@ -35,14 +35,6 @@ jobs:
       - name: Install dependencies (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
 
-      - name: Gem Cache
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
-
-      - name: Install Dependencies
-        run: bundle install --path vendor/bundle
   
       - name: Audit bundled gems for CVE issues
         run:  bundle exec bundle-audit check --update
