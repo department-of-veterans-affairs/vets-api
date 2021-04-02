@@ -560,7 +560,7 @@ GEM
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
-    octokit (4.18.0)
+    octokit (4.20.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.9.0)
@@ -876,7 +876,7 @@ GEM
       sync
     trollop (1.16.2)
     ttfunk (1.5.1)
-    typhoeus (1.3.1)
+    typhoeus (1.4.0)
       ethon (>= 0.9.0)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
@@ -911,7 +911,7 @@ GEM
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    will_paginate (3.1.0)
+    will_paginate (3.3.0)
     xmldsig (0.3.2)
       nokogiri
     xmlenc (0.7.1)
