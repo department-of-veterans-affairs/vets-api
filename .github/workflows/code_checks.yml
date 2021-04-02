@@ -1,4 +1,4 @@
-name: test_and_build
+name: code_checks
 on: [push]
 jobs:
   linting:
