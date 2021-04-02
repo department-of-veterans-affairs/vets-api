@@ -21,11 +21,11 @@ module CovidVaccine
         uploader = CovidVaccine::V0::EnrollmentUploadService.new(csv_generator.io, filename)
         uploader.upload
         update_state_to_pending
-      rescue => exception
+      rescue => e
         log_exception_to_sentry(
-          exception, 
-          { code: exception.try(:code) }, 
-          { external_service: 'EnrollmentService'}
+          e,
+          { code: e.try(:code) },
+          { external_service: 'EnrollmentService' }
         )
         raise
       end

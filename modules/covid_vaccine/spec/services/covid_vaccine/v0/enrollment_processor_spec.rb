@@ -30,40 +30,38 @@ describe CovidVaccine::V0::EnrollmentProcessor do
     end
   end
 
-  context '#batch_records!' do
+  describe '#batch_records!' do
     it 'changes records having state to have batch id' do
       records
       batched_records = subject.batch_records!
       expect(batched_records.size).to eq(records.size)
       expect(batched_records.all.map(&:batch_id)).to all(eq('20210402000000'))
-    end 
+    end
   end
 
-  context '#process_and_upload with success' do
+  describe '#process_and_upload with success' do
     it 'updates the state to reflect pending' do
       records
       allow_any_instance_of(CovidVaccine::V0::EnrollmentUploadService)
         .to receive(:upload).and_return(true)
-      expect(subject).not_to receive(:log_exception_to_sentry)  
       expect(subject.process_and_upload!).to eq(12)
-      batch_ids_and_states = CovidVaccine::V0::ExpandedRegistrationSubmission.all.map do |s| 
+      batch_ids_and_states = CovidVaccine::V0::ExpandedRegistrationSubmission.all.map do |s|
         [s.batch_id, s.state]
       end
-      expect(batch_ids_and_states).to all(eq(['20210402000000', 'enrollment_pending']))
+      expect(batch_ids_and_states).to all(eq(%w[20210402000000 enrollment_pending]))
     end
   end
 
-  context '#process_and_upload with server error' do
+  describe '#process_and_upload with server error' do
     it 'does not update the state' do
       records
       allow_any_instance_of(CovidVaccine::V0::EnrollmentUploadService)
         .to receive(:upload).and_raise(StandardError)
-      expect(subject).to receive(:log_exception_to_sentry)
       expect { subject.process_and_upload! }.to raise_error(StandardError)
-      batch_ids_and_states = CovidVaccine::V0::ExpandedRegistrationSubmission.all.map do |s| 
+      batch_ids_and_states = CovidVaccine::V0::ExpandedRegistrationSubmission.all.map do |s|
         [s.batch_id, s.state]
       end
-      expect(batch_ids_and_states).to all(eq(['20210402000000', 'received']))
+      expect(batch_ids_and_states).to all(eq(%w[20210402000000 received]))
     end
   end
 end
