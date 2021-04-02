@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module OpenidAuth
-  class ValidationSerializer < ActiveModel::Serializer
+  class ValidationSerializerV2 < ActiveModel::Serializer
     alias read_attribute_for_serialization send
 
     type 'validated_token'
@@ -20,7 +20,8 @@ module OpenidAuth
                :uid,
                :scp,
                :sub,
-               :va_identifiers
+               :act,
+               :launch
 
     delegate :ver, to: :object
 
@@ -42,8 +43,8 @@ module OpenidAuth
 
     delegate :sub, to: :object
 
-    delegate :va_identifiers, to: :object
-
     delegate :act, to: :object
+
+    delegate :launch, to: :object
   end
 end

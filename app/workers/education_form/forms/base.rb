@@ -164,6 +164,19 @@ module EducationForm::Forms
       ].compact.join(seperator).upcase
     end
 
+    def full_address_with_street3(address, indent: false)
+      return '' if address.nil?
+
+      seperator = indent ? "\n        " : "\n"
+      [
+        address.street,
+        address.street2,
+        address.street3,
+        [address.city, address.state, address.postalCode].compact.join(', '),
+        address.country
+      ].compact.join(seperator).upcase
+    end
+
     def hours_and_type(training)
       return_val = training&.hours&.to_s
       return '' if return_val.blank?
