@@ -8,13 +8,16 @@ module Mobile
   module V0
     class AppointmentsController < ApplicationController
       def index
-        use_cache = params[:useCache] || false
-        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 3.months).iso8601
-        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 6.months).iso8601
+        use_cache = params[:useCache] || true
+        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
+        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
+        page = params[:page] || { 'number' => 1, 'size' => 10 }
 
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
           start_date: start_date,
           end_date: end_date,
+          page_number: page[:number],
+          page_size: page[:size],
           use_cache: use_cache
         )
 
@@ -35,25 +38,61 @@ module Mobile
       private
 
       def fetch_cached_or_service(validated_params)
-        json = nil
-        json = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
+        appointments = nil
+        appointments = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
 
-        # if JSON has been retrieved from redis, delete the cached version and return recovered appointments
+        # if appointments has been retrieved from redis, delete the cached version and return recovered appointments
         # otherwise fetch appointments from the upstream service
-        if json
-          Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
-          json
-        else
-          Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
-          appointments, errors = appointments_proxy.get_appointments(validated_params.to_h)
-          options = {
-            meta: {
-              errors: errors.size.positive? ? errors : nil
-            }
-          }
+        appointments, errors = if appointments
+                                 Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
+                                 [appointments, nil]
+                               else
+                                 Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
+                                 appointments, errors = appointments_proxy.get_appointments(validated_params.to_h.except(:page_number, :page_size))
+                                 Mobile::V0::Appointment.set_cached(@current_user, appointments)
+                                 [appointments, errors]
+                               end
 
-          Mobile::V0::AppointmentSerializer.new(appointments, options)
-        end
+        page_appointments, page_links = paginate(list: appointments, page_number: 1, page_size: 10,
+                                                 validated_params: validated_params)
+
+        options = {
+          meta: {
+            errors: errors.nil? ? nil : errors
+          },
+          links: page_links
+        }
+
+        Mobile::V0::AppointmentSerializer.new(page_appointments, options)
+      end
+
+      def paginate(list:, validated_params:, page_number: 1, page_size: 10)
+        pages = list.each_slice(page_size).to_a
+        return nil if page_number > pages.size
+
+        [pages[page_number - 1], links(page_number, page_size, pages.size, validated_params)]
+      end
+
+      def links(page_number, page_size, number_of_pages, validated_params)
+        endpoint_url = request.base_url + request.path_info
+        query_string = "?startDate=#{validated_params[:start_date]}&endDate=#{validated_params[:end_date]}"\
+          "&useCache=#{validated_params[:use_cache]}"
+        url = endpoint_url + query_string
+
+        prev_link = nil
+        next_link = nil
+
+        prev_link = "#{url}&page[number]=#{page_number - 1}&page[size]=#{page_size}" if page_number > 1
+
+        next_link = "#{url}&page[number]=#{page_number + 1}&page[size]=#{page_size}" if page_number < number_of_pages
+        
+        {
+          self: "#{url}&page[number]=#{page_number}&page[size]=#{page_size}",
+          first: "#{url}&page[number]=1&page[size]=#{page_size}",
+          prev: prev_link,
+          next: next_link,
+          last: "#{url}&page[number]=#{number_of_pages}&page[size]=#{page_size}"
+        }
       end
 
       def appointments_proxy

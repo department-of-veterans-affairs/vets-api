@@ -37,7 +37,8 @@ RSpec.describe 'appointments', type: :request do
         end
       end
 
-      it 'defaults to a range of -3 months and + 6 months' do
+      it 'defaults to a range of -1 year and +1 year' do
+        binding.pry
         expect(response).to have_http_status(:ok)
       end
     end
@@ -68,7 +69,7 @@ RSpec.describe 'appointments', type: :request do
     context 'with valid params' do
       let(:start_date) { Time.now.utc.iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { startDate: start_date, endDate: end_date, useCache: true } }
+      let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
 
       context 'with a user has mixed upcoming appointments' do
         before do
@@ -85,6 +86,7 @@ RSpec.describe 'appointments', type: :request do
         let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
 
         it 'returns an ok response' do
+          binding.pry
           expect(response).to have_http_status(:ok)
         end
 
@@ -322,10 +324,7 @@ RSpec.describe 'appointments', type: :request do
           )
 
           appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
-          options = { meta: { errors: nil } }
-          json = Mobile::V0::AppointmentSerializer.new(appointments, options).to_json
-
-          Mobile::V0::Appointment.set_cached(user, json)
+          Mobile::V0::Appointment.set_cached(user, appointments)
         end
 
         after { Timecop.return }

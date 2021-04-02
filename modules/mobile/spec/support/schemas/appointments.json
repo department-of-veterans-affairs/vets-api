@@ -179,6 +179,42 @@
           }
         }
       }
+    },
+    "meta": {
+      "required": [
+        "errors"
+      ],
+      "properties": {
+        "errors": {
+          "type": ["array", "null"]
+        }
+      }
+    },
+    "links": {
+      "required": [
+        "self",
+        "first",
+        "prev",
+        "next",
+        "last"
+      ],
+      "properties": {
+        "self": {
+          "type": "string"
+        },
+        "first": {
+          "type": "string"
+        },
+        "prev": {
+          "type": "string"
+        },
+        "next": {
+          "type": "string"
+        },
+        "last": {
+          "type": "string"
+        }
+      }
     }
   }
 }
