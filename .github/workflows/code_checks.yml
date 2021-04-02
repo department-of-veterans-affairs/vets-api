@@ -37,6 +37,9 @@ jobs:
         with:
           path: vendor/bundle
           key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
+          
+      - name: Install Dependencies
+        run: bundle install --path vendor/bundle
 
       - name: Run bundle-audit (checks gems for CVE issues)
         run:  bundle exec bundle-audit check --update
