@@ -161,7 +161,7 @@ RSpec.describe 'user', type: :request do
       it 'includes a health attribute with user facilities and is_cerner_patient' do
         expect(attributes['health']).to include(
           {
-            'isCernerPatient' => false,
+            'isCernerPatient' => true,
             'facilities' => [
               {
                 'facilityId' => '757',
