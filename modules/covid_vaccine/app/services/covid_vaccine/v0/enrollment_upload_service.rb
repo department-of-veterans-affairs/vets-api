@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'net/sftp'
-require 'covid_vaccine/v0/expanded_registration_submission_csv_generator'
-
 module CovidVaccine
   module V0
     class EnrollmentUploadService
@@ -11,19 +9,15 @@ module CovidVaccine
         @file_name = file_name
       end
 
-      attr_reader :records, :io
+      attr_reader :io, :file_name
 
       def upload
         Net::SFTP.start(sftp_host, sftp_username, password: sftp_password) do |sftp|
-          sftp.upload!(@io, remote_file_path(@file_name), name: @file_name, progress: EnrollmentHandler.new)
+          sftp.upload!(@io, file_name, name: file_name, progress: EnrollmentHandler.new)
         end
       end
 
       private
-
-      def remote_file_path(name)
-        "#{name}"
-      end
 
       def sftp_host
         Settings.covid_vaccine.enrollment_service.sftp.host

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'covid_vaccine/v0/expanded_registration_submission_csv_generator'
+require 'covid_vaccine/v0/expanded_registration_csv_generator'
 
 module CovidVaccine
   module V0
