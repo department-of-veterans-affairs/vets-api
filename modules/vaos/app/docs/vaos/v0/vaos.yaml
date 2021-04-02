@@ -460,6 +460,97 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  '/facilities/{facility_id}/clinics':
+    get:
+      tags: 
+        - facilities
+      summary:  Returns a list of clinics for a given facility
+      operationId:  getClinics
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name:  facility_id
+          schema:
+            type: string
+        - in: query
+          required: true
+          name:  type_of_care_id
+          schema:
+            type: string
+        - in: query
+          required: true
+          name:  system_id
+          schema:
+            type: string            
+      responses:
+        '200':
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Clinic'
+              example:
+                data:
+                  - id: "983"
+                    type: "clinic"
+                    attributes:
+                      site_code:  "983"
+                      clinic_id:  "308"
+                      clinic_name:  "CHY PC KILPATRICK"
+                      clinic_friendly_location_name:  "Green Team Clinic1"
+                      primary_stop_code:  "323"
+                      secondary_stop_code:  ""
+                      direct_scheduling_flag: "Y"
+                      display_to_patient_flag:  "Y"
+                      institution_name: "CHYSHR-Cheyenne VA Medical Center"
+                      institution_code: "983"
+                      object_type:  "CdwClinic"
+                  - id: "983"
+                    type: "clinic"
+                    attributes:
+                      site_code:  "983"
+                      clinic_id:  "455"
+                      clinic_name:  "CHY PC CASSIDY"
+                      clinic_friendly_location_name:  ""
+                      primary_stop_code:  "323"
+                      secondary_stop_code:  ""
+                      direct_scheduling_flag: "Y"
+                      display_to_patient_flag:  "Y"
+                      institution_name: "CHYSHR-Cheyenne VA Medical Center"
+                      institution_code: "983"
+                      object_type:  "CdwClinic"                 
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/systems':
     get:
       tags:
@@ -686,6 +777,54 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    Clinic:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          required:
+            - site_code
+            - clinic_id
+            - clinic_name
+            - clinic_friendly_location_name
+            - primary_stop_code
+            - secondary_stop_code
+            - direct_scheduling_flag
+            - display_to_patient_flag
+            - institution_name
+            - institution_code
+            - object_type
+          properties:
+            site_code:
+              type: string
+            clinic_id:
+              type: string
+            clinic_name:
+              type: string
+            clinic_friendly_location_name:
+              type: string
+            primary_stop_code:
+              type: string
+            secondary_stop_code:
+              type: string
+            direct_scheduling_flag:
+              type: string
+            display_to_patient_flag:
+              type: string
+            institution_name:
+              type: string
+            institution_code:
+              type: string
+            object_type:
+              type: string                     
     Facility:
       type: "object"
       required:
@@ -1211,4 +1350,4 @@ components:
             title:
               type: "string"
               example: "PHYSICIAN-ATTENDING"
-          type: "object"
+          type: "object" 
