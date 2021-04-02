@@ -13,7 +13,7 @@ module CovidVaccine
       attr_reader :batch_id
 
       def process_and_upload
-        records = batch_records
+        records = batch_records!
         csv_generator = ExpandedRegistrationCsvGenerator.new(records)
         filename = generated_file_name(records.length)
         uploader = CovidVaccine::V0::EnrollmentUploadService.new(csv_generator.io, filename)
@@ -49,7 +49,7 @@ module CovidVaccine
 
       # TODO: Should this be private? Or public to be used by scanner job
       # rubocop:disable Rails/SkipsModelValidations
-      def batch_records
+      def batch_records!
         records = CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'received', batch_id: nil)
         records.update_all(batch_id: @batch_id)
         CovidVaccine::V0::ExpandedRegistrationSubmission.where(batch_id: @batch_id)

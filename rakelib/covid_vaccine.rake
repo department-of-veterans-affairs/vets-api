@@ -26,8 +26,7 @@ namespace :covid_vaccine do
   # end
 
   desc 'Perform enrollment SFTP upload for max (count) records'
-  task :perform_enrollment_upload, [:count] => [:environment] do |_, args|
-    count = args[:count]
+  task :perform_enrollment_upload, [:count] => [:environment] do |_, _args|
     processor = CovidVaccine::V0::EnrollmentProcessor.new
     processor.process_and_upload
     puts "Uploaded batch file for batch id #{processor.batch_id} successfully"
