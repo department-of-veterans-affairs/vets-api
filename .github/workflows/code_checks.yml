@@ -16,7 +16,7 @@ jobs:
 
     services:
       postgres:
-        image: postgis:11-2.5-alpine
+        image: postgis/postgis:11-2.5
         env:
           POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api_test
