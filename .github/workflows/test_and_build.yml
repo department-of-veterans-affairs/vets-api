@@ -42,5 +42,5 @@ jobs:
       - name: Static security analysis using Brakeman
         run:  bundle exec brakeman --exit-on-warn --run-all-checks --confidence-level=2
  
-      - name: Lint code with Rubocop
+      - name: Run Rubocop (linter)
         run: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress
