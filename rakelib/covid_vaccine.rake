@@ -9,14 +9,18 @@ namespace :covid_vaccine do
     end
   end
 
-  # desc 'Generate enrollment batch file for max (count) records. Record batch id but do not update state'
-  # task :write_enrollment_file, [:count] => [:environment] do |_, args|
-  #   count = args[:count]
-  #   processor = CovidVaccine::V0::EnrollmentProcessor.new
-  #   filename = processor.write_to_file(count)
-  #   puts "Generated batch file #{filename} for batch id #{processor.batch_id}"
-  #   puts 'Use task covid_vaccine:set_pending_state to update state after manual upload'
-  # end
+  desc 'Generate enrollment batch file for specified existing batch id. Does not update state'
+  task :write_batch_file, %i[batch_id] => [:environment] do |_, args|
+    raise 'No batch_id provided' unless args[:batch_id]
+
+    batch_id = args[:batch_id]
+    filename = "DHS_load_MANUAL_#{batch_id}_SLA_unknown_records.txt"
+    File.open(filename, 'w') do |file|
+      record_count = CovidVaccine::V0::EnrollmentProcessor.write_to_file(batch_id, file)
+      puts "Generated batch file #{filename} for batch id #{batch_id} with #{record_count} records"
+      puts 'NOTE: state for records was not updated as a result of this operation'
+    end
+  end
 
   # desc 'Update state of records in batch to pending'
   # task :set_pending_state, [:batch_id] => [:environment] do |_, args|
