@@ -75,16 +75,17 @@ module VAForms
             property :form_tool_intro do
               key :description, I18n.t('va_forms.field_descriptions.form_tool_intro')
               key :type, :string
+              key :example, 'You can apply online instead of filling out and sending us the paper form.'
             end
             property :form_tool_url do
               key :description, I18n.t('va_forms.field_descriptions.form_tool_url')
               key :type, :string
-              key :example, 'You can apply online instead of filling out and sending us the paper form.'
+              key :example, 'https://www.va.gov/health-care/apply/application/introduction'
             end
             property :form_details_url do
               key :description, I18n.t('va_forms.field_descriptions.form_details_url')
               key :type, :string
-              key :example, 'https://www.va.gov/health-care/apply/application/introduction'
+              key :example, 'https://www.va.gov/find-forms/about-form-10-10ez'
             end
             property :form_type do
               key :description, I18n.t('va_forms.field_descriptions.form_type')
@@ -197,16 +198,17 @@ module VAForms
             property :form_tool_intro do
               key :description, I18n.t('va_forms.field_descriptions.form_tool_intro')
               key :type, :string
+              key :example, 'You can apply online instead of filling out and sending us the paper form.'
             end
             property :form_tool_url do
               key :description, I18n.t('va_forms.field_descriptions.form_tool_url')
               key :type, :string
-              key :example, 'You can apply online instead of filling out and sending us the paper form.'
+              key :example, 'https://www.va.gov/health-care/apply/application/introduction'
             end
             property :form_details_url do
               key :description, I18n.t('va_forms.field_descriptions.form_details_url')
               key :type, :string
-              key :example, 'https://www.va.gov/health-care/apply/application/introduction'
+              key :example, 'https://www.va.gov/find-forms/about-form-10-10ez'
             end
             property :form_type do
               key :description, I18n.t('va_forms.field_descriptions.form_type')
