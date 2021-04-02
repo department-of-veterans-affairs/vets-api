@@ -32,4 +32,24 @@ namespace :covid_vaccine do
     processor.process_and_upload(count)
     puts "Uploaded batch file for batch id #{processor.batch_id} successfully"
   end
+
+  desc 'Write mapped facility IDs to record. Short-lived task to handle input anomaly'
+  task map_facility_ids: [:environment] do |_task|
+    count = 0
+    CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'received').find_each do |submission|
+      resolver = CovidVaccine::V0::FacilityResolver.new
+      mapped_facility = resolver.resolve(submission)
+      submission.eligibility_info = { preferred_facility: mapped_facility }
+      submission.save!
+      count += 1
+    end
+    CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: nil).find_each do |submission|
+      resolver = CovidVaccine::V0::FacilityResolver.new
+      mapped_facility = resolver.resolve(submission)
+      submission.eligibility_info = { preferred_facility: mapped_facility }
+      submission.save!
+      count += 1
+    end
+    puts "Updated mapped facility info for #{count} records"
+  end
 end
