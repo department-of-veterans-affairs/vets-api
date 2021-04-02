@@ -4,11 +4,6 @@ jobs:
   linting:
     runs-on: ubuntu-20.04
     env:
-      BUNDLE_JOBS: 2
-      BUNDLE_RETRY: 3
-      LANG: en_US.UTF-8
-      PGHOST: postgres
-      PGUSER: vets-api
       RAILS_ENV: test
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
