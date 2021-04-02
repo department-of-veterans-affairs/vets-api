@@ -20,7 +20,7 @@ module CovidVaccine
         filename = generated_file_name(records.length)
         uploader = CovidVaccine::V0::EnrollmentUploadService.new(csv_generator.io, filename)
         uploader.upload
-        update_state_to_pending
+        update_state_to_pending!
       rescue => e
         log_exception_to_sentry(
           e,
@@ -31,7 +31,7 @@ module CovidVaccine
       end
 
       # rubocop:disable Rails/SkipsModelValidations
-      def update_state_to_pending
+      def update_state_to_pending!
         CovidVaccine::V0::ExpandedRegistrationSubmission
           .where(batch_id: @batch_id).update_all(state: 'enrollment_pending')
       end
