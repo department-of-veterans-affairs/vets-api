@@ -38,6 +38,7 @@ jobs:
  
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
+        
       - uses: duderman/rubocop-annotate-action@v0.1.0
         with:
           path: rubocop.json
