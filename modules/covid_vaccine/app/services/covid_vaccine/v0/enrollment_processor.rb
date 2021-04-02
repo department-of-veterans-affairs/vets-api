@@ -5,6 +5,8 @@ require 'covid_vaccine/v0/expanded_registration_csv_generator'
 module CovidVaccine
   module V0
     class EnrollmentProcessor
+      include SentryLogging
+
       def initialize(prefix: 'DHS_load')
         @batch_id = Time.now.utc.strftime('%Y%m%d%H%M%S')
         @prefix = prefix
@@ -19,8 +21,13 @@ module CovidVaccine
         uploader = CovidVaccine::V0::EnrollmentUploadService.new(csv_generator.io, filename)
         uploader.upload
         update_state_to_pending
-      rescue
-        # TODO
+      rescue => exception
+        log_exception_to_sentry(
+          exception, 
+          { code: e&.code}, 
+          { external_service: 'EnrollmentService'}
+        )
+        raise
       end
 
       # rubocop:disable Rails/SkipsModelValidations
@@ -56,10 +63,8 @@ module CovidVaccine
       end
       # rubocop:enable Rails/SkipsModelValidations
 
-      private
-
       def generated_file_name(record_count)
-        "#{@prefix}_#{batch_id}_SLA_#{record_count}_records.txt"
+        "#{@prefix}_#{@batch_id}_SLA_#{record_count}_records.txt"
       end
     end
   end
