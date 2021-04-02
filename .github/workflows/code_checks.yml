@@ -3,11 +3,6 @@ on: [push]
 jobs:
   linting:
     runs-on: ubuntu-20.04
-    env:
-      RAILS_ENV: test
-      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
-      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
-      "Settings.binaries.clamdscan": "clamscan"
 
     services:
       postgres:
@@ -16,7 +11,7 @@ jobs:
           POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api_test
           POSTGRES_PASSWORD: postgres
-        ports:
+        ports
           - 5432:5432
 
       redis:
@@ -25,6 +20,11 @@ jobs:
 
 
     steps:
+      env:
+        RAILS_ENV: test
+        "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+        "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+        "Settings.binaries.clamdscan": "clamscan"
       - uses: actions/checkout@v2 #checkout step
       - uses: ruby/setup-ruby@v1      
       - name: Install dependencies (pdftk, poppler, imagemagick)
