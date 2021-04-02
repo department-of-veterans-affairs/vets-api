@@ -7,6 +7,63 @@ module Swagger
     class Profile
       include Swagger::Blocks
 
+      swagger_path '/v0/profile/communication_preferences' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, "Get user's communication preferences data"
+          key :operationId, 'getCommunicationPreferences'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          key :produces, ['application/json']
+          key :consumes, ['application/json']
+
+          response 200 do
+            key :description, 'Communication preferences data'
+
+            schema do
+              key :type, :object
+
+              property(:data) do
+                key :type, :object
+
+                property :id, type: :string
+                property :type, type: :string
+
+                property :attributes do
+                  key :type, :object
+
+                  property :communication_groups do
+                    key :type, :array
+
+                    items do
+                      key :type, :object
+
+                      property :name, type: :string
+                      property :description, type: :string
+
+                      property :communication_items do
+                        key :type, :array
+
+                        items do
+                          key :type, :object
+
+                          property :
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/ch33_bank_accounts' do
         operation :put do
           extend Swagger::Responses::AuthenticationError
