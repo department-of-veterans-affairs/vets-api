@@ -14,7 +14,7 @@ module CovidVaccine
 
       attr_reader :batch_id
 
-      def process_and_upload
+      def process_and_upload!
         records = batch_records!
         csv_generator = ExpandedRegistrationCsvGenerator.new(records)
         filename = generated_file_name(records.length)
@@ -24,7 +24,7 @@ module CovidVaccine
       rescue => exception
         log_exception_to_sentry(
           exception, 
-          { code: e&.code}, 
+          { code: exception.try(:code) }, 
           { external_service: 'EnrollmentService'}
         )
         raise
