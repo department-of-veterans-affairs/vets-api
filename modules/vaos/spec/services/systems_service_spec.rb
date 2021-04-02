@@ -248,14 +248,7 @@ describe VAOS::SystemsService do
       it 'returns a number of requests and limits for multiple facilities' do
         VCR.use_cassette('vaos/systems/get_facilities_limits_for_multiple', match_requests_on: %i[method uri]) do
           response = subject.get_facilities_limits(%w[688 442], '323')
-
-          expect(response.body.first[:number_of_requests]).to eq(0)
-          expect(response.body.first[:request_limit]).to eq(1)
-          expect(response.body.first[:institution_code]).to eq('688')
-          expect(response.body.second[:number_of_requests]).to eq(0)
-          expect(response.body.second[:request_limit]).to eq(1)
-          expect(response.body.second[:institution_code]).to eq('442')
-          expect(response.body.size).to eq(2)
+          expect(response.size).to eq(2)
         end
       end
     end
