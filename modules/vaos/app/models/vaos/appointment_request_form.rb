@@ -82,7 +82,7 @@ module VAOS
     # These values ought to be derived from MVI vs user input, except for inpatient and text_messaging_allowed
     def patient=(values_hash)
       @patient = {
-        display_name: "#{@user.last_name_mpi}, #{@user.first_name_mpi}",
+        display_name: [@user.last_name_mpi, @user.first_name_mpi].compact.join(', '),
         first_name: @user.first_name_mpi,
         last_name: @user.last_name_mpi,
         date_of_birth: birth_date,
