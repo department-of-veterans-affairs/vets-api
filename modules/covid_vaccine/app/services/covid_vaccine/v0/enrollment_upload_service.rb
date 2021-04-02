@@ -5,16 +5,18 @@ require 'covid_vaccine/v0/expanded_registration_submission_csv_generator'
 
 module CovidVaccine
   module V0
-    class EnrollmentService
-      def initialize(records)
-        @records = records
-        @io = ExpandedRegistrationSubmissionCSVGenerator.new(@records).io
+    class EnrollmentUploadService
+      def initialize(io, batch_id, record_count, prefix: 'DHS_load')
+        @io = io
+        @batch_id = batch_id
+        @record_count = record_count
+        @prefix = prefix
       end
 
       attr_reader :records, :io
 
-      def send_enrollment_file(file_name_prefix: '')
-        file_name = file_name_prefix + generated_file_name
+      def upload
+        file_name = generated_file_name
 
         Net::SFTP.start(sftp_host, sftp_username, password: sftp_password) do |sftp|
           sftp.upload!(@io, remote_file_path(file_name), name: file_name, progress: EnrollmentHandler.new)
@@ -28,7 +30,8 @@ module CovidVaccine
       end
 
       def generated_file_name
-        "DHS_load_#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_SLA_#{@records.size}_records.txt"
+        "#{@prefix}_#{batch_id}_SLA_#{@record_count}_records.txt"
+        # "DHS_load_#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_SLA_#{@records.size}_records.txt"
       end
 
       def sftp_host

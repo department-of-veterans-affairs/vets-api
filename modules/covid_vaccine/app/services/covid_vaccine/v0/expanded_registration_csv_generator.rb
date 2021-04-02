@@ -4,7 +4,7 @@ require 'stringio'
 
 module CovidVaccine
   module V0
-    class ExpandedRegistrationSubmissionCSVGenerator
+    class ExpandedRegistrationCsvGenerator
       VA_AGENCY_IDENTIFIER = '8'
 
       MAPPER = {

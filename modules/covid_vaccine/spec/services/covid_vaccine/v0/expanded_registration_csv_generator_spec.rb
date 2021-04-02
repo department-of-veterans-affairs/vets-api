@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'covid_vaccine/v0/expanded_registration_submission_csv_generator'
 
-describe CovidVaccine::V0::ExpandedRegistrationSubmissionCSVGenerator do
+describe CovidVaccine::V0::ExpandedRegistrationSubmissionCsvGenerator do
   subject do
     fixture_file = YAML.load_file('modules/covid_vaccine/spec/fixtures/expanded_registration_submissions.yml')
     records = fixture_file.values.map do |fixture|

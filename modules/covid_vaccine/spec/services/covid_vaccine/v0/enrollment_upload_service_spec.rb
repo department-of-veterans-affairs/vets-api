@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe CovidVaccine::V0::EnrollmentService do
+describe CovidVaccine::V0::EnrollmentUploadService do
   subject do
     described_class.new(records)
   end
