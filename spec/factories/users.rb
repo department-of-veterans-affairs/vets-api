@@ -188,6 +188,17 @@ FactoryBot.define do
       end
     end
 
+    factory :user_with_relationship, traits: [:loa3] do
+      after(:build) do
+        stub_mpi(
+          build(
+            :mpi_profile_response,
+            :with_relationship
+          )
+        )
+      end
+    end
+
     factory :vets360_user, traits: [:loa3] do
       after(:build) do
         stub_mpi(
