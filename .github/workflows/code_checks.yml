@@ -2,7 +2,7 @@ name: code_checks
 on: [push]
 jobs:
   linting:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     env:
       BUNDLE_JOBS: 2
       BUNDLE_RETRY: 3
