@@ -62,8 +62,6 @@ describe CovidVaccine::V0::EnrollmentProcessor do
         [s.batch_id, s.state]
       end
       expect(batch_ids_and_states).to all(eq(%w[20210402000000 received]))
-      expect(batched_records).to eq(records.size)
-      expect(batched_records.map(&:batch_id)).to all(eq('20210402000000'))
     end
   end
 
