@@ -36,7 +36,7 @@ jobs:
         run: sudo apt install imagemagick pdftk poppler-utils
 
   
-      - name: Audit bundled gems for CVE issues
+      - name: Run bundle-audit (checks gems for CVE issues)
         run:  bundle exec bundle-audit check --update
         
       - name: Static security analysis using Brakeman
