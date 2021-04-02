@@ -62,6 +62,37 @@ describe CovidVaccine::V0::EnrollmentProcessor do
         [s.batch_id, s.state]
       end
       expect(batch_ids_and_states).to all(eq(%w[20210402000000 received]))
+      expect(batched_records).to eq(records.size)
+      expect(batched_records.map(&:batch_id)).to all(eq('20210402000000'))
+    end
+  end
+
+  context 'write_to_file' do
+    let(:batch_id) { '20210401010101' }
+
+    before do
+      create(:covid_vax_expanded_registration, raw_options: { 'first_name' => 'IncludeMe',
+                                                              'preferred_facility' => 'vha_648' },
+                                               batch_id: batch_id)
+      create(:covid_vax_expanded_registration, raw_options: { 'first_name' => 'ExcludeMe',
+                                                              'preferred_facility' => 'vha_512' },
+                                               batch_id: nil)
+      create(:covid_vax_expanded_registration, raw_options: { 'first_name' => 'ExcludeMe',
+                                                              'preferred_facility' => 'vha_512' },
+                                               batch_id: 'other')
+    end
+
+    it 'writes records from specified batch to stream' do
+      stream = StringIO.new
+      CovidVaccine::V0::EnrollmentProcessor.write_to_file(batch_id, stream)
+      expect(stream.string).to include('IncludeMe')
+      expect(stream.string).to include('^648^')
+    end
+
+    it 'ignores records from other batches' do
+      stream = StringIO.new
+      CovidVaccine::V0::EnrollmentProcessor.write_to_file(batch_id, stream)
+      expect(stream.string).not_to include('ExcludeMe')
     end
   end
 end
