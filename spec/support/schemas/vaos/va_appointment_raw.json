@@ -13,6 +13,8 @@
         "clinic_id": { "type": ["string", null] },
         "clinic_friendly_name": { "type": ["string", null] },
         "facility_id": { "type": ["string", null] },
+        "char4": { "type": ["string", null] },
+        "phone_only": { "type": ["boolean", null] },
         "community_care": { "type": ["boolean", null] },
         "vds_appointments": {
           "type": "array",
@@ -21,6 +23,7 @@
           "items": {
             "type": "object",
             "properties": {
+              "id": { "type": "string" },
               "appointment_length": { "type": ["string", null] },
               "appointment_time": { "type": "string", "format": "date-time" },
               "clinic": {
