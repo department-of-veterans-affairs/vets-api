@@ -5,6 +5,9 @@ require 'sentry_logging'
 
 module Veteran
   class VSOReloader < BaseReloader
+    include Sidekiq::Worker
+    include SentryLogging
+
     def perform
       array_of_organizations = reload_representatives
 
