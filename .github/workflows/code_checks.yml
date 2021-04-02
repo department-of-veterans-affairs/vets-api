@@ -42,5 +42,9 @@ jobs:
       - name: Run Brakeman (static security analysis)
         run:  bundle exec brakeman --exit-on-warn --run-all-checks --confidence-level=2
  
-      - name: Run Rubocop (linter)
-        run: bundle exec rubocop -r rubocop-thread_safety --parallel --format progress
+      - name: Run Rubocop
+        run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
+      - uses: duderman/rubocop-annotate-action@v0.1.0
+        with:
+          path: rubocop.json
+        if: ${{ failure() }}
