@@ -28,7 +28,7 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
     end
 
-    it 'loads a claim agent  with the poa code' do
+    it 'loads a claim agent with the poa code' do
       VCR.use_cassette('veteran/ogc_claim_agent_data') do
         Veteran::VSOReloader.new.reload_claim_agents
         expect(Veteran::Service::Representative.last.poa_codes).to include('FDN')
@@ -44,12 +44,13 @@ RSpec.describe Veteran::VSOReloader, type: :job do
 
     context 'with a failed connection' do
       before do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::ConnectionFailed)
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::ConnectionFailed,
+                                                                               'some message')
       end
 
       it 'notifies slack' do
-        Veteran::VSOReloader.new.perform
         expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        Veteran::VSOReloader.new.perform
       end
     end
 
@@ -59,8 +60,8 @@ RSpec.describe Veteran::VSOReloader, type: :job do
       end
 
       it 'notifies slack' do
-        Veteran::VSOReloader.new.perform
         expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        subject.new.perform
       end
     end
   end
