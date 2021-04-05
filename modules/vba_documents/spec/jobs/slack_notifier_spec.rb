@@ -33,6 +33,13 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     Settings.vba_documents.slack = nil
   end
 
+  it 'does nothing if the flag is disabled' do
+    with_settings(Settings.vba_documents.slack, enabled: false) do
+      @results = @job.perform
+      expect(@results).to be(nil)
+    end
+  end
+
   context 'daily notification' do
     it 'does the daily notification at the correct hour' do
       Timecop.freeze(Time.at(1_616_673_917).utc) do
