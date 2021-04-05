@@ -4,7 +4,7 @@ require 'rails_helper'
 
 def get_education_form_fixture(filename)
   get_fixture("education_form/#{filename}")
-end 
+end
 
 RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
   subject do
