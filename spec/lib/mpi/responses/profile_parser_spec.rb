@@ -200,9 +200,7 @@ describe MPI::Responses::ProfileParser do
           vet360_id: '7909',
           historical_icns: [],
           cerner_id: nil,
-          cerner_facility_ids: [],
-          search_token: nil,
-          relationships: []
+          cerner_facility_ids: []
         )
       end
 

@@ -619,7 +619,11 @@ module EVSS
 
       def user_supplied_rad_date
         # Retrieve the most recent Release from Active Duty (RAD) date from user supplied service periods
-        recent_service_period = translate_service_periods.sort_by { |episode| episode['activeDutyEndDate'] }.reverse[0]
+        # Exclude Reserve and Guard
+        recent_service_periods = translate_service_periods.reject do |episode|
+          episode['serviceBranch'].include?('Reserve') || episode['serviceBranch'].include?('National Guard')
+        end
+        recent_service_period = recent_service_periods.sort_by { |episode| episode['activeDutyEndDate'] }.reverse[0]
         recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
       end
 
