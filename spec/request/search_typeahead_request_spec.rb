@@ -9,7 +9,7 @@ describe 'search_typeahead', type: :request do
 
   describe 'GET /v0/search_typeahead' do
     context 'on a successful get' do
-      it 'it has an array of responses', :aggregate_failures do
+      it 'has an array of responses', :aggregate_failures do
         VCR.use_cassette('search_typeahead/success') do
           get '/v0/search_typeahead', params: { query: 'ebenefits' }
 
@@ -22,15 +22,14 @@ describe 'search_typeahead', type: :request do
     end
 
     context 'with an empty query' do
-      it 'it has an empty response body', :aggregate_failures do
+      it 'has an empty response body', :aggregate_failures do
         VCR.use_cassette('search_typeahead/missing_query') do
           get '/v0/search_typeahead', params: { query: '' }
 
           expect(response).to have_http_status(:ok)
-          expect(response.body).to eq "{\"status\":200,\"body\":null}"
+          expect(response.body).to eq '{\"status\":200,\"body\":null}'
         end
       end
     end
   end
 end
-
