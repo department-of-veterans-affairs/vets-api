@@ -367,11 +367,13 @@ RSpec.describe 'facilities', type: :request do
           get '/vaos/v0/facilities/limits', params: { type_of_care_id: '323', facility_ids: %w[688 442] }
 
           expect(response).to have_http_status(:ok)
-          data_json = JSON.parse(response.body)
-          expect(data_json.size).to eq(2)
-          expect(data_json.first['number_of_requests']).to eq(0)
-          expect(data_json.first['request_limit']).to eq(1)
-          expect(data_json.first['institution_code']).to eq('688')
+          data = JSON.parse(response.body)['data']
+          attributes = data.first['attributes']
+          expect(data.size).to eq(2)
+          expect(data.first['id']).to eq('688')
+          expect(attributes['number_of_requests']).to eq(0)
+          expect(attributes['request_limit']).to eq(1)
+          expect(response).to match_response_schema('vaos/facilities_limits')
         end
       end
     end
