@@ -209,3 +209,8 @@ ClaimsApi::ClaimAuditor:
   every: "12h"
   class: ClaimsApi::ClaimAuditor
   description: "Daily alert of pending claims longer than acceptable threshold"
+
+Veteran::VSOReloader:
+  cron: "0 2 * * * America/New_York"
+  class: Veteran::VSOReloader
+  description: Pulls down current list of VSOs and updates accordingly 
