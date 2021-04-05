@@ -43,8 +43,8 @@ module OpenidAuth
         payload_object.act[:npi] = nil
         payload_object.act[:sec_id] = nil
         payload_object.act[:vista_id] = nil
-        if (token.payload['scp'].include?('launch') || token.payload['scp'].include?('launch/patient')) &&
-            !token.payload[:launch].nil?
+        if (token.payload['scp'].include?('launch') ||
+            token.payload['scp'].include?('launch/patient')) && !token.payload[:launch].nil?
           payload_object.launch = token.payload[:launch]
         end
         payload_object
