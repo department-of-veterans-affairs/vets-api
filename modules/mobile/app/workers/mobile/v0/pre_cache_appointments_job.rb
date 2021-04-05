@@ -20,8 +20,7 @@ module Mobile
         if errors.size.positive?
           Rails.logger.warn('mobile appointments pre-cache set failed', user_uuid: uuid, errors: errors)
         else
-          json = JSON.dump(appointments)
-          Mobile::V0::Appointment.set_cached(user, json)
+          Mobile::V0::Appointment.set_cached(user, appointments)
           Rails.logger.info('mobile appointments pre-cache set succeeded', user_uuid: uuid)
         end
       end

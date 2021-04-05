@@ -22,22 +22,7 @@ module Mobile
           appeals[:errors].nil? ? full_list.push(*appeals[:list]) : errors.push(appeals[:errors])
           data = Mobile::V0::Adapters::ClaimsOverview.new.parse(full_list)
 
-          options = {
-            meta: {
-              errors: errors
-            }
-          }
-
-          status = case errors.size
-                   when 1
-                     :multi_status
-                   when 2
-                     :bad_gateway
-                   else
-                     :ok
-                   end
-
-          [Mobile::V0::ClaimOverviewSerializer.new(data, options), status]
+          [data, errors]
         end
 
         def get_claim(id)

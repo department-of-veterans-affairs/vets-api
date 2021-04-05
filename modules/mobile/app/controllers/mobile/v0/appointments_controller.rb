@@ -83,10 +83,9 @@ module Mobile
         page_number = validated_params[:page_number]
         page_size = validated_params[:page_size]
 
-        endpoint_url = request.base_url + request.path_info
         query_string = "?startDate=#{validated_params[:start_date]}&endDate=#{validated_params[:end_date]}"\
           "&useCache=#{validated_params[:use_cache]}"
-        url = endpoint_url + query_string
+        url = request.base_url + request.path_info + query_string
 
         if page_number > 1
           prev_link = "#{url}&page[number]=#{[page_number - 1,

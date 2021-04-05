@@ -47,16 +47,28 @@ module Mobile
       private
 
       def fetch_all_cached_or_service(params)
-        json = nil
-        if ActiveModel::Type::Boolean.new.cast(params[:useCache])
-          json = Mobile::V0::ClaimOverview.get_cached(@current_user)
-        end
+        list, errors = if ActiveModel::Type::Boolean.new.cast(params[:useCache])
+                         [Mobile::V0::ClaimOverview.get_cached(@current_user), []]
+                       else
+                         claims_proxy.get_claims_and_appeals
+                       end
 
-        if json
-          [json, :ok]
-        else
-          claims_proxy.get_claims_and_appeals
-        end
+        options = {
+          meta: {
+            errors: errors
+          }
+        }
+
+        status = case errors.size
+                 when 1
+                   :multi_status
+                 when 2
+                   :bad_gateway
+                 else
+                   :ok
+                 end
+
+        [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
 
       def claims_proxy

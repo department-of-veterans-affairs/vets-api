@@ -16,7 +16,6 @@ module Mobile
         #
         # @start_date DateTime the start of the date range
         # @end_date DateTime the end of the date range
-        # @use_cache Boolean whether or not to use the appointments cache within VAMF
         #
         # @return Hash two lists of appointments, va and cc (community care)
         #
