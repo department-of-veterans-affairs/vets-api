@@ -32,13 +32,6 @@ module Swagger
               end
             end
           end
-
-          response 400 do
-            key :description, 'Error Occurred'
-            schema do
-              key :$ref, :Errors
-            end
-          end
         end
       end
     end
