@@ -2651,7 +2651,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-
     describe 'notifications' do
       let(:notification_subject) { Notification::FORM_10_10EZ }
 
