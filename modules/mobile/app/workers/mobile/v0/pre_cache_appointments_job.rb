@@ -14,8 +14,7 @@ module Mobile
 
         appointments, errors = appointments_proxy(user).get_appointments(
           start_date: start_date,
-          end_date: end_date,
-          use_cache: false
+          end_date: end_date
         )
 
         if errors.size.positive?

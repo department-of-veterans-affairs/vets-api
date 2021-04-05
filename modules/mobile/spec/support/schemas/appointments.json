@@ -206,10 +206,10 @@
           "type": "string"
         },
         "prev": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "next": {
-          "type": "string"
+          "type": ["string", "null"]
         },
         "last": {
           "type": "string"

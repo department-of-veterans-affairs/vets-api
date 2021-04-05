@@ -16,6 +16,7 @@ module Mobile
           def get_cached(user)
             result = @redis.get(user.uuid)
             return nil unless result
+
             data = JSON.parse(result)
             data.map { |i| new(i.deep_symbolize_keys) }
           end

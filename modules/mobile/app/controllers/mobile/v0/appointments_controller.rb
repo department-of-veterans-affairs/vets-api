@@ -11,7 +11,7 @@ module Mobile
         use_cache = params[:useCache] || true
         start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
         end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
-        page = params[:page] || { 'number' => 1, 'size' => 10 }
+        page = params[:page] || { number: 1, size: 10 }
 
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
           start_date: start_date,
@@ -48,44 +48,56 @@ module Mobile
                                  [appointments, nil]
                                else
                                  Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
-                                 appointments, errors = appointments_proxy.get_appointments(validated_params.to_h.except(:page_number, :page_size))
+                                 appointments, errors = appointments_proxy.get_appointments(
+                                   start_date: validated_params[:start_date], end_date: validated_params[:end_date]
+                                 )
                                  Mobile::V0::Appointment.set_cached(@current_user, appointments)
                                  [appointments, errors]
                                end
 
-        page_appointments, page_links = paginate(list: appointments, page_number: 1, page_size: 10,
-                                                 validated_params: validated_params)
+        page_appointments, page_links = paginate(list: appointments, validated_params: validated_params)
 
-        options = {
+        Mobile::V0::AppointmentSerializer.new(page_appointments, options(errors, page_links))
+      end
+
+      def paginate(list:, validated_params:)
+        page_number = validated_params[:page_number]
+        page_size = validated_params[:page_size]
+        pages = list.each_slice(page_size).to_a
+        links = links(number_of_pages: pages.size, validated_params: validated_params)
+        return [[], links] if page_number > pages.size
+
+        [pages[page_number - 1], links]
+      end
+
+      def options(errors, page_links)
+        {
           meta: {
             errors: errors.nil? ? nil : errors
           },
           links: page_links
         }
-
-        Mobile::V0::AppointmentSerializer.new(page_appointments, options)
       end
 
-      def paginate(list:, validated_params:, page_number: 1, page_size: 10)
-        pages = list.each_slice(page_size).to_a
-        return nil if page_number > pages.size
+      def links(number_of_pages:, validated_params:)
+        page_number = validated_params[:page_number]
+        page_size = validated_params[:page_size]
 
-        [pages[page_number - 1], links(page_number, page_size, pages.size, validated_params)]
-      end
-
-      def links(page_number, page_size, number_of_pages, validated_params)
         endpoint_url = request.base_url + request.path_info
         query_string = "?startDate=#{validated_params[:start_date]}&endDate=#{validated_params[:end_date]}"\
           "&useCache=#{validated_params[:use_cache]}"
         url = endpoint_url + query_string
 
-        prev_link = nil
-        next_link = nil
+        if page_number > 1
+          prev_link = "#{url}&page[number]=#{[page_number - 1,
+                                              number_of_pages].min}&page[size]=#{page_size}"
+        end
 
-        prev_link = "#{url}&page[number]=#{page_number - 1}&page[size]=#{page_size}" if page_number > 1
+        if page_number < number_of_pages
+          next_link = "#{url}&page[number]=#{[page_number + 1,
+                                              number_of_pages].min}&page[size]=#{page_size}"
+        end
 
-        next_link = "#{url}&page[number]=#{page_number + 1}&page[size]=#{page_size}" if page_number < number_of_pages
-        
         {
           self: "#{url}&page[number]=#{page_number}&page[size]=#{page_size}",
           first: "#{url}&page[number]=1&page[size]=#{page_size}",
