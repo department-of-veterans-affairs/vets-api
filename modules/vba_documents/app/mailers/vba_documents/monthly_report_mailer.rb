@@ -18,15 +18,13 @@ module VBADocuments
 
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
-    def build(monthly_totals, summary, still_processing, avg_processing_time, last_month_start,
-              last_month_end, two_months_ago_start)
+    def build(monthly_totals, summary, still_processing, avg_processing_time, last_month_start, last_month_end)
       @monthly_totals = monthly_totals
       @summary_totals = summary
       @last_month_still_processing = still_processing
       @avg_processing_time = avg_processing_time
       @last_month_start = last_month_start
       @last_month_end = last_month_end
-      @two_months_ago_start = two_months_ago_start
       @environment = VBADocuments::Deployment.environment
 
       path = VBADocuments::Engine.root.join(
