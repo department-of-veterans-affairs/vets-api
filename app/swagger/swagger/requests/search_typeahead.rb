@@ -10,7 +10,7 @@ module Swagger
           key :description, 'Returns a list of search query suggestions, from Search.gov, for the passed search query'
           key :operationId, 'getSearchTypeaheadSuggestions'
           key :tags, %w[
-            search
+            search_typeahead
           ]
 
           parameter do
@@ -22,11 +22,10 @@ module Swagger
           end
 
           response 200 do
-            key :description, 'Response is OK'
+            key :description, 'Debt letter download'
+
             schema do
-              key :required, :body
-              property :body, type: :string do
-              end
+              property :data, type: :string
             end
           end
         end
