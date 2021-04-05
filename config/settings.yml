@@ -199,6 +199,10 @@ modules_appeals_api:
         - laura.trager@adhocteam.us
         - nathan.wright@oddball.io
   schema_dir: config/schemas
+  evidence_submissions:
+    location:
+      prefix: http://some.fakesite.com/path
+      replacement: http://another.fakesite.com/rewrittenpath
   s3:
     uploads_enabled: false
     aws_access_key_id: "aws_access_key_id"
@@ -837,6 +841,7 @@ covid_vaccine:
   enrollment_service:
     sftp:
       host: fake_host
+      port: ~
       username: fake_username
       password: fake_password
 
