@@ -209,6 +209,10 @@ modules_appeals_api:
     aws_secret_access_key: "aws_secret_access_key"
     region: "region"
     bucket: "bucket"
+  sns:
+    topic_arns:
+      - appeals-api-topic-here-arn
+
 
 
 vre_counseling:

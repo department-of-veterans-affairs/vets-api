@@ -10,6 +10,9 @@ AppealsApi::Engine.routes.draw do
   match '/v0/appeals', to: 'v0/appeals#index', via: [:get]
 
   namespace :v1, defaults: { format: 'json' } do
+    namespace :internal, defaults: { format: 'json' } do
+      resources :upload_complete, only: [:create]
+    end
     namespace :decision_reviews do
       namespace :higher_level_reviews do
         get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
