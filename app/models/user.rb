@@ -427,7 +427,6 @@ class User < Common::RedisStore
     email&.downcase || account_uuid
   end
 
-<<<<<<< HEAD
   def relationships
     @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
   end
@@ -451,22 +450,8 @@ class User < Common::RedisStore
     mpi.profile
   end
 
-  def mpi_profile_birth_date
-    return nil unless mpi_profile
-
-    if mpi_profile.birth_date.nil?
-      Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
-      return nil
-    end
-
-    mpi_profile.birth_date
-  end
-
   def mpi_profile_relationships
     return [] unless mpi_profile
-=======
-  private
->>>>>>> spec updates and organizes identity & mpi getter methods
 
     mpi_profile.relationships
   end
