@@ -16,7 +16,7 @@ module SearchTypeahead
 
     STATSD_KEY_PREFIX = 'api.search_typeahead'
 
-    configuration SearchTypeahead::Configurationd
+    configuration SearchTypeahead::Configuration
 
     attr_reader :query
 

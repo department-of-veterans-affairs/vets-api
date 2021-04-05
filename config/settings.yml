@@ -648,7 +648,7 @@ search:
 
 # Settings for search-typeahead
 search_typeahead:
-  api_key: WFCskYbe12choWBiwOKg7uq9B7KwEL5RqcjVc4LS
+  api_key: API_GOV_ACCESS_KEY
   name: va
   url: https://api.gsa.gov/technology/searchgov/v1
 

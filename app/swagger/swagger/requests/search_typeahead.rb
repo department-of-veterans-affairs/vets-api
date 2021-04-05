@@ -8,8 +8,8 @@ module Swagger
 
       swagger_path '/v0/search_typeahead' do
         operation :get do
-          key :description, 'Returns a list of search results, from Search.gov, for the passed search query'
-          key :operationId, 'getSearchResults'
+          key :description, 'Returns a list of search query suggestions, from Search.gov, for the passed search query'
+          key :operationId, 'getSearchTypeaheadSuggestions'
           key :tags, %w[
             search
           ]
@@ -38,27 +38,6 @@ module Swagger
             key :description, 'Error Occurred'
             schema do
               key :$ref, :Errors
-            end
-          end
-
-          response 429 do
-            key :description, 'Exceeded rate limit'
-            schema do
-              key :required, [:errors]
-
-              property :errors do
-                key :type, :array
-                items do
-                  key :required, %i[title detail code status source]
-                  property :title, type: :string, example: 'Exceeded rate limit'
-                  property :detail,
-                           type: :string,
-                           example: 'Exceeded Search.gov rate limit'
-                  property :code, type: :string, example: 'SEARCH_429'
-                  property :status, type: :string, example: '429'
-                  property :source, type: :string, example: 'Search::Service'
-                end
-              end
             end
           end
         end
