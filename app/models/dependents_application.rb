@@ -140,7 +140,6 @@ class DependentsApplication < Common::RedisStore
   end
 
   # rubocop:disable Metrics/MethodLength
-  # rubocop:disable Metrics/AbcSize
   def self.set_child_attrs!(dependent, home_address, child = {})
     child.merge!(convert_name(dependent['fullName']))
 
@@ -191,9 +190,8 @@ class DependentsApplication < Common::RedisStore
 
     child
   end
-  # rubocop:enable Metrics/MethodLength
-  # rubocop:enable Metrics/AbcSize
 
+  # rubocop:enable Metrics/MethodLength
   # rubocop:disable Metrics/MethodLength
   def self.transform_form(parsed_form, evss_form)
     dependents = parsed_form['dependents'] || []

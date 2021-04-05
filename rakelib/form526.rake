@@ -89,7 +89,6 @@ namespace :form526 do
       )
     end
 
-    # rubocop:disable Metrics/AbcSize
     def bdd_stats_mode(args_array)
       dates = dates_from_array args_array
       prnt = ->(**fields) { puts ROW[:order].map { |key| fields[key].try(:iso8601) || fields[key].inspect }.join(',') }
@@ -112,7 +111,6 @@ namespace :form526 do
         success_failure_totals_header_string: '* Job Success/Failure counts *'
       )
     end
-    # rubocop:enable Metrics/AbcSize
 
     def bdd_stats_mode_dates_from_args(args)
       args_array = args.values_at :first, :second, :third

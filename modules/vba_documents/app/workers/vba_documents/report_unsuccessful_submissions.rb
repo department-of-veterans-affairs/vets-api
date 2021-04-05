@@ -30,7 +30,6 @@ module VBADocuments
     end
 
     # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
     def totals
       ret_hash = {}
       sum_hash = VBADocuments::UploadSubmission::RPT_STATUSES.index_with { |_v| 0; }
@@ -85,6 +84,5 @@ module VBADocuments
       ret_hash
     end
     # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/AbcSize
   end
 end

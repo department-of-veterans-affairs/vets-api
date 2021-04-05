@@ -937,7 +937,7 @@ module PdfFill
         combine_both_addr(@form_data, 'spouseAddress')
       end
 
-      # rubocop:disable Metrics/MethodLength, Metrics/AbcSize
+      # rubocop:disable Metrics/MethodLength
       def merge_fields(_options = {})
         expand_signature(@form_data['veteranFullName'])
         @form_data['veteranFullName'] = combine_full_name(@form_data['veteranFullName'])
@@ -998,7 +998,7 @@ module PdfFill
 
         @form_data
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end

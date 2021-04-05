@@ -899,7 +899,7 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with emis data', skip_emis: true do
-      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength
       def stub_methods_for_emis_data
         military_information = user.military_information
         expect(military_information).to receive(:last_service_branch).and_return('Air Force')
@@ -931,7 +931,7 @@ RSpec.describe FormProfile, type: :model do
         )
       end
 
-      # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
+      # rubocop:enable Metrics/MethodLength
 
       context 'with va profile prefill on' do
         before do

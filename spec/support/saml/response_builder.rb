@@ -21,7 +21,7 @@ module SAML
       user.identity
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/ParameterLists
     def build_saml_response(
       authn_context:, level_of_assurance:,
       attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil, settings: nil
@@ -62,7 +62,7 @@ module SAML
       allow(saml_response).to receive(:settings).and_return(settings)
       saml_response
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/ParameterLists, Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/ParameterLists
 
     def build_invalid_saml_response(in_response_to:, decrypted_document:, errors:, status_message:)
       saml_response = SAML::Responses::Login.new(decrypted_document.to_s)

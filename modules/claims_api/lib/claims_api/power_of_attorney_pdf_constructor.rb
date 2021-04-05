@@ -42,7 +42,6 @@ module ClaimsApi
 
     # rubocop:disable Layout/LineLength
     # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/CyclomaticComplexity
     def page_1_options
       base_form = 'form1[0].#subform[0]'
@@ -99,7 +98,6 @@ module ClaimsApi
       }
     end
     # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/CyclomaticComplexity
     # rubocop:enable Layout/LineLength
 
