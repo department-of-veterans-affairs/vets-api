@@ -4,7 +4,7 @@ require 'rails_helper'
 
 def get_education_form_fixture(filename)
   get_fixture("education_form/#{filename}")
-end
+end 
 
 RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
   subject do
@@ -38,7 +38,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       %w[1995 1990e 5490 1990n 5495 10203].each do |form_type|
         create(:education_benefits_submission, form_type: form_type, created_at: date)
       end
-      %w[0993 1990s].each do |form_type|
+      %w[0993].each do |form_type|
         create(:education_benefits_submission, form_type: form_type, created_at: date, region: :western)
       end
       create(:education_benefits_submission, form_type: '0994',
