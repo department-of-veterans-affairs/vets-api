@@ -127,7 +127,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
             'icn' => nil
           },
           'launch' => {
-            'icn' => '73806470379396828'
+            'patient' => '73806470379396828'
           }
         }
       }
