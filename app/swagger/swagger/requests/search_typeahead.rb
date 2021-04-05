@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Layout/LineLength
 module Swagger
   module Requests
     class SearchTypeahead
@@ -45,4 +44,3 @@ module Swagger
     end
   end
 end
-# rubocop:enable Layout/LineLength

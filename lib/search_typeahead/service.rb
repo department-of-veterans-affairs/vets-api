@@ -41,7 +41,6 @@ module SearchTypeahead
       config.base_path
     end
 
-
     # Required params [name, access_key, query]
     #
     # @see https://search.usa.gov/sites/7378/type_ahead_api_instructions
@@ -50,7 +49,7 @@ module SearchTypeahead
       {
         name: name,
         q: query,
-        api_key: api_key,
+        api_key: api_key
       }
     end
 
