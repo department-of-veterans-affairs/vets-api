@@ -25,8 +25,10 @@ describe SearchTypeahead::Service do
         VCR.use_cassette('search_typeahead/success', VCR::MATCH_EVERYTHING) do
           response = subject.suggestions
           # rubocop:disable Layout/LineLength
-          expect(response.body).to eq '[\"ebenefits direct deposit\",\"ebenefits disability compensation\",\"ebenefits update contact information\",\"ebenefits your records\",\"ebenefits\"]'
+          # rubocop:disable Style/StringLiterals
+          expect(response.body).to eq "[\"ebenefits direct deposit\",\"ebenefits disability compensation\",\"ebenefits update contact information\",\"ebenefits your records\",\"ebenefits\"]"
           # rubocop:enable Layout/LineLength
+          # rubocop:enable Style/StringLiterals
         end
       end
     end
