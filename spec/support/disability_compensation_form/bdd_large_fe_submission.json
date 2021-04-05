@@ -35,14 +35,14 @@
       },
       "servicePeriods": [
         {
-          "serviceBranch": "Coast Guard",
+          "serviceBranch": "Coast Guard Reserve",
           "dateRange": {
-            "from": "2000-01-01",
-            "to": "2020-06-01"
+            "from": "2021-01-02",
+            "to": "2021-06-01"
           }
         },
         {
-          "serviceBranch": "Coast Guard Reserve",
+          "serviceBranch": "Coast Guard",
           "dateRange": {
             "from": "2020-06-02",
             "to": "2021-01-01"

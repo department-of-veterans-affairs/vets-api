@@ -10,7 +10,7 @@ module VAOS
 
       def limits
         response = systems_service.get_facilities_limits(facility_ids, type_of_care_id)
-        render json: response.body
+        render json: VAOS::V0::LimitSerializer.new(response)
       end
 
       private
