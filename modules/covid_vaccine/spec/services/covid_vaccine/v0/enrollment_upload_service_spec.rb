@@ -28,7 +28,7 @@ describe CovidVaccine::V0::EnrollmentUploadService do
     let(:sftp_double) { double(:sftp, sftp: sftp_connection_double) }
     let(:handler) { CovidVaccine::V0::EnrollmentHandler }
 
-    it 'responds to send_enrollment_file' do
+    it 'responds to upload' do
       with_settings(Settings.covid_vaccine.enrollment_service.sftp, host: host, username: username,
                                                                     password: password, port: port) do
         expect(Net::SFTP).to receive(:start).with(host, username, password: password,
