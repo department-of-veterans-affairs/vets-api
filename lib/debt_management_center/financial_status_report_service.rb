@@ -16,10 +16,6 @@ module DebtManagementCenter
 
     STATSD_KEY_PREFIX = 'api.dmc'
 
-    def initialize(user)
-      @user = user
-    end
-
     ##
     # Submit a financial status report to the Debt Management Center
     #
@@ -29,6 +25,8 @@ module DebtManagementCenter
     def submit_financial_status_report(form)
       with_monitoring_and_error_handling do
         form = camelize(form)
+        raise_client_error unless form.key?('personalIdentification')
+        form['personalIdentification']['fileNumber'] = @file_number
         response = DebtManagementCenter::FinancialStatusReportResponse.new(
           perform(:post, 'financial-status-report/formtopdf', form).body
         )
@@ -49,6 +47,13 @@ module DebtManagementCenter
     end
 
     private
+
+    def raise_client_error
+      raise Common::Client::Errors::ClientError.new(
+        'malformed request',
+        400
+      )
+    end
 
     def update_filenet_id(filenet_id)
       fsr_params = { REDIS_CONFIG[:financial_status_report][:namespace] => @user.uuid }

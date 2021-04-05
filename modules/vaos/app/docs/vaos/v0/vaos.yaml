@@ -500,7 +500,61 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"        
+                $ref: "#/components/schemas/Errors"  
+  '/cc_supported_sites':
+    get:
+      tags:
+        - cc_supported_sites
+      summary: Returns a list of supported sites for the user.
+      operationId: getCCSupportedSites
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: supported_sites
+          description: "supported sites for appointment request"
+          schema:
+            type: array
+            items:
+              type: "string"
+      responses:
+        '200':
+          description: CC supported sites retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CCSupportedSites"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '404':  
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"      
   '/facilities/{facility_id}/cancel_reasons':
     get:
       tags:
@@ -1380,6 +1434,34 @@ components:
             eligible:
               type: "boolean"
               example: true
+    CCSupportedSites:
+      type: "object"
+      required:
+        - "data"
+      properties:
+        data:
+          type: "array"
+          items:
+            type: "object"
+            required:
+              - "id"
+              - "type"
+              - "attributes"
+            properties:
+              id:
+                type: "string"
+              type:
+                type: "string"
+              attributes:
+                type: "object"
+                properties:
+                  name:
+                    type: "string"
+                  timezone:
+                    type: "string"
+                required:
+                  - "name"
+                  - "timezone"
     System:
       type: "object"
       properties:

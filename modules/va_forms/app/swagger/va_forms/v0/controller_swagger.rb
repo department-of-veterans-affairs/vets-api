@@ -36,18 +36,21 @@ module VAForms
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :$ref, :FormsIndex
+                  key :type, :array
+                  items do
+                    key :$ref, :FormsIndex
+                  end
                 end
               end
             end
           end
 
           response 401 do
-            key :description, 'Unauthorized Request'
+            key :description, 'Invalid authentication credentials'
           end
 
-          response 403 do
-            key :description, 'Bad API Token'
+          response 404 do
+            key :description, 'Not Found'
           end
         end
       end
@@ -68,8 +71,10 @@ module VAForms
             key :in, :path
             key :description, 'The VA form_name of the form being requested'
             key :required, true
-            key :type, :string
             key :example, '10-10EZ'
+            schema do
+              key :type, :string
+            end
           end
 
           response 200 do
@@ -86,11 +91,11 @@ module VAForms
           end
 
           response 401 do
-            key :description, 'Unauthorized Request'
+            key :description, 'Invalid authentication credentials'
           end
 
-          response 403 do
-            key :description, 'Bad API Token'
+          response 404 do
+            key :description, 'Not Found'
           end
         end
       end

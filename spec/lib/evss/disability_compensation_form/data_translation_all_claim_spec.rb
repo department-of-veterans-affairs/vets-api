@@ -1512,6 +1512,30 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       it 'bdd_qualified is true' do
         expect(subject.send(:bdd_qualified?)).to eq true
       end
+
+      context 'when only gurard/reserves' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'serviceInformation' => {
+                'servicePeriods' => [
+                  {
+                    'dateRange' => {
+                      'from' => '1980-02-05',
+                      'to' => (today + 100).to_s
+                    },
+                    'serviceBranch' => 'Air National Guard'
+                  }
+                ]
+              }
+            }
+          }
+        end
+
+        it 'bdd_qualified is true' do
+          expect(subject.send(:bdd_qualified?)).to eq false
+        end
+      end
     end
 
     context 'when rad date is < 90 days away' do
