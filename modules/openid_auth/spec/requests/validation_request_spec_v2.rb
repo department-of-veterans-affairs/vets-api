@@ -231,7 +231,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['data']['attributes'].keys)
           .to eq(json_cc_api_response['data']['attributes'].keys)
-        expect(JSON.parse(response.body)['data']['attributes']['launch']['icn']).to eq('73806470379396828')
+        expect(JSON.parse(response.body)['data']['attributes']['launch']['patient']).to eq('73806470379396828')
       end
     end
   end
@@ -249,7 +249,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['data']['attributes'].keys)
           .to eq(json_cc_api_response['data']['attributes'].keys)
-        expect(JSON.parse(response.body)['data']['attributes']['launch']['icn']).to eq(nil)
+        expect(JSON.parse(response.body)['data']['attributes']['launch']['patient']).to eq(nil)
       end
     end
   end
