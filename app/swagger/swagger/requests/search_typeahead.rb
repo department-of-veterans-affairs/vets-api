@@ -24,11 +24,8 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :required, [:body]
-              property :body, type: :array do
-                items do
-                  property :suggestion, type: :string
-                end
+              key :required, :body
+              property :body, type: :string do
               end
             end
           end
