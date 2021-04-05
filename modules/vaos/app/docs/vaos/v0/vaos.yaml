@@ -1126,7 +1126,7 @@ components:
             admin_parent:
               type: "boolean"
             parent_station_code:
-              type: "string"                                
+              type: "string"                              
     AppointmentRequest:
       type: "object"
       properties:

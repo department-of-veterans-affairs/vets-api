@@ -12,7 +12,7 @@ module CovidVaccine
       attr_reader :io, :file_name
 
       def upload
-        Net::SFTP.start(sftp_host, sftp_username, password: sftp_password) do |sftp|
+        Net::SFTP.start(sftp_host, sftp_username, password: sftp_password, port: sftp_port) do |sftp|
           sftp.upload!(@io, file_name, name: file_name, progress: EnrollmentHandler.new)
         end
       end
@@ -29,6 +29,10 @@ module CovidVaccine
 
       def sftp_password
         Settings.covid_vaccine.enrollment_service.sftp.password
+      end
+
+      def sftp_port
+        Settings.covid_vaccine.enrollment_service.sftp.port
       end
     end
   end
