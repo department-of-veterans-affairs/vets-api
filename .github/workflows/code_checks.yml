@@ -1,4 +1,4 @@
-name: code_checks
+name: Code Checks
 on: [push]
 jobs:
   linting:
