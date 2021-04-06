@@ -74,7 +74,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       application_1606.saved_claim.save!(validate: false)
 
       expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
-      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_3).and_return(false).at_least(:once)
       expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
 
       subject.format_application(EducationBenefitsClaim.find(application_1606.id))
