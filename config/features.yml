@@ -55,6 +55,11 @@ features:
     enable_in_development: true
     description: >
       Toggles availability of covid vaccine expanded registration form API.
+  unenrolled_vaccine_scheduling:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle for unenrolled vaccine scheduling discovery work.
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
