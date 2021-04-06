@@ -47,16 +47,14 @@ namespace :github_stats do
         # determine first_reviewed date
         resp = get_response_body(reviews_url)
         first = JSON.parse(resp).first
-        first_reviewed_at = if first.nil?
-                              # PR has not yet been reviewed so use current timestamp
-                              # and set time zone offset to zero so we don't get negatives
-                              DateTime.now.new_offset('+0')
-                            else
-                              DateTime.parse(first['submitted_at'])
-                            end
+
+        next if first.nil? # PR has not been reviewed yet, do not measure
+
+        first_reviewed_at = DateTime.parse(first['submitted_at'])
         # calculate the duration excluding weekends
         duration = calculator.seconds_between_times(pr_created_at, first_reviewed_at)
-        # send duration to StatsD
+
+        #send duration to StatsD
         StatsD.measure(STATSD_METRIC, duration,
                        tags: { repo: repo, number: number, user: user })
       end.compact
