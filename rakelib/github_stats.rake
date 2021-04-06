@@ -37,7 +37,7 @@ namespace :github_stats do
     # iterate thru responses and collect just the needed data
     responses.each do |repo, json_response|
       open_prs = JSON.parse(json_response)
-      open_prs.each do |pr|
+      open_prs.map do |pr|
         # parse vals from json
         user = pr['user']['login']
         number = pr['number']
@@ -59,7 +59,7 @@ namespace :github_stats do
         # send duration to StatsD
         StatsD.measure(STATSD_METRIC, duration,
                        tags: { repo: repo, number: number, user: user })
-      end
+      end.compact
     end
   end
 end
