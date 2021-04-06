@@ -32,6 +32,7 @@ require 'search/configuration'
 require 'search_click_tracking/configuration'
 require 'okta/configuration'
 require 'va_profile/contact_information/configuration'
+require 'va_profile/communication/configuration'
 require 'iam_ssoe_oauth/configuration'
 
 # Read the redis config, create a connection and a namespace for breakers
@@ -68,6 +69,7 @@ services = [
   Preneeds::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
   VAProfile::ContactInformation::Configuration.instance.breakers_service,
+  VAProfile::Communication::Configuration.instance.breakers_service,
   Search::Configuration.instance.breakers_service,
   SearchClickTracking::Configuration.instance.breakers_service,
   Okta::Configuration.instance.breakers_service,

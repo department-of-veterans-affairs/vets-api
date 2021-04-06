@@ -37,10 +37,14 @@ class OpenidApplicationController < ApplicationController
 
     # issued for a client vs a user
     if token.client_credentials_token? || ssoi_token?
-      token.payload[:icn] = fetch_smart_launch_context if token.payload['scp'].include?('launch/patient')
+      if token.payload['scp'].include?('launch/patient')
+        launch = fetch_smart_launch_context
+        token.payload[:icn] = launch
+        token.payload[:launch] = { patient: launch } unless launch.nil?
+      end
       if token.payload['scp'].include?('launch')
         launch = fetch_smart_launch_context
-        token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { icn: launch }
+        token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { patient: launch }
       end
       return true
     end
