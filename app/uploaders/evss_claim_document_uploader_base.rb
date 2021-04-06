@@ -2,7 +2,7 @@
 
 class EVSSClaimDocumentUploaderBase < CarrierWave::Uploader::Base
   include SetAWSConfig
-   include ValidatePdf
+  include ValidatePdf
 
   before :store, :validate_file_size
 
