@@ -106,7 +106,7 @@ module VAForms
               key :type, :string
               key :example, 'en'
             end
-            property :deleted_at, type: %i[string null] do
+            property :deleted_at do
               key :description, I18n.t('va_forms.field_descriptions.deleted_at')
               key :type, :string
               key :nullable, true
