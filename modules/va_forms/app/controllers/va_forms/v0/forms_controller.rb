@@ -13,8 +13,13 @@ module VAForms
 
       def show
         forms = Form.find_by form_name: params[:id]
-        render json: forms,
-               serializer: VAForms::FormDetailSerializer
+        if forms.present?
+          render json: forms,
+                 serializer: VAForms::FormDetailSerializer
+        else
+          render json: { errors: [{ detail: 'Form not found' }] },
+                 status: :not_found
+        end
       end
     end
   end
