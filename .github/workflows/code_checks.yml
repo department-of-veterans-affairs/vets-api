@@ -40,8 +40,9 @@ jobs:
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
         
-      - name: Run Brakeman (static security analysis)
-        run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.html -o brakeman.text
+      - uses: reviewdog/action-brakeman@v1
+        with:
+          github_token: ${{ secrets.github_token }}
 
       - uses: duderman/rubocop-annotate-action@v0.1.0
         with:
