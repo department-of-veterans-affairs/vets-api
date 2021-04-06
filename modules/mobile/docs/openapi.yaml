@@ -806,7 +806,7 @@ paths:
                 $ref: "./schemas/Errors.yml"
     delete:
       summary: /v0/user/addresses
-      description: Deletes one of a user's addresses numbers
+      description: Deletes a user's address
       operationId: user.deleteAddresses
       security:
         - Bearer: []
