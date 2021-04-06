@@ -2218,6 +2218,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      context 'communication preferences' do
+        before do
+          allow_any_instance_of(User).to receive(:vet360_id).and_return('18277')
+        end
+
+        it 'supports the communication preferences index response' do
+          VCR.use_cassette('va_profile/communication/get_communication_permissions', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_profile/communication/communication_items', VCR::MATCH_EVERYTHING) do
+              expect(subject).to validate(
+                :get,
+                '/v0/profile/communication_preferences',
+                200,
+                headers
+              )
+            end
+          end
+        end
+      end
+
       context 'ch33 bank accounts methods' do
         let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
 
