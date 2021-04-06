@@ -1,0 +1,18 @@
+version: 2
+registries:
+  rubygems-server-enterprise-contribsys-com:
+    type: rubygems-server
+    url: https://enterprise.contribsys.com/
+    username: "${{secrets.RUBYGEMS_SERVER_ENTERPRISE_CONTRIBSYS_COM_USERNAME}}"
+    password: "${{secrets.RUBYGEMS_SERVER_ENTERPRISE_CONTRIBSYS_COM_PASSWORD}}"
+updates:
+- package-ecosystem: bundler
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "20:00"
+    timezone: US/Eastern
+  open-pull-requests-limit: 10
+  rebase-strategy: disabled
+  registries:
+  - rubygems-server-enterprise-contribsys-com
