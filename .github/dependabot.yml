@@ -13,7 +13,7 @@ updates:
   ignore:
     - dependency-name: "vets_json_schema"
     - dependency-name: "active_model_serializers"
-  open-pull-requests-limit: 10
+  open-pull-requests-limit: 5
   rebase-strategy: disabled
   registries:
   - rubygems-server-enterprise-contribsys-com
