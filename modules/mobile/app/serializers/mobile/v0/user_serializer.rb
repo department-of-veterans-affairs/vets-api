@@ -73,6 +73,21 @@ module Mobile
       attribute :authorized_services do |user|
         SERVICE_DICTIONARY.filter { |_k, v| user.authorize v, :access? }.keys
       end
+
+      def self.facility(user, facility_id)
+        cerner_facility_ids = user.va_profile.cerner_facility_ids || []
+        {
+          facility_id: facility_id,
+          is_cerner: cerner_facility_ids.include?(facility_id)
+        }
+      end
+
+      attribute :health do |user|
+        {
+          facilities: user.va_treatment_facility_ids.map { |id| facility(user, id) },
+          is_cerner_patient: !user.va_profile.cerner_id.nil?
+        }
+      end
     end
   end
 end

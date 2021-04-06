@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 module CovidVaccine
   module V0
     class ExpandedRegistrationSubmission < ApplicationRecord
