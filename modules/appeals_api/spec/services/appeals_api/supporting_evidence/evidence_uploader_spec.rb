@@ -46,7 +46,9 @@ module AppealsApi
               supportable_id: evidence.supportable_id,
               supportable_type: evidence.supportable_type
             )
-          expect(evidence.status).to eq('s3_error')
+          expect(evidence.status).to eq('error')
+          expect(evidence.code).to eq('RuntimeError')
+          expect(evidence.details).to eq('RuntimeError')
         end
 
         it 'marks the created submission \'submitted\'' do

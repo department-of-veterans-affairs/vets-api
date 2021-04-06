@@ -27,7 +27,7 @@ module AppealsApi
           supportable_type: @submission.supportable_type,
           supportable_id: @submission.supportable_id
         )
-        update_submission!('error')
+        update_submission!('error', e.class.to_s, e.message)
         raise
       end
 
@@ -43,9 +43,11 @@ module AppealsApi
         @uploader ||= TemporaryStorageUploader.new(appeal.id, type)
       end
 
-      def update_submission!(status)
+      def update_submission!(status, code = nil, details = nil)
         @submission.update!(
           status: status,
+          code: code,
+          details: details,
           file_data: {
             filename: uploader.filename
           }
