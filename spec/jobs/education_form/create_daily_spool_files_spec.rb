@@ -118,6 +118,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'processes the valid messages' do
+        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
         expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
         expect(Dir[spool_files].count).to eq(2)
       end
