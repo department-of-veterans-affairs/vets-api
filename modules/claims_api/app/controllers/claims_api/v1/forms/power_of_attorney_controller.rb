@@ -5,21 +5,22 @@ require 'bgs/power_of_attorney_verifier'
 module ClaimsApi
   module V1
     module Forms
-      class PowerOfAttorneyController < ClaimsApi::BaseFormController
+      class PowerOfAttorneyController < ClaimsApi::V1::Forms::Base
         include ClaimsApi::DocumentValidations
         include ClaimsApi::EndpointDeprecation
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.write]
         end
-        before_action :validate_json_schema, only: %i[submit_form_2122 validate]
-        before_action :validate_documents_content_type, only: %i[upload]
-        before_action :validate_documents_page_size, only: %i[upload]
-        before_action :find_poa_by_id, only: %i[upload status]
 
         FORM_NUMBER = '2122'
 
-        def submit_form_2122
+        # POST to change power of attorney for a Veteran.
+        #
+        # @return [JSON] Record in pending state
+        def submit_form_2122 # rubocop:disable Metrics/MethodLength
+          validate_json_schema
+
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
           unless power_of_attorney&.status&.in?(%w[submitted pending])
@@ -47,7 +48,15 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # PUT to upload a wet-signed 2122 form.
+        # Required if "signatures" not supplied in above POST.
+        #
+        # @return [JSON] Claim record
         def upload
+          validate_documents_content_type
+          validate_documents_page_size
+          find_poa_by_id
+
           # This job only occurs when a Representative submits a PoA request to ensure they've also uploaded a document.
           ClaimsApi::PoaUpdater.perform_async(@power_of_attorney.id) if header_request?
 
@@ -61,14 +70,21 @@ module ClaimsApi
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # GET the current status of a previous POA change request.
+        #
+        # @return [JSON] POA record with current status
         def status
+          find_poa_by_id
           render json: @power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # GET current POA for a Veteran.
+        #
+        # @return [JSON] Last POA change request through Claims API
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
-          render_poa_not_found and return unless power_of_attorney
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           if current_poa
             lighthouse_poa = power_of_attorney.attributes
@@ -82,14 +98,13 @@ module ClaimsApi
           end
         end
 
+        # POST to validate 2122 submission payload.
+        #
+        # @return [JSON] Success if valid, error messages if invalid.
         def validate
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
+          validate_json_schema
           render json: validation_success
-        end
-
-        def schema
-          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
-          super
         end
 
         private
@@ -125,11 +140,7 @@ module ClaimsApi
 
         def find_poa_by_id
           @power_of_attorney = ClaimsApi::PowerOfAttorney.find_by id: params[:id]
-          render_poa_not_found unless @power_of_attorney
-        end
-
-        def render_poa_not_found
-          render json: { errors: [{ status: 404, detail: 'POA not found' }] }, status: :not_found
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless @power_of_attorney
         end
 
         def validation_success

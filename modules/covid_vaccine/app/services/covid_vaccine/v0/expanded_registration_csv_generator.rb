@@ -17,13 +17,19 @@ module CovidVaccine
         r.raw_form_data['preferred_facility']&.delete_prefix('vha_')
       end
 
+      birth_sex_proc = proc do |r|
+        next r.raw_form_data['birth_sex'][0] if %w[Male Female].include? r.raw_form_data['birth_sex']
+
+        nil
+      end
+
       MAPPER = {
         first_name: proc { |r| r.raw_form_data['first_name'] },
         middle_name: proc { |r| r.raw_form_data['middle_name'] },
         last_name: proc { |r| r.raw_form_data['last_name'] },
         birth_date: proc { |r| Date.parse(r.raw_form_data['birth_date']).strftime('%m/%d/%Y') },
         ssn: proc { |r| r.raw_form_data['ssn'] },
-        birth_sex: proc { |r| r.raw_form_data['birth_sex'][0] },
+        birth_sex: birth_sex_proc,
         icn: proc { |r| r&.eligibility_info&.fetch('icn', nil) },
         address: proc do |r|
                    [

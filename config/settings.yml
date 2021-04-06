@@ -841,6 +841,7 @@ covid_vaccine:
   enrollment_service:
     sftp:
       host: fake_host
+      port: ~
       username: fake_username
       password: fake_password
 

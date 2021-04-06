@@ -102,6 +102,37 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       }
     }
   end
+  let(:json_cc_api_response) do
+    {
+      'data' => {
+        'id' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'type' => 'validated_token',
+        'attributes' => {
+          'ver' => 1,
+          'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+          'iss' => 'https://example.com/oauth2/default',
+          'aud' => 'api://default',
+          'iat' => 1_541_453_784,
+          'exp' => 1_541_457_384,
+          'cid' => '0oa1c01m77heEXUZt2p7',
+          'uid' => '00u1zlqhuo3yLa2Xs2p7',
+          'scp' => [
+            'profile',
+            'email',
+            'openid',
+            'veteran_status.read'
+          ],
+          'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+          'act' => {
+            'icn' => nil
+          },
+          'launch' => {
+            'patient' => '73806470379396828'
+          }
+        }
+      }
+    }
+  end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
   let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
 
@@ -198,8 +229,9 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         post '/internal/auth/v2/validation', params: nil, headers: auth_header
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
-        expect(JSON.parse(response.body)['data']['attributes']['act']['icn']).to eq('73806470379396828')
+        expect(JSON.parse(response.body)['data']['attributes'].keys)
+          .to eq(json_cc_api_response['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['launch']['patient']).to eq('73806470379396828')
       end
     end
   end
@@ -215,8 +247,9 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         post '/internal/auth/v2/validation', params: nil, headers: auth_header
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
-        expect(JSON.parse(response.body)['data']['attributes']['act']['icn']).to eq(nil)
+        expect(JSON.parse(response.body)['data']['attributes'].keys)
+          .to eq(json_cc_api_response['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['launch']['patient']).to eq(nil)
       end
     end
   end
