@@ -5,7 +5,7 @@ require 'fast_jsonapi'
 module Mobile
   module V0
     class MilitaryInformationSerializer
-      include JSONAPI::Serializer
+      include FastJsonapi::ObjectSerializer
 
       set_type :militaryInformation
       attribute :service_history do |user|

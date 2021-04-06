@@ -5,7 +5,7 @@ require 'fast_jsonapi'
 module Mobile
   module V0
     class LettersBeneficiarySerializer
-      include JSONAPI::Serializer
+      include FastJsonapi::ObjectSerializer
 
       set_type :evssLettersBeneficiaryResponses
       attributes :benefit_information, :military_service

@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class AppealSerializer
-      include JSONAPI::Serializer
+      include FastJsonapi::ObjectSerializer
 
       set_type :appeal
       attributes :appealIds, :active, :alerts, :aod, :aoj, :description, :docket, :events, :evidence,

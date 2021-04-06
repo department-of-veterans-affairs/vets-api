@@ -5,7 +5,7 @@ require 'fast_jsonapi'
 module Mobile
   module V0
     class UserSerializer
-      include JSONAPI::Serializer
+      include FastJsonapi::ObjectSerializer
 
       ADDRESS_KEYS = %i[
         id

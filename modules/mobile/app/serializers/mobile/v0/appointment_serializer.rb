@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class AppointmentSerializer
-      include JSONAPI::Serializer
+      include FastJsonapi::ObjectSerializer
 
       attributes :appointment_type,
                  :cancel_id,

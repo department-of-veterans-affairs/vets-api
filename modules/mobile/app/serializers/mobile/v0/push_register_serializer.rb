@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class PushRegisterSerializer
-      include JSONAPI::Serializer
+      include FastJsonapi::ObjectSerializer
 
       set_type :pushRegister
       attributes :endpoint_sid

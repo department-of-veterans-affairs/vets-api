@@ -3,7 +3,7 @@
 module Mobile
   module V0
     class SuggestedAddressSerializer
-      include JSONAPI::Serializer
+      include FastJsonapi::ObjectSerializer
 
       attributes :address_line1
       attributes :address_line2
