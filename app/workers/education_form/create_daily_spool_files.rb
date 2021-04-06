@@ -144,7 +144,7 @@ module EducationForm
                   else
                     FormattingError.new("Could not format #{claim.confirmation_number}")
                   end
-      log_exception(exception)
+      log_exception(exception, nil, false)
     end
 
     private
@@ -183,10 +183,10 @@ module EducationForm
       @stats ||= Hash.new(Hash.new(0))
     end
 
-    def log_exception(exception, region = nil)
+    def log_exception(exception, region = nil, send_email = true)
       log_exception_to_sentry(exception)
       log_to_slack(exception.to_s)
-      log_to_email(region)
+      log_to_email(region) if send_email
     end
 
     def log_info(message)
