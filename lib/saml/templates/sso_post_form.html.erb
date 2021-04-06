@@ -22,7 +22,7 @@
     </noscript>
   <% end %>
 
-  <script>
+  <script nonce="**CSP_NONCE**">
     (function() {
       var req = new XMLHttpRequest();
       var qs = "id=" + encodeURIComponent("<%= id %>") +
