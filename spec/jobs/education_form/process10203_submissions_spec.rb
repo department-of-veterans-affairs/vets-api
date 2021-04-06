@@ -46,19 +46,6 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
     end
   end
 
-  describe '#format_application' do
-    it 'logs an error if the record is invalid' do
-      application_10203 = create(:va10203)
-      application_10203.create_stem_automated_decision(evss_user)
-      application_10203.education_benefits_claim.saved_claim.form = {}.to_json
-      application_10203.education_benefits_claim.saved_claim.save!(validate: false)
-
-      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
-
-      subject.send(:format_application, EducationBenefitsClaim.find(application_10203.education_benefits_claim.id))
-    end
-  end
-
   describe '#group_user_uuid' do
     it 'takes a list of records into groups by user_uuid' do
       application_10203 = create(:va10203)

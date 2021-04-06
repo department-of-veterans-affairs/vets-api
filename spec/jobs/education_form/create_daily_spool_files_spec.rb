@@ -69,16 +69,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
 
   context '#format_application' do
-    it 'logs an error if the record is invalid' do
-      application_1606.saved_claim.form = {}.to_json
-      application_1606.saved_claim.save!(validate: false)
-
-      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
-      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
-
-      subject.format_application(EducationBenefitsClaim.find(application_1606.id))
-    end
-
     context 'with a 1990 form' do
       it 'tracks and returns a form object' do
         expect(subject).to receive(:track_form_type).with('22-1990', 999)

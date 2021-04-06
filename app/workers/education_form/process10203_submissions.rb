@@ -162,15 +162,7 @@ module EducationForm
     end
 
     def format_application(data)
-      # This check was added to ensure that the model passes validation before
-      # attempting to build a form from it. This logic should be refactored as
-      # part of a larger effort to clean up the spool file generation if that occurs.
-      if data.saved_claim.valid?
-        EducationForm::Forms::VA10203.build(data)
-      else
-        inform_on_error(data)
-        nil
-      end
+      EducationForm::Forms::VA10203.build(data)
     rescue => e
       inform_on_error(data, e)
       nil
