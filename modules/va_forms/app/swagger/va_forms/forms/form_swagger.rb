@@ -37,12 +37,14 @@ module VAForms
             property :first_issued_on do
               key :description, I18n.t('va_forms.field_descriptions.first_issued_on')
               key :type, :string
+              key :nullable, true
               key :example, '2016-07-10'
               key :format, 'date'
             end
-            property :last_revised_on do
-              key :description, I18n.t('va_forms.field_descriptions.last_revised_on')
+            property :last_revision_on do
+              key :description, I18n.t('va_forms.field_descriptions.last_revision_on')
               key :type, :string
+              key :nullable, true
               key :example, '2020-01-17'
               key :format, 'date'
             end
@@ -54,11 +56,13 @@ module VAForms
             property :sha256 do
               key :description, I18n.t('va_forms.field_descriptions.sha256')
               key :type, :string
+              key :nullable, true
               key :example, '6e6465e2e1c89225871daa9b6d86b92d1c263c7b02f98541212af7b35272372b'
             end
             property :last_sha256_change do
               key :description, I18n.t('va_forms.field_descriptions.last_sha256_change')
               key :type, :string
+              key :nullable, true
               key :example, '2019-05-30'
               key :format, 'date'
             end
@@ -70,26 +74,31 @@ module VAForms
             property :form_usage do
               key :description, I18n.t('va_forms.field_descriptions.form_usage')
               key :type, :string
+              key :nullable, true
               key :example, '<p>Use VA Form 10-10EZ if you’re a Veteran and want to apply for VA health care. You must be enrolled in...</p>'
             end
             property :form_tool_intro do
               key :description, I18n.t('va_forms.field_descriptions.form_tool_intro')
               key :type, :string
+              key :nullable, true
               key :example, 'You can apply online instead of filling out and sending us the paper form.'
             end
             property :form_tool_url do
               key :description, I18n.t('va_forms.field_descriptions.form_tool_url')
               key :type, :string
+              key :nullable, true
               key :example, 'https://www.va.gov/health-care/apply/application/introduction'
             end
             property :form_details_url do
               key :description, I18n.t('va_forms.field_descriptions.form_details_url')
               key :type, :string
+              key :nullable, true
               key :example, 'https://www.va.gov/find-forms/about-form-10-10ez'
             end
             property :form_type do
               key :description, I18n.t('va_forms.field_descriptions.form_type')
               key :type, :string
+              key :nullable, true
               key :example, 'benefit'
             end
             property :language do
@@ -100,12 +109,14 @@ module VAForms
             property :deleted_at do
               key :description, I18n.t('va_forms.field_descriptions.deleted_at')
               key :type, :string
+              key :nullable, true
               key :example, 'null'
               key :format, 'date-time'
             end
             property :related_forms do
               key :description, I18n.t('va_forms.field_descriptions.related_forms')
               key :type, :array
+              key :nullable, true
               items do
                 key :type, :string
                 key :example, '10-10EZR'
@@ -114,6 +125,7 @@ module VAForms
             property :benefit_categories do
               key :description, I18n.t('va_forms.field_descriptions.benefit_categories')
               key :type, :array
+              key :nullable, true
               items do
                 property :name do
                   key :description, I18n.t('va_forms.field_descriptions.benefit_category_name')
@@ -130,6 +142,7 @@ module VAForms
             property :va_form_administration do
               key :description, I18n.t('va_forms.field_descriptions.va_form_administration')
               key :type, :string
+              key :nullable, true
               key :example, 'Veterans Health Administration'
             end
           end
@@ -166,12 +179,14 @@ module VAForms
             property :first_issued_on do
               key :description, I18n.t('va_forms.field_descriptions.first_issued_on')
               key :type, :string
+              key :nullable, true
               key :example, '2016-07-10'
               key :format, 'date'
             end
-            property :last_revised_on do
-              key :description, I18n.t('va_forms.field_descriptions.last_revised_on')
+            property :last_revision_on do
+              key :description, I18n.t('va_forms.field_descriptions.last_revision_on')
               key :type, :string
+              key :nullable, true
               key :example, '2020-01-17'
               key :format, 'date'
             end
@@ -183,6 +198,7 @@ module VAForms
             property :sha256 do
               key :description, I18n.t('va_forms.field_descriptions.sha256')
               key :type, :string
+              key :nullable, true
               key :example, '5fe171299ece147e8b456961a38e17f1391026f26e9e170229317bc95d9827b7'
             end
             property :valid_pdf do
@@ -193,42 +209,50 @@ module VAForms
             property :form_usage do
               key :description, I18n.t('va_forms.field_descriptions.form_usage')
               key :type, :string
+              key :nullable, true
               key :example, '<p>Use VA Form 10-10EZ if you’re a Veteran and want to apply for VA health care. You must be enrolled in...</p>'
             end
             property :form_tool_intro do
               key :description, I18n.t('va_forms.field_descriptions.form_tool_intro')
               key :type, :string
+              key :nullable, true
               key :example, 'You can apply online instead of filling out and sending us the paper form.'
             end
             property :form_tool_url do
               key :description, I18n.t('va_forms.field_descriptions.form_tool_url')
               key :type, :string
+              key :nullable, true
               key :example, 'https://www.va.gov/health-care/apply/application/introduction'
             end
             property :form_details_url do
               key :description, I18n.t('va_forms.field_descriptions.form_details_url')
               key :type, :string
+              key :nullable, true
               key :example, 'https://www.va.gov/find-forms/about-form-10-10ez'
             end
             property :form_type do
               key :description, I18n.t('va_forms.field_descriptions.form_type')
               key :type, :string
+              key :nullable, true
               key :example, 'benefit'
             end
             property :language do
               key :description, I18n.t('va_forms.field_descriptions.language')
               key :type, :string
+              key :nullable, true
               key :example, 'en'
             end
             property :deleted_at do
               key :description, I18n.t('va_forms.field_descriptions.deleted_at')
+              key :nullable, true
               key :type, :string
-              key :example, 'null'
+              key :example, nil
               key :format, 'date-time'
             end
             property :related_forms do
               key :description, I18n.t('va_forms.field_descriptions.related_forms')
               key :type, :array
+              key :nullable, true
               items do
                 key :type, :string
                 key :example, '10-10EZR'
@@ -237,6 +261,7 @@ module VAForms
             property :benefit_categories do
               key :description, I18n.t('va_forms.field_descriptions.benefit_categories')
               key :type, :array
+              key :nullable, true
               items do
                 property :name do
                   key :description, I18n.t('va_forms.field_descriptions.benefit_category_name')
@@ -253,10 +278,12 @@ module VAForms
             property :va_form_administration do
               key :description, I18n.t('va_forms.field_descriptions.va_form_administration')
               key :type, :string
+              key :nullable, true
               key :example, 'Veterans Health Administration'
             end
             property :versions do
               key :type, :array
+              key :nullable, true
               key :description, I18n.t('va_forms.field_descriptions.versions')
               items do
                 property :sha256 do

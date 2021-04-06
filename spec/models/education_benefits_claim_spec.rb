@@ -267,4 +267,16 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect(education_benefits_claim.processed_at).to be nil
     end
   end
+
+  describe '#form_headers' do
+    it 'appends 22- to FORM_TYPES' do
+      expect(described_class.form_headers).to eq(described_class::FORM_TYPES.map { |t| "22-#{t}" }.freeze)
+    end
+
+    it 'appends 22- to passed in array' do
+      form_types = %w[1990s 10203]
+      form_headers = %w[22-1990s 22-10203]
+      expect(described_class.form_headers(form_types)).to eq(form_headers)
+    end
+  end
 end
