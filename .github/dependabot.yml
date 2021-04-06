@@ -17,6 +17,5 @@ updates:
     - dependency-name: "sidekiq-pro"
     - dependency-name: "sidekiq-ent"
   open-pull-requests-limit: 5
-  rebase-strategy: disabled
   registries:
   - rubygems-server-enterprise-contribsys-com
