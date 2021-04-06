@@ -24,7 +24,6 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
       with_settings(Settings.vba_documents, monthly_report: true) do
         last_month_start = Date.parse('01-02-2021')
         last_month_end = Date.parse('01-03-2021')
-        two_months_ago_start = Date.parse('01-01-2021')
 
         monthly_sql = VBADocuments::ReportMonthlySubmissions::MONTHLY_COUNT_SQL
         proc_sql = VBADocuments::ReportMonthlySubmissions::PROCESSING_SQL
@@ -46,7 +45,7 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
 
         expect(VBADocuments::MonthlyReportMailer).to receive(:build).once.with(
           get_fixture_yml(monthly_counts), get_fixture_yml(summary), get_fixture_yml(still_processing),
-          get_fixture_yml(avg_and_pages), last_month_start, last_month_end, two_months_ago_start
+          get_fixture_yml(avg_and_pages), last_month_start, last_month_end
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
                      end)
