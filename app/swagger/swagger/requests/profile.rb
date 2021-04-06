@@ -52,7 +52,25 @@ module Swagger
                         items do
                           key :type, :object
 
-                          property :
+                          property :id, type: :integer
+                          property :name, type: :string
+
+                          property :communication_channels do
+                            key :type, :array
+
+                            items do
+                              property :id, type: :integer
+                              property :name, type: :string
+                              property :description, type: :string
+
+                              property :communication_permission do
+                                key :type, :object
+
+                                property :id, type: :integer
+                                property :allowed, type: :boolean
+                              end
+                            end
+                          end
                         end
                       end
                     end
