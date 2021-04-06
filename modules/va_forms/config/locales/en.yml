@@ -17,7 +17,7 @@ en:
       form_type: 'VA Type of the form'
       form_usage: 'A description of how the form is to be used'
       language: 'Language code of the form'
-      last_revised_on: 'The date the form was last updated'
+      last_revision_on: 'The date the form was last updated'
       pages: 'Number of pages contained in the form'
       related_forms: 'A listing of other forms that relate to current form'
       sha256: 'A sha256 hash of the form contents'

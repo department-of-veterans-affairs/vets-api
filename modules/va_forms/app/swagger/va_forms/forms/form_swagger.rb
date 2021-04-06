@@ -41,8 +41,8 @@ module VAForms
               key :example, '2016-07-10'
               key :format, 'date'
             end
-            property :last_revised_on do
-              key :description, I18n.t('va_forms.field_descriptions.last_revised_on')
+            property :last_revision_on do
+              key :description, I18n.t('va_forms.field_descriptions.last_revision_on')
               key :type, :string
               key :nullable, true
               key :example, '2020-01-17'
@@ -183,8 +183,8 @@ module VAForms
               key :example, '2016-07-10'
               key :format, 'date'
             end
-            property :last_revised_on do
-              key :description, I18n.t('va_forms.field_descriptions.last_revised_on')
+            property :last_revision_on do
+              key :description, I18n.t('va_forms.field_descriptions.last_revision_on')
               key :type, :string
               key :nullable, true
               key :example, '2020-01-17'
