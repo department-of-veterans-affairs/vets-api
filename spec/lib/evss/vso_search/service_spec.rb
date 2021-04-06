@@ -34,7 +34,7 @@ describe EVSS::VSOSearch::Service do
       service.send(*[:get_current_info, response.body].compact)
     end
 
-    it 'overrides the request header ssn' do
+    it 'overrides the request ssn' do
       headers =
         {
           'va_eauth_pnid' => '222334567'
@@ -42,6 +42,7 @@ describe EVSS::VSOSearch::Service do
 
       merged_headers = {
         'ssn' => '222334567',
+        'edipi' => '1007697216',
         'Authorization' => 'Token token=PUBLICDEMO123',
         'Content-Type' => 'application/json',
         'va_eauth_pnid' => '222334567'
@@ -51,9 +52,28 @@ describe EVSS::VSOSearch::Service do
       service.send(*[:get_current_info, headers].compact)
     end
 
-    it 'does not override header ssn without additional_headers' do
+    it 'overrides the request edipi' do
+      headers =
+        {
+          'va_eauth_dodedipnid' => '2007697216'
+        }
+
       merged_headers = {
         'ssn' => '796043735',
+        'edipi' => '2007697216',
+        'Authorization' => 'Token token=PUBLICDEMO123',
+        'Content-Type' => 'application/json',
+        'va_eauth_dodedipnid' => '2007697216'
+      }
+
+      expect(service).to receive(:perform).with(:post, 'getCurrentInfo', '', merged_headers).and_return(response)
+      service.send(*[:get_current_info, headers].compact)
+    end
+
+    it 'does not override user fields without additional_headers' do
+      merged_headers = {
+        'ssn' => '796043735',
+        'edipi' => '1007697216',
         'Authorization' => 'Token token=PUBLICDEMO123',
         'Content-Type' => 'application/json'
       }
