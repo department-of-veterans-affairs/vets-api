@@ -27,9 +27,10 @@ jobs:
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
         
-      - uses: reviewdog/action-brakeman@v1
-        with:
-          github_token: ${{ secrets.github_token }}
+      - name: Brakeman
+        uses: devmasx/brakeman-linter-action@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
       - uses: duderman/rubocop-annotate-action@v0.1.0
         with:
