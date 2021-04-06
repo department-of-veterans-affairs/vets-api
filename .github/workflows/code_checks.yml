@@ -37,6 +37,5 @@ jobs:
       - uses: devmasx/brakeman-linter-action@v1.0.0
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        with:
-          path: brakeman.json
+          REPORT_PATH: brakeman.json
         if: ${{ failure() }}
