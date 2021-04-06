@@ -40,7 +40,7 @@
   <% end %>
   </tfoot>
 </table>
-<h5>* Processing statuses include: uploaded, received, and processing</h5>
+<h5>* Processing statuses include: pending, uploaded, received, and processing</h5>
 <br>
 <br>
 <h2>Prior Twelve Months - Average Time to VBMS</h2>
@@ -74,7 +74,7 @@
 </table>
 <br>
 <br>
-<h2>Submissions Still Processing Prior to <%= @two_months_ago_start.strftime("%B") %> <%= @two_months_ago_start.strftime("%Y") %>:</h2>
+<h2>Submissions Still Processing Prior to <%= @last_month_start.strftime("%B") %> <%= @last_month_start.strftime("%Y") %>:</h2>
 <h3>Count <%= @last_month_still_processing.count %></h3>
 <% if @last_month_still_processing.count > 0 %>
   <table>
