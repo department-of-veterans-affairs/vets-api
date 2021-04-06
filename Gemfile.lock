@@ -328,7 +328,7 @@ GEM
       dry-equalizer (~> 0.3)
       dry-types (~> 1.0)
       ice_nine (~> 0.11)
-    dry-types (1.2.2)
+    dry-types (1.4.0)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.3)
       dry-core (~> 0.4, >= 0.4.4)
