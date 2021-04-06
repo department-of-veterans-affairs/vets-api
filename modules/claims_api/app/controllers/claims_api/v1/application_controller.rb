@@ -76,7 +76,7 @@ module ClaimsApi
                               :warning,
                               body: e.message)
         message = 'User not a valid or authorized Veteran for this end point.'
-        render json: { errors: [{ status: 401, detail: message }] }, status: :unauthorized
+        raise ::Common::Exceptions::Unauthorized.new(detail: message)
       end
     end
   end
