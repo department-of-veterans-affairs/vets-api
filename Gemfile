@@ -192,7 +192,7 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'rubocop-thread_safety'
-  gem 'sidekiq', '~> 5.0'
+  gem 'sidekiq', '~> 6.0'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
