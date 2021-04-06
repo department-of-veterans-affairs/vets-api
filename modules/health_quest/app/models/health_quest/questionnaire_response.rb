@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'json_marshal/marshaller'
+
 module HealthQuest
   ##
   # An ActiveRecord object for modeling and persisting questionnaire response and user demographics data to the DB.
