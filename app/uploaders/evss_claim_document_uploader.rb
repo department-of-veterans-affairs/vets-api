@@ -1,15 +1,9 @@
 # frozen_string_literal: true
 
 # Files that will be associated with a previously submitted claim, from the Claim Status tool
-class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
+class EVSSClaimDocumentUploader < EVSSClaimDocumentUploaderBase
   include CarrierWave::MiniMagick
-  include SetAWSConfig
-  include ValidateEVSSFileSize
   include ConvertFileType
-
-  def size_range
-    1.byte...150.megabytes
-  end
 
   version :converted, if: :tiff_or_incorrect_extension? do
     process(convert: :jpg, if: :tiff?)
@@ -35,24 +29,12 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     set_storage_options!
   end
 
-  def read_for_upload
-    if converted_exists?
-      converted.read
-    else
-      read
-    end
-  end
-
   def store_dir
     store_dir = "evss_claim_documents/#{@user_uuid}"
     @ids.compact.each do |id|
       store_dir += "/#{id}"
     end
     store_dir
-  end
-
-  def extension_allowlist
-    %w[pdf gif tiff tif jpeg jpg bmp txt]
   end
 
   def move_to_cache

@@ -40,6 +40,14 @@ module ConvertFileType
     end
   end
 
+  def read_for_upload
+    if converted_exists?
+      converted.read
+    else
+      read
+    end
+  end
+
   private
 
   def tiff?(carrier_wave_sanitized_file)

@@ -2,14 +2,6 @@
 
 # Files uploaded as part of a form526 submission that will be sent to EVSS upon form submission.
 class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
-  include SetAWSConfig
-  include ValidatePdf
-  include ValidateEVSSFileSize
-
-  def size_range
-    1.byte...150.megabytes
-  end
-
   def initialize(guid)
     super
     @guid = guid
@@ -22,10 +14,6 @@ class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
         Settings.evss.s3.bucket
       )
     end
-  end
-
-  def extension_allowlist
-    %w[pdf png gif tiff tif jpeg jpg bmp txt]
   end
 
   def store_dir

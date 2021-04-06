@@ -2,17 +2,13 @@
 
 require 'rails_helper'
 
-describe ValidateEVSSFileSize, uploader_helpers: true do
-  class ValidateEVSSFileSizeTest < CarrierWave::Uploader::Base
-    include ValidateEVSSFileSize
-  end
-
+describe EVSSClaimDocumentUploaderBase, uploader_helpers: true do
   before do
     allow_any_instance_of(described_class).to receive(:max_file_size_non_pdf).and_return(100)
   end
 
   def store_image
-    ValidateEVSSFileSizeTest.new.store!(file)
+    EVSSClaimDocumentUploaderBase.new.store!(file)
   end
 
   context 'with a too large file that is not a PDF' do
