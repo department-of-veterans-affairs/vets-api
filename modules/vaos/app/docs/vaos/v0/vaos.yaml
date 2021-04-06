@@ -934,6 +934,59 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  '/systems/{system_id}/direct_scheduling_facilities'
+    get:
+      tags:
+        - systems
+      summary: Returns a list of facilities that have direct scheduling capabilities
+      operationId: getDirectSchedulingFacilities
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: system_id
+          schema:
+            type: integer
+          required: true
+          description: the system id that is being queried
+      responses:
+        '200':
+          description: Facilities retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/ClinicInstitution"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+       
   '/systems/{system_id}/clinic_institutions':
     get:
       tags:
