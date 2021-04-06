@@ -14,11 +14,10 @@ module ClaimsApi
         log_message_to_sentry('Error in claims v0',
                               :warning,
                               body: e.message)
-        render json: { errors: [{ status: 404, detail: 'Claims not found' }] },
-               status: :not_found
+        raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claims not found')
       end
 
-      def show # rubocop:disable Metrics/MethodLength
+      def show
         claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
         if claim && claim.status == 'errored'
@@ -33,26 +32,26 @@ module ClaimsApi
           # NOTE: source doesn't seem to be accessible within a remote evss_claim
           render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer
         else
-          render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
-                 status: :not_found
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
         end
       rescue => e
         log_message_to_sentry('Error in claims show',
                               :warning,
                               body: e.message)
-        render json: { errors: [{ status: 404, detail: 'Claim not found' }] },
-               status: :not_found
+        raise if e.is_a?(::Common::Exceptions::UnprocessableEntity)
+
+        raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
       end
 
       private
 
       def fetch_errored(claim)
         if claim.evss_response&.any?
-          render json: { errors: format_evss_errors(claim.evss_response['messages']) },
-                 status: :unprocessable_entity
+          errors = format_evss_errors(claim.evss_response['messages'])
+          raise ::Common::Exceptions::UnprocessableEntity.new(errors: errors)
         else
-          render json: { errors: [{ status: 422, detail: 'Unknown EVSS Async Error' }] },
-                 status: :unprocessable_entity
+          message = 'Unknown EVSS Async Error'
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
         end
       end
 

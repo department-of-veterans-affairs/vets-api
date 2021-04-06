@@ -64,7 +64,7 @@ module ClaimsApi
         def status
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
                                                                                           source_name: source_name)
-          render_poa_not_found and return unless power_of_attorney
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -75,7 +75,7 @@ module ClaimsApi
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
-          render_poa_not_found and return unless power_of_attorney
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -120,10 +120,6 @@ module ClaimsApi
               }
             }
           }
-        end
-
-        def render_poa_not_found
-          render json: { errors: [{ status: 404, detail: 'POA not found' }] }, status: :not_found
         end
       end
     end
