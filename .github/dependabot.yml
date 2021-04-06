@@ -9,9 +9,10 @@ updates:
 - package-ecosystem: bundler
   directory: "/"
   schedule:
-    interval: daily
-    time: "20:00"
-    timezone: US/Eastern
+    interval: weekly
+  ignore:
+    - dependency-name: "vets_json_schema"
+    - dependency-name: "active_model_serializers"
   open-pull-requests-limit: 10
   rebase-strategy: disabled
   registries:
