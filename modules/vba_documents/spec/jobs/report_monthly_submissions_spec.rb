@@ -7,6 +7,10 @@ require './modules/vba_documents/spec/support/vba_document_fixtures'
 RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
   include VBADocuments::Fixtures
 
+  before { Timecop.freeze(Time.zone.parse('2021-03-15 00:00:00 UTC')) }
+
+  after { Timecop.return }
+
   describe '#perform' do
     monthly_counts = 'monthly_report/monthly_counts.yml'
     summary = 'monthly_report/monthly_summary.yml'

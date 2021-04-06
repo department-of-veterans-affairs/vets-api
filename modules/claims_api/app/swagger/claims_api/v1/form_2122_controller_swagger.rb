@@ -9,6 +9,7 @@ module ClaimsApi
 
       swagger_path '/forms/2122' do
         operation :get do
+          key :deprecated, true
           key :summary, 'Gets schema for POA form.'
           key :description, 'Returns schema to automatically generate a POA form.'
           key :operationId, 'get2122JsonSchema'
@@ -492,6 +493,7 @@ module ClaimsApi
 
       swagger_path '/forms/2122/validate' do
         operation :post do
+          key :deprecated, true
           key :summary, '21-22 POA form submission test run.'
           key :description, 'Test to make sure the form submission works with your parameters.'
           key :operationId, 'validate2122poa'

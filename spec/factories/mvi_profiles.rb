@@ -103,6 +103,16 @@ FactoryBot.define do
       birls_id { birls.first }
       birls_ids { birls }
       vet360_id { '123456789' }
+      sec_id { '0001234567' }
+      search_token { 'WSDOC2002071538432741110027956' }
+
+      trait :with_nil_address do
+        address { nil }
+      end
+
+      trait :with_relationship do
+        relationships { [build(:mpi_profile_relationship)] }
+      end
 
       trait :missing_attrs do
         given_names { %w[Mitchell] }

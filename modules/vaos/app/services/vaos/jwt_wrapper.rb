@@ -24,11 +24,11 @@ module VAOS
     def payload
       {
         authenticated: true,
-        sub: icn,
+        sub: user.icn,
         idType: ID_TYPE,
         iss: ISS,
-        firstName: first_name,
-        lastName: last_name,
+        firstName: user.first_name_mpi,
+        lastName: user.last_name_mpi,
         authenticationAuthority: AUTHORITY,
         jti: SecureRandom.uuid,
         nbf: 1.minute.ago.to_i,
@@ -38,25 +38,13 @@ module VAOS
         gender: gender,
         dob: parsed_date,
         dateOfBirth: parsed_date,
-        edipid: edipi,
-        ssn: ssn
+        edipid: user.edipi_mpi,
+        ssn: user.ssn_mpi
       }
     end
 
-    def icn
-      user.icn
-    end
-
-    def first_name
-      user.mpi&.profile&.given_names&.first
-    end
-
-    def last_name
-      user.mpi&.profile&.family_name
-    end
-
     def gender
-      type = user.mpi&.profile&.gender
+      type = user.gender_mpi
       return '' unless type.is_a?(String)
 
       case type.upcase[0, 1]
@@ -69,14 +57,6 @@ module VAOS
 
     def parsed_date
       Formatters::DateFormatter.format_date(user.birth_date, :number_iso8601)
-    end
-
-    def edipi
-      user.mpi&.profile&.edipi
-    end
-
-    def ssn
-      user.mpi&.profile&.ssn
     end
   end
 end
