@@ -2244,6 +2244,20 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           }
         end
 
+        it 'supports the communication preferences update response', run_at: '2021-03-24T23:46:17Z' do
+          VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :patch,
+              '/v0/profile/communication_preferences/{communication_permission_id}',
+              200,
+              headers.merge(
+                '_data' => valid_params.to_json,
+                'communication_permission_id' => 46
+              )
+            )
+          end
+        end
+
         it 'supports the communication preferences create response', run_at: '2021-03-24T22:38:21Z' do
           valid_params[:communication_item][:communication_channels][0][:communication_permission][:allowed] = false
 
