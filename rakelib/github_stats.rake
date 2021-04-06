@@ -54,7 +54,7 @@ namespace :github_stats do
         # calculate the duration excluding weekends
         duration = calculator.seconds_between_times(pr_created_at, first_reviewed_at)
 
-        #send duration to StatsD
+        # send duration to StatsD
         StatsD.measure(STATSD_METRIC, duration,
                        tags: { repo: repo, number: number, user: user })
       end.compact
