@@ -14,7 +14,7 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install dependencies (pdftk, poppler, imagemagick)
+      - name: Install System Packages (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
           
       - name: Install Dependencies
