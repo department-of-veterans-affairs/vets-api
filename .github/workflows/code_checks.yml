@@ -8,7 +8,6 @@ jobs:
       RAILS_ENV: test 
 
     steps:
-
       - uses: actions/checkout@v2
       
       - uses: ruby/setup-ruby@v1
@@ -27,14 +26,17 @@ jobs:
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
         
-      - name: Brakeman
-        uses: devmasx/brakeman-linter-action@v1.0.0
-        with:
-          args: --confidence-level=2
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Run Brakeman
+        run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.html -o brakeman.text -o brakeman.json
 
       - uses: duderman/rubocop-annotate-action@v0.1.0
         with:
           path: rubocop.json
+        if: ${{ failure() }}
+
+      - uses: devmasx/brakeman-linter-action@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        with:
+          path: brakeman.json
         if: ${{ failure() }}
