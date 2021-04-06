@@ -554,7 +554,79 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"      
+                $ref: "#/components/schemas/Errors"
+  '/facilities/{facility_id}/available_appointments':
+    get:
+      tags: 
+        - facilities
+      summary: Returns a list of available appointments
+      operationId: availableAppointments
+      security: 
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "facility_id"
+          description: The facility id that is being queried.
+          schema: 
+            type: string
+            example: "123"
+        - in: query
+          required: true
+          name: start_date
+          description: The start of the time window that is being queried. 
+          schema:
+            type: string
+            format: date
+            example: "2021-05-17"
+        - in: query
+          required: true
+          name: end_date
+          description: The end of the time window that is being queried. 
+          schema:
+            type: string
+            format: date
+            example: "2021-05-18"
+        - in: query
+          required: true
+          name: clinic_ids
+          description: The list of clinic ids that is being queried.
+          schema:
+            type: array
+            items:
+              type: integer
+            example: clinic_ids[]=405&clinic_ids[]=516
+      responses:
+        '200':
+          description: OK, returns a list of available appointment slots.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FacilityAvailableAppointments'
+        '403':
+          description: Forbidden, the request contained valid data and was understood by the server, but the server is refusing action. This may be due to the user not having the necessary permissions. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors" 
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, the request was well-formed but was unable to be followed due to parameter validation errors.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/facilities/{facility_id}/cancel_reasons':
     get:
       tags:
@@ -1384,6 +1456,80 @@ components:
                 type: "array"
                 items:
                   type: "object"
+    FacilityAvailableAppointments:
+      type: object
+      required: 
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "1"
+        type:
+          type: string
+          example: "available_appointment"
+        attributes:
+          type: object
+          required:
+            - clinic_id,
+            - clinic_name
+            - appointment_length
+            - clinic_display_start_time
+            - display_increments
+            - stop_code
+            - ask_for_check_in
+            - max_overbooks_per_day
+            - has_user_access_to_clinic
+            - primary_stop_code
+            - secondary_stop_code
+            - list_size
+            - empty
+            - appointment_time_slot
+          properties:
+            clinic_id:
+              type: string
+              example: "2276"
+            clinic_name:
+              type: string
+              example: "DC/PACT GREEN FOUR"    
+            appointment_length:
+              type: integer
+              example: 30
+            clinic_display_start_time:
+              type: string
+              example: "7"
+            display_increments:
+              type: string
+              example: "2"
+            stop_code:
+              type: string
+              example: "282"
+            ask_for_check_in:
+              type: boolean
+              example: true
+            max_overbooks_per_day:
+              type: integer
+              example: 30
+            has_user_access_to_clinic:
+              type: boolean
+              example: false
+            primary_stop_code:
+              type: string
+              example: "323"
+            secondary_stop_code:
+              type: string
+              example: "124"
+            list_size:
+              type: integer
+              example: 123
+            empty:
+              type: boolean
+              example: true
+            appointment_time_slot:
+              type: array
+              items:
+                $ref: "#/components/schemas/AppointmentTimeSlot"
     FacilityCancelReason:
       type: object
       required: 
@@ -1900,4 +2046,30 @@ components:
             title:
               type: "string"
               example: "PHYSICIAN-ATTENDING"
-          type: "object" 
+          type: "object"
+    AppointmentTimeSlot:
+      type: "object"
+      required:
+        - start_date_time
+        - end_date_time
+        - booking_status
+        - remaining_allowed_over_bookings
+        - availability
+      properties:
+        start_date_time:
+          type: "string"
+          format: "date"
+          example: "12/02/2019 13:30:00"
+        end_date_time:
+          type: "string"
+          format: "date"
+          example: "12/02/2019 14:00:00"
+        booking_status:
+          type: "string"
+          example: "1"
+        remaining_allowed_over_bookings:
+          type: "string"
+          example: "2"
+        availability:
+          type: "boolean"
+          example: true
