@@ -5,6 +5,24 @@ module AppealsApi::V1
     module NoticeOfDisagreements
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
         skip_before_action :authenticate
+        before_action :set_submission_attributes, if: -> { params[:nod_id] }
+
+        def create
+          submission = AppealsApi::EvidenceSubmission.create(@submission_attributes)
+          signed_url = submission.get_location
+
+          render json: { data:
+                          {
+                            attributes:
+                              {
+                                status: submission.status,
+                                id: submission.id,
+                                appeal_id: submission.supportable_id,
+                                appeal_type: submission.supportable_type
+                              },
+                            location: signed_url
+                          } }
+        end
 
         def show
           submissions = AppealsApi::EvidenceSubmission.where(
@@ -17,14 +35,16 @@ module AppealsApi::V1
           render json: serialized.serializable_hash
         end
 
-        def create
-          status, error = AppealsApi::FileValidator.new(params[:document]).call
+        private
 
-          if status == :ok
-            render json: { document: params[:document], uuid: params[:uuid] }
-          else
-            render json: { errors: [error] }, status: 422
-          end
+        def set_submission_attributes
+          @appeal ||= AppealsApi::NoticeOfDisagreement.find_by(id: params[:nod_id])
+          raise Common::Exceptions::RecordNotFound, params[:nod_id] unless @appeal
+
+          @submission_attributes ||= {
+            supportable_id: params[:nod_id],
+            supportable_type: 'NoticeOfDisagreement'
+          }
         end
       end
     end

@@ -464,4 +464,228 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
     end
   end
+
+  swagger_path '/notice_of_disagreements/evidence_submissions' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :post, tags: NOD_TAG do
+      key :operationId, 'postNoticeOfDisagreementEvidenceSubmission'
+      key :summary, 'Get a location for subsequent evidence submission document upload PUT request'
+      key :description, ''
+      parameter name: 'uuid', 'in': 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
+        schema { key :'$ref', :uuid }
+      end
+
+      response 202 do
+        key :description, 'Accepted. Location generated'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            key :required, %i[data]
+            property :data do
+              key :description, 'Status record for a previously initiated document submission.'
+              key :required, %i[id type attributes]
+              property :id do
+                key :description, 'JSON API identifier'
+                key :type, :string
+                key :format, :uuid
+                key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
+              end
+
+              property :type do
+                key :description, 'JSON API type specification'
+                key :type, :string
+                key :example, 'document_upload'
+              end
+
+              property :attributes do
+                key :required, %i[guid status]
+                property :guid do
+                  key :description, 'The document upload identifier'
+                  key :type, :string
+                  key :format, :uuid
+                  key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
+                end
+
+                property :status do
+                  key :description, 'status description here...'
+                  key :type, :string
+                  key :enum, %i[pending ...]
+                  key :example, 'pending'
+                end
+
+                property :code do
+                  key :description, 'code description here...'
+                  key :type, :string
+                end
+
+                property :detail do
+                  key :description, 'Human readable error detail. Only present if status = "error"'
+                  key :type, :string
+                end
+
+                property :location do
+                  key :description, 'Location to which to PUT document Payload'
+                  key :type, :string
+                  key :format, :uri
+                  key :example, 'https://sandbox-api.va.gov/example_path_here/{idpath}'
+                end
+
+                property :updated_at do
+                  key :description, 'The last time the submission was updated'
+                  key :type, :string
+                  key :format, 'date-time'
+                  key :example, '2018-07-30T17:31:15.958Z'
+                end
+
+                property :uploaded_pdf do
+                  key :description, 'Only populated after submission starts processing'
+                  key :example, 'null'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/path' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :put, tags: NOD_TAG do
+      key :operationId, 'putNoticeOfDisagreementEvidenceSubmission'
+      key :summary, 'Accepts Notice of Disagreement Evidence Submission document upload.'
+      key :description, 'Detailed description here...'
+
+      parameter do
+        key :name, 'Content-MD5'
+        key :in, 'header'
+        key :description, 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
+        key :required, false
+        schema do
+          key :type, :string
+          key :format, :md5
+        end
+      end
+
+      response 200 do
+        key :description, 'Document upload staged'
+      end
+
+      response 400 do
+        key :description, 'Document upload failed'
+        content 'application/xml' do
+          schema do
+            key :type, :object
+            key :description, 'Document upload failed'
+
+            xml do
+              key :name, 'Error'
+            end
+
+            property :Code do
+              key :type, :string
+              key :description, 'Error code'
+              key :example, 'Bad Digest'
+            end
+
+            property :Message do
+              key :type, :string
+              key :description, 'Error detail'
+              key :example, 'A client error (InvalidDigest) occurred when calling the PutObject operation -'\
+                'The Content-MD5 you specified was invalid.'
+            end
+
+            property :Resource do
+              key :type, :string
+              key :description, 'Resource description'
+              key :example, '/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572.upload'
+            end
+
+            property :RequestId do
+              key :type, :string
+              key :description, 'Identifier for debug purposes'
+            end
+          end
+        end
+      end
+
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/notice_of_disagreements/evidence_submissions/{uuid}' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :get, tags: NOD_TAG do
+      key :operationId, 'getNoticeOfDisagreementEvidenceSubmission'
+      key :summary, 'Shows a specific Notice of Disagreement Evidence Submission.'
+      key :description, 'Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.'
+      parameter name: 'uuid', 'in': 'path', required: true do
+        schema { key :'$ref', :uuid }
+        key :description, 'Notice of Disagreement UUID Evidence Submission'
+      end
+
+      response 200 do
+        key :description, 'Info about a single Notice of Disagreement Evidence Submission.'
+
+        content 'application/json' do
+          schema do
+            key :type, :object
+
+            property :data do
+              property :id do
+                key :'$ref', :uuid
+              end
+
+              property :type do
+                key :type, :string
+                key :enum, [:evidenceSubmission]
+              end
+
+              property :status do
+                key :type, :string
+                key :description, 'evidenceSubmissionStatus'
+                key :'$ref', '#/components/schemas/evidenceSubmissionStatus'
+              end
+            end
+          end
+        end
+      end
+
+      response 404 do
+        key :description, 'Notice of Disagreement Evidence Submission not found'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            property :errors do
+              key :type, :array
+
+              items do
+                property :status do
+                  key :type, :integer
+                  key :example, 404
+                end
+                property :detail do
+                  key :type, :string
+                  key :example, 'NoticeOfDisagreement Evidence Submission with uuid {uuid} not found.'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      security do
+        key :apikey, []
+      end
+    end
+  end
 end

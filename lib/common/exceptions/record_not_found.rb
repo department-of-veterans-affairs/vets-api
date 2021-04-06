@@ -9,12 +9,14 @@ module Common
     class RecordNotFound < BaseError
       attr_reader :id
 
-      def initialize(id)
+      def initialize(id, detail: nil)
         @id = id
+        @detail = detail
       end
 
       def errors
-        Array(SerializableError.new(i18n_interpolated(detail: { id: @id })))
+        detail = @detail.presence || { id: @id }
+        Array(SerializableError.new(i18n_interpolated(detail: detail)))
       end
     end
   end
