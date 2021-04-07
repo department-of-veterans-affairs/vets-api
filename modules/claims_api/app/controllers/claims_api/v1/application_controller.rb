@@ -14,6 +14,10 @@ module ClaimsApi
       before_action :validate_json_format, if: -> { request.post? }
       before_action :verify_mpi
 
+      def fetch_aud
+        Settings.oidc.isolated_audience.claims
+      end
+
       protected
 
       def source_name
