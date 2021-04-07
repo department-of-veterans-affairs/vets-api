@@ -65,4 +65,4 @@ jobs:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-        run: bundle exec parallel_rspec -n 4
+        run: bundle exec parallel_rspec -n 4 -o '[--color --tty]'
