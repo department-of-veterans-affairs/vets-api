@@ -43,6 +43,34 @@ describe CovidVaccine::V0::ExpandedRegistrationCsvGenerator do
       generator = described_class.new([record])
       expect(generator.csv).to include('^688^')
     end
+
+    describe 'birth sex field' do
+      it 'maps Male value to M' do
+        record = build(:covid_vax_expanded_registration, raw_options: { 'ssn' => '123456789', 'birth_sex' => 'Male' })
+        generator = described_class.new([record])
+        expect(generator.csv).to include('^123456789^M^')
+      end
+
+      it 'maps Female value to F' do
+        record = build(:covid_vax_expanded_registration, raw_options: { 'ssn' => '123456789', 'birth_sex' => 'Female' })
+        generator = described_class.new([record])
+        expect(generator.csv).to include('^123456789^F^')
+      end
+
+      it 'maps Prefer not to state value to nil' do
+        record = build(:covid_vax_expanded_registration,
+                       raw_options: { 'ssn' => '123456789', 'birth_sex' => 'Prefer not to state' })
+        generator = described_class.new([record])
+        expect(generator.csv).to include('^123456789^^')
+        expect(generator.csv).not_to include('^P^')
+      end
+
+      it 'maps nil value to nil' do
+        record = build(:covid_vax_expanded_registration, raw_options: { 'ssn' => '123456789', 'birth_sex' => nil })
+        generator = described_class.new([record])
+        expect(generator.csv).to include('^123456789^^')
+      end
+    end
   end
 
   describe '#io' do

@@ -12,7 +12,6 @@ module AppealsApi
           @higher_level_review = higher_level_review
         end
 
-        # rubocop:disable Metrics/AbcSize
         # rubocop:disable Metrics/MethodLength
         def form_fill
           options = {
@@ -64,7 +63,6 @@ module AppealsApi
 
           fill_contestable_issues!(options)
         end
-        # rubocop:enable Metrics/AbcSize
         # rubocop:enable Metrics/MethodLength
 
         def insert_overlaid_pages(form_fill_path)

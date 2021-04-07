@@ -22,12 +22,14 @@ namespace :covid_vaccine do
     end
   end
 
-  # desc 'Update state of records in batch to pending'
-  # task :set_pending_state, [:batch_id] => [:environment] do |_, args|
-  #   batch_id = args[:batch_id]
-  #   CovidVaccine::V0::EnrollmentProcessor.set_pending_state(batch_id)
-  #   puts "Updated state to enrollment_pending for batch id #{batch_id}"
-  # end
+  desc 'Update state of records in batch to pending'
+  task :set_pending_state, [:batch_id] => [:environment] do |_, args|
+    raise 'No batch_id provided' unless args[:batch_id]
+
+    batch_id = args[:batch_id]
+    CovidVaccine::V0::EnrollmentProcessor.update_state_to_pending(batch_id)
+    puts "Updated state to enrollment_pending for batch id #{batch_id}"
+  end
 
   desc 'Perform enrollment SFTP upload for max (count) records'
   task :perform_enrollment_upload, [:count] => [:environment] do |_, _args|

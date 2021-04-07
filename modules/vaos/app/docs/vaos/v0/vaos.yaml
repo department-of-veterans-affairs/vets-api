@@ -282,7 +282,6 @@ paths:
                         $ref: "#/components/schemas/CCAppointment"
                       meta:
                         $ref: "#/components/schemas/Pagination"
-                    $ref: "#/components/schemas/Pagination" 
         '207':
           description: Message body may contain multiple status codes depending on how many subrequests were made.
         '403':
@@ -555,7 +554,79 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Errors"      
+                $ref: "#/components/schemas/Errors"
+  '/facilities/{facility_id}/available_appointments':
+    get:
+      tags: 
+        - facilities
+      summary: Returns a list of available appointments
+      operationId: availableAppointments
+      security: 
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "facility_id"
+          description: The facility id that is being queried.
+          schema: 
+            type: string
+            example: "123"
+        - in: query
+          required: true
+          name: start_date
+          description: The start of the time window that is being queried. 
+          schema:
+            type: string
+            format: date
+            example: "2021-05-17"
+        - in: query
+          required: true
+          name: end_date
+          description: The end of the time window that is being queried. 
+          schema:
+            type: string
+            format: date
+            example: "2021-05-18"
+        - in: query
+          required: true
+          name: clinic_ids
+          description: The list of clinic ids that is being queried.
+          schema:
+            type: array
+            items:
+              type: integer
+            example: clinic_ids[]=405&clinic_ids[]=516
+      responses:
+        '200':
+          description: OK, returns a list of available appointment slots.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FacilityAvailableAppointments'
+        '403':
+          description: Forbidden, the request contained valid data and was understood by the server, but the server is refusing action. This may be due to the user not having the necessary permissions. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors" 
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '422':
+          description: Unprocessable Entity, the request was well-formed but was unable to be followed due to parameter validation errors.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/facilities/{facility_id}/cancel_reasons':
     get:
       tags:
@@ -594,13 +665,230 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  '/facilities':
+    get:
+      tags:
+        - facilities
+      operationId:  getFacilities
+      summary:  Returns a list of facility records for the given facility codes 
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: facility_codes
+          schema:
+            type: array
+            items: 
+              type: string
+          example: facility_codes[]=405&facility_codes[]=516
+      responses:
+        '200':
+          description: OK, Facility information retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Facility"
+                    example:
+                      - id: "405"
+                        type: facility
+                        attributes:
+                          institution_code: "405"
+                          city: White River Junction
+                          state_abbrev: VT
+                          authoritative_name: White River Junction VA Medical Center
+                          root_station_code:  "983"
+                          admin_parent: true
+                          parent_station_code: "405"
+                      - id: "516"
+                        type: facility
+                        attributes:
+                          institution_code: "516"
+                          city: Bay Pines
+                          state_abbrev: FL
+                          authoritative_name: C.W. Bill Young Department of Veterans Affairs Medical Center
+                          root_station_code:  "983"
+                          admin_parent: true
+                          parent_station_code: "516"                      
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
         '504':
           description: Timeout from the upstream service
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
-
+  '/facilities/limits':
+    get:
+      tags:
+        - facilities
+      operationId:  getLimitsForMultipleFacilities
+      summary:  Returns a list of limits for multiple facilities for the given type of care and facility ids.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name:  type_of_care_id
+          example: "323"
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: facility_ids
+          schema:
+            type: array
+            items: 
+              type: string
+          example: facility_ids[]=688&facility_ids[]=442        
+      responses:
+        '200':
+          description: OK, Returns a list of request limits for the type of care for each facility id given
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    number_of_requests:
+                      type: integer
+                    request_limit:
+                      type: integer
+                    institution_code:
+                      type: string
+              example:
+                - number_of_requests: 0
+                  request_limit:  1
+                  institution_code: "688"
+                - number_of_requests: 0
+                  request_limit:  1
+                  institution_code: "442"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  '/facilities/{facility_id}/clinics':
+    get:
+      tags: 
+        - facilities
+      summary:  Returns a list of clinics for a given facility
+      operationId:  getClinics
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name:  facility_id
+          schema:
+            type: string
+        - in: query
+          required: true
+          name:  type_of_care_id
+          schema:
+            type: string
+        - in: query
+          required: true
+          name:  system_id
+          schema:
+            type: string            
+      responses:
+        '200':
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Clinic'
+              example:
+                data:
+                  - id: "983"
+                    type: "clinic"
+                    attributes:
+                      site_code:  "983"
+                      clinic_id:  "308"
+                      clinic_name:  "CHY PC KILPATRICK"
+                      clinic_friendly_location_name:  "Green Team Clinic1"
+                      primary_stop_code:  "323"
+                      secondary_stop_code:  ""
+                      direct_scheduling_flag: "Y"
+                      display_to_patient_flag:  "Y"
+                      institution_name: "CHYSHR-Cheyenne VA Medical Center"
+                      institution_code: "983"
+                      object_type:  "CdwClinic"
+                  - id: "983"
+                    type: "clinic"
+                    attributes:
+                      site_code:  "983"
+                      clinic_id:  "455"
+                      clinic_name:  "CHY PC CASSIDY"
+                      clinic_friendly_location_name:  ""
+                      primary_stop_code:  "323"
+                      secondary_stop_code:  ""
+                      direct_scheduling_flag: "Y"
+                      display_to_patient_flag:  "Y"
+                      institution_name: "CHYSHR-Cheyenne VA Medical Center"
+                      institution_code: "983"
+                      object_type:  "CdwClinic"                 
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '403':
+          description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/systems':
     get:
       tags:
@@ -827,6 +1115,90 @@ components:
                 type: "string"
               detail:
                 type: "string"
+    Clinic:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          required:
+            - site_code
+            - clinic_id
+            - clinic_name
+            - clinic_friendly_location_name
+            - primary_stop_code
+            - secondary_stop_code
+            - direct_scheduling_flag
+            - display_to_patient_flag
+            - institution_name
+            - institution_code
+            - object_type
+          properties:
+            site_code:
+              type: string
+            clinic_id:
+              type: string
+            clinic_name:
+              type: string
+            clinic_friendly_location_name:
+              type: string
+            primary_stop_code:
+              type: string
+            secondary_stop_code:
+              type: string
+            direct_scheduling_flag:
+              type: string
+            display_to_patient_flag:
+              type: string
+            institution_name:
+              type: string
+            institution_code:
+              type: string
+            object_type:
+              type: string                  
+    Facility:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties: 
+        id:
+          type: "string"
+        type:
+          type: "string"
+        attributes:
+          type: "object"
+          required:
+            - "institution_code"
+            - "city"
+            - "state_abbrev"
+            - "authoritative_name"
+            - "root_station_code"
+            - "admin_parent"
+            - "parent_station_code"
+          properties:
+            institution_code:
+              type: "string"
+            city:
+              type: "string"
+            state_abbrev:
+              type: "string"
+            authoritative_name:
+              type: "string"
+            root_station_code:
+              type: "string"
+            admin_parent:
+              type: "boolean"
+            parent_station_code:
+              type: "string"                              
     AppointmentRequest:
       type: "object"
       properties:
@@ -1084,6 +1456,80 @@ components:
                 type: "array"
                 items:
                   type: "object"
+    FacilityAvailableAppointments:
+      type: object
+      required: 
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: "1"
+        type:
+          type: string
+          example: "available_appointment"
+        attributes:
+          type: object
+          required:
+            - clinic_id,
+            - clinic_name
+            - appointment_length
+            - clinic_display_start_time
+            - display_increments
+            - stop_code
+            - ask_for_check_in
+            - max_overbooks_per_day
+            - has_user_access_to_clinic
+            - primary_stop_code
+            - secondary_stop_code
+            - list_size
+            - empty
+            - appointment_time_slot
+          properties:
+            clinic_id:
+              type: string
+              example: "2276"
+            clinic_name:
+              type: string
+              example: "DC/PACT GREEN FOUR"    
+            appointment_length:
+              type: integer
+              example: 30
+            clinic_display_start_time:
+              type: string
+              example: "7"
+            display_increments:
+              type: string
+              example: "2"
+            stop_code:
+              type: string
+              example: "282"
+            ask_for_check_in:
+              type: boolean
+              example: true
+            max_overbooks_per_day:
+              type: integer
+              example: 30
+            has_user_access_to_clinic:
+              type: boolean
+              example: false
+            primary_stop_code:
+              type: string
+              example: "323"
+            secondary_stop_code:
+              type: string
+              example: "124"
+            list_size:
+              type: integer
+              example: 123
+            empty:
+              type: boolean
+              example: true
+            appointment_time_slot:
+              type: array
+              items:
+                $ref: "#/components/schemas/AppointmentTimeSlot"
     FacilityCancelReason:
       type: object
       required: 
@@ -1116,7 +1562,7 @@ components:
               example: "B"
             inactive:
               type: boolean
-              example: false  
+              example: false
     CCEligibility:
       type: "object"
       required:
@@ -1601,3 +2047,29 @@ components:
               type: "string"
               example: "PHYSICIAN-ATTENDING"
           type: "object"
+    AppointmentTimeSlot:
+      type: "object"
+      required:
+        - start_date_time
+        - end_date_time
+        - booking_status
+        - remaining_allowed_over_bookings
+        - availability
+      properties:
+        start_date_time:
+          type: "string"
+          format: "date"
+          example: "12/02/2019 13:30:00"
+        end_date_time:
+          type: "string"
+          format: "date"
+          example: "12/02/2019 14:00:00"
+        booking_status:
+          type: "string"
+          example: "1"
+        remaining_allowed_over_bookings:
+          type: "string"
+          example: "2"
+        availability:
+          type: "boolean"
+          example: true
