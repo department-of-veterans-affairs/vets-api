@@ -51,7 +51,7 @@ jobs:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-        run: bundle exec rake db:setup
+        run: RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset'
 
       - name: Run Specs
         env:
