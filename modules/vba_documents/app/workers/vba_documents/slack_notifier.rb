@@ -39,7 +39,7 @@ module VBADocuments
       hour = Time.now.utc.hour + Time.zone_offset('EST') / (60 * 60)
       if hour.eql?(@daily_notification_hour)
         text = "Daily Status (worst offenders over past week):\n"
-        statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded']
+        statuses = UploadSubmission::IN_FLIGHT_STATUSES + ['uploaded'] - ['success']
         statuses.each do |status|
           model = UploadSubmission.aged_processing(0, :days, status).where('created_at > ?', 7.days.ago).first
           next unless model

@@ -377,6 +377,12 @@ module AppealsApi::V1
             end
           end
         end
+
+        schema :evidenceSubmissionStatus do
+          key :type, :string
+          key :enum, %w[processing s3_failed s3_error vbms_error vbms_failed submitted]
+          key :example, 'submitted'
+        end
       end
     end
   end
