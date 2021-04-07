@@ -14,14 +14,13 @@ module VEText
     PREFERENCES_PATH = BASE_PATH + '/preferences/client'
     SEND_PATH = BASE_PATH + '/send'
 
-    def register(app_name, device_token, icn, os_info, device_name = nil)
+    def register(app_name, device_token, icn, os, device_name = nil)
       perform(:put, REGISTER_PATH, {
                 appSid: app_sid(app_name),
                 token: device_token,
                 icn: icn,
-                os: os_info[:name],
-                osVersion: os_info[:version],
-                deviceName: device_name || os_info[:name]
+                os: os,
+                deviceName: device_name || os
               })
     end
 

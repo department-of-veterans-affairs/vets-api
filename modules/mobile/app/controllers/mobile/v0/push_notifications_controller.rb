@@ -10,7 +10,7 @@ module Mobile
           params[:appName],
           params[:deviceToken],
           @current_user.icn,
-          { name: params[:osName], version: params[:osVersion] },
+          params[:osName],
           params[:deviceName] || params[:osName]
         )
 
