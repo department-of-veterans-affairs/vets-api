@@ -14,6 +14,12 @@ module ClaimsApi
       before_action :validate_json_format, if: -> { request.post? }
       before_action :verify_mpi
 
+      # fetch_audience: defines the audience used for oauth
+      # NOTE: required for oauth through claims_api to function
+      def fetch_aud
+        Settings.oidc.isolated_audience.claims
+      end
+
       protected
 
       def source_name
@@ -76,7 +82,7 @@ module ClaimsApi
                               :warning,
                               body: e.message)
         message = 'User not a valid or authorized Veteran for this end point.'
-        render json: { errors: [{ status: 401, detail: message }] }, status: :unauthorized
+        raise ::Common::Exceptions::Unauthorized.new(detail: message)
       end
     end
   end

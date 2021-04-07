@@ -119,7 +119,23 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :$ref, :NotFoundModel
+                    key :$ref, :ClaimNotFoundModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable Entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -240,7 +256,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :$ref, :NotFoundModel
+                    key :$ref, :ClaimsNotFoundModel
                   end
                 end
               end

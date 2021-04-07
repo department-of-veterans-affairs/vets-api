@@ -84,7 +84,7 @@ module ClaimsApi
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
-          render_poa_not_found and return unless power_of_attorney
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           if current_poa
             lighthouse_poa = power_of_attorney.attributes
@@ -140,11 +140,7 @@ module ClaimsApi
 
         def find_poa_by_id
           @power_of_attorney = ClaimsApi::PowerOfAttorney.find_by id: params[:id]
-          render_poa_not_found unless @power_of_attorney
-        end
-
-        def render_poa_not_found
-          render json: { errors: [{ status: 404, detail: 'POA not found' }] }, status: :not_found
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless @power_of_attorney
         end
 
         def validation_success
