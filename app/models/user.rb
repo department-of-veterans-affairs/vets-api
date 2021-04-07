@@ -379,7 +379,22 @@ class User < Common::RedisStore
     email&.downcase || account_uuid
   end
 
+  def relationships
+    @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
+  end
+
   private
+
+  def relationship_hash(mpi_relationship)
+    return unless mpi_relationship
+
+    {
+      first_name: mpi_relationship.given_names&.first,
+      last_name: mpi_relationship.family_name,
+      birth_date: mpi_relationship.birth_date,
+      person_type_code: mpi_relationship.person_type_code
+    }
+  end
 
   def mpi_profile
     return nil unless mpi
@@ -396,6 +411,12 @@ class User < Common::RedisStore
     end
 
     mpi_profile.birth_date
+  end
+
+  def mpi_profile_relationships
+    return [] unless mpi_profile
+
+    mpi_profile.relationships
   end
 
   def pciu
