@@ -33,10 +33,10 @@ jobs:
       - uses: duderman/rubocop-annotate-action@v0.1.0
         with:
           path: rubocop.json
-        if: ${{ failure() }}
+        if: hashFiles('rubocop.json') != ''
 
       - uses: devmasx/brakeman-linter-action@v1.0.0
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           REPORT_PATH: brakeman.json
-        if: ${{ failure() }}
+        if: hashFiles('brakeman.json') != ''
