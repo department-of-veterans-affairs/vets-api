@@ -35,25 +35,32 @@ module Mobile
       private
 
       def fetch_cached_or_service(validated_params)
-        json = nil
-        json = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
+        appointments = nil
+        appointments = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
 
-        # if JSON has been retrieved from redis, delete the cached version and return recovered appointments
+        # if appointments has been retrieved from redis, delete the cached version and return recovered appointments
         # otherwise fetch appointments from the upstream service
-        if json
-          Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
-          json
-        else
-          Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
-          appointments, errors = appointments_proxy.get_appointments(validated_params.to_h)
-          options = {
-            meta: {
-              errors: errors.size.positive? ? errors : nil
-            }
-          }
+        appointments, errors = if appointments
+                                 Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
+                                 [appointments, nil]
+                               else
+                                 Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
+                                 appointments, errors = appointments_proxy.get_appointments(
+                                   start_date: validated_params[:start_date], end_date: validated_params[:end_date]
+                                 )
+                                 Mobile::V0::Appointment.set_cached(@current_user, appointments)
+                                 [appointments, errors]
+                               end
 
-          Mobile::V0::AppointmentSerializer.new(appointments, options)
-        end
+        Mobile::V0::AppointmentSerializer.new(appointments, options(errors))
+      end
+
+      def options(errors)
+        {
+          meta: {
+            errors: errors.nil? ? nil : errors
+          }
+        }
       end
 
       def appointments_proxy
