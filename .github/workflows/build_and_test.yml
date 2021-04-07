@@ -2,7 +2,7 @@ name: Build and Test
 on: [push]
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, X64]
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       RAILS_ENV: test
@@ -54,7 +54,7 @@ jobs:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-        run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
+        run: bundle exec parallel_test -n 8 -e 'bundle exec rake db:reset'
 
       - name: Run Specs
         env:
@@ -65,4 +65,4 @@ jobs:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-        run: bundle exec parallel_rspec -n 4 -o '[--color --tty]'
+        run: bundle exec parallel_rspec -n 8 -o '--color --tty'
