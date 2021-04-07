@@ -754,6 +754,14 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v28_1900_expected) do
     {
+      'veteranInformation' => {
+        'fullName' => {
+          'first' => 'Abraham',
+          'last' => 'Lincoln',
+        },
+        'ssn' => '796111863',
+        'dob' => '1809-02-12'
+      },
       'veteranAddress' => {
         'street' => street_check[:street],
         'street2' => street_check[:street2],
