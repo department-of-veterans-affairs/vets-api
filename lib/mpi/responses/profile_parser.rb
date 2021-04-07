@@ -30,6 +30,10 @@ module MPI
       NAME_XPATH = 'name'
       ADDRESS_XPATH = 'addr'
       PHONE = 'telecom'
+      PERSON_TYPE = 'PERSON_TYPE'
+      DISPLAY_NAME_XPATH = 'value/@displayName'
+      PERSON_TYPE_CODE_XPATH = 'code/@code'
+      ADMIN_OBSERVATION_XPATH = '*/administrativeObservation'
 
       HISTORICAL_ICN_XPATH = [
         'controlActProcess/subject', # matches SUBJECT_XPATH
@@ -95,17 +99,16 @@ module MPI
       end
 
       def build_relationship_mvi_profile(relationship)
-        relationship_component = locate_element(relationship, RELATIONSHIP_PREFIX)
         relationship_identity_hash = create_mvi_profile_identity(relationship, RELATIONSHIP_PREFIX)
-        relationship_ids_hash = create_mvi_profile_ids(relationship_component)
+        relationship_ids_hash = create_mvi_profile_ids(locate_element(relationship, RELATIONSHIP_PREFIX))
 
         MPI::Models::MviProfileRelationship.new(relationship_identity_hash.merge(relationship_ids_hash))
       end
 
       def create_mvi_profile_identity(person, person_prefix)
         person_component = locate_element(person, person_prefix)
+        person_type = parse_person_type(person)
         name = parse_name(locate_element(person_component, NAME_XPATH))
-
         {
           given_names: name[:given],
           family_name: name[:family],
@@ -115,7 +118,7 @@ module MPI
           ssn: parse_ssn(locate_element(person_component, SSN_XPATH)),
           address: parse_address(person_component),
           home_phone: parse_phone(person, person_prefix),
-          person_type_code: nil
+          person_type_code: person_type
         }
       end
 
@@ -212,6 +215,12 @@ module MPI
         other_ids.each do |oi|
           node = oi.nodes.select { |n| n.attributes[:root] == SSN_ROOT_ID }
           return node.first unless node.empty?
+        end
+      end
+
+      def parse_person_type(person)
+        person.locate(ADMIN_OBSERVATION_XPATH).each do |element|
+          return element.locate(DISPLAY_NAME_XPATH).first if element.locate(PERSON_TYPE_CODE_XPATH).first == PERSON_TYPE
         end
       end
     end

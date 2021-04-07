@@ -143,7 +143,7 @@ describe MPI::Responses::ProfileParser do
           gender: 'M',
           birth_date: '19901004',
           ssn: '999123456',
-          home_phone: nil,
+          home_phone: '1112223333',
           icn: nil,
           icn_with_aaid: nil,
           historical_icns: ['1008691087V194812'],
@@ -153,11 +153,14 @@ describe MPI::Responses::ProfileParser do
           mhv_ids: [],
           active_mhv_ids: [],
           vha_facility_ids: [],
+          cerner_id: nil,
+          cerner_facility_ids: [],
           edipi: nil,
           participant_id: nil,
           birls_id: nil,
           birls_ids: [],
           search_token: 'WSDOC2005221733165441605720989',
+          person_type_code: 'Dependent',
           relationships: [mpi_profile_relationship_component]
         )
       end
@@ -165,7 +168,7 @@ describe MPI::Responses::ProfileParser do
       let(:mpi_profile_relationship_component) do
         build(
           :mpi_profile_relationship,
-          person_type_code: nil,
+          person_type_code: [],
           given_names: %w[Mark],
           family_name: 'Webb',
           suffix: 'Jr',
@@ -282,7 +285,8 @@ describe MPI::Responses::ProfileParser do
           '0001234567^PN^200PROV^USDVA^A',
           '123412345^PI^200BRLS^USVBA^A'
         ],
-        search_token: 'WSDOC1611060614456041732180196'
+        search_token: 'WSDOC1611060614456041732180196',
+        person_type_code: 'Patient'
       )
     end
 

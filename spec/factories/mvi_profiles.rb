@@ -45,6 +45,7 @@ FactoryBot.define do
     ssn { Faker::IDNumber.valid.delete('-') }
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
+    person_type_code { 'Patient' }
     full_mvi_ids {
       [
         '1000123456V123456^NI^200M^USVHA^P',
