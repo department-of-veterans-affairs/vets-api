@@ -14,6 +14,7 @@ module CovidVaccine
       uploader = CovidVaccine::V0::EnrollmentUploadService.new(csv_generator.io, filename)
       uploader.upload
       update_state_to_pending!
+      audit_log(batch_id, records.length)
     rescue => e
       log_exception_to_sentry(
         e,
@@ -40,5 +41,13 @@ module CovidVaccine
 
   def generated_file_name(batch_id, record_count)
     "DHS_load_#{batch_id}_SLA_#{record_count}_records.txt"
+  end
+
+  def audit_log(batch_id, record_count)
+    log_attrs = {
+      batch_id: batch_id,
+      records: record_count
+    }
+    Rails.logger.info('Covid_Vaccine Enrollment_Upload', log_attrs.to_json)
   end
 end
