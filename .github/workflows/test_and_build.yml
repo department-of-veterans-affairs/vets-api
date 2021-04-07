@@ -1,0 +1,65 @@
+name: test_and_build
+on: [push]
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      RAILS_ENV: test
+      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
+      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+      "Settings.binaries.clamdscan": "clamscan"
+
+    services:
+      postgres:
+        image: postgis/postgis:11-2.5
+        env:
+          POSTGRES_USER: vets-api
+          POSTGRES_DB: vets-api_test
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
+      redis:
+        image: circleci/redis:5.0-alpine
+
+
+    steps:
+      - uses: actions/checkout@v2 #checkout step
+
+      - uses: ruby/setup-ruby@v1
+
+      - name: Install dependencies (pdftk, poppler, imagemagick)
+        run: sudo apt install imagemagick pdftk poppler-utils
+
+      - name: Gem Cache
+        uses: actions/cache@v2
+        with:
+          path: vendor/bundle
+          key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
+
+      - name: Install Dependencies
+        run: bundle install --path vendor/bundle
+
+      - name: Setup Database
+        env:
+          POSTGRES_USER: vets-api
+          POSTGRES_DB: vets-api_test
+          POSTGRES_PASSWORD: postgres
+          RAILS_ENV: test
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
+        run: bundle exec rake db:setup
+
+      - name: Run Specs
+        env:
+          POSTGRES_USER: vets-api
+          POSTGRES_DB: vets-api_test
+          POSTGRES_PASSWORD: postgres
+          RAILS_ENV: test
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
+          DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
+        run: bundle exec parallel_rspec
