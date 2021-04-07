@@ -465,6 +465,21 @@ ActiveRecord::Schema.define(version: 2021_04_01_071242) do
     t.string "timestamp"
   end
 
+  create_table "health_quest_questionnaire_responses", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "appointment_id"
+    t.string "questionnaire_response_id"
+    t.string "encrypted_questionnaire_response_data"
+    t.string "encrypted_questionnaire_response_data_iv"
+    t.string "encrypted_user_demographics_data"
+    t.string "encrypted_user_demographics_data_iv"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["encrypted_questionnaire_response_data_iv"], name: "qr_key", unique: true
+    t.index ["encrypted_user_demographics_data_iv"], name: "user_demographics_key", unique: true
+    t.index ["user_uuid", "questionnaire_response_id"], name: "find_by_user_qr", unique: true
+  end
+
   create_table "id_card_announcement_subscriptions", id: :serial, force: :cascade do |t|
     t.string "email", null: false
     t.datetime "created_at", null: false
@@ -670,10 +685,10 @@ ActiveRecord::Schema.define(version: 2021_04_01_071242) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
   end
 
