@@ -60,7 +60,6 @@ account:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: <fake_api_key>
-  staging_flag: ~
 
 search:
   access_key: TESTKEY
