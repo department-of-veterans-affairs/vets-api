@@ -33,6 +33,9 @@ jobs:
       - name: Install dependencies (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
 
+      - name: Allow PDF to image conversion
+        run: sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
+
       - name: Gem Cache
         uses: actions/cache@v2
         with:
