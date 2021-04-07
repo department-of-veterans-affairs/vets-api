@@ -2633,6 +2633,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'search typeahead' do
+      context 'when successful' do
+        it 'returns an array of suggestions' do
+          VCR.use_cassette('search_typeahead/success') do
+            expect(subject).to validate(:get, '/v0/search_typeahead', 200, '_query_string' => 'query=ebenefits')
+          end
+        end
+      end
+
+      context 'with an empty search query' do
+        it 'returns a 200 with empty results' do
+          VCR.use_cassette('search_typeahead/missing_query') do
+            expect(subject).to validate(:get, '/v0/search_typeahead', 200, '_query_string' => 'query=')
+          end
+        end
+      end
+    end
+
     describe 'notifications' do
       let(:notification_subject) { Notification::FORM_10_10EZ }
 
