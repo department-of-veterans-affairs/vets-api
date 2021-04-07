@@ -2,7 +2,7 @@
 
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
-require 'lighthouse/facilities/middleware/errors'
+require_relative 'middleware/errors'
 
 module FacilitiesApi
   module V1

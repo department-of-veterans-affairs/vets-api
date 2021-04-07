@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require_relative 'facility'
 
 module FacilitiesApi
   module V1
@@ -33,7 +32,7 @@ module FacilitiesApi
 
         def facilities
           facilities = data.each_with_index.map do |facility, index|
-            fac = Lighthouse::Facilities::Facility.new(facility)
+            fac = V1::Lighthouse::Facility.new(facility)
             fac.distance = meta['distances'][index]['distance'] unless meta['distances'].empty?
             fac
           end
@@ -45,7 +44,7 @@ module FacilitiesApi
         end
 
         def facility
-          Lighthouse::Facilities::Facility.new(data)
+          V1::Lighthouse::Facility.new(data)
         end
       end
     end
