@@ -13,11 +13,15 @@ module CovidVaccine
         # 2 - no ICN found in MPI: retry 
         # 3 - Station ID returned from MPI is different than preferred location: retry 
 
+        vetext_attributes = {} 
+
         if raw_form_data['preferred_facility'].empty? 
-          facility_data = facility_attributes(raw_form_data);
-          if facility_data == {}
-          Rails.logger.info ("Covid_Vaccine_Expanded Error when looking up zipcode #{raw_form_data[:zip_code]} in FacilityLookupService. DB record ID: #{submission.id}")
-            # Log error and return success to sidekiq so it does not continue to retry
+          if facility_attributes(raw_form_data).empty?
+            Rails.logger.info (
+              "#{self.class.name}:Error in Facility Lookup",
+              zip_code: raw_form_data[:zip_code],
+              submission: submission.id
+            )
             return
           else
             vetext_attributes.merge!(facility_attributes(raw_form_data))
@@ -25,16 +29,18 @@ module CovidVaccine
         end
 
         # Get the preferred facility here as it is needed in MPI lookup 
-        facilityArray = raw_form_data['preferred_facility'].split('_')
-        facilitySta3n = facilityArray.length >= 2 ? facilityArray[1] : nil
-        
-        vetext_attributes = form_attributes(raw_form_data, facilitySta3n)
+        facility = raw_form_data['preferred_facility'].delete_prefix('vha_')
+        vetext_attributes.merge!(form_attributes(raw_form_data, facility))
 
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
-        mpi_attributes = attributes_from_mpi(raw_form_data, facilitySta3n) 
+        mpi_attributes = attributes_from_mpi(raw_form_data, facility) 
         if mpi_attributes[:error].present?
-          Rails.logger.info ("Covid_Vaccine_Expanded MPI lookup issue: #{mpi_attributes[:error]} - DB record ID: #{submission.id}")
-          # Log issue of failed lookup and raise exception so sidekiq keeps retrying
+          Rails.logger.info (
+            "#{self.class.name}:Error in MPI Lookup",
+            mpi_error: mpi_attributes[:error],
+            submission: submission.id
+          )
+          return
         else
           vetext_attributes.merge!(mpi_attributes)
         end
@@ -81,35 +87,37 @@ module CovidVaccine
         Rails.logger.info('Covid_Vaccine Expanded Submission', log_attrs)
       end
 
-      def form_attributes(form_data, facilitySta3n)
-        fullAddress = "#{form_data['address_line1']}#{' ' unless form_data['addressLine2'].to_s.empty?}#{form_data['addressLine2']}#{' ' unless form_data['addressLine3'].to_s.empty?}#{form_data['addressLine3']}"
-        # facilityArray = form_data['preferred_facility'].split('_')
-        # facilitySta3n = facilityArray.length >= 2 ? facilityArray[1] : nil
-        serviceDateRange = form_data['date_range'] ? "from #{form_data['date_range']['from']} to #{form_data['date_range']['to']}" : ''
+      def form_attributes(form_data, facility)
+        full_address = [form_data['addressLine1'], form_data['addressLine2'], form_data['addressLine3'].join(' ').strip
+        service_date_range = form_data['date_range'] ? form_data['date_range'].to_a.flatten.join(' ') : ''
         {
           vaccine_interest: true,
-          address: fullAddress,
+          address: full_address,
           city: form_data['city'],
           state: form_data['state_code'],
           zip_code: form_data['zip_code'],
           phone: form_data['phone'],
-          email: form_data['email'] ? form_data['email'] : '',
+          email: form_data['email'] || '',
           applicant_type: form_data['applicant_type'],
           privacy_agreement_accepted: form_data['privacy_agreement_accepted'],
-          sms_acknowledgement: form_data['sms_acknowledgement'] == true ? true : false,
+          sms_acknowledgement: form_data['sms_acknowledgement'] || false,
           birth_sex: form_data['birth_sex'],
-          last_branch_of_service: form_data['last_branch_of_service'] ? form_data['last_branch_of_service'] : '',
-          service_date_range: serviceDateRange,
-          character_of_service: form_data['character_of_service'] ? form_data['character_of_service'] : '',
+          last_branch_of_service: form_data['last_branch_of_service'] || '',
+          service_date_range: service_date_range,
+          character_of_service: form_data['character_of_service'] || '',
           enhanced_eligibility: true,
-          sta3n: facilitySta3n,
+          sta3n: facility,
           authenticated: false
         }
       end
 
       def facility_attributes(form_data)
-        svc = CovidVaccine::V0::FacilityLookupService.new
-        svc.facilities_for(form_data['zip_code'])
+        @facility_attributes ||= begin
+          CovidVaccine::V0::FacilityLookupService.new.facilities_for(form_data['zip_code'])
+        rescue => e
+          log_exception_to_sentry(e)
+          {}
+        end
       end
 
       def attributes_from_mpi(form_data, sta3n)
