@@ -2,6 +2,7 @@
 
 require 'evss/base_service'
 
+# Upload files from Claim Status Tool, Va.gov form526-related forms, or Lighthouse ClaimsApi
 module EVSS
   class DocumentsService < BaseService
     API_VERSION = Settings.evss.versions.documents

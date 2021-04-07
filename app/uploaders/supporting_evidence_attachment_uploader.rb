@@ -6,6 +6,7 @@ class SupportingEvidenceAttachmentUploader < EVSSClaimDocumentUploaderBase
     super
     @guid = guid
 
+    #  defaults to CarrierWave::Storage::File if not AWS
     if Rails.env.production?
       set_aws_config(
         Settings.evss.s3.aws_access_key_id,
