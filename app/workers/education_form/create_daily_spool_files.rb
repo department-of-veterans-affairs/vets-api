@@ -120,18 +120,15 @@ module EducationForm
       writer.close
     end
 
+    # Previously there was data.saved_claim.valid? check but this was causing issues for forms when
+    # 1. on submission the submission data is validated against vets-json-schema
+    # 2. vets-json-schema is updated in vets-api
+    # 3. during spool file creation the schema is then again validated against vets-json-schema
+    # 4. submission is no longer valid due to changes in step 2
     def format_application(data, rpo: 0)
-      # This check was added to ensure that the model passes validation before
-      # attempting to build a form from it. This logic should be refactored as
-      # part of a larger effort to clean up the spool file generation if that occurs.
-      if data.saved_claim.valid?
-        form = EducationForm::Forms::Base.build(data)
-        track_form_type("22-#{data.form_type}", rpo)
-        form
-      else
-        inform_on_error(data, rpo)
-        nil
-      end
+      form = EducationForm::Forms::Base.build(data)
+      track_form_type("22-#{data.form_type}", rpo)
+      form
     rescue => e
       inform_on_error(data, rpo, e)
       nil
@@ -144,7 +141,7 @@ module EducationForm
                   else
                     FormattingError.new("Could not format #{claim.confirmation_number}")
                   end
-      log_exception(exception)
+      log_exception(exception, nil, send_email: false)
     end
 
     private
@@ -183,10 +180,10 @@ module EducationForm
       @stats ||= Hash.new(Hash.new(0))
     end
 
-    def log_exception(exception, region = nil)
+    def log_exception(exception, region = nil, send_email: true)
       log_exception_to_sentry(exception)
       log_to_slack(exception.to_s)
-      log_to_email(region)
+      log_to_email(region) if send_email
     end
 
     def log_info(message)
