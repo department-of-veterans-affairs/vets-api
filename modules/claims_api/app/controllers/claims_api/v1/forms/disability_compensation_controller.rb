@@ -73,14 +73,14 @@ module ClaimsApi
 
             render json: pending_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
           elsif pending_claim && (pending_claim.form_data['autoCestPDFGenerationDisabled'] == false)
-            # rubocop:disable Layout/LineLength
-            render json: { status: 422, message: 'Claim submission requires that the "autoCestPDFGenerationDisabled" field must be set to "true" in order to allow a 526 PDF to be uploaded' }.to_json, status: :unprocessable_entity
-            # rubocop:enable Layout/LineLength
+            message = <<-MESSAGE
+              Claim submission requires that the "autoCestPDFGenerationDisabled" field
+              must be set to "true" in order to allow a 526 PDF to be uploaded
+            MESSAGE
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
           else
-            render json: { status: 404, message: 'Claim not found' }.to_json, status: :not_found
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
           end
-        rescue => e
-          render json: unprocessable_response(e), status: :unprocessable_entity
         end
 
         # POST to upload additional documents to support relevent disability compensation claim.
@@ -91,7 +91,7 @@ module ClaimsApi
           validate_documents_page_size
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: "Claim not found: #{params[:id]}") unless claim
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
 
           documents.each do |document|
             claim_document = claim.supporting_documents.build
@@ -123,7 +123,7 @@ module ClaimsApi
         rescue ::EVSS::DisabilityCompensationForm::ServiceException, EVSS::ErrorMiddleware::EVSSError => e
           error_details = e.is_a?(EVSS::ErrorMiddleware::EVSSError) ? e.details : e.messages
           track_526_validation_errors(error_details)
-          render json: { errors: format_526_errors(error_details) }, status: :unprocessable_entity
+          raise ::Common::Exceptions::UnprocessableEntity.new(errors: format_526_errors(error_details))
         rescue ::Common::Exceptions::GatewayTimeout,
                ::Timeout::Error,
                ::Faraday::TimeoutError,
@@ -171,15 +171,8 @@ module ClaimsApi
 
         def validate_initial_claim
           if claims_service.claims_count.zero? && form_attributes['autoCestPDFGenerationDisabled'] == false
-            error = {
-              errors: [
-                {
-                  status: 422,
-                  detail: 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
-                }
-              ]
-            }
-            render json: error, status: :unprocessable_entity
+            message = 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
           end
         end
 

@@ -482,7 +482,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :$ref, :NoPOAFound
+                    key :$ref, :NotFoundModel
                   end
                 end
               end
