@@ -28,9 +28,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
 
     context 'when file_data exists' do
-      let!(:attachment) { sea = SupportingEvidenceAttachment.new(guid: upload_data.first["confirmationCode"])
+      let!(:attachment) do
+        sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
         sea.set_file_data!(file)
-        sea.save!}
+        sea.save!
+      end
+
       it 'calls the documents service api with file body and document data' do
         VCR.use_cassette('evss/documents/upload_with_errors') do
           expect(EVSSClaimDocument)
@@ -51,7 +54,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       context 'with a timeout' do
         it 'logs a retryable error and re-raises the original error' do
-          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
+          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
+            .and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
           subject.perform_async(submission.id, upload_data)
           expect(Form526JobStatus).to receive(:upsert).twice
           expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
