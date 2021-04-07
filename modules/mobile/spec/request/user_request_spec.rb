@@ -158,6 +158,24 @@ RSpec.describe 'user', type: :request do
         )
       end
 
+      it 'includes a health attribute with user facilities and is_cerner_patient' do
+        expect(attributes['health']).to include(
+          {
+            'isCernerPatient' => true,
+            'facilities' => [
+              {
+                'facilityId' => '757',
+                'isCerner' => true
+              },
+              {
+                'facilityId' => '358',
+                'isCerner' => false
+              }
+            ]
+          }
+        )
+      end
+
       context 'when user object birth_date is nil' do
         before do
           allow_any_instance_of(IAMUserIdentity).to receive(:birth_date).and_return(nil)

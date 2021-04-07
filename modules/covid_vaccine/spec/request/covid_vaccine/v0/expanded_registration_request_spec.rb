@@ -163,6 +163,34 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
       end
     end
 
+    context 'when a submission does not include an email' do
+      let(:registration_attributes) do
+        build(:covid_vax_expanded_registration, :blank_email).raw_form_data.symbolize_keys
+      end
+
+      it 'accepts the submission' do
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'records the submission for processing' do
+        expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::V0::ExpandedRegistrationSubmission, :count).by(1)
+      end
+
+      it 'logs an audit record with has_email false' do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with('Covid_Vaccine Expanded_Submission',
+                                                    /"has_email":false/)
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+      end
+
+      it 'does not kick off a CovidVaccine::ExpandedRegistrationEmailJob' do
+        expect(CovidVaccine::ExpandedRegistrationEmailJob).not_to receive(:perform_async)
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+      end
+    end
+
     context 'with a spouse submission' do
       let(:registration_attributes) do
         build(:covid_vax_expanded_registration, :spouse).raw_form_data.symbolize_keys

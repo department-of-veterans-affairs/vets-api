@@ -7,7 +7,7 @@
 FactoryBot.define do
   factory :covid_vax_expanded_registration, class: 'CovidVaccine::V0::ExpandedRegistrationSubmission' do
     submission_uuid { SecureRandom.uuid }
-    state { 'sequestered' }
+    state { 'received' }
     vetext_sid { nil }
     transient do
       base_raw_data {
@@ -111,6 +111,14 @@ FactoryBot.define do
           'last_branch_of_service' => nil,
           'character_of_service' => nil,
           'date_range' => nil
+        }
+      }
+    end
+
+    trait :blank_email do
+      default_raw_options {
+        {
+          'email_address' => nil
         }
       }
     end

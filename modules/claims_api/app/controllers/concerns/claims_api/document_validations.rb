@@ -8,11 +8,15 @@ module ClaimsApi
     # rubocop:disable Metrics/BlockLength
     included do
       def validate_documents_content_type
-        render json: { errors: document_content_type_errors }, status: 422 unless document_content_type_errors.empty?
+        return if document_content_type_errors.empty?
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(errors: document_content_type_errors)
       end
 
       def validate_documents_page_size
-        render json: { errors: document_page_size_errors }, status: 422 unless document_page_size_errors.empty?
+        return if document_page_size_errors.empty?
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(errors: document_page_size_errors)
       end
 
       def valid_page_size?(file)

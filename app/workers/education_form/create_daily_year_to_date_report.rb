@@ -11,7 +11,9 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPE_HEADERS = EducationBenefitsClaim::FORM_HEADERS.map do |form_header|
+    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES - %w[1990s]
+
+    FORM_TYPE_HEADERS = EducationBenefitsClaim.form_headers(FORM_TYPES).map do |form_header|
       [form_header, '', '']
     end.flatten.freeze
 
@@ -35,7 +37,7 @@ module EducationForm
       submissions = {}
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
 
-      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+      FORM_TYPES.each do |form_type|
         form_submissions = {}
 
         EducationFacility::REGIONS.each do |region|
@@ -62,7 +64,7 @@ module EducationForm
 
     def create_csv_header
       csv_array = []
-      num_form_types = EducationBenefitsClaim::FORM_TYPES.size
+      num_form_types = FORM_TYPES.size
 
       @ranges = {}
       %i[day year].each do |range_type|
@@ -84,7 +86,7 @@ module EducationForm
     def create_data_row(on_last_index, application_type, region, submissions, submissions_total)
       row = []
 
-      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+      FORM_TYPES.each do |form_type|
         next row += ['', '', ''] if !show_individual_benefits(form_type) && !on_last_index
 
         TOTALS_HASH.each_key do |range_type|
@@ -127,7 +129,7 @@ module EducationForm
     def create_totals_row(text_rows, totals)
       row = text_rows.clone
 
-      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+      FORM_TYPES.each do |form_type|
         TOTALS_HASH.each_key do |range_type|
           row << totals[form_type][range_type]
         end
@@ -139,7 +141,7 @@ module EducationForm
     def get_totals_hash_with_form_types
       totals = {}
 
-      EducationBenefitsClaim::FORM_TYPES.each do |form_type|
+      FORM_TYPES.each do |form_type|
         totals[form_type] = TOTALS_HASH.dup
       end
 

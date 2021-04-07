@@ -75,7 +75,9 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       %w[1995 1990e 5490 1990n 5495 10203].each do |form_type|
         create(:education_benefits_submission, form_type: form_type, created_at: date)
       end
-      create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
+      %w[0993].each do |form_type|
+        create(:education_benefits_submission, form_type: form_type, created_at: date, region: :western)
+      end
       create(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
     end

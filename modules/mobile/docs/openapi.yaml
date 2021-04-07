@@ -806,7 +806,7 @@ paths:
                 $ref: "./schemas/Errors.yml"
     delete:
       summary: /v0/user/addresses
-      description: Deletes one of a user's addresses numbers
+      description: Deletes a user's address
       operationId: user.deleteAddresses
       security:
         - Bearer: []
@@ -823,36 +823,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#./schemas/AddressUpdate.yml'
-            examples:
-              Using Suggested Address:
-                value:
-                  addressMetaData:
-                    confidenceScore: 100
-                    addressType: Domestic
-                    deliveryPointValidation: CONFIRMED
-                    residentialDeliveryIndicator: RESIDENTIAL
-                  addressLine1: "1493 Martin Luther King Rd"
-                  addressPou: "RESIDENCE/CHOICE"
-                  addressType: "DOMESTIC"
-                  city: "Fulton"
-                  countryName: "United States"
-                  countryCodeIso3: "USA"
-                  stateCode: "MS"
-                  zipCode: "38843"
-                  id: 181513
-              Using Overridden Address:
-                value:
-                  addressLine1: "1493 Martin Luther King Rd"
-                  addressPou: "RESIDENCE/CHOICE"
-                  addressType: "DOMESTIC"
-                  city: "Fulton"
-                  countryName: "United States"
-                  countryCodeIso3: "USA"
-                  stateCode: "MS"
-                  zipCode: "38843"
-                  id: 181513
-                  validationKey: -1206619807
+              $ref: './schemas/Address.yml'
       responses:
         '200':
           description: OK
