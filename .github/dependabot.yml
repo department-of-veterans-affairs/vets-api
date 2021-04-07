@@ -3,7 +3,8 @@ registries:
   rubygems-server-enterprise-contribsys-com:
     type: rubygems-server
     url: https://enterprise.contribsys.com/
-    BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    username: "${{secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM_USERNAME}}"
+    password: "${{secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM_PASSWORD}}"
 updates:
 - package-ecosystem: bundler
   directory: "/"
