@@ -157,6 +157,7 @@ group :test do
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'simplecov', require: false
+  gem 'simplecov-json', require: false
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick', '>= 1.6.1'
