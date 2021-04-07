@@ -28,7 +28,7 @@ jobs:
         run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
         
       - name: Run Brakeman
-        run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.html -o brakeman.text -o brakeman.json
+        run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.json
 
       - uses: duderman/rubocop-annotate-action@v0.1.0
         with:
