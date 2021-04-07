@@ -6,7 +6,6 @@ jobs:
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       RAILS_ENV: test
-      CI: true
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
@@ -63,6 +62,7 @@ jobs:
           POSTGRES_DB: vets-api_test
           POSTGRES_PASSWORD: postgres
           RAILS_ENV: test
+          CI: true
           POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
