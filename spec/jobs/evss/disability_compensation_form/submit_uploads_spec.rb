@@ -24,41 +24,34 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
   describe 'perform' do
     let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
-    let(:client) { double(:client) }
     let(:document_data) { double(:document_data, valid?: true) }
-
-    before do
-      allow(EVSS::DocumentsService)
-        .to receive(:new)
-        .and_return(client)
-      allow(SupportingEvidenceAttachment)
-        .to receive(:find_by)
-        .and_return(attachment)
-    end
+    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
 
     context 'when file_data exists' do
-      let(:attachment) { double(:attachment, get_file: file) }
-      let(:file) { double(:file, read: 'file') }
-
+      let!(:attachment) { sea = SupportingEvidenceAttachment.new(guid: upload_data.first["confirmationCode"])
+        sea.set_file_data!(file)
+        sea.save!}
       it 'calls the documents service api with file body and document data' do
-        expect(EVSSClaimDocument)
-          .to receive(:new)
-          .with(
-            evss_claim_id: submission.submitted_claim_id,
-            file_name: upload_data.first['name'],
-            tracked_item_id: nil,
-            document_type: upload_data.first['attachmentId']
-          )
-          .and_return(document_data)
+        VCR.use_cassette('evss/documents/upload_with_errors') do
+          expect(EVSSClaimDocument)
+            .to receive(:new)
+            .with(
+              evss_claim_id: submission.submitted_claim_id,
+              file_name: upload_data.first['name'],
+              tracked_item_id: nil,
+              document_type: upload_data.first['attachmentId']
+            )
+            .and_return(document_data)
 
-        subject.perform_async(submission.id, upload_data)
-        expect(client).to receive(:upload).with(file.read, document_data)
-        described_class.drain
+          subject.perform_async(submission.id, upload_data)
+          expect_any_instance_of(EVSS::DocumentsService).to receive(:upload).with(file.read, document_data)
+          described_class.drain
+        end
       end
 
       context 'with a timeout' do
         it 'logs a retryable error and re-raises the original error' do
-          allow(client).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
+          allow_any_instance_of(EVSS::DocumentsService).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
           subject.perform_async(submission.id, upload_data)
           expect(Form526JobStatus).to receive(:upsert).twice
           expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
