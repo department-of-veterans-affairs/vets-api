@@ -87,6 +87,12 @@
                     <value value="162" xsi:type="INT"/>
                   </queryMatchObservation>
                 </subjectOf1>
+                <subjectOf2 typeCode="SBJ">
+                  <administrativeObservation classCode="VERIF">
+                    <code codeSystem="2.16.840.1.113883.4.349" code="PERSON_TYPE" displayName="Person Type"/>
+                    <value xsi:type="CD" code="PAT" displayName="Patient"/>
+                  </administrativeObservation>
+                </subjectOf2>
               </patient>
             </subject1>
             <custodian typeCode="CST">
