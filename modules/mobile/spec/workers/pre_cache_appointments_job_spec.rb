@@ -33,43 +33,35 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
             VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
               expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
               subject.perform(user.uuid)
-              first_appointment = JSON.parse(Mobile::V0::Appointment.get_cached(user))['data'].first
+
+              first_appointment = Mobile::V0::Appointment.get_cached(user).first.to_h
               expect(
                 first_appointment
-              ).to eq({
-                        'id' => '202006031600983000030800000000000000',
-                        'type' => 'appointment',
-                        'attributes' => {
-                          'appointment_type' => 'VA',
-                          'cancel_id' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
-                          'comment' => nil,
-                          'healthcare_service' => 'CHY PC KILPATRICK',
-                          'location' => {
-                            'name' => 'CHEYENNE VAMC',
-                            'address' => {
-                              'street' => '2360 East Pershing Boulevard',
-                              'city' => 'Cheyenne',
-                              'state' => 'WY',
-                              'zip_code' => '82001-5356'
-                            },
-                            'lat' => 41.148027,
-                            'long' => -104.7862575,
-                            'phone' => {
-                              'area_code' => '307',
-                              'number' => '778-7550',
-                              'extension' => nil
-                            },
-                            'url' => nil,
-                            'code' => nil
+              ).to eq({ id: '202006031600983000030800000000000000', appointment_type: 'VA',
+                        cancel_id: 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                        comment: nil,
+                        facility_id: '442',
+                        healthcare_service: 'CHY PC KILPATRICK',
+                        location: {
+                          name: 'CHEYENNE VAMC',
+                          address: { street: '2360 East Pershing Boulevard', city: 'Cheyenne', state: 'WY',
+                                     zip_code: '82001-5356' },
+                          lat: 41.148027,
+                          long: -104.7862575,
+                          phone: {
+                            area_code: '307',
+                            number: '778-7550',
+                            extension: nil
                           },
-                          'minutes_duration' => 20,
-                          'start_date_local' => '2020-11-03T09:00:00.000-07:00',
-                          'start_date_utc' => '2020-11-03T16:00:00.000+00:00',
-                          'status' => 'BOOKED',
-                          'time_zone' => 'America/Denver',
-                          'vetext_id' => '308;20201103.090000'
-                        }
-                      })
+                          url: nil,
+                          code: nil
+                        },
+                        minutes_duration: 20,
+                        start_date_local: '2020-11-03T09:00:00.000-07:00',
+                        start_date_utc: '2020-11-03T16:00:00.000+00:00',
+                        status: 'BOOKED',
+                        time_zone: 'America/Denver',
+                        vetext_id: '308;20201103.090000' })
             end
           end
         end
