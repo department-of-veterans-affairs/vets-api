@@ -127,8 +127,8 @@ RSpec.describe 'letters', type: :request do
       end
 
       before do
-        user.va_profile.edipi = '1005079999'
-        user.va_profile.participant_id = '600039999'
+        user.mpi.profile.edipi = '1005079999'
+        user.mpi.profile.participant_id = '600039999'
       end
 
       it 'returns a 404' do
@@ -169,8 +169,8 @@ RSpec.describe 'letters', type: :request do
       end
 
       before do
-        user.va_profile.edipi = '1005079124'
-        user.va_profile.participant_id = '600036159'
+        user.mpi.profile.edipi = '1005079124'
+        user.mpi.profile.participant_id = '600036159'
       end
 
       it 'returns a 502' do

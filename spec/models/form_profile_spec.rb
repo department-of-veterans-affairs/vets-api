@@ -9,7 +9,7 @@ RSpec.describe FormProfile, type: :model do
   let(:user) { build(:user, :loa3) }
 
   before do
-    user.va_profile.suffix = 'Jr.'
+    user.mpi.profile.suffix = 'Jr.'
     user.address[:country] = 'USA'
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)

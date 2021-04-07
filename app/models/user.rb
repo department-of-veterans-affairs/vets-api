@@ -93,7 +93,7 @@ class User < Common::RedisStore
       first: first_name&.capitalize,
       middle: middle_name&.capitalize,
       last: last_name&.capitalize,
-      suffix: mpi_profile&.normalized_suffix
+      suffix: normalized_suffix
     }
   end
 
@@ -163,7 +163,7 @@ class User < Common::RedisStore
   end
 
   def edipi_mpi
-    mpi&.profile&.edipi
+    mpi_profile&.edipi
   end
 
   def first_name_mpi
@@ -213,6 +213,10 @@ class User < Common::RedisStore
     mpi_profile.birth_date
   end
 
+  def normalized_suffix
+    mpi_profile&.normalized_suffix
+  end
+
   def sec_id_mpi
     mpi_profile&.sec_id
   end
@@ -222,7 +226,11 @@ class User < Common::RedisStore
   end
 
   def suffix
-    mpi&.profile&.suffix
+    mpi_profile&.suffix
+  end
+
+  def mpi_profile?
+    mpi_profile != nil
   end
 
   def va_profile
@@ -235,6 +243,14 @@ class User < Common::RedisStore
 
   def va_profile_status
     mpi.status
+  end
+
+  # MPI setter methods
+
+  def set_mhv_ids(mhv_id)
+    mpi_profile.mhv_ids = [mhv_id] + mhv_ids
+    mpi_profile.active_mhv_ids = [mhv_id] + active_mhv_ids
+    recache
   end
 
   # identity attributes

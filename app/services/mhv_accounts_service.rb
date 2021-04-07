@@ -42,9 +42,7 @@ class MHVAccountsService
         mhv_account.registered_at = Time.current
         mhv_account.mhv_correlation_id = mhv_id
         mhv_account.register!
-        user.va_profile.mhv_ids = [mhv_id] + user.mhv_ids
-        user.va_profile.active_mhv_ids = [mhv_id] + user.active_mhv_ids
-        user.recache
+        user.set_mhv_ids(mhv_id)
       end
     end
   rescue => e
