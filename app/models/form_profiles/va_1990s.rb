@@ -39,10 +39,10 @@ class FormProfiles::VA1990s < FormProfile
     raw_account = response.responses.first&.payment_account
 
     if raw_account
-      VA0994::FormPaymentAccountInformation.new(
+      VA1990s::FormPaymentAccountInformation.new(
         account_type: raw_account&.account_type&.capitalize,
-        account_number: mask(raw_account&.account_number),
-        routing_number: mask(raw_account&.financial_institution_routing_number),
+        account_number: raw_account&.account_number,
+        routing_number: raw_account&.financial_institution_routing_number,
         bank_name: raw_account&.financial_institution_name
       )
     else
