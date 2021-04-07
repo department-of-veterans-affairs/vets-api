@@ -121,13 +121,13 @@ RSpec.describe EVSSClaimDocumentUploader do
       },
       {
         path: 'evss_claim/image.TIF',
-        final_filename: 'converted_image_TIF.jpeg',
+        final_filename: /converted_image_TIF.jpe?g/,
         description: 'ext and filetype match /BUT/ tifs not allowed',
         binary_or_name_changes: true
       },
       {
         path: 'evss_claim/secretly_a_jpg.tif',
-        final_filename: 'converted_secretly_a_jpg_tif.jpeg',
+        final_filename: /converted_secretly_a_jpg_tif.jpe?g/,
         description: 'misnamed jpg',
         binary_or_name_changes: true
       },
@@ -146,7 +146,7 @@ RSpec.describe EVSSClaimDocumentUploader do
         file = Rack::Test::UploadedFile.new "spec/fixtures/#{path}", "image/#{path.split('.').last}"
         uploader.store! file
         expect(uploader.converted_exists?).to eq binary_or_name_changes
-        expect(uploader.final_filename).to eq(final_filename)
+        expect(uploader.final_filename).to match(final_filename)
       end
     end
   end
