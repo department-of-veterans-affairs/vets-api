@@ -25,11 +25,13 @@ module CovidVaccine
           submission.enrollment_out_of_band!
           return
         end
+        sta3n = facility[0..2]
+        sta6a = facility if facility.length > 3
 
-        vetext_attributes.merge!(form_attributes(raw_form_data, facility))
+        vetext_attributes.merge!(form_attributes(raw_form_data, sta3n, sta6a))
 
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
-        mpi_attributes = attributes_from_mpi(raw_form_data, facility) 
+        mpi_attributes = attributes_from_mpi(raw_form_data, sta3n) 
         if mpi_attributes[:error].present?
           Rails.logger.info (
             "#{self.class.name}:Error in MPI Lookup",
@@ -38,7 +40,7 @@ module CovidVaccine
           )
           return
         else
-          vetext_attributes.merge!(mpi_attributes)
+          vetext_attributes.merge!(mpi_attributes).compact!
         end
 
         submit_and_save(vetext_attributes, submission, user_type)
@@ -51,7 +53,7 @@ module CovidVaccine
         audit_log(attributes, user_type)
         response = submit(attributes)
         Rails.logger.info("Covid_Vaccine_Expanded Vetext Response: #{response}")
-        submission.update!(sid: response[:sid], form_data: attributes)
+        submission.update!(sid: response[:sid], form_data: attributes, state: 'registered')
         submit_confirmation_email(attributes[:email], submission.created_at, response[:sid])
         submission
       end
@@ -83,10 +85,14 @@ module CovidVaccine
         Rails.logger.info('Covid_Vaccine Expanded Submission', log_attrs)
       end
 
-      def form_attributes(form_data, facility)
+      def form_attributes(form_data, sta3n, sta6a)
         full_address = [form_data['address_line1'], form_data['address_line2'], form_data['address_line3'].join(' ').strip
         service_date_range = form_data['date_range'] ? form_data['date_range'].to_a.flatten.join(' ') : ''
         {
+          first_name: form_data['first_name'],
+          last_name: form_data['last_name'],
+          date_of_birth: form_data['birth_date'],
+          patient_ssn: form_data['ssn'],
           vaccine_interest: true,
           address: full_address,
           city: form_data['city'],
@@ -97,23 +103,16 @@ module CovidVaccine
           applicant_type: form_data['applicant_type'],
           privacy_agreement_accepted: form_data['privacy_agreement_accepted'],
           sms_acknowledgement: form_data['sms_acknowledgement'] || false,
+          # ensure values for birth_sex is what vetext is expecting
           birth_sex: form_data['birth_sex'],
           last_branch_of_service: form_data['last_branch_of_service'] || '',
           service_date_range: service_date_range,
           character_of_service: form_data['character_of_service'] || '',
           enhanced_eligibility: true,
-          sta3n: facility,
+          sta3n: sta3n,
+          sta6a: sta6a,
           authenticated: false
         }
-      end
-
-      def facility_attributes(form_data)
-        @facility_attributes ||= begin
-          CovidVaccine::V0::FacilityLookupService.new.facilities_for(form_data['zip_code'])
-        rescue => e
-          log_exception_to_sentry(e)
-          {}
-        end
       end
 
       def attributes_from_mpi(form_data, sta3n)
@@ -121,21 +120,14 @@ module CovidVaccine
                             last_name: form_data['last_name'],
                             birth_date: form_data['birth_date'],
                             ssn: form_data['ssn'],
-                            gender: form_data['gender'],
                             valid?: true)
         response = MPI::Service.new.find_profile(ui)
         
         if response.status == 'OK'
           if response.profile&.vha_facility_ids.include? sta3n
             {
-              first_name: response.profile&.given_names&.first,
-              last_name: response.profile&.family_name,
-              date_of_birth: response.profile&.birth_date&.to_date&.to_s,
-              patient_ssn: response.profile&.ssn,
               patient_icn: response.profile.icn
-              # Not currently supported
-              # zip: response.profile&.address&.postal_code
-          }
+            }
           else
             {error: "no matching facility found for #{sta3n}"}
           end

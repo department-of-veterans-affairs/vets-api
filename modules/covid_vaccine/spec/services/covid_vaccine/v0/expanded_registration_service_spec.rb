@@ -29,7 +29,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           :unsubmitted,
           :lacking_pii_traits)
   end
-  let(:loa3_submission) { build(:covid_vax_registration, :unsubmitted, :from_loa3) }
 
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_profile_response) do
@@ -144,7 +143,5 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         end
       end
     end
-
-
   end
 end
