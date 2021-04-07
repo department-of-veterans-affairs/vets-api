@@ -8,20 +8,9 @@ module CovidVaccine
     include SentryLogging
 
     def perform(batch_id)
-      records = CovidVaccine::V0::ExpandedRegistrationSubmission.where(batch_id: batch_id)
-      csv_generator = ExpandedRegistrationCsvGenerator.new(records)
-      filename = generated_file_name(batch_id, records.length)
-      uploader = CovidVaccine::V0::EnrollmentUploadService.new(csv_generator.io, filename)
-      uploader.upload
-      update_state_to_pending!
-      audit_log(batch_id, records.length)
-    rescue => e
-      log_exception_to_sentry(
-        e,
-        { code: e.try(:code) },
-        { external_service: 'EnrollmentServiceSFTP' }
-      )
-      raise
+      processor = CovidVaccine::V0::EnrollmentProcessor.new(batch_id)
+      record_count = processor.process_and_upload!
+      audit_log(batch_id, record_count)
     rescue => e
       handle_errors(e)
     end
@@ -30,17 +19,6 @@ module CovidVaccine
       log_exception_to_sentry(ex)
       raise ex
     end
-  end
-
-  # rubocop:disable Rails/SkipsModelValidations
-  def update_state_to_pending!
-    CovidVaccine::V0::ExpandedRegistrationSubmission
-      .where(batch_id: batch_id).update_all(state: 'enrollment_pending')
-  end
-  # rubocop:enable Rails/SkipsModelValidations
-
-  def generated_file_name(batch_id, record_count)
-    "DHS_load_#{batch_id}_SLA_#{record_count}_records.txt"
   end
 
   def audit_log(batch_id, record_count)
