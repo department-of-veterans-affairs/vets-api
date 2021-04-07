@@ -15,21 +15,17 @@ module CovidVaccine
 
         vetext_attributes = {} 
 
-        if raw_form_data['preferred_facility'].empty? 
-          if facility_attributes(raw_form_data).empty?
-            Rails.logger.info (
-              "#{self.class.name}:Error in Facility Lookup",
-              zip_code: raw_form_data[:zip_code],
-              submission: submission.id
-            )
-            return
-          else
-            vetext_attributes.merge!(facility_attributes(raw_form_data))
-          end
-        end
+        # preferred facility will either be in eligibility_info, or raw_form_data. If its in neither one,
+        # for the purposes of this register method we should not be fetching facilities and trying to reconcile;
+        # instead we will set the state to :enrollment_out_of_band
 
         # Get the preferred facility here as it is needed in MPI lookup 
-        facility = raw_form_data['preferred_facility'].delete_prefix('vha_')
+        facility = eligibility_info['preferred_facility'] || raw_form_data['preferred_facility'].delete_prefix('vha_')
+        if facility.blank?
+          submission.enrollment_out_of_band!
+          return
+        end
+
         vetext_attributes.merge!(form_attributes(raw_form_data, facility))
 
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
@@ -88,7 +84,7 @@ module CovidVaccine
       end
 
       def form_attributes(form_data, facility)
-        full_address = [form_data['addressLine1'], form_data['addressLine2'], form_data['addressLine3'].join(' ').strip
+        full_address = [form_data['address_line1'], form_data['address_line2'], form_data['address_line3'].join(' ').strip
         service_date_range = form_data['date_range'] ? form_data['date_range'].to_a.flatten.join(' ') : ''
         {
           vaccine_interest: true,
