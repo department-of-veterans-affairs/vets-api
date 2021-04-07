@@ -1,4 +1,4 @@
-name: test_and_build
+name: build_and_test
 on: [push]
 jobs:
   tests:
@@ -51,7 +51,7 @@ jobs:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-        run: RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset'
+        run: bundle exec parallel_test -e 'bundle exec rake db:reset'
 
       - name: Run Specs
         env:
