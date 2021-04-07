@@ -5,16 +5,17 @@ require 'rails_helper'
 module FacilitiesApi
   RSpec.describe V1::Lighthouse::Facility, type: :model do
     context 'Creating' do
-      let(:attributes) {
+      let(:attributes) do
         {
           'attributes' => {
             'satisfaction' => nil,
             'wait_times' => nil
           },
           'id' => 'abc_123',
-          'type' => nil,
+          'type' => nil
         }
-      }
+      end
+
       it 'object defaults' do
         facility = V1::Lighthouse::Facility.new(attributes)
         expect(facility.attributes).to match(
