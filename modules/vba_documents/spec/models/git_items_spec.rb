@@ -11,7 +11,7 @@ describe VBADocuments::UploadFile, type: :model do
 
   before do
     allow(faraday_response).to receive(:success?).and_return(true)
-    allow(faraday_response).to receive(:body).and_return(git_items_json) #15 records in this json file
+    allow(faraday_response).to receive(:body).and_return(git_items_json) #3 records in this json file
     allow(VBADocuments::GitItems).to receive(:query_git) {
       faraday_response
     }
@@ -22,7 +22,7 @@ describe VBADocuments::UploadFile, type: :model do
   end
 
   it 'populates itself from git' do
-    expect(@record_count).to be(15)
+    expect(@record_count).to be(3)
   end
 
   it 'notifies on slack' do
@@ -33,7 +33,7 @@ describe VBADocuments::UploadFile, type: :model do
     @models = VBADocuments::GitItems.all.each do |model|
       expect(model.notified).to be(true)
     end
-    expect(response).to be(15)
+    expect(response).to be(3)
   end
 
   it 'only notifies on new things' do
@@ -45,6 +45,13 @@ describe VBADocuments::UploadFile, type: :model do
     model.save
     response = VBADocuments::GitItems.notify
     expect(response).to be(1)
+  end
+
+  it 'gracefully logs when the git query is not successful' do
+    allow(faraday_response).to receive(:success?).and_return(false)
+    VBADocuments::GitItems.destroy_all
+    record_count = VBADocuments::GitItems.populate
+    expect(record_count).to be(0) #we expect code coverage for the logging of the failure.
   end
 
 end
