@@ -14,11 +14,15 @@ module Mobile
           end
 
           def get_cached(user)
-            @redis.get(user.uuid)
+            result = @redis.get(user.uuid)
+            return nil unless result
+
+            data = JSON.parse(result)
+            data.map { |i| new(i.deep_symbolize_keys) }
           end
 
-          def set_cached(user, json)
-            @redis.set(user.uuid, json)
+          def set_cached(user, data)
+            @redis.set(user.uuid, data.to_json)
             @redis.expire(user.uuid, @redis_ttl)
           end
         end
