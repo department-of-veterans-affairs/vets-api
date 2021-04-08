@@ -39,12 +39,8 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install System Packages (pdftk, poppler, imagemagick, cc-test-reporter)
-        run: >
-          sudo apt install imagemagick pdftk poppler-utils
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          cc-test-reporter --version
+      - name: Install System Packages (pdftk, poppler, imagemagick)
+        run: sudo apt install imagemagick pdftk poppler-utils
 
       - name: Allow PDF to image conversion
         run: sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
@@ -52,11 +48,17 @@ jobs:
       - name: Setup Database
         run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
 
-      - name: Run Specs
+      - name: Setup Code Climate Reporting
         run: |
-          cc-test-reporter before-build \
-          bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty' \
-          cc-test-reporter after-build -t simplecov
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+
+      - name: Run Specs
+        run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty' \
+
+      - name: Publish Code Climate coverage
+        run: ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
 
       - name: Publish Test Results
         uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
