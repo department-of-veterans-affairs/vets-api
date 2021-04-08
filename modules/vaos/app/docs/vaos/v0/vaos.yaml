@@ -219,11 +219,139 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  "/appointment_requests/{appointment_request_id}/messages":
+    get:
+      tags:
+        - appointment_requests
+      summary: Returns a list of messages associated with a specific user
+      operationId: getMessages
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "appointment_request_id"
+          description: "The id of the requested appointment messages"
+          schema:
+            type: string
+      responses:
+        "200":
+          description: messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Message"
+                  meta:
+                    $ref: "#/components/schemas/Pagination"
+              examples:
+                appointment_request:
+                  summary: Example of an appointment request response
+                  value:
+                    data:
+                      - id: "8a4886886e4c8e22016e5bee49c30007"
+                        type: "messages"
+                        attributes:
+                          message_text: "Testing"
+                          message_date_time: "11/11/2019 12:26:13"
+                          appointment_request_id: "8a4886886e4c8e22016e5bee49c30007"
+                          date: "2019-11-11T12:26:13.931+0000"
+                    meta:
+                      pagination:
+                        current_page: 0
+                        per_page: 10
+                        total_pages: 12
+                        total_entries: 150
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "502":
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "504":
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    post:
+      tags:
+        - appointment_requests
+      summary: Returns the newly created message
+      operationId: createMessage
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "appointment_request_id"
+          description: "The id of the requested appointment to associate with this message"
+          schema:
+            type: string
+      responses:
+        "204":
+          description: The server successfully created the appointment, and is not returning any content.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+              examples:
+                appointment_request:
+                  summary: Example of an appointment request response
+                  value:
+                    - id: "8a4886886e4c8e22016e5bee49c30007"
+                      type: "messages"
+                      attributes:
+                        message_text: "Testing"
+                        message_date_time: "11/11/2019 12:26:13"
+                        appointment_request_id: "8a4886886e4c8e22016e5bee49c30007"
+                        date: "2019-11-11T12:26:13.931+0000"
+        "400":
+          description: Bad Request, the server cannot or will not process the request due to an apparent client error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "403":
+          description: Forbidden, user does not have access to VAOS scheduling.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "502":
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "504":
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   "/appointments":
     get:
       tags:
         - appointments
-      summary: Returns alist of online scheduling appointments
+      summary: Returns a list of online scheduling appointments
       operationId: getAppointments
       security:
         - bearerAuth: []
@@ -1639,6 +1767,40 @@ components:
                 required:
                   - "name"
                   - "timezone"
+    Message:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties:
+        id:
+          type: "string"
+          example: "8a4886886e4c8e22016e5bee49c30007"
+        type:
+          type: "string"
+          example: "messages"
+        attributes:
+          required:
+            - "message_text"
+            - "message_date_time"
+            - "appointment_request_id"
+            - "date"
+          properties:
+            message_text:
+              type: "string"
+              example: "Testing"
+            message_date_time:
+              type: "string"
+              format: "date"
+              example: "11/11/2019 12:26:13"
+            appointment_request_id:
+              type: "string"
+              example: "8a4886886e4c8e22016e5bee49c30007"
+            date:
+              type: "string"
+              format: "date"
+              example: "2019-11-11T12:26:13.931+0000"
     System:
       type: "object"
       properties:
