@@ -3,9 +3,8 @@
 module CovidVaccine
   module V0
     class ExpandedRegistrationService
-      REQUIRED_QUERY_TRAITS = %w[first_name last_name birth_date ssn].freeze
 
-      def register(submission, user_type, record_id)
+      def register(submission, user_type)
         raw_form_data = submission.raw_form_data
 
         # Conditions where we should not send data to vetext:

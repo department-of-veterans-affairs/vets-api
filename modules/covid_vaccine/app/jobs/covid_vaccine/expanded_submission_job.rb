@@ -9,7 +9,7 @@ module CovidVaccine
 
     def perform(record_id, user_type)
       partial = CovidVaccine::V0::ExpandedRegistrationSubmission.find(record_id)
-      CovidVaccine::V0::ExpandedRegistrationService.new.register(partial, user_type, record_id)
+      CovidVaccine::V0::ExpandedRegistrationService.new.register(partial, user_type)
     rescue => e
       handle_errors(e)
     end
