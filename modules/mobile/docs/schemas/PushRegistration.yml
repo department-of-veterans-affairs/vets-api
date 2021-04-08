@@ -2,7 +2,6 @@ type: object
 required:
   - deviceToken
   - osName
-  - osVersion
   - deviceName
   - appName
 properties:
@@ -14,12 +13,9 @@ properties:
     enum:
       - ios
       - android
-  osVersion:
-    type: string
-    example: "12.1"
   deviceName:
     type: string
-    example: "Jeff's iPhone"
+    example: "Jeff's"
   appName:
     type: string
     example: "va_mobile_app"
