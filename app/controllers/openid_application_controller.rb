@@ -40,10 +40,7 @@ class OpenidApplicationController < ApplicationController
     profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
 
     if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
-      token.payload['last_login_type'] = 'ssoi'
-      token.payload['icn'] = profile.attrs['icn']
-      token.payload['npi'] = profile.attrs['npi']
-      token.payload['vista_id'] = profile.attrs['VistaId']
+      populate_ssoi_token_payload(profile)
     end
 
     # issued for a client vs a user
@@ -64,6 +61,13 @@ class OpenidApplicationController < ApplicationController
     return false if @session.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
+  end
+
+  def populate_ssoi_token_payload(profile)
+    token.payload['last_login_type'] = 'ssoi'
+    token.payload['icn'] = profile.attrs['icn']
+    token.payload['npi'] = profile.attrs['npi']
+    token.payload['vista_id'] = profile.attrs['VistaId']
   end
 
   def token_from_request
