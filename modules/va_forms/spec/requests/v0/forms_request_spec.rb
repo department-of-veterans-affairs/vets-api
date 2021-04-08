@@ -65,7 +65,7 @@ RSpec.describe 'VA Forms', type: :request do
       expect(response).to match_response_schema('va_forms/form')
     end
 
-    it 'returns returns a 404 when a form is not there' do
+    it 'returns a 404 when a form is not there' do
       get "#{base_url}/bad"
       expect(response).to have_http_status(:not_found)
     end
