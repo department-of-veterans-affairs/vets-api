@@ -25,16 +25,14 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
           VCR.use_cassette('appeals/appeals') do
             expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
             subject.perform(user.uuid)
-            expect(JSON.parse(Mobile::V0::ClaimOverview.get_cached(user)).first).to eq(
+            expect(Mobile::V0::ClaimOverview.get_cached(user).first.to_h).to eq(
               {
-                'id' => 'SC1678',
-                'type' => 'appeal',
-                'attributes' => {
-                  'subtype' => 'supplementalClaim',
-                  'completed' => false,
-                  'date_filed' => '2020-09-23',
-                  'updated_at' => '2020-09-23T00:00:00+00:00'
-                }
+                id: 'SC1678',
+                type: 'appeal',
+                subtype: 'supplementalClaim',
+                completed: false,
+                date_filed: '2020-09-23',
+                updated_at: '2020-09-23T00:00:00+00:00'
               }
             )
           end
