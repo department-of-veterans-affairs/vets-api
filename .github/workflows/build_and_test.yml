@@ -50,9 +50,9 @@ jobs:
 
       - name: Setup Code Climate Reporting
         run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
-          chmod +x /usr/local/bin/cc-test-reporter
-          cc-test-reporter before-build
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
 
       - name: Run Specs
         run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty' \
@@ -60,7 +60,7 @@ jobs:
       - name: Publish Code Climate coverage
         run: |
           export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
-          cc-test-reporter after-build -t simplecov
+          ./cc-test-reporter after-build -t simplecov
 
       - name: Publish Test Results
         uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
