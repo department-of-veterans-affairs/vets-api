@@ -19,7 +19,7 @@ module Mobile
               id: entry['evss_id'].to_s,
               type: 'claim',
               subtype: entry['list_data']['status_type'],
-              completed: entry['list_data']['status'] == 'COMPLETE', # TODO: ADJ what's the business logic here?
+              completed: entry['list_data']['status'] == 'COMPLETE', # TODO: ADJ what's the business logic  here?
               date_filed: Date.strptime(entry['list_data']['date'], '%m/%d/%Y').iso8601,
               updated_at: Date.strptime(
                 entry['list_data']['claim_phase_dates']['phase_change_date'], '%m/%d/%Y'

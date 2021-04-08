@@ -369,11 +369,11 @@ RSpec.describe 'appointments', type: :request do
             it 'has the correct links with no prev' do
               expect(response.parsed_body['links']).to eq(
                 {
-                  'self' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
-                  'first' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
                   'prev' => nil,
-                  'next' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
-                  'last' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
+                  'next' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
+                  'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
                 }
               )
             end
@@ -391,11 +391,11 @@ RSpec.describe 'appointments', type: :request do
             it 'has the correct links both prev and next' do
               expect(response.parsed_body['links']).to eq(
                 {
-                  'self' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
-                  'first' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
-                  'prev' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
-                  'next' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
-                  'last' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
+                  'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
+                  'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'next' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
+                  'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
                 }
               )
             end
@@ -413,11 +413,11 @@ RSpec.describe 'appointments', type: :request do
             it 'has the correct links with no next' do
               expect(response.parsed_body['links']).to eq(
                 {
-                  'self' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
-                  'first' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
-                  'prev' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
+                  'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
+                  'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
                   'next' => nil,
-                  'last' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
+                  'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
                 }
               )
             end
@@ -437,11 +437,11 @@ RSpec.describe 'appointments', type: :request do
             it 'has the correct links with no next' do
               expect(response.parsed_body['links']).to eq(
                 {
-                  'self' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=99&page[size]=10',
-                  'first' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
-                  'prev' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
+                  'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=99&page[size]=10',
+                  'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
                   'next' => nil,
-                  'last' => 'http://www.example.com/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
+                  'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
                 }
               )
             end
