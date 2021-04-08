@@ -40,10 +40,10 @@ class OpenidApplicationController < ApplicationController
     profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
 
     if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
-       token.payload['last_login_type'] = 'ssoi'
-       token.payload['icn'] = profile.attrs['icn']
-       token.payload['npi'] = profile.attrs['npi']
-       token.payload['vista_id'] = profile.attrs['VistaId']
+      token.payload['last_login_type'] = 'ssoi'
+      token.payload['icn'] = profile.attrs['icn']
+      token.payload['npi'] = profile.attrs['npi']
+      token.payload['vista_id'] = profile.attrs['VistaId']
     end
 
     # issued for a client vs a user
@@ -100,7 +100,7 @@ class OpenidApplicationController < ApplicationController
     # all the classes used by our dependencies.
     Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
   end
-  
+
   def establish_session(profile)
     ttl = token.payload['exp'] - Time.current.utc.to_i
     user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
