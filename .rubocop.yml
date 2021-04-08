@@ -108,9 +108,6 @@ Metrics/MethodLength:
 Metrics/ClassLength:
   Max: 400
 
-Metrics/AbcSize:
-  Max: 44
-
 # removing rule because get_session implies HTTP GET, and informs method
 Naming/AccessorMethodName:
   Enabled: false
