@@ -58,7 +58,7 @@ RSpec.describe 'Appeals API SNS upload complete notification', type: :request do
             token: token,
             topic_arn: aws_sns_topic
           )
-          expect(Aws::SNS::Client).to receive(:new).with(region: 'us-gov-west-1').and_return(client)
+          allow(Aws::SNS::Client).to receive(:new).with(region: 'us-gov-west-1').and_return(client)
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)

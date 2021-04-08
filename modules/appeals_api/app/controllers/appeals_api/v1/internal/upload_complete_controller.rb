@@ -18,12 +18,7 @@ module AppealsApi
               process_upload(upload_id)
             end
           when 'SubscriptionConfirmation'
-            client = Aws::SNS::Client.new(region: Settings.modules_appeals_api.sns.region)
-            client.confirm_subscription(
-              authenticate_on_unsubscribe: 'authenticateOnUnsubscribe',
-              token: json_params['Token'],
-              topic_arn: json_params['TopicArn']
-            )
+            confirm_sns_subscription
           else
             raise Common::Exceptions::ParameterMissing, 'x-amz-sns-message-type'
           end
@@ -49,6 +44,15 @@ module AppealsApi
               signature: json_params['Signature']
             )
           end
+        end
+
+        def confirm_sns_subscription
+          client = Aws::SNS::Client.new(region: Settings.modules_appeals_api.sns.region)
+          client.confirm_subscription(
+            authenticate_on_unsubscribe: 'authenticateOnUnsubscribe',
+            token: json_params['Token'],
+            topic_arn: json_params['TopicArn']
+          )
         end
 
         def json_params
