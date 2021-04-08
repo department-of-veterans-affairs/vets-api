@@ -756,8 +756,9 @@ RSpec.describe FormProfile, type: :model do
     {
       'veteranInformation' => {
         'fullName' => {
-          'first' => 'Abraham',
-          'last' => 'Lincoln'
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.va_profile[:suffix]
         },
         'ssn' => '796111863',
         'dob' => '1809-02-12'
