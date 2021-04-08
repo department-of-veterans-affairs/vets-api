@@ -42,8 +42,8 @@ jobs:
       - name: Install System Packages (pdftk, poppler, imagemagick, cc-test-reporter)
         run: >
           sudo apt install imagemagick pdftk poppler-utils
-          curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
-          chmod +x /usr/local/bin/cc-test-reporter
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
           cc-test-reporter --version
 
       - name: Allow PDF to image conversion
