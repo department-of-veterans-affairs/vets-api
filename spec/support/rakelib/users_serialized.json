@@ -4,7 +4,7 @@
     "users_b": {
       ":uuid": "7700bbf301eb4e6e95ccea7693eced6f",
       ":last_signed_in": {
-        "^t": 1.7976931348623157e+308
+        "^t": "2021-04-05T22:18:26.625Z"
       },
       ":mhv_last_signed_in": null
     },
@@ -80,7 +80,7 @@
     "users_b": {
       ":uuid": "76c38ec8bfb447b19dfd0c9808357d46",
       ":last_signed_in": {
-        "^t": 1.7976931348623157e+308
+        "^t": "2021-04-05T22:18:26.625Z"
       },
       ":mhv_last_signed_in": null
     },

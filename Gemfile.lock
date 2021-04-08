@@ -562,7 +562,7 @@ GEM
     octokit (4.20.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
-    oj (3.9.0)
+    oj (3.11.3)
     okcomputer (1.18.4)
     olive_branch (3.0.0)
       multi_json
