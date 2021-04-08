@@ -763,23 +763,23 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    number_of_requests:
-                      type: integer
-                    request_limit:
-                      type: integer
-                    institution_code:
-                      type: string
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FacilityLimits"
               example:
-                - number_of_requests: 0
-                  request_limit: 1
-                  institution_code: "688"
-                - number_of_requests: 0
-                  request_limit: 1
-                  institution_code: "442"
+                data:
+                  - id: "688"
+                    attributes:
+                      number_of_requests: 0
+                      request_limit: 1
+                  - id: "442"
+                    attributes:
+                      number_of_requests: 0
+                      request_limit: 1
         "400":
           description: Bad Request
           content:
@@ -1211,6 +1211,25 @@ components:
               type: "boolean"
             parent_station_code:
               type: "string"
+    FacilityLimits:
+      type: "object"
+      required:
+        - "id"
+
+        - "attributes"
+      properties:
+        id:
+          type: "string"
+        attributes:
+          type: "object"
+          required:
+            - "request_limit"
+            - "number_of_requests"
+          properties:
+            request_limit:
+              type: "integer"
+            number_of_requests:
+              type: "integer"
     AppointmentRequest:
       type: "object"
       properties:
