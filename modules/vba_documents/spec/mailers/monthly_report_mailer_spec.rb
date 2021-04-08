@@ -14,10 +14,9 @@ RSpec.describe VBADocuments::MonthlyReportMailer, type: [:mailer] do
   before do
     last_month_start = Date.parse('01-02-2021')
     last_month_end = Date.parse('01-03-2021')
-    two_months_ago_start = Date.parse('01-01-2021')
     @email = described_class.build(get_fixture_yml(monthly_counts), get_fixture_yml(summary),
                                    get_fixture_yml(still_processing), get_fixture_yml(avg_and_pages),
-                                   last_month_start, last_month_end, two_months_ago_start)
+                                   last_month_start, last_month_end)
   end
 
   it 'sends monthly in the subject' do

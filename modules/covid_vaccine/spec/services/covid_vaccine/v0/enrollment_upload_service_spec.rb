@@ -20,18 +20,23 @@ describe CovidVaccine::V0::EnrollmentUploadService do
   end
 
   context 'sftp interactions' do
-    let(:host) { 'fake_host' }
-    let(:username) { 'fake_username' }
-    let(:password) { 'fake_password' }
+    let(:host) { 'mysftp_host' }
+    let(:username) { 'mysftp_username' }
+    let(:password) { 'mysftp_password' }
+    let(:port) { 9999 }
     let(:sftp_connection_double) { double(:sftp_connection_double, upload!: true, download!: true) }
     let(:sftp_double) { double(:sftp, sftp: sftp_connection_double) }
     let(:handler) { CovidVaccine::V0::EnrollmentHandler }
 
-    it 'responds to send_enrollment_file' do
-      expect(Net::SFTP).to receive(:start).with(host, username, password: password).and_yield(sftp_connection_double)
-      expect(sftp_connection_double)
-        .to receive(:upload!).with(subject.io, file_name, name: file_name, progress: instance_of(handler))
-      subject.upload
+    it 'responds to upload' do
+      with_settings(Settings.covid_vaccine.enrollment_service.sftp, host: host, username: username,
+                                                                    password: password, port: port) do
+        expect(Net::SFTP).to receive(:start).with(host, username, password: password,
+                                                                  port: port).and_yield(sftp_connection_double)
+        expect(sftp_connection_double)
+          .to receive(:upload!).with(subject.io, file_name, name: file_name, progress: instance_of(handler))
+        subject.upload
+      end
     end
   end
 end

@@ -13,7 +13,7 @@ module VBADocuments
         consumer_name,
         sum(case when status = 'error' then 1 else 0 end) as errored,
         sum(case when status = 'expired' then 1 else 0 end) as expired,
-        sum(case when status = 'uploaded' or
+        sum(case when status = 'pending' or status = 'uploaded' or
             status = 'received' or status = 'processing' then 1 else 0 end) as processing,
         sum(case when status = 'success' then 1 else 0 end) as success,
         sum(case when status = 'vbms' then 1 else 0 end) as vbms,
@@ -27,15 +27,15 @@ module VBADocuments
     PROCESSING_SQL = "
       select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
       from vba_documents_upload_submissions a
-      where a.status in ('uploaded','received', 'processing')
+      where a.status in ('uploaded','received', 'processing','pending')
       and   a.updated_at < $1
       order by a.consumer_name asc
     "
 
     MAX_AVG_PAGES_SQL = "
       select
-        date_part('year', a.created_at)::INTEGER as yyyy,
-        date_part('month', a.created_at)::INTEGER as mm,
+        date_part('year', a.created_at)::integer as yyyy,
+        date_part('month', a.created_at)::integer as mm,
         max((uploaded_pdf->>'total_pages')::integer) as max_pages,
         round(avg((uploaded_pdf->>'total_pages')::integer))::integer as avg_pages
       from vba_documents_upload_submissions a
@@ -49,8 +49,8 @@ module VBADocuments
 
     MODE_PAGES_SQL = "
       select
-        date_part('year', a.created_at)::INTEGER as yyyy,
-        date_part('month', a.created_at)::INTEGER as mm,
+        date_part('year', a.created_at)::integer as yyyy,
+        date_part('month', a.created_at)::integer as mm,
         mode() within group (order by (uploaded_pdf->>'total_pages')::integer) as mode_pages
       from vba_documents_upload_submissions a
       where a.uploaded_pdf is not null
@@ -77,11 +77,11 @@ module VBADocuments
 
     AVG_TIME_TO_VBMS_SQL = "
       select
-      date_part('year', a.created_at)::INTEGER as yyyy,
-      date_part('month', a.created_at)::INTEGER as mm,
+      date_part('year', a.created_at)::integer as yyyy,
+      date_part('month', a.created_at)::integer as mm,
       count(*) as count,
-    	avg(date_part('epoch', a.updated_at)::INTEGER -
-        date_part('epoch', a.created_at)::INTEGER)::integer as avg_time_secs
+    	avg(date_part('epoch', a.updated_at)::bigint -
+        date_part('epoch', a.created_at)::bigint)::integer as avg_time_secs
       from vba_documents_upload_submissions a
       where a.status = 'vbms'
       and   a.created_at < $1
@@ -95,11 +95,10 @@ module VBADocuments
         # get reporting date ranges
         last_month_start = (Date.current - 1.month).beginning_of_month
         last_month_end = Date.current.beginning_of_month
-        two_months_ago_start = (Date.current - 2.months).beginning_of_month
 
         # execute SQL for monthly counts
         @monthly_counts = run_sql(MONTHLY_COUNT_SQL, last_month_start, last_month_end)
-        still_processing = run_sql(PROCESSING_SQL, two_months_ago_start)
+        still_processing = run_sql(PROCESSING_SQL, last_month_start)
         @avg_processing_time = run_sql(AVG_TIME_TO_VBMS_SQL, last_month_start)
         @monthly_max_avg = run_sql(MAX_AVG_PAGES_SQL, last_month_start)
         @monthly_mode_pages = run_sql(MODE_PAGES_SQL, last_month_start)
@@ -109,7 +108,7 @@ module VBADocuments
         # build the monthly report and email it
         VBADocuments::MonthlyReportMailer.build(
           @monthly_counts, summary, still_processing, monthly_averages_final,
-          last_month_start, last_month_end, two_months_ago_start
+          last_month_start, last_month_end
         ).deliver_now
       end
     end

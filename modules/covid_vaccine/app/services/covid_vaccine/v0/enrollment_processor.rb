@@ -46,15 +46,17 @@ module CovidVaccine
         records.length
       end
 
-      # def self.set_pending_state(batch_id)
-      #   CovidVaccine::V0::ExpandedRegistrationSubmission.where(batch_id: batch_id).find_each do |submission|
-      #     submission.submitted_for_enrollment
-      #     submission.save!
-      #   end
-      # end
+      # Updates a specified batch to pending state. Used in conjunction with above write_to_file
+      # method in the case of out-of-band submission to enrollment service.
+      # rubocop:disable Rails/SkipsModelValidations
+      def self.update_state_to_pending(batch_id)
+        return if batch_id.nil?
+
+        CovidVaccine::V0::ExpandedRegistrationSubmission
+          .where(batch_id: batch_id).update_all(state: 'enrollment_pending')
+      end
 
       # TODO: Should this be private? Or public to be used by scanner job
-      # rubocop:disable Rails/SkipsModelValidations
       def batch_records!
         records = CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'received', batch_id: nil)
         records.update_all(batch_id: @batch_id)

@@ -41,7 +41,10 @@ FactoryBot.define do
           birls_id: '796121200',
           participant_id: '796121200',
           birth_date: '1970-08-12T00:00:00+00:00'.to_date.to_s,
-          vet360_id: '1'
+          vet360_id: '1',
+          vha_facility_ids: %w[757 358],
+          cerner_facility_ids: ['757'],
+          cerner_id: '9923454432'
         )
       )
     end

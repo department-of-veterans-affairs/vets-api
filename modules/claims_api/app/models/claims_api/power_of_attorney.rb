@@ -23,10 +23,11 @@ module ClaimsApi
       primary_identifier[:id] = id if id.present?
       primary_identifier[:header_md5] = header_md5 if header_md5.present?
       primary_identifier[:md5] = md5 if md5.present?
-      poa = ClaimsApi::PowerOfAttorney.find_by(primary_identifier)
-      return nil if poa.present? && poa.source_data['name'] != source_name
+      poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(:created_at)
+      poas = poas.select { |poa| poa.source_data['name'] == source_name }
+      return nil if poas.blank?
 
-      poa
+      poas.last
     end
 
     def sign_pdf
