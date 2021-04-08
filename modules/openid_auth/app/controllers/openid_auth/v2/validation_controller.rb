@@ -35,9 +35,7 @@ module OpenidAuth
           payload_object.launch[:patient] = @current_user.icn
         end
 
-        if token.client_credentials_token?
-          payload_object.act[:type] = 'system'
-        end
+        payload_object.act[:type] = 'system' if token.client_credentials_token?
 
         payload_object
       end
