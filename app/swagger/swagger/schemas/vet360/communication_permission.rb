@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/MethodLength
 module Swagger
   module Schemas
     module Vet360
@@ -74,3 +75,4 @@ module Swagger
     end
   end
 end
+# rubocop:enable Metrics/MethodLength
