@@ -5,11 +5,13 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      DISABLE_BOOTSNAP: true
       RAILS_ENV: test
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.binaries.clamdscan": "clamscan"
+      TERM: xterm-256color
 
     services:
       postgres:
@@ -24,47 +26,27 @@ jobs:
       redis:
         image: circleci/redis:5.0-alpine
 
-
     steps:
       - uses: actions/checkout@v2
 
       - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
 
-      - name: Install dependencies (pdftk, poppler, imagemagick)
+      - name: Install System Packages (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
 
       - name: Allow PDF to image conversion
         run: sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
 
-      - name: Gem Cache
-        uses: actions/cache@v2
-        with:
-          path: vendor/bundle
-          key: gem-cache-${{ matrix.image }}-${{ hashFiles('Gemfile.lock') }}
-
-      - name: Install Dependencies
-        run: bundle install --path vendor/bundle
-
       - name: Setup Database
         env:
-          POSTGRES_USER: vets-api
-          POSTGRES_DB: vets-api_test
-          POSTGRES_PASSWORD: postgres
-          RAILS_ENV: test
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-        run: DISABLE_BOOTSNAP=true bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
+        run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
 
       - name: Run Specs
         env:
-          POSTGRES_USER: vets-api
-          POSTGRES_DB: vets-api_test
-          POSTGRES_PASSWORD: postgres
-          RAILS_ENV: test
           CI: true
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5432] }}
           DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
           SPEC_PATH: "spec/ modules/"
-        run: DISABLE_BOOTSNAP=true bundle exec parallel_rspec $SPEC_PATH -n 4 -o '--color --tty'
+        run: bundle exec parallel_rspec $SPEC_PATH -n 4 -o '--color --tty'
