@@ -46,4 +46,4 @@ jobs:
         run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
 
       - name: Run Specs
-        run: bundle exec parallel_rspec "spec/ modules" -n 4 -o '--color --tty'
+        run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty'
