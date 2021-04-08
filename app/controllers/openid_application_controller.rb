@@ -39,8 +39,15 @@ class OpenidApplicationController < ApplicationController
     @session = Session.find(token) unless token.client_credentials_token?
     profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
 
+    if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
+       token.payload['last_login_type'] = 'ssoi'
+       token.payload['icn'] = profile.attrs['icn']
+       token.payload['npi'] = profile.attrs['npi']
+       token.payload['vista_id'] = profile.attrs['VistaId']
+    end
+
     # issued for a client vs a user
-    if token.client_credentials_token? || (@session.nil? && ssoi_token?(profile))
+    if token.client_credentials_token? || token.ssoi_token?
       if token.payload['scp'].include?('launch/patient')
         launch = fetch_smart_launch_context
         token.payload[:icn] = launch
@@ -94,8 +101,7 @@ class OpenidApplicationController < ApplicationController
     Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
   end
 
-  def ssoi_token?(profile)
-    #profile = fetch_profile(token.identifiers.okta_uid)
+  def mark_token_if_ssoi(profile)
     if profile.attrs['last_login_type'] == 'ssoi'
       token.payload['last_login_type'] = 'ssoi'
       token.payload['icn'] = profile.attrs['icn']
