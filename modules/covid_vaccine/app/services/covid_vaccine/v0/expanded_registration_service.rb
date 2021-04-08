@@ -20,7 +20,8 @@ module CovidVaccine
         # instead we will set the state to :enrollment_out_of_band
 
         # Get the preferred facility here as it is needed in MPI lookup 
-        facility = eligibility_info['preferred_facility'] || raw_form_data['preferred_facility'].delete_prefix('vha_')
+        facility = submission&.eligibility_info&['preferred_facility'] || raw_form_data['preferred_facility'].delete_prefix('vha_')
+
         if facility.blank?
           submission.enrollment_out_of_band!
           return
@@ -33,16 +34,15 @@ module CovidVaccine
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
         mpi_attributes = attributes_from_mpi(raw_form_data, sta3n) 
         if mpi_attributes[:error].present?
-          Rails.logger.info (
-            "#{self.class.name}:Error in MPI Lookup",
-            mpi_error: mpi_attributes[:error],
-            submission: submission.id
-          )
+          # Rails.logger.info (
+          #   "#{self.class.name}:Error in MPI Lookup", 
+          #   mpi_error: mpi_attributes[:error], 
+          #   submission: submission.id
+          # )
           return
         else
           vetext_attributes.merge!(mpi_attributes).compact!
         end
-
         submit_and_save(vetext_attributes, submission, user_type)
       end
 
@@ -86,7 +86,7 @@ module CovidVaccine
       end
 
       def form_attributes(form_data, sta3n, sta6a)
-        full_address = [form_data['address_line1'], form_data['address_line2'], form_data['address_line3'].join(' ').strip
+        full_address = [form_data['address_line1'], form_data['address_line2'], form_data['address_line3']].join(' ').strip
         service_date_range = form_data['date_range'] ? form_data['date_range'].to_a.flatten.join(' ') : ''
         {
           first_name: form_data['first_name'],
