@@ -2508,4 +2508,3 @@ components:
         availability:
           type: "boolean"
           example: true
-
