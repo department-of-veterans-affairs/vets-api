@@ -15,12 +15,12 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
     Settings.vba_documents.slack.enabled = true
 
     allow(faraday_response).to receive(:success?).and_return(true)
-    allow(faraday_response).to receive(:body).and_return(git_items_json) #15 records in this json file
+    allow(faraday_response).to receive(:body).and_return(git_items_json) # 15 records in this json file
     allow(VBADocuments::GitItems).to receive(:query_git) {
       faraday_response
     }
     allow(VBADocuments::GitItems).to receive(:send_to_slack) {
-      faraday_response #the body isn't used here, only the 'success' attribute via :success?
+      faraday_response # the body isn't used here, only the 'success' attribute via :success?
     }
     @job = VBADocuments::DeploymentsNotifier.new
   end
@@ -43,10 +43,9 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
 
   it 'logs and returns the exception if something goes wrong' do
     allow(VBADocuments::GitItems).to receive(:populate) {
-      raise RuntimeError.new
+      raise RuntimeError
     }
     results = @job.perform
     expect(results.class).to be(RuntimeError)
   end
-
 end

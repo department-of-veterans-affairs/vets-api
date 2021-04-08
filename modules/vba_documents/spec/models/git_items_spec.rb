@@ -11,12 +11,12 @@ describe VBADocuments::UploadFile, type: :model do
 
   before do
     allow(faraday_response).to receive(:success?).and_return(true)
-    allow(faraday_response).to receive(:body).and_return(git_items_json) #3 records in this json file
+    allow(faraday_response).to receive(:body).and_return(git_items_json) # 3 records in this json file
     allow(VBADocuments::GitItems).to receive(:query_git) {
       faraday_response
     }
     allow(VBADocuments::GitItems).to receive(:send_to_slack) {
-      faraday_response #the body isn't used here, only the 'success' attribute via :success?
+      faraday_response # the body isn't used here, only the 'success' attribute via :success?
     }
     @record_count = VBADocuments::GitItems.populate
   end
@@ -51,7 +51,6 @@ describe VBADocuments::UploadFile, type: :model do
     allow(faraday_response).to receive(:success?).and_return(false)
     VBADocuments::GitItems.destroy_all
     record_count = VBADocuments::GitItems.populate
-    expect(record_count).to be(0) #we expect code coverage for the logging of the failure.
+    expect(record_count).to be(0) # we expect code coverage for the logging of the failure.
   end
-
 end

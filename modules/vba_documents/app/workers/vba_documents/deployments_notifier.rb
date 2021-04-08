@@ -9,12 +9,13 @@ module VBADocuments
 
     def perform
       return unless Settings.vba_documents.slack.enabled
+
       result = nil
       begin
         VBADocuments::GitItems.populate
         result = VBADocuments::GitItems.notify
       rescue => e
-        Rails.logger.error("Failed to notify of new VBA document deployments", e)
+        Rails.logger.error('Failed to notify of new VBA document deployments', e)
         result = e
       end
       result
