@@ -47,3 +47,12 @@ jobs:
 
       - name: Run Specs
         run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty'
+
+      - name: Publish Test Results
+        uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
+        if: always()
+        with:
+          check_name: Test Results
+          comment_on_pr: false
+          files: log/*.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
