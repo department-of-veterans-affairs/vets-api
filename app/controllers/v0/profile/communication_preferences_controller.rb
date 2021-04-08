@@ -42,7 +42,7 @@ module V0
             :id,
             communication_channels: [
               :id,
-              communication_permission: :allowed
+              { communication_permission: :allowed }
             ]
           )
         )

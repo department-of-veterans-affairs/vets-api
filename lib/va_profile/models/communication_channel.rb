@@ -35,11 +35,11 @@ module VAProfile
       end
 
       def communication_permission=(permission)
-        if permission.present? && !permission.is_a?(CommunicationPermission)
-          @communication_permission = CommunicationPermission.new(permission)
-        else
-          @communication_permission = permission
-        end
+        @communication_permission = if permission.present? && !permission.is_a?(CommunicationPermission)
+                                      CommunicationPermission.new(permission)
+                                    else
+                                      permission
+                                    end
       end
 
       private

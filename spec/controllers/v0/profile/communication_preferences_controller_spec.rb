@@ -36,7 +36,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
         }
       end
 
-      it 'it returns validation error' do
+      it 'returns validation error' do
         subject
 
         expect(response.status).to eq(422)
@@ -46,16 +46,16 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
   end
 
   describe '#update' do
-    let(:params) do
-      valid_params
-    end
-
     subject do
       patch(
         :update,
         params: params.merge(id: 46),
         as: :json
       )
+    end
+
+    let(:params) do
+      valid_params
     end
 
     test_invalid_req
@@ -66,29 +66,27 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(
-          {"tx_audit_id"=>"924b24a5-609d-48ff-ab2e-9f5ac8770e93",
-           "status"=>"COMPLETED_SUCCESS",
-           "bio"=>
-            {"create_date"=>"2021-03-24T22:38:21Z",
-             "update_date"=>"2021-03-24T23:46:17Z",
-             "tx_audit_id"=>"924b24a5-609d-48ff-ab2e-9f5ac8770e93",
-             "source_system"=>"VETSGOV",
-             "source_date"=>"2021-03-24T23:46:17Z",
-             "communication_permission_id"=>46,
-             "va_profile_id"=>18277,
-             "communication_channel_id"=>1,
-             "communication_item_id"=>2,
-             "communication_channel_name"=>"Text",
-             "communication_item_common_name"=>"RX Prescription Refill Reminder",
-             "allowed"=>true}}
+          { 'tx_audit_id' => '924b24a5-609d-48ff-ab2e-9f5ac8770e93',
+            'status' => 'COMPLETED_SUCCESS',
+            'bio' =>
+            { 'create_date' => '2021-03-24T22:38:21Z',
+              'update_date' => '2021-03-24T23:46:17Z',
+              'tx_audit_id' => '924b24a5-609d-48ff-ab2e-9f5ac8770e93',
+              'source_system' => 'VETSGOV',
+              'source_date' => '2021-03-24T23:46:17Z',
+              'communication_permission_id' => 46,
+              'va_profile_id' => 18_277,
+              'communication_channel_id' => 1,
+              'communication_item_id' => 2,
+              'communication_channel_name' => 'Text',
+              'communication_item_common_name' => 'RX Prescription Refill Reminder',
+              'allowed' => true } }
         )
       end
     end
   end
 
   describe '#create' do
-    let(:params) { valid_params }
-
     subject do
       post(
         :create,
@@ -96,6 +94,8 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
         as: :json
       )
     end
+
+    let(:params) { valid_params }
 
     test_invalid_req
 
@@ -107,21 +107,21 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
 
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)).to eq(
-          {"tx_audit_id"=>"3e776301-4794-402a-8a99-67d473232b6c",
-           "status"=>"COMPLETED_SUCCESS",
-           "bio"=>
-            {"create_date"=>"2021-03-24T22:38:21Z",
-             "update_date"=>"2021-03-24T22:38:21Z",
-             "tx_audit_id"=>"3e776301-4794-402a-8a99-67d473232b6c",
-             "source_system"=>"VETSGOV",
-             "source_date"=>"2021-03-24T22:38:21Z",
-             "communication_permission_id"=>46,
-             "va_profile_id"=>18277,
-             "communication_channel_id"=>1,
-             "communication_item_id"=>2,
-             "communication_channel_name"=>"Text",
-             "communication_item_common_name"=>"RX Prescription Refill Reminder",
-             "allowed"=>false}}
+          { 'tx_audit_id' => '3e776301-4794-402a-8a99-67d473232b6c',
+            'status' => 'COMPLETED_SUCCESS',
+            'bio' =>
+            { 'create_date' => '2021-03-24T22:38:21Z',
+              'update_date' => '2021-03-24T22:38:21Z',
+              'tx_audit_id' => '3e776301-4794-402a-8a99-67d473232b6c',
+              'source_system' => 'VETSGOV',
+              'source_date' => '2021-03-24T22:38:21Z',
+              'communication_permission_id' => 46,
+              'va_profile_id' => 18_277,
+              'communication_channel_id' => 1,
+              'communication_item_id' => 2,
+              'communication_channel_name' => 'Text',
+              'communication_item_common_name' => 'RX Prescription Refill Reminder',
+              'allowed' => false } }
         )
       end
     end
@@ -139,11 +139,11 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
 
       expect(JSON.parse(response.body)).to eq(
         {
-          "data" => {
-            "id" => "",
-            "type"=>"hashes",
-            "attributes"=> {
-              "communication_groups" => get_fixture('va_profile/items_and_permissions')
+          'data' => {
+            'id' => '',
+            'type' => 'hashes',
+            'attributes' => {
+              'communication_groups' => get_fixture('va_profile/items_and_permissions')
             }
           }
         }

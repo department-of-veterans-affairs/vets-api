@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_relative 'configuration'
 require 'va_profile/models/communication_item_group'
 

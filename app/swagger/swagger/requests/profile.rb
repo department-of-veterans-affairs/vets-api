@@ -11,7 +11,7 @@ module Swagger
         operation :patch do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, "Update a communication permission"
+          key :description, 'Update a communication permission'
           key :operationId, 'updateCommunicationPreference'
           key :tags, %w[
             profile
@@ -30,7 +30,7 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, "Create a communication permission"
+          key :description, 'Create a communication permission'
           key :operationId, 'createCommunicationPreference'
           key :tags, %w[
             profile

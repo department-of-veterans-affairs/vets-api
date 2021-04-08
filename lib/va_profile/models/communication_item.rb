@@ -30,13 +30,13 @@ module VAProfile
       end
 
       def communication_channels=(arr)
-        if arr[0].present? && !arr[0].is_a?(CommunicationChannel)
-          @communication_channels = arr.map do |hash|
-            CommunicationChannel.new(hash)
-          end
-        else
-          @communication_channels = arr
-        end
+        @communication_channels = if arr[0].present? && !arr[0].is_a?(CommunicationChannel)
+                                    arr.map do |hash|
+                                      CommunicationChannel.new(hash)
+                                    end
+                                  else
+                                    arr
+                                  end
       end
 
       def http_verb
