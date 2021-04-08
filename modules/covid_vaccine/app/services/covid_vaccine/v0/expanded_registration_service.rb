@@ -49,22 +49,20 @@ module CovidVaccine
       private
       
       def submit_and_save(attributes, submission, user_type)
-        binding.pry
         # TODO: error handling
         audit_log(attributes, user_type)
         response = submit(attributes)
         Rails.logger.info("Covid_Vaccine_Expanded Vetext Response: #{response}")
-        submission.update!(sid: response[:sid], form_data: attributes, state: 'registered')
+        submission.update!(vetext_sid: response[:sid], form_data: attributes, state: 'registered')
         submit_confirmation_email(attributes[:email], submission.created_at, response[:sid])
         submission
       end
       
       def submit_confirmation_email(email, date, sid)
-        binding.pry
         return if email.blank?
         
         formatted_date = date.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-        CovidVaccine::RegistrationEmailJob.perform_async(email, formatted_date, sid)
+        CovidVaccine::ExpandedRegistrationEmailJob.perform_async(email, formatted_date, sid)
       end
       
       def submit(attributes)
@@ -112,7 +110,7 @@ module CovidVaccine
           character_of_service: form_data['character_of_service'] || '',
           enhanced_eligibility: true,
           sta3n: sta3n,
-          sta6a: sta6a,
+          sta6a: sta6a || '',
           authenticated: false
         }
       end

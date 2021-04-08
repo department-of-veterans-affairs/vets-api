@@ -55,26 +55,33 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
                                                                      .with(hash_including(:first_name,
                                                                        :last_name,
-                                                                       :ssn,
+                                                                       :patient_ssn,
                                                                        :date_of_birth,
                                                                        :patient_icn,
                                                                        :phone,
                                                                        :email,
-                                                                       :address_line1,
+                                                                       :address,
                                                                        :city,
-                                                                       :state_code,
+                                                                       :state,
                                                                        :zip_code,
-                                                                       :preferred_facility,
                                                                        :authenticated,
                                                                        :applicant_type,
                                                                        :sms_acknowledgement,
-                                                                       :privacy_agreement_accepted))
+                                                                       :privacy_agreement_accepted,
+                                                                       :enhanced_eligibility,
+                                                                       :birth_sex,
+                                                                       :last_branch_of_service,
+                                                                       :character_of_service,
+                                                                       :service_date_range,
+                                                                       :sta3n,
+                                                                       :sta6a,
+                                                                       :vaccine_interest))
                                                                      .and_return({ sid: SecureRandom.uuid })
         expect_any_instance_of(MPI::Service).to receive(:find_profile)
                                                   .and_return(mvi_profile_response)
         
         expect { subject.register(submission, 'unauthenticated') }
-          .to change(CovidVaccine::RegistrationEmailJob.jobs, :size).by(1)
+          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
       end
       
       #     it 'passes authenticated attribute as false' do
