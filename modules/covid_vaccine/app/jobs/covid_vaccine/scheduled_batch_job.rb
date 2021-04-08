@@ -8,6 +8,9 @@ module CovidVaccine
     include SentryLogging
     sidekiq_options retry: false
 
+    STATSD_ERROR_NAME = 'worker.covid_vaccine_schedule_batch.error'
+    STATSD_SUCCESS_NAME = 'worker.covid_vaccine_schedule_batch.success'
+
     def perform
       Rails.logger.info('Covid_Vaccine Scheduled_Batch: Start')
 
@@ -16,6 +19,7 @@ module CovidVaccine
 
       jid = CovidVaccine::EnrollmentUploadJob.perform_async(batch_id)
       Rails.logger.info('Covid_Vaccine Scheduled_Batch: Success', batch_id: batch_id, enrollment_upload_job_id: jid)
+      StatsD.increment(STATSD_SUCCESS_NAME)
     rescue => e
       handle_errors(e)
     end
@@ -23,6 +27,7 @@ module CovidVaccine
     def handle_errors(ex)
       Rails.logger.error('Covid_Vaccine Scheduled_Batch: Failed')
       log_exception_to_sentry(ex)
+      StatsD.increment(STATSD_ERROR_NAME)
       raise ex
     end
   end

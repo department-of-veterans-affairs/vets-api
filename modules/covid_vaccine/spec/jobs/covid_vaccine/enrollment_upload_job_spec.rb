@@ -17,6 +17,9 @@ RSpec.describe CovidVaccine::EnrollmentUploadJob, type: :worker do
         expect(Rails.logger).to receive(:info).with(
           'Covid_Vaccine Enrollment_Upload: Success', batch_id: batch_id, record_count: record_count
         )
+
+        expect(StatsD).to receive(:increment).once.with('worker.covid_vaccine_enrollment_upload.success')
+        
         subject.perform(batch_id)
       end
     end
@@ -32,7 +35,10 @@ RSpec.describe CovidVaccine::EnrollmentUploadJob, type: :worker do
         expect(Rails.logger).to receive(:info).with('Covid_Vaccine Enrollment_Upload: Start', batch_id: batch_id)
         expect(Rails.logger).to receive(:error).with('Covid_Vaccine Enrollment_Upload: Failed',
                                                      batch_id: batch_id).ordered.and_call_original
-        expect(Rails.logger).to receive(:error).at_least(:once).with(instance_of(String)).ordered
+        expect(Rails.logger).to receive(:error).at_least(:once).with(instance_of(String)).ordered # backtrace line
+
+        expect(StatsD).to receive(:increment).once.with('worker.covid_vaccine_enrollment_upload.error')
+        
         expect { subject.perform(batch_id) }.to raise_error(StandardError)
       end
     end

@@ -42,9 +42,10 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
         expect(Rails.logger).to receive(:info).with(
           'Covid_Vaccine Scheduled_Batch: Success', batch_id: batch_id, enrollment_upload_job_id: /\S{24}/
         )
-        expect(Rails.logger).to receive(:info).with(
-          '[StatsD] increment shared.sidekiq.default.CovidVaccine_EnrollmentUploadJob.enqueue:1'
-        )
+
+        expect(StatsD).to receive(:increment).once.with('shared.sidekiq.default.CovidVaccine_EnrollmentUploadJob.enqueue')
+        expect(StatsD).to receive(:increment).once.with('worker.covid_vaccine_schedule_batch.success')
+        
         subject.perform
       end
     end
@@ -64,7 +65,10 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
       it 'logs its progress and raises the original error' do
         expect(Rails.logger).to receive(:info).with('Covid_Vaccine Scheduled_Batch: Start')
         expect(Rails.logger).to receive(:error).with('Covid_Vaccine Scheduled_Batch: Failed').ordered.and_call_original
-        expect(Rails.logger).to receive(:error).at_least(:once).with(instance_of(String)).ordered
+        expect(Rails.logger).to receive(:error).at_least(:once).with(instance_of(String)).ordered # backtrace line
+
+        expect(StatsD).to receive(:increment).once.with('worker.covid_vaccine_schedule_batch.error')
+        
         expect { subject.perform }.to raise_error(ActiveRecord::ActiveRecordError)
       end
     end
