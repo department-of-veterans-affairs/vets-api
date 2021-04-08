@@ -18,9 +18,6 @@ jobs:
       - name: Install System Packages (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
           
-      - name: Install Dependencies
-        run: bundle install --path vendor/bundle
-
       - name: Run bundle-audit (checks gems for CVE issues)
         run:  bundle exec bundle-audit check --update
  
