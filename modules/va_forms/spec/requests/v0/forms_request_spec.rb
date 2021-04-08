@@ -65,6 +65,11 @@ RSpec.describe 'VA Forms', type: :request do
       expect(response).to match_response_schema('va_forms/form')
     end
 
+    it 'returns a 404 when a form is not there' do
+      get "#{base_url}/bad"
+      expect(response).to have_http_status(:not_found)
+    end
+
     it 'returns the forms when camel-inflected' do
       get "#{base_url}/#{form.form_name}", headers: inflection_header
       expect(response).to match_camelized_response_schema('va_forms/form')
