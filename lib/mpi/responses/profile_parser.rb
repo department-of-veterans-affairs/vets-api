@@ -20,12 +20,20 @@ module MPI
       SUBJECT_XPATH = 'controlActProcess/subject'
       PATIENT_XPATH = 'registrationEvent/subject1/patient'
       STATUS_XPATH = 'statusCode/@code'
-      GENDER_XPATH = 'patientPerson/administrativeGenderCode/@code'
-      DOB_XPATH = 'patientPerson/birthTime/@value'
-      SSN_XPATH = 'patientPerson/asOtherIDs'
-      NAME_XPATH = 'patientPerson/name'
-      ADDRESS_XPATH = 'patientPerson/addr'
-      PHONE = 'patientPerson/telecom'
+
+      PATIENT_PERSON_PREFIX = 'patientPerson/'
+      RELATIONSHIP_PREFIX = 'relationshipHolder1/'
+
+      GENDER_XPATH = 'administrativeGenderCode/@code'
+      DOB_XPATH = 'birthTime/@value'
+      SSN_XPATH = 'asOtherIDs'
+      NAME_XPATH = 'name'
+      ADDRESS_XPATH = 'addr'
+      PHONE = 'telecom'
+      PERSON_TYPE = 'PERSON_TYPE'
+      DISPLAY_NAME_XPATH = 'value/@displayName'
+      PERSON_TYPE_CODE_XPATH = 'code/@code'
+      ADMIN_OBSERVATION_XPATH = '*/administrativeObservation'
 
       HISTORICAL_ICN_XPATH = [
         'controlActProcess/subject', # matches SUBJECT_XPATH
@@ -37,6 +45,8 @@ module MPI
 
       ACKNOWLEDGEMENT_DETAIL_XPATH = 'acknowledgement/acknowledgementDetail/text'
       MULTIPLE_MATCHES_FOUND = 'Multiple Matches Found'
+
+      PATIENT_RELATIONSHIP_XPATH = 'patientPerson/personalRelationship'
 
       # Creates a new parser instance.
       #
@@ -72,21 +82,52 @@ module MPI
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def build_mvi_profile(patient)
-        name = parse_name(get_patient_name(patient))
-        full_mvi_ids = get_extensions(patient.locate('id'))
-        parsed_mvi_ids = parse_xml_gcids(patient.locate('id'))
-        log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
-        MPI::Models::MviProfile.new(
+        historical_icns = @original_body.locate(HISTORICAL_ICN_XPATH)
+        profile_identity_hash = create_mvi_profile_identity(patient, PATIENT_PERSON_PREFIX)
+        profile_ids_hash = create_mvi_profile_ids(patient, historical_icns)
+        misc_hash = {
+          search_token: locate_element(@original_body, 'id').attributes[:extension],
+          relationships: parse_relationships(patient.locate(PATIENT_RELATIONSHIP_XPATH))
+        }
+
+        MPI::Models::MviProfile.new(profile_identity_hash.merge(profile_ids_hash).merge(misc_hash))
+      end
+
+      def parse_relationships(relationships_array)
+        relationships_array.map { |relationship| build_relationship_mvi_profile(relationship) }
+      end
+
+      def build_relationship_mvi_profile(relationship)
+        relationship_identity_hash = create_mvi_profile_identity(relationship, RELATIONSHIP_PREFIX)
+        relationship_ids_hash = create_mvi_profile_ids(locate_element(relationship, RELATIONSHIP_PREFIX))
+
+        MPI::Models::MviProfileRelationship.new(relationship_identity_hash.merge(relationship_ids_hash))
+      end
+
+      def create_mvi_profile_identity(person, person_prefix)
+        person_component = locate_element(person, person_prefix)
+        person_type = parse_person_type(person)
+        name = parse_name(locate_element(person_component, NAME_XPATH))
+        {
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
-          gender: locate_element(patient, GENDER_XPATH),
-          birth_date: locate_element(patient, DOB_XPATH),
-          ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
-          address: parse_address(patient),
-          home_phone: parse_phone(patient),
+          gender: locate_element(person_component, GENDER_XPATH),
+          birth_date: locate_element(person_component, DOB_XPATH),
+          ssn: parse_ssn(locate_element(person_component, SSN_XPATH)),
+          address: parse_address(person_component),
+          home_phone: parse_phone(person, person_prefix),
+          person_type_code: person_type
+        }
+      end
+
+      def create_mvi_profile_ids(patient, historical_icns = nil)
+        full_mvi_ids = get_extensions(patient.locate('id'))
+        parsed_mvi_ids = parse_xml_gcids(patient.locate('id'))
+        log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
+
+        {
           full_mvi_ids: full_mvi_ids,
           icn: parsed_mvi_ids[:icn],
           mhv_ids: parsed_mvi_ids[:mhv_ids],
@@ -98,14 +139,12 @@ module MPI
           birls_id: sanitize_id(parsed_mvi_ids[:birls_id]),
           birls_ids: sanitize_id_array(parsed_mvi_ids[:birls_ids]),
           vet360_id: parsed_mvi_ids[:vet360_id],
-          historical_icns: parse_xml_historical_icns(@original_body.locate(HISTORICAL_ICN_XPATH)),
+          historical_icns: parse_xml_historical_icns(historical_icns),
           icn_with_aaid: parsed_mvi_ids[:icn_with_aaid],
-          search_token: locate_element(@original_body, 'id').attributes[:extension],
           cerner_id: parsed_mvi_ids[:cerner_id],
           cerner_facility_ids: parsed_mvi_ids[:cerner_facility_ids]
-        )
+        }
       end
-      # rubocop:enable Metrics/MethodLength
 
       def get_extensions(id_array)
         id_array.map do |id_object|
@@ -128,10 +167,6 @@ module MPI
           log_message_to_sentry('Multiple active MHV correlation IDs present', :info,
                                 ids: active_mhv_ids)
         end
-      end
-
-      def get_patient_name(patient)
-        locate_element(patient, NAME_XPATH)
       end
 
       # name can be a hash or an array of hashes with extra unneeded details
@@ -160,8 +195,8 @@ module MPI
         nil
       end
 
-      def parse_address(patient)
-        el = locate_element(patient, ADDRESS_XPATH)
+      def parse_address(person)
+        el = locate_element(person, ADDRESS_XPATH)
         return nil unless el
 
         address_hash = el.nodes.map { |n| { n.value.snakecase.to_sym => n.nodes.first } }.reduce({}, :merge)
@@ -169,8 +204,8 @@ module MPI
         MPI::Models::MviProfileAddress.new(address_hash)
       end
 
-      def parse_phone(patient)
-        el = locate_element(patient, PHONE)
+      def parse_phone(person, person_prefix)
+        el = locate_element(person, PHONE) || locate_element(person, person_prefix + PHONE)
         return nil unless el
 
         el.attributes[:value]
@@ -180,6 +215,12 @@ module MPI
         other_ids.each do |oi|
           node = oi.nodes.select { |n| n.attributes[:root] == SSN_ROOT_ID }
           return node.first unless node.empty?
+        end
+      end
+
+      def parse_person_type(person)
+        person.locate(ADMIN_OBSERVATION_XPATH).each do |element|
+          return element.locate(DISPLAY_NAME_XPATH).first if element.locate(PERSON_TYPE_CODE_XPATH).first == PERSON_TYPE
         end
       end
     end

@@ -375,12 +375,12 @@ RSpec.describe Form526Submission do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
       end
 
-      it 'queues 1 job' do
+      it 'queues 3 jobs' do
         subject.form526_job_statuses <<
           Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
         expect do
           subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
-        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
       end
 
       it 'warns when there are multiple successful submit526 jobs' do
@@ -428,10 +428,10 @@ RSpec.describe Form526Submission do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
       end
 
-      it 'queues 1 upload jobs' do
+      it 'queues 3 upload jobs' do
         expect do
           subject.perform_ancillary_jobs(first_name)
-        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
       end
     end
 

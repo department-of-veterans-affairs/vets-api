@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7f003afd86f73155568cfc81676999beedea8032
+  revision: 7a747b65016e57625341c64f3eee5b1d19ad2605
   branch: master
   specs:
-    vets_json_schema (18.6.9)
+    vets_json_schema (20.1.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -101,7 +101,7 @@ PATH
       sidekiq
     vaos (0.1.0)
       sidekiq
-    vba_documents (0.0.1)
+    vba_documents (1.0.0)
       aws-sdk-s3 (~> 1)
       sidekiq
     veteran (0.0.1)
@@ -113,7 +113,7 @@ GEM
   remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.3)
-    aasm (5.0.6)
+    aasm (5.1.1)
       concurrent-ruby (~> 1.0)
     actioncable (6.0.3.5)
       actionpack (= 6.0.3.5)
@@ -187,24 +187,24 @@ GEM
       encryptor (~> 3.0.0)
     attr_extras (6.2.4)
     awesome_print (1.9.2)
-    aws-eventstream (1.1.0)
-    aws-partitions (1.380.0)
-    aws-sdk-core (3.109.0)
+    aws-eventstream (1.1.1)
+    aws-partitions (1.436.0)
+    aws-sdk-core (3.113.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-kms (1.39.0)
-      aws-sdk-core (~> 3, >= 3.109.0)
+    aws-sdk-kms (1.43.0)
+      aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.83.0)
-      aws-sdk-core (~> 3, >= 3.109.0)
+    aws-sdk-s3 (1.93.0)
+      aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
-    aws-sdk-sns (1.1.0)
-      aws-sdk-core (~> 3)
-      aws-sigv4 (~> 1.0)
-    aws-sigv4 (1.2.2)
+    aws-sdk-sns (1.39.0)
+      aws-sdk-core (~> 3, >= 3.112.0)
+      aws-sigv4 (~> 1.1)
+    aws-sigv4 (1.2.3)
       aws-eventstream (~> 1, >= 1.0.2)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -283,9 +283,9 @@ GEM
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
     date_time_precision (0.8.1)
-    date_validator (0.9.0)
-      activemodel
-      activesupport
+    date_validator (0.10.0)
+      activemodel (>= 3)
+      activesupport (>= 3)
     debase (0.2.4.1)
       debase-ruby_core_source (>= 0.10.2)
     debase-ruby_core_source (0.10.11)
@@ -300,21 +300,20 @@ GEM
       unf (>= 0.0.5, < 1.0.0)
     down (5.2.0)
       addressable (~> 2.5)
-    dry-configurable (0.9.0)
+    dry-configurable (0.12.1)
       concurrent-ruby (~> 1.0)
-      dry-core (~> 0.4, >= 0.4.7)
+      dry-core (~> 0.5, >= 0.5.0)
     dry-container (0.7.2)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 0.1, >= 0.1.3)
-    dry-core (0.4.9)
+    dry-core (0.5.0)
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-inflector (0.2.0)
     dry-initializer (3.0.3)
-    dry-logic (1.0.5)
+    dry-logic (1.1.0)
       concurrent-ruby (~> 1.0)
-      dry-core (~> 0.2)
-      dry-equalizer (~> 0.2)
+      dry-core (~> 0.5, >= 0.5)
     dry-schema (1.4.3)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 0.8, >= 0.8.3)
@@ -323,12 +322,12 @@ GEM
       dry-initializer (~> 3.0)
       dry-logic (~> 1.0)
       dry-types (~> 1.2)
-    dry-struct (1.2.0)
-      dry-core (~> 0.4, >= 0.4.3)
+    dry-struct (1.3.0)
+      dry-core (~> 0.4, >= 0.4.4)
       dry-equalizer (~> 0.3)
-      dry-types (~> 1.0)
+      dry-types (~> 1.3)
       ice_nine (~> 0.11)
-    dry-types (1.2.2)
+    dry-types (1.4.0)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.3)
       dry-core (~> 0.4, >= 0.4.4)
@@ -375,7 +374,7 @@ GEM
       faraday (>= 0.7.4, < 1.0)
     fast_jsonapi (1.5)
       activesupport (>= 4.2)
-    fastimage (2.1.7)
+    fastimage (2.2.3)
     ffi (1.14.2)
     fhir_client (4.0.4)
       activesupport (>= 3)
@@ -405,18 +404,18 @@ GEM
       nokogiri (>= 1.10.4)
     filelock (1.1.1)
     find_a_port (1.0.1)
-    flipper (0.17.2)
-    flipper-active_record (0.17.2)
-      activerecord (>= 4.2, < 7)
-      flipper (~> 0.17.2)
-    flipper-active_support_cache_store (0.17.2)
-      activesupport (>= 4.2, < 7)
-      flipper (~> 0.17.2)
-    flipper-ui (0.17.2)
+    flipper (0.20.4)
+    flipper-active_record (0.20.4)
+      activerecord (>= 5.0, < 7)
+      flipper (~> 0.20.4)
+    flipper-active_support_cache_store (0.20.4)
+      activesupport (>= 5.0, < 7)
+      flipper (~> 0.20.4)
+    flipper-ui (0.20.4)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 0.17.2)
+      flipper (~> 0.20.4)
       rack (>= 1.4, < 3)
-      rack-protection (>= 1.5.3, < 2.1.0)
+      rack-protection (>= 1.5.3, < 2.2.0)
     foreman (0.87.2)
     formatador (0.2.5)
     fugit (1.3.3)
@@ -473,7 +472,7 @@ GEM
     hashdiff (1.0.1)
     hashery (2.1.2)
     hashie (3.6.0)
-    holidays (8.1.0)
+    holidays (8.4.1)
     http-accept (1.7.0)
     http-cookie (1.0.3)
       domain_name (~> 0.5)
@@ -481,7 +480,7 @@ GEM
     httpi (2.4.5)
       rack
       socksify
-    i18n (1.8.9)
+    i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.12.1)
@@ -527,9 +526,10 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2020.0512)
-    mimemagic (0.3.7)
-      nokogiri (~> 1.11.2)
-    mini_magick (4.10.1)
+    mimemagic (0.3.10)
+      nokogiri (~> 1)
+      rake
+    mini_magick (4.11.0)
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
     minitest (5.14.4)
@@ -543,7 +543,7 @@ GEM
       net-ssh (>= 5.0.0, < 7.0.0)
     net-ssh (6.1.0)
     netrc (0.11.0)
-    nio4r (2.5.5)
+    nio4r (2.5.7)
     no_proxy_fix (0.1.2)
     nokogiri (1.11.2)
       mini_portile2 (~> 2.5.0)
@@ -560,10 +560,10 @@ GEM
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
-    octokit (4.18.0)
+    octokit (4.20.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
-    oj (3.9.0)
+    oj (3.11.3)
     okcomputer (1.18.4)
     olive_branch (3.0.0)
       multi_json
@@ -575,7 +575,7 @@ GEM
     overcommit (0.57.0)
       childprocess (>= 0.6.3, < 5)
       iniparse (~> 1.4)
-    ox (2.13.2)
+    ox (2.14.4)
     pact (1.57.0)
       pact-mock_service (~> 3.0, >= 3.3.1)
       pact-support (~> 1.15)
@@ -602,7 +602,7 @@ GEM
     paper_trail (10.3.1)
       activerecord (>= 4.2)
       request_store (~> 1.1)
-    parallel (1.19.2)
+    parallel (1.20.1)
     parallel_tests (3.6.0)
       parallel
     parser (3.0.0.0)
@@ -610,7 +610,7 @@ GEM
     patience_diff (1.1.0)
       trollop (~> 1.16)
     pdf-core (0.7.0)
-    pdf-forms (1.2.0)
+    pdf-forms (1.3.0)
       cliver (~> 0.3.2)
       safe_shell (>= 1.0.3, < 2.0)
     pdf-inspector (1.3.0)
@@ -623,7 +623,7 @@ GEM
       ttfunk
     pg (1.2.3)
     pg_query (1.3.0)
-    pghero (2.7.3)
+    pghero (2.8.1)
       activerecord (>= 5)
     prawn (2.2.2)
       pdf-core (~> 0.7.0)
@@ -647,11 +647,11 @@ GEM
     raabro (1.1.6)
     racc (1.5.2)
     rack (2.2.3)
-    rack-attack (6.2.2)
+    rack-attack (6.5.0)
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
-    rack-protection (2.0.8.1)
+    rack-protection (2.1.0)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -679,8 +679,9 @@ GEM
       loofah (~> 2.3)
     rails-session_cookie (0.2.2)
       rails (>= 4.0)
-    rails_semantic_logger (4.4.0)
-      rails (>= 3.2)
+    rails_semantic_logger (4.5.0)
+      rack
+      railties (>= 3.2)
       semantic_logger (~> 4.4)
     railties (6.0.3.5)
       actionpack (= 6.0.3.5)
@@ -800,7 +801,7 @@ GEM
     script_utils (0.0.4)
     seedbank (0.5.0)
       rake (>= 10.0)
-    semantic_logger (4.5.0)
+    semantic_logger (4.7.4)
       concurrent-ruby (~> 1.0)
     sentry-raven (2.13.0)
       faraday (>= 0.7.6, < 1.0)
@@ -876,7 +877,7 @@ GEM
       sync
     trollop (1.16.2)
     ttfunk (1.5.1)
-    typhoeus (1.3.1)
+    typhoeus (1.4.0)
       ethon (>= 0.9.0)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
@@ -911,7 +912,7 @@ GEM
     websocket-driver (0.7.3)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    will_paginate (3.1.0)
+    will_paginate (3.3.0)
     xmldsig (0.3.2)
       nokogiri
     xmlenc (0.7.1)
@@ -974,10 +975,10 @@ DEPENDENCIES
   fast_jsonapi
   fastimage
   fhir_client (~> 4.0.4)
-  flipper
-  flipper-active_record
-  flipper-active_support_cache_store
-  flipper-ui
+  flipper (~> 0.20.4)
+  flipper-active_record (~> 0.20.4)
+  flipper-active_support_cache_store (~> 0.20.4)
+  flipper-ui (~> 0.20.4)
   foreman
   fuubar
   google-api-client
@@ -1001,7 +1002,7 @@ DEPENDENCIES
   liquid
   mail (= 2.7.1)
   memoist
-  mini_magick (~> 4.10.1)
+  mini_magick (~> 4.11.0)
   mobile!
   net-sftp
   nokogiri (~> 1.11)
@@ -1038,7 +1039,7 @@ DEPENDENCIES
   rack-vcr
   rails (~> 6.0.2)
   rails-session_cookie
-  rails_semantic_logger (~> 4.4)
+  rails_semantic_logger (~> 4.5)
   rainbow
   redis
   redis-namespace

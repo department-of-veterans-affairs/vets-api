@@ -16,8 +16,10 @@ RSpec.describe V0::FinancialStatusReportsController, type: :controller do
   describe '#create' do
     it 'submits a financial status report' do
       VCR.use_cassette('dmc/submit_fsr') do
-        post(:create, params: valid_form_data)
-        expect(response.code).to eq('200')
+        VCR.use_cassette('bgs/people_service/person_data') do
+          post(:create, params: valid_form_data)
+          expect(response.code).to eq('200')
+        end
       end
     end
   end

@@ -185,6 +185,11 @@ features:
     enable_in_development: true
     description: >
       Set up toggle in anticipation of the next iteration of facility selection, version 2.2.
+  va_online_scheduling_unenrolled_vaccine:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle for unenrolled vaccine scheduling discovery work.
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -240,6 +245,16 @@ features:
     actor_type: user
     description: >
       Enables debt letters
+  show_financial_status_report_wizard:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the Wizard for VA Form 5655 (Financial Status Report)
+  show_financial_status_report:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables VA Form 5655 (Financial Status Report)
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: >
@@ -435,7 +450,7 @@ features:
   spool_testing_error_3:
     actor_type: user
     description: >
-      Update processing retry functionality
+      Enables email notifications for CreateDailySpoolFiles errors
   dependency_verification:
     actor_type: user
     enable_in_development: true

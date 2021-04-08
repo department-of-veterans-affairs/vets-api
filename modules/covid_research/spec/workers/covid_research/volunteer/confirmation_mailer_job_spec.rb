@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'rails_helper'
+require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 require_relative '../../../../app/workers/covid_research/volunteer/confirmation_mailer_job.rb'
 
 RSpec.describe CovidResearch::Volunteer::ConfirmationMailerJob do

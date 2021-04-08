@@ -40,7 +40,6 @@
         { "description": "first name" },
         {
           "type": "string",
-          "maxLength": 16,
           "$comment": "can be whitespace, to accommodate those with 1 legal name"
         }
       ]
@@ -58,7 +57,6 @@
     "nodCreateHeadersLastName": {
       "allOf": [
         { "description": "last name" },
-        { "maxLength": 36 },
         { "$ref": "#/definitions/nodCreateHeadersNonBlankString" }
       ]
     },

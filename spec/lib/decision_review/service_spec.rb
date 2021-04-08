@@ -56,7 +56,7 @@ describe DecisionReview::Service do
 
     it 'returns a properly formatted 200 response' do
       expect(subject['X-VA-First-Name']).to eq 'x' * 12
-      expect(subject['X-VA-Middle-Initial']).to eq 'x'
+      expect(subject['X-VA-Middle-Initial']).to eq 'X'
       expect(subject['X-VA-Last-Name']).to eq 'x' * 18
     end
   end
@@ -175,7 +175,7 @@ describe DecisionReview::Service do
   describe '#get_notice_of_disagreement' do
     subject { described_class.new.get_notice_of_disagreement(uuid) }
 
-    let(:uuid) { '75f5735b-c41d-499c-8ae2-ab2740180254' }
+    let(:uuid) { '1234567a-89b0-123c-d456-789e01234f56' }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
@@ -255,6 +255,52 @@ describe DecisionReview::Service do
         VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422') do
           expect { subject }.to raise_error(
             an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_422'))
+          )
+        end
+      end
+    end
+  end
+
+  describe '#get_notice_of_disagreement_contestable_issues' do
+    subject do
+      described_class.new.get_notice_of_disagreement_contestable_issues(user: user)
+    end
+
+    context '200 response' do
+      it 'returns a properly formatted 200 response' do
+        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
+          expect(subject).to respond_to :status
+          expect(subject.status).to be 200
+          expect(subject).to respond_to :body
+          expect(subject.body).to be_a Hash
+        end
+      end
+    end
+
+    context '200 response with a malformed body' do
+      def personal_information_logs
+        PersonalInformationLog.where error_class: 'DecisionReview::Service#validate_against_schema' \
+          ' exception Common::Exceptions::SchemaValidationErrors (NOD)'
+      end
+
+      it 'returns a schema error' do
+        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200-MALFORMED') do
+          expect(personal_information_logs.count).to be 0
+          expect { subject }.to raise_error an_instance_of Common::Exceptions::SchemaValidationErrors
+          expect(personal_information_logs.count).to be 1
+        end
+      end
+    end
+
+    context '404 response' do
+      before do
+        allow_any_instance_of(User).to receive(:ssn).and_return('000000000')
+      end
+
+      it 'throws a DR_404 exception' do
+        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
           )
         end
       end

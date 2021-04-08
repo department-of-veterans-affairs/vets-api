@@ -72,7 +72,8 @@ module VAOS
           'clinical-service' => type_of_care_id
         }
         options = { params_encoder: Faraday::FlatParamsEncoder }
-        perform(:get, url, url_params, headers, options)
+        response = perform(:get, url, url_params, headers, options)
+        response.body.map { |facility| OpenStruct.new(facility) }
       end
     end
 

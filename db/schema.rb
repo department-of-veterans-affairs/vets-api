@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_25_230116) do
+ActiveRecord::Schema.define(version: 2021_04_01_071242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -72,6 +72,9 @@ ActiveRecord::Schema.define(version: 2021_03_25_230116) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
+    t.string "source"
+    t.string "code"
+    t.string "details"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
   end
 
@@ -238,6 +241,7 @@ ActiveRecord::Schema.define(version: 2021_03_25_230116) do
     t.index ["encrypted_eligibility_info_iv"], name: "index_covid_vaccine_expanded_on_el_iv", unique: true
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_expanded_on_form_iv", unique: true
     t.index ["encrypted_raw_form_data_iv"], name: "index_covid_vaccine_expanded_on_raw_iv", unique: true
+    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
     t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
     t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
   end
@@ -461,6 +465,21 @@ ActiveRecord::Schema.define(version: 2021_03_25_230116) do
     t.string "timestamp"
   end
 
+  create_table "health_quest_questionnaire_responses", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "appointment_id"
+    t.string "questionnaire_response_id"
+    t.string "encrypted_questionnaire_response_data"
+    t.string "encrypted_questionnaire_response_data_iv"
+    t.string "encrypted_user_demographics_data"
+    t.string "encrypted_user_demographics_data_iv"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["encrypted_questionnaire_response_data_iv"], name: "qr_key", unique: true
+    t.index ["encrypted_user_demographics_data_iv"], name: "user_demographics_key", unique: true
+    t.index ["user_uuid", "questionnaire_response_id"], name: "find_by_user_qr", unique: true
+  end
+
   create_table "id_card_announcement_subscriptions", id: :serial, force: :cascade do |t|
     t.string "email", null: false
     t.datetime "created_at", null: false
@@ -666,10 +685,10 @@ ActiveRecord::Schema.define(version: 2021_03_25_230116) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
   end
 

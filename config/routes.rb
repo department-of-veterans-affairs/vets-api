@@ -263,6 +263,7 @@ Rails.application.routes.draw do
     end
 
     resources :search, only: :index
+    resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'
@@ -357,7 +358,7 @@ Rails.application.routes.draw do
   # Modules
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
-  # mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount FacilitiesApi::Engine, at: '/facilities_api'
   mount HealthQuest::Engine, at: '/health_quest'
   mount Mobile::Engine, at: '/mobile'
   mount VAOS::Engine, at: '/vaos'

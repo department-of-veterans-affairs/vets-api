@@ -6,7 +6,9 @@ require 'vre/ch31_form'
 class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   include SentryLogging
   FORM = '28-1900'
-  PERMITTED_OFFICE_LOCATIONS = %w[319 325 339 377].freeze
+  # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
+  # to all vets
+  PERMITTED_OFFICE_LOCATIONS = %w[325].freeze
 
   validate :veteran_information, on: :prepare_form_data
 
@@ -47,7 +49,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: form_path,
-      file_number: parsed_form['veteranInformation']['ssn'],
+      file_number: parsed_form['veteranInformation']['VAFileNumber'] || parsed_form['veteranInformation']['ssn'],
       doc_type: doc_type
     )
 

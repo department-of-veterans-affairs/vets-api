@@ -204,7 +204,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
     it '200S even with an invalid doc' do
       allow(VBADocuments::PayloadManager).to receive(:download_raw_file).and_return(invalid_doc)
-      get "/services/vba_documents/v0/uploads/#{upload.guid}/download"
+      get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
       expect(response.status).to eq(200)
       expect(response.headers['Content-Type']).to eq('application/zip')
     end

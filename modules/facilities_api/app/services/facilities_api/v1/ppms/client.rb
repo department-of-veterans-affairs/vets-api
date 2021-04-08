@@ -43,19 +43,6 @@ module FacilitiesApi
           FacilitiesApi::V1::PPMS::Response.new(response.body, params).places_of_service
         end
 
-        # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
-        def provider_info(identifier)
-          qparams = { :$expand => 'ProviderSpecialties' }
-
-          response = perform(:get, "v1.0/Providers(#{identifier})", qparams)
-          return nil if response.body.nil? || response.body[0].nil?
-
-          trim_response_attributes!(response)
-          deduplicate_response_arrays!(response)
-
-          FacilitiesApi::V1::PPMS::Response.new(response.body[0]).provider
-        end
-
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
         def specialties
           response = perform(:get, 'v1.0/Specialties', {})

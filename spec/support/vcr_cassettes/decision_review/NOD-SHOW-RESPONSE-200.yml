@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/notice_of_disagreements/75f5735b-c41d-499c-8ae2-ab2740180254
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/notice_of_disagreements/1234567a-89b0-123c-d456-789e01234f56
     body:
       encoding: US-ASCII
       string: ''

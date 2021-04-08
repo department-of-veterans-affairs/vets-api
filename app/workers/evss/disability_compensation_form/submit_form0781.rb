@@ -102,6 +102,9 @@ module EVSS
       def upload_to_vbms(auth_headers, evss_claim_id, pdf_path, form_id)
         upload_data = get_evss_claim_metadata(pdf_path, form_id)
         document_data = create_document_data(evss_claim_id, upload_data)
+
+        raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+
         client = EVSS::DocumentsService.new(auth_headers)
         file_body = File.open(pdf_path).read
         client.upload(file_body, document_data)

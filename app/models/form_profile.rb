@@ -98,7 +98,7 @@ class FormProfile
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
     dependents: ['686C-674'],
-    decision_review: ['20-0996'],
+    decision_review: %w[20-0996 10182],
     mdot: ['MDOT'],
     fsr: ['5655'],
     vre_counseling: ['28-8832'],
@@ -108,6 +108,7 @@ class FormProfile
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
+    '10182' => ::FormProfiles::VA10182,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '22-1990' => ::FormProfiles::VA1990,

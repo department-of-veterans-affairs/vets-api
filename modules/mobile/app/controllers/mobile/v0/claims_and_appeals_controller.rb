@@ -20,8 +20,8 @@ module Mobile
       end
 
       def index
-        response = fetch_all_cached_or_service(params)
-        render json: { data: response[:data], meta: { errors: response[:errors] } }, status: response[:status]
+        json, status = fetch_all_cached_or_service(params)
+        render json: json, status: status
       end
 
       def get_claim
@@ -47,16 +47,28 @@ module Mobile
       private
 
       def fetch_all_cached_or_service(params)
-        json = nil
-        if ActiveModel::Type::Boolean.new.cast(params[:useCache])
-          json = Mobile::V0::ClaimOverview.get_cached(@current_user)
-        end
+        list, errors = if ActiveModel::Type::Boolean.new.cast(params[:useCache])
+                         [Mobile::V0::ClaimOverview.get_cached(@current_user), []]
+                       else
+                         claims_proxy.get_claims_and_appeals
+                       end
 
-        if json
-          { data: JSON.parse(json), errors: nil, status: :ok }
-        else
-          claims_proxy.get_claims_and_appeals
-        end
+        options = {
+          meta: {
+            errors: errors
+          }
+        }
+
+        status = case errors.size
+                 when 1
+                   :multi_status
+                 when 2
+                   :bad_gateway
+                 else
+                   :ok
+                 end
+
+        [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
 
       def claims_proxy

@@ -7,6 +7,7 @@ module VAOS
     class LimitSerializer
       include FastJsonapi::ObjectSerializer
 
+      set_id :institution_code
       attributes :number_of_requests,
                  :request_limit
     end

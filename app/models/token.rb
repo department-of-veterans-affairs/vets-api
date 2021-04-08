@@ -68,6 +68,10 @@ class Token
     payload['sub'] == payload['cid']
   end
 
+  def ssoi_token?
+    payload['last_login_type'] == 'ssoi'
+  end
+
   def identifiers
     # Here the `sub` field is the same value as the `uuid` field from the original upstream ID.me
     # SAML response. We use this as the primary identifier of the user because, despite openid user

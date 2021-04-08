@@ -7,7 +7,7 @@
 FactoryBot.define do
   factory :covid_vax_expanded_registration, class: 'CovidVaccine::V0::ExpandedRegistrationSubmission' do
     submission_uuid { SecureRandom.uuid }
-    state { 'sequestered' }
+    state { 'received' }
     vetext_sid { nil }
     transient do
       base_raw_data {
@@ -70,7 +70,34 @@ FactoryBot.define do
           'city' => 'Manila',
           'state_code' => 'Ermita',
           'zip_code' => '1000',
-          'country' => 'Philippines'
+          'country_name' => 'Philippines'
+        }
+      }
+    end
+
+    trait :canada do
+      default_raw_options {
+        {
+          'preferred_facility' => 'vha_358',
+          'address_line1' => '6393 NW Marine Dr',
+          'city' => 'Vancouver',
+          'state_code' => 'BC',
+          'zip_code' => 'V6T 1Z2',
+          'country_name' => 'Canada'
+        }
+      }
+    end
+
+    trait :mexico do
+      default_raw_options {
+        {
+          'preferred_facility' => 'vha_358',
+          'address_line1' => 'Calz Independencia 998',
+          'address_line2' => 'Centro Cívico',
+          'city' => 'Mexicali',
+          'state_code' => 'BC',
+          'zip_code' => '21000',
+          'country_name' => 'Mexico'
         }
       }
     end
@@ -84,6 +111,14 @@ FactoryBot.define do
           'last_branch_of_service' => nil,
           'character_of_service' => nil,
           'date_range' => nil
+        }
+      }
+    end
+
+    trait :blank_email do
+      default_raw_options {
+        {
+          'email_address' => nil
         }
       }
     end

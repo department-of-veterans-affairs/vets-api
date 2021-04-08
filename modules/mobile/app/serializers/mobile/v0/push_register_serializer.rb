@@ -12,8 +12,8 @@ module Mobile
         resource = PushStruct.new(id, endpoint_sid)
         super(resource, options)
       end
-    end
 
-    PushStruct = Struct.new(:id, :endpoint_sid)
+      PushStruct = Struct.new(:id, :endpoint_sid)
+    end
   end
 end

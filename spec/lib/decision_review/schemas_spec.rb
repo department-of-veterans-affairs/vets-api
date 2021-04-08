@@ -17,16 +17,24 @@ describe DecisionReview::Schemas do
   let(:errors) { validator.validate(json).to_a }
   let(:validator) { JSONSchemer.schema(schema) }
 
-  describe '::NOD_CREATE_REQUEST' do
-    let(:schema) { described_class::NOD_CREATE_REQUEST }
-    let(:json) { hash_from_json_file 'spec', 'fixtures', 'notice_of_disagreements', 'valid_NOD_create_request.json' }
+  [
+    [:NOD_CREATE_REQUEST, 'valid_NOD_create_request'],
+    [:NOD_SHOW_RESPONSE_200, 'NOD_show_response_200'],
+    [:NOD_CONTESTABLE_ISSUES_RESPONSE_200, 'NOD_contestable_issues_response_200']
+  ].each do |(schema, fixture)|
+    describe "::#{schema}" do
+      let(:schema) { described_class.const_get schema }
+      let(:json) { hash_from_json_file 'spec', 'fixtures', 'notice_of_disagreements', "#{fixture}.json" }
 
-    include_examples 'test schema'
+      include_examples 'test schema'
+    end
   end
 
-  describe '::NOD_SHOW_RESPONSE_200' do
-    let(:schema) { described_class::NOD_SHOW_RESPONSE_200 }
-    let(:json) { hash_from_json_file 'spec', 'fixtures', 'notice_of_disagreements', 'NOD_show_response_200.json' }
+  describe '::NOD_CONTESTABLE_ISSUES_RESPONSE_200' do
+    let(:schema) { described_class::NOD_CONTESTABLE_ISSUES_RESPONSE_200 }
+    let(:json) do
+      hash_from_json_file 'spec', 'fixtures', 'notice_of_disagreements', 'NOD_contestable_issues_response_200.json'
+    end
 
     include_examples 'test schema'
   end

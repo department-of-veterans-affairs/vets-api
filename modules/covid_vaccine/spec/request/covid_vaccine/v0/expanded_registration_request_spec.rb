@@ -7,6 +7,7 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
 
   let(:registration_attributes) do
     {
+      applicant_type: 'veteran',
       first_name: 'Jane',
       last_name: 'Doe',
       birth_date: '1952-02-02',
@@ -124,15 +125,6 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
                   'pointer' => 'data/attributes/state-code'
                 },
                 'status' => '422'
-              },
-              {
-                'title' => 'Zip code should be in the form 12345 or 12345-1234',
-                'detail' => 'zip-code - should be in the form 12345 or 12345-1234',
-                'code' => '100',
-                'source' => {
-                  'pointer' => 'data/attributes/zip-code'
-                },
-                'status' => '422'
               }
             ]
           }
@@ -162,6 +154,41 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
         expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
           .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
       end
+
+      it 'logs an audit record with appropriate applicant type' do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with('Covid_Vaccine Expanded_Submission',
+                                                    /"applicant_type":"veteran"/)
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+      end
+    end
+
+    context 'when a submission does not include an email' do
+      let(:registration_attributes) do
+        build(:covid_vax_expanded_registration, :blank_email).raw_form_data.symbolize_keys
+      end
+
+      it 'accepts the submission' do
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'records the submission for processing' do
+        expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
+          .to change(CovidVaccine::V0::ExpandedRegistrationSubmission, :count).by(1)
+      end
+
+      it 'logs an audit record with has_email false' do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with('Covid_Vaccine Expanded_Submission',
+                                                    /"has_email":false/)
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+      end
+
+      it 'does not kick off a CovidVaccine::ExpandedRegistrationEmailJob' do
+        expect(CovidVaccine::ExpandedRegistrationEmailJob).not_to receive(:perform_async)
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+      end
     end
 
     context 'with a spouse submission' do
@@ -178,6 +205,40 @@ RSpec.describe 'Covid Vaccine Expanded Registration', type: :request do
         expect { post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes } }
           .to change(CovidVaccine::V0::ExpandedRegistrationSubmission, :count).by(1)
       end
+
+      it 'logs an audit record with appropriate applicant type' do
+        allow(Rails.logger).to receive(:info)
+        expect(Rails.logger).to receive(:info).with('Covid_Vaccine Expanded_Submission',
+                                                    /"applicant_type":"spouse"/)
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: registration_attributes }
+      end
+    end
+
+    context 'with non-US submissions' do
+      it 'accepts a Canada address' do
+        attrs = build(:covid_vax_expanded_registration, :canada).raw_form_data.symbolize_keys
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'accepts a Mexico address' do
+        attrs = build(:covid_vax_expanded_registration, :mexico).raw_form_data.symbolize_keys
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+        expect(response).to have_http_status(:created)
+      end
+
+      it 'accepts a Phillipines address' do
+        attrs = build(:covid_vax_expanded_registration, :non_us).raw_form_data.symbolize_keys
+        post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+        expect(response).to have_http_status(:created)
+      end
+    end
+
+    it 'accepts submission with a nil country' do
+      attrs = build(:covid_vax_expanded_registration,
+                    raw_options: { 'country_name' => nil }).raw_form_data.symbolize_keys
+      post '/covid_vaccine/v0/expanded_registration', params: { registration: attrs }
+      expect(response).to have_http_status(:created)
     end
   end
 end

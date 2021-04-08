@@ -88,5 +88,5 @@ Pact.service_provider 'VA.gov API' do
 
   app_version git_sha
   app_version_tags git_branch
-  publish_verification_results publish_flag if ENV['CIRCLE_JOB']
+  publish_verification_results publish_flag if ENV['CI']
 end

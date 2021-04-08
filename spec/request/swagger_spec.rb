@@ -494,14 +494,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       context 'financial status report create' do
         it 'validates the route' do
           VCR.use_cassette('dmc/submit_fsr') do
-            expect(subject).to validate(
-              :post,
-              '/v0/financial_status_reports',
-              200,
-              headers.merge(
-                '_data' => fsr_data.to_json
+            VCR.use_cassette('bgs/people_service/person_data') do
+              expect(subject).to validate(
+                :post,
+                '/v0/financial_status_reports',
+                200,
+                headers.merge(
+                  '_data' => fsr_data
+                )
               )
-            )
+            end
           end
         end
       end
@@ -2627,6 +2629,24 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&user_agent={user_agent}', 400, params)
           end
           # rubocop:enable Layout/LineLength
+        end
+      end
+    end
+
+    describe 'search typeahead' do
+      context 'when successful' do
+        it 'returns an array of suggestions' do
+          VCR.use_cassette('search_typeahead/success') do
+            expect(subject).to validate(:get, '/v0/search_typeahead', 200, '_query_string' => 'query=ebenefits')
+          end
+        end
+      end
+
+      context 'with an empty search query' do
+        it 'returns a 200 with empty results' do
+          VCR.use_cassette('search_typeahead/missing_query') do
+            expect(subject).to validate(:get, '/v0/search_typeahead', 200, '_query_string' => 'query=')
+          end
         end
       end
     end

@@ -260,7 +260,7 @@ module PdfFill
         overflow_sources = []
 
         sources.each do |source|
-          overflow = source['name'] + " \n " + combine_full_address(source['address'])
+          overflow = "#{source['name']} \n #{combine_full_address(source['address'])}"
           overflow_sources.push(overflow)
         end
 

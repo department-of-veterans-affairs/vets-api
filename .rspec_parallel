@@ -5,4 +5,3 @@
 --format RspecJunitFormatter
 --out log/rspec<%= ENV['TEST_ENV_NUMBER'] %>.xml
 <% end %>
-
