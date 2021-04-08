@@ -650,6 +650,12 @@ search:
   mock_search: true
   url: https://search.usa.gov/api/v2
 
+# Settings for search-typeahead
+search_typeahead:
+  api_key: API_GOV_ACCESS_KEY
+  name: va
+  url: https://api.gsa.gov/technology/searchgov/v1
+
   # Settings for search-click-tracking
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
@@ -666,6 +672,7 @@ flipper:
     - bconley@governmentcio.com
     - bill.ryan@adhocteam.us
     - cory.trimm@va.gov
+    - cwheeler@governmentcio.com
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
@@ -734,6 +741,7 @@ flipper:
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
     - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
+    - lauren.ernest@adhocteam.us
 
 bgs:
   application: ~

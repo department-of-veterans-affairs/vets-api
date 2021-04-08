@@ -114,5 +114,13 @@ FactoryBot.define do
         }
       }
     end
+
+    trait :blank_email do
+      default_raw_options {
+        {
+          'email_address' => nil
+        }
+      }
+    end
   end
 end

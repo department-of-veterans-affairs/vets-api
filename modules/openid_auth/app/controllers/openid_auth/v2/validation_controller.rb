@@ -28,10 +28,6 @@ module OpenidAuth
           return payload_object
         end
 
-        # Sometimes we'll already have an `icn` in the token. If we do, copy if down into `act`
-        # for consistency. Otherwise use the ICN value we used to look up the MVI attributes.
-        payload_object.act[:icn] = payload_object.try(:icn)
-
         # Client Credentials will not populate the @current_user, so only fill if not that token type
         unless token.client_credentials_token? || !payload_object[:icn].nil?
           payload_object.act[:icn] = @current_user.icn
@@ -47,8 +43,10 @@ module OpenidAuth
         payload_object.act[:npi] = nil
         payload_object.act[:sec_id] = nil
         payload_object.act[:vista_id] = nil
-        payload_object.launch = token.payload[:launch] if token.payload['scp'].include?('launch')
-
+        if (token.payload['scp'].include?('launch') ||
+            token.payload['scp'].include?('launch/patient')) && !token.payload[:launch].nil?
+          payload_object.launch = token.payload[:launch]
+        end
         payload_object
       end
     end

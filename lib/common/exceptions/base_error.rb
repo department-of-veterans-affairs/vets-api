@@ -9,6 +9,9 @@ module Common
       end
 
       def status_code
+        return if errors&.first.blank?
+        return errors.first[:status]&.to_i if errors.first.is_a?(Hash)
+
         errors&.first&.status&.to_i
       end
 
