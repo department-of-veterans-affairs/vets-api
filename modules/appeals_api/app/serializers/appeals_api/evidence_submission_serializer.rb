@@ -30,7 +30,7 @@ module AppealsApi
 
     def details
       details = object.details.to_s
-      details = details[0..MAX_DETAIL_DISPLAY_LENGTH - 1] + '...' if details.length > MAX_DETAIL_DISPLAY_LENGTH
+      details = "#{details[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." if details.length > MAX_DETAIL_DISPLAY_LENGTH
       details
     end
   end

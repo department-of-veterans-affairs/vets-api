@@ -6,8 +6,8 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmissionsController, type: :request do
   include FixtureHelpers
 
-  let!(:notice_of_disagreement) { create(:notice_of_disagreement) }
-  let!(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
+  let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+  let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
 
   describe '#show' do
@@ -22,7 +22,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       body = JSON.parse(response.body)['data']
       body.each do |submission|
         expect(submission).to have_key('id')
-        expect(submission).to have_key('type')
+        expect(submission)['type'].to eq('evidenceSubmission')
         expect(submission['attributes']['status']).to eq('pending')
         expect(submission['attributes']['appealId']).to eq(notice_of_disagreement.id)
         expect(submission['attributes']['appealType']).to eq('NoticeOfDisagreement')
