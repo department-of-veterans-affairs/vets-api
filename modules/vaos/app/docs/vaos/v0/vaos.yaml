@@ -555,6 +555,145 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  '/direct_booking_eligibility_criteria':
+    get:
+      tags:
+        - direct_booking_eligibility
+      summary:  Returns a list of direct booking eligibility criteria
+      operationId: getDirectBookingEligibilityCriteria
+      security:
+        - bearerAuth: []
+      parameters:
+        - in:  query
+          required: false
+          name: site_codes
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          required: false
+          name: parent_sites
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - id
+                        - type
+                        - attributes
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          required:
+                            - core_settings
+                          properties:
+                            core_settings:
+                              type: array
+                              items:
+                                type: object
+                                required:
+                                  - id
+                                  - type_of_care
+                                  - stop_codes
+                                  - submitted_request_limit
+                                  - enterprise_submitted_request_limit
+                                properties:
+                                  id:
+                                    type: string
+                                  type_of_care:
+                                    type: string
+                                  patient_history_required:
+                                    type: string
+                                  patient_history_duration:
+                                    type: integer
+                                  stop_codes:
+                                    type: array
+                                    items:
+                                      type: object
+                                      required:
+                                        - primary
+                                      properties:
+                                        primary:
+                                          type: string
+                                        secondary:
+                                          type: string
+                                  can_cancel:
+                                    type: boolean
+                                  submitted_request_limit:
+                                    type: integer
+                                  enterprise_submitted_request_limit:
+                                    type: integer
+              example:
+                data:
+                  - can_cancel: true
+                    enterprise_submitted_request_limit: 2
+                    id: "372"
+                    patient_history_duration: 730
+                    patient_history_required: "Yes"
+                    stop_codes:
+                      - primary: "372"
+                      - primary: "373"
+                    submitted_request_limit: 2
+                    type_of_care: "MOVE! program"
+                  - can_cancel: true
+                    enterprise_submitted_request_limit: 2
+                    id: "502"
+                    patient_history_duration": 0
+                    patient_history_required: "No"
+                    stop_codes:
+                      - primary: "502"
+                        secondary: "125"
+                      - primary: "502"
+                        secondary: "179"
+                      - primary: "502"
+                        secondary: "185"
+                      - primary: "502"
+                        secondary: "186"
+                      - primary: "502"
+                        secondary: "187"
+                      - primary: "502"
+                        secondary: "509"
+                      - primary: "502"
+                        secondary: "510"
+                    submitted_request_limit: 2
+                    type_of_care: "Outpatient Mental Health" 
+        '403':
+          description: Forbidden, the request contained valid data and was understood by the server, but the server is refusing action. This may be due to the user not having the necessary permissions. 
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors" 
+        '502':
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        '504':
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   '/facilities/{facility_id}/available_appointments':
     get:
       tags: 
