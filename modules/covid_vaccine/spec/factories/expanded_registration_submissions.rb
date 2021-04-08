@@ -22,7 +22,7 @@ FactoryBot.define do
           'last_branch_of_service' => 'Navy',
           'character_of_service' => 'Honorable',
           'date_range' => { 'from' => '1980-03-XX', 'to' => '1984-01-XX' },
-          'preferred_facility' => 'vha_684',
+          'preferred_facility' => 'vha_516',
           'email_address' => 'vets.gov.user+0@gmail.com',
           'phone' => '808-555-1212',
           'sms_acknowledgement' => true,
@@ -61,6 +61,11 @@ FactoryBot.define do
         sta6a: '648GI'
       }
     }
+
+    trait :unsubmitted do
+      vetext_sid { nil }
+      form_data { nil }
+    end
 
     trait :non_us do
       default_raw_options {
