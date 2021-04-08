@@ -100,18 +100,7 @@ class OpenidApplicationController < ApplicationController
     # all the classes used by our dependencies.
     Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
   end
-
-  def mark_token_if_ssoi(profile)
-    if profile.attrs['last_login_type'] == 'ssoi'
-      token.payload['last_login_type'] = 'ssoi'
-      token.payload['icn'] = profile.attrs['icn']
-      token.payload['npi'] = profile.attrs['npi']
-      token.payload['vista_id'] = profile.attrs['VistaId']
-      return true
-    end
-    false
-  end
-
+  
   def establish_session(profile)
     ttl = token.payload['exp'] - Time.current.utc.to_i
     user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
