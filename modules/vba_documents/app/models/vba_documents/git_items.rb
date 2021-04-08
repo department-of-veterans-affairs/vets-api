@@ -9,6 +9,7 @@ module VBADocuments
 
     module ClassMethods
 
+      #notifies slack of all new deployments.  Returns the number notified on.
       def notify
         slack_url = Settings.vba_documents.slack.notification_url
         text = "The following new merges are now in Benefits Intake:\n"
@@ -30,7 +31,7 @@ module VBADocuments
             m.save
           end
         end
-        response
+        models.length
       end
 
       def send_to_slack(text, url)
@@ -52,7 +53,7 @@ module VBADocuments
         else
           Rails.logger.error('Failed to query git for benefits intake merged in data')
         end
-        nil
+        GitItems.count
       end
 
       def query_git
