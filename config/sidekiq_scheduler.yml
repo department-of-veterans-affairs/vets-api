@@ -213,4 +213,8 @@ ClaimsApi::ClaimAuditor:
 Veteran::VSOReloader:
   cron: "0 2 * * * America/New_York"
   class: Veteran::VSOReloader
-  description: Pulls down current list of VSOs and updates accordingly 
+  description: Pulls down current list of VSOs and updates accordingly
+
+VBADocuments::DeploymentsNotifier:
+  at: "<%=0.seconds.from_now%>"
+  description: Does a slack notification of the new code merged into this release for benefits intake
