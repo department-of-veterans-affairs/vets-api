@@ -10,7 +10,6 @@ module AppealsApi
           @notice_of_disagreement = notice_of_disagreement
         end
 
-        # rubocop:disable Metrics/AbcSize
         def form_fill
           options = {
             # veteran name is filled as part of insert_overlaid_pages, for autosizing
@@ -31,7 +30,6 @@ module AppealsApi
 
           fill_first_five_issue_dates!(options)
         end
-        # rubocop:enable Metrics/AbcSize
 
         # rubocop:disable Metrics/MethodLength
         # rubocop:disable Metrics/BlockLength

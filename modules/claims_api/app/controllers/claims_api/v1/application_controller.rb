@@ -14,6 +14,12 @@ module ClaimsApi
       before_action :validate_json_format, if: -> { request.post? }
       before_action :verify_mpi
 
+      # fetch_audience: defines the audience used for oauth
+      # NOTE: required for oauth through claims_api to function
+      def fetch_aud
+        Settings.oidc.isolated_audience.claims
+      end
+
       protected
 
       def source_name

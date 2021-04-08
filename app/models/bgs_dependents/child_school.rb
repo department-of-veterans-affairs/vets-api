@@ -13,7 +13,6 @@ module BGSDependents
       self.attributes = dependents_application
     end
 
-    # rubocop:disable Metrics/AbcSize
     # rubocop:disable Metrics/MethodLength
     def params_for_686c
       {
@@ -49,8 +48,6 @@ module BGSDependents
         part_time_school_subjct_txt: program_information&.dig('course_of_study')
       }
     end
-
-    # rubocop:enable Metrics/AbcSize
     # rubocop:enable Metrics/MethodLength
   end
 end
