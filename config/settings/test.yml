@@ -18,6 +18,8 @@ reports:
     region: region
     secret_access_key: secret
 
+db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
+
 saml:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
@@ -66,6 +68,11 @@ search:
   access_key: TESTKEY
   affiliate: va
   url: https://search.usa.gov/api/v2
+
+search_typeahead:
+  api_key: TEST_KEY
+  name: va
+  url: https://api.gsa.gov/technology/searchgov/v1
 
 search_click_tracking:
   access_key: TESTKEY
