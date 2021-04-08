@@ -15,7 +15,6 @@ jobs:
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.binaries.clamdscan": "clamscan"
       TERM: xterm-256color
-      GIT_BRANCH: ${{ github.head_ref }}
       GIT_COMMIT_SHA: ${{ github.sha }}
 
     services:
@@ -58,7 +57,9 @@ jobs:
         run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty' \
 
       - name: Publish Code Climate coverage
-        run: ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
+        run: |
+          export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
+          ./cc-test-reporter after-build -r ${{secrets.CC_TEST_REPORTER_ID}}
 
       - name: Publish Test Results
         uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
