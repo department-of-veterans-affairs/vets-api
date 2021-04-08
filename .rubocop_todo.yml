@@ -491,6 +491,7 @@ Metrics/AbcSize:
     - 'modules/mobile/app/controllers/mobile/v0/messages_controller.rb'
     - 'modules/mobile/app/controllers/mobile/v0/push_notifications_controller.rb'
     - 'modules/mobile/app/models/mobile/v0/adapters/va_appointments.rb'
+    - 'modules/mobile/app/models/mobile/v0/adapters/claims_overview.rb'
     - 'modules/mobile/app/services/mobile/v0/appointments/proxy.rb'
     - 'modules/mobile/app/services/mobile/v0/claims/proxy.rb'
     - 'modules/mobile/app/workers/mobile/v0/pre_cache_appointments_job.rb'
