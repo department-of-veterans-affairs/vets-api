@@ -2,6 +2,7 @@ name: Build and Test
 on: [push]
 jobs:
   tests:
+    name: Test
     runs-on: ubuntu-20.04
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
@@ -14,6 +15,8 @@ jobs:
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.binaries.clamdscan": "clamscan"
       TERM: xterm-256color
+      GIT_BRANCH: ${{ github.head_ref }}
+      GIT_COMMIT_SHA: ${{ github.sha }}
 
     services:
       postgres:
@@ -36,8 +39,12 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install System Packages (pdftk, poppler, imagemagick)
-        run: sudo apt install imagemagick pdftk poppler-utils
+      - name: Install System Packages (pdftk, poppler, imagemagick, cc-test-reporter)
+        run: >
+          sudo apt install imagemagick pdftk poppler-utils
+          curl -sSL -o /usr/local/bin/cc-test-reporter https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64
+          chmod +x /usr/local/bin/cc-test-reporter
+          cc-test-reporter --version
 
       - name: Allow PDF to image conversion
         run: sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
@@ -46,7 +53,10 @@ jobs:
         run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
 
       - name: Run Specs
-        run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty'
+        run: |
+          cc-test-reporter before-build \
+          bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty' \
+          cc-test-reporter after-build -t simplecov
 
       - name: Publish Test Results
         uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
