@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 34234d3342f38aaec7e0ef799a97f2aac1c5998f
+  revision: 7a747b65016e57625341c64f3eee5b1d19ad2605
   branch: master
   specs:
-    vets_json_schema (20.0.1)
+    vets_json_schema (20.1.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -344,7 +344,6 @@ GEM
     e2mmap (0.1.0)
     ecma-re-validator (0.2.0)
       regexp_parser (~> 1.2)
-    einhorn (0.7.4)
     encryptor (3.0.0)
     equalizer (0.0.11)
     erubi (1.10.0)
@@ -404,18 +403,18 @@ GEM
       nokogiri (>= 1.10.4)
     filelock (1.1.1)
     find_a_port (1.0.1)
-    flipper (0.17.2)
-    flipper-active_record (0.17.2)
-      activerecord (>= 4.2, < 7)
-      flipper (~> 0.17.2)
-    flipper-active_support_cache_store (0.17.2)
-      activesupport (>= 4.2, < 7)
-      flipper (~> 0.17.2)
-    flipper-ui (0.17.2)
+    flipper (0.20.4)
+    flipper-active_record (0.20.4)
+      activerecord (>= 5.0, < 7)
+      flipper (~> 0.20.4)
+    flipper-active_support_cache_store (0.20.4)
+      activesupport (>= 5.0, < 7)
+      flipper (~> 0.20.4)
+    flipper-ui (0.20.4)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 0.17.2)
+      flipper (~> 0.20.4)
       rack (>= 1.4, < 3)
-      rack-protection (>= 1.5.3, < 2.1.0)
+      rack-protection (>= 1.5.3, < 2.2.0)
     foreman (0.87.2)
     formatador (0.2.5)
     fugit (1.3.3)
@@ -480,7 +479,7 @@ GEM
     httpi (2.4.5)
       rack
       socksify
-    i18n (1.8.9)
+    i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.12.1)
@@ -526,8 +525,9 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2020.0512)
-    mimemagic (0.3.7)
-      nokogiri (~> 1.11.2)
+    mimemagic (0.3.10)
+      nokogiri (~> 1)
+      rake
     mini_magick (4.11.0)
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
@@ -542,7 +542,7 @@ GEM
       net-ssh (>= 5.0.0, < 7.0.0)
     net-ssh (6.1.0)
     netrc (0.11.0)
-    nio4r (2.5.5)
+    nio4r (2.5.7)
     no_proxy_fix (0.1.2)
     nokogiri (1.11.2)
       mini_portile2 (~> 2.5.0)
@@ -562,7 +562,7 @@ GEM
     octokit (4.20.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
-    oj (3.9.0)
+    oj (3.11.3)
     okcomputer (1.18.4)
     olive_branch (3.0.0)
       multi_json
@@ -650,7 +650,7 @@ GEM
       rack (>= 1.0, < 3)
     rack-cors (1.1.1)
       rack (>= 2.0.0)
-    rack-protection (2.0.8.1)
+    rack-protection (2.1.0)
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -678,8 +678,9 @@ GEM
       loofah (~> 2.3)
     rails-session_cookie (0.2.2)
       rails (>= 4.0)
-    rails_semantic_logger (4.4.0)
-      rails (>= 3.2)
+    rails_semantic_logger (4.5.0)
+      rack
+      railties (>= 3.2)
       semantic_logger (~> 4.4)
     railties (6.0.3.5)
       actionpack (= 6.0.3.5)
@@ -799,7 +800,7 @@ GEM
     script_utils (0.0.4)
     seedbank (0.5.0)
       rake (>= 10.0)
-    semantic_logger (4.5.0)
+    semantic_logger (4.7.4)
       concurrent-ruby (~> 1.0)
     sentry-raven (2.13.0)
       faraday (>= 0.7.6, < 1.0)
@@ -973,10 +974,10 @@ DEPENDENCIES
   fast_jsonapi
   fastimage
   fhir_client (~> 4.0.4)
-  flipper
-  flipper-active_record
-  flipper-active_support_cache_store
-  flipper-ui
+  flipper (~> 0.20.4)
+  flipper-active_record (~> 0.20.4)
+  flipper-active_support_cache_store (~> 0.20.4)
+  flipper-ui (~> 0.20.4)
   foreman
   fuubar
   google-api-client
@@ -1037,7 +1038,7 @@ DEPENDENCIES
   rack-vcr
   rails (~> 6.0.2)
   rails-session_cookie
-  rails_semantic_logger (~> 4.4)
+  rails_semantic_logger (~> 4.5)
   rainbow
   redis
   redis-namespace
