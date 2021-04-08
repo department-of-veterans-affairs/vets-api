@@ -793,6 +793,84 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  "/facilities/{facility_id}/visits/{schedule_type}":
+    get:
+      tags:
+        - facilities
+      operationId: getFacilityVisits
+      summary: Returns visits details for a given facility, type of care, scehdule type and site
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "facility_id"
+          schema:
+            type: "string"
+          example: "688"
+        - in: path
+          required: true
+          name: "schedule_type"
+          schema:
+            type: "string"
+            enum: ["direct", "request"]
+          example: "direct"
+        - in: query
+          required: true
+          name: "system_id"
+          schema:
+            type: "string"
+          description: The site_id associated with the request
+          example: "688"
+        - in: query
+          required: true
+          name: "type_of_care_id"
+          schema:
+            type: "string"
+          example: "323"
+      responses:
+        "200":
+          description: The visit details
+          content:
+            application/json:
+              schema:
+                required:
+                  - "data"
+                properties:
+                  data:
+                    $ref: "#/components/schemas/FacilityVisits"
+              example:
+                data:
+                  id: "69050038-9bed-4a0a-a722-87308e80b322"
+                  type: "facility_visit"
+                  attributes:
+                    has_visited_in_past_months: false
+                    duration_in_months: 10
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "502":
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "504":
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
   "/facilities":
     get:
       tags:
@@ -1339,6 +1417,7 @@ components:
               type: "boolean"
             parent_station_code:
               type: "string"
+      # FacilityLimits needs to be fixed
     FacilityLimits:
       type: "object"
       required:
@@ -1358,8 +1437,36 @@ components:
               type: "integer"
             number_of_requests:
               type: "integer"
+    FacilityVisits:
+      type: object
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties:
+        id:
+          type: "string"
+          example: "69050038-9bed-4a0a-a722-87308e80b322"
+        type:
+          type: "string"
+          example: "facility_visit"
+        attributes:
+          required:
+            - "has_visited_in_past_months"
+            - "duration_in_months"
+          properties:
+            has_visited_in_past_months:
+              type: boolean
+              example: true
+            duration_in_months:
+              type: integer
+              example: 1
     AppointmentRequest:
       type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
       properties:
         id:
           type: "string"
@@ -1544,10 +1651,6 @@ components:
               type: "string"
             created_date:
               type: "string"
-      required:
-        - "id"
-        - "type"
-        - "attributes"
     CCAppointmentRequest:
       type: "object"
       required:
