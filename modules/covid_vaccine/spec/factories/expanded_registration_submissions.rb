@@ -82,7 +82,7 @@ FactoryBot.define do
       form_data { nil }
     end
 
-    trait :no_preferred_facility do 
+    trait :no_preferred_facility do
       default_raw_options {
         {
           'preferred_facility' => ''
@@ -99,7 +99,7 @@ FactoryBot.define do
     end
 
     trait :eligibility_info do
-      eligibility_info {{'preferred_facility': 'vha_516'}}
+      eligibility_info { { 'preferred_facility': 'vha_516' } }
     end
 
     trait :spouse do
@@ -119,7 +119,7 @@ FactoryBot.define do
       default_raw_options {
         {
           'preferred_facility' => 'vha_516cg'
-        }  
+        }
       }
     end
 
@@ -161,6 +161,6 @@ FactoryBot.define do
           'country_name' => 'Mexico'
         }
       }
-    end    
+    end
   end
 end

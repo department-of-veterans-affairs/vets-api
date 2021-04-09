@@ -45,10 +45,9 @@ module CovidVaccine
         end
 
         # If there is no preferred facility the registration will need to be handled manually
-        event :enrollment_requires_intervention do 
+        event :enrollment_requires_intervention do
           transitions from: :enrollment_pending, to: :enrollment_out_of_band
         end
-
       end
 
       after_initialize do |reg|

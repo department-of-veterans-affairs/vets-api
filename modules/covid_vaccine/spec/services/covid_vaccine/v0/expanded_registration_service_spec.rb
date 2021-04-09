@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe CovidVaccine::V0::ExpandedRegistrationService do
   subject { described_class.new }
-  
+
   let(:submission) { build(:covid_vax_expanded_registration, :unsubmitted) }
   let(:submission_no_facility) { build(:covid_vax_expanded_registration, :unsubmitted, :no_preferred_facility) }
   let(:submission_no_email) { build(:covid_vax_expanded_registration, :unsubmitted, :blank_email) }
@@ -36,44 +36,44 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
   end
 
   vcr_options = { cassette_name: 'covid_vaccine/registration_facilities',
-    match_requests_on: %i[path query],
-    record: :new_episodes }
-  
+                  match_requests_on: %i[path query],
+                  record: :new_episodes }
+
   describe '#register', vcr: vcr_options do
     context 'unauthenticated' do
       it 'coerces input to vetext format' do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .with(hash_including(:first_name,
-            :last_name,
-            :patient_ssn,
-            :date_of_birth,
-            :patient_icn,
-            :phone,
-            :email,
-            :address,
-            :city,
-            :state,
-            :zip_code,
-            :authenticated,
-            :applicant_type,
-            :sms_acknowledgement,
-            :privacy_agreement_accepted,
-            :enhanced_eligibility,
-            :birth_sex,
-            :last_branch_of_service,
-            :character_of_service,
-            :service_date_range,
-            :sta3n,
-            :sta6a,
-            :vaccine_interest))
+                               :last_name,
+                               :patient_ssn,
+                               :date_of_birth,
+                               :patient_icn,
+                               :phone,
+                               :email,
+                               :address,
+                               :city,
+                               :state,
+                               :zip_code,
+                               :authenticated,
+                               :applicant_type,
+                               :sms_acknowledgement,
+                               :privacy_agreement_accepted,
+                               :enhanced_eligibility,
+                               :birth_sex,
+                               :last_branch_of_service,
+                               :character_of_service,
+                               :service_date_range,
+                               :sta3n,
+                               :sta6a,
+                               :vaccine_interest))
           .and_return({ sid: SecureRandom.uuid })
         expect_any_instance_of(MPI::Service).to receive(:find_profile)
-                                                  .and_return(mvi_profile_response)
-        
+          .and_return(mvi_profile_response)
+
         expect { subject.register(submission, 'unauthenticated') }
           .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
       end
-      
+
       it 'passes authenticated attribute as false' do
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .with(hash_including(authenticated: false))
@@ -83,14 +83,14 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         expect { subject.register(submission, 'unauthenticated') }
           .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
       end
-  
+
       it 'updates submission record' do
         sid = SecureRandom.uuid
         expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: sid })
         expect_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-  
+
         expect { subject.register(submission, 'unauthenticated') }
           .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
         expect(submission.reload.vetext_sid).to be_truthy
@@ -174,7 +174,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
       end
 
       context 'without sufficient traits' do
-
         it 'does not update email job when lacking traits' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           expect_any_instance_of(MPI::Service).to receive(:find_profile)
