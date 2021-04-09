@@ -120,7 +120,7 @@ bip:
     url: "https://claims-uat.dev8.bip.va.gov"
 
 # Settings for VAProfile
-va_profile:
+vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
     cache_enabled: false
