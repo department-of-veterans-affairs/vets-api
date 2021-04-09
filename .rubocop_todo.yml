@@ -535,6 +535,7 @@ Metrics/AbcSize:
     - 'rakelib/in_progress_forms.rake'
     - 'rakelib/mvi.rake'
     - 'rakelib/swagger.rake'
+    - 'spec/controllers/v0/profile/communication_preferences_controller_spec.rb'
     - 'spec/lib/carma/client/client_spec.rb'
     - 'spec/lib/debt_management_center/debt_letter_downloader_spec.rb'
     - 'spec/lib/emis/support/emis_soap_response_examples.rb'
