@@ -734,6 +734,7 @@ ActiveRecord::Schema.define(version: 2021_04_07_190958) do
     t.boolean "notified", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["url", "notified"], name: "index_va_forms_git_items_on_url_and_notified", unique: true
   end
 
   create_table "vba_documents_git_items", force: :cascade do |t|
@@ -742,6 +743,7 @@ ActiveRecord::Schema.define(version: 2021_04_07_190958) do
     t.boolean "notified", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["url", "notified"], name: "index_vba_documents_git_items_on_url_and_notified", unique: true
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|
