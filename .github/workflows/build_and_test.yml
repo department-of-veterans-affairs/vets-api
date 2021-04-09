@@ -4,6 +4,7 @@ jobs:
   tests:
     name: Test
     runs-on: ubuntu-20.04
+    container: ruby:2.6.7-slim-stretch
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CI: true
@@ -37,6 +38,7 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
         with:
+          ruby-version: 2.6
           bundler-cache: true
 
       - name: Install System Packages (pdftk, poppler, imagemagick)
