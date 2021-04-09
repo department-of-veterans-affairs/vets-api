@@ -751,7 +751,6 @@ bgs:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
-  staging_flag: ~
   health_server_id: ~
 
 va_mobile:
