@@ -161,8 +161,8 @@ GEM
       activesupport (= 6.0.3.5)
     activerecord-import (1.0.8)
       activerecord (>= 3.2)
-    activerecord-postgis-adapter (6.0.0)
-      activerecord (~> 6.0)
+    activerecord-postgis-adapter (6.0.2)
+      activerecord (~> 6.0.0)
       rgeo-activerecord (~> 6.0)
     activestorage (6.0.3.5)
       actionpack (= 6.0.3.5)
@@ -718,8 +718,8 @@ GEM
       json (>= 1.7.5)
     retriable (3.1.2)
     rexml (3.2.4)
-    rgeo (2.0.1)
-    rgeo-activerecord (6.2.1)
+    rgeo (2.2.0)
+    rgeo-activerecord (6.2.2)
       activerecord (>= 5.0)
       rgeo (>= 1.0.0)
     rgeo-geojson (2.1.1)
@@ -932,7 +932,7 @@ DEPENDENCIES
   aasm
   active_model_serializers!
   activerecord-import
-  activerecord-postgis-adapter (~> 6.0.0)
+  activerecord-postgis-adapter (~> 6.0.2)
   addressable
   apivore!
   appeals_api!
