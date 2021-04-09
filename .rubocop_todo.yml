@@ -306,6 +306,7 @@ Metrics/AbcSize:
     - 'app/models/form_profile.rb'
     - 'app/models/form_profiles/va_0994.rb'
     - 'app/models/form_profiles/va_10203.rb'
+    - 'app/models/form_profiles/va_1990s.rb'
     - 'app/models/form_profiles/va_21686c.rb'
     - 'app/models/form_profiles/va_21p530.rb'
     - 'app/models/form_profiles/va_526ez.rb'
@@ -326,6 +327,7 @@ Metrics/AbcSize:
     - 'app/services/mhv_accounts_service.rb'
     - 'app/services/users/profile.rb'
     - 'app/services/users/services.rb'
+    - 'app/swagger/swagger/schemas/vet360/communication_permission.rb'
     - 'app/uploaders/evss_claim_document_uploader.rb'
     - 'app/workers/central_mail/submit_form4142_job.rb'
     - 'app/workers/central_mail/submit_saved_claim_job.rb'
@@ -535,6 +537,7 @@ Metrics/AbcSize:
     - 'rakelib/in_progress_forms.rake'
     - 'rakelib/mvi.rake'
     - 'rakelib/swagger.rake'
+    - 'spec/controllers/v0/profile/communication_preferences_controller_spec.rb'
     - 'spec/lib/carma/client/client_spec.rb'
     - 'spec/lib/debt_management_center/debt_letter_downloader_spec.rb'
     - 'spec/lib/emis/support/emis_soap_response_examples.rb'
@@ -550,7 +553,6 @@ Metrics/AbcSize:
     - 'spec/support/stub_debt_letters.rb'
     - 'spec/support/stub_efolder_documents.rb'
     - 'spec/support/stub_evss_pciu.rb'
-
 
 # Offense count: 51
 # Configuration parameters: IgnoredMethods.
