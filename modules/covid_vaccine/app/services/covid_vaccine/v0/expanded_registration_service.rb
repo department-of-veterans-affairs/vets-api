@@ -17,8 +17,8 @@ module CovidVaccine
         # instead we will set the state to :enrollment_out_of_band
 
         # Get the preferred facility here as it is needed in MPI lookup
-        # facility = submission&.eligibility_info&['preferred_facility'] || raw_form_data['preferred_facility'].delete_prefix('vha_')
-        facility = submission&.eligibility_info&.dig('preferred_facility') || raw_form_data['preferred_facility'].delete_prefix('vha_')
+        facility = submission&.eligibility_info&.dig('preferred_facility') ||
+                   raw_form_data['preferred_facility'].delete_prefix('vha_')
 
         if facility.blank?
           submission.enrollment_requires_intervention!
@@ -27,17 +27,17 @@ module CovidVaccine
         sta3n = facility[0..2]
         sta6a = facility if facility.length > 3
 
-        vetext_attributes.merge!(form_attributes(raw_form_data, sta3n, sta6a))
+        # Make one call to update attributes and return either the data to be merged or an error so we know to return
+
+        vetext_attributes.merge!(other_form_attributes(raw_form_data))
+        vetext_attributes.merge!(location_contact_information(raw_form_data, sta3n, sta6a))
+        vetext_attributes.merge!(demographics(raw_form_data))
 
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
         mpi_attributes = attributes_from_mpi(raw_form_data, sta3n)
 
         if mpi_attributes[:error].present?
-          Rails.logger.info(
-            "#{self.class.name}:Error in MPI Lookup",
-            mpi_error: mpi_attributes[:error],
-            submission: submission.id
-          )
+          handle_mpi_errors(mpi_attributes[:error], submission.id)
           return
         else
           submission.detected_enrollment!
@@ -89,33 +89,42 @@ module CovidVaccine
         Rails.logger.info('Covid_Vaccine Expanded Submission', log_attrs)
       end
 
-      def form_attributes(form_data, sta3n, sta6a)
-        full_address = [form_data['address_line1'], form_data['address_line2'],
-                        form_data['address_line3']].join(' ').strip
-        service_date_range = form_data['date_range'] ? form_data['date_range'].to_a.flatten.join(' ') : ''
+      def demographics(form_data)
         {
           first_name: form_data['first_name'],
           last_name: form_data['last_name'],
           date_of_birth: form_data['birth_date'],
           patient_ssn: form_data['ssn'],
-          vaccine_interest: true,
+          birth_sex: form_data['birth_sex'],
+          applicant_type: form_data['applicant_type']
+        }
+      end
+
+      def location_contact_information(form_data, sta3n, sta6a)
+        full_address = [form_data['address_line1'], form_data['address_line2'],
+                        form_data['address_line3']].join(' ').strip
+        {
           address: full_address,
           city: form_data['city'],
           state: form_data['state_code'],
           zip_code: form_data['zip_code'],
           phone: form_data['phone'],
           email: form_data['email'] || '',
-          applicant_type: form_data['applicant_type'],
-          privacy_agreement_accepted: form_data['privacy_agreement_accepted'],
           sms_acknowledgement: form_data['sms_acknowledgement'] || false,
-          # ensure values for birth_sex is what vetext is expecting
-          birth_sex: form_data['birth_sex'],
+          sta3n: sta3n,
+          sta6a: sta6a || ''
+        }
+      end
+
+      def other_form_attributes(form_data)
+        service_date_range = form_data['date_range'] ? form_data['date_range'].to_a.flatten.join(' ') : ''
+        {
+          vaccine_interest: true,
+          privacy_agreement_accepted: form_data['privacy_agreement_accepted'],
           last_branch_of_service: form_data['last_branch_of_service'] || '',
           service_date_range: service_date_range,
           character_of_service: form_data['character_of_service'] || '',
           enhanced_eligibility: true,
-          sta3n: sta3n,
-          sta6a: sta6a || '',
           authenticated: false
         }
       end
@@ -138,6 +147,14 @@ module CovidVaccine
         else
           { error: 'no ICN found' }
         end
+      end
+
+      def handle_mpi_errors(error, id)
+        Rails.logger.info(
+          "#{self.class.name}:Error in MPI Lookup",
+          mpi_error: error,
+          submission: id
+        )
       end
     end
   end
