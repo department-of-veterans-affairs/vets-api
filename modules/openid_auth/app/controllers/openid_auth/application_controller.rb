@@ -19,5 +19,9 @@ module OpenidAuth
     def fetch_aud
       params['aud']
     end
+
+    def fetch_strict_aud
+      params['strict'] || "false"
+    end
   end
 end

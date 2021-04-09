@@ -3,9 +3,10 @@
 class Token
   attr_reader :token_string
 
-  def initialize(token_string, aud)
+  def initialize(token_string, aud, strict_aud)
     @token_string = token_string
     @aud = aud
+    @strict_aud = strict_aud
     validate_token
   end
 
@@ -45,6 +46,7 @@ class Token
   def validate_token
     raise error_klass('Invalid issuer') unless valid_issuer?
     raise error_klass('Invalid audience') unless valid_audience?
+    raise error_klass('Invalid strict audience value') unless valid_strict_aud?
   end
 
   def valid_issuer?
@@ -56,12 +58,23 @@ class Token
   end
 
   def valid_audience?
-    if @aud.nil?
-      payload['aud'] == Settings.oidc.isolated_audience.default
+    if @strict_aud == "true"
+      if @aud.nil?
+        false
+      else
+        @aud.include?(payload['aud'])
+      end
     else
-      # Temorarily accept the default audience or the API specificed audience
-      [Settings.oidc.isolated_audience.default, @aud].include?(payload['aud'])
+      if @aud.nil?
+        payload['aud'] == Settings.oidc.isolated_audience.default
+      else
+        [Settings.oidc.isolated_audience.default, @aud].include?(payload['aud'])
+      end
     end
+  end
+
+  def valid_strict_aud?
+    %w[true false].include?(@strict_aud)
   end
 
   def client_credentials_token?
