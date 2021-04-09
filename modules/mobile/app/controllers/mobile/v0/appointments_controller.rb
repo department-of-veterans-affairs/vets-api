@@ -8,13 +8,16 @@ module Mobile
   module V0
     class AppointmentsController < ApplicationController
       def index
-        use_cache = params[:useCache] || false
-        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 3.months).iso8601
-        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 6.months).iso8601
+        use_cache = params[:useCache] || true
+        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
+        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
+        page = params[:page] || { number: 1, size: 10 }
 
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
           start_date: start_date,
           end_date: end_date,
+          page_number: page[:number],
+          page_size: page[:size],
           use_cache: use_cache
         )
 
@@ -52,14 +55,54 @@ module Mobile
                                  [appointments, errors]
                                end
 
-        Mobile::V0::AppointmentSerializer.new(appointments, options(errors))
+        page_appointments, page_links = paginate(list: appointments, validated_params: validated_params)
+
+        Mobile::V0::AppointmentSerializer.new(page_appointments, options(errors, page_links))
       end
 
-      def options(errors)
+      def paginate(list:, validated_params:)
+        page_number = validated_params[:page_number]
+        page_size = validated_params[:page_size]
+        pages = list.each_slice(page_size).to_a
+        links = links(number_of_pages: pages.size, validated_params: validated_params)
+        return [[], links] if page_number > pages.size
+
+        [pages[page_number - 1], links]
+      end
+
+      def options(errors, page_links)
         {
           meta: {
             errors: errors.nil? ? nil : errors
-          }
+          },
+          links: page_links
+        }
+      end
+
+      def links(number_of_pages:, validated_params:)
+        page_number = validated_params[:page_number]
+        page_size = validated_params[:page_size]
+
+        query_string = "?startDate=#{validated_params[:start_date]}&endDate=#{validated_params[:end_date]}"\
+          "&useCache=#{validated_params[:use_cache]}"
+        url = request.base_url + request.path + query_string
+
+        if page_number > 1
+          prev_link = "#{url}&page[number]=#{[page_number - 1,
+                                              number_of_pages].min}&page[size]=#{page_size}"
+        end
+
+        if page_number < number_of_pages
+          next_link = "#{url}&page[number]=#{[page_number + 1,
+                                              number_of_pages].min}&page[size]=#{page_size}"
+        end
+
+        {
+          self: "#{url}&page[number]=#{page_number}&page[size]=#{page_size}",
+          first: "#{url}&page[number]=1&page[size]=#{page_size}",
+          prev: prev_link,
+          next: next_link,
+          last: "#{url}&page[number]=#{number_of_pages}&page[size]=#{page_size}"
         }
       end
 
