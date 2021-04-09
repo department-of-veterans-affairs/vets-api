@@ -7,8 +7,9 @@
 FactoryBot.define do
   factory :covid_vax_expanded_registration, class: 'CovidVaccine::V0::ExpandedRegistrationSubmission' do
     submission_uuid { SecureRandom.uuid }
-    state { 'received' }
+    state { 'enrollment_pending' }
     vetext_sid { nil }
+    eligibility_info { nil }
     transient do
       base_raw_data {
         {
@@ -81,6 +82,47 @@ FactoryBot.define do
       form_data { nil }
     end
 
+    trait :no_preferred_facility do 
+      default_raw_options {
+        {
+          'preferred_facility' => ''
+        }
+      }
+    end
+
+    trait :blank_email do
+      default_raw_options {
+        {
+          'email' => nil
+        }
+      }
+    end
+
+    trait :eligibility_info do
+      eligibility_info {{'preferred_facility': 'vha_516'}}
+    end
+
+    trait :spouse do
+      default_raw_options {
+        {
+          'applicant_type' => 'spouse',
+          'veteran_ssn' => '666001111',
+          'veteran_birth_date' => '1950-05-05',
+          'last_branch_of_service' => nil,
+          'character_of_service' => nil,
+          'date_range' => nil
+        }
+      }
+    end
+
+    trait :composite_facility do
+      default_raw_options {
+        {
+          'preferred_facility' => 'vha_516cg'
+        }  
+      }
+    end
+
     trait :non_us do
       default_raw_options {
         {
@@ -119,27 +161,6 @@ FactoryBot.define do
           'country_name' => 'Mexico'
         }
       }
-    end
-
-    trait :spouse do
-      default_raw_options {
-        {
-          'applicant_type' => 'spouse',
-          'veteran_ssn' => '666001111',
-          'veteran_birth_date' => '1950-05-05',
-          'last_branch_of_service' => nil,
-          'character_of_service' => nil,
-          'date_range' => nil
-        }
-      }
-    end
-
-    trait :blank_email do
-      default_raw_options {
-        {
-          'email_address' => nil
-        }
-      }
-    end
+    end    
   end
 end

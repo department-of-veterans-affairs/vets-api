@@ -6,7 +6,6 @@ module CovidVaccine
       
       def register(submission, user_type)
         raw_form_data = submission.raw_form_data
-        
         # Conditions where we should not send data to vetext:
         # 1 - no preferred location in raw_form_data and no facility found for zip_code: manual intervention
         # 2 - no ICN found in MPI: retry
@@ -19,10 +18,12 @@ module CovidVaccine
         # instead we will set the state to :enrollment_out_of_band
         
         # Get the preferred facility here as it is needed in MPI lookup
-        facility = submission&.eligibility_info & ['preferred_facility'] || raw_form_data['preferred_facility'].delete_prefix('vha_')
-        
+        # facility = submission&.eligibility_info&['preferred_facility'] || raw_form_data['preferred_facility'].delete_prefix('vha_')
+        facility = submission&.eligibility_info&.dig('preferred_facility') || raw_form_data['preferred_facility'].delete_prefix('vha_')
+
+
         if facility.blank?
-          submission.enrollment_out_of_band!
+          submission.enrollment_requires_intervention!
           return
         end
         sta3n = facility[0..2]
@@ -41,6 +42,7 @@ module CovidVaccine
           )
           return
         else
+          submission.detected_enrollment!
           vetext_attributes.merge!(mpi_attributes).compact!
         end
         submit_and_save(vetext_attributes, submission, user_type)
@@ -53,7 +55,10 @@ module CovidVaccine
         audit_log(attributes, user_type)
         response = submit(attributes)
         Rails.logger.info("Covid_Vaccine_Expanded Vetext Response: #{response}")
-        submission.update!(vetext_sid: response[:sid], form_data: attributes, state: 'registered')
+        elig_info_icn = {'patient_icn': attributes[:patient_icn]}
+        elig_info_icn.merge!(submission.eligibility_info) unless submission.eligibility_info == nil
+       
+        submission.update!(vetext_sid: response[:sid], form_data: attributes, state: 'registered', eligibility_info: elig_info_icn)
         submit_confirmation_email(attributes[:email], submission.created_at, response[:sid])
         submission
       end
@@ -122,7 +127,6 @@ module CovidVaccine
           ssn: form_data['ssn'],
           valid?: true)
         response = MPI::Service.new.find_profile(ui)
-   
         if response.status == 'OK'
           if response.profile&.vha_facility_ids.include? sta3n
             {
