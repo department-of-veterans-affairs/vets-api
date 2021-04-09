@@ -2220,6 +2220,83 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      context 'communication preferences' do
+        before do
+          allow_any_instance_of(User).to receive(:vet360_id).and_return('18277')
+
+          headers['_headers'].merge!(
+            'accept' => 'application/json',
+            'content-type' => 'application/json'
+          )
+        end
+
+        let(:valid_params) do
+          {
+            communication_item: {
+              id: 2,
+              communication_channels: [
+                {
+                  id: 1,
+                  communication_permission: {
+                    allowed: true
+                  }
+                }
+              ]
+            }
+          }
+        end
+
+        it 'supports the communication preferences update response', run_at: '2021-03-24T23:46:17Z' do
+          path = '/v0/profile/communication_preferences/{communication_permission_id}'
+          expect(subject).to validate(:patch, path, 401, 'communication_permission_id' => 1)
+
+          VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :patch,
+              path,
+              200,
+              headers.merge(
+                '_data' => valid_params.to_json,
+                'communication_permission_id' => 46
+              )
+            )
+          end
+        end
+
+        it 'supports the communication preferences create response', run_at: '2021-03-24T22:38:21Z' do
+          valid_params[:communication_item][:communication_channels][0][:communication_permission][:allowed] = false
+          path = '/v0/profile/communication_preferences'
+          expect(subject).to validate(:post, path, 401)
+
+          VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :post,
+              path,
+              200,
+              headers.merge(
+                '_data' => valid_params.to_json
+              )
+            )
+          end
+        end
+
+        it 'supports the communication preferences index response' do
+          path = '/v0/profile/communication_preferences'
+          expect(subject).to validate(:get, path, 401)
+
+          VCR.use_cassette('va_profile/communication/get_communication_permissions', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_profile/communication/communication_items', VCR::MATCH_EVERYTHING) do
+              expect(subject).to validate(
+                :get,
+                path,
+                200,
+                headers
+              )
+            end
+          end
+        end
+      end
+
       context 'ch33 bank accounts methods' do
         let(:mhv_user) { FactoryBot.build(:ch33_dd_user) }
 

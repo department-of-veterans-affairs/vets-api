@@ -62,7 +62,7 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
-gem 'fhir_client', '~> 4.0.4'
+gem 'fhir_client', '~> 4.0.5'
 gem 'flipper', '~> 0.20.4'
 gem 'flipper-active_record', '~> 0.20.4'
 gem 'flipper-active_support_cache_store', '~> 0.20.4'
@@ -200,7 +200,8 @@ end
 # rubocop:enable Metrics/BlockLength
 
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
-if Bundler.settings.all.none?('enterprise.contribsys.com') &&
+if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
+    Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
    ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
   Bundler.ui.warn 'No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock with any Sidekiq gems removed. The README file in this directory contains more information.'
 else
