@@ -93,7 +93,7 @@ class FormProfile
 
   ALL_FORMS = {
     edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-5490
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203],
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S],
     evss: ['21-526EZ'],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
@@ -127,6 +127,7 @@ class FormProfile
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'MDOT' => ::FormProfiles::MDOT,
     '22-10203' => ::FormProfiles::VA10203,
+    '22-1990S' => ::FormProfiles::VA1990s,
     '5655' => ::FormProfiles::VA5655,
     '28-8832' => ::FormProfiles::VA288832,
     '28-1900' => ::FormProfiles::VA281900

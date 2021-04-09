@@ -306,6 +306,7 @@ Metrics/AbcSize:
     - 'app/models/form_profile.rb'
     - 'app/models/form_profiles/va_0994.rb'
     - 'app/models/form_profiles/va_10203.rb'
+    - 'app/models/form_profiles/va_1990s.rb'
     - 'app/models/form_profiles/va_21686c.rb'
     - 'app/models/form_profiles/va_21p530.rb'
     - 'app/models/form_profiles/va_526ez.rb'
@@ -552,7 +553,6 @@ Metrics/AbcSize:
     - 'spec/support/stub_debt_letters.rb'
     - 'spec/support/stub_efolder_documents.rb'
     - 'spec/support/stub_evss_pciu.rb'
-
 
 # Offense count: 51
 # Configuration parameters: IgnoredMethods.
