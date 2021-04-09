@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_08_191850) do
+ActiveRecord::Schema.define(version: 2021_04_09_131024) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -64,6 +64,14 @@ ActiveRecord::Schema.define(version: 2021_04_08_191850) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "appeals_api_event_subscriptions", force: :cascade do |t|
+    t.string "topic"
+    t.string "callback"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["topic", "callback"], name: "index_appeals_api_event_subscriptions_on_topic_and_callback"
+  end
+
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
     t.string "status", default: "pending", null: false
     t.string "supportable_type"
@@ -102,6 +110,17 @@ ActiveRecord::Schema.define(version: 2021_04_08_191850) do
     t.string "code"
     t.string "detail"
     t.string "source"
+  end
+
+  create_table "appeals_api_status_updates", force: :cascade do |t|
+    t.string "from"
+    t.string "to"
+    t.string "appeal_type"
+    t.string "appeal_id"
+    t.datetime "status_update_time"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["appeal_type", "appeal_id"], name: "status_update_id_type_index"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
