@@ -322,10 +322,7 @@ RSpec.describe 'appointments', type: :request do
           )
 
           appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
-          options = { meta: { errors: nil } }
-          json = Mobile::V0::AppointmentSerializer.new(appointments, options).serialized_json
-
-          Mobile::V0::Appointment.set_cached(user, json)
+          Mobile::V0::Appointment.set_cached(user, appointments)
         end
 
         after { Timecop.return }

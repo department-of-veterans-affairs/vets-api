@@ -65,7 +65,7 @@ describe CovidVaccine::V0::EnrollmentProcessor do
     end
   end
 
-  context 'write_to_file' do
+  describe 'write_to_file' do
     let(:batch_id) { '20210401010101' }
 
     before do
@@ -91,6 +91,31 @@ describe CovidVaccine::V0::EnrollmentProcessor do
       stream = StringIO.new
       CovidVaccine::V0::EnrollmentProcessor.write_to_file(batch_id, stream)
       expect(stream.string).not_to include('ExcludeMe')
+    end
+  end
+
+  describe 'update_state_to_pending' do
+    it 'updates state for specified batch_id' do
+      batch_id = 'test_batch123'
+      record = FactoryBot.create(:covid_vax_expanded_registration, state: 'received', batch_id: batch_id)
+      CovidVaccine::V0::EnrollmentProcessor.update_state_to_pending(batch_id)
+      record.reload
+      expect(record).to be_enrollment_pending
+    end
+
+    it 'leaves unrelated records alone' do
+      batch_id = 'test_batch123'
+      record = FactoryBot.create(:covid_vax_expanded_registration, state: 'received', batch_id: batch_id)
+      CovidVaccine::V0::EnrollmentProcessor.update_state_to_pending('other_batchid')
+      record.reload
+      expect(record).to be_received
+    end
+
+    it 'does not update a nil batch_id' do
+      record = FactoryBot.create(:covid_vax_expanded_registration, state: 'received', batch_id: nil)
+      CovidVaccine::V0::EnrollmentProcessor.update_state_to_pending(nil)
+      record.reload
+      expect(record).to be_received
     end
   end
 end

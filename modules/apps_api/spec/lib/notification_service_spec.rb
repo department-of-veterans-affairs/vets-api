@@ -10,11 +10,6 @@ describe AppsApi::NotificationService do
 
   let(:invalid_connection_event) do
     {
-      'actor' => {
-        'id' => '1234',
-        'displayName' => 'John Doe',
-        'detailEntry' => nil
-      },
       'eventType' => 'app.oauth2.as.consent.grant',
       'outcome' => {
         'result' => 'FAILED'
@@ -36,11 +31,6 @@ describe AppsApi::NotificationService do
 
   let(:valid_connection_event) do
     {
-      'actor' => {
-        'id' => '1234',
-        'displayName' => 'John Doe',
-        'detailEntry' => nil
-      },
       'eventType' => 'app.oauth2.as.consent.grant',
       'outcome' => {
         'result' => 'SUCCESS'
@@ -61,14 +51,9 @@ describe AppsApi::NotificationService do
   end
   let(:invalid_disconnection_event) do
     {
-      'actor' => {
-        'id' => '{app_id}',
-        'type' => 'PublicClientApp',
-        'displayName' => 'LibertyITCrochet-2020-05-18T14=>48=>22.744Z'
-      },
-      'eventType' => 'app.oauth2.as.token.revoke',
+      'eventType' => 'app.oauth2.as.consent.revoke',
       'outcome' => {
-        'result' => 'SUCCESS'
+        'result' => 'not success'
       },
       'published' => '2020-11-29T00:23:39.508Z',
       'target' => [
@@ -87,12 +72,7 @@ describe AppsApi::NotificationService do
   end
   let(:valid_disconnection_event) do
     {
-      'actor' => {
-        'id' => '{app_id}',
-        'type' => 'PublicClientApp',
-        'displayName' => 'test'
-      },
-      'eventType' => 'app.oauth2.as.token.revoke',
+      'eventType' => 'app.oauth2.as.consent.revoke',
       'outcome' => {
         'result' => 'SUCCESS'
       },
@@ -156,7 +136,7 @@ describe AppsApi::NotificationService do
       expect(subject.instance_variable_get(:@okta_service)).to be_instance_of(Okta::Service)
       expect(subject.instance_variable_get(:@notify_client)).to be_instance_of(VaNotify::Service)
       expect(subject.instance_variable_get(:@connection_event)).to be('app.oauth2.as.consent.grant')
-      expect(subject.instance_variable_get(:@disconnection_event)).to be('app.oauth2.as.token.revoke')
+      expect(subject.instance_variable_get(:@disconnection_event)).to be('app.oauth2.as.consent.revoke')
     end
   end
 
@@ -225,24 +205,14 @@ describe AppsApi::NotificationService do
   end
 
   describe 'validating events' do
-    context 'and the event is a connection' do
-      it 'does not validate invalid connection events' do
-        expect(subject.event_is_invalid?(returned_hash, invalid_connection_event)).to be(true)
-      end
-
-      it 'validates valid connection events' do
-        expect(subject.event_is_invalid?(returned_hash, valid_connection_event)).to be(false)
-      end
+    it 'does not validate invalid events' do
+      expect(subject.event_is_invalid?(returned_hash, invalid_connection_event)).to be(true)
+      expect(subject.event_is_invalid?(returned_hash, invalid_disconnection_event)).to be(true)
     end
 
-    context 'and the event is a disconnection' do
-      it 'does not validate invalid disconnection events' do
-        expect(subject.event_is_invalid?(returned_hash, invalid_disconnection_event)).to be(true)
-      end
-
-      it 'validates valid disconnection events' do
-        expect(subject.event_is_invalid?(returned_hash, valid_disconnection_event)).to be(false)
-      end
+    it 'validates valid events' do
+      expect(subject.event_is_invalid?(returned_hash, valid_connection_event)).to be(false)
+      expect(subject.event_is_invalid?(returned_hash, valid_disconnection_event)).to be(false)
     end
 
     context 'when the event has already been processed' do
@@ -282,7 +252,7 @@ describe AppsApi::NotificationService do
       expect(returned_hash[:user_email]).to eq('johndoe@email.com')
       expect(returned_hash[:options].size).to eq(6)
       expect(returned_hash[:options][:first_name]).to eq('John')
-      expect(returned_hash[:options][:time]).to eq('11/29/2020 at 12:23 a.m.')
+      expect(returned_hash[:options][:time]).to eq('11/29/2020 at 12:23 a.m')
       expect(returned_hash[:options][:privacy_policy]).to eq('123.com')
       expect(returned_hash[:uuid]).to eq('1234fakeuuid')
     end
@@ -290,7 +260,7 @@ describe AppsApi::NotificationService do
 
   describe 'format_published_time' do
     it 'parses the published time correctly' do
-      expect(subject.format_published_time(published)).to eq('11/29/2020 at 12:23 a.m.')
+      expect(subject.format_published_time(published)).to eq('11/29/2020 at 12:23 a.m')
     end
   end
 
