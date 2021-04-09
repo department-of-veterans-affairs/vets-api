@@ -31,15 +31,21 @@ module FacilitiesApi
 
     def initialize(fac)
       super(fac)
-      fac['attributes'].each_key do |key|
-        self[key] = fac['attributes'][key] if attributes.include?(key.to_sym)
-      end
+      set_attributes(fac)
 
       self.id = fac['id']
       self.type = fac['type']
       self.feedback = fac['attributes']['satisfaction']
       self.access = fac['attributes']['wait_times']
       self.facility_type_prefix, self.unique_id = fac['id'].split('_')
+    end
+
+    private
+
+    def set_attributes(fac)
+      fac['attributes'].each_key do |key|
+        self[key] = fac['attributes'][key] if attributes.include?(key.to_sym)
+      end
     end
   end
 end

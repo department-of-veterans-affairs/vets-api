@@ -23,11 +23,7 @@ module FacilitiesApi
           self.data = parsed_body['data']
           self.meta = parsed_body['meta']
           self.links = parsed_body['links']
-          if meta
-            self.current_page = meta['pagination']['current_page']
-            self.per_page = meta['pagination']['per_page']
-            self.total_entries = meta['pagination']['total_entries']
-          end
+          set_metadata(meta) if meta
         end
 
         def facilities
@@ -37,14 +33,26 @@ module FacilitiesApi
             fac
           end
 
-          WillPaginate::Collection.create(current_page, per_page) do |pager|
-            pager.replace(facilities)
-            pager.total_entries = total_entries
-          end
+          paginate_response(facilities)
         end
 
         def facility
           V1::Lighthouse::Facility.new(data)
+        end
+
+        private
+
+        def set_metadata(meta)
+          self.current_page = meta['pagination']['current_page']
+          self.per_page = meta['pagination']['per_page']
+          self.total_entries = meta['pagination']['total_entries']
+        end
+
+        def paginate_response(facilities)
+          WillPaginate::Collection.create(current_page, per_page) do |pager|
+            pager.replace(facilities)
+            pager.total_entries = total_entries
+          end
         end
       end
     end

@@ -15,7 +15,7 @@ module FacilitiesApi
 
           def parse_body(env)
             body = JSON.parse(env.body)
-            message = body.dig('message')
+            message = body['message']
 
             body['detail'] = message
             body['code'] = env.status
