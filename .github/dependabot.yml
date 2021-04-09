@@ -11,6 +11,7 @@ updates:
   insecure-external-code-execution: allow
   schedule:
     interval: weekly
+  target-branch: "test-dependabot-sidekiq-credentials"
   ignore:
     - dependency-name: "vets_json_schema"
     - dependency-name: "active_model_serializers"
