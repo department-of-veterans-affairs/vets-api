@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_profile/communication/configuration'
+require_relative 'configuration'
 require 'va_profile/models/communication_item_group'
 
 module VAProfile
