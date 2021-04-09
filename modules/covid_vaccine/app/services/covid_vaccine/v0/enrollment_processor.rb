@@ -7,20 +7,20 @@ module CovidVaccine
     class EnrollmentProcessor
       include SentryLogging
 
-      def initialize(prefix: 'DHS_load')
-        @batch_id = Time.now.utc.strftime('%Y%m%d%H%M%S')
-        @prefix = prefix
+      def initialize(batch_id)
+        @batch_id = batch_id
       end
 
       attr_reader :batch_id
 
       def process_and_upload!
-        records = batch_records!
+        records = CovidVaccine::V0::ExpandedRegistrationSubmission.where(batch_id: @batch_id)
         csv_generator = ExpandedRegistrationCsvGenerator.new(records)
         filename = generated_file_name(records.length)
         uploader = CovidVaccine::V0::EnrollmentUploadService.new(csv_generator.io, filename)
         uploader.upload
         update_state_to_pending!
+        records.length
       rescue => e
         log_exception_to_sentry(
           e,
@@ -28,6 +28,10 @@ module CovidVaccine
           { external_service: 'EnrollmentService' }
         )
         raise
+      end
+
+      def generated_file_name(record_count)
+        "DHS_load_#{@batch_id}_SLA_#{record_count}_records.txt"
       end
 
       # rubocop:disable Rails/SkipsModelValidations
@@ -56,17 +60,13 @@ module CovidVaccine
           .where(batch_id: batch_id).update_all(state: 'enrollment_pending')
       end
 
-      # TODO: Should this be private? Or public to be used by scanner job
-      def batch_records!
+      def self.batch_records!
+        batch_id = Time.now.utc.strftime('%Y%m%d%H%M%S')
         records = CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'received', batch_id: nil)
-        records.update_all(batch_id: @batch_id)
-        CovidVaccine::V0::ExpandedRegistrationSubmission.where(batch_id: @batch_id)
+        records.update_all(batch_id: batch_id)
+        batch_id
       end
       # rubocop:enable Rails/SkipsModelValidations
-
-      def generated_file_name(record_count)
-        "#{@prefix}_#{@batch_id}_SLA_#{record_count}_records.txt"
-      end
     end
   end
 end

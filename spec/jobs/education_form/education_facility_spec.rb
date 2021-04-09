@@ -74,9 +74,9 @@ RSpec.describe EducationForm::EducationFacility do
 
   describe '#regional_office_for' do
     {
-      eastern: ['VA', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
-      central: ['CO', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
-      western: ['AK', "Western Region\nVA Regional Office\nP.O. Box 8888\nMuskogee, OK 74402-8888"]
+      eastern: ['VA', "VA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
+      central: ['CO', "VA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
+      western: ['AK', "VA Regional Office\nP.O. Box 8888\nMuskogee, OK 74402-8888"]
     }.each do |region, region_data|
       context "with a #{region} address" do
         before do
