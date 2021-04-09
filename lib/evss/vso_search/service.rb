@@ -30,9 +30,11 @@ module EVSS
 
       def request_headers(additional_headers)
         ssn = additional_headers.key?('va_eauth_pnid') ? additional_headers['va_eauth_pnid'] : @user.ssn
+        edipi = additional_headers.key?('va_eauth_dodedipnid') ? additional_headers['va_eauth_dodedipnid'] : @user.edipi
 
         {
           'ssn' => ssn,
+          'edipi' => edipi,
           'Authorization' => "Token token=#{Settings.caseflow.app_token}",
           'Content-Type' => 'application/json'
         }.merge(additional_headers)

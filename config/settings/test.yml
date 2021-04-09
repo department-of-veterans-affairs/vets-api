@@ -18,6 +18,8 @@ reports:
     region: region
     secret_access_key: secret
 
+db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
+
 saml:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
@@ -60,7 +62,6 @@ account:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: <fake_api_key>
-  staging_flag: ~
 
 search:
   access_key: TESTKEY
