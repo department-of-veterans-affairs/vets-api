@@ -144,7 +144,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   describe '#get /services/apps/v0/directory/:page' do
     context 'when paginating' do
       let(:dummy_data) do
-        { data: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}] } # more than 10 items
+        { data: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}] }
       end
 
       before do
@@ -153,7 +153,7 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
 
       it 'returns paginated apps' do
         get '/services/apps/v0/directory?page=1'
-        body = JSON.parse(response.body.data)
+        body = JSON.parse(response.body[:data])
         expect(body.count).to eq 10
       end
     end
