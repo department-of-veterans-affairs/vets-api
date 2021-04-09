@@ -782,7 +782,7 @@ GEM
       nokogiri (>= 1.5.10)
     ruby-vips (2.0.17)
       ffi (~> 1.9)
-    rubyzip (2.0.0)
+    rubyzip (2.3.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.1.0)
