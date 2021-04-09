@@ -1234,6 +1234,81 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  "/preferences":
+    get:
+      tags:
+        - preferences
+      summary:  Retrieves the user contact preferences
+      operationId:  getPreferences
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Preferences retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  -  data
+                properties:
+                  data:
+                    type: object
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    properties:
+                      id:
+                        type: string
+                        example: "b2fab2b5-6af0-45e1-a9e2-394347af91ef"
+                      type:
+                        type: string
+                        example:  "preferences"
+                      attributes:
+                        type: object
+                        required:
+                          - notification_frequency
+                          - email_allowed
+                          - email_address
+                          - text_msg_allowed
+                        properties:
+                          notification_frequency:
+                            type: string
+                            example:  "Never"
+                          email_allowed:
+                            type: boolean
+                            example:  true
+                          email_address:
+                            type: string
+                            example:  "abraham.lincoln@va.gov"
+                          text_msg_allowed:
+                            type: boolean
+                            example:  false
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "502":
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "504":
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
   "/systems":
     get:
       tags:
