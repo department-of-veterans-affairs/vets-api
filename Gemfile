@@ -199,9 +199,7 @@ group :development, :test do
 end
 # rubocop:enable Metrics/BlockLength
 
-
 source 'https://enterprise.contribsys.com/' do
   gem 'sidekiq-ent'
   gem 'sidekiq-pro'
 end
-
