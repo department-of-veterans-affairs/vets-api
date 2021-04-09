@@ -704,6 +704,7 @@ flipper:
     - mccurdy_devin@bah.com
     - mdewey@governmentcio.com
     - micah@adhocteam.us
+    - michael.chelen@va.gov
     - michael.fleet@oddball.io
     - mnunemak@thoughtworks.com
     - n.ratana@gmail.com
@@ -737,6 +738,7 @@ flipper:
     - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
     - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
+    - lauren.ernest@adhocteam.us
 
 bgs:
   application: ~
@@ -750,7 +752,6 @@ bgs:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
-  staging_flag: ~
   health_server_id: ~
 
 va_mobile:
