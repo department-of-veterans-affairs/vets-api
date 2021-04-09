@@ -2082,6 +2082,7 @@ components:
         type:
           type: "string"
         attributes:
+          type: "object"
           required:
             - "institution_code"
             - "city"
@@ -2125,7 +2126,6 @@ components:
             institution_timezone:
               type: "string"
               example: "America/New_York"
-          type: "object"
     ClinicInstitution:
       type: "object"
       properties:
@@ -2136,6 +2136,7 @@ components:
           type: "string"
           example: "clinic_institution"
         attributes:
+          type: "object"
           required:
             - "location_ien"
             - "institution_sid"
@@ -2158,7 +2159,6 @@ components:
             institution_code:
               type: "string"
               example: "442"
-          type: "object"
     CCAppointment:
       type: "object"
       properties:
@@ -2169,6 +2169,7 @@ components:
           type: "string"
           example: "cc_appointments"
         attributes:
+          type: "object"
           required:
             - "appointment_request_id"
             - "distance_eligible_confirmed"
@@ -2187,6 +2188,7 @@ components:
               type: "boolean"
               example: true
             name:
+              type: "object"
               required:
                 - "first_name"
                 - "last_name"
@@ -2197,7 +2199,6 @@ components:
                 last_name:
                   type: "string"
                   example: "Doe"
-              type: "object"
             provider_practice:
               type: "string"
               example: "test"
@@ -2205,6 +2206,7 @@ components:
               type: "string"
               example: "(321) 230-0328"
             address:
+              type: "object"
               required:
                 - "street"
                 - "city"
@@ -2223,7 +2225,6 @@ components:
                 zip_code:
                   type: "string"
                   example: "32826"
-              type: "object"
             instructions_to_veteran:
               type: "string"
             appointment_time:
@@ -2232,7 +2233,6 @@ components:
             time_zone:
               type: "string"
               example: "-04:00 EDT"
-          type: "object"
     CreateAppBody:
       type: "object"
       properties:
@@ -2318,6 +2318,7 @@ components:
           type: "string"
           example: "va_appointments"
         attributes:
+          type: "object"
           required:
             - "start_date"
             - "clinic_id"
@@ -2357,6 +2358,7 @@ components:
                     type: "string"
                     example: "2019-10-24T17:00:00Z"
                   clinic:
+                    type: "object"
                     required:
                       - "name"
                       - "ask_for_check_in"
@@ -2371,7 +2373,6 @@ components:
                       facility_code:
                         type: "string"
                         example: "983"
-                    type: "object"
                   type:
                     type: "string"
                     example: "REGULAR"
@@ -2383,12 +2384,13 @@ components:
               items:
                 type: "object"
               example: []
-          type: "object"
         meta:
+          type: "object"
           required:
             - "pagination"
           properties:
             pagination:
+              type: "object"
               required:
                 - "current_page"
                 - "per_page"
@@ -2407,14 +2409,13 @@ components:
                 total_entries:
                   type: "number"
                   example: 0
-              type: "object"
-          type: "object"
     Pagination:
       type: "object"
       required:
         - "pagination"
       properties:
         pagination:
+          type: "object"
           required:
             - "current_page"
             - "per_page"
@@ -2433,7 +2434,6 @@ components:
             total_entries:
               type: "number"
               example: 0
-          type: "object"
     PACT:
       type: "object"
       properties:
@@ -2444,6 +2444,7 @@ components:
           type: "string"
           example: "system_pact"
         attributes:
+          type: "object"
           required:
             - "facility_id"
             - "possible_primary"
@@ -2482,7 +2483,6 @@ components:
             title:
               type: "string"
               example: "PHYSICIAN-ATTENDING"
-          type: "object"
     AppointmentTimeSlot:
       type: "object"
       required:
