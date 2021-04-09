@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'facilities/ppms/v1/response'
 
 module FacilitiesApi
   describe V1::PPMS::Response, team: :facilities do
