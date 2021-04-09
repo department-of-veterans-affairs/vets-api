@@ -29,7 +29,7 @@ describe VBADocuments::UploadFile, type: :model do
     @models = VBADocuments::GitItems.all.each do |model|
       expect(model.notified).to be(false)
     end
-    response = VBADocuments::GitItems.notify(nil) #method using url is mocked out
+    response = VBADocuments::GitItems.notify
     @models = VBADocuments::GitItems.all.each do |model|
       expect(model.notified).to be(true)
     end
@@ -37,13 +37,13 @@ describe VBADocuments::UploadFile, type: :model do
   end
 
   it 'only notifies on new things' do
-    VBADocuments::GitItems.notify(nil)
-    response = VBADocuments::GitItems.notify(nil)
+    VBADocuments::GitItems.notify
+    response = VBADocuments::GitItems.notify
     expect(response).to be(0)
     model = VBADocuments::GitItems.find_or_create_by(url: 'http://dummy/url')
     model.git_item = VBADocuments::GitItems.first.git_item
     model.save
-    response = VBADocuments::GitItems.notify(nil)
+    response = VBADocuments::GitItems.notify
     expect(response).to be(1)
   end
 
