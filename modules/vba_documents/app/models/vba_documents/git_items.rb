@@ -6,24 +6,22 @@ module VBADocuments
   class GitItems < ApplicationRecord
     GIT_QUERY = 'https://api.github.com/search/issues'
 
+    validates_uniqueness_of :url
+
     module ClassMethods
       # notifies slack of all new deployments.  Returns the number notified on.
       def notify
         slack_url = Settings.vba_documents.slack.notification_url
         text = "The following new merges are now in Benefits Intake:\n"
         models = []
-        notify = false
-        GitItems.all.find_each do |model|
-          next if model.notified
-
-          notify = true
+        GitItems.where(notified: false).each do |model|
           url = model.url
           author = model.git_item['user']['login']
           title = model.git_item['title']
           text += "\tTitle: #{title}\n\t\tAuthor: #{author}\n\t\turl: #{url}\n"
           models << model
         end
-        response = send_to_slack(text, slack_url) if notify
+        response = send_to_slack(text, slack_url) unless models.empty?
         if response&.success?
           models.each do |m|
             m.update(notified: true)

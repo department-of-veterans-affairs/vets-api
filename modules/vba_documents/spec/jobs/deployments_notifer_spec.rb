@@ -15,7 +15,7 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
     Settings.vba_documents.slack.enabled = true
 
     allow(faraday_response).to receive(:success?).and_return(true)
-    allow(faraday_response).to receive(:body).and_return(git_items_json) # 15 records in this json file
+    allow(faraday_response).to receive(:body).and_return(git_items_json) # 3 records in this json file
     allow(VBADocuments::GitItems).to receive(:query_git) {
       faraday_response
     }
@@ -38,7 +38,7 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
 
   it 'populates and notifies on deployments' do
     results = @job.perform
-    expect(results).to be(15)
+    expect(results).to be(3)
   end
 
   it 'logs and returns the exception if something goes wrong' do

@@ -53,4 +53,11 @@ describe VBADocuments::UploadFile, type: :model do
     record_count = VBADocuments::GitItems.populate
     expect(record_count).to be(0) # we expect code coverage for the logging of the failure.
   end
+
+  it 'does not over populate' do
+    expect(@record_count).to be(3)
+    record_count = VBADocuments::GitItems.populate #second populate with the same data
+    expect(record_count).to be(3)
+  end
+
 end
