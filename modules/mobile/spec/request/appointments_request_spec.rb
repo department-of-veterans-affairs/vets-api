@@ -37,7 +37,7 @@ RSpec.describe 'appointments', type: :request do
         end
       end
 
-      it 'defaults to a range of -3 months and + 6 months' do
+      it 'defaults to a range of -1 year and +1 year' do
         expect(response).to have_http_status(:ok)
       end
     end
@@ -65,10 +65,33 @@ RSpec.describe 'appointments', type: :request do
       end
     end
 
+    context 'with an invalid pagination params' do
+      let(:start_date) { (Time.now.utc - 3.months).iso8601 }
+      let(:end_date) { (Time.now.utc + 3.months).iso8601 }
+      let(:page) { { number: 'one', size: 'ten' } }
+      let(:params) { { startDate: start_date, endDate: end_date, useCache: true, page: page } }
+
+      it 'returns a bad request error' do
+        get '/mobile/v0/appointments', headers: iam_headers, params: params
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body).to eq(
+          {
+            'errors' => [
+              { 'title' => 'Validation Error', 'detail' => 'page_number must be an integer',
+                'code' => 'MOBL_422_validation_error', 'status' => '422' },
+              { 'title' => 'Validation Error', 'detail' => 'page_size must be an integer',
+                'code' => 'MOBL_422_validation_error', 'status' => '422' }
+            ]
+          }
+        )
+      end
+    end
+
     context 'with valid params' do
       let(:start_date) { Time.now.utc.iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
-      let(:params) { { startDate: start_date, endDate: end_date, useCache: true } }
+      let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
 
       context 'with a user has mixed upcoming appointments' do
         before do
@@ -265,7 +288,7 @@ RSpec.describe 'appointments', type: :request do
         end
 
         it 'has va appointments' do
-          expect(response.parsed_body['data'].size).to eq(33)
+          expect(response.parsed_body['data'].size).to eq(10)
         end
 
         it 'matches the expected schema' do
@@ -301,7 +324,7 @@ RSpec.describe 'appointments', type: :request do
         end
 
         it 'has the right CC count' do
-          expect(response.parsed_body['data'].size).to eq(33)
+          expect(response.parsed_body['data'].size).to eq(10)
         end
       end
 
@@ -331,6 +354,98 @@ RSpec.describe 'appointments', type: :request do
           expect_any_instance_of(VAOS::AppointmentService).not_to receive(:get_appointments)
           get '/mobile/v0/appointments', headers: iam_headers, params: params
           expect(response).to have_http_status(:ok)
+        end
+
+        describe 'pagination' do
+          context 'when the first page is requested' do
+            let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
+
+            before { get '/mobile/v0/appointments', headers: iam_headers, params: params }
+
+            it 'has 10 items' do
+              expect(response.parsed_body['data'].size).to eq(10)
+            end
+
+            it 'has the correct links with no prev' do
+              expect(response.parsed_body['links']).to eq(
+                {
+                  'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'prev' => nil,
+                  'next' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
+                  'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
+                }
+              )
+            end
+          end
+
+          context 'when a middle page is requested' do
+            let(:params) { { startDate: start_date, endDate: end_date, page: { number: 2, size: 10 }, useCache: true } }
+
+            before { get '/mobile/v0/appointments', headers: iam_headers, params: params }
+
+            it 'has 10 items' do
+              expect(response.parsed_body['data'].size).to eq(10)
+            end
+
+            it 'has the correct links both prev and next' do
+              expect(response.parsed_body['links']).to eq(
+                {
+                  'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
+                  'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'next' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
+                  'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
+                }
+              )
+            end
+          end
+
+          context 'when the last page is requested' do
+            let(:params) { { startDate: start_date, endDate: end_date, page: { number: 3, size: 10 }, useCache: true } }
+
+            before { get '/mobile/v0/appointments', headers: iam_headers, params: params }
+
+            it 'has 7 items' do
+              expect(response.parsed_body['data'].size).to eq(7)
+            end
+
+            it 'has the correct links with no next' do
+              expect(response.parsed_body['links']).to eq(
+                {
+                  'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
+                  'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=2&page[size]=10',
+                  'next' => nil,
+                  'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
+                }
+              )
+            end
+          end
+
+          context 'when an out of bounds page is requested' do
+            let(:params) do
+              { startDate: start_date, endDate: end_date, page: { number: 99, size: 10 }, useCache: true }
+            end
+
+            before { get '/mobile/v0/appointments', headers: iam_headers, params: params }
+
+            it 'returns a blank array' do
+              expect(response.parsed_body['data']).to eq([])
+            end
+
+            it 'has the correct links with no next' do
+              expect(response.parsed_body['links']).to eq(
+                {
+                  'self' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=99&page[size]=10',
+                  'first' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=1&page[size]=10',
+                  'prev' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10',
+                  'next' => nil,
+                  'last' => 'http://www.example.com/mobile/v0/appointments?startDate=2020-11-01T10:30:00+00:00&endDate=2021-02-01T10:30:00+00:00&useCache=true&page[number]=3&page[size]=10'
+                }
+              )
+            end
+          end
         end
       end
     end
