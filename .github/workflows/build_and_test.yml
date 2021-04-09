@@ -40,10 +40,9 @@ jobs:
           bundler-cache: true
 
       - name: Install System Packages (pdftk, poppler, imagemagick)
-        run: sudo apt install imagemagick pdftk poppler-utils
-
-      - name: Allow PDF to image conversion
-        run: sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
+        run: |
+          sudo apt install imagemagick pdftk poppler-utils
+          sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
 
       - name: Setup Database
         run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
@@ -55,7 +54,7 @@ jobs:
           ./cc-test-reporter before-build
 
       - name: Run Specs
-        run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty' \
+        run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty'
 
       - name: Publish Code Climate coverage
         run: |
