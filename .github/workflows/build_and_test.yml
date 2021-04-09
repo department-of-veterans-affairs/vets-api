@@ -3,8 +3,7 @@ on: [push]
 jobs:
   tests:
     name: Test
-    runs-on: ubuntu-20.04
-    container: ruby:2.6.6-slim-stretch
+    runs-on: ubuntu-16.04
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CI: true
@@ -18,7 +17,6 @@ jobs:
       TERM: xterm-256color
       GIT_COMMIT_SHA: ${{ github.sha }}
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-      ImageOS: ubuntu20
 
     services:
       postgres:
