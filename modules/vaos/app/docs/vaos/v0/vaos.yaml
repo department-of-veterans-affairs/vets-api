@@ -598,7 +598,7 @@ paths:
   "/cc_eligibility/{service_type}":
     get:
       tags:
-        - cc_eligibility
+        - eligibility
       summary: Returns cc eligibility status for a user
       operationId: getEligibility
       security:
@@ -667,6 +667,95 @@ paths:
                 $ref: "#/components/schemas/Errors"
         "404":
           description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "502":
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "504":
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+  "/direct_booking_eligibility_criteria":
+    get:
+      tags:
+        - eligibility
+      summary: Returns a list of direct booking eligibility criteria
+      operationId: getDirectBookingEligibilityCriteria
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: false
+          name: site_codes
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          required: false
+          name: parent_sites
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DirectBookingEligibilityCriteria"
+              example:
+                data:
+                  - can_cancel: true
+                    enterprise_submitted_request_limit: 2
+                    id: "372"
+                    patient_history_duration: 730
+                    patient_history_required: "Yes"
+                    stop_codes:
+                      - primary: "372"
+                      - primary: "373"
+                    submitted_request_limit: 2
+                    type_of_care: "MOVE! program"
+                  - can_cancel: true
+                    enterprise_submitted_request_limit: 2
+                    id: "502"
+                    patient_history_duration": 0
+                    patient_history_required: "No"
+                    stop_codes:
+                      - primary: "502"
+                        secondary: "125"
+                      - primary: "502"
+                        secondary: "179"
+                      - primary: "502"
+                        secondary: "185"
+                      - primary: "502"
+                        secondary: "186"
+                      - primary: "502"
+                        secondary: "187"
+                      - primary: "502"
+                        secondary: "509"
+                      - primary: "502"
+                        secondary: "510"
+                    submitted_request_limit: 2
+                    type_of_care: "Outpatient Mental Health"
+        "403":
+          description: Forbidden, the request contained valid data and was understood by the server, but the server is refusing action. This may be due to the user not having the necessary permissions.
           content:
             application/json:
               schema:
@@ -1095,11 +1184,73 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Errors"
+  "/request_eligiblity_criteria":
+    get:
+      tags:
+        - eligibility
+      summary: Returns a list of eligibility to the veteran
+      operationId: getRequestEligibilityCriteria
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: false
+          name: site_codes
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          required: false
+          name: parent_sites
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/RequestEligibilityCriteria"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "502":
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "504":
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+
   "/systems":
     get:
       tags:
         - systems
-      summary: Returns a list of systems available to the the veteran.
+      summary: Returns a list of systems available to the veteran.
       operationId: getSystems
       security:
         - bearerAuth: []
@@ -1914,6 +2065,7 @@ components:
           type: "string"
           example: "system"
         attributes:
+          type: "object"
           required:
             - "unique_id"
             - "assigning_authority"
@@ -1932,8 +2084,6 @@ components:
             id_status:
               type: "string"
               example: "ACTIVE"
-          type: "object"
-
     DirectSchedulingFacility:
       type: "object"
       properties:
@@ -1942,6 +2092,7 @@ components:
         type:
           type: "string"
         attributes:
+          type: "object"
           required:
             - "institution_code"
             - "city"
@@ -1985,7 +2136,6 @@ components:
             institution_timezone:
               type: "string"
               example: "America/New_York"
-          type: "object"
     ClinicInstitution:
       type: "object"
       properties:
@@ -1996,6 +2146,7 @@ components:
           type: "string"
           example: "clinic_institution"
         attributes:
+          type: "object"
           required:
             - "location_ien"
             - "institution_sid"
@@ -2018,7 +2169,6 @@ components:
             institution_code:
               type: "string"
               example: "442"
-          type: "object"
     CCAppointment:
       type: "object"
       properties:
@@ -2029,6 +2179,7 @@ components:
           type: "string"
           example: "cc_appointments"
         attributes:
+          type: "object"
           required:
             - "appointment_request_id"
             - "distance_eligible_confirmed"
@@ -2047,6 +2198,7 @@ components:
               type: "boolean"
               example: true
             name:
+              type: "object"
               required:
                 - "first_name"
                 - "last_name"
@@ -2057,7 +2209,6 @@ components:
                 last_name:
                   type: "string"
                   example: "Doe"
-              type: "object"
             provider_practice:
               type: "string"
               example: "test"
@@ -2065,6 +2216,7 @@ components:
               type: "string"
               example: "(321) 230-0328"
             address:
+              type: "object"
               required:
                 - "street"
                 - "city"
@@ -2083,7 +2235,6 @@ components:
                 zip_code:
                   type: "string"
                   example: "32826"
-              type: "object"
             instructions_to_veteran:
               type: "string"
             appointment_time:
@@ -2092,7 +2243,6 @@ components:
             time_zone:
               type: "string"
               example: "-04:00 EDT"
-          type: "object"
     CreateAppBody:
       type: "object"
       properties:
@@ -2168,6 +2318,58 @@ components:
             institution_code:
               type: string
               example: "983"
+    DirectBookingEligibilityCriteria:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          required:
+            - core_settings
+          properties:
+            core_settings:
+              type: array
+              items:
+                type: object
+                required:
+                  - id
+                  - type_of_care
+                  - stop_codes
+                  - submitted_request_limit
+                  - enterprise_submitted_request_limit
+                properties:
+                  id:
+                    type: string
+                  type_of_care:
+                    type: string
+                  patient_history_required:
+                    type: string
+                  patient_history_duration:
+                    type: integer
+                  stop_codes:
+                    type: array
+                    items:
+                      type: object
+                      required:
+                        - primary
+                      properties:
+                        primary:
+                          type: string
+                        secondary:
+                          type: string
+                  can_cancel:
+                    type: boolean
+                  submitted_request_limit:
+                    type: integer
+                  enterprise_submitted_request_limit:
+                    type: integer
     VAAppointment:
       type: "object"
       properties:
@@ -2178,6 +2380,7 @@ components:
           type: "string"
           example: "va_appointments"
         attributes:
+          type: "object"
           required:
             - "start_date"
             - "clinic_id"
@@ -2217,6 +2420,7 @@ components:
                     type: "string"
                     example: "2019-10-24T17:00:00Z"
                   clinic:
+                    type: "object"
                     required:
                       - "name"
                       - "ask_for_check_in"
@@ -2231,7 +2435,6 @@ components:
                       facility_code:
                         type: "string"
                         example: "983"
-                    type: "object"
                   type:
                     type: "string"
                     example: "REGULAR"
@@ -2243,12 +2446,13 @@ components:
               items:
                 type: "object"
               example: []
-          type: "object"
         meta:
+          type: "object"
           required:
             - "pagination"
           properties:
             pagination:
+              type: "object"
               required:
                 - "current_page"
                 - "per_page"
@@ -2267,14 +2471,13 @@ components:
                 total_entries:
                   type: "number"
                   example: 0
-              type: "object"
-          type: "object"
     Pagination:
       type: "object"
       required:
         - "pagination"
       properties:
         pagination:
+          type: "object"
           required:
             - "current_page"
             - "per_page"
@@ -2293,9 +2496,12 @@ components:
             total_entries:
               type: "number"
               example: 0
-          type: "object"
     PACT:
       type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
       properties:
         id:
           type: "string"
@@ -2304,6 +2510,7 @@ components:
           type: "string"
           example: "system_pact"
         attributes:
+          type: "object"
           required:
             - "facility_id"
             - "possible_primary"
@@ -2342,7 +2549,105 @@ components:
             title:
               type: "string"
               example: "PHYSICIAN-ATTENDING"
+    RequestEligibilityCriteria:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties:
+        id:
+          type: "string"
+          example: "442"
+        type:
+          type: "string"
+          example: "request_eligibility_criteria"
+        attributes:
           type: "object"
+          required:
+            - "request_settings"
+            - "custom_request_settings"
+          properties:
+            request_settings:
+              type: "array"
+              items:
+                type: "object"
+                required:
+                  - "id"
+                  - "type_of_care"
+                  - "stop_codes"
+                  - "submitted_request_limit"
+                  - "enterprise_submitted_request_limit"
+              properties:
+                id:
+                  type: "string"
+                  example: "203"
+                type_of_care:
+                  type: "string"
+                  example: "Audiology"
+                patient_history_required:
+                  type: "string"
+                  example: "No"
+                patient_history_duration:
+                  type: "integer"
+                  example: "0"
+                stop_codes:
+                  type: "array"
+                  items:
+                    type: "object"
+                    required:
+                      - "primary"
+                    properties:
+                      primary:
+                        type: "string"
+                        example: "203"
+                submitted_request_limit:
+                  type: "integer"
+                  example: "2"
+                enterprise_submitted_request_limit:
+                  type: "integer"
+                  example: "2"
+            custom_request_setting:
+              type: "array"
+              items:
+                type: "object"
+                required:
+                  - "id"
+                  - "type_of_care"
+                  - "submitted_request_limit"
+                  - "enterprise_submitted_request_limit"
+                  - "supported"
+                  - "scheduling_days"
+                properties:
+                  id:
+                    type: "string"
+                    example: "CR1"
+                  type_of_care:
+                    type: "string"
+                    example: "Express Care"
+                  submitted_request_limit:
+                    type: "integer"
+                    example: "2"
+                  enterprise_submitted_request_limit:
+                    type: "integer"
+                    example: "2"
+                  supported:
+                    type: "boolean"
+                    example: true
+                  scheduling_days:
+                    type: "array"
+                    items:
+                      type: "object"
+                      required:
+                        - "day"
+                        - "can_schedule"
+                      properties:
+                        day:
+                          type: "string"
+                          example: "SUNDAY"
+                        can_schedule:
+                          type: "boolean"
+                          example: false
     AppointmentTimeSlot:
       type: "object"
       required:

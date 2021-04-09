@@ -88,7 +88,7 @@ gem 'memoist'
 gem 'mini_magick', '~> 4.11.0'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.11'
-gem 'notifications-ruby-client', '~> 5.1'
+gem 'notifications-ruby-client', '~> 5.3'
 gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
@@ -200,8 +200,9 @@ end
 # rubocop:enable Metrics/BlockLength
 
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
-if Bundler.settings.all.none?('enterprise.contribsys.com') &&
-   ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
+if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
+    Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
+   ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty? && ENV.keys.grep(/DEPENDABOT/).empty?
   Bundler.ui.warn 'No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock with any Sidekiq gems removed. The README file in this directory contains more information.'
 else
   source 'https://enterprise.contribsys.com/' do
