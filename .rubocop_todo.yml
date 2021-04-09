@@ -326,6 +326,7 @@ Metrics/AbcSize:
     - 'app/services/mhv_accounts_service.rb'
     - 'app/services/users/profile.rb'
     - 'app/services/users/services.rb'
+    - 'app/swagger/swagger/schemas/vet360/communication_permission.rb'
     - 'app/uploaders/evss_claim_document_uploader.rb'
     - 'app/workers/central_mail/submit_form4142_job.rb'
     - 'app/workers/central_mail/submit_saved_claim_job.rb'
