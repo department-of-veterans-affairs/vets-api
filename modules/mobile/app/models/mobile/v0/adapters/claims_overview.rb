@@ -12,7 +12,6 @@ module Mobile
 
         private
 
-        # rubocop:disable Metrics/AbcSize
         def parse_claim(entry)
           Mobile::V0::ClaimOverview.new(
             {
@@ -27,7 +26,6 @@ module Mobile
             }
           )
         end
-        # rubocop:enable Metrics/AbcSize
 
         def parse_appeal(entry)
           subtype = entry['type']
