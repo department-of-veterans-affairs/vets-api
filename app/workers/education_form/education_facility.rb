@@ -119,9 +119,7 @@ module EducationForm
 
     def self.regional_office_for(model)
       region = region_for(model)
-      address = ["#{region.to_s.capitalize} Region", 'VA Regional Office']
-      address += ADDRESSES[region]
-      address.join("\n")
+      ['VA Regional Office', ADDRESSES[region]].join("\n")
     end
   end
 end
