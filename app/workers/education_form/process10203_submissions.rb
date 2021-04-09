@@ -8,7 +8,7 @@ module EducationForm
   class FormattingError < StandardError
   end
 
-  class Process10203SubmissionsLogging < StandardError
+  class Process10203EVSSError < StandardError
   end
 
   class Process10203Submissions
@@ -81,7 +81,7 @@ module EducationForm
       service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
       service.get_gi_bill_status(auth_headers)
     rescue => e
-      Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
+      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve GiBillStatus data: #{e.message}"))
       {}
     end
 
@@ -92,7 +92,7 @@ module EducationForm
       service = EVSS::VSOSearch::Service.new(nil, auth_headers)
       service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
-      Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
+      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}"))
       nil
     end
 
@@ -162,15 +162,7 @@ module EducationForm
     end
 
     def format_application(data)
-      # This check was added to ensure that the model passes validation before
-      # attempting to build a form from it. This logic should be refactored as
-      # part of a larger effort to clean up the spool file generation if that occurs.
-      if data.saved_claim.valid?
-        EducationForm::Forms::VA10203.build(data)
-      else
-        inform_on_error(data)
-        nil
-      end
+      EducationForm::Forms::VA10203.build(data)
     rescue => e
       inform_on_error(data, e)
       nil
@@ -201,7 +193,7 @@ module EducationForm
     end
 
     def log_info(message)
-      log_exception_to_sentry(Process10203SubmissionsLogging.new(message), {}, {}, :info)
+      logger.info(message)
     end
   end
 end

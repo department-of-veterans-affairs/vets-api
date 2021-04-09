@@ -18,7 +18,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :PPIU
+              key :$ref, :PPIU
             end
           end
         end
@@ -51,7 +51,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :PPIU
+              key :$ref, :PPIU
             end
           end
         end

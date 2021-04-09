@@ -8,7 +8,7 @@ class Swagger::V1::Schemas::Facilities
     property :data do
       key :type, :array
       items do
-        key :'$ref', :Facility
+        key :$ref, :Facility
       end
     end
   end
@@ -31,10 +31,10 @@ class Swagger::V1::Schemas::Facilities
       property :address, type: %i[object null] do
         key :description, 'Physical and mailing addresses for facilities'
         property :physical do
-          key :'$ref', :FacilityAddress
+          key :$ref, :FacilityAddress
         end
         property :mailing do
-          key :'$ref', :FacilityAddress
+          key :$ref, :FacilityAddress
         end
       end
 

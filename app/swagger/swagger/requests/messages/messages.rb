@@ -18,7 +18,7 @@ module Swagger
               key :description, 'threaded messages response'
 
               schema do
-                key :'$ref', :MessagesThread
+                key :$ref, :MessagesThread
               end
             end
 
@@ -26,7 +26,7 @@ module Swagger
               key :description, 'message show error response'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -44,7 +44,7 @@ module Swagger
               key :description, 'message show response'
 
               schema do
-                key :'$ref', :Message
+                key :$ref, :Message
               end
             end
 
@@ -52,7 +52,7 @@ module Swagger
               key :description, 'message show error response'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -66,12 +66,12 @@ module Swagger
 
             parameter name: :message, in: :body, required: true, description: 'body of message' do
               schema do
-                key :'$ref', :MessageInput
+                key :$ref, :MessageInput
               end
             end
             parameter name: :uploads, in: :body, required: false, description: 'attachments' do
               schema do
-                key :'$ref', :AttachmentsInput
+                key :$ref, :AttachmentsInput
               end
             end
 
@@ -79,14 +79,14 @@ module Swagger
               key :description, 'message attachments response'
 
               schema do
-                key :'$ref', :Message
+                key :$ref, :Message
               end
             end
 
             response 422 do
               key :description, 'message creation error response'
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -102,7 +102,7 @@ module Swagger
               key :description, 'create message categories response'
 
               schema do
-                key :'$ref', :Categories
+                key :$ref, :Categories
               end
             end
           end
@@ -128,7 +128,7 @@ module Swagger
             response 404 do
               key :description, 'message attachments error response'
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -150,7 +150,7 @@ module Swagger
             response 404 do
               key :description, 'move message error response'
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -165,12 +165,12 @@ module Swagger
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
             parameter name: :message, in: :body, required: true, description: 'body of message reply' do
               schema do
-                key :'$ref', :MessageInput
+                key :$ref, :MessageInput
               end
             end
             parameter name: :uploads, in: :body, required: false, description: 'attachments' do
               schema do
-                key :'$ref', :AttachmentsInput
+                key :$ref, :AttachmentsInput
               end
             end
 
@@ -178,14 +178,14 @@ module Swagger
               key :description, 'create message reply attachments response'
 
               schema do
-                key :'$ref', :Message
+                key :$ref, :Message
               end
             end
 
             response 404 do
               key :description, 'message reply error response'
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end
@@ -206,7 +206,7 @@ module Swagger
             response 404 do
               key :description, 'message delete error response'
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end

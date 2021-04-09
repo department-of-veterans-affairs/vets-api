@@ -23,7 +23,7 @@ class VANotifyDdEmailJob
   def perform(email, dd_type)
     notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
     template_type = "direct_deposit_#{dd_type.to_sym == :ch33 ? 'edu' : 'comp_pen'}"
-    template_id = Settings.vanotify.template_id.public_send(template_type)
+    template_id = Settings.vanotify.services.va_gov.template_id.public_send(template_type)
 
     notify_client.send_email(
       email_address: email,

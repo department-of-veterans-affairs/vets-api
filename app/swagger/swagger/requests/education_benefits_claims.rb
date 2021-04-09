@@ -19,7 +19,7 @@ module Swagger
             key :description, 'Education benefits form data'
             key :required, true
             schema do
-              key :'$ref', :EducationBenefitsClaimInput
+              key :$ref, :EducationBenefitsClaimInput
             end
           end
 
@@ -34,7 +34,7 @@ module Swagger
           response 200 do
             key :description, 'create education benefits claim response'
             schema do
-              key :'$ref', :EducationBenefitsClaimData
+              key :$ref, :EducationBenefitsClaimData
             end
           end
         end
@@ -78,7 +78,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :EducationStemClaimStatusData
+              key :$ref, :EducationStemClaimStatusData
             end
           end
         end

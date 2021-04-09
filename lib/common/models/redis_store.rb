@@ -58,7 +58,7 @@ module Common
     end
 
     def self.find_or_build(redis_key)
-      find(redis_key) || new(Hash[@redis_namespace_key, redis_key])
+      find(redis_key) || new({ @redis_namespace_key => redis_key })
     end
 
     def self.pop(redis_key = nil)

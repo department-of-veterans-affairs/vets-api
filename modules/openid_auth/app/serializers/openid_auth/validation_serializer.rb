@@ -43,5 +43,7 @@ module OpenidAuth
     delegate :sub, to: :object
 
     delegate :va_identifiers, to: :object
+
+    delegate :act, to: :object
   end
 end

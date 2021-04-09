@@ -19,7 +19,7 @@ module Swagger
               key :description, 'autocomplete response'
 
               schema do
-                key :'$ref', :GibctInstitutionsAutocomplete
+                key :$ref, :GibctInstitutionsAutocomplete
               end
             end
           end
@@ -38,7 +38,7 @@ module Swagger
               key :description, 'search response'
 
               schema do
-                key :'$ref', :GibctInstitutionsSearch
+                key :$ref, :GibctInstitutionsSearch
               end
             end
           end
@@ -57,7 +57,7 @@ module Swagger
               key :description, 'show response'
 
               schema do
-                key :'$ref', :GibctInstitution
+                key :$ref, :GibctInstitution
               end
             end
 
@@ -65,7 +65,7 @@ module Swagger
               key :description, 'Operation fails with invalid facility code'
 
               schema do
-                key :'$ref', :Errors
+                key :$ref, :Errors
               end
             end
           end

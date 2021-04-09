@@ -18,16 +18,22 @@ Mobile::Engine.routes.draw do
     get '/military-service-history', to: 'military_information#get_service_history'
     get '/payment-information/benefits', to: 'payment_information#index'
     put '/payment-information/benefits', to: 'payment_information#update'
+    put '/push/register', to: 'push_notifications#register'
+    get '/push/prefs/:endpoint_sid', to: 'push_notifications#get_prefs'
+    put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_prefs'
+    post '/push/send', to: 'push_notifications#send_notification'
     get '/user', to: 'users#show'
     get '/user/logout', to: 'users#logout'
     post '/user/addresses', to: 'addresses#create'
     put '/user/addresses', to: 'addresses#update'
+    delete '/user/addresses', to: 'addresses#destroy'
     post '/user/addresses/validate', to: 'addresses#validate'
     post '/user/emails', to: 'emails#create'
     put '/user/emails', to: 'emails#update'
     delete '/user/emails', to: 'emails#destroy'
     post '/user/phones', to: 'phones#create'
     put '/user/phones', to: 'phones#update'
+    delete '/user/phones', to: 'phones#destroy'
 
     scope :messaging do
       scope :health do

@@ -94,6 +94,11 @@ MaintenanceWindowRefresh:
   class: PagerDuty::PollMaintenanceWindows
   description: "Poll PagerDuty API for maintenance window information"
 
+VBADocuments::SlackNotifier:
+  cron: "0 0 * * * * America/New_York"
+  class: VBADocuments::SlackNotifier
+  description: "Notifies slack channel if certain benefits states get stuck at the top of every hour"
+
 VBADocuments::UploadScanner:
   cron: "0,30 * * * * * America/New_York"
   class: VBADocuments::UploadScanner
@@ -115,9 +120,9 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful benefits intake submissions"
 
 VBADocuments::ReportMonthlySubmissions:
-  cron: "0 2 1 * MON-FRI America/New_York"
+  cron: "4 3 2 7 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
-  description: "Monthly report of benefits intake submissions at 0200 on the first of the month"
+  description: "Monthly report of benefits intake submissions at 02:03:04 on the first of the month"
 
 ClaimsApi::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
@@ -135,7 +140,7 @@ AppealsApi::DecisionReviewReportDaily:
   description: "Daily report of appeals submissions"
 
 AppealsApi::DecisionReviewReportWeekly:
-  cron: "0 23 * * MON America/New_York"
+  cron: "0 23 * * SUN America/New_York"
   class: AppealsApi::DecisionReviewReportWeekly
   description: "Weekly report of appeals submissions"
 
@@ -204,3 +209,8 @@ ClaimsApi::ClaimAuditor:
   every: "12h"
   class: ClaimsApi::ClaimAuditor
   description: "Daily alert of pending claims longer than acceptable threshold"
+
+Veteran::VSOReloader:
+  cron: "0 2 * * * America/New_York"
+  class: Veteran::VSOReloader
+  description: Pulls down current list of VSOs and updates accordingly 

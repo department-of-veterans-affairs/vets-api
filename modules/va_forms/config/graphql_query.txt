@@ -13,6 +13,8 @@
   }
 }
 fragment vaForm on NodeVaForm {
+  fieldVaFormNumber
+  fieldVaFormRowId
   entityBundle
   entityId
   entityPublished
@@ -58,7 +60,6 @@ fragment vaForm on NodeVaForm {
     format
     processed
   }
-  fieldVaFormNumber
   fieldVaFormToolIntro
   fieldVaFormToolUrl {
     uri

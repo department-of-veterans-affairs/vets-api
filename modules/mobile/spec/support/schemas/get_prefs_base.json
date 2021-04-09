@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "required": [
+    "preferenceId",
+    "preferenceName",
+    "value",
+    "autoOptIn"
+  ],
+  "properties": {
+    "preferenceId": {
+      "description": "Preference key",
+      "type": "string"
+    },
+    "preferenceName": {
+      "description": "Display version of preference key",
+      "type": "string"
+    },
+    "value": {
+      "description": "current setting of preference",
+      "type": "boolean"
+    },
+    "autoOptIn": {
+      "description": "determines if this endpoint is automatically opted-in to this preference",
+      "type": "boolean"
+    }
+  },
+  "type": "object"
+}

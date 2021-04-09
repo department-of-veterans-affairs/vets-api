@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_17_132241) do
+ActiveRecord::Schema.define(version: 2021_04_01_071242) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -72,6 +72,9 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
+    t.string "source"
+    t.string "code"
+    t.string "details"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
   end
 
@@ -219,6 +222,30 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.uuid "auto_established_claim_id"
   end
 
+  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "submission_uuid", null: false
+    t.string "vetext_sid"
+    t.boolean "sequestered", default: true, null: false
+    t.string "state"
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
+    t.string "batch_id"
+    t.string "encrypted_raw_form_data"
+    t.string "encrypted_raw_form_data_iv"
+    t.string "encrypted_eligibility_info"
+    t.string "encrypted_eligibility_info_iv"
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["encrypted_eligibility_info_iv"], name: "index_covid_vaccine_expanded_on_el_iv", unique: true
+    t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_expanded_on_form_iv", unique: true
+    t.index ["encrypted_raw_form_data_iv"], name: "index_covid_vaccine_expanded_on_raw_iv", unique: true
+    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
+    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
+    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
+  end
+
   create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
     t.string "sid"
     t.uuid "account_id"
@@ -228,6 +255,10 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.datetime "updated_at", null: false
     t.string "encrypted_raw_form_data"
     t.string "encrypted_raw_form_data_iv"
+    t.boolean "expanded", default: false, null: false
+    t.boolean "sequestered", default: false, null: false
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
@@ -432,6 +463,21 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.string "state", default: "pending", null: false
     t.string "form_submission_id_string"
     t.string "timestamp"
+  end
+
+  create_table "health_quest_questionnaire_responses", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "appointment_id"
+    t.string "questionnaire_response_id"
+    t.string "encrypted_questionnaire_response_data"
+    t.string "encrypted_questionnaire_response_data_iv"
+    t.string "encrypted_user_demographics_data"
+    t.string "encrypted_user_demographics_data_iv"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["encrypted_questionnaire_response_data_iv"], name: "qr_key", unique: true
+    t.index ["encrypted_user_demographics_data_iv"], name: "user_demographics_key", unique: true
+    t.index ["user_uuid", "questionnaire_response_id"], name: "find_by_user_qr", unique: true
   end
 
   create_table "id_card_announcement_subscriptions", id: :serial, force: :cascade do |t|
@@ -639,10 +685,10 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
   end
 
@@ -678,6 +724,7 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.jsonb "benefit_categories"
     t.string "form_details_url"
     t.jsonb "va_form_administration"
+    t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 

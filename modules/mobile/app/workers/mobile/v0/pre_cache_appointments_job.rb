@@ -14,17 +14,14 @@ module Mobile
 
         appointments, errors = appointments_proxy(user).get_appointments(
           start_date: start_date,
-          end_date: end_date,
-          use_cache: false
+          end_date: end_date
         )
 
-        if !errors.size.positive?
-          options = { meta: { errors: nil } }
-          json = Mobile::V0::AppointmentSerializer.new(appointments, options).serialized_json
-          Mobile::V0::Appointment.set_cached(user, json)
-          Rails.logger.info('mobile appointments pre-cache set succeeded', user_uuid: uuid)
-        else
+        if errors.size.positive?
           Rails.logger.warn('mobile appointments pre-cache set failed', user_uuid: uuid, errors: errors)
+        else
+          Mobile::V0::Appointment.set_cached(user, appointments)
+          Rails.logger.info('mobile appointments pre-cache set succeeded', user_uuid: uuid)
         end
       end
 

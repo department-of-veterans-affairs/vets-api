@@ -16,9 +16,9 @@ module V0
                           .create_higher_level_review(request_body: request_body_hash, user: @current_user)
                           .body
       submitted_appeal_uuid = hlr_response_body.dig('data', 'id')
-      AppealSubmission.create(user_uuid: @current_user.uuid,
-                              type_of_appeal: 'HLR',
-                              submitted_appeal_uuid: submitted_appeal_uuid)
+      AppealSubmission.create!(user_uuid: @current_user.uuid,
+                               type_of_appeal: 'HLR',
+                               submitted_appeal_uuid: submitted_appeal_uuid)
       render json: hlr_response_body
     rescue => e
       request = begin

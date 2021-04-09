@@ -10,10 +10,9 @@ module AppealsApi
           @notice_of_disagreement = notice_of_disagreement
         end
 
-        # rubocop:disable Metrics/AbcSize
         def form_fill
           options = {
-            form_fields.veteran_name => form_data.veteran_name,
+            # veteran name is filled as part of insert_overlaid_pages, for autosizing
             form_fields.veteran_ssn => form_data.veteran_ssn,
             form_fields.veteran_file_number => form_data.veteran_file_number,
             form_fields.veteran_dob => form_data.veteran_dob,
@@ -25,13 +24,12 @@ module AppealsApi
             form_fields.hearing => form_data.hearing,
             form_fields.extra_contestable_issues => form_data.extra_contestable_issues,
             form_fields.soc_opt_in => form_data.soc_opt_in,
-            form_fields.signature => form_data.signature,
+            # signature is filled as part of insert_overlaid_pages, for autosizing
             form_fields.date_signed => form_data.date_signed
           }
 
           fill_first_five_issue_dates!(options)
         end
-        # rubocop:enable Metrics/AbcSize
 
         # rubocop:disable Metrics/MethodLength
         # rubocop:disable Metrics/BlockLength
@@ -47,6 +45,14 @@ module AppealsApi
               valign: :bottom
             }
             pdf.font 'Courier'
+            pdf.text_box(
+              form_data.veteran_name,
+              text_opts.merge(
+                at: [1, 660],
+                width: 435, # So the width of the name & signature field match, for truncation consistency
+                height: 16
+              )
+            )
             pdf.text_box(
               form_data.preferred_email,
               text_opts.merge(
@@ -77,6 +83,14 @@ module AppealsApi
                              )
               end
 
+            pdf.text_box(
+              form_data.signature,
+              text_opts.merge(
+                at: [1, 29],
+                width: 435,
+                height: 24
+              )
+            )
             2.times { pdf.start_new_page } # temp file and pdf template must have same num of pages for pdftk.multistamp
           end
 
@@ -121,12 +135,19 @@ module AppealsApi
             text_only: true
           )
 
-          CentralMail::DatestampPdf.new(bottom_stamped_path).run(
-            text: form_data.stamp_text,
-            x: 280,
-            y: 775,
-            text_only: true
-          )
+          name_stamp_path = "#{Common::FileHelpers.random_file_path}.pdf"
+          Prawn::Document.generate(name_stamp_path, margin: [0, 0]) do |pdf|
+            pdf.text_box form_data.stamp_text,
+                         at: [205, 785],
+                         align: :center,
+                         valign: :center,
+                         overflow: :shrink_to_fit,
+                         min_font_size: 8,
+                         width: 215,
+                         height: 10
+          end
+
+          CentralMail::DatestampPdf.new(nil).stamp(bottom_stamped_path, name_stamp_path)
         end
 
         private

@@ -57,13 +57,13 @@ module Swagger
                   payment_type
                 ]
                 property :control_information, type: :object do
-                  key :'$ref', :ControlInformation
+                  key :$ref, :ControlInformation
                 end
                 property :payment_account, type: :object do
-                  key :'$ref', :PaymentAccount
+                  key :$ref, :PaymentAccount
                 end
                 property :payment_address, type: :object do
-                  key :'$ref', :PaymentAddress
+                  key :$ref, :PaymentAddress
                 end
                 property :payment_type, type: :string, example: 'CNP'
               end

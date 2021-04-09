@@ -59,11 +59,8 @@ module AppealsApi
         end
 
         def signature
-          first_last = [first_name('Veteran'), last_name('Veteran')]
-          formatted_name = first_last.map(&:presence).compact.map(&:strip).join(' ')
-          auth_statement = 'signed by digital authentication to api.va.gov'
-
-          "#{formatted_name} - #{auth_statement}"
+          # 180 characters is the max allowed by the Name field on the pdf
+          "#{veteran_name[0...180]}\n- Signed by digital authentication to api.va.gov"
         end
 
         def date_signed
@@ -77,7 +74,7 @@ module AppealsApi
         end
 
         def stamp_text
-          "#{last_name('Veteran')} - #{veteran_ssn.last(4)}"
+          "#{last_name('Veteran').truncate(35)} - #{veteran_ssn.last(4)}"
         end
 
         def representatives_name
@@ -98,7 +95,7 @@ module AppealsApi
             first_name(who),
             initial,
             last_name(who)
-          ].map(&:presence).compact.map(&:strip).join(' ')
+          ].map(&:presence).compact.join(' ')
         end
 
         def first_name(who)

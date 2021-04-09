@@ -7,7 +7,7 @@ module Swagger
         base.response 200 do
           key :description, 'Form Submitted'
           schema do
-            key :'$ref', :SavedForm
+            key :$ref, :SavedForm
           end
         end
       end

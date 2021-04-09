@@ -48,13 +48,13 @@ class Swagger::V1::Requests::Facilities
       response 200 do
         key :description, 'Successful bounding box query'
         schema do
-          key :'$ref', :Facilities
+          key :$ref, :Facilities
         end
       end
       response 400 do
         key :description, 'Invalid bounding box query'
         schema do
-          key :'$ref', :Errors
+          key :$ref, :Errors
         end
       end
     end
@@ -77,13 +77,13 @@ class Swagger::V1::Requests::Facilities
       response 200 do
         key :description, 'Successful facility detail lookup'
         schema do
-          key :'$ref', :Facility
+          key :$ref, :Facility
         end
       end
       response 404 do
         key :description, 'Non-existent facility lookup'
         schema do
-          key :'$ref', :Errors
+          key :$ref, :Errors
         end
       end
     end
@@ -154,13 +154,13 @@ class Swagger::V1::Requests::Facilities
       response 200 do
         key :description, 'Successful bounding box query'
         schema do
-          key :'$ref', :Provider
+          key :$ref, :Provider
         end
       end
       response 400 do
         key :description, 'Invalid bounding box query'
         schema do
-          key :'$ref', :Errors
+          key :$ref, :Errors
         end
       end
     end
@@ -183,13 +183,13 @@ class Swagger::V1::Requests::Facilities
       response 200 do
         key :description, 'Successful provider detail lookup'
         schema do
-          key :'$ref', :Provider
+          key :$ref, :Provider
         end
       end
       response 404 do
         key :description, 'Non-existent provider lookup'
         schema do
-          key :'$ref', :Errors
+          key :$ref, :Errors
         end
       end
     end
@@ -204,7 +204,7 @@ class Swagger::V1::Requests::Facilities
       response 200 do
         key :description, 'Successful specialties lookup'
         schema do
-          key :'$ref', :Specialty
+          key :$ref, :Specialty
         end
       end
     end

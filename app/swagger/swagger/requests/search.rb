@@ -211,7 +211,7 @@ module Swagger
           response 400 do
             key :description, 'Error Occurred'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
 

@@ -11,30 +11,30 @@ describe ClaimsApi::PowerOfAttorneyPdfConstructor do
     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
-      'signatures': {
-        'veteran': b64_image,
-        'representative': b64_image
+      signatures: {
+        veteran: b64_image,
+        representative: b64_image
       },
-      'veteran': {
-        'address': {
-          'numberAndStreet': '2719 Hyperion Ave',
-          'city': 'Los Angeles',
-          'state': 'CA',
-          'country': 'US',
-          'zipFirstFive': '92264'
+      veteran: {
+        address: {
+          numberAndStreet: '2719 Hyperion Ave',
+          city: 'Los Angeles',
+          state: 'CA',
+          country: 'US',
+          zipFirstFive: '92264'
         },
-        'phone': {
-          'areaCode': '555',
-          'ohoneNumber': '5551337'
+        phone: {
+          areaCode: '555',
+          ohoneNumber: '5551337'
         }
       },
-      'serviceOrganization': {
-        'address': {
-          'numberAndStreet': '2719 Hyperion Ave',
-          'city': 'Los Angeles',
-          'state': 'CA',
-          'country': 'US',
-          'zipFirstFive': '92264'
+      serviceOrganization: {
+        address: {
+          numberAndStreet: '2719 Hyperion Ave',
+          city: 'Los Angeles',
+          state: 'CA',
+          country: 'US',
+          zipFirstFive: '92264'
         }
       }
     }

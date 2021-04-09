@@ -129,30 +129,6 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'permits access to all actions when the correct scope is provided' do
-        with_okta_configured do
-          token_opts = { 'scp' => %w[openid] }
-          change_encoded_token_payload(token_opts)
-
-          get :show, params: { id: 1 }
-          expect(response).to be_ok
-          patch :update, params: { id: 1 }
-          expect(response).to be_ok
-        end
-      end
-
-      it 'rejects access to all actions when the incorrect scope is provided' do
-        with_okta_configured do
-          token_opts = { 'scp' => %w[profile] }
-          change_encoded_token_payload(token_opts)
-
-          get :show, params: { id: 1 }
-          expect(response.status).to eq(401)
-          patch :update, params: { id: 1 }
-          expect(response.status).to eq(401)
-        end
-      end
-
       it 'permits access if at least one of the allowed scopes is provided' do
         with_okta_configured do
           token_opts = { 'scp' => %w[email] }

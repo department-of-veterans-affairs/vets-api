@@ -7,10 +7,10 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
   let!(:upload) { create(:notice_of_disagreement, :status_received) }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:in_process_element) do
-    [{ "uuid": 'ignored',
-       "status": 'In Process',
-       "errorMessage": '',
-       "lastUpdated": '2018-04-25 00:02:39' }]
+    [{ uuid: 'ignored',
+       status: 'In Process',
+       errorMessage: '',
+       lastUpdated: '2018-04-25 00:02:39' }]
   end
 
   describe '#perform' do

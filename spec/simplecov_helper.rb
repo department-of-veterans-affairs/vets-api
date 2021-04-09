@@ -32,10 +32,9 @@ class SimpleCovHelper
   end
 
   def merge_results
-    results = all_results.map { |file| SimpleCov::Result.from_hash(JSON.parse(File.read(file))) }
-    SimpleCov::ResultMerger.merge_results(*results).tap do |result|
-      SimpleCov::ResultMerger.store_result(result)
-    end
+    SimpleCov.collate all_results
+  rescue RuntimeError
+    nil
   end
 
   def self.add_filters
@@ -65,6 +64,7 @@ class SimpleCovHelper
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'HealthQuest', 'modules/health_quest'
     add_group 'Identity', 'modules/identity/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'

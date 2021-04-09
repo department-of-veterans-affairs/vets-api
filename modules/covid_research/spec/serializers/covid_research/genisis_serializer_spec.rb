@@ -1,14 +1,10 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-require_relative '../../covid_research_spec_helper.rb'
+require 'rails_helper'
+require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 require_relative '../../../app/serializers/covid_research/genisis_serializer.rb'
 # Because we aren't requiring the Rails helper so it isn't autoloaded
 require_relative '../../../app/serializers/covid_research/volunteer/name_serializer.rb'
-
-RSpec.configure do |c|
-  c.include CovidResearchSpecHelper
-end
 
 RSpec.describe CovidResearch::GenisisSerializer do
   let(:subject)  { described_class.new }

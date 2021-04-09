@@ -7,9 +7,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
-      'X-VA-EDIPI': '1007697216',
       'X-Consumer-Username': 'TestConsumer',
-      'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
@@ -95,10 +93,10 @@ RSpec.describe 'Power of Attorney ', type: :request do
     describe '#upload_power_of_attorney_document' do
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:binary_params) do
-        { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+        { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
       end
       let(:base64_params) do
-        { 'attachment': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+        { attachment: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
       end
 
       it 'submit binary and change the document status' do
@@ -202,6 +200,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
               parsed = JSON.parse(response.body)
               expect(response.status).to eq(200)
+              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
               expect(parsed['data']['attributes']['previous_poa']).to eq('HelloWorld')
             end
           end

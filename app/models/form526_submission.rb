@@ -45,6 +45,7 @@ class Form526Submission < ApplicationRecord
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
   BIRLS_KEY = 'va_eauth_birlsfilenumber'
+  SUBMIT_FORM_526_JOB_CLASSES = %w[SubmitForm526AllClaim SubmitForm526].freeze
 
   # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
@@ -205,7 +206,29 @@ class Form526Submission < ApplicationRecord
   def perform_ancillary_jobs_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     # Only run ancillary jobs if submission succeeded
-    submission.perform_ancillary_jobs(options['first_name']) if submission.form526_job_statuses.all?(&:success?)
+    submission.perform_ancillary_jobs(options['first_name']) if submission.jobs_succeeded?
+  end
+
+  def jobs_succeeded?
+    a_submit_form_526_job_succeeded? && all_other_jobs_succeeded_if_any?
+  end
+
+  class SubmitForm526JobStatusesError < StandardError; end
+
+  def a_submit_form_526_job_succeeded?
+    submit_form_526_job_statuses = form526_job_statuses.where(job_class: SUBMIT_FORM_526_JOB_CLASSES).order(:updated_at)
+    submit_form_526_job_statuses.presence&.any?(&:success?)
+  ensure
+    successful = submit_form_526_job_statuses.where(status: 'success').load
+    warn = ->(message) { log_message_to_sentry(message, :warn, { form_526_submission_id: id }) }
+    warn.call 'There are multiple successful SubmitForm526 job statuses' if successful.size > 1
+    if successful.size == 1 && submit_form_526_job_statuses.last.unsuccessful?
+      warn.call "There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job"
+    end
+  end
+
+  def all_other_jobs_succeeded_if_any?
+    form526_job_statuses.where.not(job_class: SUBMIT_FORM_526_JOB_CLASSES).all?(&:success?)
   end
 
   # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
@@ -238,7 +261,7 @@ class Form526Submission < ApplicationRecord
   #
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
-    if submission.form526_job_statuses.all?(&:success?)
+    if submission.jobs_succeeded?
       user = User.find(submission.user_uuid)
       if Flipper.enabled?(:form526_confirmation_email, user)
         submission.send_form526_confirmation_email(options['first_name'])
@@ -267,7 +290,12 @@ class Form526Submission < ApplicationRecord
 
   def submit_uploads
     # Put uploads on a one minute delay because of shared workload with EVSS
-    EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(60.seconds, id, form[FORM_526_UPLOADS])
+    uploads = form[FORM_526_UPLOADS]
+    delay = 60.seconds
+    uploads.each do |upload|
+      EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(delay, id, [upload])
+      delay += 15.seconds
+    end
   end
 
   def upload_bdd_instructions

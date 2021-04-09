@@ -37,7 +37,7 @@ module VRE
 
     def request_headers
       {
-        'Authorization': "Bearer #{get_token}"
+        Authorization: "Bearer #{get_token}"
       }
     end
 

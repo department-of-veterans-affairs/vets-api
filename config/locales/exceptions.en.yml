@@ -333,7 +333,7 @@ en:
         <<: *external_defaults
         code: 'SM115'
         title: Record not found
-        detail: 'Attachment requested could not be found'
+        detail: 'Entity requested could not be found'
         status: 404
       SM116: # 'The Folder must be empty before delete'
         <<: *external_defaults
@@ -707,6 +707,12 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      SEARCH_TYPEAHEAD_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'SEARCH_TYPEAHEAD_400'
+        detail: 'Missing Query'
+        status: 400
       SEARCH_CLICK_TRACKING_400:
         <<: *external_defaults
         title: Bad Request
@@ -1964,6 +1970,16 @@ en:
         detail: Internal server error
         code: VANOTIFY_500
         status: 500
+      VETEXT_PUSH_400:
+        <<: *external_defaults
+        code: 'VETEXT_PUSH_400'
+        detail: The request to the upstream service was malformed and could not be processed
+        status: 400
+      VETEXT_PUSH_502:
+        <<: *external_defaults
+        code: 'VETEXT_PUSH_502'
+        detail: Received an invalid response from the upstream server
+        status: 502
 
   decision_review:
     exceptions:

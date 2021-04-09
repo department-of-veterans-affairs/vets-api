@@ -7,7 +7,7 @@ RSpec.describe 'VA Forms', type: :request do
 
   let!(:form) do
     create(:va_form)
-    create(:va_form, form_name: '527')
+    create(:va_form, form_name: '527', row_id: '4157')
     create(:deleted_va_form)
   end
   let(:base_url) { '/services/va_forms/v0/forms' }
@@ -63,6 +63,11 @@ RSpec.describe 'VA Forms', type: :request do
     it 'returns the forms' do
       get "#{base_url}/#{form.form_name}"
       expect(response).to match_response_schema('va_forms/form')
+    end
+
+    it 'returns a 404 when a form is not there' do
+      get "#{base_url}/bad"
+      expect(response).to have_http_status(:not_found)
     end
 
     it 'returns the forms when camel-inflected' do

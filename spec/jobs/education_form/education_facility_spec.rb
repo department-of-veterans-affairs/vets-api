@@ -98,7 +98,7 @@ RSpec.describe EducationForm::EducationFacility do
         form = education_benefits_claim.parsed_form
         form['newSchool'] = {
           'address' => {
-            'state': 'IL'
+            state: 'IL'
           }
         }
         education_benefits_claim.saved_claim.form = form.to_json
@@ -127,12 +127,19 @@ RSpec.describe EducationForm::EducationFacility do
       end
     end
 
+    context '22-1990s' do
+      it 'routes to Western RPO' do
+        education_benefits_claim.saved_claim.form_id = '22-1990s'
+        expect(described_class.region_for(education_benefits_claim)).to eq(:western)
+      end
+    end
+
     context 'address country Phillipines' do
       it 'routes to Western RPO' do
         form = education_benefits_claim.parsed_form
         form['educationProgram'] = {
           'address' => {
-            'country': 'PHL'
+            country: 'PHL'
           }
         }
         education_benefits_claim.saved_claim.form = form.to_json

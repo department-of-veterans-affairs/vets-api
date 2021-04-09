@@ -13,8 +13,7 @@ module DebtManagementCenter
     STATSD_KEY_PREFIX = 'api.dmc'
 
     def initialize(user)
-      @user = user
-      @file_number = init_file_number
+      super(user)
       @debts = init_debts
     end
 
@@ -30,11 +29,6 @@ module DebtManagementCenter
     end
 
     private
-
-    def init_file_number
-      bgs_file_number = BGS::PeopleService.new(@user).find_person_by_participant_id[:file_nbr]
-      bgs_file_number.presence || @user.ssn
-    end
 
     def debts_with_sorted_histories
       @debts.select do |debt|

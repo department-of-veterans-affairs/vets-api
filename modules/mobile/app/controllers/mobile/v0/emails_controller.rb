@@ -19,9 +19,9 @@ module Mobile
       end
 
       def destroy
-        email_params[:effective_end_date] = Time.now.utc.iso8601
+        delete_params = email_params.to_h.merge(effective_end_date: Time.now.utc.iso8601)
         render_transaction_to_json(
-          service.save_and_await_response(resource_type: :email, params: email_params, update: true)
+          service.save_and_await_response(resource_type: :email, params: delete_params, update: true)
         )
       end
 

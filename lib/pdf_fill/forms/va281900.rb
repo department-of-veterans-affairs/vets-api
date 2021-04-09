@@ -291,7 +291,7 @@ module PdfFill
           'afternoon' => "Afternoons 2:00 to 6:00 p.m.\n"
         }
 
-        times.map { |time| counseling_hours[time] }.join('')
+        times.map { |time| counseling_hours[time] }.join
       end
     end
   end

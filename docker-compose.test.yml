@@ -26,7 +26,7 @@ services:
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
-      CI:
+      CI: "true"
       RAILS_ENV: test
       CC_TEST_REPORTER_ID: '0c396adc254b0317e2c3a89a1c929fd61270b133c944d3e9c0f13b3937a7ce45'
       CHANGE_ID:           "${CHANGE_ID}"

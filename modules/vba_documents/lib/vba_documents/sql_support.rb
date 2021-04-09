@@ -2,9 +2,11 @@
 
 module VBADocuments
   module SQLSupport
-    AVG_STATUS = %(
+    STATUS_ELAPSED_TIME = %(
       select status,
-      round(avg(duration)) as elapsed_secs,
+      min(duration) as min_secs,
+      max(duration) as max_secs,
+      round(avg(duration)) as avg_secs,
     	count(*) as rowcount
       from (
         select guid,
@@ -22,17 +24,16 @@ module VBADocuments
             jsonb_object_keys(metadata -> 'status') as status_key,
             metadata -> 'status' as status_json
           from vba_documents_upload_submissions
+          where created_at > $1 and created_at < $2
+          CONSUMER_NAME_PART
         ) as n1
         where status_json -> status_key -> 'end' is not null
       ) as closed_statuses
-      where 1 = 1
-      CONSUMER_NAME_PART
-      and   created_at > $1 and created_at < $2
       group by status
     )
-    def avg_sql(consumer_name = nil)
+    def status_elapsed_time_sql(consumer_name = nil)
       sql_part = consumer_name ? "and consumer_name = '#{consumer_name}' " : ''
-      AVG_STATUS.sub('CONSUMER_NAME_PART', sql_part)
+      STATUS_ELAPSED_TIME.sub('CONSUMER_NAME_PART', sql_part)
     end
   end
 end

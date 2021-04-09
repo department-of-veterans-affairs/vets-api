@@ -14,15 +14,15 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   read_json_from_same_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
   ERROR_500_EXAMPLE = {
-    "errors": [
+    errors: [
       {
-        "status": '500',
-        "detail": 'An unknown error has occurred.',
-        "code": '151',
-        "title": 'Internal Server Error'
+        status: '500',
+        detail: 'An unknown error has occurred.',
+        code: '151',
+        title: 'Internal Server Error'
       }
     ],
-    "status": 500
+    status: 500
   }.freeze
 
   swagger_path '/notice_of_disagreements' do
@@ -99,42 +99,11 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :maxLength, 10
       end
 
-      parameter do
-        key :name, 'X-VA-Claimant-First-Name'
-        key :in, :header
-        key :required, false
-        key :description, 'The first name of the benefits claimant (if applicable)'
-        key :maxLength, 16
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Middle-Initial'
-        key :in, :header
-        key :required, false
-        key :description, 'The middle initial of the benefits claimant (if applicable)'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Last-Name'
-        key :in, :header
-        key :required, false
-        key :description, 'The last name of the benefits claimant (if applicable)'
-        key :maxLength, 36
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Birth-Date'
-        key :in, :header
-        key :required, false
-        key :description, 'The birth date of the benefits claimant (if applicable)'
-        key :maxLength, 10
-      end
-
       request_body do
         key :required, true
         content 'application/json' do
           schema do
-            key :'$ref', :nodCreateInput
+            key :$ref, :nodCreateInput
           end
         end
       end
@@ -143,7 +112,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :description, '10182 success response'
         content 'application/json' do
           schema do
-            key :'$ref', :nodCreateResponse
+            key :$ref, :nodCreateResponse
           end
         end
       end
@@ -157,7 +126,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :array
 
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
 
@@ -180,7 +149,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
             property :errors do
               key :type, :array
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
           end
@@ -196,8 +165,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'getNoticeOfDisagreement'
       key :summary, 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)'
       key :description, 'Returns all of the data associated with a specific Notice of Disagreement.'
-      parameter name: 'uuid', 'in': 'path', required: true, description: 'Notice of Disagreement UUID' do
-        schema { key :'$ref', :uuid }
+      parameter name: 'uuid', in: 'path', required: true, description: 'Notice of Disagreement UUID' do
+        schema { key :$ref, :uuid }
       end
 
       response 200 do
@@ -209,7 +178,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
             property :data do
               property :id do
-                key :'$ref', :uuid
+                key :$ref, :uuid
               end
 
               property :type do
@@ -223,16 +192,16 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
                 property :status do
                   key :type, :string
                   key :description, 'nodStatus'
-                  key :'$ref', '#/components/schemas/nodStatus'
+                  key :$ref, '#/components/schemas/nodStatus'
                 end
                 property :updatedAt do
-                  key :'$ref', '#/components/schemas/timeStamp'
+                  key :$ref, '#/components/schemas/timeStamp'
                 end
                 property :createdAt do
-                  key :'$ref', '#/components/schemas/timeStamp'
+                  key :$ref, '#/components/schemas/timeStamp'
                 end
                 property :formData do
-                  key :'$ref', '#/components/schemas/nodCreateInput'
+                  key :$ref, '#/components/schemas/nodCreateInput'
                 end
               end
             end
@@ -281,22 +250,22 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       'Associate these results when creating a new Notice of Disagreement.'
       key :description, description
 
-      parameter name: 'X-VA-SSN', 'in': 'header', description: 'veteran\'s ssn' do
+      parameter name: 'X-VA-SSN', in: 'header', description: 'veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema '$ref': 'X-VA-SSN'
       end
 
-      parameter name: 'X-VA-File-Number', 'in': 'header', description: 'veteran\'s file number' do
+      parameter name: 'X-VA-File-Number', in: 'header', description: 'veteran\'s file number' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema type: :string
       end
 
-      parameter name: 'X-VA-Receipt-Date', 'in': 'header', required: true do
+      parameter name: 'X-VA-Receipt-Date', in: 'header', required: true do
         desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
           'the receipt date of a hypothetical Decision Review must be specified.'
         key :description, desc
 
-        schema type: :string, 'format': :date
+        schema type: :string, format: :date
       end
 
       key :responses, read_json_from_same_dir['responses_contestable_issues.json']
@@ -353,7 +322,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :array
 
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
           end
@@ -421,39 +390,11 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
       end
 
-      parameter do
-        key :name, 'X-VA-Claimant-First-Name'
-        key :in, :header
-        key :required, false
-        key :description, 'The first name of the benefits claimant (if applicable)'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Middle-Initial'
-        key :in, :header
-        key :required, false
-        key :description, 'The middle initial of the benefits claimant (if applicable)'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Last-Name'
-        key :in, :header
-        key :required, false
-        key :description, 'The last name of the benefits claimant (if applicable)'
-      end
-
-      parameter do
-        key :name, 'X-VA-Claimant-Birth-Date'
-        key :in, :header
-        key :required, false
-        key :description, 'The birth date of the benefits claimant (if applicable)'
-      end
-
       request_body do
         key :required, true
         content 'application/json' do
           schema do
-            key :'$ref', :nodCreateInput
+            key :$ref, :nodCreateInput
           end
         end
       end
@@ -492,7 +433,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :array
 
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
 
@@ -515,11 +456,235 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
               key :type, :array
 
               items do
-                key :'$ref', :errorModel
+                key :$ref, :errorModel
               end
             end
           end
         end
+      end
+    end
+  end
+
+  swagger_path '/notice_of_disagreements/evidence_submissions' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :post, tags: NOD_TAG do
+      key :operationId, 'postNoticeOfDisagreementEvidenceSubmission'
+      key :summary, 'Get a location for subsequent evidence submission document upload PUT request'
+      key :description, ''
+      parameter name: 'uuid', 'in': 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
+        schema { key :'$ref', :uuid }
+      end
+
+      response 202 do
+        key :description, 'Accepted. Location generated'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            key :required, %i[data]
+            property :data do
+              key :description, 'Status record for a previously initiated document submission.'
+              key :required, %i[id type attributes]
+              property :id do
+                key :description, 'JSON API identifier'
+                key :type, :string
+                key :format, :uuid
+                key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
+              end
+
+              property :type do
+                key :description, 'JSON API type specification'
+                key :type, :string
+                key :example, 'document_upload'
+              end
+
+              property :attributes do
+                key :required, %i[guid status]
+                property :guid do
+                  key :description, 'The document upload identifier'
+                  key :type, :string
+                  key :format, :uuid
+                  key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
+                end
+
+                property :status do
+                  key :description, 'status description here...'
+                  key :type, :string
+                  key :enum, %i[pending ...]
+                  key :example, 'pending'
+                end
+
+                property :code do
+                  key :description, 'code description here...'
+                  key :type, :string
+                end
+
+                property :detail do
+                  key :description, 'Human readable error detail. Only present if status = "error"'
+                  key :type, :string
+                end
+
+                property :location do
+                  key :description, 'Location to which to PUT document Payload'
+                  key :type, :string
+                  key :format, :uri
+                  key :example, 'https://sandbox-api.va.gov/example_path_here/{idpath}'
+                end
+
+                property :updated_at do
+                  key :description, 'The last time the submission was updated'
+                  key :type, :string
+                  key :format, 'date-time'
+                  key :example, '2018-07-30T17:31:15.958Z'
+                end
+
+                property :uploaded_pdf do
+                  key :description, 'Only populated after submission starts processing'
+                  key :example, 'null'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/path' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :put, tags: NOD_TAG do
+      key :operationId, 'putNoticeOfDisagreementEvidenceSubmission'
+      key :summary, 'Accepts Notice of Disagreement Evidence Submission document upload.'
+      key :description, 'Detailed description here...'
+
+      parameter do
+        key :name, 'Content-MD5'
+        key :in, 'header'
+        key :description, 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
+        key :required, false
+        schema do
+          key :type, :string
+          key :format, :md5
+        end
+      end
+
+      response 200 do
+        key :description, 'Document upload staged'
+      end
+
+      response 400 do
+        key :description, 'Document upload failed'
+        content 'application/xml' do
+          schema do
+            key :type, :object
+            key :description, 'Document upload failed'
+
+            xml do
+              key :name, 'Error'
+            end
+
+            property :Code do
+              key :type, :string
+              key :description, 'Error code'
+              key :example, 'Bad Digest'
+            end
+
+            property :Message do
+              key :type, :string
+              key :description, 'Error detail'
+              key :example, 'A client error (InvalidDigest) occurred when calling the PutObject operation -'\
+                'The Content-MD5 you specified was invalid.'
+            end
+
+            property :Resource do
+              key :type, :string
+              key :description, 'Resource description'
+              key :example, '/example_path_here/6d8433c1-cd55-4c24-affd-f592287a7572.upload'
+            end
+
+            property :RequestId do
+              key :type, :string
+              key :description, 'Identifier for debug purposes'
+            end
+          end
+        end
+      end
+
+      security do
+        key :apikey, []
+      end
+    end
+  end
+
+  swagger_path '/notice_of_disagreements/evidence_submissions/{uuid}' do
+    next unless PATH_ENABLED_FOR_ENV
+
+    operation :get, tags: NOD_TAG do
+      key :operationId, 'getNoticeOfDisagreementEvidenceSubmission'
+      key :summary, 'Shows a specific Notice of Disagreement Evidence Submission.'
+      key :description, 'Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.'
+      parameter name: 'uuid', 'in': 'path', required: true do
+        schema { key :'$ref', :uuid }
+        key :description, 'Notice of Disagreement UUID Evidence Submission'
+      end
+
+      response 200 do
+        key :description, 'Info about a single Notice of Disagreement Evidence Submission.'
+
+        content 'application/json' do
+          schema do
+            key :type, :object
+
+            property :data do
+              property :id do
+                key :'$ref', :uuid
+              end
+
+              property :type do
+                key :type, :string
+                key :enum, [:evidenceSubmission]
+              end
+
+              property :status do
+                key :type, :string
+                key :description, 'evidenceSubmissionStatus'
+                key :'$ref', '#/components/schemas/evidenceSubmissionStatus'
+              end
+            end
+          end
+        end
+      end
+
+      response 404 do
+        key :description, 'Notice of Disagreement Evidence Submission not found'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            property :errors do
+              key :type, :array
+
+              items do
+                property :status do
+                  key :type, :integer
+                  key :example, 404
+                end
+                property :detail do
+                  key :type, :string
+                  key :example, 'NoticeOfDisagreement Evidence Submission with uuid {uuid} not found.'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      security do
+        key :apikey, []
       end
     end
   end

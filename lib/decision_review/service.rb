@@ -7,6 +7,7 @@ require 'common/exceptions/forbidden'
 require 'common/exceptions/schema_validation_errors'
 require 'decision_review/configuration'
 require 'decision_review/service_exception'
+require 'decision_review/schemas'
 
 module DecisionReview
   ##
@@ -22,6 +23,9 @@ module DecisionReview
     HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200'
     HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200'
     HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
+    REQUIRED_CREATE_NOTICE_OF_DISAGREEMENT_HEADERS = %w[X-VA-Veteran-First-Name X-VA-Veteran-Last-Name
+                                                        X-VA-Veteran-SSN X-VA-Veteran-Birth-Date].freeze
+    REQUIRED_CREATE_HIGHER_LEVEL_REVIEW_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 
     ##
     # Create a Higher-Level Review
@@ -41,6 +45,25 @@ module DecisionReview
     end
 
     ##
+    # Create a Notice of Disagreement
+    #
+    # @param request_body [JSON] JSON serialized version of a Notice of Disagreement Form (10182)
+    # @param user [User] Veteran who the form is in regard to
+    # @return [Faraday::Response]
+    #
+    def create_notice_of_disagreement(request_body:, user:)
+      with_monitoring_and_error_handling do
+        headers = create_notice_of_disagreement_headers(user)
+        response = perform :post, 'notice_of_disagreements', request_body, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema(
+          json: response.body, schema: Schemas::NOD_CREATE_RESPONSE_200, append_to_error_class: ' (NOD)'
+        )
+        response
+      end
+    end
+
+    ##
     # Retrieve a Higher-Level Review
     #
     # @param uuid [uuid] A Higher-Level Review's UUID (included in a create_higher_level_review response)
@@ -51,6 +74,23 @@ module DecisionReview
         response = perform :get, "higher_level_reviews/#{uuid}", nil
         raise_schema_error_unless_200_status response.status
         validate_against_schema json: response.body, schema: HLR_SHOW_RESPONSE_SCHEMA, append_to_error_class: ' (HLR)'
+        response
+      end
+    end
+
+    ##
+    # Retrieve a Notice of Disagreement
+    #
+    # @param uuid [uuid] A Notice of Disagreement's UUID (included in a create_notice_of_disagreement response)
+    # @return [Faraday::Response]
+    #
+    def get_notice_of_disagreement(uuid)
+      with_monitoring_and_error_handling do
+        response = perform :get, "notice_of_disagreements/#{uuid}", nil
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema(
+          json: response.body, schema: Schemas::NOD_SHOW_RESPONSE_200, append_to_error_class: ' (NOD)'
+        )
         response
       end
     end
@@ -77,24 +117,75 @@ module DecisionReview
       end
     end
 
+    ##
+    # Get Contestable Issues for a Notice of Disagreement
+    #
+    # @param user [User] Veteran who the form is in regard to
+    # @return [Faraday::Response]
+    #
+    def get_notice_of_disagreement_contestable_issues(user:)
+      with_monitoring_and_error_handling do
+        path = 'notice_of_disagreements/contestable_issues'
+        headers = get_contestable_issues_headers(user)
+        response = perform :get, path, nil, headers
+        raise_schema_error_unless_200_status response.status
+        validate_against_schema(
+          json: response.body,
+          schema: Schemas::NOD_CONTESTABLE_ISSUES_RESPONSE_200,
+          append_to_error_class: ' (NOD)'
+        )
+        response
+      end
+    end
+
     private
 
     def create_higher_level_review_headers(user)
-      unless user.ssn && user.first_name && user.last_name && user.birth_date
-        raise Common::Exceptions::Forbidden.new source: "#{self.class}##{__method__}"
-      end
-
-      {
-        'X-VA-SSN' => user.ssn.to_s,
-        'X-VA-First-Name' => user.first_name.to_s.first(12),
-        # middle_name can return either a string or an array (hence the strange chain)
-        'X-VA-Middle-Initial' => user.middle_name.presence&.first&.to_s&.first,
-        'X-VA-Last-Name' => user.last_name.to_s.first(18),
-        'X-VA-Birth-Date' => user.birth_date.to_s,
+      headers = {
+        'X-VA-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-First-Name' => user.first_name.to_s.strip.first(12),
+        'X-VA-Middle-Initial' => middle_initial(user),
+        'X-VA-Last-Name' => user.last_name.to_s.strip.first(18).presence,
+        'X-VA-Birth-Date' => user.birth_date.to_s.strip.presence,
         'X-VA-File-Number' => nil,
         'X-VA-Service-Number' => nil,
         'X-VA-Insurance-Policy-Number' => nil
       }.compact
+
+      missing_required_fields = REQUIRED_CREATE_HIGHER_LEVEL_REVIEW_HEADERS - headers.keys
+      if missing_required_fields.present?
+        raise Common::Exceptions::Forbidden.new(
+          source: "#{self.class}##{__method__}",
+          detail: { missing_required_fields: missing_required_fields }
+        )
+      end
+
+      headers
+    end
+
+    def create_notice_of_disagreement_headers(user)
+      headers = {
+        'X-VA-Veteran-First-Name' => user.first_name.to_s.strip, # can be an empty string for those with 1 legal name
+        'X-VA-Veteran-Middle-Initial' => middle_initial(user),
+        'X-VA-Veteran-Last-Name' => user.last_name.to_s.strip.presence,
+        'X-VA-Veteran-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-Veteran-File-Number' => nil,
+        'X-VA-Veteran-Birth-Date' => user.birth_date.to_s.strip.presence
+      }.compact
+
+      missing_required_fields = REQUIRED_CREATE_NOTICE_OF_DISAGREEMENT_HEADERS - headers.keys
+      if missing_required_fields.present?
+        raise Common::Exceptions::Forbidden.new(
+          source: "#{self.class}##{__method__}",
+          detail: { missing_required_fields: missing_required_fields }
+        )
+      end
+
+      headers
+    end
+
+    def middle_initial(user)
+      user.middle_name.to_s.strip.presence&.first&.upcase
     end
 
     def get_contestable_issues_headers(user)

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 module FacilitiesApi
-  RSpec.describe V1::PPMS::Specialty, type: :model do
+  RSpec.describe V1::PPMS::Specialty, type: :model, team: :facilities do
     it 'defaults to nil' do
       specialty = V1::PPMS::Specialty.new
       expect(specialty.attributes).to match(

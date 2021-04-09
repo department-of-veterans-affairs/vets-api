@@ -39,7 +39,6 @@ module SAML
       user.loa[:current] < user.loa[:highest]
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
       if auth == 'success'
         # if the original auth request specified a redirect, use that
@@ -62,7 +61,6 @@ module SAML
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def logout_redirect_url
       "#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}"

@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'va_notify/service'
 
 describe VaNotify::Service do
-  before(:example, vanotify_service_enhancement: false) do
-    Flipper.disable(:vanotify_service_enhancement)
+  before(:example, test_service: false) do
     @test_api_key = 'test-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
     @test_base_url = 'http://fakeapi.com'
     allow_any_instance_of(VaNotify::Configuration).to receive(:base_path).and_return(@test_base_url)
@@ -19,11 +18,10 @@ describe VaNotify::Service do
     }
   }
 
-  describe 'service initialization' do
+  describe 'service initialization', test_service: true do
     let(:notification_client) { double('Notifications::Client') }
 
-    it 'api key based on service and client is called with expected parameters', vanotify_service_enhancement: true do
-      Flipper.enable(:vanotify_service_enhancement)
+    it 'api key based on service and client is called with expected parameters' do
       test_service_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
       test_service_base_url = 'https://fakishapi.com'
       parameters = test_service_api_key, test_service_base_url
@@ -40,9 +38,7 @@ describe VaNotify::Service do
       end
     end
 
-    it 'correct api key passed to initialize when'\
-    ' multiple services are defined', vanotify_service_enhancement: true do
-      Flipper.enable(:vanotify_service_enhancement)
+    it 'correct api key passed to initialize when multiple services are defined' do
       test_service1_api_key = 'fa80e418-ff49-445c-a29b-92c04a181207-7aaec57c-2dc9-4d31-8f5c-7225fe79516a'
       test_base_url = 'https://fakishapi.com'
       parameters = test_service1_api_key, test_base_url
@@ -63,7 +59,7 @@ describe VaNotify::Service do
     end
   end
 
-  describe '#send_email', vanotify_service_enhancement: false do
+  describe '#send_email', test_service: false do
     subject { VaNotify::Service.new(@test_api_key) }
 
     let(:notification_client) { double('Notifications::Client') }
@@ -77,7 +73,7 @@ describe VaNotify::Service do
     end
   end
 
-  describe 'error handling', vanotify_service_enhancement: false do
+  describe 'error handling', test_service: false do
     subject { VaNotify::Service.new(@test_api_key) }
 
     it 'raises a 400 exception' do

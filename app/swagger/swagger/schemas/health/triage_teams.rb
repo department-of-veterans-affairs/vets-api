@@ -11,7 +11,7 @@ module Swagger
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
-              key :'$ref', :TriageTeamsBase
+              key :$ref, :TriageTeamsBase
             end
           end
 

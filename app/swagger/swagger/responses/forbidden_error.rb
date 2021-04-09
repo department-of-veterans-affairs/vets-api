@@ -7,7 +7,7 @@ module Swagger
         base.response 403 do
           key :description, 'Forbidden'
           schema do
-            key :'$ref', :Errors
+            key :$ref, :Errors
           end
         end
       end

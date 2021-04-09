@@ -18,13 +18,13 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Post911GiBillStatus
+              key :$ref, :Post911GiBillStatus
             end
           end
           response 404 do
             key :description, 'Veteran Gi Bill Status not found in EVSS'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
 
@@ -35,7 +35,7 @@ module Swagger
               key :format, 'date'
             end
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
         end
@@ -45,7 +45,7 @@ module Swagger
         key :required, %i[data meta]
 
         property :meta, description: 'The response from the EVSS service to vets-api', type: :object do
-          key :'$ref', :Meta
+          key :$ref, :Meta
         end
         property :data, type: :object do
           property :id, type: :string
@@ -63,18 +63,18 @@ module Swagger
             property :veteran_is_eligible, type: %i[boolean null], example: false
             property :active_duty, type: %i[boolean null], example: false
             property :original_entitlement, type: :object do
-              key :'$ref', :Entitlement
+              key :$ref, :Entitlement
             end
             property :used_entitlement, type: :object do
-              key :'$ref', :Entitlement
+              key :$ref, :Entitlement
             end
             property :remaining_entitlement, type: :object do
-              key :'$ref', :Entitlement
+              key :$ref, :Entitlement
             end
             property :enrollments do
               key :type, :array
               items do
-                key :'$ref', :Enrollment
+                key :$ref, :Enrollment
               end
             end
           end
@@ -101,7 +101,7 @@ module Swagger
         property :amendments do
           key :type, :array
           items do
-            key :'$ref', :Amendment
+            key :$ref, :Amendment
           end
         end
       end

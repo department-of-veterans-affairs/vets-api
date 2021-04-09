@@ -106,7 +106,7 @@ module Swagger
               key :required, [:address]
 
               property(:address) do
-                key :'$ref', :Vet360AddressSuggestion
+                key :$ref, :Vet360AddressSuggestion
                 key :required, %i[
                   address_pou
                 ]
@@ -127,7 +127,7 @@ module Swagger
                   key :type, :object
 
                   property(:address) do
-                    key :'$ref', :Vet360AddressSuggestion
+                    key :$ref, :Vet360AddressSuggestion
                   end
 
                   property(:address_meta_data) do
@@ -164,7 +164,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PostVet360DomesticAddress
+              key :$ref, :PostVet360DomesticAddress
             end
           end
 
@@ -175,7 +175,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PostVet360InternationalAddress
+              key :$ref, :PostVet360InternationalAddress
             end
           end
 
@@ -186,14 +186,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PostVet360MilitaryOverseasAddress
+              key :$ref, :PostVet360MilitaryOverseasAddress
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -216,7 +216,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360DomesticAddress
+              key :$ref, :PutVet360DomesticAddress
             end
           end
 
@@ -227,7 +227,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360InternationalAddress
+              key :$ref, :PutVet360InternationalAddress
             end
           end
 
@@ -238,14 +238,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360MilitaryOverseasAddress
+              key :$ref, :PutVet360MilitaryOverseasAddress
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -268,7 +268,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360DomesticAddress
+              key :$ref, :PutVet360DomesticAddress
             end
           end
 
@@ -279,7 +279,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360InternationalAddress
+              key :$ref, :PutVet360InternationalAddress
             end
           end
 
@@ -290,14 +290,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360MilitaryOverseasAddress
+              key :$ref, :PutVet360MilitaryOverseasAddress
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -318,14 +318,14 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :PhoneNumber
+              key :$ref, :PhoneNumber
             end
           end
 
           response 403 do
             key :description, 'Forbidden'
             schema do
-              key :'$ref', :EVSSAuthError
+              key :$ref, :EVSSAuthError
             end
           end
         end
@@ -357,14 +357,14 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :PhoneNumber
+              key :$ref, :PhoneNumber
             end
           end
 
           response 403 do
             key :description, 'Forbidden'
             schema do
-              key :'$ref', :EVSSAuthError
+              key :$ref, :EVSSAuthError
             end
           end
         end
@@ -385,14 +385,14 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Email
+              key :$ref, :Email
             end
           end
 
           response 403 do
             key :description, 'Forbidden'
             schema do
-              key :'$ref', :EVSSAuthError
+              key :$ref, :EVSSAuthError
             end
           end
         end
@@ -422,14 +422,14 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Email
+              key :$ref, :Email
             end
           end
 
           response 403 do
             key :description, 'Forbidden'
             schema do
-              key :'$ref', :EVSSAuthError
+              key :$ref, :EVSSAuthError
             end
           end
         end
@@ -454,14 +454,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PostVet360Email
+              key :$ref, :PostVet360Email
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -484,14 +484,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360Email
+              key :$ref, :PutVet360Email
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -514,14 +514,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360Email
+              key :$ref, :PutVet360Email
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -573,7 +573,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -599,7 +599,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -670,14 +670,14 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :PhoneNumber
+              key :$ref, :PhoneNumber
             end
           end
 
           response 403 do
             key :description, 'Forbidden'
             schema do
-              key :'$ref', :EVSSAuthError
+              key :$ref, :EVSSAuthError
             end
           end
         end
@@ -709,14 +709,14 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :PhoneNumber
+              key :$ref, :PhoneNumber
             end
           end
 
           response 403 do
             key :description, 'Forbidden'
             schema do
-              key :'$ref', :EVSSAuthError
+              key :$ref, :EVSSAuthError
             end
           end
         end
@@ -801,7 +801,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -825,7 +825,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionsVet360
+              key :$ref, :AsyncTransactionsVet360
             end
           end
         end
@@ -850,14 +850,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PostVet360Telephone
+              key :$ref, :PostVet360Telephone
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -880,14 +880,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360Telephone
+              key :$ref, :PutVet360Telephone
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -910,14 +910,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360Telephone
+              key :$ref, :PutVet360Telephone
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -942,14 +942,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PostVet360Permission
+              key :$ref, :PostVet360Permission
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -972,14 +972,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360Permission
+              key :$ref, :PutVet360Permission
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -1002,14 +1002,14 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PutVet360Permission
+              key :$ref, :PutVet360Permission
             end
           end
 
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :$ref, :AsyncTransactionVet360
             end
           end
         end
@@ -1028,7 +1028,7 @@ module Swagger
           response 200 do
             key :description, 'List of OAuth applications you have connected'
             schema do
-              key :'$ref', :ConnectedApplications
+              key :$ref, :ConnectedApplications
             end
           end
         end
@@ -1068,7 +1068,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :ValidVAFileNumber
+              key :$ref, :ValidVAFileNumber
             end
           end
         end
@@ -1087,7 +1087,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :PaymentHistory
+              key :$ref, :PaymentHistory
             end
           end
         end

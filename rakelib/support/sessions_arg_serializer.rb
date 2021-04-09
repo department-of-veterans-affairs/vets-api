@@ -39,27 +39,27 @@ class SessionsArgSerializer < SessionsSerializer
         ":status": 'OK',
         ":profile": {
           "^o": 'MPI::Models::MviProfile',
-          "given_names": %w[TEST T],
-          "family_name": 'USER',
-          "suffix": nil,
-          "gender": 'F',
-          "birth_date": '19700101',
-          "ssn": '123456789',
-          "address": {
+          given_names: %w[TEST T],
+          family_name: 'USER',
+          suffix: nil,
+          gender: 'F',
+          birth_date: '19700101',
+          ssn: '123456789',
+          address: {
             "^o": 'MPI::Models::MviProfileAddress',
-            "street": '123 Fake Street',
-            "city": 'Springfield',
-            "state": 'OR',
-            "postal_code": '99999',
-            "country": 'USA'
+            street: '123 Fake Street',
+            city: 'Springfield',
+            state: 'OR',
+            postal_code: '99999',
+            country: 'USA'
           },
-          "home_phone": nil,
-          "icn": '1008710255V058302',
-          "mhv_ids": @mhv_ids,
-          "edipi": '1005079124',
-          "participant_id": '600062099',
-          "vha_facility_ids": %w[984 992 987 983 200ESR 556 668 200MHS],
-          "birls_id": '796104437'
+          home_phone: nil,
+          icn: '1008710255V058302',
+          mhv_ids: @mhv_ids,
+          edipi: '1005079124',
+          participant_id: '600062099',
+          vha_facility_ids: %w[984 992 987 983 200ESR 556 668 200MHS],
+          birls_id: '796104437'
         }
       }
     }

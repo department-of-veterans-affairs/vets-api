@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/base_form_controller'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V0
     module Forms
-      class PowerOfAttorneyController < ClaimsApi::BaseFormController
+      class PowerOfAttorneyController < ClaimsApi::V0::Forms::Base
         include ClaimsApi::DocumentValidations
+        include ClaimsApi::EndpointDeprecation
 
         FORM_NUMBER = '2122'
 
-        skip_before_action(:authenticate)
-        before_action :validate_json_schema, only: %i[submit_form_2122 validate]
-        before_action :validate_documents_content_type, only: %i[upload]
-        before_action :validate_documents_page_size, only: %i[upload]
-
+        # POST to change power of attorney for a Veteran.
+        #
+        # @return [JSON] Record in pending state
         def submit_form_2122
+          validate_json_schema
+
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
           unless power_of_attorney&.status&.in?(%w[submitted pending])
@@ -40,7 +40,14 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # PUT to upload a wet-signed 2122 form.
+        # Required if "signatures" not supplied in above POST.
+        #
+        # @return [JSON] Claim record
         def upload
+          validate_documents_content_type
+          validate_documents_page_size
+
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
                                                                                           source_name: source_name)
           power_of_attorney.set_file_data!(documents.first, params[:doc_type])
@@ -51,24 +58,40 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # GET the current status of a previous POA change request.
+        #
+        # @return [JSON] POA record with current status
         def status
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
                                                                                           source_name: source_name)
-          render_poa_not_found and return unless power_of_attorney
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # GET current POA for a Veteran.
+        #
+        # @return [JSON] Last POA change request through Claims API
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
-          render_poa_not_found and return unless power_of_attorney
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # POST to validate 2122 submission payload.
+        #
+        # @return [JSON] Success if valid, error messages if invalid.
         def validate
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
+          validate_json_schema
           render json: validation_success
+        end
+
+        def schema
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
+          super
         end
 
         private
@@ -97,10 +120,6 @@ module ClaimsApi
               }
             }
           }
-        end
-
-        def render_poa_not_found
-          render json: { errors: [{ status: 404, detail: 'POA not found' }] }, status: :not_found
         end
       end
     end

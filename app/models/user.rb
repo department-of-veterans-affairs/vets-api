@@ -66,6 +66,10 @@ class User < Common::RedisStore
     identity.first_name || (mhv_icn.present? ? mpi&.profile&.given_names&.first : nil)
   end
 
+  def first_name_mpi
+    mpi&.profile&.given_names&.first
+  end
+
   def full_name_normalized
     {
       first: first_name&.capitalize,
@@ -87,8 +91,16 @@ class User < Common::RedisStore
     identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
   end
 
+  def last_name_mpi
+    mpi&.profile&.family_name
+  end
+
   def gender
     identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
+  end
+
+  def gender_mpi
+    mpi&.profile&.gender
   end
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
@@ -125,6 +137,10 @@ class User < Common::RedisStore
 
   def ssn
     identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
+  end
+
+  def ssn_mpi
+    mpi&.profile&.ssn
   end
 
   def mhv_correlation_id
@@ -166,6 +182,10 @@ class User < Common::RedisStore
 
   def edipi
     loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
+  end
+
+  def edipi_mpi
+    mpi&.profile&.edipi
   end
 
   def sec_id
@@ -360,7 +380,22 @@ class User < Common::RedisStore
     email&.downcase || account_uuid
   end
 
+  def relationships
+    @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
+  end
+
   private
+
+  def relationship_hash(mpi_relationship)
+    return unless mpi_relationship
+
+    {
+      first_name: mpi_relationship.given_names&.first,
+      last_name: mpi_relationship.family_name,
+      birth_date: mpi_relationship.birth_date,
+      person_type_code: mpi_relationship.person_type_code
+    }
+  end
 
   def mpi_profile
     return nil unless mpi
@@ -377,6 +412,12 @@ class User < Common::RedisStore
     end
 
     mpi_profile.birth_date
+  end
+
+  def mpi_profile_relationships
+    return [] unless mpi_profile
+
+    mpi_profile.relationships
   end
 
   def pciu

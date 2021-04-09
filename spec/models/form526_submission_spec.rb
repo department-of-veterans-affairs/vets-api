@@ -375,10 +375,47 @@ RSpec.describe Form526Submission do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
       end
 
-      it 'queues 1 job' do
+      it 'queues 3 jobs' do
+        subject.form526_job_statuses <<
+          Form526JobStatus.new(job_class: 'SubmitForm526AllClaim', status: 'success', job_id: 0)
         expect do
           subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
-        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+      end
+
+      it 'warns when there are multiple successful submit526 jobs' do
+        2.times do |index|
+          subject.form526_job_statuses << Form526JobStatus.new(
+            job_class: 'SubmitForm526AllClaim',
+            status: Form526JobStatus::STATUS[:success],
+            job_id: index
+          )
+        end
+        expect(Form526JobStatus.all.count).to eq 2
+        expect_any_instance_of(Form526Submission).to receive(:log_message_to_sentry).with(
+          'There are multiple successful SubmitForm526 job statuses',
+          :warn,
+          { form_526_submission_id: subject.id }
+        )
+        subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+      end
+
+      it "warns when there's a successful submit526 job, but it's not the most recent submit526 job" do
+        %i[success retryable_error].each_with_index do |status, index|
+          subject.form526_job_statuses << Form526JobStatus.new(
+            job_class: 'SubmitForm526AllClaim',
+            status: Form526JobStatus::STATUS[status],
+            job_id: index,
+            updated_at: Time.zone.now + index.days
+          )
+        end
+        expect(Form526JobStatus.all.count).to eq 2
+        expect_any_instance_of(Form526Submission).to receive(:log_message_to_sentry).with(
+          "There is a successful SubmitForm526 job, but it's not the most recent SubmitForm526 job",
+          :warn,
+          { form_526_submission_id: subject.id }
+        )
+        subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
       end
     end
   end
@@ -391,10 +428,10 @@ RSpec.describe Form526Submission do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
       end
 
-      it 'queues 1 upload jobs' do
+      it 'queues 3 upload jobs' do
         expect do
           subject.perform_ancillary_jobs(first_name)
-        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
       end
     end
 

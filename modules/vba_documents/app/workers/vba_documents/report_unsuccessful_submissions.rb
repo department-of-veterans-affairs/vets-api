@@ -30,9 +30,6 @@ module VBADocuments
     end
 
     # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/PerceivedComplexity
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/AbcSize
     def totals
       ret_hash = {}
       sum_hash = VBADocuments::UploadSubmission::RPT_STATUSES.index_with { |_v| 0; }
@@ -48,7 +45,7 @@ module VBADocuments
         success_rate = success_count.positive? ? (100.0 / totals * success_count).round : 0
 
         if totals.positive?
-          ret_hash[name] = counts.merge('totals': totals,
+          ret_hash[name] = counts.merge(totals: totals,
                                         success_rate: "#{success_rate}%",
                                         error_rate: "#{error_rate}%",
                                         expired_rate: "#{expired_rate}%")
@@ -87,8 +84,5 @@ module VBADocuments
       ret_hash
     end
     # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/AbcSize
   end
 end

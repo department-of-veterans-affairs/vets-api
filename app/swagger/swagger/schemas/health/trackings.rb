@@ -11,16 +11,16 @@ module Swagger
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
-              key :'$ref', :Tracking
+              key :$ref, :Tracking
             end
           end
 
           property :meta do
-            key :'$ref', :MetaFailedStationListSortPagination
+            key :$ref, :MetaFailedStationListSortPagination
           end
 
           property :links do
-            key :'$ref', :LinksAll
+            key :$ref, :LinksAll
           end
         end
 
@@ -31,11 +31,11 @@ module Swagger
           property :type, type: :string, enum: [:trackings]
 
           property :attributes, type: :object do
-            key :'$ref', :TrackingBase
+            key :$ref, :TrackingBase
           end
 
           property :links, type: :object do
-            key :'$ref', :LinksTracking
+            key :$ref, :LinksTracking
           end
         end
 
@@ -56,7 +56,7 @@ module Swagger
           property :delivery_service, type: :string
           property :other_prescriptions, type: :array do
             items do
-              key :'$ref', :OtherPrescription
+              key :$ref, :OtherPrescription
             end
           end
         end
