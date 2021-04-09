@@ -122,13 +122,13 @@ RSpec.describe 'letters', type: :request do
     end
 
     context 'with a 404 evss response' do
+      let(:mvi_profile) { build(:mvi_profile, edipi: '1005079999', participant_id: '600039999') }
       let(:user) do
         build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '799111223')
       end
 
       before do
-        user.mpi.profile.edipi = '1005079999'
-        user.mpi.profile.participant_id = '600039999'
+        stub_mpi(mvi_profile)
       end
 
       it 'returns a 404' do

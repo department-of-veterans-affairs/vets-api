@@ -390,51 +390,51 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches given_names from MPI' do
-          expect(user.given_names).to be(user.mpi.profile.given_names)
+          expect(user.given_names).to be(mvi_profile.given_names)
         end
 
         it 'fetches first_name from MPI' do
-          expect(user.first_name_mpi).to be(user.mpi.profile.given_names.first)
+          expect(user.first_name_mpi).to be(mvi_profile.given_names.first)
         end
 
         it 'fetches last_name from MPI' do
-          expect(user.last_name_mpi).to be(user.mpi.profile.family_name)
+          expect(user.last_name_mpi).to be(mvi_profile.family_name)
         end
 
         it 'fetches gender from MPI' do
-          expect(user.gender_mpi).to be(user.mpi.profile.gender)
+          expect(user.gender_mpi).to be(mvi_profile.gender)
         end
 
         it 'fetches edipi from MPI' do
-          expect(user.edipi_mpi).to be(user.mpi.profile.edipi)
+          expect(user.edipi_mpi).to be(mvi_profile.edipi)
         end
 
         it 'fetches ssn from MPI' do
-          expect(user.ssn_mpi).to be(user.mpi.profile.ssn)
+          expect(user.ssn_mpi).to be(mvi_profile.ssn)
         end
 
         it 'fetches home_phone from MPI' do
-          expect(user.home_phone).to be(user.mpi.profile.home_phone)
+          expect(user.home_phone).to be(mvi_profile.home_phone)
         end
 
         it 'fetches mhv_ids from MPI' do
-          expect(user.mhv_ids).to be(user.mpi.profile.mhv_ids)
+          expect(user.mhv_ids).to be(mvi_profile.mhv_ids)
         end
 
         it 'fetches active_mhv_ids from MPI' do
-          expect(user.active_mhv_ids).to be(user.mpi.profile.active_mhv_ids)
+          expect(user.active_mhv_ids).to be(mvi_profile.active_mhv_ids)
         end
 
         it 'fetches sec_id from MPI' do
-          expect(user.sec_id_mpi).to be(user.mpi.profile.sec_id)
+          expect(user.sec_id_mpi).to be(mvi_profile.sec_id)
         end
 
         it 'fetches historical_icns from MPI' do
-          expect(user.historical_icns).to be(user.mpi.profile.historical_icns)
+          expect(user.historical_icns).to be(mvi_profile.historical_icns)
         end
 
         it 'fetches suffix from MPI' do
-          expect(user.suffix).to be(user.mpi.profile.suffix)
+          expect(user.suffix).to be(mvi_profile.suffix)
         end
       end
 
