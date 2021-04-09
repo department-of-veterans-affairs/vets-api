@@ -1238,7 +1238,7 @@ paths:
     get:
       tags:
         - preferences
-      summary:  Retrieves the user contact preferences
+      summary:  Retrieves the user preferences
       operationId:  getPreferences
       security:
         - bearerAuth: []
@@ -1285,6 +1285,54 @@ paths:
                           text_msg_allowed:
                             type: boolean
                             example:  false
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "502":
+          description: Error in the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+        "504":
+          description: Timeout from the upstream service
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Errors"
+    put:
+      tags:
+        - preferences
+      summary: Updates the user's preferences
+      operationId: updatePreferences
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Preferences"
+      responses:
+        "200":
+          description: OK, updated the preferences successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Preferences"
         "400":
           description: Bad Request
           content:
@@ -2558,6 +2606,26 @@ components:
             title:
               type: "string"
               example: "PHYSICIAN-ATTENDING"
+    Preferences:
+      type: "object"
+      required:
+        - notification_frequency
+      properties:
+        notification_frequency:
+          type: string
+          example:  "Each new message"
+        email_allowed:
+          type: boolean
+          example:  true
+        email_address:
+          type: string
+          example:  "abraham.lincoln@va.gov"
+        text_msg_allowed:
+          type: boolean
+          example:  false
+        text_msg_ph_number:
+          type: string
+          example:  ""
     AppointmentTimeSlot:
       type: "object"
       required:
