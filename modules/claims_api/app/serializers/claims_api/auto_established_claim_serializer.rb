@@ -23,7 +23,7 @@ module ClaimsApi
     def format_evss_errors(errors)
       errors.map do |error|
         formatted = error['key'] ? error['key'].gsub('.', '/') : error['key']
-        { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: formatted }
+        { detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: formatted }
       end
     end
   end
