@@ -32,7 +32,12 @@ FactoryBot.define do
 
     trait :status_errored do
       status { 'errored' }
-      evss_response { 'something' }
+      evss_response { nil }
+    end
+
+    trait :status_errored_with_evss_response do
+      status { 'errored' }
+      evss_response { {'messages' => [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }] } }
     end
 
     trait :autoCestPDFGeneration_disabled do

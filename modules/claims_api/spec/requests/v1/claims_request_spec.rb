@@ -166,34 +166,30 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
       it 'shows a single errored Claim with an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         with_okta_user(scopes) do |auth_header|
-          create(:auto_established_claim,
+          create(:auto_established_claim, :status_errored_with_evss_response,
                  source: 'abraham lincoln',
                  auth_headers: auth_header,
-                 evss_id: 600_118_851,
-                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
-                 status: 'errored',
-                 evss_response: { 'messages' => [{ 'key' => 'Error', 'severity' => 'FATAL', 'text' => 'Failed' }] })
+                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
           VCR.use_cassette('evss/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers)
-            expect(response.status).to eq(422)
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)['data']['attributes']['evss_errors'].length).to eq(1)
           end
         end
       end
 
-      it 'shows a single errored Claim without an error message', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+      it 'shows a single errored Claim when no evss_response errors are present', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         with_okta_user(scopes) do |auth_header|
-          create(:auto_established_claim,
+          create(:auto_established_claim, :status_errored,
                  source: 'abraham lincoln',
                  auth_headers: auth_header,
-                 evss_id: 600_118_851,
-                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9',
-                 status: 'errored',
-                 evss_response: nil)
+                 id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
           VCR.use_cassette('evss/claims/claim') do
             headers = request_headers.merge(auth_header)
             get('/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers)
-            expect(response.status).to eq(422)
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)['data']['attributes']['evss_errors']).to eq('Unknown EVSS Async Error')
           end
         end
       end

@@ -42,25 +42,6 @@ module ClaimsApi
 
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
       end
-
-      private
-
-      def fetch_errored(claim)
-        if claim.evss_response&.any?
-          errors = format_evss_errors(claim.evss_response['messages'])
-          raise ::Common::Exceptions::UnprocessableEntity.new(errors: errors)
-        else
-          message = 'Unknown EVSS Async Error'
-          raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
-        end
-      end
-
-      def format_evss_errors(errors)
-        errors.map do |error|
-          formatted = error['key'] ? error['key'].gsub('.', '/') : error['key']
-          { status: 422, detail: "#{error['severity']} #{error['detail'] || error['text']}".squish, source: formatted }
-        end
-      end
     end
   end
 end
