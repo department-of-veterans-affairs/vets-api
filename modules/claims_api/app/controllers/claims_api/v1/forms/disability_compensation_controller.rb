@@ -201,14 +201,6 @@ module ClaimsApi
             StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
           end
         end
-
-        def unprocessable_response(e)
-          log_message_to_sentry('Upload error in 526', :error, body: e.message)
-
-          {
-            errors: [{ status: 422, detail: e&.message, source: e&.key }]
-          }.to_json
-        end
       end
     end
   end
