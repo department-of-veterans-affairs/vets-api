@@ -15,15 +15,10 @@ module AppsApi
       @disconnection_template = Settings.vanotify.services.lighthouse.template_id.disconnection_template
       @notify_client = VaNotify::Service.new(Settings.vanotify.services.lighthouse.api_key)
       @connection_event = 'app.oauth2.as.consent.grant'
-      @disconnection_event = 'app.oauth2.as.token.revoke'
-      @staging_flag = Settings.directory.staging_flag
+      @disconnection_event = 'app.oauth2.as.consent.revoke'
     end
 
     def handle_event(event_type, template)
-      # @staging_flag is set to false in all environments, except for staging. This will be
-      # removed once all testing has been completed in the staging environment
-      return if @staging_flag == false
-
       logs = get_events(event_type)
       logs.body.each do |event|
         parsed_hash = parse_event(event)
@@ -36,15 +31,10 @@ module AppsApi
     end
 
     def parse_event(event)
-      if event['eventType'] == @connection_event
-        user_id = event['actor']['id']
-        app_id = event['target'].first['detailEntry']['publicclientapp']
-        okta_app = @okta_service.app(app_id)
-        app_record = DirectoryApplication.find_by(name: okta_app.body['label'])
-      else
-        user_id = event['target'][0]['detailEntry']['subject']
-        app_record = DirectoryApplication.find_by(name: event['actor']['displayName'])
-      end
+      user_id = event['target'].first['detailEntry']['user']
+      app_id = event['target'].first['detailEntry']['publicclientapp']
+      okta_app = @okta_service.app(app_id)
+      app_record = DirectoryApplication.find_by(name: okta_app.body['label'])
       user = @okta_service.user(user_id)
       create_hash(app_record: app_record, user: user, event: event)
     end
@@ -67,8 +57,8 @@ module AppsApi
 
     def format_published_time(published)
       # Formats iso8601 time stamp into readable language
-      # 2020-11-29T00:23:39.508Z -> 11/29/2020 at 12:23 a.m.
-      Time.zone.parse(published).strftime('%m/%d/%Y at %I:%M %P').sub(/([ap])m/, '\1.m.')
+      # 2020-11-29T00:23:39.508Z -> 11/29/2020 at 12:23 a.m
+      Time.zone.parse(published).strftime('%m/%d/%Y at %I:%M %P').sub(/([ap])m/, '\1.m')
     end
 
     def event_is_invalid?(parsed_hash, event)
@@ -93,9 +83,7 @@ module AppsApi
     end
 
     def event_unsuccessful?(event)
-      event['outcome']['result'] != 'SUCCESS' ||
-        (event['eventType'] == @disconnection_event &&
-         event['target'][0]['detailEntry']['subject'].nil?)
+      event['outcome']['result'] != 'SUCCESS'
     end
 
     def mark_event_as_handled(hash)
