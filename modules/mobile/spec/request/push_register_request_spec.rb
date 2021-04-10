@@ -7,6 +7,7 @@ require_relative '../support/matchers/json_schema_matcher'
 RSpec.describe 'push register', type: :request do
   include JsonSchemaMatchers
   before { iam_sign_in }
+
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   describe 'PUT /mobile/v0/push/register' do
