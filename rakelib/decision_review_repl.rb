@@ -110,6 +110,15 @@ def recipes_string
 
 
 
+            # 🍕 what helper methods were added to my PiiLog?
+
+            piilogs = wrap Q.(:hlr, 1.week)
+
+            piilogs.first.helper_methods
+
+
+
+
             (type 'more' for more info)
 
   RECIPES
