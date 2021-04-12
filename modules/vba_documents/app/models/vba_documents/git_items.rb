@@ -61,10 +61,9 @@ module VBADocuments
         Faraday.new(url: GIT_QUERY, params: params).get
       end
 
-      # TODO: setup with actual urls
       def fetch_url(label)
-        { 'BenefitsIntake' => Settings.vba_documents.slack.notification_url,
-          'Forms' => Settings.vba_documents.slack.notification_url }[label]
+        { 'BenefitsIntake' => Settings.vba_documents.slack.deployment_notification_url,
+          'Forms' => Settings.vba_documents.slack.deployment_notification_url }[label]
       end
     end
     extend ClassMethods
