@@ -2259,7 +2259,11 @@ paths:
       description: | 
         Get a secure message and mark message as read
 
-        <strong>NOTE:</strong> Peforming this GET will set readReceipt field as 'READ'
+        <strong>NOTES:</strong>
+        <ul>
+          <li>Performing this GET will set readReceipt field as 'READ'</li>
+          <li>If message has an attachment included, attachmentSize is displayed in bytes</li>
+        </ul>
       operationId: get_message
       security:
         - Bearer: []
