@@ -7,16 +7,24 @@ module VBADocuments
   class DeploymentsNotifier
     include Sidekiq::Worker
 
-    def perform
-      return unless Settings.vba_documents.slack.enabled
+    VALID_LABELS = GitItems::LABELS + [nil]
 
-      result = nil
+    def perform(label = nil)
+      return unless Settings.vba_documents.slack.enabled
+      raise ArgumentError "Label #{label} is invalid.  Choose from #{VALID_LABELS}}" unless VALID_LABELS.include?(label)
+      result = []
       begin
-        VBADocuments::GitItems.populate
-        result = VBADocuments::GitItems.notify
+        if (label.nil?)
+          GitItems::LABELS.each do |l|
+            result << DeploymentsNotifier.perform_async(l)
+          end
+        else
+          GitItems.populate(label)
+          result << GitItems.notify(label)
+        end
       rescue => e
-        Rails.logger.error('Failed to notify of new VBA document deployments', e)
-        result = e
+        Rails.logger.error("Failed to notify for #{label} deployments", e)
+        result << e
       end
       result
     end

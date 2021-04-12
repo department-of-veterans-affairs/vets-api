@@ -8,14 +8,18 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
   include VBADocuments::Fixtures
 
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:git_items_json) { get_fixture('git_items.json').read }
+  let(:git_items_benefits_json) { get_fixture('git_items_benefits.json').read }
+  let(:git_items_forms_json) { get_fixture('git_items_forms.json').read }
 
   before do
     Settings.vba_documents.slack = Config::Options.new
     Settings.vba_documents.slack.enabled = true
 
     allow(faraday_response).to receive(:success?).and_return(true)
-    allow(faraday_response).to receive(:body).and_return(git_items_json) # 3 records in this json file
+    allow(faraday_response).to receive(:body) do
+      git_items_benefits_json
+    end
+
     allow(VBADocuments::GitItems).to receive(:query_git) {
       faraday_response
     }
@@ -37,15 +41,30 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
   end
 
   it 'populates and notifies on deployments' do
-    results = @job.perform
-    expect(results).to be(3)
+    results = @job.perform('BenefitsIntake')
+    expect(results.first).to be(3) # fixture git_items_benefits.json has three records
+    allow(faraday_response).to receive(:body) do
+      git_items_forms_json
+    end
+    results = @job.perform('Forms')
+    expect(results.first).to be(4)  # fixture git_items_forms.json has four records
   end
 
   it 'logs and returns the exception if something goes wrong' do
     allow(VBADocuments::GitItems).to receive(:populate) {
       raise RuntimeError
     }
-    results = @job.perform
-    expect(results.class).to be(RuntimeError)
+    results = @job.perform('BenefitsIntake')
+    expect(results.first.class).to be(RuntimeError)
   end
+
+  it 'spawns a job for every label' do
+    results = @job.perform
+    expect(results.length).to be(VBADocuments::GitItems::LABELS.length)
+  end
+
+  it 'rejects invalid labels' do
+    expect {@job.perform('bad_label')}.to raise_error
+  end
+
 end

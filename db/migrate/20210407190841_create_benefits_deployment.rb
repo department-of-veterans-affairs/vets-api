@@ -4,8 +4,9 @@ class CreateBenefitsDeployment < ActiveRecord::Migration[6.0]
       t.string :url, null: false, unique: true
       t.jsonb :git_item
       t.boolean :notified, default: false
+      t.string :label
       t.timestamps
     end
-    add_index(:vba_documents_git_items, [:url, :notified], unique: true)
+    add_index(:vba_documents_git_items, [:url, :notified, :label])
   end
 end

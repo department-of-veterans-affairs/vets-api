@@ -5,16 +5,19 @@
 module VBADocuments
   class GitItems < ApplicationRecord
     GIT_QUERY = 'https://api.github.com/search/issues'
+    BENEFITS_PARAMS = { q: 'is:merged is:pr label:BenefitsIntake repo:department-of-veterans-affairs/vets-api' }
+    FORMS_PARAMS = { q: 'is:merged is:pr label:Forms repo:department-of-veterans-affairs/vets-api' }
+    LABELS = ['BenefitsIntake','Forms']
 
     validates_uniqueness_of :url
 
     module ClassMethods
       # notifies slack of all new deployments.  Returns the number notified on.
-      def notify
-        slack_url = Settings.vba_documents.slack.notification_url
-        text = "The following new merges are now in Benefits Intake:\n"
+      def notify(label)
+        slack_url = fetch_url(label)
+        text = "The following new merges are now in #{label.underscore.titleize}:\n"
         models = []
-        GitItems.where(notified: false).each do |model|
+        GitItems.where(notified: false, label: label).each do |model|
           url = model.url
           author = model.git_item['user']['login']
           title = model.git_item['title']
@@ -34,33 +37,40 @@ module VBADocuments
         Faraday.post(url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
       end
 
-      def populate
-        response = query_git
+      def populate(label)
+        response = query_git(label.eql?('Forms') ? FORMS_PARAMS : BENEFITS_PARAMS)
         if response&.success?
           data = JSON(response.body)
           data['items'].each do |item|
             url = item['html_url']
             model = find_or_create_by(url: url)
             next if model.git_item
-
             model.git_item = item
+            model.label = label
             saved = model.save
             Rails.logger.warn("Failed to save the data for url #{url}") unless saved
           end
         else
-          Rails.logger.error('Failed to query git for benefits intake merged in data')
+          Rails.logger.error("Failed to query git for #{label} merged in data")
         end
-        GitItems.count
+        GitItems.where(label: label).count
       end
 
-      def query_git
-        params = { q: 'is:merged is:pr label:BenefitsIntake repo:department-of-veterans-affairs/vets-api' }
+      def query_git(params)
         Faraday.new(url: GIT_QUERY, params: params).get
       end
+
+      # todo setup with actual urls
+      def fetch_url(label)
+        {'BenefitsIntake' => Settings.vba_documents.slack.notification_url,
+         'Forms' => Settings.vba_documents.slack.notification_url }[label]
+      end
+
     end
     extend ClassMethods
   end
 end
+
 # load('./modules/vba_documents/app/models/vba_documents/git_items.rb')
 #
 # Sample query:
