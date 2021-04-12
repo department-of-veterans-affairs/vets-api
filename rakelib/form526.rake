@@ -307,8 +307,24 @@ namespace :form526 do
     )
 
     submissions.find_each do |submission|
-      job_statuses = submission.form526_job_statuses.where.not(status: [Form526JobStatus::STATUS[:try],
-                                                                        Form526JobStatus::STATUS[:success]])
+      unsuccessful_nonsubmit_jobs = submission.form526_job_statuses.where.not(
+        job_class: Form526Submission::SUBMIT_FORM_526_JOB_CLASSES,
+        status: [Form526JobStatus::STATUS[:try], Form526JobStatus::STATUS[:success]]
+      )
+
+      in_progress_submit_jobs = submission.form526_job_statuses.where(
+        job_class: Form526Submission::SUBMIT_FORM_526_JOB_CLASSES,
+        status: Form526JobStatus::STATUS[:try]
+      )
+
+      job_statuses = unsuccessful_nonsubmit_jobs
+
+      unless submission.a_submit_form_526_job_succeeded? || in_progress_submit_jobs.present?
+        job_statuses = job_statuses.or(
+          submission.form526_job_statuses.where(job_class: Form526Submission::SUBMIT_FORM_526_JOB_CLASSES)
+        )
+      end
+
       job_statuses.each do |job_status|
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
