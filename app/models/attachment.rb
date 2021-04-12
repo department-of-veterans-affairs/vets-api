@@ -7,4 +7,5 @@ class Attachment < Common::Base
   attribute :id, Integer
   attribute :message_id, Integer
   attribute :name, String
+  attribute :attachment_size, Integer
 end
