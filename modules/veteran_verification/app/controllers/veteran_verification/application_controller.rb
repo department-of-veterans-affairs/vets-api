@@ -22,9 +22,16 @@ module VeteranVerification
       end
       return false if @session.nil?
 
-      open_id = OpenidUser
-      open_id = MockOpenIdUser if Settings.vet_verification.mock_emis
+      open_id = get_open_id_user
       @current_user = open_id.find(@session.uuid)
+    end
+
+    def get_open_id_user
+      if Settings.vet_verification.mock_emis
+        MockOpenIdUser
+      else
+        OpenidUser
+      end
     end
 
     def set_default_format_to_json
