@@ -4,6 +4,7 @@ require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
 
+# EVSS Claims Status Tool
 class EVSSClaimService
   include SentryLogging
   EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
@@ -41,7 +42,8 @@ class EVSSClaimService
     EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
   end
 
-  # upload file to s3 and enqueue job to upload to EVSS
+  # upload file to s3 and enqueue job to upload to EVSS, used by Claim Status Tool
+  # EVSS::DocumentsService is where the uploading of documents actually happens
   def upload_document(evss_claim_document)
     uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.uploader_ids)
     uploader.store!(evss_claim_document.file_obj)
