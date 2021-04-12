@@ -3,54 +3,40 @@
 module CovidVaccine
   module V0
     class ExpandedRegistrationService
-      def register(submission, user_type)
+      def register(submission, _user_type)
         raw_form_data = submission.raw_form_data
         # Conditions where we should not send data to vetext:
         # 1 - no preferred location in raw_form_data and no facility found for zip_code: manual intervention
         # 2 - no ICN found in MPI: retry
         # 3 - Station ID returned from MPI is different than preferred location: retry
 
-        vetext_attributes = {}
-
         # preferred facility will either be in eligibility_info, or raw_form_data. If its in neither one,
         # for the purposes of this register method we should not be fetching facilities and trying to reconcile;
         # instead we will set the state to :enrollment_out_of_band
-
-        # Get the preferred facility here as it is needed in MPI lookup
         facility = submission&.eligibility_info&.dig('preferred_facility') ||
                    raw_form_data['preferred_facility'].delete_prefix('vha_')
-
         if facility.blank?
           submission.enrollment_requires_intervention!
           return
         end
-        sta3n = facility[0..2]
-        sta6a = facility if facility.length > 3
-
-        # Make one call to update attributes and return either the data to be merged or an error so we know to return
-
-        vetext_attributes.merge!(other_form_attributes(raw_form_data))
-        vetext_attributes.merge!(location_contact_information(raw_form_data, sta3n, sta6a))
-        vetext_attributes.merge!(demographics(raw_form_data))
 
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
-        mpi_attributes = attributes_from_mpi(raw_form_data, sta3n)
+        # We want to keep trying as it may take time for the registration to occur.  Need to know if there is an entry
+        # that is failing for an extended time - notification is sent to log with DB record ID and creation date
+        mpi_attributes = attributes_from_mpi(raw_form_data, facility[0..2], submission.id, submission.created_at)
+        return if mpi_attributes.empty?
 
-        if mpi_attributes[:error].present?
-          handle_mpi_errors(mpi_attributes[:error], submission.id)
-          return
-        else
-          submission.detected_enrollment!
-          vetext_attributes.merge!(mpi_attributes).compact!
-        end
-        submit_and_save(vetext_attributes, submission, user_type)
+        submission.detected_enrollment!
+
+        vetext_attributes = transform_form_data(raw_form_data, facility, mpi_attributes)
+        submit_and_save(vetext_attributes, submission)
       end
 
       private
 
-      def submit_and_save(attributes, submission, user_type)
+      def submit_and_save(attributes, submission)
         # TODO: error handling
-        audit_log(attributes, user_type)
+        audit_log(attributes)
         response = submit(attributes)
         Rails.logger.info("Covid_Vaccine_Expanded Vetext Response: #{response}")
         elig_info_icn = { 'patient_icn': attributes[:patient_icn] }
@@ -73,20 +59,25 @@ module CovidVaccine
         CovidVaccine::V0::VetextService.new.put_vaccine_registry(attributes)
       end
 
-      def audit_log(attributes, user_type)
+      def audit_log(attributes)
         log_attrs = {
-          auth_type: user_type,
-          vaccine_interest: attributes[:vaccine_interest],
+          user_type: attributes[:applicant_type],
           zip_code: attributes[:zip_code],
           has_phone: attributes[:phone].present?,
           has_email: attributes[:email].present?,
-          has_dob: attributes[:date_of_birth].present?,
-          has_ssn: attributes[:patient_ssn].present?,
           has_icn: attributes[:patient_icn].present?,
           has_facility: attributes[:sta3n].present? || attributes[:sta6a].present?,
           is_expanded_eligibility: true
         }
         Rails.logger.info('Covid_Vaccine Expanded Submission', log_attrs)
+      end
+
+      def transform_form_data(raw_form_data, facility, mpi_attributes)
+        transformed_data = other_form_attributes(raw_form_data)
+        transformed_data.merge!(location_contact_information(raw_form_data, facility))
+        transformed_data.merge!(demographics(raw_form_data))
+        transformed_data.merge!(mpi_attributes).compact!
+        transformed_data
       end
 
       def demographics(form_data)
@@ -100,7 +91,7 @@ module CovidVaccine
         }
       end
 
-      def location_contact_information(form_data, sta3n, sta6a)
+      def location_contact_information(form_data, facility)
         full_address = [form_data['address_line1'], form_data['address_line2'],
                         form_data['address_line3']].join(' ').strip
         {
@@ -111,8 +102,8 @@ module CovidVaccine
           phone: form_data['phone'],
           email: form_data['email'] || '',
           sms_acknowledgement: form_data['sms_acknowledgement'] || false,
-          sta3n: sta3n,
-          sta6a: sta6a || ''
+          sta3n: facility[0..2],
+          sta6a: facility.length > 3 ? facility : ''
         }
       end
 
@@ -129,7 +120,7 @@ module CovidVaccine
         }
       end
 
-      def attributes_from_mpi(form_data, sta3n)
+      def attributes_from_mpi(form_data, sta3n, submission_id, submission_date)
         ui = OpenStruct.new(first_name: form_data['first_name'],
                             last_name: form_data['last_name'],
                             birth_date: form_data['birth_date'],
@@ -137,23 +128,26 @@ module CovidVaccine
                             valid?: true)
         response = MPI::Service.new.find_profile(ui)
         if response.status == 'OK'
-          if response.profile&.vha_facility_ids.include? sta3n
+          if response.profile&.vha_facility_ids&.include? sta3n
             {
               patient_icn: response.profile.icn
             }
           else
-            { error: "no matching facility found for #{sta3n}" }
+            handle_mpi_errors("no matching facility found for #{sta3n}", submission_id, submission_date)
+            {}
           end
         else
-          { error: 'no ICN found' }
+          handle_mpi_errors('no ICN found', submission_id, submission_date)
+          {}
         end
       end
 
-      def handle_mpi_errors(error, id)
+      def handle_mpi_errors(error, id, date)
         Rails.logger.info(
           "#{self.class.name}:Error in MPI Lookup",
           mpi_error: error,
-          submission: id
+          submission: id,
+          submission_date: date
         )
       end
     end
