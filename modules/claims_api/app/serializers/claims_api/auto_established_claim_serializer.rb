@@ -4,7 +4,7 @@ module ClaimsApi
   class AutoEstablishedClaimSerializer < EVSSClaimDetailSerializer
     attributes :token, :status, :evss_id, :flashes
 
-    attribute :evss_errors, if: -> {  object.status == 'errored' }
+    attribute :evss_errors, if: -> { object.status == 'errored' }
 
     type :claims_api_claim
 

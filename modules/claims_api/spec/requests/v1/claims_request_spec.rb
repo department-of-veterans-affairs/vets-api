@@ -179,7 +179,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
         end
       end
 
-      it 'shows a single errored Claim when no evss_response errors are present', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+      it 'shows a single errored Claim when no evss_response errors are present',
+         run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         with_okta_user(scopes) do |auth_header|
           create(:auto_established_claim, :status_errored,
                  source: 'abraham lincoln',
