@@ -12,11 +12,8 @@ module VeteranVerification
     before_action { set_default_format_to_json }
 
     def authenticate_token
-      return false if token.blank?
-
-      # Not supported for Client Credentials tokens
-      return false if token.client_credentials_token?
-
+      return false if token.blank? || token.client_credentials_token? # Not supported for Client Credentials tokens
+      
       @session = Session.find(token)
       if @session.nil?
         profile = fetch_profile(token.identifiers.okta_uid)
