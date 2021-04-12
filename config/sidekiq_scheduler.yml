@@ -216,6 +216,6 @@ Veteran::VSOReloader:
   description: Pulls down current list of VSOs and updates accordingly 
 
 CovidVaccine::ScheduledBatchJob:
-  every: "15m"
+  cron: "15 0-23 * * mon-sun America/New_York"
   class: CovidVaccine::ScheduledBatchJob
   description: Batches received vaccine records and schedules upload to enrollment service.
