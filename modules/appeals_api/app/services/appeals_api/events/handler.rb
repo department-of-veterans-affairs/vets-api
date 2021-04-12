@@ -1,11 +1,12 @@
+# frozen_string_literal: true
+
 module AppealsApi
   module Events
     class Handler
-
       def self.subscribe(topic_name, callback_name)
         AppealsApi::EventSubscription.find_or_create_by!(
           topic: topic_name,
-          callback: callback_name,
+          callback: callback_name
         )
       end
 

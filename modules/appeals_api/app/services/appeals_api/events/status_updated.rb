@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 module AppealsApi
   module Events
     class StatusUpdated
-
       def initialize(opts)
         @opts = opts
-        raise InvalidKeys unless has_required_keys?
+        raise InvalidKeys unless required_keys?
       end
 
       def hlr_status_updated
@@ -13,7 +14,7 @@ module AppealsApi
           to: opts['to'],
           status_update_time: opts['status_update_time'],
           statusable_id: opts['statusable_id'],
-          statusable_type: 'AppealsApi::HigherLevelReview',
+          statusable_type: 'AppealsApi::HigherLevelReview'
         )
       end
 
@@ -23,7 +24,7 @@ module AppealsApi
           to: opts['to'],
           status_update_time: opts['status_update_time'],
           statusable_id: opts['statusable_id'],
-          statusable_type: 'AppealsApi::NoticeOfDisagreement',
+          statusable_type: 'AppealsApi::NoticeOfDisagreement'
         )
       end
 
@@ -31,7 +32,7 @@ module AppealsApi
 
       attr_accessor :opts
 
-      def has_required_keys?
+      def required_keys?
         required_keys.all? { |k| opts.key?(k) }
       end
 
@@ -43,4 +44,3 @@ module AppealsApi
     class InvalidKeys < StandardError; end
   end
 end
-
