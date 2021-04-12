@@ -32,7 +32,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   describe '#regional_office' do
     it 'returns the regional office' do
       expect(education_benefits_claim.regional_office).to eq(
-        "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"
+        "VA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"
       )
     end
   end

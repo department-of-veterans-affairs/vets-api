@@ -6,6 +6,7 @@ module Mobile
   module V0
     class MilitaryInformationSerializer
       include FastJsonapi::ObjectSerializer
+
       set_type :militaryInformation
       attribute :service_history do |user|
         formatted_result = []
