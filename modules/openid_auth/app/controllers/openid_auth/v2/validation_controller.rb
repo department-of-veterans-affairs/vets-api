@@ -29,13 +29,15 @@ module OpenidAuth
           return payload_object
         end
 
+        if token.client_credentials_token?
+          payload_object.act[:type] = 'system'
+          return payload_object
+        end
         # Client Credentials will not populate the @current_user, so only fill if not that token type
-        unless token.client_credentials_token? || !payload_object[:icn].nil?
+        if payload_object[:icn].nil?
           payload_object.act[:icn] = @current_user.icn
           payload_object.launch[:patient] = @current_user.icn
         end
-
-        payload_object.act[:type] = 'system' if token.client_credentials_token?
 
         payload_object
       end
