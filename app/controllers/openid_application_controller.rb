@@ -35,8 +35,14 @@ class OpenidApplicationController < ApplicationController
   def authenticate_token
     return false if token.blank?
 
+    # Only want to fetch the Okta profile if the session isn't already established and not a CC token
+    @session = Session.find(token) unless token.client_credentials_token?
+    profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
+
+    populate_ssoi_token_payload(profile) if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
+
     # issued for a client vs a user
-    if token.client_credentials_token? || ssoi_token?
+    if token.client_credentials_token? || token.ssoi_token?
       if token.payload['scp'].include?('launch/patient')
         launch = fetch_smart_launch_context
         token.payload[:icn] = launch
@@ -49,11 +55,17 @@ class OpenidApplicationController < ApplicationController
       return true
     end
 
-    @session = Session.find(token)
-    establish_session if @session.nil?
+    establish_session(profile) if @session.nil?
     return false if @session.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
+  end
+
+  def populate_ssoi_token_payload(profile)
+    token.payload['last_login_type'] = 'ssoi'
+    token.payload['icn'] = profile.attrs['icn']
+    token.payload['npi'] = profile.attrs['npi']
+    token.payload['vista_id'] = profile.attrs['VistaId']
   end
 
   def token_from_request
@@ -91,21 +103,8 @@ class OpenidApplicationController < ApplicationController
     Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
   end
 
-  def ssoi_token?
-    profile = fetch_profile(token.identifiers.okta_uid)
-    if profile.attrs['last_login_type'] == 'ssoi'
-      token.payload['last_login_type'] = 'ssoi'
-      token.payload['icn'] = profile.attrs['icn']
-      token.payload['npi'] = profile.attrs['npi']
-      token.payload['vista_id'] = profile.attrs['VistaId']
-      return true
-    end
-    false
-  end
-
-  def establish_session
+  def establish_session(profile)
     ttl = token.payload['exp'] - Time.current.utc.to_i
-    profile = fetch_profile(token.identifiers.okta_uid)
     user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
     @session = build_session(ttl)
