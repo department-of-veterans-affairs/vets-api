@@ -4,26 +4,26 @@ module AppealsApi
 
       def initialize(opts)
         @opts = opts
-        return false unless has_required_keys?
+        raise InvalidKeys unless has_required_keys?
       end
 
       def hlr_status_updated
         AppealsApi::StatusUpdate.create!(
-          from: opts[:from],
-          to: opts[:to],
-          status_update_time: opts[:status_update_time],
-          appeal_id: opts[:appeal_id],
-          appeal_type: 'AppealsApi::HigherLevelReview',
+          from: opts['from'],
+          to: opts['to'],
+          status_update_time: opts['status_update_time'],
+          statusable_id: opts['statusable_id'],
+          statusable_type: 'AppealsApi::HigherLevelReview',
         )
       end
 
       def nod_status_updated
         AppealsApi::StatusUpdate.create!(
-          from: opts[:from],
-          to: opts[:to],
-          status_update_time: opts[:status_update_time],
-          appeal_id: opts[:appeal_id],
-          appeal_type: 'AppealsApi::NoticeOfDisagreement',
+          from: opts['from'],
+          to: opts['to'],
+          status_update_time: opts['status_update_time'],
+          statusable_id: opts['statusable_id'],
+          statusable_type: 'AppealsApi::NoticeOfDisagreement',
         )
       end
 
@@ -36,8 +36,11 @@ module AppealsApi
       end
 
       def required_keys
-        %i[from to status_update_time appeal_id]
+        %w[from to status_update_time statusable_id]
       end
     end
+
+    class InvalidKeys < StandardError; end
   end
 end
+
