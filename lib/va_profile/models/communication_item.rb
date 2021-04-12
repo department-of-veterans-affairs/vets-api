@@ -6,7 +6,8 @@ require_relative 'communication_channel'
 module VAProfile
   module Models
     class CommunicationItem < CommunicationBase
-      attr_accessor :id, :name, :communication_channels
+      attr_accessor :id, :name
+      attr_reader :communication_channels
 
       validates :id, :communication_channels, presence: true
       validates :communication_channels, length: { maximum: 1, too_long: 'must have only one communication channel' }
@@ -27,6 +28,16 @@ module VAProfile
             )
           end
         )
+      end
+
+      def communication_channels=(arr)
+        @communication_channels = if arr[0].present? && !arr[0].is_a?(CommunicationChannel)
+                                    arr.map do |hash|
+                                      CommunicationChannel.new(hash)
+                                    end
+                                  else
+                                    arr
+                                  end
       end
 
       def http_verb

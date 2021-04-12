@@ -17,7 +17,7 @@ module AppsApi
       )
       # process all disconnection events
       notif_service.handle_event(
-        'app.oauth2.as.token.revoke',
+        'app.oauth2.as.consent.revoke',
         Settings.vanotify.services.lighthouse.template_id.disconnection_template
       )
     end
