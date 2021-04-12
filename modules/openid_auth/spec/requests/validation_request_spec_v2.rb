@@ -145,7 +145,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns invalid audience for strict=true, aud=nil' do
       with_okta_configured do
-        post '/internal/auth/v2/validation', :params => {:strict => "true"}, headers: auth_header
+        post '/internal/auth/v2/validation', params: { strict: 'true' }, headers: auth_header
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid audience'
@@ -154,7 +154,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns invalid audience for strict=true, and aud not in list' do
       with_okta_configured do
-        post '/internal/auth/v2/validation', :params => {:strict => "true", :aud => %w[http://test foo://bar]}, headers: auth_header
+        post '/internal/auth/v2/validation', params: { strict: 'true', aud: %w[http://test foo://bar] },
+                                             headers: auth_header
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid audience'
@@ -163,7 +164,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns invalid audience for invalid strict value' do
       with_okta_configured do
-        post '/internal/auth/v2/validation', :params => {:strict => "foo", :aud => "http://test"}, headers: auth_header
+        post '/internal/auth/v2/validation', params: { strict: 'foo', aud: 'http://test' }, headers: auth_header
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid strict value'
@@ -172,7 +173,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns valid response for strict=false, and aud not in list' do
       with_okta_configured do
-        post '/internal/auth/v2/validation', :params => {:strict => "false", :aud => "http://test"}, headers: auth_header
+        post '/internal/auth/v2/validation', params: { strict: 'false', aud: 'http://test' },
+                                             headers: auth_header
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
       end
@@ -180,7 +182,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns valid response for strict=true, and aud is in list' do
       with_okta_configured do
-        post '/internal/auth/v2/validation', :params => {:strict => "true", :aud => "api://default"}, headers: auth_header
+        post '/internal/auth/v2/validation', params: { strict: 'true', aud: 'api://default' },
+                                             headers: auth_header
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
       end

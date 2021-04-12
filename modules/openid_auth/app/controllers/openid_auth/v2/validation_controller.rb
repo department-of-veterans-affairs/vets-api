@@ -19,23 +19,21 @@ module OpenidAuth
       end
 
       def fetch_strict
-        params['strict'] || "false"
+        params['strict'] || 'false'
       end
 
       def valid_audience?
         aud = fetch_aud
-        if fetch_strict == "true"
+        if fetch_strict == 'true'
           if aud.nil?
             false
           else
             aud.include?(token.payload['aud'])
           end
+        elsif aud.nil?
+          token.payload['aud'] == Settings.oidc.isolated_audience.default
         else
-          if aud.nil?
-            token.payload['aud'] == Settings.oidc.isolated_audience.default
-          else
-            [Settings.oidc.isolated_audience.default, aud].include?(token.payload['aud'])
-          end
+          [Settings.oidc.isolated_audience.default, aud].include?(token.payload['aud'])
         end
       end
 
