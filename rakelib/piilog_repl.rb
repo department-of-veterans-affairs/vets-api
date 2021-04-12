@@ -5,7 +5,7 @@
 # see "spec/rakelib/piilog_repl/piilog_helpers_spec.rb" for more examples of using
 # the PersonalInformationLogQueryBuilder
 
-require_relative 'piilog_repl/piilog_helpers.rb'
+require_relative 'piilog_repl/piilog_helpers'
 
 Q = PersonalInformationLogQueryBuilder
 

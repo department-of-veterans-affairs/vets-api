@@ -1,4 +1,3 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 # run this with:  bin/rails runner rakelib/decision_review_repl.rb
@@ -6,7 +5,7 @@
 # rubocop:disable Lint/ShadowingOuterLocalVariable
 # rubocop:disable Style/MultilineBlockChain
 
-require_relative 'piilog_repl/piilog_helpers.rb'
+require_relative 'piilog_repl/piilog_helpers'
 
 alias _p p
 alias _pp pp
@@ -14,112 +13,112 @@ alias _pp pp
 def recipes_string
   <<~RECIPES
 
-            #############
-            #  RECIPES  #
-            #############
+    #############
+    #  RECIPES  #
+    #############
 
 
 
-            # 🍝 get an HLR piilog that was created right now (roughly)
+    # 🍝 get an HLR piilog that was created right now (roughly)
 
-            logs = Q.(:hlr, :now)   # builds/returns a PersonalInformationLog relation
-                                    # this will give you the time range of the current minute.
-                                    # beside timestamp strings you can use :now, :today, :yesterday,
-                                    # :tomorrow as well as any time/date obj
-
-
-
-
-            # 🍛 get all piilogs that have an error_class that includes either the string
-            # "DocumentUploader" or "nod" (ILIKE) that was created between two dates
-
-            logs = Q.('DocumentUploader', 'nod', '2021-03-14', '2021-03-15')   # you can pass up to 2 time arguments
-                                                                               # which can be time, date, duration
-                                                                               # or even nil (to express an open-ended
-                                                                               # range)
+    logs = Q.(:hlr, :now)   # builds/returns a PersonalInformationLog relation
+                            # this will give you the time range of the current minute.
+                            # beside timestamp strings you can use :now, :today, :yesterday,
+                            # :tomorrow as well as any time/date obj
 
 
 
 
-            # 🌯 get all NOD piilogs that occurred on the day before yesterday
+    # 🍛 get all piilogs that have an error_class that includes either the string
+    # "DocumentUploader" or "nod" (ILIKE) that was created between two dates
 
-            logs = Q.(2.days.ago.to_date, :nod)   # Note the 'to_date'! Passing a single time arg that is a date means
-                                                  # everything on that date. When passing a single time arg that is a
-                                                  # Time class (with hour, min, sec), the resulting range depends on
-                                                  # how precise the time is. Examples: If the time is 00:00:00, then
-                                                  # time range of that date. If minutes and second are 0 (but hour is not),
-                                                  # the time range is that hour. If second is 0, time range is that minute.
-                                                  # And so on.. See TIMES_TO_WHERE_ARGS for the complete rules.
-                                                  # You can always use .to_sql to see the effect.
+    logs = Q.('DocumentUploader', 'nod', '2021-03-14', '2021-03-15')   # you can pass up to 2 time arguments
+                                                                       # which can be time, date, duration
+                                                                       # or even nil (to express an open-ended
+                                                                       # range)
 
 
 
 
-            # 🥗 get all DecisionReview piilogs that occurred in the past week
+    # 🌯 get all NOD piilogs that occurred on the day before yesterday
 
-            logs = Q.(1.week, :nod, :hlr)   # Note: this will go back 1.week from the current moment.
-                                            # You might want Q.(:nod, :hlr, 1.week.ago.to_date, nil)
-                                            # Use `nil` for open-ended time ranges
-
-
-
-
-            # 🍔 get the error counts for the last week of NOD errors
-
-            # print the error counts by category:
-
-              puts_by_error_message_category_counts wrap Q.(:nod, 7.days)
-
-              #  {"Gateway timeout"=>7,
-              #   "BackendServiceException [DR_422]"=>7,
-              #   "Outage..."=>6,
-              #   "BackendServiceException [DR_404]"=>2,
-              #   "BackendServiceException [unmapped_service_exception]"=>1}
-
-            # print the same counts, but first organize by where the exception occurred
-
-              puts_by_error_class_counts wrap Q.(:nod, 7.days)
-
-              #  {"V0::HigherLevelReviews::ContestableIssuesController#index exception Common::Exceptions::GatewayTimeout (HLR)"=>
-              #    {"Gateway timeout"=>7},
-              #   "V0::HigherLevelReviewsController#create exception DecisionReview::ServiceException (HLR)"=>
-              #    {"BackendServiceException [DR_422]"=>7},
-              #   "V0::HigherLevelReviews::ContestableIssuesController#index exception Breakers::OutageException (HLR)"=>
-              #    {"Outage..."=>4},
-              #   "V0::HigherLevelReviews::ContestableIssuesController#index exception DecisionReview::ServiceException (HLR)"=>
-              #    {"BackendServiceException [DR_404]"=>2,
-              #     "BackendServiceException [unmapped_service_exception]"=>1},
-              #   "V0::HigherLevelReviewsController#create exception Breakers::OutageException (HLR)"=>
-              #    {"Outage..."=>2}}
-
-            # now you can see that some of those 6 outages occurred at the ContestableIssuesController#index and
-            # some at HigherLevelReviewsController#create.
-
-            # Notice the 'wrap' method? 'wrap' adds helper methods to PersonalInformationLog objects. Type 'more' for details.
+    logs = Q.(2.days.ago.to_date, :nod)   # Note the 'to_date'! Passing a single time arg that is a date means
+                                          # everything on that date. When passing a single time arg that is a
+                                          # Time class (with hour, min, sec), the resulting range depends on
+                                          # how precise the time is. Examples: If the time is 00:00:00, then
+                                          # time range of that date. If minutes and second are 0 (but hour is not),
+                                          # the time range is that hour. If second is 0, time range is that minute.
+                                          # And so on.. See TIMES_TO_WHERE_ARGS for the complete rules.
+                                          # You can always use .to_sql to see the effect.
 
 
 
 
-            # 🍱 get the DecisionReview error counts for the past 15 days
+    # 🥗 get all DecisionReview piilogs that occurred in the past week
 
-            15.downto(1).each do |d|
-              date = d.days.ago.to_date
-              count = Q.(:hlr, :nod, date).count
-              puts "%s  %s %3d" % [date.strftime('%A')[0..2], date, count]
-            end
-
-
-
-            # 🍕 what helper methods were added to my PiiLog?
-
-            piilogs = wrap Q.(:hlr, 1.week)
-
-            piilogs.first.helper_methods
+    logs = Q.(1.week, :nod, :hlr)   # Note: this will go back 1.week from the current moment.
+                                    # You might want Q.(:nod, :hlr, 1.week.ago.to_date, nil)
+                                    # Use `nil` for open-ended time ranges
 
 
 
 
-            (type 'more' for more info)
+    # 🍔 get the error counts for the last week of NOD errors
+
+    # print the error counts by category:
+
+      puts_by_error_message_category_counts wrap Q.(:nod, 7.days)
+
+      #  {"Gateway timeout"=>7,
+      #   "BackendServiceException [DR_422]"=>7,
+      #   "Outage..."=>6,
+      #   "BackendServiceException [DR_404]"=>2,
+      #   "BackendServiceException [unmapped_service_exception]"=>1}
+
+    # print the same counts, but first organize by where the exception occurred
+
+      puts_by_error_class_counts wrap Q.(:nod, 7.days)
+
+      #  {"V0::HigherLevelReviews::ContestableIssuesController#index exception Common::Exceptions::GatewayTimeout (HLR)"=>
+      #    {"Gateway timeout"=>7},
+      #   "V0::HigherLevelReviewsController#create exception DecisionReview::ServiceException (HLR)"=>
+      #    {"BackendServiceException [DR_422]"=>7},
+      #   "V0::HigherLevelReviews::ContestableIssuesController#index exception Breakers::OutageException (HLR)"=>
+      #    {"Outage..."=>4},
+      #   "V0::HigherLevelReviews::ContestableIssuesController#index exception DecisionReview::ServiceException (HLR)"=>
+      #    {"BackendServiceException [DR_404]"=>2,
+      #     "BackendServiceException [unmapped_service_exception]"=>1},
+      #   "V0::HigherLevelReviewsController#create exception Breakers::OutageException (HLR)"=>
+      #    {"Outage..."=>2}}
+
+    # now you can see that some of those 6 outages occurred at the ContestableIssuesController#index and
+    # some at HigherLevelReviewsController#create.
+
+    # Notice the 'wrap' method? 'wrap' adds helper methods to PersonalInformationLog objects. Type 'more' for details.
+
+
+
+
+    # 🍱 get the DecisionReview error counts for the past 15 days
+
+    15.downto(1).each do |d|
+      date = d.days.ago.to_date
+      count = Q.(:hlr, :nod, date).count
+      puts "%s  %s %3d" % [date.strftime('%A')[0..2], date, count]
+    end
+
+
+
+    # 🍕 what helper methods were added to my PiiLog?
+
+    piilogs = wrap Q.(:hlr, 1.week)
+
+    piilogs.first.helper_methods
+
+
+
+
+    (type 'more' for more info)
 
   RECIPES
 end
@@ -152,7 +151,7 @@ def more_string
     # 'decision_review_repl.rb' to see what they offer, /BUT/, you do *not* need to explicitly call them. The
     # wrap command will /wrap/ a PersonalInformationLog (or Logs) with the appropriate wrapper class. With `wrap`,
     # you end up with an array of PersonalInformationLog /SimpleDelegator/ objects that are simply
-    # PersonalInformationLogs with added methods --added methods that are appropriate for each PiiLog. 
+    # PersonalInformationLogs with added methods --added methods that are appropriate for each PiiLog.
     # For instance, a PiiLog logged in a controller will have user info helper methods (as the 'data' attribute
     # has user info). If the PiiLog was recorded near the schema code in the Service class, the PiiLog will have
     # schema helper methods that help you navigate the PiiLog's data.
