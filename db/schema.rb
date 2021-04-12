@@ -115,12 +115,12 @@ ActiveRecord::Schema.define(version: 2021_04_09_131024) do
   create_table "appeals_api_status_updates", force: :cascade do |t|
     t.string "from"
     t.string "to"
-    t.string "appeal_type"
-    t.string "appeal_id"
+    t.string "statusable_type"
+    t.string "statusable_id"
     t.datetime "status_update_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["appeal_type", "appeal_id"], name: "status_update_id_type_index"
+    t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
