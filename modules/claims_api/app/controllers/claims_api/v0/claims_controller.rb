@@ -20,10 +20,8 @@ module ClaimsApi
       def show
         claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
-        if claim && claim.status == 'errored'
-          fetch_errored(claim)
-        elsif claim && claim.evss_id.blank?
-          render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+        if claim && (claim.status == 'errored' || claim.evss_id.blank?)
+            render json: claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         elsif claim && claim.evss_id.present?
           evss_claim = claims_service.update_from_remote(claim.evss_id)
           render json: evss_claim, serializer: ClaimsApi::ClaimDetailSerializer, uuid: claim.id
