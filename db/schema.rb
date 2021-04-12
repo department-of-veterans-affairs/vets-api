@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_08_191850) do
+ActiveRecord::Schema.define(version: 2021_04_12_161757) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -727,6 +727,17 @@ ActiveRecord::Schema.define(version: 2021_04_08_191850) do
     t.jsonb "va_form_administration"
     t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
+  end
+
+  create_table "vba_documents_git_items", force: :cascade do |t|
+    t.string "url", null: false
+    t.jsonb "git_item"
+    t.boolean "notified", default: false
+    t.string "label"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
+    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|
