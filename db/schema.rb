@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_07_190841) do
+ActiveRecord::Schema.define(version: 2021_04_08_191850) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -238,6 +238,7 @@ ActiveRecord::Schema.define(version: 2021_04_07_190841) do
     t.string "encrypted_form_data_iv"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
     t.index ["encrypted_eligibility_info_iv"], name: "index_covid_vaccine_expanded_on_el_iv", unique: true
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_expanded_on_form_iv", unique: true
     t.index ["encrypted_raw_form_data_iv"], name: "index_covid_vaccine_expanded_on_raw_iv", unique: true
@@ -726,17 +727,6 @@ ActiveRecord::Schema.define(version: 2021_04_07_190841) do
     t.jsonb "va_form_administration"
     t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
-  end
-
-  create_table "vba_documents_git_items", force: :cascade do |t|
-    t.string "url", null: false
-    t.jsonb "git_item"
-    t.boolean "notified", default: false
-    t.string "label"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
-    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|
