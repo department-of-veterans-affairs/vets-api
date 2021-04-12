@@ -5,11 +5,11 @@
 module VBADocuments
   class GitItems < ApplicationRecord
     GIT_QUERY = 'https://api.github.com/search/issues'
-    BENEFITS_PARAMS = { q: 'is:merged is:pr label:BenefitsIntake repo:department-of-veterans-affairs/vets-api' }
-    FORMS_PARAMS = { q: 'is:merged is:pr label:Forms repo:department-of-veterans-affairs/vets-api' }
-    LABELS = ['BenefitsIntake','Forms']
+    BENEFITS_PARAMS = { q: 'is:merged is:pr label:BenefitsIntake repo:department-of-veterans-affairs/vets-api' }.freeze
+    FORMS_PARAMS = { q: 'is:merged is:pr label:Forms repo:department-of-veterans-affairs/vets-api' }.freeze
+    LABELS = %w[BenefitsIntake Forms].freeze
 
-    validates_uniqueness_of :url
+    validates :url, uniqueness: true
 
     module ClassMethods
       # notifies slack of all new deployments.  Returns the number notified on.
@@ -17,7 +17,7 @@ module VBADocuments
         slack_url = fetch_url(label)
         text = "The following new merges are now in #{label.underscore.titleize}:\n"
         models = []
-        GitItems.where(notified: false, label: label).each do |model|
+        GitItems.where(notified: false, label: label).find_each do |model|
           url = model.url
           author = model.git_item['user']['login']
           title = model.git_item['title']
@@ -45,6 +45,7 @@ module VBADocuments
             url = item['html_url']
             model = find_or_create_by(url: url)
             next if model.git_item
+
             model.git_item = item
             model.label = label
             saved = model.save
@@ -60,12 +61,11 @@ module VBADocuments
         Faraday.new(url: GIT_QUERY, params: params).get
       end
 
-      # todo setup with actual urls
+      # TODO: setup with actual urls
       def fetch_url(label)
-        {'BenefitsIntake' => Settings.vba_documents.slack.notification_url,
-         'Forms' => Settings.vba_documents.slack.notification_url }[label]
+        { 'BenefitsIntake' => Settings.vba_documents.slack.notification_url,
+          'Forms' => Settings.vba_documents.slack.notification_url }[label]
       end
-
     end
     extend ClassMethods
   end

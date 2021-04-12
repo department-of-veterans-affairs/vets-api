@@ -64,7 +64,6 @@ RSpec.describe 'VBADocuments::DeploymentsNotifer', type: :job do
   end
 
   it 'rejects invalid labels' do
-    expect {@job.perform('bad_label')}.to raise_error
+    expect { @job.perform('bad_label') }.to raise_error(ArgumentError)
   end
-
 end

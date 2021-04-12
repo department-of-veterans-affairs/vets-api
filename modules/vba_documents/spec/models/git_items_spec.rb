@@ -69,10 +69,9 @@ describe VBADocuments::GitItems, type: :model do
 
   it 'does not over populate' do
     expect(@record_counts.first).to be(3)
-    record_count_benefits = VBADocuments::GitItems.populate('BenefitsIntake') #second populate with the same data
-    record_count_forms = VBADocuments::GitItems.populate('Forms') #second populate with the same data
+    record_count_benefits = VBADocuments::GitItems.populate('BenefitsIntake') # second populate with the same data
+    record_count_forms = VBADocuments::GitItems.populate('Forms') # second populate with the same data
     expect(record_count_benefits).to be(3)
     expect(record_count_forms).to be(record_count_forms)
   end
-
 end

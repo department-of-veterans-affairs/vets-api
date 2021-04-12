@@ -735,7 +735,8 @@ ActiveRecord::Schema.define(version: 2021_04_07_190841) do
     t.string "label"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["url", "notified", "label"], name: "index_vba_documents_git_items_on_url_and_notified_and_label"
+    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
+    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|

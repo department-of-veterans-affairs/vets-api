@@ -11,10 +11,11 @@ module VBADocuments
 
     def perform(label = nil)
       return unless Settings.vba_documents.slack.enabled
-      raise ArgumentError "Label #{label} is invalid.  Choose from #{VALID_LABELS}}" unless VALID_LABELS.include?(label)
+      raise ArgumentError, "Label #{label} is invalid. Use #{VALID_LABELS}}" unless VALID_LABELS.include?(label)
+
       result = []
       begin
-        if (label.nil?)
+        if label.nil?
           GitItems::LABELS.each do |l|
             result << DeploymentsNotifier.perform_async(l)
           end
