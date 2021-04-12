@@ -6,7 +6,8 @@ require_relative 'communication_permission'
 module VAProfile
   module Models
     class CommunicationChannel < CommunicationBase
-      attr_accessor :id, :name, :description, :communication_permission
+      attr_accessor :id, :name, :description
+      attr_reader :communication_permission
 
       validates :id, :communication_permission, presence: true
 
@@ -32,6 +33,14 @@ module VAProfile
         end
 
         communication_channel_model
+      end
+
+      def communication_permission=(permission)
+        @communication_permission = if permission.present? && !permission.is_a?(CommunicationPermission)
+                                      CommunicationPermission.new(permission)
+                                    else
+                                      permission
+                                    end
       end
 
       private
