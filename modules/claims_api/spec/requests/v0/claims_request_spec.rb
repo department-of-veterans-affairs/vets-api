@@ -66,7 +66,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
               'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
             }
           )
-          expect(response.status).to eq(422)
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)['data']['attributes']['evss_errors'].length).to eq(1)
         end
       end
 
@@ -89,7 +90,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
               'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-VA-LOA' => '3'
             }
           )
-          expect(response.status).to eq(422)
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)['data']['attributes']['evss_errors']).to eq('Unknown EVSS Async Error')
         end
       end
     end

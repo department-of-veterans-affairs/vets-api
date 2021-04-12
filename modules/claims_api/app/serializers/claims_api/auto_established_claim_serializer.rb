@@ -14,7 +14,7 @@ module ClaimsApi
 
     def evss_errors
       if object.evss_response&.any?
-        format_evss_errors(claim.evss_response['messages'])
+        format_evss_errors(object.evss_response['messages'])
       else
         'Unknown EVSS Async Error'
       end
