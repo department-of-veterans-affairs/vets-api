@@ -13,7 +13,6 @@ module VeteranVerification
 
     def authenticate_token
       return false if token.blank? || token.client_credentials_token? # Not supported for Client Credentials tokens
-      
       @session = Session.find(token)
       if @session.nil?
         profile = fetch_profile(token.identifiers.okta_uid)
@@ -21,11 +20,8 @@ module VeteranVerification
       end
       return false if @session.nil?
 
-      open_id = if Settings.vet_verification.mock_emis
-                  MockOpenIdUser
-                else
-                  OpenidUser
-                end
+      open_id = OpenidUser
+      open_id = MockOpenIdUser if Settings.vet_verification.mock_emis
       @current_user = open_id.find(@session.uuid)
     end
 
