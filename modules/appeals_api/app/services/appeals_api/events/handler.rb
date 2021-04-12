@@ -14,8 +14,7 @@ module AppealsApi
         @opts = opts
       end
 
-      def handle
-        # push log of event out?
+      def handle!
         AppealsApi::EventsWorker.perform_async(event_type, opts)
       end
 
