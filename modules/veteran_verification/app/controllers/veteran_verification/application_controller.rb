@@ -18,7 +18,8 @@ module VeteranVerification
       return false if token.client_credentials_token?
 
       @session = Session.find(token)
-      establish_session if @session.nil?
+      profile = fetch_profile(token.identifiers.okta_uid) if @session.nil?
+      establish_session(profile) if @session.nil?
       return false if @session.nil?
 
       open_id = if Settings.vet_verification.mock_emis
