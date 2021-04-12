@@ -75,7 +75,7 @@ class OpenidApplicationController < ApplicationController
     token_string = auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, '')
 
     if jwt?(token_string)
-      Token.new(token_string, fetch_aud, fetch_strict_aud)
+      Token.new(token_string, fetch_aud)
     else
       # Future block for opaque tokens
       raise error_klass('Invalid token.')

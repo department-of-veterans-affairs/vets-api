@@ -6,12 +6,42 @@ require 'common/exceptions'
 module OpenidAuth
   module V2
     class ValidationController < ApplicationController
-      before_action :validate_user
+      before_action :validate_user, :validate_strict_audience
 
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
         raise Common::Exceptions::InternalServerError, e
+      end
+
+      def valid_strict?
+        %w[true false].include?(fetch_strict)
+      end
+
+      def fetch_strict
+        params['strict'] || "false"
+      end
+
+      def valid_audience?
+        aud = fetch_aud
+        if fetch_strict == "true"
+          if aud.nil?
+            false
+          else
+            aud.include?(token.payload['aud'])
+          end
+        else
+          if aud.nil?
+            token.payload['aud'] == Settings.oidc.isolated_audience.default
+          else
+            [Settings.oidc.isolated_audience.default, aud].include?(token.payload['aud'])
+          end
+        end
+      end
+
+      def validate_strict_audience
+        raise error_klass('Invalid strict value') unless valid_strict?
+        raise error_klass('Invalid audience') unless valid_audience?
       end
 
       private
