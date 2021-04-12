@@ -7,9 +7,9 @@ module CovidVaccine
     include Sidekiq::Worker
     include SentryLogging
 
-    def perform(record_id, user_type)
+    def perform(record_id)
       partial = CovidVaccine::V0::ExpandedRegistrationSubmission.find(record_id)
-      CovidVaccine::V0::ExpandedRegistrationService.new.register(partial, user_type)
+      CovidVaccine::V0::ExpandedRegistrationService.new.register(partial)
     rescue => e
       handle_errors(e)
     end

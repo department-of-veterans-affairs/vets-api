@@ -42,6 +42,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
   describe '#register', vcr: vcr_options do
     context 'unauthenticated' do
       it 'coerces input to vetext format' do
+        sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .with(hash_including(:first_name,
                                :last_name,
@@ -66,22 +67,25 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
                                :sta3n,
                                :sta6a,
                                :vaccine_interest))
-          .and_return({ sid: SecureRandom.uuid })
+          .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
 
-        expect { subject.register(submission, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission)
+        expect(submission.reload.vetext_sid).to match(sid)
+        expect(submission.reload.vetext_sid).to be_truthy
       end
 
       it 'passes authenticated attribute as false' do
+        sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .with(hash_including(authenticated: false))
-          .and_return({ sid: SecureRandom.uuid })
+          .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-        expect { subject.register(submission, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission)
+        expect(submission.reload.vetext_sid).to match(sid)
+        expect(submission.reload.vetext_sid).to be_truthy
       end
 
       it 'updates submission record' do
@@ -90,9 +94,8 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-
-        expect { subject.register(submission, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission)
+        expect(submission.reload.vetext_sid).to match(sid)
         expect(submission.reload.vetext_sid).to be_truthy
       end
 
@@ -102,19 +105,19 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-        expect { subject.register(submission, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission)
+        expect(submission.reload.vetext_sid).to match(sid)
         expect(submission.reload.state).to match('registered')
       end
 
-      it 'adds ICN to Nil encrypted enrollment data' do
+      it 'adds ICN to Nil enrollment data' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-        expect { subject.register(submission, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission)
+        expect(submission.reload.vetext_sid).to match(sid)
         expect(submission.reload.encrypted_eligibility_info).not_to be_nil
       end
 
@@ -124,8 +127,8 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-        expect { subject.register(submission_eligibility_info, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission_eligibility_info)
+        expect(submission_eligibility_info.reload.vetext_sid).to match(sid)
         expect(submission_eligibility_info.reload.encrypted_eligibility_info).not_to be_nil
       end
 
@@ -135,8 +138,8 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-        expect { subject.register(submission_spouse, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission_spouse)
+        expect(submission_spouse.reload.vetext_sid).to match(sid)
         expect(submission_spouse.reload.state).to match('registered')
       end
 
@@ -146,19 +149,19 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-        expect { subject.register(submission_non_us, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission_non_us)
+        expect(submission_non_us.reload.vetext_sid).to match(sid)
         expect(submission_non_us.reload.state).to match('registered')
       end
 
-      it 'submits but does not update email job when email does not exist' do
+      it 'submits when email does not exist' do
         sid = SecureRandom.uuid
         allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-        expect { subject.register(submission_no_email, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(0)
+        subject.register(submission_no_email)
+        expect(submission_no_email.reload.vetext_sid).to match(sid)
         expect(submission_no_email.reload.state).to match('registered')
       end
 
@@ -168,33 +171,36 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
-        expect { subject.register(submission_composite_facility, 'unauthenticated') }
-          .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(1)
+        subject.register(submission_composite_facility)
+        expect(submission_composite_facility.reload.vetext_sid).to match(sid)
         expect(submission_composite_facility.reload.state).to match('registered')
       end
 
       context 'without sufficient traits' do
-        it 'does not update email job when lacking traits' do
+        it 'does not register when lacking traits for MVI lookup' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile)
             .and_return(mvi_profile_not_found)
-          expect { subject.register(submission, 'unauthenticated') }
-            .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(0)
+          expect { subject.register(submission) }.to raise_error(Common::Exceptions::RecordNotFound)
         end
 
-        it 'does not update email job when facility does not match' do
+        it 'does not send data when facility does not match' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile)
             .and_return(mvi_facility_not_found)
-          expect { subject.register(submission, 'unauthenticated') }
-            .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(0)
+          expect do
+            subject.register(submission)
+          end.to raise_error(Common::Exceptions::RecordNotFound)
         end
 
-        it 'does not update email job when preferred location does not exist' do
+        it 'updates state when preferred location does not exist' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
-          expect { subject.register(submission_no_facility, 'unauthenticated') }
-            .to change(CovidVaccine::ExpandedRegistrationEmailJob.jobs, :size).by(0)
+          expect do
+            subject.register(submission_no_facility)
+          end.to raise_error(Common::Exceptions::UnprocessableEntity)
+          expect(submission_no_facility.reload.vetext_sid).to be_nil
+          expect(submission_no_facility.reload.state).to match('enrollment_out_of_band')
         end
       end
     end

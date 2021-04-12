@@ -3,7 +3,7 @@
 module CovidVaccine
   module V0
     class ExpandedRegistrationService
-      def register(submission, _user_type)
+      def register(submission)
         raw_form_data = submission.raw_form_data
         # Conditions where we should not send data to vetext:
         # 1 - no preferred location in raw_form_data and no facility found for zip_code: manual intervention
@@ -15,10 +15,7 @@ module CovidVaccine
         # instead we will set the state to :enrollment_out_of_band
         facility = submission&.eligibility_info&.dig('preferred_facility') ||
                    raw_form_data['preferred_facility'].delete_prefix('vha_')
-        if facility.blank?
-          submission.enrollment_requires_intervention!
-          return
-        end
+        handle_no_facility_error(submission) if facility.blank?
 
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
         # We want to keep trying as it may take time for the registration to occur.  Need to know if there is an entry
@@ -41,18 +38,9 @@ module CovidVaccine
         Rails.logger.info("Covid_Vaccine_Expanded Vetext Response: #{response}")
         elig_info_icn = { 'patient_icn': attributes[:patient_icn] }
         elig_info_icn.merge!(submission.eligibility_info) unless submission.eligibility_info.nil?
-
         submission.update!(vetext_sid: response[:sid], form_data: attributes, state: 'registered',
                            eligibility_info: elig_info_icn)
-        submit_confirmation_email(attributes[:email], submission.created_at, response[:sid])
         submission
-      end
-
-      def submit_confirmation_email(email, date, sid)
-        return if email.blank?
-
-        formatted_date = date.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-        CovidVaccine::ExpandedRegistrationEmailJob.perform_async(email, formatted_date, sid)
       end
 
       def submit(attributes)
@@ -70,6 +58,11 @@ module CovidVaccine
           is_expanded_eligibility: true
         }
         Rails.logger.info('Covid_Vaccine Expanded Submission', log_attrs)
+      end
+
+      def handle_no_facility_error(submission)
+        submission.enrollment_requires_intervention!
+        raise Common::Exceptions::UnprocessableEntity.new(detail: "No Preferred Facility for record #{submission.id}")
       end
 
       def transform_form_data(raw_form_data, facility, mpi_attributes)
@@ -149,6 +142,7 @@ module CovidVaccine
           submission: id,
           submission_date: date
         )
+        raise Common::Exceptions::RecordNotFound, "#{self.class.name}:Error in MPI Lookup: #{error}"
       end
     end
   end
