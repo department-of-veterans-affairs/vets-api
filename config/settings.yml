@@ -807,11 +807,18 @@ hqva_mobile:
       - "patient/Organization.read"
       - "patient/Patient.read"
 
+# settings va.gov uses related to lighthouse api's
 lighthouse:
   api_key: fake_key
   facilities:
     url: https://sandbox-api.va.gov
     api_key: fake_key
+  decision_reviews:
+    s3:
+      aws_access_key_id: "aws_access_key_id"
+      aws_secret_access_key: "aws_secret_access_key"
+      region: "region"
+      bucket: "bucket"
 
 forms:
   url: https://sandbox-api.va.gov/services/va_forms/v0/
