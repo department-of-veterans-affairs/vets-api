@@ -15,6 +15,7 @@ properties:
     required:
       - profile
       - authorizedServices
+      - health
     properties:
       profile:
         type: object
@@ -61,3 +62,23 @@ properties:
           - appeals
           - directDepositBenefits
           - militaryServiceHistory
+      health:
+        type: object
+        required:
+          - isCernerPatient
+          - facilities
+        properties:
+          isCernerPatient:
+            type: boolean
+          facilities:
+            type: array
+            items:
+              type: object
+              properties:
+                facilityId:
+                  type: string
+                  example: "979"
+                isCerner:
+                  type: boolean
+                  example: false
+            
