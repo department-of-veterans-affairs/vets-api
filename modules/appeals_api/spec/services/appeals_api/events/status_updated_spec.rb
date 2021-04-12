@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+
 module AppealsApi
   module Events
     RSpec.describe StatusUpdated do
