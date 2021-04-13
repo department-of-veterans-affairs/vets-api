@@ -98,6 +98,12 @@ paths:
             type: integer
           description: The number of records to return per page
           example: 10
+        - in: query
+          name: useCache
+          schema:
+            type: boolean
+          description: Whether or not to use this API's cache or fetch records from the upstream service
+          example: true
       responses:
         '200':
           description: OK
