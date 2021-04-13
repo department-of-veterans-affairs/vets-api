@@ -33,7 +33,7 @@ end
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.7'
 gem 'puma-plugin-statsd', '~> 0.1.0'
-gem 'rails', '~> 6.0.2'
+gem 'rails', '~> 6.0.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
