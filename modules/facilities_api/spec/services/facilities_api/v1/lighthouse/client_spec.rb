@@ -62,10 +62,10 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
       feedback: {
         'effective_date' => '2021-03-05',
         'health' => {
-          "primary_care_urgent" => 0.0,
-          "primary_care_routine" => 0.9100000262260437,
-          "specialty_care_urgent" => 0.0,
-          "specialty_care_routine" => 0.0
+          'primary_care_urgent' => 0.0,
+          'primary_care_routine' => 0.9100000262260437,
+          'specialty_care_urgent' => 0.0,
+          'specialty_care_routine' => 0.0
         }
       },
       access: {
