@@ -140,7 +140,7 @@ components:
             act:
               type: object
               description: |
-                Different VA Identifiers corresponding to acting user including ICN, SEC_ID, etc.
+                Different VA Identifiers corresponding to acting user including ICN, SEC_ID, Type, etc.
             launch:
               type: object
               description: |
