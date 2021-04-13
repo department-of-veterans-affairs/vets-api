@@ -31,7 +31,7 @@ module VAProfile
           perform(
             :put,
             get_path_ids,
-            communication_item
+            VAProfile::Models::CommunicationItem.format_all_for_api(communication_items, @user.vet360_id).to_json
           ).body
         end
       rescue => e
