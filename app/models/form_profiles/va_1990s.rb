@@ -25,7 +25,7 @@ class FormProfiles::VA1990s < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/form'
+      returnUrl: '/apply'
     }
   end
 
