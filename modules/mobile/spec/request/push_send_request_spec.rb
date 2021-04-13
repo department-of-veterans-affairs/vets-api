@@ -8,6 +8,8 @@ RSpec.describe 'push send', type: :request do
   include JsonSchemaMatchers
   before { iam_sign_in }
 
+  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+
   describe 'POST /mobile/v0/push/send' do
     context 'with with valid request body' do
       let(:params) do
@@ -23,7 +25,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns 200 and empty json' do
         VCR.use_cassette('vetext/send_success') do
-          post '/mobile/v0/push/send', headers: iam_headers, params: params
+          post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
           expect(response).to have_http_status(:ok)
           expect(response.body).to eq('{}')
         end
@@ -44,7 +46,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns bad request and error' do
         VCR.use_cassette('vetext/send_bad_request') do
-          post '/mobile/v0/push/send', headers: iam_headers, params: params
+          post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to match_json_schema('errors')
         end
@@ -65,7 +67,7 @@ RSpec.describe 'push send', type: :request do
 
       it 'returns bad gateway and error' do
         VCR.use_cassette('vetext/send_internal_server_error') do
-          post '/mobile/v0/push/send', headers: iam_headers, params: params
+          post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
           expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('errors')
         end
@@ -85,7 +87,7 @@ RSpec.describe 'push send', type: :request do
       end
 
       it 'returns not found and error' do
-        post '/mobile/v0/push/send', headers: iam_headers, params: params
+        post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
         expect(response).to have_http_status(:not_found)
         expect(response.body).to match_json_schema('errors')
       end

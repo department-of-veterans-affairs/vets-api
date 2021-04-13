@@ -82,10 +82,11 @@
           "type": { "enum": ["attachments"] },
           "attributes": {
             "type": "object",
-            "required": ["message_id", "name"],
+            "required": ["message_id", "name", "attachment_size"],
             "properties": {
               "message_id": { "type": "integer" },
-              "name": { "type": "string" }
+              "name": { "type": "string" },
+              "attachment_size": { "type": "integer" }
             }
           },
           "links": {
