@@ -106,3 +106,12 @@ jobs:
           comment_on_pr: false
           files: log/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
+  
+  trigger_jenkins_deploy:
+    name: trigger single job
+    uses: appleboy/jenkins-action@master
+    with:
+      url: http://dev.va.gov/jenkins
+      user: ${{ secrets.API_USER }}
+      token: ${{ secrets.API_TOKEN }}
+      job: vets-gov-autodeploy-vets-api
