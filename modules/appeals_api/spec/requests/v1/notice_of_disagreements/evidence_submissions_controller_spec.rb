@@ -6,11 +6,11 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmissionsController, type: :request do
   include FixtureHelpers
 
-  let!(:notice_of_disagreement) { create(:notice_of_disagreement) }
+  let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
 
-  describe '#show' do
+  xdescribe '#show' do
     it 'successfully requests the evidence submissions' do
       get "#{path}#{notice_of_disagreement.id}"
 
@@ -29,7 +29,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     end
   end
 
-  describe '#create' do
+  xdescribe '#create' do
     let(:double_setup) do
       s3_client = instance_double(Aws::S3::Resource)
       allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
