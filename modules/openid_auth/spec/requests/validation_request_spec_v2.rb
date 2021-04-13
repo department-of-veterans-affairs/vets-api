@@ -93,7 +93,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
           ],
           'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'act' => {
-            'icn' => '73806470379396828'
+            'icn' => '73806470379396828',
+            'type' => 'patient'
           },
           'launch' => {
             'icn' => '73806470379396828'
@@ -124,7 +125,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
           ],
           'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'act' => {
-            'icn' => nil
+            'icn' => nil,
+            'type' => 'system'
           },
           'launch' => {
             'patient' => '73806470379396828'
