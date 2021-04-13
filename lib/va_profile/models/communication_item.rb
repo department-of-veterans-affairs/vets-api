@@ -30,6 +30,20 @@ module VAProfile
         )
       end
 
+      def self.format_all_for_api(communication_items, va_profile_id)
+        source_date = Time.zone.now.iso8601
+
+        {
+          bio: {
+            communicationPermissions: communication_items.map do |communication_item|
+              communication_item.format_for_api(va_profile_id, include_bio: false, source_date: source_date)
+            end,
+            vaProfileId: va_profile_id,
+            sourceDate: source_date
+          }
+        }
+      end
+
       def communication_channels=(arr)
         @communication_channels = if arr[0].present? && !arr[0].is_a?(CommunicationChannel)
                                     arr.map do |hash|
