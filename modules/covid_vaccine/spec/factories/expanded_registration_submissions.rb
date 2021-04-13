@@ -7,8 +7,9 @@
 FactoryBot.define do
   factory :covid_vax_expanded_registration, class: 'CovidVaccine::V0::ExpandedRegistrationSubmission' do
     submission_uuid { SecureRandom.uuid }
-    state { 'received' }
+    state { 'enrollment_pending' }
     vetext_sid { nil }
+    eligibility_info { nil }
     transient do
       base_raw_data {
         {
@@ -16,14 +17,14 @@ FactoryBot.define do
           'middle_name' => nil,
           'last_name' => 'Doe',
           'ssn' => '666112222',
-          'birth_date' => '1900-01-01',
+          'birth_date' => '1922-01-01',
           'birth_sex' => 'Male',
           'applicant_type' => 'veteran',
           'last_branch_of_service' => 'Navy',
           'character_of_service' => 'Honorable',
           'date_range' => { 'from' => '1980-03-XX', 'to' => '1984-01-XX' },
-          'preferred_facility' => 'vha_684',
-          'email_address' => 'vets.gov.user+0@gmail.com',
+          'preferred_facility' => 'vha_516',
+          'email' => 'vets.gov.user+0@gmail.com',
           'phone' => '808-555-1212',
           'sms_acknowledgement' => true,
           'address_line1' => '810 Vermont Avenue',
@@ -48,19 +49,79 @@ FactoryBot.define do
     form_data {
       {
         vaccine_interest: 'INTERESTED',
-        zip_code: '97212',
-        time_at_zip: 'YES',
-        phone: '808-555-1212',
-        email: 'vets.gov.user+0@gmail.com',
         first_name: 'Jon',
         last_name: 'Doe',
-        date_of_birth: '1900-01-01',
-        patient_ssn: '666123456',
         patient_icn: '123456V123456',
         sta3n: '648',
-        sta6a: '648GI'
+        sta6a: '648GI',
+        ssn: '666112222',
+        birth_date: '1942-01-01',
+        birth_sex: 'Male',
+        applicant_type: 'veteran',
+        last_branch_of_service: 'Army',
+        character_of_service: 'Honorable',
+        date_range: { 'from' => '1980-03-XX', 'to' => '1984-01-XX' },
+        preferred_facility: 'vha_516',
+        email: 'vets.gov.user+0@gmail.com',
+        phone: '808-555-1212',
+        sms_acknowledgement: false,
+        address_line1: '810 Vermont Avenue',
+        address_line2: nil,
+        address_line3: nil,
+        city: 'Washington',
+        state_code: 'DC',
+        zip_code: '20420',
+        country_name: 'USA',
+        compliance_agreement: true,
+        privacy_agreement_accepted: true
       }
     }
+
+    trait :unsubmitted do
+      vetext_sid { nil }
+      form_data { nil }
+    end
+
+    trait :no_preferred_facility do
+      default_raw_options {
+        {
+          'preferred_facility' => ''
+        }
+      }
+    end
+
+    trait :blank_email do
+      default_raw_options {
+        {
+          'email' => nil
+        }
+      }
+    end
+
+    trait :eligibility_info do
+      eligibility_info { { 'preferred_facility': '516' } }
+    end
+
+    trait :spouse do
+      default_raw_options {
+        {
+          'applicant_type' => 'spouse',
+          'veteran_ssn' => '666001111',
+          'veteran_birth_date' => '1950-05-05',
+          'last_branch_of_service' => nil,
+          'character_of_service' => nil,
+          'date_range' => nil
+        }
+      }
+    end
+
+    trait :composite_facility do
+      default_raw_options {
+        {
+          'preferred_facility' => 'vha_516cg'
+        }
+      }
+    end
 
     trait :non_us do
       default_raw_options {
@@ -98,27 +159,6 @@ FactoryBot.define do
           'state_code' => 'BC',
           'zip_code' => '21000',
           'country_name' => 'Mexico'
-        }
-      }
-    end
-
-    trait :spouse do
-      default_raw_options {
-        {
-          'applicant_type' => 'spouse',
-          'veteran_ssn' => '666001111',
-          'veteran_birth_date' => '1950-05-05',
-          'last_branch_of_service' => nil,
-          'character_of_service' => nil,
-          'date_range' => nil
-        }
-      }
-    end
-
-    trait :blank_email do
-      default_raw_options {
-        {
-          'email_address' => nil
         }
       }
     end
