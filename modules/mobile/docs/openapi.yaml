@@ -67,7 +67,7 @@ paths:
   /v0/appointments:
     get:
       summary: /v0/appointments
-      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 1 year and + 1 year from the beginning of today's UTC date. The endpoint is paginated and call with no pagination params defaults to page 1 with a page size of 10. Details on links for the other pages in the set are included in the "links" object. The current page is the "self" link. "prev" and "next" are the previous and next links (these will be null if you are on the first or last page respectively). Finally "first" and "last" are the links for the first and last page. Requesting a page out of bounds will return an empty list, however if will still include "links" details for the pages inbounds.
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 1 year and + 1 year from the beginning of today's UTC date. The endpoint is paginated and call with no pagination params defaults to page 1 with a page size of 10. Details on links for the other pages in the set are included in the "links" object. The current page is the "self" link. "prev" and "next" are the previous and next links (these will be null if you are on the first or last page respectively). Finally "first" and "last" are the links for the first and last page. Requesting a page out of bounds will return an empty list, however if will still include "links" details for the pages that are in bounds.
       operationId: getAppointments
       security:
         - Bearer: []
