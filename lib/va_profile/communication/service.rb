@@ -18,7 +18,8 @@ module VAProfile
         with_monitoring do
           perform(
             communication_item.http_verb,
-            "#{get_path_ids}communication-permissions", communication_item.in_json(@user.vet360_id)
+            "#{get_path_ids}communication-permissions",
+            communication_item.format_for_api(@user.vet360_id).to_json
           ).body
         end
       rescue => e
@@ -33,7 +34,7 @@ module VAProfile
             communication_item
           ).body
         end
-      rescue =>
+      rescue => e
         handle_error(e)
       end
 

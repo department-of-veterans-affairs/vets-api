@@ -48,26 +48,27 @@ module VAProfile
         communication_channels[0]
       end
 
-      def in_json(va_profile_id)
+      def format_for_api(va_profile_id, include_bio: true, source_date: nil)
         communication_channel = first_communication_channel
+        source_date = Time.zone.now.iso8601 if source_date.nil?
 
-        {
-          bio: {
-            allowed: communication_channel.communication_permission.allowed,
-            communicationChannelId: communication_channel.id,
-            communicationItemId: id,
-            vaProfileId: va_profile_id.to_i,
-            sourceDate: Time.zone.now.iso8601
-          }.merge(lambda do
-            communication_permission = communication_channel.communication_permission
+        attrs = {
+          allowed: communication_channel.communication_permission.allowed,
+          communicationChannelId: communication_channel.id,
+          communicationItemId: id,
+          vaProfileId: va_profile_id.to_i,
+          sourceDate: source_date
+        }.merge(lambda do
+          communication_permission = communication_channel.communication_permission
 
-            if communication_permission.id.present?
-              { communicationPermissionId: communication_permission.id }
-            else
-              {}
-            end
-          end.call)
-        }.to_json
+          if communication_permission.id.present?
+            { communicationPermissionId: communication_permission.id }
+          else
+            {}
+          end
+        end.call)
+
+        include_bio ? { bio: attrs } : attrs
       end
 
       private
