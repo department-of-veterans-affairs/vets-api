@@ -6,7 +6,7 @@ require 'common/exceptions'
 module OpenidAuth
   module V2
     class ValidationController < ApplicationController
-      before_action :validate_user, :validate_strict_audience
+      before_action :validate_strict_audience, :validate_user
 
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
@@ -28,12 +28,10 @@ module OpenidAuth
           if aud.nil?
             false
           else
-            aud.include?(token.payload['aud'])
+            [*aud].include?(token.payload['aud'])
           end
-        elsif aud.nil?
-          token.payload['aud'] == Settings.oidc.isolated_audience.default
         else
-          [Settings.oidc.isolated_audience.default, aud].include?(token.payload['aud'])
+          true
         end
       end
 
