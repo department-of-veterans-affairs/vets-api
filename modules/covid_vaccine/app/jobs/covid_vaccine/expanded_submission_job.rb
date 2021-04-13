@@ -7,7 +7,7 @@ module CovidVaccine
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options retry: false
-    
+
     def perform(record_id)
       submission = CovidVaccine::V0::ExpandedRegistrationSubmission.find(record_id)
       CovidVaccine::V0::ExpandedRegistrationService.new.register(submission)
