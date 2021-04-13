@@ -50,8 +50,15 @@ describe VAProfile::Communication::Service do
       ]
     end
 
-    it 'sends a request to update multiple communication permissions' do
-      binding.pry; fail
+    before do
+      allow(user).to receive(:vet360_id).and_return('16445')
+    end
+
+    it 'sends a request to update multiple communication permissions', run_at: '2021-04-13T20:54:58Z' do
+      VCR.use_cassette('va_profile/communication/update_all_communication_permissions', VCR::MATCH_EVERYTHING) do
+        res = subject.update_all_communication_permissions(communication_items)
+        binding.pry; fail
+      end
     end
   end
 

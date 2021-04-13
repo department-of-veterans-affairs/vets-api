@@ -38,7 +38,7 @@ module VAProfile
             communicationPermissions: communication_items.map do |communication_item|
               communication_item.format_for_api(va_profile_id, include_bio: false, source_date: source_date)
             end,
-            vaProfileId: va_profile_id,
+            vaProfileId: va_profile_id.to_i,
             sourceDate: source_date
           }
         }

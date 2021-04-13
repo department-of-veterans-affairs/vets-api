@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4433/communication-hub/communication/v1/2.16.840.1.113883.4.349/16445%5EPI%5E200VETS%5EUSDVA
+    uri: https://int.vet360.va.gov/communication-hub/communication/v1/2.16.840.1.113883.4.349/16445%5EPI%5E200VETS%5EUSDVA/
     body:
       encoding: UTF-8
-      string: '{"bio":{"communicationPermissions":[{"allowed":true,"communicationPermissionId":342,"communicationChannelId":1,"communicationItemId":3,"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"},{"allowed":true,"communicationPermissionId":341,"communicationChannelId":1,"communicationItemId":2,"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"},{"allowed":true,"communicationPermissionId":729,"communicationChannelId":1,"communicationItemId":4,"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"},{"allowed":true,"communicationChannelId":2,"communicationItemId":5,"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"}],"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"}}'
+      string: '{"bio":{"communicationPermissions":[{"allowed":true,"communicationChannelId":1,"communicationItemId":3,"vaProfileId":16445,"sourceDate":"2021-04-13T20:54:58Z","communicationPermissionId":342},{"allowed":true,"communicationChannelId":1,"communicationItemId":2,"vaProfileId":16445,"sourceDate":"2021-04-13T20:54:58Z","communicationPermissionId":341},{"allowed":true,"communicationChannelId":1,"communicationItemId":4,"vaProfileId":16445,"sourceDate":"2021-04-13T20:54:58Z","communicationPermissionId":729},{"allowed":true,"communicationChannelId":2,"communicationItemId":5,"vaProfileId":16445,"sourceDate":"2021-04-13T20:54:58Z"}],"vaProfileId":16445,"sourceDate":"2021-04-13T20:54:58Z"}}'
     headers:
       Accept:
       - application/json
