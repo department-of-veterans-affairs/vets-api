@@ -267,6 +267,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                 }
               },
               classification: 'VA Medical Center (VAMC)',
+              detailedServices: nil,
               facilityType: 'va_health_facility',
               feedback: {
                 health: {
