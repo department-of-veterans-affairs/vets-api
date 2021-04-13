@@ -25,6 +25,18 @@ module VAProfile
         handle_error(e)
       end
 
+      def update_all_communication_permissions(communication_items)
+        with_monitoring do
+          perform(
+            :put,
+            get_path_ids,
+            communication_item
+          ).body
+        end
+      rescue =>
+        handle_error(e)
+      end
+
       def get_items_and_permissions
         VAProfile::Models::CommunicationItemGroup.create_groups(
           get_communication_items,
