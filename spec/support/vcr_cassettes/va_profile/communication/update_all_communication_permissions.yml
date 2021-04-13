@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4433/communication-hub/communication/v1/2.16.840.1.113883.4.349/16445%5EPI%5E200VETS%5EUSDVA
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"communicationPermissions":[{"allowed":true,"communicationPermissionId":342,"communicationChannelId":1,"communicationItemId":3,"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"},{"allowed":true,"communicationPermissionId":341,"communicationChannelId":1,"communicationItemId":2,"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"},{"allowed":true,"communicationPermissionId":729,"communicationChannelId":1,"communicationItemId":4,"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"},{"allowed":true,"communicationChannelId":2,"communicationItemId":5,"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"}],"vaProfileId":"16445","sourceDate":"2021-04-13T20:54:58Z"}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 13 Apr 2021 20:54:59 GMT
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Vaprofiletxauditid:
+      - 41fed3d8-c74e-4494-8ab4-27530bbc7ae1
+      Pragma:
+      - no-cache
+      Strict-Transport-Security:
+      - max-age=31536000 ; includeSubDomains
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Keep-Alive:
+      - timeout=60
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1943'
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"4e3ae638-4269-4d10-8fbc-71b10872d774","status":"COMPLETED_SUCCESS","bio":{"createDate":"2021-04-02T22:25:25Z","updateDate":"2021-04-02T22:25:25Z","txAuditId":"bc6b2c88-98d6-4e20-b15b-5c746789d7ed","sourceSystem":"VETSGOV","sourceDate":"2021-04-02T22:25:24Z","vaProfileId":16445,"communicationPermissions":[{"createDate":"2021-04-12T15:21:52Z","updateDate":"2021-04-13T20:54:59Z","txAuditId":"4e3ae638-4269-4d10-8fbc-71b10872d774","sourceSystem":"VETSGOV","sourceDate":"2021-04-13T20:54:58Z","communicationPermissionId":729,"vaProfileId":16445,"communicationChannelId":1,"communicationItemId":4,"communicationChannelName":"Text","communicationItemCommonName":"Form
+        22-1990 Submission Confirmation","allowed":true},{"createDate":"2021-04-13T20:54:59Z","updateDate":"2021-04-13T20:54:59Z","txAuditId":"4e3ae638-4269-4d10-8fbc-71b10872d774","sourceSystem":"VETSGOV","sourceDate":"2021-04-13T20:54:58Z","communicationPermissionId":770,"vaProfileId":16445,"communicationChannelId":2,"communicationItemId":5,"communicationChannelName":"Email","communicationItemCommonName":"Form
+        526-EZ Submission Confirmation","allowed":true},{"createDate":"2021-04-02T22:25:25Z","updateDate":"2021-04-13T20:54:59Z","txAuditId":"4e3ae638-4269-4d10-8fbc-71b10872d774","sourceSystem":"VETSGOV","sourceDate":"2021-04-13T20:54:58Z","communicationPermissionId":341,"vaProfileId":16445,"communicationChannelId":1,"communicationItemId":2,"communicationChannelName":"Text","communicationItemCommonName":"RX
+        Prescription Refill Reminder","allowed":true},{"createDate":"2021-04-02T22:25:25Z","updateDate":"2021-04-13T20:54:59Z","txAuditId":"4e3ae638-4269-4d10-8fbc-71b10872d774","sourceSystem":"VETSGOV","sourceDate":"2021-04-13T20:54:58Z","communicationPermissionId":342,"vaProfileId":16445,"communicationChannelId":1,"communicationItemId":3,"communicationChannelName":"Text","communicationItemCommonName":"Scheduled
+        Appointment Confirmation","allowed":true}]}}'
+  recorded_at: Tue, 13 Apr 2021 20:54:59 GMT
+recorded_with: VCR 6.0.0
