@@ -21,10 +21,6 @@ class DecisionReviewEvidenceAttachmentUploader < CarrierWave::Uploader::Base
     "decision_review/#{@decision_review_guid}"
   end
 
-  def location
-    @type.to_s
-  end
-
   def set_storage_options!
     #  defaults to CarrierWave::Storage::File if not AWS
     if Rails.env.production?
