@@ -7,8 +7,12 @@ FactoryBot.define do
     association :supportable, factory: :notice_of_disagreement
     upload_submission { create(:upload_submission, guid: SecureRandom.uuid) } # set the guid to pass uniqueness check
 
-    trait :with_details do
-      details { SecureRandom.alphanumeric(150) }
+    trait :with_detail do
+      detail { SecureRandom.alphanumeric(150) }
+    end
+
+    trait :with_nod do
+      supportable { create(:notice_of_disagreement) }
     end
   end
 end

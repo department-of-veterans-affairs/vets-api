@@ -10,5 +10,7 @@ module AppealsApi
     belongs_to :upload_submission,
                class_name: 'VBADocuments::UploadSubmission',
                dependent: :destroy
+
+    delegate :status, to: :upload_submission
   end
 end

@@ -36,7 +36,7 @@ module AppealsApi::V1
           @submission_attributes ||= {
             source: request.headers['X-Consumer-Username'],
             supportable_id: params[:nod_id],
-            supportable_type: 'NoticeOfDisagreement'
+            supportable_type: 'AppealsApi::NoticeOfDisagreement'
           }
         end
       end
