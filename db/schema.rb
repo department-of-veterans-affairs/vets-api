@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_12_161757) do
+ActiveRecord::Schema.define(version: 2021_04_12_175709) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -65,7 +65,6 @@ ActiveRecord::Schema.define(version: 2021_04_12_161757) do
   end
 
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
-    t.string "status", default: "pending", null: false
     t.string "supportable_type"
     t.string "supportable_id"
     t.datetime "created_at", precision: 6, null: false
@@ -74,8 +73,12 @@ ActiveRecord::Schema.define(version: 2021_04_12_161757) do
     t.string "encrypted_file_data_iv"
     t.string "source"
     t.string "code"
-    t.string "details"
+    t.string "detail"
+    t.uuid "guid", null: false
+    t.integer "upload_submission_id", null: false
+    t.index ["guid"], name: "index_appeals_api_evidence_submissions_on_guid"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
+    t.index ["upload_submission_id"], name: "index_appeals_api_evidence_submissions_on_upload_submission_id", unique: true
   end
 
   create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
