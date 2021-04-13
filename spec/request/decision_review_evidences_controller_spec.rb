@@ -19,7 +19,6 @@ RSpec.describe 'DecisionReviewEvidencesontroller', type: :request do
       it 'returns a 200 and an upload guid' do
         post '/v0/decision_review_evidence',
              params: { decision_review_evidence_attachment: { file_data: pdf_file } }
-        binding.pry
         expect(response).to have_http_status(:ok)
         sea = DecisionReviewEvidenceAttachment.last
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq sea.guid
@@ -28,32 +27,9 @@ RSpec.describe 'DecisionReviewEvidencesontroller', type: :request do
     end
 
     context 'with valid encrypted parameters' do
-      it 'returns a 422 for a malformed pdf' do
-        post '/v0/decision_review_evidence',
-             params: { decision_review_evidence_attachment: { file_data: fixture_file_upload('files/malformed-pdf.pdf') } }
-        expect(response).to have_http_status(:unprocessable_entity)
-        err = JSON.parse(response.body)['errors'][0]
-        expect(err['title']).to eq 'Unprocessable Entity'
-        expect(err['detail']).to eq I18n.t('errors.messages.uploads.pdf.invalid')
-      end
-
-      it 'returns a 422  for an unallowed file type' do
-        post '/v0/decision_review_evidence',
-             params: { decision_review_evidence:
-                       { file_data: fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt') } }
-        expect(response).to have_http_status(:unprocessable_entity)
-        err = JSON.parse(response.body)['errors'][0]
-        expect(err['title']).to eq 'Unprocessable Entity'
-        expect(err['detail']).to eq(
-          I18n.t('errors.messages.extension_allowlist_error',
-                 extension: '"crt"',
-                 allowed_types: DecisionReviewEvidenceAttachment.new('a').extension_allowlist.join(', '))
-        )
-      end
-
       it 'returns a 422  for a file that is too small' do
-        post '/v0/upload_supporting_evidence',
-             params: { decision_review_evidence:
+        post '/v0/decision_review_evidence',
+             params: { decision_review_evidence_attachment:
                        { file_data: fixture_file_upload('spec/fixtures/files/empty_file.txt') } }
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
@@ -64,12 +40,12 @@ RSpec.describe 'DecisionReviewEvidencesontroller', type: :request do
 
     context 'with invalid parameters' do
       it 'returns a 500 with no parameters' do
-        post '/v0/upload_supporting_evidence', params: nil
+        post '/v0/decision_review_evidence', params: nil
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns a 500 with no file_data' do
-        post '/v0/upload_supporting_evidence', params: { decision_review_evidence_attachment: {} }
+        post '/v0/decision_review_evidence', params: { decision_review_evidence_attachment: {} }
         expect(response).to have_http_status(:bad_request)
       end
     end
