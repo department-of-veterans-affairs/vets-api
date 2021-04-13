@@ -110,7 +110,6 @@ PATH
 
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.3)
     aasm (5.1.1)
@@ -343,7 +342,6 @@ GEM
     e2mmap (0.1.0)
     ecma-re-validator (0.2.0)
       regexp_parser (~> 1.2)
-    einhorn (0.7.4)
     encryptor (3.0.0)
     equalizer (0.0.11)
     erubi (1.10.0)
@@ -813,13 +811,6 @@ GEM
       rack (~> 2.0)
       rack-protection (>= 1.5.0)
       redis (>= 3.3.5, < 4.2)
-    sidekiq-ent (1.8.1)
-      einhorn (= 0.7.4)
-      sidekiq (>= 5.2.3)
-      sidekiq-pro (>= 4.0.4)
-    sidekiq-pro (5.0.0)
-      concurrent-ruby (>= 1.0.5)
-      sidekiq (>= 5.2.7)
     sidekiq-scheduler (3.0.1)
       e2mmap
       redis (>= 3, < 5)
@@ -1063,8 +1054,6 @@ DEPENDENCIES
   sentry-raven
   shrine
   sidekiq (~> 5.0)
-  sidekiq-ent!
-  sidekiq-pro!
   sidekiq-scheduler (~> 3.0)
   simplecov
   slack-notify
