@@ -243,15 +243,15 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
             attributes: {
               access: {
                 health: [
-                  { service: 'Audiology',        new: 46.619047, established: 51.410526 },
-                  { service: 'Dermatology',      new: 20.277777, established: 22.076923 },
-                  { service: 'MentalHealthCare', new: 13.941176, established: 0.872781 },
-                  { service: 'Ophthalmology',    new: nil, established: 3.238532 },
-                  { service: 'Optometry',        new: 34.921052, established: 30.927184 },
-                  { service: 'PrimaryCare',      new: 8.582677, established: 3.297883 },
-                  { service: 'SpecialtyCare',    new: 29.614754, established: 21.455078 }
+                  { service: 'Audiology',        new: 30.792207, established: 32.107981 },
+                  { service: 'Dermatology',      new: 17.095238, established: 56.152542 },
+                  { service: 'MentalHealthCare', new: 14.083333, established: 1.885372 },
+                  { service: 'Ophthalmology',    new: 33.0,      established: 6.691056 },
+                  { service: 'Optometry',        new: 46.035087, established: 43.350537 },
+                  { service: 'PrimaryCare',      new: 9.394957,  established: 7.711797 },
+                  { service: 'SpecialtyCare',    new: 24.126666, established: 23.555555 }
                 ],
-                effectiveDate: '2021-02-15'
+                effectiveDate: '2021-04-05'
 
               },
               activeStatus: 'A',
@@ -270,10 +270,10 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
               facilityType: 'va_health_facility',
               feedback: {
                 health: {
-                  primaryCareUrgent: 0.8100000023841858,
-                  primaryCareRoutine: 0.9200000166893005
+                  primaryCareUrgent: 0.7699999809265137,
+                  primaryCareRoutine: 0.8500000238418579
                 },
-                effectiveDate: '2020-04-16'
+                effectiveDate: '2021-03-05'
               },
               hours: {
                 monday: '730AM-430PM',
@@ -309,6 +309,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   Audiology
                   DentalServices
                   Dermatology
+                  EmergencyCare
                   MentalHealthCare
                   Nutrition
                   Ophthalmology
@@ -317,7 +318,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   PrimaryCare
                   SpecialtyCare
                 ],
-                lastUpdated: '2021-02-15'
+                lastUpdated: '2021-04-05'
               },
               uniqueId: '648A4',
               visn: '20',
