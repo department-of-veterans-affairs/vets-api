@@ -19,7 +19,7 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
     avg_times = 'monthly_report/avg_processing_time.yml'
     final_monthly_results = 'monthly_report/final_monthly_results.yml'
     mode_pages = 'monthly_report/mode.yml' # was monthly_mode_pages with median added
-    max_avg_pages = 'monthly_report/max_avg.yml' #was monthly_max_avg_pages.yml
+    max_avg_pages = 'monthly_report/max_avg.yml' # was monthly_max_avg_pages.yml
 
     it 'sends mail' do
       with_settings(Settings.vba_documents, monthly_report: true) do

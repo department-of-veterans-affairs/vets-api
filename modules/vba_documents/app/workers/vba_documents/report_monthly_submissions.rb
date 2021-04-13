@@ -119,7 +119,7 @@ module VBADocuments
     "
 
     MEDIAN_SQL = "
-      select sum(median_pages) as median_pages, sum(median_size) as median_size
+      select NULLIF(sum(median_pages),0) as median_pages, NULLIF(sum(median_size),0) as median_size
       from (
         (select (uploaded_pdf->>'total_pages')::integer as median_pages, 0::bigint as median_size
         from vba_documents_upload_submissions a
@@ -204,13 +204,13 @@ module VBADocuments
     # rubocop:enable Style/FormatStringToken
 
     MEGABYTES = 1024.0 * 1024.0
-    def bytes_to_megabytes (bytes)
-      (bytes / MEGABYTES).round(2) unless bytes.nil? || bytes == 0
+    def bytes_to_megabytes(bytes)
+      (bytes / MEGABYTES).round(2) unless bytes.nil? || bytes.zero?
     end
 
     def add_max_avg_mb
       @monthly_max_avg.map! do |e|
-        h = {'max_mb'=>nil, 'avg_mb'=>nil}
+        h = { 'max_mb' => nil, 'avg_mb' => nil }
         h['max_mb'] = bytes_to_megabytes(e['max_size'])
         h['avg_mb'] = bytes_to_megabytes(e['avg_size'])
         e.merge!(h)
@@ -248,8 +248,7 @@ module VBADocuments
         zero_pad = ('0' + row['mm'].to_s)[-2..2]
         yyyymm = "#{row['yyyy']}#{zero_pad}"
         median = run_sql(MEDIAN_SQL, yyyymm)
-        mp = median.first['median_pages']
-        row['median_pages'] = ! mp.nil? && mp > 0 ? mp : nil
+        row['median_pages'] = median.first['median_pages']
         row['mode_size'] = bytes_to_megabytes(row['mode_size'])
         row['median_size'] = bytes_to_megabytes(median.first['median_size'])
       end
