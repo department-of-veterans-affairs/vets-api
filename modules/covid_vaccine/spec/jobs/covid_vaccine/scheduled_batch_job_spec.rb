@@ -17,12 +17,8 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
       expect(parsed_schedule.zone).to eq('America/New_York')
     end
 
-    it 'is scheduled for Monday-Friday' do
-      expect(parsed_schedule.weekdays.flatten).to eq([1, 2, 3, 4, 5])
-    end
-
-    it 'is scheduled on the hour from 6am - 7pm' do
-      expect(parsed_schedule.hours).to eq([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19])
+    it 'is scheduled to run every 15 min' do
+      expect(parsed_schedule.minutes).to eq([0, 15, 30, 45])
     end
   end
 
