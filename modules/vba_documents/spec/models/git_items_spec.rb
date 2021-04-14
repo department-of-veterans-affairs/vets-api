@@ -13,7 +13,7 @@ describe VBADocuments::GitItems, type: :model do
 
   before do
     Settings.vba_documents.slack = Config::Options.new
-    Settings.vba_documents.slack.deployment_notification_url = nil #url post mocked out
+    Settings.vba_documents.slack.deployment_notification_url = nil # url post mocked out
     allow(faraday_response).to receive(:success?).and_return(true)
     allow(VBADocuments::GitItems).to receive(:query_git) {
       faraday_response
