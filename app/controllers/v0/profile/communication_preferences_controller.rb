@@ -21,6 +21,12 @@ module V0
         render(json: service.update_communication_permission(communication_item))
       end
 
+      def update_all
+        communication_items = params.require(:communication_items).map do |communication_item_params|
+          build_communication_item(communication_item_params)
+        end
+      end
+
       def update
         communication_item = build_communication_item
         raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
@@ -36,13 +42,13 @@ module V0
         VAProfile::Communication::Service.new(current_user)
       end
 
-      def build_communication_item
+      def build_communication_item(communication_item_params = params)
         VAProfile::Models::CommunicationItem.new(
-          params.require(:communication_item).permit(
+          communication_item_params.require(:communication_item).permit(
             :id,
             communication_channels: [
               :id,
-              { communication_permission: :allowed }
+              { communication_permission: [:allowed, :id] }
             ]
           )
         )

@@ -45,6 +45,82 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
     end
   end
 
+  describe '#update_all' do
+    let(:valid_params) do
+      {
+        communication_items: [
+          {
+            communication_item: {
+              id: 3,
+              communication_channels: [
+                {
+                  id: 1,
+                  communication_permission: {
+                    id: 342,
+                    allowed: true
+                  }
+                }
+              ]
+            }
+          },
+          {
+            communication_item: {
+              id: 2,
+              communication_channels: [
+                {
+                  id: 1,
+                  communication_permission: {
+                    id: 341,
+                    allowed: true
+                  }
+                }
+              ]
+            }
+          },
+          {
+            communication_item: {
+              id: 4,
+              communication_channels: [
+                {
+                  id: 1,
+                  communication_permission: {
+                    id: 729,
+                    allowed: true
+                  }
+                }
+              ]
+            }
+          },
+          {
+            communication_item: {
+              id: 5,
+              communication_channels: [
+                {
+                  id: 2,
+                  communication_permission: {
+                    allowed: true
+                  }
+                }
+              ]
+            }
+          },
+        ]
+      }
+    end
+
+    subject do
+      put(
+        :update_all,
+        params: valid_params,
+        as: :json
+      )
+    end
+
+    it 'updates multiple communication permissions' do
+      subject
+    end
+  end
+
   describe '#update' do
     subject do
       patch(
