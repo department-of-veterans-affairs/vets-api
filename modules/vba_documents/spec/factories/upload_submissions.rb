@@ -23,6 +23,13 @@ FactoryBot.define do
       uploaded_pdf { UPLOADED_PDF_PROPS }
     end
 
+    trait :status_uploaded_11_min_ago do
+      guid { 'da65a6a3-4193-46f5-90de-12026ffd4011' }
+      status { 'uploaded' }
+      updated_at { 11.minutes.ago }
+      uploaded_pdf { UPLOADED_PDF_PROPS }
+    end
+
     trait :status_error do
       status { 'error' }
       code { 'DOC104' }

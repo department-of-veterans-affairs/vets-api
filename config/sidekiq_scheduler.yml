@@ -130,7 +130,7 @@ ClaimsApi::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful claims submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
-  every: "8h"
+  every: "2h"
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
