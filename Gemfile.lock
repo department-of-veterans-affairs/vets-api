@@ -344,6 +344,7 @@ GEM
     e2mmap (0.1.0)
     ecma-re-validator (0.2.0)
       regexp_parser (~> 1.2)
+    einhorn (0.7.4)
     encryptor (3.0.0)
     equalizer (0.0.11)
     erubi (1.10.0)
