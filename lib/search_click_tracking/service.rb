@@ -25,7 +25,9 @@ module SearchClickTracking
     attr_reader :module_code
     attr_reader :user_agent
 
+    # rubocop:disable Metrics/ParameterLists
     def initialize(url, query, position, user_agent, module_code = 'I14Y', client_ip = request.remote_ip)
+    # rubocop:enable Metrics/ParameterLists
       @url = url
       @query = query
       @position = position
