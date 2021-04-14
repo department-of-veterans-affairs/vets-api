@@ -60,7 +60,7 @@ module EducationForm
       user_submissions.each_value do |submissions|
         auth_headers = submissions.last.education_stem_automated_decision.auth_headers
 
-        claim_ids = submissions.map(&:id).join(' ,')
+        claim_ids = submissions.map(&:id).join(', ')
 
         gi_bill_status = get_gi_bill_status(auth_headers)
         poa = get_user_poa_status(auth_headers, claim_ids)
