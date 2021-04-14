@@ -135,7 +135,7 @@ bip:
   claims:
     url: "https://claims-uat.dev8.bip.va.gov"
 
-# Settings for Vet360
+# Settings for VAProfile
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
