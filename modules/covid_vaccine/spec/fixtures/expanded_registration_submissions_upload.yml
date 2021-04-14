@@ -1,0 +1,47 @@
+
+fixture_1:
+  raw_form_data:
+    first_name: Fred
+    middle_name:
+    last_name: Regpatient
+    birth_sex: Male
+    birth_date: '1953-03-04'
+    ssn: '666328412'
+    address_line1: 9371 Signal Station Dr
+    city: Manassas
+    state_code: VA
+    zip_code: '20111-8258'
+    email_address: Fred.Regpatient@va.gov
+    phone: 888-123-0001
+    preferred_facility: 'vha_648'
+fixture_2:
+  raw_form_data:
+    first_name: Patty
+    middle_name:
+    last_name: Regpatient
+    birth_sex: Female
+    birth_date: '1987-03-22'
+    ssn: '666059255'
+    address_line1: 3433 THIRD ST
+    city: ST PETERSBURG
+    state_code: FL
+    zip_code: '33701'
+    email_address: Patty.Regpatient@va.gov
+    phone: 888-123-0002
+    preferred_facility: 'Cheyenne VA Medical Center'
+fixture_3:
+  raw_form_data:
+    first_name: Sally
+    middle_name:
+    last_name: Regpatient
+    birth_sex: Female
+    birth_date: '1980-03-11'
+    ssn: '661059120'
+    address_line1: 10307 VENITIA REAL AVE APT 202
+    city: TAMPA
+    state_code: FL
+    zip_code: '33647-4010'
+    email_address: Sally.Regpatient@va.gov
+    phone: 888-123-0003
+    preferred_facility: 'Fake VA Medical Center'
+
