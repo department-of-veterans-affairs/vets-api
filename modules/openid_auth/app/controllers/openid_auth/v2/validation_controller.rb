@@ -25,11 +25,16 @@ module OpenidAuth
           payload_object.act[:npi] = token.payload['npi']
           payload_object.act[:sec_id] = token.payload['sub']
           payload_object.act[:vista_id] = token.payload['vista_id']
+          payload_object.act[:type] = 'user'
           return payload_object
         end
 
+        if token.client_credentials_token?
+          payload_object.act[:type] = 'system'
+          return payload_object
+        end
         # Client Credentials will not populate the @current_user, so only fill if not that token type
-        unless token.client_credentials_token? || !payload_object[:icn].nil?
+        if payload_object[:icn].nil?
           payload_object.act[:icn] = @current_user.icn
           payload_object.launch[:patient] = @current_user.icn
         end
@@ -43,6 +48,7 @@ module OpenidAuth
         payload_object.act[:npi] = nil
         payload_object.act[:sec_id] = nil
         payload_object.act[:vista_id] = nil
+        payload_object.act[:type] = 'patient'
         if (token.payload['scp'].include?('launch') ||
             token.payload['scp'].include?('launch/patient')) && !token.payload[:launch].nil?
           payload_object.launch = token.payload[:launch]
