@@ -42,7 +42,7 @@ module Swagger
             key :name, 'client_ip'
             key :in, :path
             key :description, 'the IP address of the user who clicked'
-            key :required, true
+            key :required, false
             key :type, :string
           end
 
@@ -51,6 +51,14 @@ module Swagger
             key :in, :path
             key :description, 'the user agent of the user who clicked'
             key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'module_code'
+            key :in, :path
+            key :description, 'I14Y for web urls, BOOS for best bets, defaults to I14Y'
+            key :required, false
             key :type, :string
           end
 
