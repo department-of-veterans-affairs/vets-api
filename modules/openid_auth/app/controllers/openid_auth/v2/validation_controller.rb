@@ -72,11 +72,13 @@ module OpenidAuth
       end
 
       def validate_with_charon(aud)
-        Settings.oidc.charon.each do |item|
-          if (item.audience.include?aud)
+        charon = Settings.oidc.charon
+        charon.audience.each { |item|
+          aud_check = item['audience']
+          if (aud_check.equal?aud)
             true
           end
-        end
+        }
         false
       end
     end
