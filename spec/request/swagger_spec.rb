@@ -2710,9 +2710,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-
-
-
     describe 'search typeahead' do
       context 'when successful' do
         it 'returns an array of suggestions' do
