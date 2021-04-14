@@ -116,8 +116,76 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
       )
     end
 
-    it 'updates multiple communication permissions' do
-      subject
+    before do
+      allow_any_instance_of(User).to receive(:vet360_id).and_return('16445')
+    end
+
+    it 'updates multiple communication permissions', run_at: '2021-04-13T20:54:58Z' do
+      VCR.use_cassette('va_profile/communication/update_all_communication_permissions', VCR::MATCH_EVERYTHING) do
+        subject
+
+        expect(response.status).to eq(200)
+        expect(JSON.parse(response.body)).to eq(
+          {"tx_audit_id"=>"4e3ae638-4269-4d10-8fbc-71b10872d774",
+           "status"=>"COMPLETED_SUCCESS",
+           "bio"=>
+            {"create_date"=>"2021-04-02T22:25:25Z",
+             "update_date"=>"2021-04-02T22:25:25Z",
+             "tx_audit_id"=>"bc6b2c88-98d6-4e20-b15b-5c746789d7ed",
+             "source_system"=>"VETSGOV",
+             "source_date"=>"2021-04-02T22:25:24Z",
+             "va_profile_id"=>16445,
+             "communication_permissions"=>
+              [{"create_date"=>"2021-04-12T15:21:52Z",
+                "update_date"=>"2021-04-13T20:54:59Z",
+                "tx_audit_id"=>"4e3ae638-4269-4d10-8fbc-71b10872d774",
+                "source_system"=>"VETSGOV",
+                "source_date"=>"2021-04-13T20:54:58Z",
+                "communication_permission_id"=>729,
+                "va_profile_id"=>16445,
+                "communication_channel_id"=>1,
+                "communication_item_id"=>4,
+                "communication_channel_name"=>"Text",
+                "communication_item_common_name"=>"Form 22-1990 Submission Confirmation",
+                "allowed"=>true},
+               {"create_date"=>"2021-04-13T20:54:59Z",
+                "update_date"=>"2021-04-13T20:54:59Z",
+                "tx_audit_id"=>"4e3ae638-4269-4d10-8fbc-71b10872d774",
+                "source_system"=>"VETSGOV",
+                "source_date"=>"2021-04-13T20:54:58Z",
+                "communication_permission_id"=>770,
+                "va_profile_id"=>16445,
+                "communication_channel_id"=>2,
+                "communication_item_id"=>5,
+                "communication_channel_name"=>"Email",
+                "communication_item_common_name"=>"Form 526-EZ Submission Confirmation",
+                "allowed"=>true},
+               {"create_date"=>"2021-04-02T22:25:25Z",
+                "update_date"=>"2021-04-13T20:54:59Z",
+                "tx_audit_id"=>"4e3ae638-4269-4d10-8fbc-71b10872d774",
+                "source_system"=>"VETSGOV",
+                "source_date"=>"2021-04-13T20:54:58Z",
+                "communication_permission_id"=>341,
+                "va_profile_id"=>16445,
+                "communication_channel_id"=>1,
+                "communication_item_id"=>2,
+                "communication_channel_name"=>"Text",
+                "communication_item_common_name"=>"RX Prescription Refill Reminder",
+                "allowed"=>true},
+               {"create_date"=>"2021-04-02T22:25:25Z",
+                "update_date"=>"2021-04-13T20:54:59Z",
+                "tx_audit_id"=>"4e3ae638-4269-4d10-8fbc-71b10872d774",
+                "source_system"=>"VETSGOV",
+                "source_date"=>"2021-04-13T20:54:58Z",
+                "communication_permission_id"=>342,
+                "va_profile_id"=>16445,
+                "communication_channel_id"=>1,
+                "communication_item_id"=>3,
+                "communication_channel_name"=>"Text",
+                "communication_item_common_name"=>"Scheduled Appointment Confirmation",
+                "allowed"=>true}]}}
+        )
+      end
     end
   end
 

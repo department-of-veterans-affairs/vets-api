@@ -23,8 +23,13 @@ module V0
 
       def update_all
         communication_items = params.require(:communication_items).map do |communication_item_params|
-          build_communication_item(communication_item_params)
+          communication_item = build_communication_item(communication_item_params)
+          raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
+
+          communication_item
         end
+
+        render(json: service.update_all_communication_permissions(communication_items))
       end
 
       def update
