@@ -39,6 +39,10 @@ module OpenidAuth
           payload_object.launch[:patient] = @current_user.icn
         end
 
+        if validate_with_charon(payload_object.aud)
+          additional_clinical_health_token_screen(payload_object)
+        end
+
         payload_object
       end
 
@@ -65,6 +69,15 @@ module OpenidAuth
           false
         end
         true
+      end
+
+      def validate_with_charon(aud)
+        Settings.oidc.charon.each do |item|
+          if (item.audience.include?aud)
+            true
+          end
+        end
+        false
       end
     end
   end
