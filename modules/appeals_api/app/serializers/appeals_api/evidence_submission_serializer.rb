@@ -1,13 +1,45 @@
 # frozen_string_literal: true
 
-require 'fast_jsonapi'
+require_dependency 'common/exceptions'
 
 module AppealsApi
-  class EvidenceSubmissionSerializer
-    include FastJsonapi::ObjectSerializer
+  class EvidenceSubmissionSerializer < ActiveModel::Serializer
+    MAX_DETAIL_DISPLAY_LENGTH = 100
 
-    set_key_transform :camel_lower
-    attributes :status
-    set_type :evidenceSubmission
+    type 'evidence_submission'
+
+    attributes :id, :status, :code, :detail, :appeal_type, :appeal_id, :location, :created_at, :updated_at
+
+    def id
+      object.guid
+    end
+
+    def status
+      object.upload_submission.status
+    end
+
+    delegate :code, to: :object
+
+    def detail
+      details = object.detail.to_s
+      details = "#{details[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." if details.length > MAX_DETAIL_DISPLAY_LENGTH
+      details
+    end
+
+    def appeal_type
+      object.supportable_type.to_s.demodulize
+    end
+
+    def appeal_id
+      object.supportable_id
+    end
+
+    def location
+      return nil unless @instance_options[:render_location]
+
+      object.upload_submission.get_location
+    rescue => e
+      raise Common::Exceptions::InternalServerError, e
+    end
   end
 end
