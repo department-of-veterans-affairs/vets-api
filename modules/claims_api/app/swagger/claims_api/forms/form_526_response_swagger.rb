@@ -937,8 +937,8 @@ module ClaimsApi
                 property :accountType do
                   key :type, :string
                   key :description, 'Veteran Account Type'
-                  key :example, 'Checking'
-                  key :enum, %w[Checking Savings]
+                  key :example, 'CHECKING'
+                  key :enum, %w[CHECKING SAVINGS]
                 end
 
                 property :accountNumber do
