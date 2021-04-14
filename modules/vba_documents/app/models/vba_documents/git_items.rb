@@ -37,6 +37,7 @@ module VBADocuments
         Faraday.post(url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
       end
 
+      # rubocop:disable Metrics/AbcSize
       def populate(label)
         response = query_git(label.eql?('Forms') ? FORMS_PARAMS : BENEFITS_PARAMS)
         if response&.success?
@@ -56,6 +57,7 @@ module VBADocuments
         end
         GitItems.where(label: label).count
       end
+      # rubocop:enable Metrics/AbcSize
 
       def query_git(params)
         Faraday.new(url: GIT_QUERY, params: params).get
