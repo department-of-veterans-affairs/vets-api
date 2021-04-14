@@ -13,6 +13,7 @@ module VBADocuments
 
     module ClassMethods
       # notifies slack of all new deployments.  Returns the number notified on.
+      # rubocop:disable Metrics/AbcSize
       def notify(label)
         slack_url = fetch_url(label)
         text = "The following new merges are now in #{label.underscore.titleize}:\n"
@@ -37,7 +38,6 @@ module VBADocuments
         Faraday.post(url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
       end
 
-      # rubocop:disable Metrics/AbcSize
       def populate(label)
         response = query_git(label.eql?('Forms') ? FORMS_PARAMS : BENEFITS_PARAMS)
         if response&.success?
