@@ -46,7 +46,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
   end
 
   describe '#update_all' do
-    let(:valid_params) do
+    let(:params) do
       {
         communication_items: [
           {
@@ -111,13 +111,34 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
     subject do
       put(
         :update_all,
-        params: valid_params,
+        params: params,
         as: :json
       )
     end
 
     before do
       allow_any_instance_of(User).to receive(:vet360_id).and_return('16445')
+    end
+
+    context 'with invalid params' do
+      let(:params) do
+        {
+          communication_items: [
+            {
+              communication_item: {
+                foo: true
+              }
+            }
+          ]
+        }
+      end
+
+      it 'returns validation error' do
+        subject
+
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'][0]['title']).to eq("Id can't be blank")
+      end
     end
 
     it 'updates multiple communication permissions', run_at: '2021-04-13T20:54:58Z' do
