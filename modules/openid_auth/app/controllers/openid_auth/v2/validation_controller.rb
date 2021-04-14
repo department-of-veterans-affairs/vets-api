@@ -59,11 +59,10 @@ module OpenidAuth
       def additional_clinical_health_token_screen(payload_object)
         if (payload_object.act['vista_id'].nil? || payload_object.launch['sta3n'].nil?)
           false
-        else
-          delimiters = ['|']
-          vid = payload_object.act['vista_id'].split(Regexp.union(delimiters))
-          vid.each { |vid_item|
-          }
+        end
+        sta3n = payload_object.launch['sta3n']
+        if (payload_object.act['vista_id'].not.include?(sta3n))
+          false
         end
         true
       end
