@@ -27,7 +27,6 @@ module SearchClickTracking
 
     # rubocop:disable Metrics/ParameterLists
     def initialize(url, query, position, user_agent, module_code = 'I14Y', client_ip = request.remote_ip)
-    # rubocop:enable Metrics/ParameterLists
       @url = url
       @query = query
       @position = position
@@ -35,6 +34,7 @@ module SearchClickTracking
       @user_agent = user_agent
       @module_code = module_code
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # POSTs click tracking query param data to search.gov
     #
