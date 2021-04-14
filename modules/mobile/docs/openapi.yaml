@@ -511,6 +511,8 @@ paths:
                     properties:
                       availableServices:
                         type: array
+                        items:
+                          type: string
                         example:
                           - appeals
                           - appointments
@@ -641,7 +643,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#./schemas/AddressCreate.yml'
+              $ref: './schemas/AddressCreate.yml'
             examples:
               Using Suggested Address:
                 value:
@@ -737,7 +739,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#./schemas/AddressUpdate.yml'
+              $ref: './schemas/AddressUpdate.yml'
             examples:
               Using Suggested Address:
                 value:
@@ -905,7 +907,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#./schemas/Address.yml'
+              $ref: './schemas/Address.yml'
             example:
               addressLine1: "51 W Weber Rd"
               addressPou: "CORRESPONDENCE"
@@ -922,7 +924,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#./schemas/AddressResponse.yml'
+                $ref: './schemas/AddressResponse.yml'
               examples:
                 Single match:
                   value:
@@ -992,7 +994,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#./schemas/Email.yml'
+              $ref: './schemas/Email.yml'
             example:
               emailAddress: "person42@example.com"
       responses:
