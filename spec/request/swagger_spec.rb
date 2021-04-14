@@ -2693,7 +2693,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
         it 'sends data as query params' do
           VCR.use_cassette('search_click_tracking/success') do
-            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&user_agent={user_agent}', 204, params)
+            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 204, params)
           end
         end
       end
@@ -2703,12 +2703,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
         it 'returns a 400 with error details' do
           VCR.use_cassette('search_click_tracking/missing_parameter') do
-            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&user_agent={user_agent}', 400, params)
+            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 400, params)
           end
           # rubocop:enable Layout/LineLength
         end
       end
     end
+
+
+
 
     describe 'search typeahead' do
       context 'when successful' do
