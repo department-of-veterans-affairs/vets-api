@@ -77,7 +77,7 @@ module VAForms
         form_name: form['fieldVaFormNumber'],
         title: form['fieldVaFormName'],
         pages: form['fieldVaFormNumPages'],
-        language: form.dig('langcode', 'value'),
+        language: form['fieldVaFormLanguage'].presence || 'en',
         form_type: form['fieldVaFormType'],
         form_usage: form.dig('fieldVaFormUsage', 'processed'),
         form_tool_intro: form['fieldVaFormToolIntro'],
