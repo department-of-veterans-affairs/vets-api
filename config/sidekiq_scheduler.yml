@@ -220,6 +220,6 @@ VBADocuments::DeploymentsNotifier:
   description: Does a slack notification of the new code merged into this release for benefits intake
 
 CovidVaccine::ScheduledBatchJob:
-  cron: "0 6-19 * * MON-FRI America/New_York"
+  cron: "*/15 * * * * America/New_York"
   class: CovidVaccine::ScheduledBatchJob
   description: Batches received vaccine records and schedules upload to enrollment service.
