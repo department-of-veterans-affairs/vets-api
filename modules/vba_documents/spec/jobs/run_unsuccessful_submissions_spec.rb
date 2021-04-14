@@ -16,5 +16,14 @@ RSpec.describe VBADocuments::RunUnsuccessfulSubmissions, type: :job do
       expect(VBADocuments::UploadProcessor).not_to receive(:perform_async).with(pending_submission.guid)
       subject.new.perform
     end
+
+    it 'picks up submissions that were previously skipped for being too young' do
+      upload = uploaded_submission
+      subject.new.perform
+      Timecop.travel(15.minutes.from_now) do
+        expect(VBADocuments::UploadProcessor).to receive(:perform_async).with(upload.guid).once
+        subject.new.perform
+      end
+    end
   end
 end
