@@ -99,7 +99,7 @@ FactoryBot.define do
     end
 
     trait :eligibility_info do
-      eligibility_info { { 'preferred_facility': '516' } }
+      eligibility_info { { 'preferred_facility' => '516' } }
     end
 
     trait :spouse do
