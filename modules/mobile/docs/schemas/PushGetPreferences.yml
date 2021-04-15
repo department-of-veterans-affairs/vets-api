@@ -2,18 +2,10 @@ type: array
 items:
   type: object
   required:
-    - autoOptIn
-    - endpointSid
     - preferenceId
     - preferenceName
     - value
   properties:
-    autoOptIn:
-      type: boolean
-      example: false
-    endpointSid:
-      type: string
-      example: "86A866F23284FFB3B716184290317725"
     preferenceId:
       type: string
       example: "appointment_reminders"
