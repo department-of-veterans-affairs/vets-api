@@ -13,6 +13,7 @@ class Lighthouse::Facilities::FacilitySerializer
     obj.address.deep_stringify_keys.deep_transform_keys { |key| key.camelize(:lower) }
   end
   attribute :classification
+  attribute :detailed_services
   attribute :facility_type
   attribute :feedback do |obj|
     obj.feedback.deep_stringify_keys.deep_transform_keys { |key| key.camelize(:lower) }
