@@ -61,9 +61,10 @@ module EducationForm
         auth_headers = submissions.last.education_stem_automated_decision.auth_headers
 
         claim_ids = submissions.map(&:id).join(', ')
+        log_info "EDIPI available for process STEM claim ids=#{claim_ids}: #{auth_headers&.key?('va_eauth_dodedipnid')}"
 
         gi_bill_status = get_gi_bill_status(auth_headers)
-        poa = get_user_poa_status(auth_headers, claim_ids)
+        poa = get_user_poa_status(auth_headers)
 
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each do |submission|
@@ -89,11 +90,9 @@ module EducationForm
     end
 
     # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(auth_headers, claim_ids)
+    def get_user_poa_status(auth_headers)
       return nil if auth_headers.nil?
       return nil unless auth_headers.key?('va_eauth_dodedipnid')
-
-      log_info "EDIPI available for claim ids=#{claim_ids}"
 
       service = EVSS::VSOSearch::Service.new(nil, auth_headers)
       service.get_current_info(auth_headers)['userPoaInfoAvailable']
