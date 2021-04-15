@@ -53,7 +53,7 @@ module OpenidAuth
           payload_object.act[:vista_id] = token.payload['vista_id']
           payload_object.act[:type] = 'user'
           if validate_with_charon(payload_object.aud)
-            additional_clinical_health_token_screen(payload_object)
+            raise error_klass('Invalid audience') unless additional_clinical_health_token_screen?(payload_object)
           end
           return payload_object
         end
@@ -84,18 +84,11 @@ module OpenidAuth
         payload_object
       end
 
-      def additional_clinical_health_token_screen(payload_object)
-        vid = payload_object.act['vista_id']
-        status1 = vil.nil?
-        status2 = payload_object.launch['sta3n'].nil?
-        if (vid.nil? || payload_object.launch['sta3n'].nil?)
-          false
-        end
+      def additional_clinical_health_token_screen?(payload_object)
+        vid = payload_object.act["vista_id"]
         sta3n = payload_object.launch['sta3n']
-        if (!vid.include?(sta3n))
-          false
-        end
-        true
+        return false unless !vid.nil? && !sta3n.nil?
+        return false unless vid.include?(sta3n)
       end
 
       def validate_with_charon(aud)
