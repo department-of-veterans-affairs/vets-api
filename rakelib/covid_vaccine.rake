@@ -74,4 +74,11 @@ namespace :covid_vaccine do
     end
     puts "Updated mapped facility info for #{count} records in batch #{batch_id}"
   end
+
+  desc 'Perform MPI lookup and send to VeText for all Records with state=enrollment_pending'
+  task send_expanded_records_to_vetext: [:environment] do |_task|
+    CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'enrollment_pending').order('created_at ASC').limit(1000).each do |submission|
+      CovidVaccine::ExpandedSubmissionJob.perform_async(submission.id)
+    end
+  end
 end
