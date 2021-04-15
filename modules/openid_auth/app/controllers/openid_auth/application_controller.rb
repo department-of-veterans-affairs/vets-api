@@ -21,7 +21,7 @@ module OpenidAuth
     end
 
     def validate_launch_context
-        raise error_klass('Invalid launch context') if fetch_smart_launch_context.nil?
+      raise error_klass('Invalid launch context') if fetch_smart_launch_context.nil?
     end
   end
 end
