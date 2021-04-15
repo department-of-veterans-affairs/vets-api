@@ -9,6 +9,5 @@ RSpec.describe EducationForm::Forms::VA0994 do
 
   %w[kitchen_sink prefill simple].each do |form|
     test_spool_file('0994', form)
-  end
-
+  ends
 end
