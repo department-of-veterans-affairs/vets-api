@@ -215,6 +215,10 @@ Veteran::VSOReloader:
   class: Veteran::VSOReloader
   description: Pulls down current list of VSOs and updates accordingly 
 
+VBADocuments::DeploymentsNotifier:
+  at: "<%=0.seconds.from_now%>"
+  description: Does a slack notification of the new code merged into this release for benefits intake
+
 CovidVaccine::ScheduledBatchJob:
   cron: "*/15 * * * * America/New_York"
   class: CovidVaccine::ScheduledBatchJob
