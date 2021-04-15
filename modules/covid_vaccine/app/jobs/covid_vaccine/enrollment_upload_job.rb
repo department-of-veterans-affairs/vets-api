@@ -26,7 +26,11 @@ module CovidVaccine
       CovidVaccine::V0::ExpandedRegistrationSubmission.where(batch_id: batch_id).find_each do |submission|
         resolver = CovidVaccine::V0::FacilityResolver.new
         mapped_facility = resolver.resolve(submission)
-        submission.eligibility_info = { preferred_facility: mapped_facility }
+        submission.eligibility_info = if submission.eligibility_info
+                                        submission.eligibility_info.merge({ preferred_facility: mapped_facility })
+                                      else
+                                        { preferred_facility: mapped_facility }
+                                      end
         submission.save!
         update_count += 1
       end
