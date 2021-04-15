@@ -11,7 +11,4 @@ RSpec.describe EducationForm::Forms::VA0994 do
     test_spool_file('0994', form)
   end
 
-  %w[kitchen_sink_old].each do |form|
-    test_spool_file('0994', form, [:edu_form_omb_and_expiration])
-  end
 end
