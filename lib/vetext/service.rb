@@ -15,6 +15,7 @@ module VEText
     SEND_PATH = BASE_PATH + '/send'
 
     def register(app_name, device_token, icn, os, device_name = nil)
+      Rails.logger.info('VEText Push service register method enter', app_name: app_name)
       perform(:put, REGISTER_PATH, {
                 appSid: app_sid(app_name),
                 token: device_token,
@@ -25,10 +26,13 @@ module VEText
     end
 
     def get_preferences(endpoint_sid)
+      Rails.logger.info('VEText Push service get prefs method enter', endpoint_sid: endpoint_sid)
       perform(:get, "#{PREFERENCES_PATH}/#{endpoint_sid}", nil)
     end
 
     def set_preference(endpoint_sid, preference_id, receive_preference)
+      Rails.logger.info('VEText Push service set pref method enter', endpoint_sid: endpoint_sid,
+                        preference_id: preference_id, receive_preference: receive_preference)
       perform(:put, PREFERENCES_PATH, {
                 endpointSid: endpoint_sid,
                 preferenceId: preference_id,
@@ -37,6 +41,8 @@ module VEText
     end
 
     def send_notification(app_name, icn, template_id, personalization = {})
+      Rails.logger.info('VEText Push service send notification method enter', app_name: app_name,
+                        template_id: template_id, icn: icn)
       perform(:post, SEND_PATH, {
                 appSid: app_sid(app_name),
                 icn: icn,
