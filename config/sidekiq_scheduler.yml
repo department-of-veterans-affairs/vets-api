@@ -130,7 +130,7 @@ ClaimsApi::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful claims submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
-  every: "8h"
+  every: "2h"
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
@@ -214,6 +214,10 @@ Veteran::VSOReloader:
   cron: "0 2 * * * America/New_York"
   class: Veteran::VSOReloader
   description: Pulls down current list of VSOs and updates accordingly 
+
+VBADocuments::DeploymentsNotifier:
+  at: "<%=0.seconds.from_now%>"
+  description: Does a slack notification of the new code merged into this release for benefits intake
 
 CovidVaccine::ScheduledBatchJob:
   cron: "*/15 * * * * America/New_York"
