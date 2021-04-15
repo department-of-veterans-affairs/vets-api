@@ -5,6 +5,7 @@ require 'sidekiq'
 module VBADocuments
   class ReportUnsuccessfulSubmissions
     include Sidekiq::Worker
+    APPEALS_CONSUMER_NAME = 'appeals_api_nod_evidence_submission'.freeze
 
     def perform
       if Settings.vba_documents.report_enabled
@@ -36,6 +37,19 @@ module VBADocuments
 
       @consumers.each do |name|
         counts = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
+        lobs = VBADocuments::UploadSubmission
+                   .where(created_at: @from..@to, consumer_name: name)
+                   .where("uploaded_pdf->'line_of_business' is not null")
+                   .pluck("uploaded_pdf->'line_of_business'").uniq
+
+        # ensure that all appeals submissions have lob passed in
+        if name.eql?(APPEALS_CONSUMER_NAME)
+          appeals_null_lob_count = VBADocuments::UploadSubmission
+                                 .where(created_at: @from..@to, consumer_name: name)
+                                 .where("uploaded_pdf->'line_of_business' is null").count
+          lobs << "#{appeals_null_lob_count} NULL" if appeals_null_lob_count > 0
+        end
+
         totals = counts.sum { |_k, v| v }
         error_rate = counts['error'] ? (100.0 / totals * counts['error']).round : 0
         expired_rate = counts['expired'] ? (100.0 / totals * counts['expired']).round : 0
@@ -48,7 +62,9 @@ module VBADocuments
           ret_hash[name] = counts.merge(totals: totals,
                                         success_rate: "#{success_rate}%",
                                         error_rate: "#{error_rate}%",
-                                        expired_rate: "#{expired_rate}%")
+                                        expired_rate: "#{expired_rate}%",
+                                        lobs: lobs.join(', ')
+          )
 
           # add the consumer counts to the summary hash for the given status
           counts.each_key do |k|
