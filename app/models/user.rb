@@ -10,6 +10,7 @@ require 'mpi/messages/find_profile_message'
 require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
+require 'va_profile/configuration'
 
 class User < Common::RedisStore
   include BetaSwitch
@@ -322,7 +323,7 @@ class User < Common::RedisStore
   end
 
   def vet360_contact_info
-    return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 
     @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
   end

@@ -1031,6 +1031,32 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'decision review evidence upload' do
+      it 'supports uploading a file' do
+        expect(subject).to validate(
+          :post,
+          '/v0/decision_review_evidence',
+          200,
+          headers.update(
+            '_data' => {
+              'decision_review_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+              }
+            }
+          )
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(
+          :post,
+          '/v0/decision_review_evidence',
+          400,
+          headers
+        )
+      end
+    end
+
     describe 'secure messaging' do
       include SM::ClientHelpers
 

@@ -67,7 +67,7 @@ paths:
   /v0/appointments:
     get:
       summary: /v0/appointments
-      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 3 months and + 6 months from the beginning of today's UTC date.
+      description: Given a date range returns a list of upcoming VA, Community Care, and Express Care appointments. If start and end date ranges are not passed in then it defaults to - 1 year and + 1 year from the beginning of today's UTC date. The endpoint is paginated and call with no pagination params defaults to page 1 with a page size of 10. Details on links for the other pages in the set are included in the "links" object. The current page is the "self" link. "prev" and "next" are the previous and next links (these will be null if you are on the first or last page respectively). Finally "first" and "last" are the links for the first and last page. Requesting a page out of bounds will return an empty list, however if will still include "links" details for the pages that are in bounds.
       operationId: getAppointments
       security:
         - Bearer: []
@@ -87,11 +87,23 @@ paths:
           description: The end date for the range of appointments in ISO 8601 UTC format
           example: 2021-11-29T08:00:00.000Z
         - in: query
+          name: page[number]
+          schema:
+            type: integer
+          description: The page number requested
+          example: 1
+        - in: query
+          name: page[size]
+          schema:
+            type: integer
+          description: The number of records to return per page
+          example: 10
+        - in: query
           name: useCache
           schema:
             type: boolean
-          description: Whether or not to use the upstream VAOS service's cache of appointments
-          example: 2021-11-29T08:00:00.000Z
+          description: Whether or not to use this API's cache or fetch records from the upstream service
+          example: true
       responses:
         '200':
           description: OK
@@ -2202,8 +2214,8 @@ paths:
       requestBody:
         description: |
           New message body.
-          
-          <strong>NOTES:</strong> 
+
+          <strong>NOTES:</strong>
           <ul>
             <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
             <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
@@ -2256,7 +2268,7 @@ paths:
   /v0/messaging/health/messages/{id}:
     get:
       summary: /v0/messaging/health/messages/{id}
-      description: | 
+      description: |
         Get a secure message and mark message as read
 
         <strong>NOTES:</strong>
@@ -2352,7 +2364,7 @@ paths:
     get:
       summary: /v0/messaging/health/messages/{id}/thread
       description: |
-        Gets a list of message summaries that are related to the message of the passed id. 
+        Gets a list of message summaries that are related to the message of the passed id.
         Does <strong>not</strong> include the message of the passed id itself.
       operationId: get_message_history
       security:

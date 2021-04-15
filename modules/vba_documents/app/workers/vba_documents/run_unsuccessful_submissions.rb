@@ -7,7 +7,8 @@ module VBADocuments
     include Sidekiq::Worker
 
     def perform
-      guids = VBADocuments::UploadSubmission.where(status: 'uploaded').pluck(:guid)
+      where = 'status = ? and updated_at < ?'
+      guids = VBADocuments::UploadSubmission.where(where, 'uploaded', 10.minutes.ago).pluck(:guid)
       guids.each do |guid|
         Rails.logger.info("Running VBADocuments::RunUnsuccessfulSubmissions for GUID #{guid}",
                           { 'job' => 'VBADocuments::RunUnsuccessfulSubmissions', guid: guid })

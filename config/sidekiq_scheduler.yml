@@ -130,7 +130,7 @@ ClaimsApi::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful claims submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
-  every: "8h"
+  every: "2h"
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
@@ -216,6 +216,6 @@ Veteran::VSOReloader:
   description: Pulls down current list of VSOs and updates accordingly 
 
 CovidVaccine::ScheduledBatchJob:
-  cron: "0 6-19 * * MON-FRI America/New_York"
+  cron: "*/15 * * * * America/New_York"
   class: CovidVaccine::ScheduledBatchJob
   description: Batches received vaccine records and schedules upload to enrollment service.

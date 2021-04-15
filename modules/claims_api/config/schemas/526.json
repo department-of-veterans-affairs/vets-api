@@ -796,7 +796,7 @@
       "properties": {
         "accountType": {
           "type": "string",
-          "enum": ["Checking", "Savings"]
+          "enum": ["CHECKING", "SAVINGS"]
         },
         "accountNumber": {
           "minLength": 4,
