@@ -1903,6 +1903,49 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'notice_of_disagreements' do
+      context 'GET' do
+        it 'documents notice_of_disagreements 200' do
+          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200') do
+            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
+                                        200, headers.merge('uuid' => '1234567a-89b0-123c-d456-789e01234f56'))
+          end
+        end
+
+        it 'documents higher_level_reviews 404' do
+          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404') do
+            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
+                                        404, headers.merge('uuid' => '0'))
+          end
+        end
+      end
+
+      context 'POST' do
+        it 'documents notice_of_disagreements 200' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200') do
+            # NoticeOfDisagreementsController is a pass-through, and uses request.body directly (not params[]).
+            # The validate helper does not create a parsable request.body string that works with the controller.
+            allow_any_instance_of(V0::NoticeOfDisagreementsController).to receive(:request_body_hash).and_return(
+              JSON.parse(File.read(Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                                   'valid_NOD_create_request.json')))
+            )
+            expect(subject).to validate(:post, '/v0/notice_of_disagreements', 200, headers)
+          end
+        end
+
+        it 'documents notice_of_disagreements 422' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE--422') do
+            expect(subject).to validate(
+              :post,
+              '/v0/higher_level_reviews',
+              422,
+              headers.merge('_data' => { '_json' => '' })
+            )
+          end
+        end
+      end
+    end
+
     describe 'appointments' do
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')

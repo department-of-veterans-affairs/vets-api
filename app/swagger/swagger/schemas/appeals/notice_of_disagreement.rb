@@ -1,29 +1,27 @@
 # frozen_string_literal: true
 
+require 'decision_review/schemas'
 module Swagger
   module Schemas
     module Appeals
-      class HigherLevelReview
+      class NoticeOfDisagreement
         include Swagger::Blocks
 
-        VetsJsonSchema::SCHEMAS.fetch('HLR-CREATE-REQUEST-BODY')['definitions'].each do |k, v|
-          if k == 'hlrCreateDataAttributes'
-            schema = { description: v['description'] }.merge v['oneOf'][1]
-            swagger_schema 'hlrCreateDataAttributes', schema
-            next
-          end
-
-          swagger_schema k, v
-        end
-        swagger_schema 'hlrCreate' do
-          example VetsJsonSchema::EXAMPLES.fetch 'HLR-CREATE-REQUEST-BODY'
+        DecisionReview::Schemas::NOD_CREATE_REQUEST['definitions'].each do |k, v|
+          # removed values that Swagger 2.0 doesn't recognize
+          swagger_schema k, v.except('if', 'then', '$comment')
         end
 
-        VetsJsonSchema::SCHEMAS.fetch('HLR-SHOW-RESPONSE-200')['definitions'].each do |k, v|
-          swagger_schema(k == 'root' ? 'hlrShowRoot' : k, v) {}
+        swagger_schema 'nodCreateRoot' do
+          example JSON.parse(File.read('spec/fixtures/notice_of_disagreements/valid_NOD_create_request.json'))
         end
-        swagger_schema 'hlrShowRoot' do
-          example VetsJsonSchema::EXAMPLES.fetch 'HLR-SHOW-RESPONSE-200'
+
+        DecisionReview::Schemas::NOD_SHOW_RESPONSE_200['definitions'].each do |k, v|
+          swagger_schema(k == 'root' ? 'nodShowRoot' : k, v) {}
+        end
+
+        swagger_schema 'nodShowRoot' do
+          example JSON.parse(File.read('spec/fixtures/notice_of_disagreements/NOD_show_response_200.json'))
         end
 
         # recursive
@@ -53,12 +51,14 @@ module Swagger
         end
 
         swagger_schema(
-          'hlrContestableIssues',
+          'nodContestableIssues',
           remove_null_from_type_array(
-            VetsJsonSchema::SCHEMAS.fetch('HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200')
+            DecisionReview::Schemas::NOD_CONTESTABLE_ISSUES_RESPONSE_200
           ).merge(
             description: 'Fields may either be null or the type specified',
-            example: VetsJsonSchema::EXAMPLES.fetch('HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200')
+            example: JSON.parse(
+              File.read('spec/fixtures/notice_of_disagreements/NOD_contestable_issues_response_200.json')
+            )
           ).except('$schema')
         )
       end
