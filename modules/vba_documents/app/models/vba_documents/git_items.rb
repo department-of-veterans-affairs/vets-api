@@ -73,7 +73,6 @@ module VBADocuments
 end
 
 # load('./modules/vba_documents/app/models/vba_documents/git_items.rb')
-#
 # Sample query:
 # https://api.github.com/search/issues?q=is:merged%20is:pr%20label:BenefitsIntake%20repo:department-of-veterans-affairs/vets-api
 #
