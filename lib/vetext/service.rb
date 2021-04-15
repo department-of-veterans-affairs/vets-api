@@ -32,7 +32,8 @@ module VEText
 
     def set_preference(endpoint_sid, preference_id, receive_preference)
       Rails.logger.info('VEText Push service set pref method enter', endpoint_sid: endpoint_sid,
-                        preference_id: preference_id, receive_preference: receive_preference)
+                                                                     preference_id: preference_id,
+                                                                     receive_preference: receive_preference)
       perform(:put, PREFERENCES_PATH, {
                 endpointSid: endpoint_sid,
                 preferenceId: preference_id,
@@ -42,7 +43,7 @@ module VEText
 
     def send_notification(app_name, icn, template_id, personalization = {})
       Rails.logger.info('VEText Push service send notification method enter', app_name: app_name,
-                        template_id: template_id, icn: icn)
+                                                                              template_id: template_id, icn: icn)
       perform(:post, SEND_PATH, {
                 appSid: app_sid(app_name),
                 icn: icn,
