@@ -619,7 +619,7 @@ RSpec.describe Form526Submission do
     context 'with submission confirmation email when successful job statuses' do
       subject { create(:form526_submission, :with_multiple_succesful_jobs) }
 
-      it 'returns one job triggered when feature flag enabled' do
+      it 'returns one job triggered' do
         expect do
           subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
         end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
