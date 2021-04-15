@@ -414,11 +414,6 @@ features:
     enable_in_development: true
     description: >
       Add automated decision to 10203 application workflow
-  edu_form_omb_and_expiration:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Update OMB # and expiration dates for forms
   in_progress_form_custom_expiration:
     actor_type: user
     enable_in_development: true
