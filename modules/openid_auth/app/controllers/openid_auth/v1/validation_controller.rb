@@ -6,7 +6,7 @@ require 'common/exceptions'
 module OpenidAuth
   module V1
     class ValidationController < ApplicationController
-      before_action :validate_user
+      before_action :validate_user, :validate_launch_context
 
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
