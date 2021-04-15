@@ -140,4 +140,14 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       end
     end
   end
+
+  describe '#get /services/apps/v0/directory/:page' do
+    context 'when paginating' do
+      it 'returns paginated apps' do
+        get '/services/apps/v0/directory?page=1'
+        body = JSON.parse(response.body)
+        expect(body['data'].length).to be <= 10
+      end
+    end
+  end
 end

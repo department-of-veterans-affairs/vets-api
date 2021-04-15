@@ -42,9 +42,7 @@
   "title": "About VA Form 21-0966",
   "status": false,
   "revisionLog": "Shortened the custom meta description: \"Get VA Form 21-0966, Intent to File a Claim for Compensation and/or Pension, or Survivors Pension and/or DIC. Submitting an intent to file can secure the earliest possible effective date for retroactive payments you may be eligible for.\" 236 chars",
-  "langcode": {
-    "value": "en"
-  },
+  "fieldVaFormLanguage": "en",
   "entityUrl": {
     "path": "/find-forms/about-form-21-0966"
   },

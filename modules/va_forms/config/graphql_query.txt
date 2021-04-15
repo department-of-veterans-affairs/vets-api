@@ -45,9 +45,7 @@ fragment vaForm on NodeVaForm {
   fieldVaFormDeletedDate {
     value
   }
-  langcode {
-    value
-  }
+  fieldVaFormLanguage
   title
   fieldVaFormName
   fieldVaFormTitle
