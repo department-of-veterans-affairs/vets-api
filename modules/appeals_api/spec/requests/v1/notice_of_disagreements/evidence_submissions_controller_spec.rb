@@ -7,27 +7,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
   include FixtureHelpers
 
   let!(:notice_of_disagreement) { create(:notice_of_disagreement) }
-  let(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
-
-  describe '#show' do
-    it 'successfully requests the evidence submissions' do
-      get "#{path}#{notice_of_disagreement.id}"
-
-      expect(response).to have_http_status(:ok)
-    end
-
-    it 'queries all evidence submissions for the nod' do
-      submissions = AppealsApi::EvidenceSubmissionSerializer.new(evidence_submissions).serializable_hash
-
-      get "#{path}#{notice_of_disagreement.id}"
-
-      body = JSON.parse(response.body)['data']
-      serialized = JSON.parse(submissions[:data].to_json)
-
-      expect(body).to match_array(serialized)
-    end
-  end
 
   describe '#create' do
     let(:double_setup) do
@@ -40,46 +20,60 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
     end
 
-    context 'when nod_id parameter is not included' do
-      it 'returns submission attributes and location url' do
-        with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                      prefix: 'https://fake.s3.url/foo/',
-                      replacement: 'https://api.vets.gov/proxy/') do
-          double_setup
-          post(path, params: {})
-          json = JSON.parse(response.body)
-          expect(json['data']['attributes']).to have_key('id')
-          expect(json['data']['attributes']['status']).to eq('pending')
-          expect(json['data']['location']).to eq('https://api.vets.gov/proxy/uuid')
-        end
+    it 'returns submission attributes and location url' do
+      with_settings(Settings.vba_documents.location,
+                    prefix: 'https://fake.s3.url/foo/',
+                    replacement: 'https://api.vets.gov/proxy/') do
+        double_setup
+        post(path, params: { nod_id: notice_of_disagreement.id })
+        body = JSON.parse(response.body)['data']
+        expect(body).to have_key('id')
+        expect(body).to have_key('type')
+        expect(body['attributes']['status']).to eq('pending')
+        expect(body['attributes']['appealId']).to eq(notice_of_disagreement.id)
+        expect(body['attributes']['appealType']).to eq('NoticeOfDisagreement')
+        expect(body['attributes']['location']).to eq('https://api.vets.gov/proxy/uuid')
       end
     end
 
-    context 'when nod_id parameter is included' do
-      it "returns saved submission with attributes 'appeal_id' and 'appeal_type'" do
-        with_settings(Settings.modules_appeals_api.evidence_submissions.location,
+    context 'with no matching record' do
+      it 'raises an error' do
+        with_settings(Settings.vba_documents.location,
                       prefix: 'https://fake.s3.url/foo/',
                       replacement: 'https://api.vets.gov/proxy/') do
           double_setup
-          post(path, params: { nod_id: notice_of_disagreement.id })
-          json = JSON.parse(response.body)
-          expect(json['data']['attributes']['appeal_id']).to eq(notice_of_disagreement.id)
-          expect(json['data']['attributes']['appeal_type']).to eq('NoticeOfDisagreement')
+          post(path, params: { nod_id: 1979 })
+          expect(response.status).to eq 404
+          expect(response.body).to include 'Record not found'
         end
       end
+    end
+  end
 
-      context 'with no matching record' do
-        it 'raises an error' do
-          with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                        prefix: 'https://fake.s3.url/foo/',
-                        replacement: 'https://api.vets.gov/proxy/') do
-            double_setup
-            post(path, params: { nod_id: 1979 })
-            expect(response.status).to eq 404
-            expect(response.body).to include 'Record not found'
-          end
-        end
-      end
+  describe '#show' do
+    let!(:evidence_submissions) { create_list(:evidence_submission, 3, supportable: notice_of_disagreement) }
+
+    it 'successfully requests the evidence submission' do
+      get "#{path}#{evidence_submissions.sample.guid}"
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'returns details for the evidence submission' do
+      es = evidence_submissions.sample
+      get "#{path}#{es.guid}"
+      submission = JSON.parse(response.body)['data']
+
+      expect(submission['id']).to eq es.guid
+      expect(submission['type']).to eq('evidenceSubmission')
+      expect(submission['attributes']['status']).to eq('pending')
+      expect(submission['attributes']['appealId']).to eq(notice_of_disagreement.id)
+      expect(submission['attributes']['appealType']).to eq('NoticeOfDisagreement')
+    end
+
+    it 'returns an error if record is not found' do
+      get "#{path}/bueller"
+      expect(response.status).to eq 404
+      expect(response.body).to include 'Record not found'
     end
   end
 end
