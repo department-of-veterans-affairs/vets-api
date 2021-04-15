@@ -64,6 +64,14 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "appeals_api_event_subscriptions", force: :cascade do |t|
+    t.string "topic"
+    t.string "callback"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["topic", "callback"], name: "index_appeals_api_event_subscriptions_on_topic_and_callback"
+  end
+
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
     t.string "supportable_type"
     t.string "supportable_id"
@@ -105,6 +113,17 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.string "code"
     t.string "detail"
     t.string "source"
+  end
+
+  create_table "appeals_api_status_updates", force: :cascade do |t|
+    t.string "from"
+    t.string "to"
+    t.string "statusable_type"
+    t.string "statusable_id"
+    t.datetime "status_update_time"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
