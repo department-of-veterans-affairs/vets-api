@@ -1,17 +1,41 @@
-type: array
-items:
-  type: object
-  required:
-    - preferenceId
-    - preferenceName
-    - value
-  properties:
-    preferenceId:
-      type: string
-      example: "appointment_reminders"
-    preferenceName:
-      type: string
-      example: "Appointment Reminders"
-    value:
-      type: boolean
-      example: true
+type: object
+required:
+  - data
+properties:
+  data:
+    type: object
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "pushGetPrefs"
+      id:
+        type: string
+        example: "A3646A8D40C5B7319416179833809496"
+        description: Endpoint SID from request
+      attributes:
+        type: object
+        required:
+          - preferences
+        properties:
+          preferences:
+            type: array
+            items:
+              type: object
+              required:
+                - preferenceId
+                - preferenceName
+                - value
+              properties:
+                preferenceId:
+                  type: string
+                  example: "appointment_reminders"
+                preferenceName:
+                  type: string
+                  example: "Appointment Reminders"
+                value:
+                  type: boolean
+                  example: true
