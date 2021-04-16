@@ -56,8 +56,8 @@ module OpenidAuth
           payload_object.act[:sec_id] = token.payload['sub']
           payload_object.act[:vista_id] = token.payload['vista_id']
           payload_object.act[:type] = 'user'
-          if validate_with_charon(payload_object.aud)
-            raise error_klass('Invalid request') unless additional_clinical_health_token_screen?(payload_object)
+          if validate_with_charon?(payload_object.aud)
+            raise error_klass('Invalid request') unless charon_token_screen?(payload_object)
           end
           return payload_object
         end
@@ -88,23 +88,15 @@ module OpenidAuth
         payload_object
       end
 
-      def additional_clinical_health_token_screen?(payload_object)
+      def charon_token_screen?(payload_object)
         vid = payload_object.act[:vista_id]
         sta3n = payload_object.launch['sta3n']
         return false unless !vid.nil? && !sta3n.nil?
         return vid.include?(sta3n)
       end
 
-      def validate_with_charon(aud)
-        charon_validate = false
-        charon = Settings.oidc.charon
-        charon.audience.each { |aud_check|
-          if (aud_check.eql?aud)
-            charon_validate =  true
-            break
-          end
-        }
-        charon_validate
+      def validate_with_charon?(aud)
+        [*Settings.oidc.charon.audience].include?(aud)
       end
     end
   end
