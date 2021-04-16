@@ -95,7 +95,6 @@ module OpenidAuth
         parsed_sta3n =vid.match /\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A,B,C,E-Z]{1}/
         return false unless parsed_sta3n
         parsed_sta3n = parsed_sta3n[0].match /\d{3}|/
-        return false unless parsed_sta3n
         return parsed_sta3n[0].eql?(sta3n)
       end
 
