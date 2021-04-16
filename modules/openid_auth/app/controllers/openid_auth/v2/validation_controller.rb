@@ -96,6 +96,7 @@ module OpenidAuth
       end
 
       def validate_with_charon?(aud)
+        return false unless !Settings.oidc.charon.enabled.nil? && Settings.oidc.charon.enabled.eql?(true)
         [*Settings.oidc.charon.audience].include?(aud)
       end
     end
