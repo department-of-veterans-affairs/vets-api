@@ -6,7 +6,6 @@ module Mobile
   module V0
     class PushNotificationsController < ApplicationController
       def register
-        # binding.pry
         result = service.register(
           params[:app_name],
           params[:device_token],
