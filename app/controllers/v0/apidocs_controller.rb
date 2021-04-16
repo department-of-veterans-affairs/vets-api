@@ -182,6 +182,7 @@ module V0
       Swagger::Schemas::Address,
       Swagger::Schemas::Appeals::Requests,
       Swagger::Schemas::Appeals::HigherLevelReview,
+      Swagger::Schemas::Appeals::NoticeOfDisagreement,
       Swagger::Schemas::ContactUs::SuccessfulInquiryCreation,
       Swagger::Schemas::ContactUs::InquiriesList,
       Swagger::Schemas::AsyncTransaction::Vet360,
