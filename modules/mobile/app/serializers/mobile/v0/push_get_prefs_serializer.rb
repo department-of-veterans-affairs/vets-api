@@ -9,7 +9,9 @@ module Mobile
       attributes :preferences
 
       def initialize(id, preferences, options = {})
-        resource = PushStruct.new(id, preferences)
+        filtered_preferences = []
+        preferences.each { |pref| filtered_preferences.push(pref.except!(:auto_opt_in, :endpoint_sid)) }
+        resource = PushStruct.new(id, filtered_preferences)
         super(resource, options)
       end
 
