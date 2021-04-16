@@ -1856,7 +1856,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'HLR contestable_issues' do
       let(:benefit_type) { 'compensation' }
       let(:ssn) { '212222112' }
-      # let(:receipt_date) { '2020-09-02' }
       let(:status) { 200 }
 
       it 'documents contestable_issues 200' do
@@ -1905,7 +1904,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
     describe 'NOD contestable_issues' do
       let(:ssn) { '212222112' }
-      # let(:receipt_date) { '2020-09-02' }
 
       it 'documents contestable_issues 200' do
         VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
