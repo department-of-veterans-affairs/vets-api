@@ -8,16 +8,14 @@ module Common
           def on_complete(env)
             return if env.success?
 
+            Rails.logger.debug('VEText Service Error', body: env.body, status: env.status)
             case env.status
             when 400..499
-              Rails.logger.debug('VEText Service 4XX Error', body: env.body, status: env.status)
               raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_400', {}, env.status,
                                                                     env.body)
             when 500..599
-              Rails.logger.debug('VEText Service 5XX Error', body: env.body, status: env.status)
               raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_502', {}, env.status)
             else
-              Rails.logger.debug('VEText Service Unexpected Error', body: env.body, status: env.status)
               raise 'Unexpected VEText Error'
             end
           end
