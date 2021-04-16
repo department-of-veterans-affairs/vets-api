@@ -11,7 +11,11 @@ module OpenidAuth
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
-        raise Common::Exceptions::InternalServerError, e
+        if (e.detail.eql?('Invalid request'))
+          raise e
+        else
+          raise Common::Exceptions::InternalServerError, e
+        end
       end
 
       def valid_strict?
@@ -53,7 +57,7 @@ module OpenidAuth
           payload_object.act[:vista_id] = token.payload['vista_id']
           payload_object.act[:type] = 'user'
           if validate_with_charon(payload_object.aud)
-            raise error_klass('Invalid audience') unless additional_clinical_health_token_screen?(payload_object)
+            raise error_klass('Invalid request') unless additional_clinical_health_token_screen?(payload_object)
           end
           return payload_object
         end
@@ -85,10 +89,10 @@ module OpenidAuth
       end
 
       def additional_clinical_health_token_screen?(payload_object)
-        vid = payload_object.act["vista_id"]
+        vid = payload_object.act[:vista_id]
         sta3n = payload_object.launch['sta3n']
         return false unless !vid.nil? && !sta3n.nil?
-        return false unless vid.include?(sta3n)
+        return vid.include?(sta3n)
       end
 
       def validate_with_charon(aud)
