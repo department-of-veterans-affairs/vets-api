@@ -186,7 +186,7 @@ module Swagger
             end
 
             response 200 do
-              key :description, 'TODO and original payload for Notice of Disagreement'
+              key :description, 'status and original payload for Notice of Disagreement'
               schema '$ref': :nodShowRoot
             end
 
@@ -207,16 +207,11 @@ module Swagger
 
             response 200 do
               key :description, 'Issues'
-              schema DecisionReview::Schemas::NOD_CONTESTABLE_ISSUES_RESPONSE_200
+              schema '$ref': :nodContestableIssues
             end
 
             response 404 do
               key :description, 'Veteran not found'
-              schema '$ref': :Errors
-            end
-
-            response 422 do
-              key :description, 'Malformed request'
               schema '$ref': :Errors
             end
           end

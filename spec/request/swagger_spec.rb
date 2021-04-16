@@ -1853,10 +1853,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'contestable_issues' do
+    describe 'HLR contestable_issues' do
       let(:benefit_type) { 'compensation' }
       let(:ssn) { '212222112' }
-      let(:receipt_date) { '2020-09-02' }
+      # let(:receipt_date) { '2020-09-02' }
       let(:status) { 200 }
 
       it 'documents contestable_issues 200' do
@@ -1903,6 +1903,37 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'NOD contestable_issues' do
+      let(:ssn) { '212222112' }
+      # let(:receipt_date) { '2020-09-02' }
+
+      it 'documents contestable_issues 200' do
+        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
+          expect(subject).to validate(
+            :get,
+            '/v0/notice_of_disagreements/contestable_issues',
+            200,
+            headers
+          )
+        end
+      end
+
+      context '404' do
+        let(:ssn) { '000000000' }
+
+        it 'documents contestable_issues 404' do
+          VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
+            expect(subject).to validate(
+              :get,
+              '/v0/notice_of_disagreements/contestable_issues',
+              404,
+              headers
+            )
+          end
+        end
+      end
+    end
+
     describe 'notice_of_disagreements' do
       context 'GET' do
         it 'documents notice_of_disagreements 200' do
@@ -1937,7 +1968,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE--422') do
             expect(subject).to validate(
               :post,
-              '/v0/higher_level_reviews',
+              '/v0/notice_of_disagreements',
               422,
               headers.merge('_data' => { '_json' => '' })
             )
