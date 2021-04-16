@@ -28,11 +28,10 @@ class GIBillFeedback < Common::RedisStore
     profile_data = {}
 
     if user.present?
-      va_profile = user.va_profile
       profile_data = {
         'active_ICN' => user.icn,
-        'historical_ICN' => va_profile&.historical_icns,
-        'sec_ID' => va_profile&.sec_id
+        'historical_ICN' => user.historical_icns,
+        'sec_ID' => user.sec_id_mpi
       }
     end
 
