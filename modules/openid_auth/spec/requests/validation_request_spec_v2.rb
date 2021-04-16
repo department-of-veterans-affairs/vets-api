@@ -287,7 +287,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'with client credentials jwt and failed launch lookup' do
     before do
       allow(JWT).to receive(:decode).and_return(client_credentials_jwt)
-      allow(RestClient).to receive(:get).and_return(failed_launch_response)
+      allow(RestClient).to receive(:get).and_raise(failed_launch_response)
     end
 
     it 'v2 POST returns true if the user is a veteran' do

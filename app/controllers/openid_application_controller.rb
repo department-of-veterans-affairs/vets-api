@@ -35,20 +35,22 @@ class OpenidApplicationController < ApplicationController
   def authenticate_token
     return false if token.blank?
 
-    profile = fetch_okta_profile
+    # Only want to fetch the Okta profile if the session isn't already established and not a CC token
+    @session = Session.find(token) unless token.client_credentials_token?
+    profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
+    populate_ssoi_token_payload(profile) if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
 
     # issued for a client vs a user
     if token.client_credentials_token? || token.ssoi_token?
-      launch = fetch_smart_launch_context
-      if launch.nil?
-        return true
-      elsif token.payload['scp'].include?('launch/patient')
+      if token.payload['scp'].include?('launch/patient')
+        launch = fetch_smart_launch_context
         token.payload[:icn] = launch
-        token.payload[:launch] = { patient: launch }
-      elsif token.payload['scp'].include?('launch')
+        token.payload[:launch] = { patient: launch } unless launch.nil?
+      end
+      if token.payload['scp'].include?('launch')
+        launch = fetch_smart_launch_context
         token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { patient: launch }
       end
-
       return true
     end
 
@@ -56,14 +58,6 @@ class OpenidApplicationController < ApplicationController
     return false if @session.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
-  end
-
-  def fetch_okta_profile
-    # Only want to fetch the Okta profile if the session isn't already established and not a CC token
-    @session = Session.find(token) unless token.client_credentials_token?
-    profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
-    populate_ssoi_token_payload(profile) if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
-    profile
   end
 
   def populate_ssoi_token_payload(profile)
@@ -148,9 +142,8 @@ class OpenidApplicationController < ApplicationController
       json_response = JSON.parse(response.body)
       json_response['launch']
     end
-  rescue => e
-    log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
-    nil
+  rescue
+    raise error_klass('Invalid launch context')
   end
 
   attr_reader :current_user, :session, :scopes

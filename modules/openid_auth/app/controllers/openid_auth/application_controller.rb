@@ -19,11 +19,5 @@ module OpenidAuth
     def fetch_aud
       params['aud']
     end
-
-    def validate_launch_context
-      if (token.client_credentials_token? || token.ssoi_token?) && fetch_smart_launch_context.nil?
-        raise error_klass('Invalid launch context')
-      end
-    end
   end
 end
