@@ -9,7 +9,7 @@ module DecisionReview
     NOD_CREATE_REQUEST = JSON.parse nod_create_request_schema_json_string
 
     NOD_SHOW_RESPONSE_200 = JSON.parse nod_create_request_schema_json_string
-    # todo
+
     nod_show_response_200_definitions = {
       'root' => {
         'type' => 'object',
