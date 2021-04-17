@@ -7,25 +7,6 @@ module Swagger
     class Profile
       include Swagger::Blocks
 
-      swagger_path '/v0/profile/communication_preferences/{communication_permission_id}' do
-        operation :patch do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Update a communication permission'
-          key :operationId, 'updateCommunicationPreference'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          key :produces, ['application/json']
-          key :consumes, ['application/json']
-
-          extend Swagger::Schemas::Vet360::CommunicationPermission
-        end
-      end
-
       swagger_path '/v0/profile/communication_preferences' do
         operation :put do
           extend Swagger::Responses::AuthenticationError
@@ -115,23 +96,6 @@ module Swagger
               end
             end
           end
-        end
-
-        operation :post do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Create a communication permission'
-          key :operationId, 'createCommunicationPreference'
-          key :tags, %w[
-            profile
-          ]
-
-          parameter :authorization
-
-          key :produces, ['application/json']
-          key :consumes, ['application/json']
-
-          extend Swagger::Schemas::Vet360::CommunicationPermission
         end
 
         operation :get do
