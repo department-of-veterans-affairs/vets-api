@@ -28,23 +28,23 @@ describe VAProfile::Communication::Service do
     let!(:communication_items) do
       [
         build(:communication_item, id: 3).tap do |communication_item|
-          communication_permission = communication_item.first_communication_channel.communication_permission
+          communication_permission = communication_item.communication_channels[0].communication_permission
           communication_permission.allowed = true
           communication_permission.id = 342
         end,
         build(:communication_item, id: 2).tap do |communication_item|
-          communication_permission = communication_item.first_communication_channel.communication_permission
+          communication_permission = communication_item.communication_channels[0].communication_permission
           communication_permission.allowed = true
           communication_permission.id = 341
         end,
         build(:communication_item, id: 4).tap do |communication_item|
-          communication_permission = communication_item.first_communication_channel.communication_permission
+          communication_permission = communication_item.communication_channels[0].communication_permission
           communication_permission.allowed = true
           communication_permission.id = 729
         end,
         build(:communication_item, id: 5).tap do |communication_item|
-          communication_item.first_communication_channel.id = 2
-          communication_permission = communication_item.first_communication_channel.communication_permission
+          communication_item.communication_channels[0].id = 2
+          communication_permission = communication_item.communication_channels[0].communication_permission
           communication_permission.allowed = true
         end
       ]

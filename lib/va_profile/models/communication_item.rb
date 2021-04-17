@@ -35,8 +35,8 @@ module VAProfile
         {
           bio: {
             communicationPermissions: communication_items.map do |communication_item|
-              communication_item.format_for_api(va_profile_id, include_bio: false, source_date: source_date)
-            end,
+              communication_item.format_for_api(va_profile_id, source_date)
+            end.flatten,
             vaProfileId: va_profile_id.to_i,
             sourceDate: source_date
           }
@@ -53,27 +53,24 @@ module VAProfile
                                   end
       end
 
-      def format_for_api(va_profile_id, include_bio: true, source_date: nil)
-        communication_channel = first_communication_channel
-        source_date = Time.zone.now.iso8601 if source_date.nil?
-
-        attrs = {
-          allowed: communication_channel.communication_permission.allowed,
-          communicationChannelId: communication_channel.id,
-          communicationItemId: id,
-          vaProfileId: va_profile_id.to_i,
-          sourceDate: source_date
-        }.merge(lambda do
+      def format_for_api(va_profile_id, source_date)
+        communication_channels.map do |communication_channel|
           communication_permission = communication_channel.communication_permission
 
-          if communication_permission.id.present?
-            { communicationPermissionId: communication_permission.id }
-          else
-            {}
-          end
-        end.call)
-
-        include_bio ? { bio: attrs } : attrs
+          {
+            allowed: communication_permission.allowed,
+            communicationChannelId: communication_channel.id,
+            communicationItemId: id,
+            vaProfileId: va_profile_id.to_i,
+            sourceDate: source_date
+          }.merge(lambda do
+            if communication_permission.id.present?
+              { communicationPermissionId: communication_permission.id }
+            else
+              {}
+            end
+          end.call)
+        end
       end
 
       private
