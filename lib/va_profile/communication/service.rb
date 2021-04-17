@@ -14,18 +14,6 @@ module VAProfile
 
       configuration VAProfile::Communication::Configuration
 
-      def update_communication_permission(communication_item)
-        with_monitoring do
-          perform(
-            communication_item.http_verb,
-            "#{get_path_ids}communication-permissions",
-            communication_item.format_for_api(@user.vet360_id).to_json
-          ).body
-        end
-      rescue => e
-        handle_error(e)
-      end
-
       def update_all_communication_permissions(communication_items)
         with_monitoring do
           perform(
