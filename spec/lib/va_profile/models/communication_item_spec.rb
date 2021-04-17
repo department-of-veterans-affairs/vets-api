@@ -13,7 +13,7 @@ describe VAProfile::Models::CommunicationItem, type: :model do
       end
     end
 
-    it 'validates first communication_channel' do
+    it 'validates all communication channels' do
       communication_channel = build(:communication_channel)
       communication_channel.id = nil
       communication_item.communication_channels = [communication_channel]

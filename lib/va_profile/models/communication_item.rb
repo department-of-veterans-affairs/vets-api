@@ -11,7 +11,7 @@ module VAProfile
 
       validates :id, :communication_channels, presence: true
 
-      validate :communication_channel_valid
+      validate :communication_channels_valid
 
       def self.create_from_api(communication_res, permission_res)
         new(
@@ -53,14 +53,6 @@ module VAProfile
                                   end
       end
 
-      def http_verb
-        first_communication_channel.communication_permission.id.present? ? :put : :post
-      end
-
-      def first_communication_channel
-        communication_channels[0]
-      end
-
       def format_for_api(va_profile_id, include_bio: true, source_date: nil)
         communication_channel = first_communication_channel
         source_date = Time.zone.now.iso8601 if source_date.nil?
@@ -86,9 +78,11 @@ module VAProfile
 
       private
 
-      def communication_channel_valid
-        if communication_channels.present? && !first_communication_channel.valid?
-          errors.add(:communication_channels, first_communication_channel.errors.full_messages.join(','))
+      def communication_channels_valid
+        communication_channels&.each do |communication_channel|
+          unless communication_channel.valid?
+            errors.add(:communication_channels, communication_channel.errors.full_messages.join(','))
+          end
         end
       end
     end
