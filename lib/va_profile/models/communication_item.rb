@@ -10,7 +10,6 @@ module VAProfile
       attr_reader :communication_channels
 
       validates :id, :communication_channels, presence: true
-      validates :communication_channels, length: { maximum: 1, too_long: 'must have only one communication channel' }
 
       validate :communication_channel_valid
 

@@ -13,14 +13,6 @@ describe VAProfile::Models::CommunicationItem, type: :model do
       end
     end
 
-    it 'validates array length of communication_channels' do
-      communication_item.communication_channels = [build(:communication_channel), build(:communication_channel)]
-      expect_attr_invalid(communication_item, :communication_channels, 'must have only one communication channel')
-
-      communication_item.communication_channels = [build(:communication_channel)]
-      expect_attr_valid(communication_item, :communication_channels)
-    end
-
     it 'validates first communication_channel' do
       communication_channel = build(:communication_channel)
       communication_channel.id = nil
