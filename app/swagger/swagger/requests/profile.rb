@@ -86,13 +86,27 @@ module Swagger
                 property :tx_audit_id, type: :string
                 property :source_system, type: :string
                 property :source_date, type: :string
-                property :communication_permission_id, type: :integer
                 property :va_profile_id, type: :integer
-                property :communication_channel_id, type: :integer
-                property :communication_item_id, type: :integer
-                property :communication_channel_name, type: :string
-                property :communication_item_common_name, type: :string
-                property :allowed, type: :boolean
+                property :communication_permissions do
+                  key :type, :array
+
+                  items do
+                    key :type, :object
+
+                    property :create_date, type: :string
+                    property :update_date, type: :string
+                    property :tx_audit_id, type: :string
+                    property :source_system, type: :string
+                    property :source_date, type: :string
+                    property :communication_permission_id, type: :integer
+                    property :va_profile_id, type: :integer
+                    property :communication_channel_id, type: :integer
+                    property :communication_item_id, type: :integer
+                    property :communication_channel_name, type: :string
+                    property :communication_item_common_name, type: :string
+                    property :allowed, type: :boolean
+                  end
+                end
               end
             end
           end
