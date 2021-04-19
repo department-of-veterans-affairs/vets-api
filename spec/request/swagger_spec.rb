@@ -2230,7 +2230,84 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           )
         end
 
-        it 'supports the communication preferences index response' do
+        let(:params) do
+          {
+            communication_items: [
+              {
+                communication_item: {
+                  id: 3,
+                  communication_channels: [
+                    {
+                      id: 1,
+                      communication_permission: {
+                        id: 342,
+                        allowed: true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                communication_item: {
+                  id: 2,
+                  communication_channels: [
+                    {
+                      id: 1,
+                      communication_permission: {
+                        id: 341,
+                        allowed: true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                communication_item: {
+                  id: 4,
+                  communication_channels: [
+                    {
+                      id: 1,
+                      communication_permission: {
+                        id: 729,
+                        allowed: true
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                communication_item: {
+                  id: 5,
+                  communication_channels: [
+                    {
+                      id: 2,
+                      communication_permission: {
+                        allowed: true
+                      }
+                    }
+                  ]
+                }
+              },
+            ]
+          }
+        end
+
+        it 'supports the communication preferences update all api', run_at: '2021-04-13T20:54:58Z' do
+          path = '/v0/profile/communication_preferences'
+          expect(subject).to validate(:put, path, 401)
+
+          allow_any_instance_of(User).to receive(:vet360_id).and_return('16445')
+          VCR.use_cassette('va_profile/communication/update_all_communication_permissions', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :put,
+              path,
+              200,
+              headers.merge('_data' => params.to_json)
+            )
+          end
+        end
+
+        it 'supports the communication preferences index api' do
           path = '/v0/profile/communication_preferences'
           expect(subject).to validate(:get, path, 401)
 
