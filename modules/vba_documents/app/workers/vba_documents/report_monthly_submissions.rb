@@ -121,6 +121,20 @@ module VBADocuments
     end
     # rubocop:enable Style/FormatStringToken
 
+    MEGABYTES = 1024.0 * 1024.0
+    def bytes_to_megabytes(bytes)
+      (bytes / MEGABYTES).round(2) unless bytes.nil? || bytes.zero?
+    end
+
+    def add_max_avg_mb
+      @monthly_max_avg.map! do |e|
+        h = { 'max_mb' => nil, 'avg_mb' => nil }
+        h['max_mb'] = bytes_to_megabytes(e['max_size'])
+        h['avg_mb'] = bytes_to_megabytes(e['avg_size'])
+        e.merge!(h)
+      end
+    end
+
     def join_monthly_results
       ret = []
       @avg_processing_time.each_with_index do |base_row, idx|
