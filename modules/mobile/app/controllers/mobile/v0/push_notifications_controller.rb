@@ -22,7 +22,7 @@ module Mobile
                                                             service.get_preferences(params[:endpoint_sid]).body)
       end
 
-      def set_prefs
+      def set_pref
         service.set_preference(params[:endpoint_sid], params[:preference], params[:enabled].to_s.downcase == 'true')
 
         render json: {}, status: :ok
@@ -30,6 +30,7 @@ module Mobile
 
       def send_notification
         service.send_notification(params[:app_name], @current_user.icn, params[:template_id], params[:personalization])
+
         render json: {}, status: :ok
       end
 
