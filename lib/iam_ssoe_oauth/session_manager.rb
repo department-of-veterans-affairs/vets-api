@@ -47,10 +47,7 @@ module IAMSSOeOAuth
 
       user_identity = build_identity(iam_profile)
       build_session(@access_token, user_identity)
-      user = build_user(user_identity)
-      Rails.logger.info('IAMUser create user session: success', uuid: user.uuid)
-
-      user
+      build_user(user_identity)
     rescue Common::Exceptions::Unauthorized => e
       Rails.logger.error('IAMUser create user session: unauthorized', error: e.message)
       StatsD.increment('iam_ssoe_oauth.inactive_session')
@@ -80,6 +77,7 @@ module IAMSSOeOAuth
       user.save
 
       StatsD.set('iam_ssoe_oauth.users', user.uuid, sample_rate: 1.0)
+      Rails.logger.info('IAMUser create user session: success', uuid: user.uuid)
 
       user
     rescue => e
