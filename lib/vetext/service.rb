@@ -9,6 +9,7 @@ module VEText
   class Service < Common::Client::Base
     configuration VEText::Configuration
 
+    STATSD_KEY_PREFIX = 'vetext_push'
     BASE_PATH = '/api/vetext/pub/mobile/push'
     REGISTER_PATH = BASE_PATH + '/endpoint'
     PREFERENCES_PATH = BASE_PATH + '/preferences/client'

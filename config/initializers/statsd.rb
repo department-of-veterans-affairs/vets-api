@@ -230,27 +230,27 @@ StatsD.increment('iam_ssoe_oauth.auth_type', 0)
 # init VEText Push Notifications
 VEText::Service.extend StatsD::Instrument
 VEText::Service.statsd_count_success :register,
-                                     'vetext_push.register'
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.register"
 VEText::Service.statsd_count_success :get_preferences,
-                                     'vetext_push.get_prefs'
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.get_prefs"
 VEText::Service.statsd_count_success :set_preference,
-                                     'vetext_push.set_pref'
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.set_pref"
 VEText::Service.statsd_count_success :send_notification,
-                                     'vetext_push.send_notification'
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.send_notification"
 VEText::Service.statsd_count_success :app_sid,
-                                     'vetext_push.app_lookup'
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.app_lookup"
 
-StatsD.increment('vetext_push.register.success', 0)
-StatsD.increment('vetext_push.register.failure', 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.register.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.register.failure", 0)
 
-StatsD.increment('vetext_push.get_prefs.success', 0)
-StatsD.increment('vetext_push.get_prefs.failure', 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.get_prefs.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.get_prefs.failure", 0)
 
-StatsD.increment('vetext_push.set_pref.success', 0)
-StatsD.increment('vetext_push.set_pref.failure', 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.set_pref.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.set_pref.failure", 0)
 
-StatsD.increment('vetext_push.send_notification.success', 0)
-StatsD.increment('vetext_push.send_notification.failure', 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.send_notification.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.send_notification.failure", 0)
 
-StatsD.increment('vetext_push.app_lookup.success', 0)
-StatsD.increment('vetext_push.app_lookup.failure', 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.app_lookup.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.app_lookup.failure", 0)
