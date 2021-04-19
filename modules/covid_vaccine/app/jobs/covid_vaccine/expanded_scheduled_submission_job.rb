@@ -11,9 +11,6 @@ module CovidVaccine
     def perform
       Rails.logger.info('Covid_Vaccine Expanded_Scheduled_Submission: Start')
 
-      count = CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'enrollment_pending').count
-      Rails.logger.info('Covid_Vaccine Expanded_Scheduled_Submission Start: enrollment_pending count', count: count)
-
     # Sorting by DESC here because currently if a record fails MPI lookup, it remains in state=enrollment_pending,
     # so starting at the beginning we may never see the new records as only the MPI error records would process due to limit
     # with anticipated volume and execution every 15 minutes we should be able to process all new records 
@@ -21,9 +18,6 @@ module CovidVaccine
       CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'enrollment_pending').order('created_at DESC').limit(1000).map do |submission|
         CovidVaccine::ExpandedSubmissionJob.perform_async(submission.id)
       end
-
-      count = CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'enrollment_pending').count
-      Rails.logger.info('Covid_Vaccine Expanded_Scheduled_Submission Complete: enrollment_pending count', count: count)
 
     #   the subtask being called does not raise errors, but keeping this in case some other issue causes this job to fail
     rescue => e
