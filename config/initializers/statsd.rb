@@ -226,3 +226,31 @@ StatsD.increment('iam_ssoe_oauth.create_user_session.failure', 0)
 StatsD.increment('iam_ssoe_oauth.inactive_session', 0)
 
 StatsD.increment('iam_ssoe_oauth.auth_type', 0)
+
+# init VEText Push Notifications
+VEText::Service.extend StatsD::Instrument
+VEText::Service.statsd_count_success :register,
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.register"
+VEText::Service.statsd_count_success :get_preferences,
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.get_prefs"
+VEText::Service.statsd_count_success :set_preference,
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.set_pref"
+VEText::Service.statsd_count_success :send_notification,
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.send_notification"
+VEText::Service.statsd_count_success :app_sid,
+                                     "#{VEText::Service::STATSD_KEY_PREFIX}.app_lookup"
+
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.register.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.register.failure", 0)
+
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.get_prefs.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.get_prefs.failure", 0)
+
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.set_pref.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.set_pref.failure", 0)
+
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.send_notification.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.send_notification.failure", 0)
+
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.app_lookup.success", 0)
+StatsD.increment("#{VEText::Service::STATSD_KEY_PREFIX}.app_lookup.failure", 0)

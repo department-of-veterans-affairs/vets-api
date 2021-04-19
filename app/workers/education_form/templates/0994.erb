@@ -33,16 +33,10 @@ Have you ever applied for VA education benefits?: <%= yesno(@applicant.appliedFo
 Are you on full-time duty in the Armed Forces? (This doesn't
 include active-duty training for Reserve and National Guard members.): <%= yesno(@applicant.activeDuty) %>
 
-<% if !Flipper.enabled?(:edu_form_omb_and_expiration) -%>
-Are you in the Selected Reserve or National Guard and do
-you expect to be called to duty for 30 days or more?: <%= yesno_or_blank(@applicant.activeDutyDuringVetTec) %>
-<% end -%>
-<% if Flipper.enabled?(:edu_form_omb_and_expiration) -%>
 Enter the date you expect to be released from active duty: <%= @applicant.expectedReleaseDate %>
 
 Do you expect to be called to active duty while enrolled
 in a VET TEC program?: <%= yesno_or_blank(@applicant.expectedActiveDutyStatusChange) %>
-<% end -%>
 
 DIRECT DEPOSIT INFORMATION:
 

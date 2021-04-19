@@ -102,22 +102,22 @@ module Users
     end
 
     def va_profile
-      status = user.va_profile_status
+      status = user.mpi_status
 
       if status == RESPONSE_STATUS[:ok]
         {
           status: status,
-          birth_date: user.va_profile.birth_date,
-          family_name: user.va_profile.family_name,
-          gender: user.va_profile.gender,
-          given_names: user.va_profile.given_names,
-          is_cerner_patient: !user.va_profile.cerner_id.nil?,
+          birth_date: user.mpi_profile_birth_date,
+          family_name: user.last_name_mpi,
+          gender: user.gender_mpi,
+          given_names: user.given_names,
+          is_cerner_patient: !user.cerner_id.nil?,
           facilities: user.va_treatment_facility_ids.map { |id| facility(id) },
           va_patient: user.va_patient?,
           mhv_account_state: user.mhv_account_state
         }
       else
-        scaffold.errors << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error
+        scaffold.errors << Users::ExceptionHandler.new(user.mpi_error, 'MVI').serialize_error
         nil
       end
     end
@@ -162,7 +162,7 @@ module Users
     end
 
     def facility(facility_id)
-      cerner_facility_ids = user.va_profile.cerner_facility_ids || []
+      cerner_facility_ids = user.cerner_facility_ids || []
       {
         facility_id: facility_id,
         is_cerner: cerner_facility_ids.include?(facility_id)

@@ -11,7 +11,7 @@ module Swagger
 
           key :description, 'Uploadfile containing supporting evidence for Notice of Disagreement'
           key :operationId, 'decisionReviewEvidence'
-          key :tags, %w[nod]
+          key :tags, %w[notice_of_disagreements]
 
           parameter do
             key :name, :decision_review_evidence_attachment
