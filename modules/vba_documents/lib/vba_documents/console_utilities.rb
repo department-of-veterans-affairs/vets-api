@@ -18,6 +18,23 @@ module VBADocuments
       invalid_guids
     end
 
+    def pull_download(guid)
+      tempfile = VBADocuments::PayloadManager.download_raw_file(guid).first
+      upload_model = UploadFile.new
+      upload_model.multipart.attach(io: tempfile, filename: upload_model.guid)
+      upload_model.status = 'forensics'
+      upload_model.save!
+      upload_model.parse_and_upload!
+      upload_model
+    end
+
+    def cleanup(upload_file)
+      raise 'Invalid upload file parameter passed.' unless upload_file.is_a? UploadFile
+      upload_file.remove_from_storage
+      upload_file.parsed_files.purge
+      upload_file.delete
+    end
+
     private
 
     def manual_status_change(guid, from, to, error)
