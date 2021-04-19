@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'date'
+# require './modules/vba_documents/lib/vba_documents/sql_support'
 
 module VBADocuments
   class ReportMonthlySubmissions

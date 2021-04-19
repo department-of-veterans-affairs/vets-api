@@ -30,6 +30,7 @@ module VBADocuments
 
     def cleanup(upload_file)
       raise 'Invalid upload file parameter passed.' unless upload_file.is_a? UploadFile
+
       upload_file.remove_from_storage
       upload_file.parsed_files.purge
       upload_file.delete

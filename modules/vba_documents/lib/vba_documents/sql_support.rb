@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable  Metrics/ModuleLength
 module VBADocuments
   module SQLSupport
     STATUS_ELAPSED_TIME = %(
@@ -193,3 +194,4 @@ module VBADocuments
     end
   end
 end
+# rubocop:enable  Metrics/ModuleLength
