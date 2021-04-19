@@ -124,7 +124,9 @@ module ClaimsApi
     end
 
     def external_uid
-      (source_data.present? && source_data['icn'].present?) ? source_data['icn'] : Settings.bgs.external_uid
+      return source_data['icn'] if source_data.present? && source_data['icn'].present?
+
+      Settings.bgs.external_uid
     end
 
     def signature_image_paths
