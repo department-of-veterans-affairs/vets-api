@@ -1,0 +1,49 @@
+name: Pact Contract Tests
+on: [push]
+jobs:
+  tests:
+    name: Test
+    runs-on: ubuntu-16.04
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      CI: true
+      DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
+      DISABLE_BOOTSNAP: true
+      RAILS_ENV: test
+      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
+      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+      "Settings.binaries.clamdscan": "clamscan"
+      TERM: xterm-256color
+      GIT_COMMIT_SHA: ${{ github.sha }}
+      CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+
+    services:
+      postgres:
+        image: postgis/postgis:11-2.5
+        env:
+          POSTGRES_USER: vets-api
+          POSTGRES_DB: vets-api_test
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
+
+      redis:
+        image: circleci/redis:5.0-alpine
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Install System Packages (pdftk, poppler, imagemagick)
+        run: bundle install --path vendor/bundle
+
+      - name: Setup Database
+        run: bundle exec rake db:create db:schema:load
+
+      - name: Verify stable Pacts
+        run: bundle exec rake pact:verify
