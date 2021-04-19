@@ -4,41 +4,23 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::EvidenceSubmissionSerializer do
-  let(:evidence_submission) { create(:evidence_submission) }
+  let(:evidence_submission) { create(:evidence_submission, :with_detail, :with_nod) }
   let(:rendered_hash) { described_class.new(evidence_submission).serializable_hash }
 
-  it 'serializes the NOD properly' do
-    expect(rendered_hash).to eq(
-      {
-        data: {
-          type: :evidenceSubmission,
-          id: evidence_submission.id.to_s,
-          attributes: {
-            status: evidence_submission.status
-          }
-        }
-      }
-    )
+  it 'includes guid' do
+    expect(rendered_hash[:id]).to eq evidence_submission.guid
   end
 
-  it 'has the correct top level keys' do
-    expect(rendered_hash.keys.count).to be 1
-    expect(rendered_hash).to have_key :data
+  it 'includes :appeal_type' do
+    expect(rendered_hash[:appeal_type]).to eq 'NoticeOfDisagreement'
   end
 
-  it 'has the correct data keys' do
-    expect(rendered_hash[:data].keys.count).to be 3
-    expect(rendered_hash[:data]).to have_key :type
-    expect(rendered_hash[:data]).to have_key :id
-    expect(rendered_hash[:data]).to have_key :attributes
+  it 'includes :appeal_id' do
+    expect(rendered_hash[:appeal_id]).to eq evidence_submission.supportable.id
   end
 
-  it 'has the correct attribute keys' do
-    expect(rendered_hash[:data][:attributes].keys.count).to be 1
-    expect(rendered_hash[:data][:attributes]).to have_key :status
-  end
-
-  it 'has the correct type' do
-    expect(rendered_hash[:data][:type]).to eq :evidenceSubmission
+  it "truncates :detail value if longer than #{described_class::MAX_DETAIL_DISPLAY_LENGTH}" do
+    max_length_plus_ellipses = described_class::MAX_DETAIL_DISPLAY_LENGTH + 3
+    expect(rendered_hash[:detail].length).to eq(max_length_plus_ellipses)
   end
 end

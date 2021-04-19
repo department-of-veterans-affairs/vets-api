@@ -8,7 +8,7 @@ VCR.configure do |c|
   # c.debug_logger = File.open('vcr.log', 'w')
 
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
-  c.filter_sensitive_data('<AV_KEY>') { Settings.vet360.address_validation.api_key }
+  c.filter_sensitive_data('<AV_KEY>') { VAProfile::Configuration::SETTINGS.address_validation.api_key }
   c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }

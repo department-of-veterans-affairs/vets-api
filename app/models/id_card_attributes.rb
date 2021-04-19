@@ -20,7 +20,7 @@ class IdCardAttributes
       'state' => @user.address[:state] || '',
       'zip' => @user.address[:zip] || '',
       'email' => @user.email || '',
-      'phone' => @user.va_profile&.home_phone || '',
+      'phone' => @user.home_phone || '',
       'title38status' => title38_status_code,
       'branchofservice' => branches_of_service,
       'dischargetype' => discharge_types
