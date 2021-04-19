@@ -8,7 +8,6 @@ ruby '2.6.6'
 # https://blog.jcoglan.com/2020/06/02/redos-vulnerability-in-websocket-extensions/
 gem 'websocket-extensions', '>= 0.1.5'
 
-# test
 # Modules
 path 'modules' do
   gem 'appeals_api'
