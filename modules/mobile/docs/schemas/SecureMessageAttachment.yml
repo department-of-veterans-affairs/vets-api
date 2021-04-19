@@ -16,6 +16,7 @@ properties:
     required:
       - name
       - messageId
+      - attachmentSize
     properties:
       name:
         type: string
@@ -23,6 +24,9 @@ properties:
       messageId:
         type: integer
         example: 123789
+      attachmentSize:
+        type: integer
+        example: 225457
   links:
     type: object
     required:

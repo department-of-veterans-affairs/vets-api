@@ -135,7 +135,7 @@ bip:
   claims:
     url: "https://claims-uat.dev8.bip.va.gov"
 
-# Settings for Vet360
+# Settings for VAProfile
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
@@ -673,7 +673,6 @@ flipper:
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
     - draju@governmentcio.com
-    - ed.mangimelli@adhocteam.us
     - elder_joseph@bah.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
@@ -807,11 +806,18 @@ hqva_mobile:
       - "patient/Organization.read"
       - "patient/Patient.read"
 
+# settings va.gov uses related to lighthouse api's
 lighthouse:
   api_key: fake_key
   facilities:
     url: https://sandbox-api.va.gov
     api_key: fake_key
+  decision_reviews:
+    s3:
+      aws_access_key_id: "aws_access_key_id"
+      aws_secret_access_key: "aws_secret_access_key"
+      region: "region"
+      bucket: "bucket"
 
 forms:
   url: https://sandbox-api.va.gov/services/va_forms/v0/

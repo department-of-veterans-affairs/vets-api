@@ -10,6 +10,7 @@ require 'mpi/messages/find_profile_message'
 require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
+require 'va_profile/configuration'
 
 class User < Common::RedisStore
   include BetaSwitch
@@ -102,6 +103,22 @@ class User < Common::RedisStore
     mpi&.profile&.gender
   end
 
+  def given_names
+    mpi_profile&.given_names
+  end
+
+  def historical_icns
+    mpi_profile&.historical_icns
+  end
+
+  def home_phone
+    mpi_profile&.home_phone
+  end
+
+  def normalized_suffix
+    mpi_profile&.normalized_suffix
+  end
+
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
   def birth_date
     birth_date = nil
@@ -142,8 +159,18 @@ class User < Common::RedisStore
     mpi&.profile&.ssn
   end
 
+  def active_mhv_ids
+    mpi_profile&.active_mhv_ids
+  end
+
   def mhv_correlation_id
     identity.mhv_correlation_id || mpi.mhv_correlation_id
+  end
+
+  def set_mhv_ids(mhv_id)
+    mpi_profile.mhv_ids = [mhv_id] + mhv_ids
+    mpi_profile.active_mhv_ids = [mhv_id] + active_mhv_ids
+    recache
   end
 
   def mhv_account_type
@@ -174,6 +201,10 @@ class User < Common::RedisStore
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
+  delegate :status, to: :mpi, prefix: true
+  delegate :error, to: :mpi, prefix: true
+  delegate :cerner_id, to: :mpi
+  delegate :cerner_facility_ids, to: :mpi
 
   # emis attributes
   delegate :military_person?, to: :veteran_status
@@ -189,6 +220,10 @@ class User < Common::RedisStore
 
   def sec_id
     identity.sec_id || va_profile&.sec_id
+  end
+
+  def sec_id_mpi
+    mpi_profile&.sec_id
   end
 
   def icn
@@ -278,6 +313,14 @@ class User < Common::RedisStore
                                .tap { |m| m.user = self } # MHV account should not re-initialize use
   end
 
+  def mhv_ids
+    mpi_profile&.mhv_ids
+  end
+
+  def suffix
+    mpi_profile&.suffix
+  end
+
   def in_progress_forms
     InProgressForm.where(user_uuid: uuid)
   end
@@ -322,7 +365,7 @@ class User < Common::RedisStore
   end
 
   def vet360_contact_info
-    return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 
     @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
   end
@@ -383,6 +426,21 @@ class User < Common::RedisStore
     @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
   end
 
+  def mpi_profile_birth_date
+    return nil unless mpi_profile
+
+    if mpi_profile.birth_date.nil?
+      Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
+      return nil
+    end
+
+    mpi_profile.birth_date
+  end
+
+  def mpi_profile?
+    mpi_profile != nil
+  end
+
   private
 
   def relationship_hash(mpi_relationship)
@@ -400,17 +458,6 @@ class User < Common::RedisStore
     return nil unless mpi
 
     mpi.profile
-  end
-
-  def mpi_profile_birth_date
-    return nil unless mpi_profile
-
-    if mpi_profile.birth_date.nil?
-      Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
-      return nil
-    end
-
-    mpi_profile.birth_date
   end
 
   def mpi_profile_relationships

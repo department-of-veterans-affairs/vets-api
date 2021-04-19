@@ -12,7 +12,7 @@ module CovidVaccine
         # Fire off job to determine EMIS eligibility to kick off after hours; transition to eligible or ineligible
         state :received, initial: true
         state :eligible, :ineligible, :enrollment_pending, :enrollment_complete,
-              :enrollment_failed, :registered
+              :enrollment_failed, :registered, :enrollment_out_of_band
 
         # ICN and EMIS lookup both satisfactory or no lookup possible; transitions to eligible
         event :eligibility_passed do
@@ -34,9 +34,19 @@ module CovidVaccine
           transitions from: :enrollment_pending, to: :enrollment_complete
         end
 
+        # submission is successfully sent to VeText
+        event :successful_registration do
+          transitions from: :enrollment_complete, to: :registered
+        end
+
         # Enrollment returned a failure; transitions to enrollment_failed
         event :failed_enrollment do
           transitions from: :enrollment_pending, to: :enrollment_failed
+        end
+
+        # If there is no preferred facility the registration will need to be handled manually
+        event :enrollment_requires_intervention do
+          transitions from: :enrollment_pending, to: :enrollment_out_of_band
         end
       end
 

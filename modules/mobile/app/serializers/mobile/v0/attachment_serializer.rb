@@ -8,6 +8,7 @@ module Mobile
       attribute :id
       attribute :name
       attribute :message_id
+      attribute :attachment_size
 
       link(:download) { Mobile::UrlHelper.new.v0_message_attachment_url(object.message_id, object.id) }
     end
