@@ -34,7 +34,7 @@ module AppealsApi::V1
           raise Common::Exceptions::RecordNotFound, params[:nod_id] unless @appeal
 
           @submission_attributes ||= {
-            source: request.headers['X-Consumer-Username'],
+            source: params['headers']['X-Consumer-Username'],
             supportable_id: params[:nod_id],
             supportable_type: 'AppealsApi::NoticeOfDisagreement'
           }
