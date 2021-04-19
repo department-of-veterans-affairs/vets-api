@@ -41,15 +41,15 @@ module IAMSSOeOAuth
 
     def create_user_session
       Rails.logger.info('IAMUser create_user_session: start')
-      
+
       iam_profile = iam_ssoe_service.post_introspect(@access_token)
       Rails.logger.info('IAMUser create_user_session: introspect succeeded')
-      
+
       user_identity = build_identity(iam_profile)
       build_session(@access_token, user_identity)
       user = build_user(user_identity)
       Rails.logger.info('IAMUser create user session: success', uuid: user.uuid)
-      
+
       user
     rescue Common::Exceptions::Unauthorized => e
       Rails.logger.error('IAMUser create user session: unauthorized', error: e.message)
