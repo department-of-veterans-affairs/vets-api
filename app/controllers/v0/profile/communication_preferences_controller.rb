@@ -33,7 +33,7 @@ module V0
 
       def build_communication_item(communication_item_params)
         VAProfile::Models::CommunicationItem.new(
-          communication_item_params.require(:communication_item).permit(
+          communication_item_params.permit(
             :id,
             communication_channels: [
               :id,

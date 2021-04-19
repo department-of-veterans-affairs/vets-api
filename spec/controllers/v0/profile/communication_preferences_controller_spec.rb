@@ -15,59 +15,51 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
       {
         communication_items: [
           {
-            communication_item: {
-              id: 3,
-              communication_channels: [
-                {
-                  id: 1,
-                  communication_permission: {
-                    id: 342,
-                    allowed: true
-                  }
+            id: 3,
+            communication_channels: [
+              {
+                id: 1,
+                communication_permission: {
+                  id: 342,
+                  allowed: true
                 }
-              ]
-            }
+              }
+            ]
           },
           {
-            communication_item: {
-              id: 2,
-              communication_channels: [
-                {
-                  id: 1,
-                  communication_permission: {
-                    id: 341,
-                    allowed: true
-                  }
+            id: 2,
+            communication_channels: [
+              {
+                id: 1,
+                communication_permission: {
+                  id: 341,
+                  allowed: true
                 }
-              ]
-            }
+              }
+            ]
           },
           {
-            communication_item: {
-              id: 4,
-              communication_channels: [
-                {
-                  id: 1,
-                  communication_permission: {
-                    id: 729,
-                    allowed: true
-                  }
+            id: 4,
+            communication_channels: [
+              {
+                id: 1,
+                communication_permission: {
+                  id: 729,
+                  allowed: true
                 }
-              ]
-            }
+              }
+            ]
           },
           {
-            communication_item: {
-              id: 5,
-              communication_channels: [
-                {
-                  id: 2,
-                  communication_permission: {
-                    allowed: true
-                  }
+            id: 5,
+            communication_channels: [
+              {
+                id: 2,
+                communication_permission: {
+                  allowed: true
                 }
-              ]
-            }
+              }
+            ]
           },
         ]
       }
@@ -90,9 +82,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
         {
           communication_items: [
             {
-              communication_item: {
-                foo: true
-              }
+              foo: true
             }
           ]
         }
