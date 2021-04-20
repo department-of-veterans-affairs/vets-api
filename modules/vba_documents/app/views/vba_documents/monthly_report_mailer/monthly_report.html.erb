@@ -46,14 +46,26 @@
 <table>
   <thead>
   <tr>
+    <th style="width: 8%"></th>
+    <th style="width: 8%"></th>
+    <th style="width: 8%"></th>
+    <th style="width: 8%">AVG TIME</th>
+    <th  style="width: 34%" colspan="4">PAGE COUNTS</th>
+    <th  style="width: 34%"colspan="4">UPLOAD SIZE (MB)</th>
+  </tr>
+  <tr>
     <th>YEAR</th>
     <th>MONTH</th>
     <th>COUNT</th>
-    <th>AVERAGE TIME TO VBMS</th>
-    <th>MAX PAGE COUNT</th>
-    <th>AVERAGE PAGE COUNT</th>
-    <th>MEDIAN PAGE COUNT</th>
-    <th>MODE PAGE COUNT</th>
+    <th>TO VBMS</th>
+    <th>MAX</th>
+    <th>AVG</th>
+    <th>MEDIAN</th>
+    <th>MODE</th>
+    <th>MAX</th>
+    <th>AVG</th>
+    <th>MEDIAN</th>
+    <th>MODE</th>
   </tr>
   </thead>
   <tbody>
@@ -67,6 +79,10 @@
       <td style="text-align: right"><%= row['avg_pages'].to_s %></td>
       <td style="text-align: right"><%= row['median_pages'].to_s %></td>
       <td style="text-align: right"><%= row['mode_pages'].to_s %></td>
+      <td style="text-align: right"><%= row['max_mb'].to_s %></td>
+      <td style="text-align: right"><%= row['avg_mb'].to_s %></td>
+      <td style="text-align: right"><%= row['median_size'].to_s %></td>
+      <td style="text-align: right"><%= row['mode_size'].to_s %></td>
     </tr>
   <% end if @avg_processing_time %>
   </tbody>
@@ -77,5 +93,5 @@
            locals: {collection: @last_month_still_processing, type: 'processing'} %>
 <br>
 <br>
-<%#= render partial: 'vba_documents/monthly_processing_success',
+<%= render partial: 'vba_documents/monthly_report_mailer/monthly_processing_success',
            locals: {collection: @last_month_still_success, type: 'success'} %>
