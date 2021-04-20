@@ -17,7 +17,7 @@ module CovidVaccine
 
     def handle_errors(ex)
       log_exception_to_sentry(ex)
-      Rails.logger.error("Covid_Vaccine Expanded_Submission_Job: Failed for record: #{record_id}")
+      raise ex if ex.class == ActiveRecord::RecordNotFound
     end
   end
 end
