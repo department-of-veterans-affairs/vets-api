@@ -1,0 +1,18 @@
+name: Trigger Jenkins Deployment
+on: [push]
+# on:
+#   push:
+#     branches:
+#       - master
+jobs:
+  trigger_jenkins_deploy:
+      name: Trigger jenkins deployment
+      runs-on: ubuntu-latest
+      steps:
+        - name: Trigger Jenkins deployment
+          uses: appleboy/jenkins-action@master
+          with:
+            url: http://dev.va.gov/jenkins
+            user: ${{ secrets.API_USER }}
+            token: ${{ secrets.API_TOKEN }}
+            job: vets-gov-autodeploy-vets-api
