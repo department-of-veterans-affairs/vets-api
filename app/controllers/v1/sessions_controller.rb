@@ -341,7 +341,7 @@ module V1
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
-        additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
+        additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.ssn_mpi)
         log_message_to_sentry(
           'SessionsController version:v1 message:SSN from MPI Lookup does not match UserIdentity cache',
           :warn,

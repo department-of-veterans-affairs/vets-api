@@ -99,7 +99,7 @@ namespace :connectivity do
         }
       )
 
-      raise ConnectivityError if user.va_profile[:status] == 'SERVER_ERROR'
+      raise ConnectivityError if user.mpi_status == 'SERVER_ERROR'
     end
   end
 

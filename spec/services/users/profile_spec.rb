@@ -180,19 +180,19 @@ RSpec.describe Users::Profile do
     context '#va_profile' do
       context 'when user.mpi is not nil' do
         it 'includes birth_date' do
-          expect(va_profile[:birth_date]).to eq(user.va_profile[:birth_date])
+          expect(va_profile[:birth_date]).to eq(user.mpi_profile_birth_date)
         end
 
         it 'includes family_name' do
-          expect(va_profile[:family_name]).to eq(user.va_profile[:family_name])
+          expect(va_profile[:family_name]).to eq(user.last_name_mpi)
         end
 
         it 'includes gender' do
-          expect(va_profile[:gender]).to eq(user.va_profile[:gender])
+          expect(va_profile[:gender]).to eq(user.gender_mpi)
         end
 
         it 'includes given_names' do
-          expect(va_profile[:given_names]).to eq(user.va_profile[:given_names])
+          expect(va_profile[:given_names]).to eq(user.given_names)
         end
 
         it 'includes status' do
