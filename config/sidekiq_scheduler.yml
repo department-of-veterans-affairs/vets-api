@@ -3,7 +3,7 @@
 # at the specified interval.
 
 ExportBreakerStatus:
-  every: "1m"
+  every: '1m'
   description: "Send breaker status to statsd"
 
 CreateDailySpoolFiles:
@@ -120,7 +120,7 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful benefits intake submissions"
 
 VBADocuments::ReportMonthlySubmissions:
-  cron: "4 3 2 7 * * America/New_York"
+  cron: "4 3 2 21 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
   description: "Monthly report of benefits intake submissions at 02:03:04 on the first of the month"
 
@@ -150,7 +150,7 @@ AppealsApi::DailyErrorReport:
   description: "Daily report of appeals errors"
 
 AppealsApi::HigherLevelReviewCleanUpWeekOldPii:
-  every: ["24h", first_in: "45m"]
+  every: ['24h', first_in: '45m']
   class: AppealsApi::HigherLevelReviewCleanUpWeekOldPii
   description: "Remove PII of HigherLevelReviews that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
@@ -160,7 +160,7 @@ AppealsApi::HigherLevelReviewUploadStatusBatch:
   description: "Update HigherLevelReview statuses with their Central Mail status"
 
 AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii:
-  every: ["24h", first_in: "45m"]
+  every: ['24h', first_in: '45m']
   class: AppealsApi::NoticeOfDisagreementCleanUpWeekOldPii
   description: "Remove PII of NoticeOfDisagreements that have 1) reached one of the 'completed' statuses and 2) are a week old"
 
@@ -182,7 +182,7 @@ MHV::AccountStatisticsJob:
   description: "Log MHV Account Statistics"
 
 ExternalServicesStatusJob:
-  every: "1m"
+  every: '1m'
   description: "Checks the current status of all external services through PagerDuty's API"
 
 VAForms::FetchLatest:
@@ -213,7 +213,7 @@ ClaimsApi::ClaimAuditor:
 Veteran::VSOReloader:
   cron: "0 2 * * * America/New_York"
   class: Veteran::VSOReloader
-  description: Pulls down current list of VSOs and updates accordingly
+  description: Pulls down current list of VSOs and updates accordingly 
 
 VBADocuments::DeploymentsNotifier:
   at: "<%=0.seconds.from_now%>"
@@ -223,8 +223,8 @@ CovidVaccine::ScheduledBatchJob:
   cron: "*/15 * * * * America/New_York"
   class: CovidVaccine::ScheduledBatchJob
   description: Batches received vaccine records and schedules upload to enrollment service.
-
+  
 CovidVaccine::ExpandedScheduledSubmissionJob:
-  every: ["15m", first_in: "24h"]
+  every: ['15m', first_in: '24h']
   class: CovidVaccine::ExpandedScheduledSubmissionJob
   description: Iterates vaccine records with state=enrollment_pending and attempts MPI lookup and send to Vetext.
