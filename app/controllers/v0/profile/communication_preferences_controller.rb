@@ -37,7 +37,7 @@ module V0
             :id,
             communication_channels: [
               :id,
-              { communication_permission: [:allowed, :id] }
+              { communication_permission: %i[allowed id] }
             ]
           )
         )

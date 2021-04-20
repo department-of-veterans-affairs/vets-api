@@ -2279,7 +2279,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                     }
                   }
                 ]
-              },
+              }
             ]
           }
         end
