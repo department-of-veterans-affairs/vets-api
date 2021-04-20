@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_12_175709) do
+ActiveRecord::Schema.define(version: 2021_04_20_131905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -113,6 +113,7 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.string "code"
     t.string "detail"
     t.string "source"
+    t.jsonb "metadata"
   end
 
   create_table "appeals_api_status_updates", force: :cascade do |t|
