@@ -667,6 +667,7 @@ flipper:
     - anna@adhoc.team
     - bconley@governmentcio.com
     - bill.ryan@adhocteam.us
+    - callen@governmentcio.com # Remove after Profile 2.0 UAT
     - cory.trimm@va.gov
     - cwheeler@governmentcio.com
     - dan.hinze@adhocteam.us
@@ -687,6 +688,7 @@ flipper:
     - jennie.mcgibney@va.gov
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
+    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kam@adhocteam.us
@@ -694,12 +696,14 @@ flipper:
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
+    - lauren.ernest@adhocteam.us
     - lihan@adhocteam.us
     - lindsey.hattamer@oddball.io
     - lsanchez@governmentcio.com
     - ltran@thoughtworks.com
     - marisa.hoenig@thoughtworks.com
     - mark.greenburg@adhocteam.us
+    - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
     - mccurdy_devin@bah.com
     - mdewey@governmentcio.com
     - micah@adhocteam.us
@@ -724,17 +728,13 @@ flipper:
     - sonntag_adam@bah.com
     - ssuddath@governmentcio.com
     - stephen.barrs@va.gov
+    - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
     - tony.williams@va.gov
     - travis.hilton@oddball.io
     - turner_desiree@bah.com
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
-    - callen@governmentcio.com # Remove after Profile 2.0 UAT
-    - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
-    - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
-    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
-    - lauren.ernest@adhocteam.us
 
 bgs:
   application: ~
