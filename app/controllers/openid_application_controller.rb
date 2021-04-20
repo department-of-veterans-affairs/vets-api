@@ -144,7 +144,8 @@ class OpenidApplicationController < ApplicationController
       json_response = JSON.parse(response.body)
       json_response['launch']
     end
-  rescue
+  rescue => e
+    log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
     raise error_klass('Invalid launch context')
   end
 

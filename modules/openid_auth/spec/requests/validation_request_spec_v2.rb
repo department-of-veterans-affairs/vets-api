@@ -290,7 +290,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       allow(RestClient).to receive(:get).and_raise(failed_launch_response)
     end
 
-    it 'v2 POST returns true if the user is a veteran' do
+    it 'v2 POST returns 401 Invalid launch context' do
       with_okta_configured do
         post '/internal/auth/v2/validation', params: nil, headers: auth_header
         expect(response).to have_http_status(:unauthorized)
