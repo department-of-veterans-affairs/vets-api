@@ -143,7 +143,8 @@ module AppealsApi::V1
                 key :type, :string
                 key :example, 'video_conference'
                 key :enum, %w[virtual_hearing video_conference central_office]
-                key :description, "The type of hearing selected, required if 'hearing' is selected for boardReviewOption"
+                key :description,
+                    "The type of hearing selected, required if 'hearing' is selected for boardReviewOption"
               end
 
               property :timezone do
