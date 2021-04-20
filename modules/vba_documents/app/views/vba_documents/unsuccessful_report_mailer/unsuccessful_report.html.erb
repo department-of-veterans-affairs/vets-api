@@ -10,9 +10,10 @@
       <th><%= status.upcase %></th>
     <% end %>
     <th>TOTALS</th>
-    <th>SUCCESS RATE</th>
-    <th>ERRORED RATE</th>
-    <th>EXPIRED RATE</th>
+    <th>SUCCESS %</th>
+    <th>ERRORED %</th>
+    <th>EXPIRED %</th>
+    <th>LOBS</th>
   </tr>
   </thead>
   <tbody>
@@ -27,6 +28,17 @@
         <td style="text-align: center"><%= @consumer_totals[consumer][:success_rate] %></td>
         <td style="text-align: center"><%= @consumer_totals[consumer][:error_rate] %></td>
         <td style="text-align: center"><%= @consumer_totals[consumer][:expired_rate]%></td>
+        <%
+          style = 'text-align: center;'
+          red = 'color: red; font: italic small-caps bold 12px/30px Georgia, serif;'
+          if consumer.eql?(VBADocuments::ReportUnsuccessfulSubmissions::APPEALS_CONSUMER_NAME)
+            lobs = @consumer_totals[consumer][:lobs]
+            count = lobs.split(", ").count
+            count += 1 if lobs =~ /NULL/
+            style += count > 1 ? red : ''
+          end
+        %>
+        <td style="text-align: center; <%= style %>"><%= @consumer_totals[consumer][:lobs]%></td>
       </tr>
     <% end %>
   <% end if @consumer_totals %>
@@ -43,6 +55,7 @@
       <td style="text-align: center"><%= sum_hash['success_rate'] %></td>
       <td style="text-align: center"><%= sum_hash['error_rate'] %></td>
       <td style="text-align: center"><%= sum_hash['expired_rate'] %></td>
+      <td></td>
     </tr>
   <% end %>
   </tfoot>

@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'date'
+# require './modules/vba_documents/lib/vba_documents/sql_support'
 
 module VBADocuments
   class ReportMonthlySubmissions
@@ -120,6 +121,20 @@ module VBADocuments
       format('%02d:%02d:%02d', sec / 3600, sec / 60 % 60, sec % 60)
     end
     # rubocop:enable Style/FormatStringToken
+
+    MEGABYTES = 1024.0 * 1024.0
+    def bytes_to_megabytes(bytes)
+      (bytes / MEGABYTES).round(2) unless bytes.nil? || bytes.zero?
+    end
+
+    def add_max_avg_mb
+      @monthly_max_avg.map! do |e|
+        h = { 'max_mb' => nil, 'avg_mb' => nil }
+        h['max_mb'] = bytes_to_megabytes(e['max_size'])
+        h['avg_mb'] = bytes_to_megabytes(e['avg_size'])
+        e.merge!(h)
+      end
+    end
 
     def join_monthly_results
       ret = []
