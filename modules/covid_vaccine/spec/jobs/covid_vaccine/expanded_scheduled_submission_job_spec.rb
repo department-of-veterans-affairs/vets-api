@@ -26,7 +26,7 @@ RSpec.describe CovidVaccine::ExpandedScheduledSubmissionJob, type: :worker do
 
   describe '#perform' do
     context 'when records exist with state=enrollment_pending' do
-      # before do 
+      # before do
       #   create(:covid_vax_expanded_registration).raw_form_data.symbolize_keys
       # end
 
@@ -44,7 +44,7 @@ RSpec.describe CovidVaccine::ExpandedScheduledSubmissionJob, type: :worker do
 
     context 'when no records exist with state=enrollment_pending' do
       it 'does not enqueue a CovidVaccine::ExpandedSubmissionJob job' do
-        subject.perform 
+        subject.perform
         expect(CovidVaccine::ExpandedSubmissionJob.jobs.size).to eq(0)
       end
     end

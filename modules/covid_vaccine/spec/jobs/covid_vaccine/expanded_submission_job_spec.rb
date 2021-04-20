@@ -8,7 +8,7 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
   describe '#perform expanded submission job' do
     let(:expected_attributes) do
       %w[first_name last_name phone email_address birth_date ssn preferred_facility city
-      state_code zip_code applicant_type privacy_agreement_accepted birth_sex]
+         state_code zip_code applicant_type privacy_agreement_accepted birth_sex]
     end
     let(:submission) { create(:covid_vax_expanded_registration, :unsubmitted) }
 
@@ -36,7 +36,7 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
 
     it 'updates the submission object' do
       sid = SecureRandom.uuid
-      expect_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+      allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
         .and_return({ sid: sid })
       allow_any_instance_of(MPI::Service).to receive(:find_profile)
         .and_return(mvi_profile_response)
@@ -53,7 +53,7 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_not_found)
         allow(Rails.logger).to receive(:error)
-        expect(Rails.logger).to receive(:error).with("Record not found.")
+        expect(Rails.logger).to receive(:error).with('Record not found.')
         subject.perform(submission.id)
       end
 
@@ -70,7 +70,7 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_facility_not_found)
         allow(Rails.logger).to receive(:error)
-        expect(Rails.logger).to receive(:error).with("Record not found.")
+        expect(Rails.logger).to receive(:error).with('Record not found.')
         subject.perform(submission.id)
         expect(submission.reload.state).to match('enrollment_pending')
       end
@@ -78,11 +78,12 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
       it 'does not update state when MVI facility discrepancy error' do
         expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
-          .and_return(mvi_profile_not_found)
+          .and_return(mvi_facility_not_found)
         subject.perform(submission.id)
         expect(submission.reload.state).to match('enrollment_pending')
       end
     end
+
     it 'raises an error if submission is missing' do
       with_settings(Settings.sentry, dsn: 'T') do
         expect(Raven).to receive(:capture_exception)
