@@ -54,7 +54,7 @@ jobs:
       TERM: xterm-256color
       GIT_COMMIT_SHA: ${{ github.sha }}
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-      ImageOS: ubuntu20
+      ImageOS: ubuntu16
 
     services:
       postgres:
