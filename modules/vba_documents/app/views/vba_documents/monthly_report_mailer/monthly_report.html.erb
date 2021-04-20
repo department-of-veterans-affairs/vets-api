@@ -10,8 +10,7 @@
     <th style="width: 12%">PROCESSING *</th>
     <th style="width: 12%">SUCCESS</th>
     <th style="width: 12%">VBMS</th>
-    <th style="width: 12%">TOTAL SUBMISSIONS</th>
-  </tr>
+    <th style="width: 12%">TOTAL SUBMISSIONS</th></tr>
   </thead>
   <tbody>
   <% @monthly_totals.each do |row| %>
@@ -90,59 +89,9 @@
 </table>
 <br>
 <br>
-<h2>Submissions Still Processing Prior to <%= @last_month_start.strftime("%B") %> <%= @last_month_start.strftime("%Y") %>:</h2>
-<h3>Count <%= @last_month_still_processing.count %></h3>
-<% if @last_month_still_processing.count > 0 %>
-  <table>
-    <thead>
-    <tr>
-      <th>CONSUMER</th>
-      <th>GUID</th>
-      <th>STATUS</th>
-      <th>CREATED AT</th>
-      <th>LAST UPDATED</th>
-    </tr>
-    </thead>
-    <tbody>
-    <% @last_month_still_processing.each do |row| %>
-      <tr>
-        <td><%= row['consumer_name'] %></td>
-        <td><%= row['guid'] %></td>
-        <td><%= row['status'] %></td>
-        <td><%= row['created_at'] %></td>
-        <td><%= row['updated_at'] %></td>
-      </tr>
-    <% end if @last_month_still_processing %>
-    </tbody>
-  </table>
-  <% end %>
+<%= render partial: 'vba_documents/monthly_report_mailer/monthly_processing_success',
+           locals: {collection: @last_month_still_processing, type: 'processing'} %>
 <br>
 <br>
-<h2>Submissions In Success Status Prior to <%= @last_month_start.strftime("%B") %> <%= @last_month_start.strftime("%Y") %>:</h2>
-<h3>Count <%= @last_month_still_success.count %></h3>
-<% if @last_month_still_success.count > 0 %>
-  <table>
-    <thead>
-    <tr>
-      <th>CONSUMER</th>
-      <th>GUID</th>
-      <th>STATUS</th>
-      <th>CREATED AT</th>
-      <th>LAST UPDATED</th>
-    </tr>
-    </thead>
-    <tbody>
-    <% @last_month_still_success.each do |row| %>
-      <tr>
-        <td><%= row['consumer_name'] %></td>
-        <td><%= row['guid'] %></td>
-        <td><%= row['status'] %></td>
-        <td><%= row['created_at'] %></td>
-        <td><%= row['updated_at'] %></td>
-      </tr>
-    <% end if @last_month_still_success %>
-    </tbody>
-  </table>
-  <% end %>
-<br>
-<br>
+<%#= render partial: 'vba_documents/monthly_processing_success',
+           locals: {collection: @last_month_still_success, type: 'success'} %>
