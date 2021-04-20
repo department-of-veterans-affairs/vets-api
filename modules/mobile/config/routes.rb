@@ -20,7 +20,7 @@ Mobile::Engine.routes.draw do
     put '/payment-information/benefits', to: 'payment_information#update'
     put '/push/register', to: 'push_notifications#register'
     get '/push/prefs/:endpoint_sid', to: 'push_notifications#get_prefs'
-    put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_prefs'
+    put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_pref'
     post '/push/send', to: 'push_notifications#send_notification'
     get '/user', to: 'users#show'
     get '/user/logout', to: 'users#logout'
