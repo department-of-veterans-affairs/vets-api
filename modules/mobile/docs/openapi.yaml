@@ -1615,7 +1615,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: './schemas/PushPreferences.yml'
+                $ref: './schemas/PushGetPreferences.yml'
         '401':
           description: Authentication is possible but has failed or not yet been provided.
           content:

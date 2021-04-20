@@ -165,8 +165,8 @@ RSpec.describe User, type: :model do
     it 'returns false if user is not loa3?' do
       allow(user).to receive(:loa3?).and_return(false)
       expect(user).not_to be_loa3
-      expect(user.identity&.ssn).to eq(user.ssn)
-      expect(user.va_profile&.ssn).to be_falsey
+      expect(user.ssn).to eq(user.ssn)
+      expect(user.ssn_mpi).to be_falsey
       expect(user).not_to be_ssn_mismatch
     end
 
@@ -175,8 +175,8 @@ RSpec.describe User, type: :model do
 
       it 'returns false' do
         expect(user).to be_loa3
-        expect(user.identity&.ssn).to be_falsey
-        expect(user.va_profile&.ssn).to be_truthy
+        expect(user.ssn).to be_falsey
+        expect(user.ssn_mpi).to be_truthy
         expect(user).not_to be_ssn_mismatch
       end
     end
@@ -186,8 +186,8 @@ RSpec.describe User, type: :model do
 
       it 'returns false' do
         expect(user).to be_loa3
-        expect(user.identity&.ssn).to be_truthy
-        expect(user.va_profile&.ssn).to be_falsey
+        expect(user.ssn).to be_truthy
+        expect(user.ssn_mpi).to be_falsey
         expect(user).not_to be_ssn_mismatch
       end
     end
@@ -197,8 +197,8 @@ RSpec.describe User, type: :model do
 
       it 'returns false if user identity ssn is nil' do
         expect(user).to be_loa3
-        expect(user.identity&.ssn).to be_truthy
-        expect(user.va_profile&.ssn).to be_truthy
+        expect(user.ssn).to be_truthy
+        expect(user.ssn_mpi).to be_truthy
         expect(user).not_to be_ssn_mismatch
       end
     end
@@ -307,6 +307,29 @@ RSpec.describe User, type: :model do
       end
     end
 
+    describe '#mpi_profile?' do
+      context 'when user has mpi profile' do
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
+
+        before do
+          stub_mpi(mvi_profile)
+        end
+
+        it 'returns true' do
+          expect(user.mpi_profile?).to be(true)
+        end
+      end
+
+      context 'when user does not have an mpi profile' do
+        let(:user) { build(:user) }
+
+        it 'returns false' do
+          expect(user.mpi_profile?).to be(false)
+        end
+      end
+    end
+
     describe 'getter methods' do
       context 'when saml user attributes available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
@@ -354,7 +377,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'has a vet360 id if one exists' do
-          expect(user.vet360_id).to be(user.va_profile.vet360_id)
+          expect(user.vet360_id).to be(mvi_profile.vet360_id)
         end
       end
 
@@ -366,24 +389,67 @@ RSpec.describe User, type: :model do
           stub_mpi(mvi_profile)
         end
 
+        it 'fetches given_names from MPI' do
+          expect(user.given_names).to be(mvi_profile.given_names)
+        end
+
         it 'fetches first_name from MPI' do
-          expect(user.first_name_mpi).to be(user.mpi.profile.given_names.first)
+          expect(user.first_name_mpi).to be(mvi_profile.given_names.first)
         end
 
         it 'fetches last_name from MPI' do
-          expect(user.last_name_mpi).to be(user.mpi.profile.family_name)
+          expect(user.last_name_mpi).to be(mvi_profile.family_name)
         end
 
         it 'fetches gender from MPI' do
-          expect(user.gender_mpi).to be(user.mpi.profile.gender)
+          expect(user.gender_mpi).to be(mvi_profile.gender)
         end
 
         it 'fetches edipi from MPI' do
-          expect(user.edipi_mpi).to be(user.mpi.profile.edipi)
+          expect(user.edipi_mpi).to be(mvi_profile.edipi)
         end
 
         it 'fetches ssn from MPI' do
-          expect(user.ssn_mpi).to be(user.mpi.profile.ssn)
+          expect(user.ssn_mpi).to be(mvi_profile.ssn)
+        end
+
+        it 'fetches home_phone from MPI' do
+          expect(user.home_phone).to be(mvi_profile.home_phone)
+        end
+
+        it 'fetches mhv_ids from MPI' do
+          expect(user.mhv_ids).to be(mvi_profile.mhv_ids)
+        end
+
+        it 'fetches active_mhv_ids from MPI' do
+          expect(user.active_mhv_ids).to be(mvi_profile.active_mhv_ids)
+        end
+
+        it 'fetches sec_id from MPI' do
+          expect(user.sec_id_mpi).to be(mvi_profile.sec_id)
+        end
+
+        it 'fetches historical_icns from MPI' do
+          expect(user.historical_icns).to be(mvi_profile.historical_icns)
+        end
+
+        it 'fetches suffix from MPI' do
+          expect(user.suffix).to be(mvi_profile.suffix)
+        end
+      end
+
+      describe 'set_mhv_ids do' do
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
+
+        before do
+          stub_mpi(mvi_profile)
+          user.set_mhv_ids('1234567890')
+        end
+
+        it 'sets new mhv ids to a users MPI profile' do
+          expect(user.mpi.profile.mhv_ids).to include('1234567890')
+          expect(user.mpi.profile.active_mhv_ids).to include('1234567890')
         end
       end
 
@@ -393,14 +459,14 @@ RSpec.describe User, type: :model do
 
         before { stub_mpi(mvi_profile) }
 
-        it 'fetches first_name from MVI' do
-          expect(user.first_name).to be(user.va_profile.given_names.first)
+        it 'fetches first_name from MPI' do
+          expect(user.first_name).to be(user.first_name_mpi)
         end
 
         context 'when given_names has no middle_name' do
           let(:mvi_profile) { build(:mvi_profile, given_names: ['Joe']) }
 
-          it 'fetches middle name from MVI' do
+          it 'fetches middle name from MPI' do
             expect(user.middle_name).to be_nil
           end
         end
@@ -408,7 +474,7 @@ RSpec.describe User, type: :model do
         context 'when given_names has middle_name' do
           let(:mvi_profile) { build(:mvi_profile, given_names: %w[Joe Bob]) }
 
-          it 'fetches middle name from MVI' do
+          it 'fetches middle name from MPI' do
             expect(user.middle_name).to eq('Bob')
           end
         end
@@ -416,33 +482,33 @@ RSpec.describe User, type: :model do
         context 'when given_names has multiple middle names' do
           let(:mvi_profile) { build(:mvi_profile, given_names: %w[Michael Joe Bob Sinclair]) }
 
-          it 'fetches middle name from MVI' do
+          it 'fetches middle name from MPI' do
             expect(user.middle_name).to eq('Joe Bob Sinclair')
           end
         end
 
-        it 'fetches last_name from MVI' do
-          expect(user.last_name).to be(user.va_profile.family_name)
+        it 'fetches last_name from MPI' do
+          expect(user.last_name).to be(user.last_name_mpi)
         end
 
-        it 'fetches gender from MVI' do
-          expect(user.gender).to be(user.va_profile.gender)
+        it 'fetches gender from MPI' do
+          expect(user.gender).to be(user.gender_mpi)
         end
 
-        it 'fetches properly parsed birth_date from MVI' do
-          expect(user.birth_date).to eq(Date.parse(user.va_profile.birth_date).iso8601)
+        it 'fetches properly parsed birth_date from MPI' do
+          expect(user.birth_date).to eq(Date.parse(user.mpi_profile_birth_date).iso8601)
         end
 
         it 'fetches address data from MPI and stores it as a hash' do
-          expect(user.address[:street]).to eq(user.va_profile.address.street)
+          expect(user.address[:street]).to eq(mvi_profile.address.street)
         end
 
-        it 'fetches zip from MVI' do
-          expect(user.zip).to be(user.va_profile.address.postal_code)
+        it 'fetches zip from MPI' do
+          expect(user.zip).to be(mvi_profile.address.postal_code)
         end
 
-        it 'fetches ssn from MVI' do
-          expect(user.ssn).to be(user.va_profile.ssn)
+        it 'fetches ssn from MPI' do
+          expect(user.ssn).to be(user.ssn_mpi)
         end
       end
 
