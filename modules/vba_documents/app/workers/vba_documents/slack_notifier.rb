@@ -102,12 +102,14 @@ module VBADocuments
       statuses.each do |status|
         status_counts[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status).count
         alerting_on[status] = UploadSubmission.aged_processing(hungtime, unit_of_measure, status)
-                                              .limit(AGED_PROCESSING_QUERY_LIMIT).select do |m|
+                                              .limit(AGED_PROCESSING_QUERY_LIMIT).map do |m|
           last_notified = m.metadata['last_slack_notification'].to_i # nil to zero
           delta = Time.now.to_i - last_notified
           notify = delta > @renotify_time * 60
-          notify
+          [m, notify]
         end
+        notify = alerting_on[status].inject(false) { |acu, val| acu || val.last }
+        alerting_on[status] = notify ? alerting_on[status].map(&:first) : []
       end
       [alerting_on, status_counts]
     end
