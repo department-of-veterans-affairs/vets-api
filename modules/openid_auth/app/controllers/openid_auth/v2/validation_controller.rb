@@ -89,7 +89,9 @@ module OpenidAuth
       end
 
       def charon_token_screen?(payload_object)
+        return false unless !payload_object.act.nil?
         vid = payload_object.act[:vista_id]
+        return false unless !payload_object.launch.nil?
         sta3n = payload_object.launch['sta3n']
         return false unless !vid.nil? && !sta3n.nil?
         parsed_sta3n =vid.match /\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A,B,C,E-Z]{1}/
