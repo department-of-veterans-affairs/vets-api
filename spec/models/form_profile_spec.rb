@@ -758,7 +758,7 @@ RSpec.describe FormProfile, type: :model do
         'fullName' => {
           'first' => user.first_name&.capitalize,
           'last' => user.last_name&.capitalize,
-          'suffix' => user.va_profile[:suffix]
+          'suffix' => user.suffix
         },
         'ssn' => '796111863',
         'dob' => '1809-02-12'
