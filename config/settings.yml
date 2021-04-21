@@ -96,10 +96,9 @@ form_10_10cg:
     s3:
       aws_access_key_id: my-aws-key-id
       aws_secret_access_key: my-aws-access-key
-      bucket: local-va-gov-form-10-10cg-poa-uploads
-      # bucket: local-va-gov-form-10-10cg-uploads
+      bucket: my-bucket
       enabled: true
-      region: 'us-gov-west-1'
+      region: my-region
 
 # Settings for Education Benefits
 edu:
