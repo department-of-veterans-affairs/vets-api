@@ -50,7 +50,8 @@ module Swagger
                     key :required, %i[guid created_at]
 
                     property :guid do
-                      key :description, 'The attachment\'s unique ID. Send this ID with the claim submission.'
+                      key :description, 'The document\'s GUID. To attach this document to a claim,\\
+                                         include this id the claim\'s submission payload.'
                       key :type, :string
                       key :example, '90cd36bb-4bb0-49b3-a957-2ce7ad241dd7'
                     end
