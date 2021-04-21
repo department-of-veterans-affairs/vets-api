@@ -6,8 +6,7 @@ module Form1010cg
 
     attr_reader :store_dir
 
-    # rubocop:disable Metrics/AbcSize
-    def initialize(form_attachment_guid)
+    def initialize(form_attachment_guid) # rubocop:disable Metrics/AbcSize
       super
 
       set_aws_config(
@@ -19,6 +18,5 @@ module Form1010cg
 
       @store_dir = form_attachment_guid
     end
-    # rubocop:enable Metrics/AbcSize
   end
 end
