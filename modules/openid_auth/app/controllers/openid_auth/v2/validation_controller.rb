@@ -61,7 +61,9 @@ module OpenidAuth
 
         if token.ssoi_token?
           payload_object = populate_act_payload(payload_object)
-          return payload_object unless validate_with_charon?(payload_object.aud) && !charon_token_screen?(payload_object)
+          return payload_object unless validate_with_charon?(payload_object.aud)
+          && !charon_token_screen?(payload_object)
+
           raise error_klass('Invalid request')
         end
 
@@ -110,6 +112,7 @@ module OpenidAuth
 
       def validate_with_charon?(aud)
         return false unless !Settings.oidc.charon.enabled.nil? && Settings.oidc.charon.enabled.eql?(true)
+
         [*Settings.oidc.charon.audience].include?(aud)
       end
     end
