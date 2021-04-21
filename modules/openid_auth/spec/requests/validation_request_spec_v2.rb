@@ -77,7 +77,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         'icn' => '73806470379396828',
         'scp' => %w[profile email openid launch],
         'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
-        'launch' => { 'icn' => '73806470379396828', 'sta3n' => '456' }
       },
       {
         'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
@@ -95,6 +94,16 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     instance_double(RestClient::Response,
                     code: 200,
                     body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json)
+  end
+  let(:launch_with_sta3n_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json)
+  end
+  let(:launch_with_wrong_sta3n_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { launch: 'eyJpY24iOiIxMjM0NDUiLCAic3RhM24iOiI3ODkifQo=' }.to_json)
   end
   let(:failed_launch_response) do
     instance_double(RestClient::Response,
@@ -382,6 +391,15 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(JSON.parse(response.body)['data']['attributes'].keys)
           .to eq(json_api_response_vista_id['data']['attributes'].keys)
         expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
+      end
+    end
+    it 'v2 POST returns 401 response if invalid user' do
+      with_ssoi_configured do
+        allow(RestClient).to receive(:get).and_return(launch_with_wrong_sta3n_response)
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end
