@@ -20,21 +20,7 @@ module Mobile
       end
 
       def index
-        use_cache = params[:useCache] || true
-        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
-        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
-        page = params[:page] || { number: 1, size: 10 }
-
-        validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
-          start_date: start_date,
-          end_date: end_date,
-          page_number: page[:number],
-          page_size: page[:size],
-          use_cache: use_cache
-        )
-
-        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
-
+        validated_params = validate_params(params)
         json, status = fetch_all_cached_or_service(validated_params)
         render json: json, status: status
       end
@@ -79,12 +65,7 @@ module Mobile
                    :ok
                  end
 
-        options = {
-          meta: {
-            errors: errors,
-            pagination: @pagination_meta
-          }
-        }
+        options = { meta: { errors: errors, pagination: @pagination_meta } }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
@@ -93,16 +74,37 @@ module Mobile
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
       end
 
+      def validate_params(params)
+        use_cache = params[:useCache] || true
+        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
+        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
+        page = params[:page] || { number: 1, size: 10 }
+
+        validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
+          start_date: start_date,
+          end_date: end_date,
+          page_number: page[:number],
+          page_size: page[:size],
+          use_cache: use_cache
+        )
+
+        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
+
+        validated_params
+      end
+
       def paginate(list, params)
+        page_size = params[:page_size]
+        page_number = params[:page_number]
         list = list.filter do |entry|
           entry[:updated_at] >= params[:start_date] && entry[:updated_at] <= params[:end_date]
         end
         total_entries = list.length
-        list = list.slice(((params[:page_number] - 1) * params[:page_size]), params[:page_size])
+        list = list.slice(((page_number - 1) * page_size), page_size)
         [list, {
-          currentPage: params[:page_number],
-          perPage: params[:page_size],
-          totalPages: (list.length / params[:page_size].to_f).ceil,
+          currentPage: page_number,
+          perPage: page_size,
+          totalPages: (list.length / page_size.to_f).ceil,
           totalEntries: total_entries
         }]
       end

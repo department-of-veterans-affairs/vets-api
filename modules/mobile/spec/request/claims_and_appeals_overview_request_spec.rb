@@ -17,6 +17,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
   describe 'GET /v0/claims-and-appeals-overview' do
     describe '#index (all user claims) is polled' do
       before { iam_sign_in }
+
       let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
 
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
@@ -52,11 +53,14 @@ RSpec.describe 'claims and appeals overview', type: :request do
       end
     end
 
-    describe '#index (all user claims) is polled' do
+    describe '#index (all user claims) is polled with additional pagination params' do
       before { iam_sign_in }
-      let(:params) { { useCache: false,
-                       startDate: '2017-05-01T07:00:00.000Z',
-                       page: {number: 2, size: 12} } }
+
+      let(:params) do
+        { useCache: false,
+          startDate: '2017-05-01T07:00:00.000Z',
+          page: { number: 2, size: 12 } }
+      end
 
       it 'and a results are for page 2 of a 12 item pages which only has 10 entries' do
         VCR.use_cassette('claims/claims') do
@@ -66,8 +70,8 @@ RSpec.describe 'claims and appeals overview', type: :request do
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body.dig('data')
             expect(parsed_response_contents.length).to eq(10)
-            expect(parsed_response_contents[0]["id"]).to eq('600102462')
-            expect(parsed_response_contents.last["id"]).to eq('600102451')
+            expect(parsed_response_contents[0]['id']).to eq('600102462')
+            expect(parsed_response_contents.last['id']).to eq('600102451')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
@@ -76,6 +80,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
 
     describe '#index is polled' do
       before { iam_sign_in }
+
       let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
 
       it 'and claims service fails, but appeals succeeds' do
