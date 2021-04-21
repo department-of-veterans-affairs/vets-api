@@ -74,7 +74,7 @@ module VAProfile
         return_val = super(raw_response)
         @user = user
 
-        log_mpi_error if @user.va_profile_status == Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok]
+        log_mpi_error if @user.mpi_status == Common::Client::Concerns::ServiceStatus::RESPONSE_STATUS[:ok]
 
         return_val
       end

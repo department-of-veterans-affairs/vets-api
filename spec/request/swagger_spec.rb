@@ -1031,6 +1031,32 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'decision review evidence upload' do
+      it 'supports uploading a file' do
+        expect(subject).to validate(
+          :post,
+          '/v0/decision_review_evidence',
+          200,
+          headers.update(
+            '_data' => {
+              'decision_review_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+              }
+            }
+          )
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(
+          :post,
+          '/v0/decision_review_evidence',
+          400,
+          headers
+        )
+      end
+    end
+
     describe 'secure messaging' do
       include SM::ClientHelpers
 
@@ -1827,10 +1853,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'contestable_issues' do
+    describe 'HLR contestable_issues' do
       let(:benefit_type) { 'compensation' }
       let(:ssn) { '212222112' }
-      let(:receipt_date) { '2020-09-02' }
       let(:status) { 200 }
 
       it 'documents contestable_issues 200' do
@@ -1871,6 +1896,79 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
               status,
               headers.merge('benefit_type' => benefit_type)
+            )
+          end
+        end
+      end
+    end
+
+    describe 'NOD contestable_issues' do
+      let(:ssn) { '212222112' }
+
+      it 'documents contestable_issues 200' do
+        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
+          expect(subject).to validate(
+            :get,
+            '/v0/notice_of_disagreements/contestable_issues',
+            200,
+            headers
+          )
+        end
+      end
+
+      context '404' do
+        let(:ssn) { '000000000' }
+
+        it 'documents contestable_issues 404' do
+          VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
+            expect(subject).to validate(
+              :get,
+              '/v0/notice_of_disagreements/contestable_issues',
+              404,
+              headers
+            )
+          end
+        end
+      end
+    end
+
+    describe 'notice_of_disagreements' do
+      context 'GET' do
+        it 'documents notice_of_disagreements 200' do
+          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200') do
+            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
+                                        200, headers.merge('uuid' => '1234567a-89b0-123c-d456-789e01234f56'))
+          end
+        end
+
+        it 'documents higher_level_reviews 404' do
+          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404') do
+            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
+                                        404, headers.merge('uuid' => '0'))
+          end
+        end
+      end
+
+      context 'POST' do
+        it 'documents notice_of_disagreements 200' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200') do
+            # NoticeOfDisagreementsController is a pass-through, and uses request.body directly (not params[]).
+            # The validate helper does not create a parsable request.body string that works with the controller.
+            allow_any_instance_of(V0::NoticeOfDisagreementsController).to receive(:request_body_hash).and_return(
+              JSON.parse(File.read(Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                                   'valid_NOD_create_request.json')))
+            )
+            expect(subject).to validate(:post, '/v0/notice_of_disagreements', 200, headers)
+          end
+        end
+
+        it 'documents notice_of_disagreements 422' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE--422') do
+            expect(subject).to validate(
+              :post,
+              '/v0/notice_of_disagreements',
+              422,
+              headers.merge('_data' => { '_json' => '' })
             )
           end
         end

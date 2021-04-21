@@ -24,7 +24,7 @@ FactoryBot.define do
           'character_of_service' => 'Honorable',
           'date_range' => { 'from' => '1980-03-XX', 'to' => '1984-01-XX' },
           'preferred_facility' => 'vha_516',
-          'email' => 'vets.gov.user+0@gmail.com',
+          'email_address' => 'vets.gov.user+0@gmail.com',
           'phone' => '808-555-1212',
           'sms_acknowledgement' => true,
           'address_line1' => '810 Vermont Avenue',
@@ -62,7 +62,7 @@ FactoryBot.define do
         character_of_service: 'Honorable',
         date_range: { 'from' => '1980-03-XX', 'to' => '1984-01-XX' },
         preferred_facility: 'vha_516',
-        email: 'vets.gov.user+0@gmail.com',
+        email_address: 'vets.gov.user+0@gmail.com',
         phone: '808-555-1212',
         sms_acknowledgement: false,
         address_line1: '810 Vermont Avenue',
@@ -93,13 +93,13 @@ FactoryBot.define do
     trait :blank_email do
       default_raw_options {
         {
-          'email' => nil
+          'email_address' => nil
         }
       }
     end
 
     trait :eligibility_info do
-      eligibility_info { { 'preferred_facility': '516' } }
+      eligibility_info { { 'preferred_facility' => '516' } }
     end
 
     trait :spouse do

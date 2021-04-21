@@ -23,6 +23,7 @@ module AppealsApi
     validate :validate_hearing_type_selection, if: :pii_present?
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
+    has_many :status_updates, as: :statusable, dependent: :destroy
 
     def pdf_structure(version)
       Object.const_get(

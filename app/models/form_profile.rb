@@ -2,6 +2,7 @@
 
 require 'string_helpers'
 require 'sentry_logging'
+require 'va_profile/configuration'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -278,7 +279,7 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if Settings.vet360.prefill && user.vet360_id.present?
+    if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     end
     @vet360_contact_info
