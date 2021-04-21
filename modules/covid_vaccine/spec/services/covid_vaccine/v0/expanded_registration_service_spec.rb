@@ -178,20 +178,20 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
 
       context 'without sufficient traits' do
         it 'does not register when lacking traits for MVI lookup' do
-          pending('temporarily quieting errors on MPI failures')    
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile)
             .and_return(mvi_profile_not_found)
+          pending('temporarily quieting errors on MPI failures')
           expect { subject.register(submission) }.to raise_error(Common::Exceptions::RecordNotFound)
         end
 
         it 'does not send data when facility does not match' do
-          pending('temporarily quieting errors on MPI failures')
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile)
             .and_return(mvi_facility_not_found)
           expect do
             subject.register(submission)
+          pending('temporarily quieting errors on MPI failures')
           end.to raise_error(Common::Exceptions::RecordNotFound)
         end
 
