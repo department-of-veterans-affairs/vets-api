@@ -190,8 +190,8 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           allow_any_instance_of(MPI::Service).to receive(:find_profile)
             .and_return(mvi_facility_not_found)
           expect do
+            pending('temporarily quieting errors on MPI failures')
             subject.register(submission)
-          pending('temporarily quieting errors on MPI failures')
           end.to raise_error(Common::Exceptions::RecordNotFound)
         end
 
