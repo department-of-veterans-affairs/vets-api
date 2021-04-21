@@ -63,27 +63,27 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     ]
   end
   let(:jwt_charon) do
-    [{
-       'ver' => 1,
-       'last_login_type' => "ssoi",
-       'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
-       'iss' => 'https://example.com/oauth2/default',
-       'aud' => 'https://example.com/xxxxxxservices/xxxxx',
-       'iat' => Time.current.utc.to_i,
-       'exp' => Time.current.utc.to_i + 3600,
-       'cid' => '0oa1c01m77heEXUZt2p7',
-       'uid' => '00u1zlqhuo3yLa2Xs2p7',
-       'icn' => '73806470379396828',
-       'scp' => %w[profile email openid launch],
-       'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
-       'launch' => {
-         'icn' => '73806470379396828',
-         'sta3n' => '456'
-       }
-     }, {
+    [
+      {
+        'ver' => 1,
+        'last_login_type' => "ssoi",
+        'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'iss' => 'https://example.com/oauth2/default',
+        'aud' => 'https://example.com/xxxxxxservices/xxxxx',
+        'iat' => Time.current.utc.to_i,
+        'exp' => Time.current.utc.to_i + 3600,
+        'cid' => '0oa1c01m77heEXUZt2p7',
+        'uid' => '00u1zlqhuo3yLa2Xs2p7',
+        'icn' => '73806470379396828',
+        'scp' => %w[profile email openid launch],
+        'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+        'launch' => { 'icn' => '73806470379396828', 'sta3n' => '456' }
+      },
+      {
        'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
        'alg' => 'RS256'
-     }]
+      }
+    ]
   end
 
   let(:launch_response) do
@@ -156,7 +156,9 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
           'act' => {
             'icn' => '73806470379396828',
             'type' => 'patient',
-            'vista_id' => '456|789012345^XX^456^XXXXX|X|789|012345678^XX^901^XXXXX|X|234|567890^PN^234^XXXXX|X|567|890123456^XX^567^XXXXX|X|890|12345^XX^890^XXXXX|X|111|111111111^XX^111^XXXXX|X'
+            'vista_id' => '456|789012345^XX^456^XXXXX|X|789|012345678^XX^901^XXXXX|X|
+                           234|567890^PN^234^XXXXX|X|567|890123456^XX^567^XXXXX|X|
+                           890|12345^XX^890^XXXXX|X|111|111111111^XX^111^XXXXX|X'
           },
           'launch' => {
             'icn' => '73806470379396828',
@@ -372,7 +374,9 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     it 'v2 POST returns json response if valid user' do
       with_ssoi_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
-        post '/internal/auth/v2/validation', params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] }, headers: auth_header
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['data']['attributes'].keys)
