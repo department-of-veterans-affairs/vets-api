@@ -65,7 +65,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     [
       {
         'ver' => 1,
-        'last_login_type' => "ssoi",
+        'last_login_type' => 'ssoi',
         'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
         'iss' => 'https://example.com/oauth2/default',
         'aud' => 'https://example.com/xxxxxxservices/xxxxx',
@@ -74,7 +74,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         'cid' => '0oa1c01m77heEXUZt2p7',
         'uid' => '00u1zlqhuo3yLa2Xs2p7',
         'scp' => %w[profile email openid launch],
-        'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+        'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
       },
       {
         'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
@@ -87,11 +87,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     instance_double(RestClient::Response,
                     code: 200,
                     body: { launch: '73806470379396828' }.to_json)
-  end
-  let(:launch_with_sta3n_response) do
-    instance_double(RestClient::Response,
-                    code: 200,
-                    body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json)
   end
   let(:launch_with_sta3n_response) do
     instance_double(RestClient::Response,
