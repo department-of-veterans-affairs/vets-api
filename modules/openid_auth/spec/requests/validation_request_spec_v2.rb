@@ -102,9 +102,9 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     instance_double(RestClient::Response,
                     code: 401)
   end
-  let(:redirected_launch_response) do
+  let(:bad_launch_response) do
     instance_double(RestClient::Response,
-                    code: 302)
+                    code: 503)
   end
   let(:json_api_response) do
     {
@@ -401,7 +401,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
     it 'v2 POST returns server error' do
       with_ssoi_configured do
-        allow(RestClient).to receive(:get).and_return(redirected_launch_response)
+        allow(RestClient).to receive(:get).and_return(bad_launch_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
