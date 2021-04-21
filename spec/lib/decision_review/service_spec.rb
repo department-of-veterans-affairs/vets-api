@@ -104,9 +104,12 @@ describe DecisionReview::Service do
     subject { described_class.new.create_notice_of_disagreement(request_body: body.to_json, user: user) }
 
     let(:body) do
-      JSON.parse File.read(
-        Rails.root.join('spec', 'fixtures', 'notice_of_disagreements', 'valid_NOD_create_request.json')
-      )
+      full_body = JSON.parse(File.read(
+                               Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                               'valid_NOD_create_request.json')
+                             ))
+      full_body.delete('nodUploads')
+      full_body
     end
 
     context '200 response' do
@@ -299,6 +302,37 @@ describe DecisionReview::Service do
 
       it 'throws a DR_404 exception' do
         VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
+          expect { subject }.to raise_error(
+            an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
+          )
+        end
+      end
+    end
+  end
+
+  describe '#get_notice_of_disagreement_upload_url' do
+    subject do
+      described_class.new.get_notice_of_disagreement_upload_url(nod_id: uuid)
+    end
+
+    context '200 response' do
+      let(:uuid) { '6d0c3dba-8a1f-41be-bd16-59bf22d273e7' }
+
+      it 'returns a properly formatted 200 response' do
+        VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-200') do
+          expect(subject).to respond_to :status
+          expect(subject.status).to be 200
+          expect(subject).to respond_to :body
+          expect(subject.body).to be_a Hash
+        end
+      end
+    end
+
+    context '404 response' do
+      let(:uuid) { 'this-id-not-found' }
+
+      it 'throws a DR_404 exception' do
+        VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-404') do
           expect { subject }.to raise_error(
             an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
           )

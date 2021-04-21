@@ -9,7 +9,21 @@ module Swagger
 
         DecisionReview::Schemas::NOD_CREATE_REQUEST['definitions'].each do |k, v|
           # removed values that Swagger 2.0 doesn't recognize
-          swagger_schema k, v.except('if', 'then', '$comment')
+          value = v.except('if', 'then', '$comment')
+
+          # add in file uploads, in addition to what lighthouse will accept.
+          value['properties']['nodUploads'] = { '$ref' => '#/definitions/nodCreateUploads' } if k == 'nodCreateRoot'
+          swagger_schema k, value
+        end
+
+        swagger_schema :nodCreateUpload do
+          property :nod_uploads, type: :array do
+            items type: :object do
+              key :required, %i[name confirmationCode]
+              property :name, type: :string, example: 'private_medical_record.pdf'
+              property :confirmationCode, type: :string, example: 'd44d6f52-2e85-43d4-a5a3-1d9cb4e482a1'
+            end
+          end
         end
 
         swagger_schema 'nodCreateRoot' do

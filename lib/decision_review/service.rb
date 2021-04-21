@@ -138,6 +138,19 @@ module DecisionReview
       end
     end
 
+    ##
+    # Get the url to upload supporting evidenc for a Notice of Disagreement
+    #
+    # @param uuid The uuid of the submited Notice of Disagreement
+    # @return [Faraday::Response]
+    #
+
+    def get_notice_of_disagreement_upload_url(nod_id:)
+      with_monitoring_and_error_handling do
+        response = perform :post, 'notice_of_disagreements/evidence_submissions', nod_id: nod_id
+      end
+    end
+
     private
 
     def create_higher_level_review_headers(user)
