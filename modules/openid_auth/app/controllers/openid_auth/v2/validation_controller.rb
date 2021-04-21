@@ -61,10 +61,8 @@ module OpenidAuth
 
         if token.ssoi_token?
           payload_object = populate_act_payload(payload_object)
-          if validate_with_charon?(payload_object.aud)
-            raise error_klass('Invalid request') unless charon_token_screen?(payload_object)
-          end
-          return payload_object
+          return payload_object unless validate_with_charon?(payload_object.aud) && !charon_token_screen?(payload_object)
+          raise error_klass('Invalid request')
         end
 
         if token.client_credentials_token?
