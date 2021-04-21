@@ -80,8 +80,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         'launch' => { 'icn' => '73806470379396828', 'sta3n' => '456' }
       },
       {
-       'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
-       'alg' => 'RS256'
+        'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
+        'alg' => 'RS256'
       }
     ]
   end
