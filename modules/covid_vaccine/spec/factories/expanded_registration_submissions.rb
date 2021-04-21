@@ -102,6 +102,26 @@ FactoryBot.define do
       eligibility_info { { 'preferred_facility' => '516' } }
     end
 
+    trait :state_received do
+      state { 'received' }
+    end
+
+    trait :state_enrollment_complete do
+      state { 'enrollment_complete' }
+    end
+
+    trait :state_enrollment_pending do
+      state { 'enrollment_pending' }
+    end
+
+    trait :state_registered do
+      state { 'registered' }
+    end
+
+    trait :state_enrollment_out_of_band do
+      state { 'enrollment_out_of_band' }
+    end
+
     trait :spouse do
       default_raw_options {
         {
