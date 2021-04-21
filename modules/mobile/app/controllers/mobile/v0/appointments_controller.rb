@@ -13,7 +13,7 @@ module Mobile
         end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
         page = params[:page] || { number: 1, size: 10 }
 
-        validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
+        validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
           start_date: start_date,
           end_date: end_date,
           page_number: page[:number],

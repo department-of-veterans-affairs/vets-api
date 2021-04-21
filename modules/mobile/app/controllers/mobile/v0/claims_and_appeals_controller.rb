@@ -20,7 +20,22 @@ module Mobile
       end
 
       def index
-        json, status = fetch_all_cached_or_service(params)
+        use_cache = params[:useCache] || true
+        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
+        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
+        page = params[:page] || { number: 1, size: 10 }
+
+        validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
+          start_date: start_date,
+          end_date: end_date,
+          page_number: page[:number],
+          page_size: page[:size],
+          use_cache: use_cache
+        )
+
+        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
+
+        json, status = fetch_all_cached_or_service(validated_params)
         render json: json, status: status
       end
 
@@ -47,32 +62,50 @@ module Mobile
       private
 
       def fetch_all_cached_or_service(params)
-        list, errors = if ActiveModel::Type::Boolean.new.cast(params[:useCache])
+        list, errors = if params[:use_cache]
                          [Mobile::V0::ClaimOverview.get_cached(@current_user), []]
                        else
                          claims_proxy.get_claims_and_appeals
                        end
 
-        options = {
-          meta: {
-            errors: errors
-          }
-        }
-
         status = case errors.size
                  when 1
                    :multi_status
+                   # list, pagination_meta = paginate(list, params)
                  when 2
                    :bad_gateway
                  else
+                   list, @pagination_meta = paginate(list, params)
                    :ok
                  end
+
+        options = {
+          meta: {
+            errors: errors,
+            pagination: @pagination_meta
+          }
+        }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
       end
 
       def claims_proxy
         @claims_proxy ||= Mobile::V0::Claims::Proxy.new(@current_user)
+      end
+
+      def paginate(list, params)
+        list = list.filter do |entry|
+          entry[:updated_at] >= params[:start_date] && entry[:updated_at] <= params[:end_date]
+        end
+
+        list = list.slice(((params[:page_number] - 1) * params[:page_size]), params[:page_size])
+
+        [list, {
+          currentPage: params[:page_number],
+          perPage: params[:page_size],
+          totalPages: (list.length / params[:page_size].to_f).ceil,
+          totalEntries: list.length
+        }]
       end
     end
   end
