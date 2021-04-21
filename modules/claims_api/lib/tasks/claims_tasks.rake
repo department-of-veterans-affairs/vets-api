@@ -14,6 +14,5 @@ namespace :claims do
   task :update_poa_hash, :environment do
     power_of_attorneys = ClaimsApi::PowerOfAttorney.all
     power_of_attorneys.each{ |poa| poa.set_md5 }
-    end
   end
 end
