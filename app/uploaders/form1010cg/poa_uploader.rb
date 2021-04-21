@@ -4,6 +4,8 @@ module Form1010cg
   class PoaUploader < CarrierWave::Uploader::Base
     include SetAWSConfig
 
+    storage :aws
+
     attr_reader :store_dir
 
     def initialize(form_attachment_guid) # rubocop:disable Metrics/AbcSize
@@ -17,6 +19,14 @@ module Form1010cg
       )
 
       @store_dir = form_attachment_guid
+    end
+
+    def extension_allowlist
+      %w[jpg jpeg png pdf]
+    end
+
+    def content_type_allowlist
+      %w[image/jpg image/jpeg image/png application/pdf]
     end
   end
 end
