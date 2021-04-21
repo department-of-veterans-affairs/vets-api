@@ -144,7 +144,7 @@ module VBADocuments
     "
 
     MEDIAN_SQL = "
-      select NULLIF(sum(median_pages),0) as median_pages, NULLIF(sum(median_size),0) as median_size
+      select NULLIF(sum(median_pages)::integer,0) as median_pages, NULLIF(sum(median_size)::bigint,0) as median_size
       from (
         (select (uploaded_pdf->>'total_pages')::integer as median_pages, 0::bigint as median_size
         from vba_documents_upload_submissions a
