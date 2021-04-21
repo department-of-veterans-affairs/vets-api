@@ -93,7 +93,7 @@ module CovidVaccine
           state: form_data['state_code'],
           zip_code: form_data['zip_code'],
           phone: form_data['phone'],
-          email: form_data['email'] || '',
+          email: form_data['email_address'] || '',
           sms_acknowledgement: form_data['sms_acknowledgement'] || false,
           sta3n: facility[0..2],
           sta6a: facility.length > 3 ? facility : ''

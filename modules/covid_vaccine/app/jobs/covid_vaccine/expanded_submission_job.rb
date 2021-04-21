@@ -17,6 +17,7 @@ module CovidVaccine
 
     def handle_errors(ex)
       log_exception_to_sentry(ex)
+      raise ex if ex.instance_of?(ActiveRecord::RecordNotFound)
     end
   end
 end
