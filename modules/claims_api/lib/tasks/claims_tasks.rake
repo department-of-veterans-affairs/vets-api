@@ -11,7 +11,7 @@ namespace :claims do
     claims.each { |claim| puts "#{claim.id},#{claim.evss_id},#{claim.flashes.any?},#{claim.special_issues.any?}" }
   end
 
-  task :update_poa_hash :environment do
+  task :update_poa_hash, :environment do
     power_of_attorneys = ClaimsApi::PowerOfAttorney.all
     power_of_attorneys.each{ |poa| poa.set_md5 }
     end
