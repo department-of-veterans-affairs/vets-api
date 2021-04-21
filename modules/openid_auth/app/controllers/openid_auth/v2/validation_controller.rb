@@ -46,16 +46,21 @@ module OpenidAuth
 
       private
 
+      def populate_act_payload(payload_object)
+        payload_object.act[:icn] = token.payload['icn']
+        payload_object.act[:npi] = token.payload['npi']
+        payload_object.act[:sec_id] = token.payload['sub']
+        payload_object.act[:vista_id] = token.payload['vista_id']
+        payload_object.act[:type] = 'user'
+        payload_object
+      end
+
       def validated_payload
         # Ensure the token has `act` and `launch` keys.
         payload_object = setup_structure
 
         if token.ssoi_token?
-          payload_object.act[:icn] = token.payload['icn']
-          payload_object.act[:npi] = token.payload['npi']
-          payload_object.act[:sec_id] = token.payload['sub']
-          payload_object.act[:vista_id] = token.payload['vista_id']
-          payload_object.act[:type] = 'user'
+          payload_object = populate_act_payload(payload_object)
           if validate_with_charon?(payload_object.aud)
             raise error_klass('Invalid request') unless charon_token_screen?(payload_object)
           end
