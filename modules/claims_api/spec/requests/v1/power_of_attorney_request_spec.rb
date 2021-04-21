@@ -171,7 +171,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
         it 'returns a 200' do
           with_okta_user(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-            expect(bgs_poa_verifier).to receive(:current_poa).and_return('HelloWorld')
+            expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+            expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
             get('/services/claims/v1/forms/2122/active',
                 params: nil, headers: headers.merge(auth_header))
 
