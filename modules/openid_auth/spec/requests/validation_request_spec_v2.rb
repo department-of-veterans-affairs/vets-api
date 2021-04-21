@@ -377,6 +377,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     before do
       allow(JWT).to receive(:decode).and_return(jwt_charon)
     end
+
     it 'v2 POST returns json response if valid user' do
       with_ssoi_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
@@ -390,6 +391,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
       end
     end
+
     it 'v2 POST returns 401 response if invalid user' do
       with_ssoi_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_wrong_sta3n_response)
@@ -399,6 +401,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response).to have_http_status(:unauthorized)
       end
     end
+
     it 'v2 POST returns server error' do
       with_ssoi_configured do
         allow(RestClient).to receive(:get).and_return(bad_launch_response)
