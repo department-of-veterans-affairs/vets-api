@@ -228,3 +228,9 @@ CovidVaccine::ExpandedScheduledSubmissionJob:
   every: ['15m', first_in: '24h']
   class: CovidVaccine::ExpandedScheduledSubmissionJob
   description: Iterates vaccine records with state=enrollment_pending and attempts MPI lookup and send to Vetext.
+
+CovidVaccine::ExpandedSubmissionStateJob:
+  every: '1h'
+  class: CovidVaccine::ExpandedSubmissionStateJob
+  description: Logs count of states in the covid_vaccine_expanded_registration_submissions table.
+  

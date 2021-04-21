@@ -209,16 +209,6 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
-  form526_confirmation_email:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
-  form526_confirmation_email_show_copy:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Shows vets-website content to inform veterans to expect a form526 confirmation email. Owned by va-notify team.
   va_view_dependents_access:
     actor_type: user
     description: >
