@@ -58,7 +58,7 @@ module OpenidAuth
           birth_date: user_attributes[:dob],
           ssn: user_attributes[:ssn],
           mhv_icn: user_attributes[:mhv_icn],
-          dslogon_edipi: user_attributes[:dslogon_edipi],
+          edipi: user_attributes[:edipi],
           loa:
           {
             current: user_attributes[:level_of_assurance].to_i,
@@ -78,7 +78,7 @@ module OpenidAuth
           birth_date: request.headers['x-va-dob'],
           ssn: request.headers['x-va-ssn'],
           mhv_icn: request.headers['x-va-mhv-icn'],
-          dslogon_edipi: request.headers['x-va-dslogon-edipi'],
+          edipi: request.headers['x-va-dslogon-edipi'],
           loa:
           {
             current: request.headers['x-va-level-of-assurance'].to_i,
