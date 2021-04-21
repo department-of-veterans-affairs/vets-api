@@ -48,8 +48,8 @@ RSpec.describe CovidVaccine::ExpandedSubmissionJob, type: :worker do
     end
 
     context 'without sufficient traits' do
-      pending('temporarily quieting errors on MPI failures')
       it 'raises exception for MVI lookup error' do
+        pending('temporarily quieting errors on MPI failures')
         expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_not_found)
