@@ -16,7 +16,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       'exp' => Time.current.utc.to_i + 3600,
       'cid' => '0oa1c01m77heEXUZt2p7',
       'uid' => '00u1zlqhuo3yLa2Xs2p7',
-      'icn' => '73806470379396828',
       'scp' => %w[profile email openid veteran_status.read],
       'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
     }, {
@@ -74,7 +73,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         'exp' => Time.current.utc.to_i + 3600,
         'cid' => '0oa1c01m77heEXUZt2p7',
         'uid' => '00u1zlqhuo3yLa2Xs2p7',
-        'icn' => '73806470379396828',
         'scp' => %w[profile email openid launch],
         'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
       },
@@ -108,6 +106,10 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   let(:failed_launch_response) do
     instance_double(RestClient::Response,
                     code: 401)
+  end
+  let(:redirected_launch_response) do
+    instance_double(RestClient::Response,
+                    code: 302)
   end
   let(:json_api_response) do
     {
@@ -400,6 +402,15 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
         expect(response).to have_http_status(:unauthorized)
+      end
+    end
+    it 'v2 POST returns server error' do
+      with_ssoi_configured do
+        allow(RestClient).to receive(:get).and_return(redirected_launch_response)
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
