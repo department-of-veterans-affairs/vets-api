@@ -6,7 +6,7 @@ module Form1010cg
     attribute :created_at
 
     def id
-      object.guid
+      nil
     end
   end
 end
