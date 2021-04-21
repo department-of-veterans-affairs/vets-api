@@ -29,7 +29,7 @@ module ClaimsApi
               auth_headers: auth_headers,
               form_data: form_attributes,
               source_data: source_data,
-              current_poa: current_poa.try(:code),
+              current_poa: current_poa_code,
               header_md5: header_md5
             )
 
@@ -82,7 +82,7 @@ module ClaimsApi
         #
         # @return [JSON] Last POA change request through Claims API
         def active
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa.try(:code)
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
           render json: {
             data: {
@@ -90,13 +90,13 @@ module ClaimsApi
               type: 'claims_api_power_of_attorneys',
               attributes: {
                 status: ClaimsApi::PowerOfAttorney::UPDATED,
-                date_request_accepted: current_poa.try(:begin_date),
+                date_request_accepted: current_poa_begin_date,
                 representative: {
                   service_organization: {
-                    poa_code: current_poa.try(:code)
+                    poa_code: current_poa_code
                   }
                 },
-                previous_poa: previous_poa
+                previous_poa: previous_poa_code
               }
             }
           }
@@ -113,12 +113,22 @@ module ClaimsApi
 
         private
 
+        def current_poa_begin_date
+          return nil if current_poa.try(:begin_date).blank?
+
+          Date.strptime(current_poa.begin_date, '%m/%d/%Y')
+        end
+
+        def current_poa_code
+          current_poa.try(:code)
+        end
+
         def current_poa
           @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
         def previous_poa_code
-          @previous_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).previous_poa_code
+          @previous_poa_code ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).previous_poa_code
         end
 
         def header_md5

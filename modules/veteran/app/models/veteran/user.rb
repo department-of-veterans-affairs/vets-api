@@ -31,7 +31,7 @@ module Veteran
     def previous_poa_code
       return @previous_poa_code if @previous_poa_code.present?
 
-      poa_history = bgs_service.org.find_poa_history_by_participant_id(@user.participant_id)
+      poa_history = bgs_service.org.find_poa_history_by_ptcpnt_id(@user.participant_id)
       return nil if poa_history[:person_poa_history].blank?
 
       # Sorts previous power of attorneys by begin date
