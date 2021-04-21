@@ -4,8 +4,10 @@ module CovidVaccine
   module V0
     class ExpandedRegistrationService
       def register(submission)
+
+        # handle_old_submissions(submission) if submission.created_at <= 1.day.ago 
         raw_form_data = submission.raw_form_data
-        # Conditions where we should not send data to vetext:
+        # Conditions where we should not send data to vetext (unless record is > 24 hours old):
         # 1 - no preferred location in raw_form_data and no facility found for zip_code: manual intervention
         # 2 - no ICN found in MPI: retry
         # 3 - Station ID returned from MPI is different than preferred location: retry
@@ -13,13 +15,15 @@ module CovidVaccine
         # preferred facility will either be in eligibility_info, or raw_form_data. If its in neither one,
         # for the purposes of this register method we should not be fetching facilities and trying to reconcile;
         # instead we will set the state to :enrollment_out_of_band
-        facility = submission&.eligibility_info&.fetch('preferred_facility', nil) ||
-                   raw_form_data['preferred_facility'].delete_prefix('vha_')
-        handle_no_facility_error(submission) if facility.blank?
+        # facility = submission&.eligibility_info&.fetch('preferred_facility', nil) ||
+        #            raw_form_data['preferred_facility'].delete_prefix('vha_')
+        # handle_no_facility_error(submission) if facility.blank?
 
+        facility = handle_facility(submission)
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
         # We want to keep trying as it may take time for the registration to occur.  Need to know if there is an entry
         # that is failing for an extended time - notification is sent to log with DB record ID and creation date
+        # Update 2021-04-21: if records are > 24 hours old, we will send to VeText service without an ICN
         mpi_attributes = attributes_from_mpi(raw_form_data, facility[0..2], submission.id, submission.created_at)
         return if mpi_attributes.empty?
 
@@ -58,6 +62,14 @@ module CovidVaccine
           is_expanded_eligibility: true
         }
         Rails.logger.info('Covid_Vaccine Expanded Submission', log_attrs)
+      end
+
+      def handle_facility(submission) 
+        facility = submission&.eligibility_info&.fetch('preferred_facility', nil) ||
+        submission.raw_form_data['preferred_facility'].delete_prefix('vha_')
+        handle_no_facility_error(submission) if facility.blank?
+
+        return facility
       end
 
       def handle_no_facility_error(submission)
@@ -113,6 +125,16 @@ module CovidVaccine
         }
       end
 
+      def handle_old_submissions(submission) 
+        puts 'Handle older submissions'
+        # Can we find an ICN
+
+        #
+
+
+        binding.pry
+      end
+
       def attributes_from_mpi(form_data, sta3n, submission_id, submission_date)
         ui = OpenStruct.new(first_name: form_data['first_name'],
                             last_name: form_data['last_name'],
@@ -127,11 +149,11 @@ module CovidVaccine
             }
           else
             handle_mpi_errors("no matching facility found for #{sta3n}", submission_id, submission_date)
-            {}
+            submission_date <= 1.day.ago ? { patient_icn: response.profile.icn } : {}
           end
         else
           handle_mpi_errors('no ICN found', submission_id, submission_date)
-          {}
+          submission_date <= 1.day.ago ? {patient_icn: ''} : {}
         end
       end
 
@@ -142,7 +164,7 @@ module CovidVaccine
           submission: id,
           submission_date: date
         )
-        raise Common::Exceptions::RecordNotFound.new(self.class.name.to_s, detail: "Error in MPI Lookup: #{error}")
+       raise Common::Exceptions::RecordNotFound.new(self.class.name.to_s, detail: "Error in MPI Lookup: #{error}")
       end
     end
   end

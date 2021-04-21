@@ -202,6 +202,37 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           expect(submission_no_facility.reload.vetext_sid).to be_nil
           expect(submission_no_facility.reload.state).to match('enrollment_out_of_band')
         end
+
+        context 'with created_at older than 24 hours' do 
+          before do
+            submission.created_at=1.day.ago
+            submission.save!
+          end
+
+          it 'submits and updates state when MPI errors occur, state=enrollment_pending and create_date >= 24 hours' do
+            sid = SecureRandom.uuid
+            allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+              .and_return({ sid: sid })
+            allow_any_instance_of(MPI::Service).to receive(:find_profile)
+              .and_return(mvi_profile_not_found)
+
+            # binding.pry
+
+            subject.register(submission)
+            expect(submission.reload.vetext_sid).to match(sid)
+            expect(submission.reload.state).to match('registered_no_icn')
+          end
+
+        end
+        it 'does not submit with MPI no profile, state=enrollment_pending and create_date < 24 hours' do
+          expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
+          allow_any_instance_of(MPI::Service).to receive(:find_profile)
+            .and_return(mvi_profile_not_found)
+          submission.created_at=23.hours.ago
+          submission.save!
+          expect { subject.register(submission) }.to raise_error(Common::Exceptions::RecordNotFound)
+        end
+  
       end
     end
   end
