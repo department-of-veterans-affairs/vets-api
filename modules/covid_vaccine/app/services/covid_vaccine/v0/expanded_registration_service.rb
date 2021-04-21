@@ -14,7 +14,7 @@ module CovidVaccine
 
         # preferred facility will either be in eligibility_info, or raw_form_data. If its in neither one,
         # for the purposes of this register method we should not be fetching facilities and trying to reconcile;
-        # instead we will set the state to :enrollment_out_of_band
+        # instead we will set the state to :enrollment_out_of_band and raise an error
         # facility = submission&.eligibility_info&.fetch('preferred_facility', nil) ||
         #            raw_form_data['preferred_facility'].delete_prefix('vha_')
         # handle_no_facility_error(submission) if facility.blank?
@@ -164,7 +164,7 @@ module CovidVaccine
           submission: id,
           submission_date: date
         )
-       raise Common::Exceptions::RecordNotFound.new(self.class.name.to_s, detail: "Error in MPI Lookup: #{error}")
+      #  raise Common::Exceptions::RecordNotFound.new(self.class.name.to_s, detail: "Error in MPI Lookup: #{error}")
       end
     end
   end

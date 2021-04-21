@@ -64,8 +64,8 @@ module VBADocuments
       end
 
       def fetch_url(label)
-        { 'BenefitsIntake' => Settings.vba_documents.slack.deployment_notification_url,
-          'Forms' => Settings.vba_documents.slack.deployment_notification_url }[label]
+        { 'BenefitsIntake' => Settings.vba_documents.slack.deployment_notification_benefits_url,
+          'Forms' => Settings.vba_documents.slack.deployment_notification_forms_url }[label]
       end
     end
     extend ClassMethods
