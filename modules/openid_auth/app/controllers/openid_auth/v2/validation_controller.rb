@@ -61,8 +61,8 @@ module OpenidAuth
 
         if token.ssoi_token?
           payload_object = populate_act_payload(payload_object)
-          return payload_object unless validate_with_charon?(payload_object.aud)
-          && !charon_token_screen?(payload_object)
+          return payload_object unless
+            validate_with_charon?(payload_object.aud) && !charon_token_screen?(payload_object)
 
           raise error_klass('Invalid request')
         end
@@ -107,7 +107,6 @@ module OpenidAuth
 
         parsed_sta3n = parsed_sta3n[0].match /\d{3}|/
         return parsed_sta3n[0].eql?(sta3n)
-
       end
 
       def validate_with_charon?(aud)
