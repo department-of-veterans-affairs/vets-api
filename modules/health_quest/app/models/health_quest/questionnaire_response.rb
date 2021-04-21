@@ -36,14 +36,21 @@ module HealthQuest
 
     private
 
-    def set_user_demographics
+    def set_user_demographics # rubocop:disable Metrics/AbcSize
+      contact_info = user.vet360_contact_info
+
       demographics = {
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
         gender: user.gender,
+        date_of_birth: user.birth_date,
         address: user.address,
-        vas_contact_info: user.vet360_contact_info
+        mailing_address: contact_info&.mailing_address,
+        home_address: contact_info&.residential_address,
+        home_phone: contact_info&.home_phone,
+        mobile_phone: contact_info&.mobile_phone,
+        work_phone: contact_info&.work_phone
       }
 
       self.user_demographics_data = demographics

@@ -17,7 +17,7 @@ module HealthQuest
 
       def show
         send_data factory.generate_questionnaire_response_pdf(params[:id]),
-                  filename: 'questionnaire_response',
+                  filename: 'questionnaire_response.pdf',
                   type: 'application/pdf',
                   disposition: 'inline'
       end
