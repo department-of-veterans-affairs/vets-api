@@ -32,6 +32,7 @@ module Mobile
 
           appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
 
+          binding.pry
           errors = errors.values.compact
           raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' if errors.size == 2
 

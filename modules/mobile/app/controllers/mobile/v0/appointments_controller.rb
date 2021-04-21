@@ -9,8 +9,8 @@ module Mobile
     class AppointmentsController < ApplicationController
       def index
         use_cache = params[:useCache] || true
-        start_date = params[:startDate] || one_year_ago
-        end_date = params[:endDate] || one_year_from_now
+        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
+        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
         page = params[:page] || { number: 1, size: 10 }
 
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
@@ -37,14 +37,6 @@ module Mobile
 
       private
 
-      def one_year_from_now
-        (DateTime.now.utc.beginning_of_day + 1.year).iso8601
-      end
-
-      def one_year_ago
-        (DateTime.now.utc.beginning_of_day - 1.year).iso8601
-      end
-
       def fetch_cached_or_service(validated_params)
         appointments = nil
         appointments = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
@@ -59,14 +51,14 @@ module Mobile
                                  # because appointments are cached and we always fetch two years
                                  # these are later filtered by start and end date
                                  appointments, errors = appointments_proxy.get_appointments(
-                                   start_date: one_year_ago, end_date: one_year_from_now
+                                   start_date: validated_params[:start_date], end_date: validated_params[:end_date]
                                  )
                                  Mobile::V0::Appointment.set_cached(@current_user, appointments)
                                  [appointments, errors]
                                end
 
-        appointments = appointments.filter do |a|
-          a.start_date_utc.between? validated_params[:start_date], validated_params[:end_date]
+        appointments = appointments.filter do |appointment|
+          appointment.start_date_utc.between? validated_params[:start_date], validated_params[:end_date]
         end
         page_appointments, page_meta_data = paginate(list: appointments, validated_params: validated_params)
 
