@@ -21,8 +21,8 @@ module Mobile
         #
         def get_appointments(start_date, end_date)
           params = {
-            startDate: start_date,
-            endDate: end_date,
+            startDate: start_date.utc.iso8601,
+            endDate: end_date.utc.iso8601,
             pageSize: 0,
             useCache: false
           }

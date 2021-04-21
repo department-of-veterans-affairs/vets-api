@@ -9,8 +9,8 @@ module Mobile
     class AppointmentsController < ApplicationController
       def index
         use_cache = params[:useCache] || true
-        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
-        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
+        start_date = params[:startDate] || one_year_ago.iso8601
+        end_date = params[:endDate] || one_year_from_now.iso8601
         page = params[:page] || { number: 1, size: 10 }
 
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
@@ -37,6 +37,14 @@ module Mobile
 
       private
 
+      def one_year_ago
+        (DateTime.now.utc.beginning_of_day - 1.year)
+      end
+
+      def one_year_from_now
+        (DateTime.now.utc.beginning_of_day + 1.year)
+      end
+
       def fetch_cached_or_service(validated_params)
         appointments = nil
         appointments = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
@@ -48,15 +56,17 @@ module Mobile
                                  [appointments, nil]
                                else
                                  Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
-                                 # because appointments are cached and we always fetch two years
-                                 # these are later filtered by start and end date
+                                 # because a user's entire set of appointments are locally cached and we always
+                                 # fetch a two year range these are later filtered by start and end date params
+                                 # from the request
                                  appointments, errors = appointments_proxy.get_appointments(
-                                   start_date: validated_params[:start_date], end_date: validated_params[:end_date]
+                                   start_date: one_year_ago, end_date: one_year_from_now
                                  )
                                  Mobile::V0::Appointment.set_cached(@current_user, appointments)
                                  [appointments, errors]
                                end
 
+        # filter by request start and end date params here
         appointments = appointments.filter do |appointment|
           appointment.start_date_utc.between? validated_params[:start_date], validated_params[:end_date]
         end
