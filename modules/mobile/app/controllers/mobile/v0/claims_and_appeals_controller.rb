@@ -70,8 +70,8 @@ module Mobile
 
         status = case errors.size
                  when 1
+                   list, @pagination_meta = paginate(list, params)
                    :multi_status
-                   # list, pagination_meta = paginate(list, params)
                  when 2
                    :bad_gateway
                  else
@@ -97,14 +97,13 @@ module Mobile
         list = list.filter do |entry|
           entry[:updated_at] >= params[:start_date] && entry[:updated_at] <= params[:end_date]
         end
-
+        total_entries = list.length
         list = list.slice(((params[:page_number] - 1) * params[:page_size]), params[:page_size])
-
         [list, {
           currentPage: params[:page_number],
           perPage: params[:page_size],
           totalPages: (list.length / params[:page_size].to_f).ceil,
-          totalEntries: list.length
+          totalEntries: total_entries
         }]
       end
     end

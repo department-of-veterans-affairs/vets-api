@@ -14,11 +14,10 @@ RSpec.describe 'claims and appeals overview', type: :request do
 
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
-  let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
-
   describe 'GET /v0/claims-and-appeals-overview' do
     describe '#index (all user claims) is polled' do
       before { iam_sign_in }
+      let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
 
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
         VCR.use_cassette('claims/claims') do
@@ -27,6 +26,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body.dig('data')
+            expect(parsed_response_contents.length).to eq(10)
             open_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600114693' }[0]
             closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600106271' }[0]
             open_appeal = parsed_response_contents.select { |entry| entry.dig('id') == '3294289' }[0]
@@ -52,8 +52,31 @@ RSpec.describe 'claims and appeals overview', type: :request do
       end
     end
 
+    describe '#index (all user claims) is polled' do
+      before { iam_sign_in }
+      let(:params) { { useCache: false,
+                       startDate: '2017-05-01T07:00:00.000Z',
+                       page: {number: 2, size: 12} } }
+
+      it 'and a results are for page 2 of a 12 item pages which only has 10 entries' do
+        VCR.use_cassette('claims/claims') do
+          VCR.use_cassette('appeals/appeals') do
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            expect(response).to have_http_status(:ok)
+            # check a couple entries to make sure the data is correct
+            parsed_response_contents = response.parsed_body.dig('data')
+            expect(parsed_response_contents.length).to eq(10)
+            expect(parsed_response_contents[0]["id"]).to eq('600102462')
+            expect(parsed_response_contents.last["id"]).to eq('600102451')
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+    end
+
     describe '#index is polled' do
       before { iam_sign_in }
+      let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
 
       it 'and claims service fails, but appeals succeeds' do
         VCR.use_cassette('claims/claims_with_errors') do
@@ -87,7 +110,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('appeals')
             open_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600114693' }[0]
-            closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600023098' }[0]
+            closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600106271' }[0]
             expect(open_claim.dig('attributes', 'completed')).to eq(false)
             expect(closed_claim.dig('attributes', 'completed')).to eq(true)
             expect(open_claim.dig('type')).to eq('claim')
@@ -115,7 +138,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
       it 'and not user returns a 500 status' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
             expect(response).to have_http_status(:internal_server_error)
           end
         end
