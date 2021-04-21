@@ -10,13 +10,19 @@ describe HealthQuest::QuestionnaireResponse do
       'User',
       icn: '1008596379V859838',
       account_uuid: 'abc123',
+      birth_date: '01-01-1955',
+      vet360_contact_info: double('Profile',
+                                  mailing_address: '123 abc',
+                                  residential_address: '123 abc',
+                                  home_phone: '555-555-5555',
+                                  mobile_phone: '555-555-5555',
+                                  work_phone: '555-555-5555'),
       uuid: '789defg',
       first_name: 'Foo',
       middle_name: 'Baz',
       last_name: 'Bar',
       gender: 'M',
-      address: '221B Baker Street',
-      vet360_contact_info: {}
+      address: '221B Baker Street'
     )
   end
 
@@ -91,8 +97,13 @@ describe HealthQuest::QuestionnaireResponse do
         'middle_name' => 'Baz',
         'last_name' => 'Bar',
         'gender' => 'M',
+        'date_of_birth' => '01-01-1955',
         'address' => '221B Baker Street',
-        'vas_contact_info' => {}
+        'mailing_address' => '123 abc',
+        'home_address' => '123 abc',
+        'home_phone' => '555-555-5555',
+        'mobile_phone' => '555-555-5555',
+        'work_phone' => '555-555-5555'
       }
 
       expect(subject.user_demographics_data).to eq(hash)
