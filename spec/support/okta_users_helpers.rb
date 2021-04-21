@@ -42,17 +42,13 @@ def with_ssoi_configured(&block)
   with_settings(
     Settings.oidc,
     auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
-    issuer: 'https://example.com/oauth2/default',
     issuer_prefix: 'https://example.com/oauth2',
-    audience: 'api://default',
-    base_api_url: 'https://example.com/',
-    base_api_token: 'token'
+    audience: 'api://default'
   ) do
     with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
       with_settings(
         Settings.oidc.charon,
         enabled: true,
-        endpoint: 'https://charon.example.com',
         audience: 'https://example.com/xxxxxxservices/xxxxx'
       ) do
         VCR.use_cassette('okta/metadata') do
