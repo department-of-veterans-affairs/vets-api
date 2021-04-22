@@ -57,15 +57,14 @@ module Mobile
 
         status = case errors.size
                  when 1
-                   list, @pagination_meta = paginate(list, params)
                    :multi_status
                  when 2
                    :bad_gateway
                  else
-                   list, @pagination_meta = paginate(list, params)
                    :ok
                  end
 
+        list, @pagination_meta = paginate(list, params)
         options = { meta: { errors: errors, pagination: @pagination_meta } }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
