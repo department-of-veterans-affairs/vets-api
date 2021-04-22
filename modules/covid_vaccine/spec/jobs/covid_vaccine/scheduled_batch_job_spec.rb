@@ -29,7 +29,7 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
       before { allow(CovidVaccine::V0::EnrollmentProcessor).to receive(:batch_records!).and_return(batch_id) }
 
       context 'when the enrollment job is enabled' do
-        it 'enqueues a CovidVaccine::EnrollmentUploadJob job' do
+        xit 'enqueues a CovidVaccine::EnrollmentUploadJob job' do
           with_settings(
             Settings.covid_vaccine.enrollment_service, { job_enabled: true }
           ) do
@@ -37,7 +37,7 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
           end
         end
 
-        it 'logs its progress including an enrollment jid' do
+        xit 'logs its progress including an enrollment jid' do
           with_settings(
             Settings.covid_vaccine.enrollment_service, { job_enabled: true }
           ) do
@@ -59,7 +59,7 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
       end
 
       context 'when the enrollment job is disabled' do
-        it 'logs its progress without an enrollment jid' do
+        xit 'logs its progress without an enrollment jid' do
           with_settings(
             Settings.covid_vaccine.enrollment_service, { job_enabled: false }
           ) do
@@ -76,7 +76,7 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
           end
         end
 
-        it 'does not enqueues a CovidVaccine::EnrollmentUploadJob job' do
+        xit 'does not enqueues a CovidVaccine::EnrollmentUploadJob job' do
           with_settings(
             Settings.covid_vaccine.enrollment_service, { job_enabled: false }
           ) do
