@@ -64,7 +64,11 @@ module Mobile
                    :ok
                  end
 
-        list, pagination_meta, links_meta = paginate(list, params)
+        list, pagination_meta, links_meta = paginate(list,
+                                                     params[:page_size],
+                                                     params[:page_number],
+                                                     params[:start_date],
+                                                     params[:end_date])
         options = { meta: { errors: errors, pagination: pagination_meta }, links: links_meta }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
@@ -89,17 +93,14 @@ module Mobile
         validated_params
       end
 
-      def paginate(list, params)
-        page_size = params[:page_size]
-        page_number = params[:page_number]
+      def paginate(list, page_size, page_number, start_date, end_date)
         list = list.filter do |entry|
           updated_at = entry[:updated_at]
-          updated_at >= params[:start_date] && updated_at <= params[:end_date]
+          updated_at >= start_date && updated_at <= end_date
         end
         total_entries = list.length
-        list = list.slice(((page_number - 1) * page_size), page_size)
         total_pages = (total_entries / page_size.to_f).ceil
-        [list,
+        [list.slice(((page_number - 1) * page_size), page_size),
          {
            currentPage: page_number,
            perPage: page_size,
