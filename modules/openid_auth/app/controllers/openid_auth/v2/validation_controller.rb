@@ -2,6 +2,7 @@
 
 require_dependency 'openid_auth/application_controller'
 require 'common/exceptions'
+require 'rest-client'
 
 module OpenidAuth
   module V2
@@ -110,6 +111,21 @@ module OpenidAuth
 
         [*Settings.oidc.charon.audience].include?(aud)
       end
+
+      def validation_from_charon(user_duz, vista_site)
+        response = RestClient.get(Settings.oidc.charon.endpoint,
+                                  { Authorization: 'Bearer ' + token.token_string,
+                                    params: {user_duz: user_duz, vista_site: vista_site}})
+
+        unless response.nil? || response.code != 200
+          json_response = JSON.parse(response.body)
+          json_response['launch']
+        end
+      rescue => e
+        log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
+        nil
+      end
+
     end
   end
 end
