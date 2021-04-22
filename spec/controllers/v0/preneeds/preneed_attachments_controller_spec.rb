@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'controllers/concerns/form_attachment_create_spec'
 
 RSpec.describe V0::Preneeds::PreneedAttachmentsController, type: :controller do
-  it_behaves_like 'a FormAttachmentCreate controller'
+  it_behaves_like 'a FormAttachmentCreate controller', attachment_factory: :preneed_attachment
 
   describe '#create' do
     it 'uploads a preneed attachment' do

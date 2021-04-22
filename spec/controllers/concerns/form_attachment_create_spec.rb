@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil|
+shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil, attachment_factory: nil|
   describe '::FORM_ATTACHMENT_MODEL' do
     it 'is a FormAttachment model' do
       expect(described_class::FORM_ATTACHMENT_MODEL.ancestors).to include(FormAttachment)
@@ -10,8 +10,10 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil|
   describe '#create' do
     let(:form_attachment_guid) { SecureRandom.uuid }
     let(:form_attachment_model) { described_class::FORM_ATTACHMENT_MODEL }
-    let(:resource_name) { form_attachment_model.to_s.underscore.split('/').last }
-    let(:json_api_type) { form_attachment_model.name.remove('::').snakecase.pluralize }
+    let(:param_namespace) { form_attachment_model.to_s.underscore.split('/').last }
+    let(:resource_name) { form_attachment_model.name.remove('::').snakecase }
+    let(:json_api_type) { resource_name.pluralize }
+    let(:attachment_factory_id) { attachment_factory || resource_name.to_sym }
 
     before do
       if user_factory
@@ -21,9 +23,9 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil|
       end
     end
 
-    it 'requires params.`resource_name`' do
+    it 'requires params.`param_namespace`' do
       empty_req_params = [nil, {}]
-      empty_req_params << { resource_name => {} }
+      empty_req_params << { param_namespace => {} }
       empty_req_params.each do |params|
         post(:create, params: params)
 
@@ -34,7 +36,7 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil|
         expect(response_body['errors'].size).to eq(1)
         expect(response_body['errors'][0]).to eq(
           'title' => 'Missing parameter',
-          'detail' => "The required parameter \"#{resource_name}\", is missing",
+          'detail' => "The required parameter \"#{param_namespace}\", is missing",
           'code' => '108',
           'status' => '400'
         )
@@ -42,12 +44,12 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil|
     end
 
     def expect_form_attachment_creation(req_params:) # rubocop:disable Metrics/AbcSize
-      form_attachment = build(resource_name.to_sym, guid: form_attachment_guid)
+      form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
 
       expect(form_attachment_model).to receive(:new) do
         expect(form_attachment).to receive(:set_file_data!).with(
-          req_params[resource_name][:file_data],
-          req_params[resource_name][:password]
+          req_params[param_namespace][:file_data],
+          req_params[param_namespace][:password]
         )
 
         expect(form_attachment).to receive(:save!) do
@@ -65,7 +67,7 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil|
 
     it 'creates a FormAttachment' do
       params = {}
-      params[resource_name] = { file_data: 'uploaded_document' }
+      params[param_namespace] = { file_data: 'uploaded_document' }
 
       expect_form_attachment_creation(req_params: params)
       post(:create, params: params)
