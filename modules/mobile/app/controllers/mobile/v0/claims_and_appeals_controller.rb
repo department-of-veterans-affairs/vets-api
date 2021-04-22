@@ -101,13 +101,10 @@ module Mobile
         total_entries = list.length
         total_pages = (total_entries / page_size.to_f).ceil
         [list.slice(((page_number - 1) * page_size), page_size),
-         {
-           currentPage: page_number,
-           perPage: page_size,
-           totalPages: total_pages,
-           totalEntries: total_entries
-         },
-         Mobile::V0::PaginationLinks::Service.new.links(total_pages, params, request)]
+         { currentPage: page_number, perPage: page_size, totalPages: total_pages, totalEntries: total_entries },
+         Mobile::V0::PaginationLinks::Service.new.links(total_pages, { page_size: page_size, page_number: page_number,
+                                                                       start_date: start_date, end_date: end_date },
+                                                        request)]
       end
 
       def fill_missing_params(params)
