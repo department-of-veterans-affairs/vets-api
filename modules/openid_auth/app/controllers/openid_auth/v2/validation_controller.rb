@@ -94,16 +94,18 @@ module OpenidAuth
       end
 
       def charon_token_screen?(payload_object)
-        vid = payload_object.act[:vista_id]
+        act_vid = payload_object.act[:vista_id]
         sta3n = payload_object.launch['sta3n']
-        return false unless !vid.nil? && !sta3n.nil?
+        return false unless !act_vid.nil? && !sta3n.nil?
 
-        parsed_sta3n = vid.match(/\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/)
-        return false unless parsed_sta3n
-
-        parsed_sta3n = parsed_sta3n[0].match(/\d{3}|/)
-        parsed_sta3n[0].eql?(sta3n)
-        sta3n.to_s.eql?(parsed_sta3n.to_s)
+        vids = act_vid.scan(/\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/)
+        return false unless vids
+        vids.each { |vid|
+          parsed_sta3n = vid.match(/\d{3}|/)
+          is_a_match = sta3n.to_s.eql?(parsed_sta3n.to_s)
+          return true unless !is_a_match
+        }
+        false
       end
 
       def validate_with_charon?(aud)
