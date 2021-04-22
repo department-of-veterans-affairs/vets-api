@@ -9,17 +9,15 @@ module CovidVaccine
         # 2 - no ICN found in MPI: retry
         # 3 - Station ID returned from MPI is different than preferred location: retry
 
-        # preferred facility will either be in eligibility_info, or raw_form_data. If its in neither one,
+        # preferred facility will either be in eligibility_info, or submission.raw_form_data. If its in neither one,
         # for the purposes of this register method we should not be fetching facilities and trying to reconcile;
         # instead we will set the state to :enrollment_out_of_band
-        facility = submission&.eligibility_info&.fetch('preferred_facility', nil) ||
-                   submission.raw_form_data['preferred_facility'].delete_prefix('vha_')
+        facility = find_facility(submisison)
         handle_no_facility_error(submission) if facility.blank?
-
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
         # We want to keep trying as it may take time for the registration to occur.  Need to know if there is an entry
         # that is failing for an extended time - notification is sent to log with DB record ID and creation date
-        mpi_attributes = attributes_from_mpi(submission.raw_form_data, facility[0..2], submission.id, submission.created_at)
+        mpi_attributes = attributes_from_mpi(submission, facility[0..2])
         return if mpi_attributes.empty?
 
         submission.detected_enrollment!
@@ -67,8 +65,8 @@ module CovidVaccine
       def transform_form_data(submission, facility, mpi_attributes)
         transformed_data = other_form_attributes(submission.raw_form_data)
         transformed_data['created_at'] = submission['created_at']
-        transformed_data.merge!(location_contact_information(raw_form_data, facility))
-        transformed_data.merge!(demographics(raw_form_data))
+        transformed_data.merge!(location_contact_information(submission.raw_form_data, facility))
+        transformed_data.merge!(demographics(submission.raw_form_data))
         transformed_data.merge!(mpi_attributes).compact!
         transformed_data
       end
@@ -113,11 +111,11 @@ module CovidVaccine
         }
       end
 
-      def attributes_from_mpi(form_data, sta3n, submission_id, submission_date)
-        ui = OpenStruct.new(first_name: form_data['first_name'],
-                            last_name: form_data['last_name'],
-                            birth_date: form_data['birth_date'],
-                            ssn: form_data['ssn'],
+      def attributes_from_mpi(submission, sta3n)
+        ui = OpenStruct.new(first_name: submission.raw_form_data['first_name'],
+                            last_name: submission.raw_form_data['last_name'],
+                            birth_date: submission.raw_form_data['birth_date'],
+                            ssn: submission.raw_form_data['ssn'],
                             valid?: true)
         response = MPI::Service.new.find_profile(ui)
         if response.status == 'OK'
@@ -126,14 +124,20 @@ module CovidVaccine
               patient_icn: response.profile.icn
             }
           else
-            handle_mpi_errors("no matching facility found for #{sta3n}", submission_id, submission_date)
+            handle_mpi_errors("no matching facility found for #{sta3n}", submisison.id, 
+              submission['created_at'])
             {}
           end
         else
-          handle_mpi_errors('no ICN found', submission_id, submission_date)
+          handle_mpi_errors('no ICN found', submisison.id, submission['created_at'])
           {}
         end
       end
+
+    def find_facility(submission)
+        submission&.eligibility_info&.fetch('preferred_facility', nil) || 
+        submission.raw_form_data['preferred_facility'].delete_prefix('vha_')
+    end
 
       def handle_mpi_errors(error, id, date)
         Rails.logger.info(
