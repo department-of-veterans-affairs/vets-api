@@ -12,7 +12,7 @@ module CovidVaccine
         # preferred facility will either be in eligibility_info, or submission.raw_form_data. If its in neither one,
         # for the purposes of this register method we should not be fetching facilities and trying to reconcile;
         # instead we will set the state to :enrollment_out_of_band
-        facility = find_facility(submisison)
+        facility = find_facility(submission)
         handle_no_facility_error(submission) if facility.blank?
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
         # We want to keep trying as it may take time for the registration to occur.  Need to know if there is an entry
@@ -124,20 +124,20 @@ module CovidVaccine
               patient_icn: response.profile.icn
             }
           else
-            handle_mpi_errors("no matching facility found for #{sta3n}", submisison.id, 
-              submission['created_at'])
+            handle_mpi_errors("no matching facility found for #{sta3n}", submission.id,
+                              submission['created_at'])
             {}
           end
         else
-          handle_mpi_errors('no ICN found', submisison.id, submission['created_at'])
+          handle_mpi_errors('no ICN found', submission.id, submission['created_at'])
           {}
         end
       end
 
-    def find_facility(submission)
-        submission&.eligibility_info&.fetch('preferred_facility', nil) || 
-        submission.raw_form_data['preferred_facility'].delete_prefix('vha_')
-    end
+      def find_facility(submission)
+        submission&.eligibility_info&.fetch('preferred_facility', nil) ||
+          submission.raw_form_data['preferred_facility'].delete_prefix('vha_')
+      end
 
       def handle_mpi_errors(error, id, date)
         Rails.logger.info(
