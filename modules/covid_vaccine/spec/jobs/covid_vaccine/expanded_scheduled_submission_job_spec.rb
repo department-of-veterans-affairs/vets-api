@@ -36,45 +36,22 @@ RSpec.describe CovidVaccine::ExpandedScheduledSubmissionJob, type: :worker do
       end
     end
 
-    context 'when error occurs' do 
-
+    context 'when error occurs' do
       before do
-        # based on breakpoints, ExpandedRegistrationService register method is not called
-        # Maybe that has to do with ExpandedScheduledSubmissionJob invoking perform_async? 
-        # 
-        #allow_any_instance_of(CovidVaccine::V0::ExpandedRegistrationService).to receive(:register)
-        # .and_raise(ActiveRecord::ActiveRecordError)
-
-        submission
-        # 
         allow_any_instance_of(CovidVaccine::ExpandedSubmissionJob).to receive(:perform)
-          .and_raise(ActiveRecord::ActiveRecordError)
-      end
-      it 'logs an error when an error occurs' do 
-        # pending('Trying to figure out how to make this work ')
-
-        expect(Rails.logger).to receive(:error).with('Covid_Vaccine Expanded_Scheduled_Submission: Failed')
-        subject.perform()
-
-        # I copied this code from another class cause I was frustrated. 
-        # with_settings(Settings.sentry, dsn: 'T') do
-        #   pending('Trying to figure out how to make this work ')
-        #   expect(Rails.logger).to receive(:error).with('Covid_Vaccine Expanded_Scheduled_Submission: Failed')
-
-        #   expect(Raven).to receive(:capture_exception)
-        #   expect { subject.perform() }.to raise_error(ActiveRecord::ActiveRecordError)
-        # end
-  
-        
+          .and_raise(ActiveRecord::RecordNotFound)
+        submission
       end
 
-      it 'does not enqueue a CovidVaccine::ExpandedSubmissionJob job' do 
-        # pending('Trying to figure out how to make this work ')
-
-        subject.perform
-        expect(CovidVaccine::ExpandedSubmissionJob.jobs.size).to eq(0)
+      it 'raises an exception when an error occurs' do
+        Sidekiq::Testing.inline! do
+          with_settings(Settings.sentry, dsn: 'T') do
+            expect(Raven).to receive(:capture_exception)
+            expect { subject.perform }.to raise_error(ActiveRecord::ActiveRecordError)
+            expect(CovidVaccine::ExpandedSubmissionJob.jobs.size).to eq(0)
+          end
+        end
       end
-
     end
   end
 end
