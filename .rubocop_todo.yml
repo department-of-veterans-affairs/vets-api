@@ -282,6 +282,7 @@ Metrics/AbcSize:
     - 'app/controllers/v0/disability_compensation_in_progress_forms_controller.rb'
     - 'app/controllers/v0/documents_controller.rb'
     - 'app/controllers/v0/education_benefits_claims_controller.rb'
+    - 'app/controllers/v0/feature_toggles_controller.rb'
     - 'app/controllers/v0/health_record_contents_controller.rb'
     - 'app/controllers/v0/id_card_attributes_controller.rb'
     - 'app/controllers/v0/letters_controller.rb'
