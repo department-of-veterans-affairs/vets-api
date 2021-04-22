@@ -17,11 +17,22 @@ module CovidVaccine
       batch_id = CovidVaccine::V0::EnrollmentProcessor.batch_records!
       Rails.logger.info('Covid_Vaccine Scheduled_Batch: Batch_Created', batch_id: batch_id)
 
-      jid = CovidVaccine::EnrollmentUploadJob.perform_async(batch_id)
-      Rails.logger.info('Covid_Vaccine Scheduled_Batch: Success', batch_id: batch_id, enrollment_upload_job_id: jid)
+      success_details = { batch_id: batch_id }
+      if enrollment_upload_enabled?
+        jid = CovidVaccine::EnrollmentUploadJob.perform_async(batch_id)
+        success_details.merge!(enrollment_upload_job_id: jid)
+      end
+
+      Rails.logger.info('Covid_Vaccine Scheduled_Batch: Success', success_details)
       StatsD.increment(STATSD_SUCCESS_NAME)
     rescue => e
       handle_errors(e)
+    end
+
+    private
+
+    def enrollment_upload_enabled?
+      Settings.dig('covid_vaccine', 'enrollment_service', 'job_enabled')
     end
 
     def handle_errors(ex)
