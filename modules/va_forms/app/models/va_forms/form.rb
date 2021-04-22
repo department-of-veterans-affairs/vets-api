@@ -5,7 +5,7 @@ module VAForms
     include PgSearch::Model
     pg_search_scope :new_search,
                     against: %i[title form_name],
-                    using: { tsearch: { prefix: true, dictionary: 'english' }, trigram:  {
+                    using: { tsearch: { any_word: true, prefix: true, dictionary: 'english' }, trigram:  {
                       word_similarity: true
                     } }
     has_paper_trail only: ['sha256']
