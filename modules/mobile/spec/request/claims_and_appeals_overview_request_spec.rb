@@ -72,8 +72,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
             parsed_response_contents = response.parsed_body.dig('data')
             expect(response.parsed_body.dig('links', 'next')).to be(nil)
             expect(parsed_response_contents.length).to eq(10)
-            expect(parsed_response_contents[0]['attributes']['updatedAt']).to eq('2017-05-24T00:00:00-04:00')
-            expect(parsed_response_contents.last['attributes']['updatedAt']).to eq('2017-05-24T00:00:00-04:00')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
