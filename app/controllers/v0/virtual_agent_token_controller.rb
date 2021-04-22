@@ -40,7 +40,7 @@ module V0
     end
 
     def bearer_token
-      secret = Flipper.enabled?(:virtual_agent_bot_a) ? Settings.virtual_agent.webchat_secret_a : 'FAKE'
+      secret = Flipper.enabled?(:virtual_agent_bot_a) ? Settings.virtual_agent.webchat_secret_a : Settings.virtual_agent.webchat_secret_b
       @bearer_token ||= 'Bearer ' + secret
     end
 
