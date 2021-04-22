@@ -38,6 +38,7 @@ class OpenidApplicationController < ApplicationController
     # Only want to fetch the Okta profile if the session isn't already established and not a CC token
     @session = Session.find(token) unless token.client_credentials_token?
     profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
+
     populate_ssoi_token_payload(profile) if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
 
     # issued for a client vs a user
@@ -138,15 +139,13 @@ class OpenidApplicationController < ApplicationController
   def fetch_smart_launch_context
     response = RestClient.get(Settings.oidc.smart_launch_url,
                               { Authorization: 'Bearer ' + token.token_string })
-    raise error_klass('Invalid launch context') if response.nil?
-
-    if response.code == 200
+    unless response.nil? || response.code != 200
       json_response = JSON.parse(response.body)
       json_response['launch']
     end
   rescue => e
     log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
-    raise error_klass('Invalid launch context')
+    nil
   end
 
   attr_reader :current_user, :session, :scopes
