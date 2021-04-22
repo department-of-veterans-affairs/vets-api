@@ -20,10 +20,6 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
-  ch33_dd:
-    actor_type: user
-    description: >
-      Allows user to access chapter 33 benefits direct deposit view/update APIs
   ch33_dd_profile:
     actor_type: user
     enable_in_development: true
