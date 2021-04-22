@@ -64,7 +64,7 @@ module CovidVaccine
 
       def transform_form_data(submission, facility, mpi_attributes)
         transformed_data = other_form_attributes(submission.raw_form_data)
-        transformed_data[:created_at] = submission.raw_form_data['created_at']
+        transformed_data.merge!(:created_at => submission.raw_form_data['created_at'])
         transformed_data.merge!(location_contact_information(submission.raw_form_data, facility))
         transformed_data.merge!(demographics(submission.raw_form_data))
         transformed_data.merge!(mpi_attributes).compact!
