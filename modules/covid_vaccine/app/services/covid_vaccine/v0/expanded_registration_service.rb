@@ -4,7 +4,6 @@ module CovidVaccine
   module V0
     class ExpandedRegistrationService
       def register(submission)
-        # handle_old_submissions(submission) if submission.created_at <= 1.day.ago
         raw_form_data = submission.raw_form_data
         # Conditions where we should not send data to vetext (unless record is > 24 hours old):
         # 1 - no preferred location in raw_form_data and no facility found for zip_code: manual intervention
@@ -137,20 +136,8 @@ module CovidVaccine
         response = MPI::Service.new.find_profile(ui)
         if response.status == 'OK'
           handle_mpi_response_success(response, sta3n, submission_id, submission_date)
-
-        #   if response.profile&.vha_facility_ids&.include? sta3n
-        #     {
-        #       patient_icn: response.profile.icn
-        #     }
-        #   else
-        #     handle_mpi_errors("no matching facility found for #{sta3n}", submission_id, submission_date)
-        #     submission_date <= 1.day.ago ? { patient_icn: response.profile.icn } : {}
-        #   end
         else
           handle_mpi_response_fail(submission_id, submission_date)
-
-          #   handle_mpi_errors('no ICN found', submission_id, submission_date)
-          #   submission_date <= 1.day.ago ? { patient_icn: '' } : {}
         end
       end
 
@@ -177,7 +164,6 @@ module CovidVaccine
           submission: id,
           submission_date: date
         )
-        #  raise Common::Exceptions::RecordNotFound.new(self.class.name.to_s, detail: "Error in MPI Lookup: #{error}")
       end
     end
   end
