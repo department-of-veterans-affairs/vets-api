@@ -152,10 +152,13 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#active' do
-      context 'when there is no Lighthouse active power of attorney' do
+      let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
+
+      context 'when there is no BGS active power of attorney' do
         it 'returns a 404' do
           with_okta_user(scopes) do |auth_header|
-            allow(ClaimsApi::PowerOfAttorney).to receive(:find_using_identifier_and_source).and_return(nil)
+            allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+            expect(bgs_poa_verifier).to receive(:current_poa).and_return(nil)
             get('/services/claims/v1/forms/2122/active',
                 params: nil, headers: headers.merge(auth_header))
 
@@ -164,45 +167,19 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
       end
 
-      context 'when there is a Lightouse active power of attorney' do
-        let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
-        let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
+      context 'when there is a BGS active power of attorney' do
+        it 'returns a 200' do
+          with_okta_user(scopes) do |auth_header|
+            allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+            expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+            expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
+            get('/services/claims/v1/forms/2122/active',
+                params: nil, headers: headers.merge(auth_header))
 
-        context 'when there is no BGS active power of attorney' do
-          it "the 'previous_poa' attribute is nil" do
-            with_okta_user(scopes) do |auth_header|
-              expect(ClaimsApi::PowerOfAttorney).to receive(
-                :find_using_identifier_and_source
-              ).and_return(power_of_attorney)
-              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return(nil)
-              get('/services/claims/v1/forms/2122/active',
-                  params: nil, headers: headers.merge(auth_header))
-
-              parsed = JSON.parse(response.body)
-              expect(response.status).to eq(200)
-              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
-              expect(parsed['data']['attributes']['previous_poa']).to eq(nil)
-            end
-          end
-        end
-
-        context 'when there is a BGS active power of attorney' do
-          it "the 'previous_poa' attribute is populated" do
-            with_okta_user(scopes) do |auth_header|
-              expect(ClaimsApi::PowerOfAttorney).to receive(
-                :find_using_identifier_and_source
-              ).and_return(power_of_attorney)
-              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return('HelloWorld')
-              get('/services/claims/v1/forms/2122/active',
-                  params: nil, headers: headers.merge(auth_header))
-
-              parsed = JSON.parse(response.body)
-              expect(response.status).to eq(200)
-              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
-              expect(parsed['data']['attributes']['previous_poa']).to eq('HelloWorld')
-            end
+            parsed = JSON.parse(response.body)
+            expect(response.status).to eq(200)
+            expect(parsed['data']['attributes']['representative']['service_organization']['poa_code'])
+              .to eq('HelloWorld')
           end
         end
       end
