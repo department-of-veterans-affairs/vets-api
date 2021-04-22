@@ -6,7 +6,6 @@ module V0
     skip_before_action :authenticate
     before_action :load_user
 
-    # rubocop:disable Metrics/AbcSize
     def index
       if params[:features].present?
         features_params = params[:features].split(',')
@@ -30,7 +29,6 @@ module V0
 
       render json: { data: { type: 'feature_toggles', features: features } }
     end
-    # rubocop:enable Metrics/AbcSize
 
     def actor(actor_type)
       if actor_type == FLIPPER_ACTOR_STRING
