@@ -103,6 +103,7 @@ module OpenidAuth
 
         parsed_sta3n = parsed_sta3n[0].match(/\d{3}|/)
         parsed_sta3n[0].eql?(sta3n)
+        sta3n.to_s.eql?(parsed_sta3n.to_s)
       end
 
       def validate_with_charon?(aud)
