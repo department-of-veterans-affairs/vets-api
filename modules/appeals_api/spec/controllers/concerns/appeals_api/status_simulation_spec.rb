@@ -6,6 +6,14 @@ class FakeController < ApplicationController
   include AppealsApi::StatusSimulation
 end
 
+class AppealTypeModel
+  STATUSES = %w[default_status other_status].freeze
+
+  def status
+    'default_status'
+  end
+end
+
 # rubocop:disable RSpec/PredicateMatcher
 describe FakeController do
   describe '#status_simulation_reqested?' do
@@ -47,12 +55,19 @@ describe FakeController do
   end
 
   describe '#status_simulation_for' do
-    it 'returns a wrapped object with a mocked status' do
-      request.headers['Status-Simulation'] = 'something'
+    describe 'only allows mocking valid statuses' do
+      it 'valid status' do
+        request.headers['Status-Simulation'] = 'other_status'
 
-      expect(subject.status_simulation_for(Object.new).status).to eq('something')
+        expect(subject.status_simulation_for(AppealTypeModel.new).status).to eq('other_status')
+      end
+
+      it 'invalid status' do
+        request.headers['Status-Simulation'] = 'invalid_status'
+
+        expect(subject.status_simulation_for(AppealTypeModel.new).status).to eq('default_status')
+      end
     end
   end
 end
-
 # rubocop:enable RSpec/PredicateMatcher

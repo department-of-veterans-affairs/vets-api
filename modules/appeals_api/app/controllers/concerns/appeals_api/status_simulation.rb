@@ -2,7 +2,16 @@
 
 module AppealsApi
   class StatusSimulator < SimpleDelegator
-    attr_accessor :status
+    attr_reader :status
+
+    def status=(status)
+      @status = if __getobj__.class::STATUSES.include?(status)
+                  status
+                else
+                  # should this raise an error instead?
+                  __getobj__.status
+                end
+    end
   end
 
   module StatusSimulation
