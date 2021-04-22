@@ -12,9 +12,9 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
         end
 
         it 'returns a token for Bot A' do
-          expect(Flipper).to receive(:enabled?).with(:virtual_agent_bot_a).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:virtual_agent_bot_a).and_return(true)
 
-          VCR.use_cassette('virtual_agent/webchat_token_a', :match_requests_on => [:headers, :uri, :method]) do
+          VCR.use_cassette('virtual_agent/webchat_token_a', match_requests_on: %i[headers uri method]) do
             post :create
           end
 
@@ -31,9 +31,9 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
         end
 
         it 'returns a token for Bot B' do
-          expect(Flipper).to receive(:enabled?).with(:virtual_agent_bot_a).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:virtual_agent_bot_a).and_return(false)
 
-          VCR.use_cassette('virtual_agent/webchat_token_b', :match_requests_on => [:headers, :uri, :method]) do
+          VCR.use_cassette('virtual_agent/webchat_token_b', match_requests_on: %i[headers uri method]) do
             post :create
           end
 
