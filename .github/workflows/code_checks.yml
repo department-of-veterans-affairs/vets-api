@@ -48,6 +48,8 @@ jobs:
       DISABLE_BOOTSNAP: true
       RAILS_ENV: test
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
+      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.binaries.clamdscan": "clamscan"
       TERM: xterm-256color
       GIT_COMMIT_SHA: ${{ github.sha }}
