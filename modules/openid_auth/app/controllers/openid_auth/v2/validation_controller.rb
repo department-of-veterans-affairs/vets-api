@@ -100,6 +100,9 @@ module OpenidAuth
           parsed_sta3n = vid.match(/\d{3}|/)
           no_match =  !sta3n.to_s.eql?(parsed_sta3n.to_s)
           return true unless no_match
+          duz = vid.match(/\|\d+\^/).to_s.match(/\d+/)
+          not_authorized = !validation_from_charon(duz, sta3n)
+          return true unless not_authorized
         end
         false
       end
@@ -110,15 +113,13 @@ module OpenidAuth
         [*Settings.oidc.charon.audience].include?(aud)
       end
 
-      def validation_from_charon(user_duz, vista_site)
+      def validation_from_charon(duz, site)
         response = RestClient.get(Settings.oidc.charon.endpoint,
                                   { Authorization: 'Bearer ' + token.token_string,
-                                    params: {user_duz: user_duz, vista_site: vista_site}})
-
-        unless response.nil? || response.code != 200
-          json_response = JSON.parse(response.body)
-          json_response['launch']
-        end
+                                    params: {user_duz: duz, vista_site: site}})
+        return true unless response.code != 200
+        return false unless response.code >= 500
+        raise Common::Exceptions::InternalServerError # temporary
       rescue => e
         log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
         nil
