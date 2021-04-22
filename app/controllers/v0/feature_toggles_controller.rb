@@ -6,16 +6,31 @@ module V0
     skip_before_action :authenticate
     before_action :load_user
 
+    # rubocop:disable Metrics/AbcSize
     def index
-      features = []
-      FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
-        features << { name: feature_name.camelize(:lower),
-                      value: Flipper.enabled?(feature_name, actor(values['actor_type'])) }
-        features << { name: feature_name, value: Flipper.enabled?(feature_name, actor(values['actor_type'])) }
+      if params[:features].present?
+        features_params = params[:features].split(',')
+
+        features = features_params.collect do |feature_name|
+          underscored_feature_name = feature_name.underscore
+          actor_type = FLIPPER_FEATURE_CONFIG['features'].dig(feature_name, 'actor_type')
+
+          { name: feature_name, value: Flipper.enabled?(underscored_feature_name, actor(actor_type)) }
+        end
+      else
+        features = []
+
+        # returning both camel and snakecase for uniformity on FE
+        FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
+          features << { name: feature_name.camelize(:lower),
+                        value: Flipper.enabled?(feature_name, actor(values['actor_type'])) }
+          features << { name: feature_name, value: Flipper.enabled?(feature_name, actor(values['actor_type'])) }
+        end
       end
 
       render json: { data: { type: 'feature_toggles', features: features } }
     end
+    # rubocop:enable Metrics/AbcSize
 
     def actor(actor_type)
       if actor_type == FLIPPER_ACTOR_STRING
