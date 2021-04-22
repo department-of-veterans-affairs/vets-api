@@ -49,6 +49,7 @@ RSpec.describe CovidVaccine::ExpandedScheduledSubmissionJob, type: :worker do
             expect(Raven).to receive(:capture_exception)
             expect { subject.perform }.to raise_error(ActiveRecord::ActiveRecordError)
             expect(CovidVaccine::ExpandedSubmissionJob.jobs.size).to eq(0)
+            expect(submission.reload.state).to match('enrollment_pending')
           end
         end
       end
