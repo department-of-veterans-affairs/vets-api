@@ -28,6 +28,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body.dig('data')
             expect(parsed_response_contents.length).to eq(10)
+            expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(15)
             open_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600114693' }[0]
             closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600106271' }[0]
             open_appeal = parsed_response_contents.select { |entry| entry.dig('id') == '3294289' }[0]
@@ -69,6 +70,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body.dig('data')
+            expect(response.parsed_body.dig('links', 'next')).to be(nil)
             expect(parsed_response_contents.length).to eq(10)
             expect(parsed_response_contents[0]['id']).to eq('600102462')
             expect(parsed_response_contents.last['id']).to eq('600102451')
