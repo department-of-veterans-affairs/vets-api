@@ -101,11 +101,11 @@ module OpenidAuth
         vids = act_vid.scan(/\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/)
         return false unless vids
 
-        vids.each { |vid|
+        vids.each do |vid|
           parsed_sta3n = vid.match(/\d{3}|/)
           no_match =  !sta3n.to_s.eql?(parsed_sta3n.to_s)
           return true unless no_match
-        }
+        end
         false
       end
 
