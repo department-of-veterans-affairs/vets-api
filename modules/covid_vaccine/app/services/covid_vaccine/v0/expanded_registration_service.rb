@@ -4,9 +4,8 @@ module CovidVaccine
   module V0
     class ExpandedRegistrationService
       def register(submission)
-        raw_form_data = submission.raw_form_data
         # Conditions where we should not send data to vetext:
-        # 1 - no preferred location in raw_form_data and no facility found for zip_code: manual intervention
+        # 1 - no preferred location in submission.raw_form_data and no facility found for zip_code: manual intervention
         # 2 - no ICN found in MPI: retry
         # 3 - Station ID returned from MPI is different than preferred location: retry
 
@@ -14,18 +13,18 @@ module CovidVaccine
         # for the purposes of this register method we should not be fetching facilities and trying to reconcile;
         # instead we will set the state to :enrollment_out_of_band
         facility = submission&.eligibility_info&.fetch('preferred_facility', nil) ||
-                   raw_form_data['preferred_facility'].delete_prefix('vha_')
+                   submission.raw_form_data['preferred_facility'].delete_prefix('vha_')
         handle_no_facility_error(submission) if facility.blank?
 
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
         # We want to keep trying as it may take time for the registration to occur.  Need to know if there is an entry
         # that is failing for an extended time - notification is sent to log with DB record ID and creation date
-        mpi_attributes = attributes_from_mpi(raw_form_data, facility[0..2], submission.id, submission.created_at)
+        mpi_attributes = attributes_from_mpi(submission.raw_form_data, facility[0..2], submission.id, submission.created_at)
         return if mpi_attributes.empty?
 
         submission.detected_enrollment!
 
-        vetext_attributes = transform_form_data(raw_form_data, facility, mpi_attributes)
+        vetext_attributes = transform_form_data(submission, facility, mpi_attributes)
         submit_and_save(vetext_attributes, submission)
       end
 
@@ -65,8 +64,9 @@ module CovidVaccine
         raise Common::Exceptions::UnprocessableEntity.new(detail: "No Preferred Facility for record #{submission.id}")
       end
 
-      def transform_form_data(raw_form_data, facility, mpi_attributes)
-        transformed_data = other_form_attributes(raw_form_data)
+      def transform_form_data(submission, facility, mpi_attributes)
+        transformed_data = other_form_attributes(submission.raw_form_data)
+        transformed_data['created_at'] = submission['created_at']
         transformed_data.merge!(location_contact_information(raw_form_data, facility))
         transformed_data.merge!(demographics(raw_form_data))
         transformed_data.merge!(mpi_attributes).compact!
@@ -103,7 +103,7 @@ module CovidVaccine
       def other_form_attributes(form_data)
         service_date_range = form_data['date_range'] ? form_data['date_range'].to_a.flatten.join(' ') : ''
         {
-          vaccine_interest: true,
+          vaccine_interest: 'INTERESTED',
           privacy_agreement_accepted: form_data['privacy_agreement_accepted'],
           last_branch_of_service: form_data['last_branch_of_service'] || '',
           service_date_range: service_date_range,

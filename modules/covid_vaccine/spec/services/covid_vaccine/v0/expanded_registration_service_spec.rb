@@ -66,7 +66,8 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
                                :service_date_range,
                                :sta3n,
                                :sta6a,
-                               :vaccine_interest))
+                               :vaccine_interest,
+                               :created_at))
           .and_return({ sid: sid })
         allow_any_instance_of(MPI::Service).to receive(:find_profile)
           .and_return(mvi_profile_response)
