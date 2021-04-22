@@ -55,7 +55,7 @@ jobs:
       GIT_COMMIT_SHA: ${{ github.sha }}
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
       ImageOS: ubuntu20
-      SSL_CERT_FILE: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem'
+      SSL_CERT_FILE: '/etc/ssl/certs/ca-certificates.crt'
       SSL_CERT_DIR: '/etc/ssl/certs'
 
     services:
