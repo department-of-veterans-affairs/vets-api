@@ -80,7 +80,7 @@ module Mobile
         page_size = validated_params[:page_size]
         pages = list.each_slice(page_size).to_a
         page_meta_data = {
-          links: Mobile::V0::PaginationLinks::Service.new.links(pages.size, validated_params, request),
+          links: Mobile::PaginationLinksHelper.links(pages.size, validated_params, request),
           pagination: {
             current_page: page_number,
             per_page: page_size,
