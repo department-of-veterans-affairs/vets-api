@@ -1,9 +1,9 @@
 common:
-  - 'joshua.jennings@libertyits.com'
   - 'cristopher.shupp@libertyits.com'
   - 'gregory.bowman@libertyits.com'
   - 'mark.viterna@libertyits.com'
   - 'molly.gatti@va.gov'
+  - 'ana.ricci@libertyits.com'
   - 'nichole.harris@libertyits.com'
 dev:
 staging:
@@ -16,3 +16,5 @@ prod:
   - 'mark.greenburg@adhocteam.us'
   - 'premal.shah@va.gov'
   - 'zachary.goldfine@va.gov'
+  - 'drew.fisher@adhocteam.us'
+  - 'kelly@adhocteam.us'
