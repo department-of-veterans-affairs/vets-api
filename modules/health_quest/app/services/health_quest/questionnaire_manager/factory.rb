@@ -158,7 +158,17 @@ module HealthQuest
       # @return [String]
       #
       def generate_questionnaire_response_pdf(questionnaire_response_id)
-        questionnaire_response_id
+        snapshot = HealthQuest::QuestionnaireResponse
+                   .where(user_uuid: user.uuid, questionnaire_response_id: questionnaire_response_id.to_s)
+                   .first
+
+        appointment = lighthouse_appointment_service.get(snapshot.appointment_id)
+        location = location_service.get(appointment.resource.participant.first.actor.reference.match(ID_MATCHER)[1])
+        org = organization_service.get(location.resource.managingOrganization.reference.match(ID_MATCHER)[1])
+
+        HealthQuest::QuestionnaireManager::QuestionnaireResponseReport
+          .manufacture(questionnaire_response: snapshot, appointment: appointment, location: location, org: org)
+          .render
       end
 
       ##

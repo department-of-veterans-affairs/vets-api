@@ -120,7 +120,7 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful benefits intake submissions"
 
 VBADocuments::ReportMonthlySubmissions:
-  cron: "4 3 2 7 * * America/New_York"
+  cron: "4 3 2 22 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
   description: "Monthly report of benefits intake submissions at 02:03:04 on the first of the month"
 
@@ -223,3 +223,14 @@ CovidVaccine::ScheduledBatchJob:
   cron: "*/15 * * * * America/New_York"
   class: CovidVaccine::ScheduledBatchJob
   description: Batches received vaccine records and schedules upload to enrollment service.
+
+CovidVaccine::ExpandedScheduledSubmissionJob:
+  every: ['15m', first_in: '24h']
+  class: CovidVaccine::ExpandedScheduledSubmissionJob
+  description: Iterates vaccine records with state=enrollment_pending and attempts MPI lookup and send to Vetext.
+
+CovidVaccine::ExpandedSubmissionStateJob:
+  every: '1h'
+  class: CovidVaccine::ExpandedSubmissionStateJob
+  description: Logs count of states in the covid_vaccine_expanded_registration_submissions table.
+  
