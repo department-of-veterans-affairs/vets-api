@@ -50,7 +50,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       expect(json_data['data']['features']).to include({ 'name' => @feature_name, 'value' => true })
     end
 
-    it 'tests that both casing forms are returned properly' do
+    it 'tests that both casing forms (snake and camel) are returned properly' do
       @feature_name =  'ssoe'
       @feature_name_camel = @feature_name.camelize(:lower)
       @cookie_id = 'abc_123'
