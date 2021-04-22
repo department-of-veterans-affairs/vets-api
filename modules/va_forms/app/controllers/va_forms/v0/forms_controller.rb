@@ -6,7 +6,7 @@ module VAForms
       skip_before_action(:authenticate)
 
       def index
-        render json: Form.search(params[:query]),
+        render json: Form.new_search(params[:query]),
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: VAForms::FormListSerializer
       end
