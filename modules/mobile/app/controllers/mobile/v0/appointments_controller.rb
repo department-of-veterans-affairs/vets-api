@@ -7,6 +7,8 @@ require 'mobile/v0/exceptions/validation_errors'
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
+      after_action :clear_appointments_cache, only: :cancel
+      
       def index
         use_cache = params[:useCache] || true
         start_date = params[:startDate] || one_year_ago.iso8601
@@ -36,6 +38,10 @@ module Mobile
       end
 
       private
+      
+      def clear_appointments_cache
+        Mobile::V0::Appointment.clear_cache(@current_user)
+      end
 
       def one_year_ago
         (DateTime.now.utc.beginning_of_day - 1.year)
