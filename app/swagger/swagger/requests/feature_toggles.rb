@@ -19,7 +19,7 @@ module Swagger
             key :description, 'A comma delimited list of the feature toggle names in snake or camel case'
             key :in, :path
             key :type, :string
-            key :required, true
+            key :required, false
           end
 
           parameter do
