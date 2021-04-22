@@ -5,6 +5,7 @@ require 'appeals_api/form_schemas'
 
 class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
+  include AppealsApi::StatusSimulation
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
@@ -37,6 +38,9 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def show
+    if status_simulation_reqested? && status_simulation_allowed?
+      @higher_level_review = status_simulation_for(@higher_level_review)
+    end
     render_higher_level_review
   end
 

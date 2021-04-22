@@ -141,6 +141,18 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end
 
+    it 'allow for status simulation' do
+      with_settings(Settings, vsp_environment: 'development') do
+        with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
+          uuid = create(:higher_level_review).id
+          status_simulation_headers = { 'Status-Simulation' => 'error' }
+          get("#{path}#{uuid}", headers: status_simulation_headers)
+
+          expect(parsed.dig('data', 'attributes', 'status')).to eq('error')
+        end
+      end
+    end
+
     it 'returns an error when given a bad uuid' do
       uuid = 0
       get("#{path}#{uuid}")

@@ -4,6 +4,8 @@ module AppealsApi::V1
   module DecisionReviews
     module NoticeOfDisagreements
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
+        include AppealsApi::StatusSimulation
+
         skip_before_action :authenticate
         before_action :set_submission_attributes, only: :create
 
@@ -20,6 +22,12 @@ module AppealsApi::V1
         def show
           submission = AppealsApi::EvidenceSubmission.find_by(guid: params[:id])
           raise Common::Exceptions::RecordNotFound, params[:id] unless submission
+
+          # rubocop:disable Style/IfUnlessModifier
+          if status_simulation_reqested? && status_simulation_allowed?
+            submission = status_simulation_for(submission)
+          end
+          # rubocop:enable Style/IfUnlessModifier
 
           render json: submission,
                  serializer: AppealsApi::EvidenceSubmissionSerializer,
