@@ -64,7 +64,7 @@ module Mobile
                    :ok
                  end
 
-        list, pagination_meta, links_meta = Mobile::V0::Pagination::Service.new.paginate(list, params, request)
+        list, pagination_meta, links_meta = paginate(list, params)
         options = { meta: { errors: errors, pagination: pagination_meta }, links: links_meta }
 
         [Mobile::V0::ClaimOverviewSerializer.new(list, options), status]
@@ -87,6 +87,26 @@ module Mobile
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
 
         validated_params
+      end
+
+      def paginate(list, params)
+        page_size = params[:page_size]
+        page_number = params[:page_number]
+        list = list.filter do |entry|
+          updated_at = entry[:updated_at]
+          updated_at >= params[:start_date] && updated_at <= params[:end_date]
+        end
+        total_entries = list.length
+        list = list.slice(((page_number - 1) * page_size), page_size)
+        total_pages = (total_entries / page_size.to_f).ceil
+        [list,
+         {
+           currentPage: page_number,
+           perPage: page_size,
+           totalPages: total_pages,
+           totalEntries: total_entries
+         },
+         Mobile::V0::PaginationLinks::Service.new.links(total_pages, params, request)]
       end
 
       def fill_missing_params(params)
