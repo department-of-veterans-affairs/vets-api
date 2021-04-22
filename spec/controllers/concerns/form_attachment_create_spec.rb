@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-
 shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil|
   describe '::FORM_ATTACHMENT_MODEL' do
     it 'is a FormAttachment model' do
