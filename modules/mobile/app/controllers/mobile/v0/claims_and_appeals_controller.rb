@@ -102,18 +102,19 @@ module Mobile
         page_size = params[:page_size]
         page_number = params[:page_number]
         list = list.filter do |entry|
-          entry[:updated_at] >= params[:start_date] && entry[:updated_at] <= params[:end_date]
+          updated_at = entry[:updated_at]
+          updated_at >= params[:start_date] && updated_at <= params[:end_date]
         end
         total_entries = list.length
         list = list.slice(((page_number - 1) * page_size), page_size)
         total_pages = (total_entries / page_size.to_f).ceil
         [list,
          {
-          currentPage: page_number,
-          perPage: page_size,
-          totalPages: total_pages,
-          totalEntries: total_entries
-        },
+           currentPage: page_number,
+           perPage: page_size,
+           totalPages: total_pages,
+           totalEntries: total_entries
+         },
          links(total_pages, params)]
       end
 
@@ -136,11 +137,11 @@ module Mobile
         end
 
         {
-            self: "#{url}&page[number]=#{page_number}&page[size]=#{page_size}",
-            first: "#{url}&page[number]=1&page[size]=#{page_size}",
-            prev: prev_link,
-            next: next_link,
-            last: "#{url}&page[number]=#{number_of_pages}&page[size]=#{page_size}"
+          self: "#{url}&page[number]=#{page_number}&page[size]=#{page_size}",
+          first: "#{url}&page[number]=1&page[size]=#{page_size}",
+          prev: prev_link,
+          next: next_link,
+          last: "#{url}&page[number]=#{number_of_pages}&page[size]=#{page_size}"
         }
       end
     end
