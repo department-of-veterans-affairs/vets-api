@@ -25,7 +25,7 @@ module Mobile
             @redis.set(user.uuid, data.to_json)
             @redis.expire(user.uuid, @redis_ttl)
           end
-          
+
           def clear_cache(user)
             @redis.del(user.uuid)
           end
