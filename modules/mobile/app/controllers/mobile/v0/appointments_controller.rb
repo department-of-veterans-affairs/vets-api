@@ -9,8 +9,8 @@ module Mobile
     class AppointmentsController < ApplicationController
       def index
         use_cache = params[:useCache] || true
-        start_date = params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601
-        end_date = params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601
+        start_date = params[:startDate] || one_year_ago.iso8601
+        end_date = params[:endDate] || one_year_from_now.iso8601
         page = params[:page] || { number: 1, size: 10 }
 
         validated_params = Mobile::V0::Contracts::GetAppointments.new.call(
@@ -37,6 +37,14 @@ module Mobile
 
       private
 
+      def one_year_ago
+        (DateTime.now.utc.beginning_of_day - 1.year)
+      end
+
+      def one_year_from_now
+        (DateTime.now.utc.beginning_of_day + 1.year)
+      end
+
       def fetch_cached_or_service(validated_params)
         appointments = nil
         appointments = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
@@ -48,34 +56,51 @@ module Mobile
                                  [appointments, nil]
                                else
                                  Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
+                                 # because a user's entire set of appointments are locally cached and we always
+                                 # fetch a two year range these are later filtered by start and end date params
+                                 # from the request
                                  appointments, errors = appointments_proxy.get_appointments(
-                                   start_date: validated_params[:start_date], end_date: validated_params[:end_date]
+                                   start_date: one_year_ago, end_date: one_year_from_now
                                  )
                                  Mobile::V0::Appointment.set_cached(@current_user, appointments)
                                  [appointments, errors]
                                end
 
-        page_appointments, page_links = paginate(list: appointments, validated_params: validated_params)
+        # filter by request start and end date params here
+        appointments = appointments.filter do |appointment|
+          appointment.start_date_utc.between? validated_params[:start_date], validated_params[:end_date]
+        end
+        page_appointments, page_meta_data = paginate(list: appointments, validated_params: validated_params)
 
-        Mobile::V0::AppointmentSerializer.new(page_appointments, options(errors, page_links))
+        Mobile::V0::AppointmentSerializer.new(page_appointments, options(errors, page_meta_data))
       end
 
       def paginate(list:, validated_params:)
         page_number = validated_params[:page_number]
         page_size = validated_params[:page_size]
         pages = list.each_slice(page_size).to_a
-        links = links(number_of_pages: pages.size, validated_params: validated_params)
-        return [[], links] if page_number > pages.size
+        page_meta_data = {
+          links: links(number_of_pages: pages.size, validated_params: validated_params),
+          pagination: {
+            current_page: page_number,
+            per_page: page_size,
+            total_pages: pages.size,
+            total_entries: list.size
+          }
+        }
 
-        [pages[page_number - 1], links]
+        return [[], page_meta_data] if page_number > pages.size
+
+        [pages[page_number - 1], page_meta_data]
       end
 
-      def options(errors, page_links)
+      def options(errors, page_meta_data)
         {
           meta: {
-            errors: errors.nil? ? nil : errors
+            errors: errors.nil? ? nil : errors,
+            pagination: page_meta_data[:pagination]
           },
-          links: page_links
+          links: page_meta_data[:links]
         }
       end
 
