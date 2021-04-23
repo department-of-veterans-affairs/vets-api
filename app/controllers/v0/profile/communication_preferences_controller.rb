@@ -14,15 +14,20 @@ module V0
         )
       end
 
-      def update_all
-        communication_items = params.require(:communication_items).map do |communication_item_params|
-          communication_item = build_communication_item(communication_item_params)
-          raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
+      def create
+        communication_item = build_communication_item
+        raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
 
-          communication_item
-        end
+        render(json: service.update_communication_permission(communication_item))
+      end
 
-        render(json: service.update_all_communication_permissions(communication_items))
+      def update
+        communication_item = build_communication_item
+        raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
+
+        communication_item.first_communication_channel.communication_permission.id = params[:id]
+
+        render(json: service.update_communication_permission(communication_item))
       end
 
       private
@@ -31,13 +36,13 @@ module V0
         VAProfile::Communication::Service.new(current_user)
       end
 
-      def build_communication_item(communication_item_params)
+      def build_communication_item
         VAProfile::Models::CommunicationItem.new(
-          communication_item_params.permit(
+          params.require(:communication_item).permit(
             :id,
             communication_channels: [
               :id,
-              { communication_permission: %i[allowed id] }
+              { communication_permission: :allowed }
             ]
           )
         )

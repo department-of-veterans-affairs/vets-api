@@ -24,103 +24,6 @@ describe VAProfile::Communication::Service do
     end
   end
 
-  describe '#update_all_communication_permissions' do
-    let!(:communication_items) do
-      [
-        build(:communication_item, id: 3).tap do |communication_item|
-          communication_permission = communication_item.communication_channels[0].communication_permission
-          communication_permission.allowed = true
-          communication_permission.id = 342
-        end,
-        build(:communication_item, id: 2).tap do |communication_item|
-          communication_permission = communication_item.communication_channels[0].communication_permission
-          communication_permission.allowed = true
-          communication_permission.id = 341
-        end,
-        build(:communication_item, id: 4).tap do |communication_item|
-          communication_permission = communication_item.communication_channels[0].communication_permission
-          communication_permission.allowed = true
-          communication_permission.id = 729
-        end,
-        build(:communication_item, id: 5).tap do |communication_item|
-          communication_item.communication_channels[0].id = 2
-          communication_permission = communication_item.communication_channels[0].communication_permission
-          communication_permission.allowed = true
-        end
-      ]
-    end
-
-    before do
-      allow(user).to receive(:vet360_id).and_return('16445')
-    end
-
-    it 'sends a request to update multiple communication permissions', run_at: '2021-04-13T20:54:58Z' do
-      VCR.use_cassette('va_profile/communication/update_all_communication_permissions', VCR::MATCH_EVERYTHING) do
-        res = subject.update_all_communication_permissions(communication_items)
-        expect(res).to eq(
-          { 'tx_audit_id' => '4e3ae638-4269-4d10-8fbc-71b10872d774',
-            'status' => 'COMPLETED_SUCCESS',
-            'bio' =>
-            { 'create_date' => '2021-04-02T22:25:25Z',
-              'update_date' => '2021-04-02T22:25:25Z',
-              'tx_audit_id' => 'bc6b2c88-98d6-4e20-b15b-5c746789d7ed',
-              'source_system' => 'VETSGOV',
-              'source_date' => '2021-04-02T22:25:24Z',
-              'va_profile_id' => 16_445,
-              'communication_permissions' =>
-              [{ 'create_date' => '2021-04-12T15:21:52Z',
-                 'update_date' => '2021-04-13T20:54:59Z',
-                 'tx_audit_id' => '4e3ae638-4269-4d10-8fbc-71b10872d774',
-                 'source_system' => 'VETSGOV',
-                 'source_date' => '2021-04-13T20:54:58Z',
-                 'communication_permission_id' => 729,
-                 'va_profile_id' => 16_445,
-                 'communication_channel_id' => 1,
-                 'communication_item_id' => 4,
-                 'communication_channel_name' => 'Text',
-                 'communication_item_common_name' => 'Form 22-1990 Submission Confirmation',
-                 'allowed' => true },
-               { 'create_date' => '2021-04-13T20:54:59Z',
-                 'update_date' => '2021-04-13T20:54:59Z',
-                 'tx_audit_id' => '4e3ae638-4269-4d10-8fbc-71b10872d774',
-                 'source_system' => 'VETSGOV',
-                 'source_date' => '2021-04-13T20:54:58Z',
-                 'communication_permission_id' => 770,
-                 'va_profile_id' => 16_445,
-                 'communication_channel_id' => 2,
-                 'communication_item_id' => 5,
-                 'communication_channel_name' => 'Email',
-                 'communication_item_common_name' => 'Form 526-EZ Submission Confirmation',
-                 'allowed' => true },
-               { 'create_date' => '2021-04-02T22:25:25Z',
-                 'update_date' => '2021-04-13T20:54:59Z',
-                 'tx_audit_id' => '4e3ae638-4269-4d10-8fbc-71b10872d774',
-                 'source_system' => 'VETSGOV',
-                 'source_date' => '2021-04-13T20:54:58Z',
-                 'communication_permission_id' => 341,
-                 'va_profile_id' => 16_445,
-                 'communication_channel_id' => 1,
-                 'communication_item_id' => 2,
-                 'communication_channel_name' => 'Text',
-                 'communication_item_common_name' => 'RX Prescription Refill Reminder',
-                 'allowed' => true },
-               { 'create_date' => '2021-04-02T22:25:25Z',
-                 'update_date' => '2021-04-13T20:54:59Z',
-                 'tx_audit_id' => '4e3ae638-4269-4d10-8fbc-71b10872d774',
-                 'source_system' => 'VETSGOV',
-                 'source_date' => '2021-04-13T20:54:58Z',
-                 'communication_permission_id' => 342,
-                 'va_profile_id' => 16_445,
-                 'communication_channel_id' => 1,
-                 'communication_item_id' => 3,
-                 'communication_channel_name' => 'Text',
-                 'communication_item_common_name' => 'Scheduled Appointment Confirmation',
-                 'allowed' => true }] } }
-        )
-      end
-    end
-  end
-
   describe '#get_communication_permissions' do
     it 'increments statsd' do
       allow(StatsD).to receive(:increment)
@@ -163,6 +66,62 @@ describe VAProfile::Communication::Service do
                'communication_item_common_name' => 'RX Prescription Refill Reminder',
                'allowed' => false }] }
         )
+      end
+    end
+  end
+
+  describe '#update_communication_permission' do
+    context 'with an existing communication permission' do
+      it 'puts to communication-permissions', run_at: '2021-03-24T23:46:17Z' do
+        communication_item = build(:communication_item)
+        communication_item.communication_channels[0].communication_permission.id = 46
+        communication_item.communication_channels[0].communication_permission.allowed = true
+
+        VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
+          res = subject.update_communication_permission(communication_item)
+          expect(res).to eq(
+            { 'tx_audit_id' => '924b24a5-609d-48ff-ab2e-9f5ac8770e93',
+              'status' => 'COMPLETED_SUCCESS',
+              'bio' =>
+              { 'create_date' => '2021-03-24T22:38:21Z',
+                'update_date' => '2021-03-24T23:46:17Z',
+                'tx_audit_id' => '924b24a5-609d-48ff-ab2e-9f5ac8770e93',
+                'source_system' => 'VETSGOV',
+                'source_date' => '2021-03-24T23:46:17Z',
+                'communication_permission_id' => 46,
+                'va_profile_id' => 18_277,
+                'communication_channel_id' => 1,
+                'communication_item_id' => 2,
+                'communication_channel_name' => 'Text',
+                'communication_item_common_name' => 'RX Prescription Refill Reminder',
+                'allowed' => true } }
+          )
+        end
+      end
+    end
+
+    context 'without an existing communication permission' do
+      it 'posts to communication-permissions', run_at: '2021-03-24T22:38:21Z' do
+        VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do
+          res = subject.update_communication_permission(build(:communication_item))
+          expect(res).to eq(
+            { 'tx_audit_id' => '3e776301-4794-402a-8a99-67d473232b6c',
+              'status' => 'COMPLETED_SUCCESS',
+              'bio' =>
+              { 'create_date' => '2021-03-24T22:38:21Z',
+                'update_date' => '2021-03-24T22:38:21Z',
+                'tx_audit_id' => '3e776301-4794-402a-8a99-67d473232b6c',
+                'source_system' => 'VETSGOV',
+                'source_date' => '2021-03-24T22:38:21Z',
+                'communication_permission_id' => 46,
+                'va_profile_id' => 18_277,
+                'communication_channel_id' => 1,
+                'communication_item_id' => 2,
+                'communication_channel_name' => 'Text',
+                'communication_item_common_name' => 'RX Prescription Refill Reminder',
+                'allowed' => false } }
+          )
+        end
       end
     end
   end
