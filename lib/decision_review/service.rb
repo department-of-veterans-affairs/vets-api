@@ -161,7 +161,7 @@ module DecisionReview
     # @return [Faraday::Response]
     #
 
-    def put_notice_of_disagreement_upload(path:, file_path:, metadata: )
+    def put_notice_of_disagreement_upload(path:, file_path:, metadata:)
       params = { metadata: metadata }
       params[:content] = Faraday::UploadIO.new(file_path, Mime[:pdf].to_s)
       with_monitoring_and_error_handling do
