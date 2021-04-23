@@ -17,7 +17,7 @@ module AppealsApi
     extend ActiveSupport::Concern
 
     included do
-      def status_simulation_reqested?
+      def status_simulation_requested?
         request.headers['Status-Simulation']
       end
 

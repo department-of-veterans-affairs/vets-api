@@ -29,7 +29,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def show
-    if status_simulation_reqested? && status_simulation_allowed?
+    if status_simulation_requested? && status_simulation_allowed?
       @notice_of_disagreement = status_simulation_for(@notice_of_disagreement)
     end
     render_notice_of_disagreement

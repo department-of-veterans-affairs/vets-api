@@ -24,7 +24,7 @@ module AppealsApi::V1
           raise Common::Exceptions::RecordNotFound, params[:id] unless submission
 
           # rubocop:disable Style/IfUnlessModifier
-          if status_simulation_reqested? && status_simulation_allowed?
+          if status_simulation_requested? && status_simulation_allowed?
             submission = status_simulation_for(submission)
           end
           # rubocop:enable Style/IfUnlessModifier

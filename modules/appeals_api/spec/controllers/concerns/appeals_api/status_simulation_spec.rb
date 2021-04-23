@@ -16,15 +16,15 @@ end
 
 # rubocop:disable RSpec/PredicateMatcher
 describe FakeController do
-  describe '#status_simulation_reqested?' do
+  describe '#status_simulation_requested?' do
     it 'with simulation request headers' do
       request.headers['Status-Simulation'] = true
 
-      expect(subject.status_simulation_reqested?).to be_truthy
+      expect(subject.status_simulation_requested?).to be_truthy
     end
 
     it 'without simulation request headers' do
-      expect(subject.status_simulation_reqested?).to be_falsey
+      expect(subject.status_simulation_requested?).to be_falsey
     end
   end
 

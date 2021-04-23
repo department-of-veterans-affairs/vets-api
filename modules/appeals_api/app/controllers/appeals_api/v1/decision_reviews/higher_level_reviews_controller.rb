@@ -38,7 +38,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def show
-    if status_simulation_reqested? && status_simulation_allowed?
+    if status_simulation_requested? && status_simulation_allowed?
       @higher_level_review = status_simulation_for(@higher_level_review)
     end
     render_higher_level_review
