@@ -22,6 +22,8 @@ module AppealsApi
         higher_level_review.update!(status: 'submitting')
         upload_to_central_mail(higher_level_review, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      rescue AppealsApi::UploadError => e
+        handle_upload_error(higher_level_review, e)
       rescue => e
         higher_level_review.update!(status: 'error', code: e.class.to_s, detail: e.message)
         Rails.logger.info("#{self.class} error: #{e}")
@@ -56,8 +58,6 @@ module AppealsApi
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
       process_response(CentralMail::Service.new.upload(body), higher_level_review)
       log_submission(higher_level_review, metadata)
-    rescue AppealsApi::UploadError => e
-      handle_upload_error(higher_level_review, e)
     end
 
     def process_response(response, higher_level_review)
@@ -80,17 +80,19 @@ module AppealsApi
                         'source' => higher_level_review.consumer_name,
                         'consumer_id' => higher_level_review.consumer_id,
                         'consumer_username' => higher_level_review.consumer_name,
-                        'uuid' => higher_level_review.uuid,
+                        'uuid' => higher_level_review.id,
                         'code' => e.code,
                         'detail' => e.detail)
     end
 
     def handle_upload_error(higher_level_review, e)
-      if e.code == 'DOC201'
-        log_upload_error(higher_level_review, e)
-        higher_level_review.update(status: 'error', code: e.code, detail: e.detail)
+      log_upload_error(higher_level_review, e)
+      higher_level_review.update(status: 'error', code: e.code, detail: e.detail)
+
+      if e.code == 'DOC201' || e.code == 'DOC202'
+        # do nothing, these jobs will have to be manually retried to not DDoS CMP
       else
-        log_upload_error(higher_level_review, e)
+        # allow sidekiq to retry immediately
         raise
       end
     end
