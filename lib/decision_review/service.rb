@@ -139,9 +139,9 @@ module DecisionReview
     end
 
     ##
-    # Get the url to upload supporting evidenc for a Notice of Disagreement
+    # Get the url to upload supporting evidence for a Notice of Disagreement
     #
-    # @param uuid The uuid of the submited Notice of Disagreement
+    # @param nod_id [uuid] The uuid of the submited Notice of Disagreement
     # @return [Faraday::Response]
     #
 
@@ -151,13 +151,31 @@ module DecisionReview
       end
     end
 
-    def put_notice_of_disagreement_upload(path:, file_path:, metadata:)
+    ##
+    # Get the url to upload supporting evidence for a Notice of Disagreement
+    #
+    # @param path [String] The url for the document to be uploaded
+    # @param file_path [String] The file path for the document to be uploaded
+    # @param metadata [Hash] additional data
+    #
+    # @return [Faraday::Response]
+    #
+
+    def put_notice_of_disagreement_upload(path:, file_path:, metadata: )
       params = { metadata: metadata }
       params[:content] = Faraday::UploadIO.new(file_path, Mime[:pdf].to_s)
       with_monitoring_and_error_handling do
         perform :put, path, params, nil
       end
     end
+
+    ##
+    # Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.
+    #
+    # @param guid [uuid] the uuid returnd from get_notice_of_disagreement_upload_url
+    #
+    # @return [Faraday::Response]
+    #
 
     def get_notice_of_disagreement_upload(guid:)
       with_monitoring_and_error_handling do
