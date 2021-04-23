@@ -7,8 +7,8 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
   include FixtureHelpers
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:headers) { fixture_as_json 'valid_10182_headers.json' }
-  let(:evidence_submissions) { create_list(:evidence_submission, 3, :with_nod) }
-  let(:evidence_submission) { create(:evidence_submission, :set_nod_supportable_type) }
+  let(:evidence_submissions) { create_list(:evidence_submission, 3, :for_nod) }
+  let(:evidence_submission) { create(:evidence_submission, :set_supportable_type) }
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
 
   describe '#create' do

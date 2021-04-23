@@ -6,23 +6,16 @@ module AppealsApi::V1
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
         skip_before_action :authenticate
         before_action :set_notice_of_disagreement, only: :create
-        before_action :set_veteran_identifier, only: :create
         before_action :set_submission_attributes, only: :create
 
         def create
-          status, error = AppealsApi::RequestValidator.new(@notice_of_disagreement, @veteran_id).call
+          upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
+          submission = AppealsApi::EvidenceSubmission.create! @submission_attributes.merge(upload_submission: upload)
 
-          if status == :ok
-            upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
-            submission = AppealsApi::EvidenceSubmission.create! @submission_attributes.merge(upload_submission: upload)
-
-            render json: submission,
-                   serializer: AppealsApi::EvidenceSubmissionSerializer,
-                   key_transform: :camel_lower,
-                   render_location: true
-          else
-            render json: { errors: [error] }, status: :unprocessable_entity
-          end
+          render json: submission,
+                 serializer: AppealsApi::EvidenceSubmissionSerializer,
+                 key_transform: :camel_lower,
+                 render_location: true
         end
 
         def show
@@ -38,15 +31,10 @@ module AppealsApi::V1
         private
 
         def set_notice_of_disagreement
-          @nod_id ||= params[:nod_id]
-          raise Common::Exceptions::ParameterMissing, 'nod_id' unless @nod_id
+          return unless params[:nod_id]
 
-          @notice_of_disagreement ||= AppealsApi::NoticeOfDisagreement.find_by(id: @nod_id)
+          @notice_of_disagreement ||= AppealsApi::NoticeOfDisagreement.find_by(id: params[:nod_id])
           raise Common::Exceptions::RecordNotFound, params[:nod_id] unless @notice_of_disagreement
-        end
-
-        def set_veteran_identifier
-          @veteran_id ||= params[:headers]['X-VA-Veteran-SSN']
         end
 
         def set_submission_attributes
