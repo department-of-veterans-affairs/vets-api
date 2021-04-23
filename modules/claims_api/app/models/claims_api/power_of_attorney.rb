@@ -111,6 +111,7 @@ module ClaimsApi
                                     'va_eauth_service_transaction_id',
                                     'va_eauth_issueinstant',
                                     'Authorization')
+      headers['status'] = status
       self.header_md5 = Digest::MD5.hexdigest headers.to_json
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
@@ -124,7 +125,9 @@ module ClaimsApi
     end
 
     def external_uid
-      source_data.present? ? source_data['icn'] : Settings.bgs.external_uid
+      return source_data['icn'] if source_data.present? && source_data['icn'].present?
+
+      Settings.bgs.external_uid
     end
 
     def signature_image_paths

@@ -665,7 +665,6 @@ flipper:
     - adewitt@thoughtworks.com
     - alastair@adhocteam.us
     - anna@adhoc.team
-    - bconley@governmentcio.com
     - bill.ryan@adhocteam.us
     - cory.trimm@va.gov
     - cwheeler@governmentcio.com
@@ -673,27 +672,28 @@ flipper:
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
     - draju@governmentcio.com
+    - dror@matal.com
     - elder_joseph@bah.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
     - grodriguez@governmentcio.com
     - hshin@thoughtworks.com
-    - hughes_dustin@bah.com
     - jacob.gacek@thoughtworks.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - jennie.mcgibney@va.gov
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
+    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kam@adhocteam.us
-    - keifer@oddball.io
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
+    - lauren.ernest@adhocteam.us
     - lihan@adhocteam.us
     - lindsey.hattamer@oddball.io
     - lsanchez@governmentcio.com
@@ -713,15 +713,11 @@ flipper:
     - patrick@adhocteam.us
     - paul.phillips@thoughtworks.com
     - pherbert@thoughtworks.com
-    - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
-    - rian.fowler@adhoc.team
-    - rianfowler@outlook.com
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
-    - shallie@governmentcio.com
     - shawkey_daniel@bah.com
     - shefai.nayak@thoughtworks.com
     - sonntag_adam@bah.com
@@ -733,11 +729,6 @@ flipper:
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
-    - callen@governmentcio.com # Remove after Profile 2.0 UAT
-    - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
-    - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
-    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
-    - lauren.ernest@adhocteam.us
 
 bgs:
   application: ~
@@ -853,6 +844,7 @@ coronavirus_chatbot:
 covid_vaccine:
   allowed_facilities: [402,405,436,437,438,442,459,460,463,501,502,503,504,506,508,509,512,515,516,517,518,519,520,521,523,526,528,529,531,534,537,538,539,540,541,542,544,546,548,549,550,552,553,554,556,557,558,561,562,564,565,568,570,573,575,578,580,581,583,585,586,589,590,593,595,596,598,600,603,605,607,608,610,612,613,614,618,619,620,621,623,626,629,630,631,632,635,636,637,640,642,644,646,648,649,650,652,653,654,655,656,657,658,659,660,662,663,664,666,667,668,671,672,673,674,675,676,678,679,687,688,689,691,692,693,695,740,756,757]
   enrollment_service:
+    job_enabled: false
     sftp:
       host: fake_host
       port: ~

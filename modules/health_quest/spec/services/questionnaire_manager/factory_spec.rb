@@ -307,8 +307,11 @@ describe HealthQuest::QuestionnaireManager::Factory do
     let(:questionnaire_response_id) { '1bc-123-345' }
 
     it 'returns the id for now' do
+      allow_any_instance_of(described_class).to receive(:generate_questionnaire_response_pdf)
+        .with(questionnaire_response_id).and_return('')
+
       expect(described_class.new(user).generate_questionnaire_response_pdf(questionnaire_response_id))
-        .to eq(questionnaire_response_id)
+        .to be_a(String)
     end
   end
 end

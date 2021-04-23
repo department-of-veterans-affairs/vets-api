@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 4eba200159ceff1b4df0fe8d4c406ff41c18598b
+  revision: 07d0bca2d60ff5259bb239e8b33dad26aa693ecf
   specs:
     bgs_ext (0.21.0)
       httpclient
@@ -188,8 +188,8 @@ GEM
     attr_extras (6.2.4)
     awesome_print (1.9.2)
     aws-eventstream (1.1.1)
-    aws-partitions (1.436.0)
-    aws-sdk-core (3.113.0)
+    aws-partitions (1.445.0)
+    aws-sdk-core (3.114.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -197,7 +197,7 @@ GEM
     aws-sdk-kms (1.43.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.93.0)
+    aws-sdk-s3 (1.93.1)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -562,7 +562,7 @@ GEM
     octokit (4.20.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
-    oj (3.11.3)
+    oj (3.11.5)
     okcomputer (1.18.4)
     olive_branch (3.0.0)
       multi_json

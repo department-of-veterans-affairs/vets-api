@@ -48,10 +48,11 @@ For frontend, see [vets-website](https://github.com/department-of-veterans-affai
 
    **DO NOT commit local Gemfile modifications that remove the `sidekiq-ent` and `sidekiq-pro` gems.**
 
-1. Developers who work with vets-api daily tend to prefer the native setup because they don't have to deal with the abstraction of docker-compose while those who would to spend less time on getting started prefer the docker setup. Docker is also useful when it's necessary to have a setup as close to production as possible.
+1. Developers who work with vets-api daily tend to prefer the native setup because they don't have to deal with the abstraction of docker-compose while those who would to spend less time on getting started prefer the docker setup. Docker is also useful when it's necessary to have a setup as close to production as possible. Finally, it's possible to use a hybrid setup where you run vets-api natively, but run the Postgres and Redis dependencies in docker.
 
    - [Native setup](docs/setup/native.md) (OSX/Ubuntu)
    - [Docker setup](docs/setup/docker.md)
+   - [Hybrid setup](docs/setup/hybrid.md)
 
 ## Running the app
 

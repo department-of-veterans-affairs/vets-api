@@ -87,3 +87,26 @@ StatsD.increment('mobile.profile.update.type', 0)
 # service failure rate for linking Vet360 accounts (generating an id)
 StatsD.increment('mobile.profile.link_account.success', 0)
 StatsD.increment('mobile.profile.link_account.failure', 0)
+
+# Push Notifications #------------------------------------------------------------
+Mobile::V0::PushNotificationsController.extend StatsD::Instrument
+Mobile::V0::PushNotificationsController.statsd_count_success :register,
+                                                             'mobile.push.registration'
+Mobile::V0::PushNotificationsController.statsd_count_success :get_prefs,
+                                                             'mobile.push.get_prefs'
+Mobile::V0::PushNotificationsController.statsd_count_success :set_pref,
+                                                             'mobile.push.set_pref'
+Mobile::V0::PushNotificationsController.statsd_count_success :send_notification,
+                                                             'mobile.push.send_notification'
+
+StatsD.increment('mobile.push.registration.success', 0)
+StatsD.increment('mobile.push.registration.failure', 0)
+
+StatsD.increment('mobile.push.get_prefs.success', 0)
+StatsD.increment('mobile.push.get_prefs.failure', 0)
+
+StatsD.increment('mobile.push.set_pref.success', 0)
+StatsD.increment('mobile.push.set_pref.failure', 0)
+
+StatsD.increment('mobile.push.send_notification.success', 0)
+StatsD.increment('mobile.push.send_notification.failure', 0)
