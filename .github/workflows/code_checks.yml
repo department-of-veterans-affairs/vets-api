@@ -78,6 +78,9 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
 
+      - name: Bundle install
+        run: bundle install
+
       - name: Setup Database
         run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
 
