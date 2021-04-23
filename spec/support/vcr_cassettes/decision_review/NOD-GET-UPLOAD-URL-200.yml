@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - abcd1234abcd1234abcd1234abcd1234abcd1234
+      - <LIGHTHOUSE_API_KEY>
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

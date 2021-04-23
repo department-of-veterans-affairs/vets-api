@@ -359,4 +359,20 @@ describe DecisionReview::Service do
       end
     end
   end
+
+  describe '#get_notice_of_disagreement_upload' do
+    subject do
+      described_class.new.get_notice_of_disagreement_upload(guid: guid)
+    end
+
+    let(:guid) { '848134d0-1842-488a-b8bb-5e94d717b2c6' }
+
+    context '200 response' do
+      it 'returns a properly formatted 200 response' do
+        VCR.use_cassette('decision_review/NOD-GET-UPLOAD-200') do
+          expect(subject.status).to be 200
+        end
+      end
+    end
+  end
 end

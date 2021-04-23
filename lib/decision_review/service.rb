@@ -159,6 +159,12 @@ module DecisionReview
       end
     end
 
+    def get_notice_of_disagreement_upload(guid:)
+      with_monitoring_and_error_handling do
+        perform :get, "notice_of_disagreements/evidence_submissions/#{guid}", nil
+      end
+    end
+
     private
 
     def create_higher_level_review_headers(user)
