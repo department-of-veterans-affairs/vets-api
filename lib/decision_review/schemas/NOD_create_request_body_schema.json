@@ -20,7 +20,7 @@
 
     "nodCreateUploads": {
       "type": "array",
-      "nodUploads": { "$ref": "#/definitions/nodCreateUpload" },
+      "items": { "$ref": "#/definitions/nodCreateUpload" },
       "minItems": 0,
       "maxItems": 100,
       "uniqueItems": true

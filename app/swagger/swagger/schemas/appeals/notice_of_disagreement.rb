@@ -13,9 +13,6 @@ module Swagger
           swagger_schema k, value
         end
 
-
-        end
-
         swagger_schema 'nodCreateRoot' do
           example JSON.parse(File.read('spec/fixtures/notice_of_disagreements/valid_NOD_create_request.json'))
         end
