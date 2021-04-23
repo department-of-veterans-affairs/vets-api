@@ -446,3 +446,8 @@ features:
     enable_in_development: true
     description: >
       Form 10182 Notice of Disagreement - Request a board appeal
+  virtual_agent_bot_a:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Points to Bot A

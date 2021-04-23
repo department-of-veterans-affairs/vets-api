@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'DecisionReviewEvidencesontroller', type: :request do
+RSpec.describe 'Decision Review Evidences', type: :request do
   include SchemaMatchers
   let(:user) { build(:disabilities_compensation_user) }
 
