@@ -154,6 +154,7 @@ RSpec.describe 'user', type: :request do
             lettersAndDocuments
             militaryServiceHistory
             userProfileUpdate
+            secureMessaging
           ]
         )
       end

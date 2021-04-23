@@ -23,8 +23,8 @@ describe Mobile::V0::Appointments::Service do
   after { Timecop.return }
 
   describe '#get_appointments' do
-    let(:start_date) { Time.now.utc }
-    let(:end_date) { start_date + 3.months }
+    let(:start_date) { (DateTime.now.utc.beginning_of_day - 1.year) }
+    let(:end_date) { (DateTime.now.utc.beginning_of_day + 1.year) }
 
     context 'when both va and cc appointments return 200s' do
       let(:responses) do

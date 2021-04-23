@@ -2328,76 +2328,57 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           )
         end
 
-        let(:params) do
+        let(:valid_params) do
           {
-            communication_items: [
-              {
-                id: 3,
-                communication_channels: [
-                  {
-                    id: 1,
-                    communication_permission: {
-                      id: 342,
-                      allowed: true
-                    }
+            communication_item: {
+              id: 2,
+              communication_channels: [
+                {
+                  id: 1,
+                  communication_permission: {
+                    allowed: true
                   }
-                ]
-              },
-              {
-                id: 2,
-                communication_channels: [
-                  {
-                    id: 1,
-                    communication_permission: {
-                      id: 341,
-                      allowed: true
-                    }
-                  }
-                ]
-              },
-              {
-                id: 4,
-                communication_channels: [
-                  {
-                    id: 1,
-                    communication_permission: {
-                      id: 729,
-                      allowed: true
-                    }
-                  }
-                ]
-              },
-              {
-                id: 5,
-                communication_channels: [
-                  {
-                    id: 2,
-                    communication_permission: {
-                      allowed: true
-                    }
-                  }
-                ]
-              }
-            ]
+                }
+              ]
+            }
           }
         end
 
-        it 'supports the communication preferences update all api', run_at: '2021-04-13T20:54:58Z' do
-          path = '/v0/profile/communication_preferences'
-          expect(subject).to validate(:put, path, 401)
+        it 'supports the communication preferences update response', run_at: '2021-03-24T23:46:17Z' do
+          path = '/v0/profile/communication_preferences/{communication_permission_id}'
+          expect(subject).to validate(:patch, path, 401, 'communication_permission_id' => 1)
 
-          allow_any_instance_of(User).to receive(:vet360_id).and_return('16445')
-          VCR.use_cassette('va_profile/communication/update_all_communication_permissions', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
             expect(subject).to validate(
-              :put,
+              :patch,
               path,
               200,
-              headers.merge('_data' => params.to_json)
+              headers.merge(
+                '_data' => valid_params.to_json,
+                'communication_permission_id' => 46
+              )
             )
           end
         end
 
-        it 'supports the communication preferences index api' do
+        it 'supports the communication preferences create response', run_at: '2021-03-24T22:38:21Z' do
+          valid_params[:communication_item][:communication_channels][0][:communication_permission][:allowed] = false
+          path = '/v0/profile/communication_preferences'
+          expect(subject).to validate(:post, path, 401)
+
+          VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :post,
+              path,
+              200,
+              headers.merge(
+                '_data' => valid_params.to_json
+              )
+            )
+          end
+        end
+
+        it 'supports the communication preferences index response' do
           path = '/v0/profile/communication_preferences'
           expect(subject).to validate(:get, path, 401)
 
@@ -3241,7 +3222,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'virtual agent' do
       describe 'POST v0/virtual_agent_token' do
         it 'returns webchat token' do
-          VCR.use_cassette('virtual_agent/webchat_token') do
+          VCR.use_cassette('virtual_agent/webchat_token_a') do
             expect(subject).to validate(:post, '/v0/virtual_agent_token', 200)
           end
         end
