@@ -524,6 +524,16 @@ RSpec.describe 'appointments', type: :request do
         end
       end
 
+      it 'clears the cache after a succesful cancel' do
+        VCR.use_cassette('appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
+            expect(Mobile::V0::Appointment).to receive(:clear_cache).once
+
+            put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
+          end
+        end
+      end
+
       context 'when appointment can be cancelled but fails' do
         let(:cancel_id) do
           Mobile::V0::Appointment.encode_cancel_id(
