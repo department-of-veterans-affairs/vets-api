@@ -58,7 +58,7 @@ jobs:
       SSL_CERT_FILE: '/etc/ssl/certs/ca-certificates.crt'
       SSL_CERT_DIR: '/etc/ssl/certs'
       NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem'
-      RAILS_ENABLE_TEST_LOG: false
+      RAILS_ENABLE_TEST_LOG: true
 
     services:
       postgres:
