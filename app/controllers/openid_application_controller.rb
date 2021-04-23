@@ -37,8 +37,12 @@ class OpenidApplicationController < ApplicationController
 
     # Only want to fetch the Okta profile if the session isn't already established and not a CC token
     @session = Session.find(token) unless token.client_credentials_token?
-    profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
-    populate_ssoi_token_payload(profile) if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
+    profile = @session.profile unless @session.nil? || @session.profile.nil?
+    profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !profile.nil?
+    populate_ssoi_token_payload(profile) if !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
+
+    establish_session(profile) if @session.nil?
+    return false if @session.nil?
 
     # issued for a client vs a user
     if token.client_credentials_token? || token.ssoi_token?
@@ -53,9 +57,6 @@ class OpenidApplicationController < ApplicationController
       end
       return true
     end
-
-    establish_session(profile) if @session.nil?
-    return false if @session.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
   end
@@ -106,7 +107,7 @@ class OpenidApplicationController < ApplicationController
     ttl = token.payload['exp'] - Time.current.utc.to_i
     user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
-    @session = build_session(ttl)
+    @session = build_session(ttl, profile)
     @session.save && user_identity.save && @current_user.save
   end
 
@@ -125,8 +126,8 @@ class OpenidApplicationController < ApplicationController
     end
   end
 
-  def build_session(ttl)
-    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid)
+  def build_session(ttl, profile)
+    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid, profile: profile)
     session.expire(ttl)
     session
   end
