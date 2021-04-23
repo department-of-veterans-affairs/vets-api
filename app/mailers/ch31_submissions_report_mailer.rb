@@ -7,6 +7,7 @@ class Ch31SubmissionsReportMailer < ApplicationMailer
 
   VRE_RECIPIENTS = %w[
     VRE-CMS.VBAVACO@va.gov
+    Jason.Wolf@va.gov
   ].freeze
 
   STAGING_RECIPIENTS = %w[
