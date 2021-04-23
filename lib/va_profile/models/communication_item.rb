@@ -10,8 +10,9 @@ module VAProfile
       attr_reader :communication_channels
 
       validates :id, :communication_channels, presence: true
+      validates :communication_channels, length: { maximum: 1, too_long: 'must have only one communication channel' }
 
-      validate :communication_channels_valid
+      validate :communication_channel_valid
 
       def self.create_from_api(communication_res, permission_res)
         new(
@@ -29,20 +30,6 @@ module VAProfile
         )
       end
 
-      def self.format_all_for_api(communication_items, va_profile_id)
-        source_date = Time.zone.now.iso8601
-
-        {
-          bio: {
-            communicationPermissions: communication_items.map do |communication_item|
-              communication_item.format_for_api(va_profile_id, source_date)
-            end.flatten,
-            vaProfileId: va_profile_id.to_i,
-            sourceDate: source_date
-          }
-        }
-      end
-
       def communication_channels=(arr)
         @communication_channels = if arr[0].present? && !arr[0].is_a?(CommunicationChannel)
                                     arr.map do |hash|
@@ -53,33 +40,41 @@ module VAProfile
                                   end
       end
 
-      def format_for_api(va_profile_id, source_date)
-        communication_channels.map do |communication_channel|
-          communication_permission = communication_channel.communication_permission
+      def http_verb
+        first_communication_channel.communication_permission.id.present? ? :put : :post
+      end
 
-          {
-            allowed: communication_permission.allowed,
+      def first_communication_channel
+        communication_channels[0]
+      end
+
+      def in_json(va_profile_id)
+        communication_channel = first_communication_channel
+
+        {
+          bio: {
+            allowed: communication_channel.communication_permission.allowed,
             communicationChannelId: communication_channel.id,
             communicationItemId: id,
             vaProfileId: va_profile_id.to_i,
-            sourceDate: source_date
+            sourceDate: Time.zone.now.iso8601
           }.merge(lambda do
+            communication_permission = communication_channel.communication_permission
+
             if communication_permission.id.present?
               { communicationPermissionId: communication_permission.id }
             else
               {}
             end
           end.call)
-        end
+        }.to_json
       end
 
       private
 
-      def communication_channels_valid
-        communication_channels&.each do |communication_channel|
-          unless communication_channel.valid?
-            errors.add(:communication_channels, communication_channel.errors.full_messages.join(','))
-          end
+      def communication_channel_valid
+        if communication_channels.present? && !first_communication_channel.valid?
+          errors.add(:communication_channels, first_communication_channel.errors.full_messages.join(','))
         end
       end
     end
