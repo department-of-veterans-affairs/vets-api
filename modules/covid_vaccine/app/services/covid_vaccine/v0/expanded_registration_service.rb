@@ -103,7 +103,7 @@ module CovidVaccine
       def other_form_attributes(form_data)
         service_date_range = form_data['date_range'] ? form_data['date_range'].to_a.flatten.join(' ') : ''
         {
-          vaccine_interest: true,
+          vaccine_interest: 'INTERESTED',
           privacy_agreement_accepted: form_data['privacy_agreement_accepted'],
           last_branch_of_service: form_data['last_branch_of_service'] || '',
           service_date_range: service_date_range,
