@@ -41,7 +41,7 @@ class OpenidApplicationController < ApplicationController
     profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !profile.nil?
     populate_ssoi_token_payload(profile) if !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
 
-    establish_session(profile) if @session.nil?
+    establish_session(profile) if @session.nil? && !token.client_credentials_token?
     return false if @session.nil?
 
     # issued for a client vs a user
