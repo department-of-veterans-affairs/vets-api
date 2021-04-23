@@ -22,12 +22,11 @@ module VRE
     end
 
     def create_csv_array(submitted_claims)
-      data = {
-        csv_array: [
-          'Count', 'Regional Office', 'Claimant Name', 'Confirmation #',
-          'Date Application Received', 'Type of Form', 'Total'
-        ]
-      }
+      data = { csv_array: [] }
+      data[:csv_array] << [
+        'Count', 'Regional Office', 'Claimant Name', 'Confirmation #',
+        'Date Application Received', 'Type of Form', 'Total'
+      ]
 
       total = submitted_claims.size
       submitted_claims.find_each.with_index do |veteran_readiness_employment_claim, index|
