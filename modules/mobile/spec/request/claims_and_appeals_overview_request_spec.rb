@@ -18,25 +18,26 @@ RSpec.describe 'claims and appeals overview', type: :request do
     describe '#index (all user claims) is polled' do
       before { iam_sign_in }
 
+      let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
+
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
             expect(response).to have_http_status(:ok)
             # check a couple entries to make sure the data is correct
             parsed_response_contents = response.parsed_body.dig('data')
+            expect(parsed_response_contents.length).to eq(10)
+            expect(response.parsed_body.dig('meta', 'pagination', 'totalPages')).to eq(15)
             open_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600114693' }[0]
-            closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600023098' }[0]
+            closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600106271' }[0]
             open_appeal = parsed_response_contents.select { |entry| entry.dig('id') == '3294289' }[0]
-            closed_appeal = parsed_response_contents.select { |entry| entry.dig('id') == '2348605' }[0]
             expect(open_claim.dig('attributes', 'completed')).to eq(false)
             expect(closed_claim.dig('attributes', 'completed')).to eq(true)
             expect(open_appeal.dig('attributes', 'completed')).to eq(false)
-            expect(closed_appeal.dig('attributes', 'completed')).to eq(true)
             expect(open_claim.dig('type')).to eq('claim')
             expect(closed_claim.dig('type')).to eq('claim')
             expect(open_appeal.dig('type')).to eq('appeal')
-            expect(closed_appeal.dig('type')).to eq('appeal')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
@@ -53,13 +54,39 @@ RSpec.describe 'claims and appeals overview', type: :request do
       end
     end
 
+    describe '#index (all user claims) is polled with additional pagination params' do
+      before { iam_sign_in }
+
+      let(:params) do
+        { useCache: false,
+          startDate: '2017-05-01T07:00:00.000Z',
+          page: { number: 2, size: 12 } }
+      end
+
+      it 'and a results are for page 2 of a 12 item pages which only has 10 entries' do
+        VCR.use_cassette('claims/claims') do
+          VCR.use_cassette('appeals/appeals') do
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            expect(response).to have_http_status(:ok)
+            # check a couple entries to make sure the data is correct
+            parsed_response_contents = response.parsed_body.dig('data')
+            expect(response.parsed_body.dig('links', 'next')).to be(nil)
+            expect(parsed_response_contents.length).to eq(10)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+    end
+
     describe '#index is polled' do
       before { iam_sign_in }
+
+      let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
 
       it 'and claims service fails, but appeals succeeds' do
         VCR.use_cassette('claims/claims_with_errors') do
           VCR.use_cassette('appeals/appeals') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
             parsed_response_contents = response.parsed_body.dig('data')
             expect(parsed_response_contents[0].dig('type')).to eq('appeal')
             expect(parsed_response_contents.last.dig('type')).to eq('appeal')
@@ -80,7 +107,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
       it 'and appeals service fails, but claims succeeds' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/server_error') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
             expect(response).to have_http_status(:multi_status)
             parsed_response_contents = response.parsed_body.dig('data')
             expect(parsed_response_contents[0].dig('type')).to eq('claim')
@@ -88,7 +115,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(1)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('appeals')
             open_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600114693' }[0]
-            closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600023098' }[0]
+            closed_claim = parsed_response_contents.select { |entry| entry.dig('id') == '600106271' }[0]
             expect(open_claim.dig('attributes', 'completed')).to eq(false)
             expect(closed_claim.dig('attributes', 'completed')).to eq(true)
             expect(open_claim.dig('type')).to eq('claim')
@@ -101,7 +128,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
       it 'both fail in upstream service' do
         VCR.use_cassette('claims/claims_with_errors') do
           VCR.use_cassette('appeals/server_error') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
             expect(response).to have_http_status(:bad_gateway)
             expect(response.parsed_body.dig('meta', 'errors').length).to eq(2)
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
@@ -125,7 +152,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
 
     context 'when there are cached claims and appeals' do
       let(:user) { FactoryBot.build(:iam_user) }
-      let(:params) { { useCache: true } }
+      let(:params) { { useCache: true, startDate: '1800-10-29T07:00:00.000Z' } }
 
       before do
         iam_sign_in
