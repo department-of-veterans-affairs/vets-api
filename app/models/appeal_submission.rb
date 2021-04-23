@@ -9,7 +9,8 @@ class AppealSubmission < ApplicationRecord
     new_nod = new(type_of_appeal: 'NOD', user_uuid: current_user.uuid)
     uploads_arr = request_body_hash.delete('nodUploads')
     nod_response_body = DecisionReview::Service.new
-                                               .create_notice_of_disagreement(request_body: request_body_hash, user: current_user)
+                                               .create_notice_of_disagreement(request_body: request_body_hash,
+                                                                              user: current_user)
                                                .body
     new_nod.submitted_appeal_uuid = nod_response_body.dig('data', 'id')
     new_nod.save!
