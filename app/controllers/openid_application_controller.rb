@@ -41,24 +41,30 @@ class OpenidApplicationController < ApplicationController
     profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !profile.nil?
     populate_ssoi_token_payload(profile) if !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
 
-    establish_session(profile) if @session.nil? && !token.client_credentials_token?
-    return false if @session.nil?
+    if @session.nil? && !token.client_credentials_token?
+      establish_session(profile)
+      return false if @session.nil?
+    end
 
     # issued for a client vs a user
     if token.client_credentials_token? || token.ssoi_token?
-      if token.payload['scp'].include?('launch/patient')
-        launch = fetch_smart_launch_context
-        token.payload[:icn] = launch
-        token.payload[:launch] = { patient: launch } unless launch.nil?
-      end
-      if token.payload['scp'].include?('launch')
-        launch = fetch_smart_launch_context
-        token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { patient: launch }
-      end
+      populate_payload_for_launch_patient_scope if token.payload['scp'].include?('launch/patient')
+      populate_payload_for_launch_scope if token.payload['scp'].include?('launch')
       return true
     end
 
     @current_user = OpenidUser.find(@session.uuid)
+  end
+
+  def populate_payload_for_launch_scope
+    launch = fetch_smart_launch_context
+    token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { patient: launch }
+  end
+
+  def populate_payload_for_launch_patient_scope
+    launch = fetch_smart_launch_context
+    token.payload[:icn] = launch
+    token.payload[:launch] = { patient: launch } unless launch.nil?
   end
 
   def populate_ssoi_token_payload(profile)
