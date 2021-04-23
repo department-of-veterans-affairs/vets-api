@@ -14,13 +14,7 @@ module Swagger
           key :tags, %w[site]
 
           parameter :optional_authorization
-          parameter do
-            key :name, :features
-            key :description, 'A comma delimited list of the feature toggle names in snake or camel case'
-            key :in, :path
-            key :type, :string
-            key :required, true
-          end
+          parameter :features
 
           parameter do
             key :name, :cookie_id
@@ -39,7 +33,6 @@ module Swagger
                 key :required, %i[features]
                 property :features, type: :array do
                   items do
-                    key :required, %i[code title user_preferences]
                     property :name, type: :string, example: 'facility_locator'
                     property :value, type: :boolean
                   end
