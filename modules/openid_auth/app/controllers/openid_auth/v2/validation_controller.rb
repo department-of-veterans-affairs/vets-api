@@ -2,7 +2,6 @@
 
 require_dependency 'openid_auth/application_controller'
 require 'common/exceptions'
-require 'rest-client'
 
 module OpenidAuth
   module V2
@@ -89,17 +88,17 @@ module OpenidAuth
       end
 
       def charon_token_screen?(payload_object)
-        act_vid = payload_object.act[:vista_id]
+        act_vista_id = payload_object.act[:vista_id]
         sta3n = payload_object.launch['sta3n']
-        return false unless !act_vid.nil? && !sta3n.nil?
+        return false unless !act_vista_id.nil? && !sta3n.nil?
 
-        vids = act_vid.scan(/\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/)
-        return false unless vids
+        vista_ids = act_vista_id.scan(/\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/)
+        return false unless vista_ids
 
-        vids.each do |vid|
-          parsed_sta3n = vid.match(/\d{3}|/)
+        vista_ids.each do |vista_id|
+          parsed_sta3n = vista_id.match(/\d{3}|/)
           if !sta3n.to_s.eql?(parsed_sta3n.to_s)
-            duz = vid.match(/\|\d+\^/).to_s.match(/\d+/)
+            duz = vista_id.match(/\|\d+\^/).to_s.match(/\d+/)
             return validation_from_charon(duz, sta3n)
           end
         end
@@ -111,19 +110,6 @@ module OpenidAuth
 
         [*Settings.oidc.charon.audience].include?(aud)
       end
-
-      def validation_from_charon(duz, site)
-        response = RestClient.get(Settings.oidc.charon.endpoint,
-                                  { Authorization: 'Bearer ' + token.token_string,
-                                    params: {duz: duz, site: site}})
-        return true unless response.code != 200
-        return false unless response.code >= 500
-        raise Common::Exceptions::InternalServerError # temporary
-      rescue => e
-        log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
-        nil
-      end
-
     end
   end
 end
