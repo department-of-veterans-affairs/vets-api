@@ -7,8 +7,7 @@ module V0
 
       skip_before_action :authenticate, raise: false
 
-      FORM_ATTACHMENT_MODEL       = ::Form1010cg::Attachment
-      FORM_ATTACHMENT_SERIALIZER  = ::Form1010cg::AttachmentSerializer
+      FORM_ATTACHMENT_MODEL = ::Form1010cg::Attachment
     end
   end
 end

@@ -142,7 +142,7 @@ module CovidVaccine
           submission: id,
           submission_date: date
         )
-        raise Common::Exceptions::RecordNotFound.new(self.class.name.to_s, detail: "Error in MPI Lookup: #{error}")
+        # raise Common::Exceptions::RecordNotFound.new(self.class.name.to_s, detail: "Error in MPI Lookup: #{error}")
       end
     end
   end

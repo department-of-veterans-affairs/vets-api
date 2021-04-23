@@ -98,7 +98,7 @@ Rails.application.routes.draw do
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
 
     namespace :form1010cg do
-      resources :attachments, only: :create
+      resources :attachments, only: :create unless Settings.vsp_environment == 'production'
     end
 
     resources :dependents_applications, only: %i[create show] do
@@ -262,7 +262,8 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
-      resources :communication_preferences, only: %i[index create update]
+      resources :communication_preferences, only: %i[index]
+      put 'communication_preferences', to: 'communication_preferences#update_all'
 
       resources :ch33_bank_accounts, only: %i[index]
       put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
