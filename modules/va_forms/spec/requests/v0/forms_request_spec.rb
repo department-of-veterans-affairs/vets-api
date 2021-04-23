@@ -33,7 +33,7 @@ RSpec.describe 'VA Forms', type: :request do
       expect(response).to match_response_schema('va_forms/forms')
     end
 
-    it 'correctly returns a matched query when camel-inlfected' do
+    it 'correctly returns a matched query when camel-inflected' do
       get "#{base_url}?query=526", headers: inflection_header
       expect(response).to match_camelized_response_schema('va_forms/forms')
     end

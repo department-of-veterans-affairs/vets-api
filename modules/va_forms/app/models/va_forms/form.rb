@@ -3,7 +3,7 @@
 module VAForms
   class Form < ApplicationRecord
     include PgSearch::Model
-    pg_search_scope :new_search,
+    pg_search_scope :search,
                     against: %i[title form_name],
                     using: { tsearch: { any_word: true, prefix: true, dictionary: 'english' }, trigram:  {
                       word_similarity: true
@@ -19,14 +19,8 @@ module VAForms
 
     before_save :set_revision
 
-    def self.search(search_term)
-      query = Form.all
-      if search_term.present?
-        search_term.strip!
-        terms = search_term.split.map { |term| "%#{term}%" }
-        query = query.where('form_name ilike ANY ( array[?] ) OR title ilike ANY ( array[?] )', terms, terms)
-      end
-      query
+    def self.return_all
+      Form.all.sort_by &:updated_at
     end
 
     private
