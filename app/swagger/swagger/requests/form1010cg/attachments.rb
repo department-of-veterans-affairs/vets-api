@@ -25,8 +25,8 @@ module Swagger
               end
             end
 
-            response 201 do
-              key :description, 'Created'
+            response 200 do
+              key :description, 'Ok'
 
               schema do
                 key :required, [:data]
