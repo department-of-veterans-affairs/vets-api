@@ -7,9 +7,15 @@ module VAForms
 
       def index
         if params[:query].present?
-          render json: Form.search(params[:query]),
-                 serializer: ActiveModel::Serializer::CollectionSerializer,
-                 each_serializer: VAForms::FormListSerializer
+          if params[:query].match(/\d{2}-/).present?
+            render json: Form.search_by_form_number(params[:query]),
+                   serializer: ActiveModel::Serializer::CollectionSerializer,
+                   each_serializer: VAForms::FormListSerializer
+          else
+            render json: Form.search(params[:query]),
+                   serializer: ActiveModel::Serializer::CollectionSerializer,
+                   each_serializer: VAForms::FormListSerializer
+          end
         else
           render json: Form.return_all,
                  serializer: ActiveModel::Serializer::CollectionSerializer,

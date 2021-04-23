@@ -5,9 +5,11 @@ module VAForms
     include PgSearch::Model
     pg_search_scope :search,
                     against: %i[title form_name],
-                    using: { tsearch: { any_word: true, prefix: true, dictionary: 'english' }, trigram:  {
-                      word_similarity: true
-                    } }
+                    using: { tsearch: { normalization: 10, any_word: true, prefix: true, dictionary: 'english' },
+                             trigram: {
+                               word_similarity: true
+                             } },
+                    order_within_rank: 'va_forms_forms.weight DESC'
     has_paper_trail only: ['sha256']
 
     validates :title, presence: true
@@ -21,6 +23,10 @@ module VAForms
 
     def self.return_all
       Form.all.sort_by(&:updated_at)
+    end
+
+    def self.search_by_form_number(search_term)
+      Form.where('form_name LIKE ?', "#{search_term}%")
     end
 
     private
