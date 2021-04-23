@@ -14,12 +14,11 @@ module VAProfile
 
       configuration VAProfile::Communication::Configuration
 
-      def update_all_communication_permissions(communication_items)
+      def update_communication_permission(communication_item)
         with_monitoring do
           perform(
-            :put,
-            get_path_ids,
-            VAProfile::Models::CommunicationItem.format_all_for_api(communication_items, @user.vet360_id).to_json
+            communication_item.http_verb,
+            "#{get_path_ids}communication-permissions", communication_item.in_json(@user.vet360_id)
           ).body
         end
       rescue => e
