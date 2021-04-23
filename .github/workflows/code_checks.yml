@@ -78,11 +78,6 @@ jobs:
 
       - uses: ruby/setup-ruby@v1
 
-      - name: Install System Packages (pdftk, poppler, imagemagick)
-        run: |
-          sudo apt install imagemagick pdftk poppler-utils
-          sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
-
       - name: Setup Database
         run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
 
