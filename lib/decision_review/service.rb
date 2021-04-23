@@ -147,7 +147,7 @@ module DecisionReview
 
     def get_notice_of_disagreement_upload_url(nod_id:)
       with_monitoring_and_error_handling do
-        response = perform :post, 'notice_of_disagreements/evidence_submissions', nod_id: nod_id
+        perform :post, 'notice_of_disagreements/evidence_submissions', nod_id: nod_id
       end
     end
 
