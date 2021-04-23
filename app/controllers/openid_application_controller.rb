@@ -50,7 +50,6 @@ class OpenidApplicationController < ApplicationController
     if token.client_credentials_token? || token.ssoi_token?
       populate_payload_for_launch_patient_scope if token.payload['scp'].include?('launch/patient')
       populate_payload_for_launch_scope if token.payload['scp'].include?('launch')
-
       return true
     end
 
