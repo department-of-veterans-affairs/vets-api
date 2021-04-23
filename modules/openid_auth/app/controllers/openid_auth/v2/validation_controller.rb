@@ -98,11 +98,10 @@ module OpenidAuth
 
         vids.each do |vid|
           parsed_sta3n = vid.match(/\d{3}|/)
-          no_match =  !sta3n.to_s.eql?(parsed_sta3n.to_s)
-          return true unless no_match
-          duz = vid.match(/\|\d+\^/).to_s.match(/\d+/)
-          not_authorized = !validation_from_charon(duz, sta3n)
-          return true unless not_authorized
+          if !sta3n.to_s.eql?(parsed_sta3n.to_s)
+            duz = vid.match(/\|\d+\^/).to_s.match(/\d+/)
+            return validation_from_charon(duz, sta3n)
+          end
         end
         false
       end
