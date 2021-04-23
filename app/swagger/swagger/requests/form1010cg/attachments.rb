@@ -55,11 +55,6 @@ module Swagger
                       key :type, :string
                       key :example, '90cd36bb-4bb0-49b3-a957-2ce7ad241dd7'
                     end
-
-                    property :created_at do
-                      key :type, :string
-                      key :example, '1973-01-01T05:00:00.000+00:00'
-                    end
                   end
                 end
               end
