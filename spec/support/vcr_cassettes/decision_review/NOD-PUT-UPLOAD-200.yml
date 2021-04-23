@@ -1,0 +1,55 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://sandbox-api.va.gov/services_user_content/vba_documents/e9d205ba-3874-42c3-9cd5-784edef5e1d7?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210422/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210422T204833Z&X-Amz-Expires=900&X-Amz-Signature=c8a2eecf5b6582722840512ee9e752d0519987ba59071bccef54cee9d103db7e&X-Amz-SignedHeaders=host
+    body:
+      encoding: UTF-8
+      string: '{"metadata":{"foo":"bar"},"content":"#<UploadIO:0x00007fa15e0b4ff8>"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - abcd1234abcd1234abcd1234abcd1234abcd1234
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 22 Apr 2021 20:49:20 GMT
+      Content-Length:
+      - '0'
+      Connection:
+      - keep-alive
+      X-Amz-Id-2:
+      - zyxq1lCg9orPOX89JXDJG1ViNIm61cIPEbVjEsJktjRZYfqXHiS7k3V8sdbxBxO6+yZ0P71So4A=
+      X-Amz-Request-Id:
+      - CT1Q82T5BQ1NR7QB
+      X-Amz-Version-Id:
+      - ULGlDSA1krtktrTTs.WEEmPa670FMEBL
+      X-Amz-Server-Side-Encryption:
+      - AES256
+      Etag:
+      - '"f3df59353d7830755f77a44e4ec2b39e"'
+      Cache-Control:
+      - ''
+      - no-cache, no-store
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS0108eb76=01c8917e488d0dc160058bc149e0d06302658e6e994ffbaf8634961b2b390e730cf1f1cd909883487d2b44cf709bbe05067cd3af20;
+        Max-Age=900; Path=/
+    body:
+      encoding: UTF-8
+      string: ''
+  recorded_at: Thu, 22 Apr 2021 20:49:20 GMT
+recorded_with: VCR 6.0.0

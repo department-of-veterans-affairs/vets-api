@@ -320,7 +320,6 @@ describe DecisionReview::Service do
 
       it 'returns a properly formatted 200 response' do
         VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-200') do
-          expect(subject).to respond_to :status
           expect(subject.status).to be 200
           expect(subject).to respond_to :body
           expect(subject.body).to be_a Hash
@@ -336,6 +335,26 @@ describe DecisionReview::Service do
           expect { subject }.to raise_error(
             an_instance_of(DecisionReview::ServiceException).and(having_attributes(key: 'DR_404'))
           )
+        end
+      end
+    end
+  end
+
+  describe '#put_notice_of_disagreement_upload' do
+    subject do
+      described_class.new.put_notice_of_disagreement_upload(path: path, file_path: file_path, metadata: metadata)
+    end
+
+    let(:file_path) { 'spec/fixtures/files/doctors-note.pdf' }
+    let(:path) do
+      'https://sandbox-api.va.gov/services_user_content/vba_documents/e9d205ba-3874-42c3-9cd5-784edef5e1d7?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210422/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210422T204833Z&X-Amz-Expires=900&X-Amz-Signature=c8a2eecf5b6582722840512ee9e752d0519987ba59071bccef54cee9d103db7e&X-Amz-SignedHeaders=host'
+    end
+    let(:metadata) { { foo: 'bar' } }
+
+    context '200 response' do
+      it 'returns a properly formatted 200 response' do
+        VCR.use_cassette('decision_review/NOD-PUT-UPLOAD-200') do
+          expect(subject.status).to be 200
         end
       end
     end

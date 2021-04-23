@@ -3,6 +3,8 @@
 module V0
   class NoticeOfDisagreementsController < AppealsBaseController
     def create
+      uploads_arr = request_body_hash.delete("nodUploads")
+
       nod_response_body = decision_review_service
                           .create_notice_of_disagreement(request_body: request_body_hash, user: @current_user)
                           .body

@@ -151,6 +151,14 @@ module DecisionReview
       end
     end
 
+    def put_notice_of_disagreement_upload(path:, file_path:, metadata:)
+      params = { metadata: metadata }
+      params[:content] = Faraday::UploadIO.new(file_path, Mime[:pdf].to_s)
+      with_monitoring_and_error_handling do
+        perform :put, path, params, nil
+      end
+    end
+
     private
 
     def create_higher_level_review_headers(user)
