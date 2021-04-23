@@ -179,7 +179,7 @@ class User < Common::RedisStore
   end
 
   def historical_icns
-    mpi_profile&.historical_icns
+    @mpi_historical_icn ||= MPIData.historical_icn_for_user(self)
   end
 
   def home_phone
