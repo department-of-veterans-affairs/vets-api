@@ -45,7 +45,8 @@ module Mobile
         directDepositBenefits: :evss,
         lettersAndDocuments: :evss,
         militaryServiceHistory: :emis,
-        userProfileUpdate: :vet360
+        userProfileUpdate: :vet360,
+        secureMessaging: :mhv_messaging
       }.freeze
 
       def self.filter_keys(value, keys)
