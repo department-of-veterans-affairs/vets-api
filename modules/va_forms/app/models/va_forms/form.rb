@@ -20,7 +20,7 @@ module VAForms
     before_save :set_revision
 
     def self.return_all
-      Form.all.sort_by &:updated_at
+      Form.all.sort_by(&:updated_at)
     end
 
     private
