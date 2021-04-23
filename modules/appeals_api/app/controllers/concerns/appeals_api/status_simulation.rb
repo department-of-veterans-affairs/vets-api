@@ -8,7 +8,6 @@ module AppealsApi
       @status = if __getobj__.class::STATUSES.include?(status)
                   status
                 else
-                  # should this raise an error instead?
                   __getobj__.status
                 end
     end
