@@ -68,7 +68,6 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
   subject(:parsed_body) { JSON.parse(response.body).with_indifferent_access }
 
   describe 'GET #index' do
-
     it 'returns 400 for invalid type parameter' do
       get '/facilities_api/v1/va', params: { type: 'bogus' }
       expect(response).to have_http_status(:bad_request)
