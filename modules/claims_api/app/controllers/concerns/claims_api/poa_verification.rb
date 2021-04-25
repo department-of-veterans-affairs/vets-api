@@ -46,6 +46,8 @@ module ClaimsApi
       def valid_poa_code_for_current_user?(poa_code)
         representative = ::Veteran::Service::Representative.for_user(first_name: @current_user.first_name,
                                                                      last_name: @current_user.last_name)
+        return false if representative.blank?
+
         representative.poa_codes.include?(poa_code)
       end
 
