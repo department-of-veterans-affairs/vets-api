@@ -8,6 +8,7 @@ module ClaimsApi
       class PowerOfAttorneyController < ClaimsApi::V0::Forms::Base
         include ClaimsApi::DocumentValidations
         include ClaimsApi::EndpointDeprecation
+        include ClaimsApi::PoaVerification
 
         FORM_NUMBER = '2122'
 
@@ -16,6 +17,9 @@ module ClaimsApi
         # @return [JSON] Record in pending state
         def submit_form_2122
           validate_json_schema
+
+          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          validate_poa_code!(poa_code)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
