@@ -85,7 +85,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         allow(client_stub).to receive(:upload).and_return(faraday_response)
         num_times = 7
         # Why 7?  That's the most times a duplicate ever occurred.  See the excel spreadsheet in the ticket!
-        # ¯\_(ツ)_/¯
+        # ¯\_(:-)_/¯
         temp_files = []
         num_times.times do
           temp_files << Tempfile.new
@@ -104,9 +104,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         pids.each { |pid| Process.waitpid(pid) } # wait for my children to complete
         responses = []
         temp_files.each do |tf|
-          responses << File.open(tf.path) do |f|
-            f.read
-          end
+          responses << File.open(tf.path, &:read)
         end
         expect(responses.select { |e| e.eql?('true') }.length).to eq(1)
         expect(responses.select { |e| e.eql?('false') }.length).to eq(num_times - 1)
