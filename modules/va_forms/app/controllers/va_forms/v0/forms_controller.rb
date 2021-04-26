@@ -7,20 +7,35 @@ module VAForms
 
       def index
         if params[:query].present?
-          if params[:query].match(/\d{2}-/).present?
-            render json: Form.search_by_form_number(params[:query]),
-                   serializer: ActiveModel::Serializer::CollectionSerializer,
-                   each_serializer: VAForms::FormListSerializer
+          if params[:query].match(/^\d{2}(?:[pP])?[- \s]\d+(?:[a-zA-Z])?$/)
+                           .present? || params[:query]
+             .match(/^[sS][fF](?:[- \s])?\d+(?:[a-zA-Z])?$/)
+             .present?
+            search_by_form_number
           else
-            render json: Form.search(params[:query]),
-                   serializer: ActiveModel::Serializer::CollectionSerializer,
-                   each_serializer: VAForms::FormListSerializer
+            search_by_text
           end
         else
-          render json: Form.return_all,
-                 serializer: ActiveModel::Serializer::CollectionSerializer,
-                 each_serializer: VAForms::FormListSerializer
+          return_all
         end
+      end
+
+      def search_by_form_number
+        render json: Form.search_by_form_number(params[:query]),
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: VAForms::FormListSerializer
+      end
+
+      def search_by_text
+        render json: Form.search(params[:query]),
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: VAForms::FormListSerializer
+      end
+
+      def return_all
+        render json: Form.return_all,
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: VAForms::FormListSerializer
       end
 
       def show
