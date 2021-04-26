@@ -77,9 +77,11 @@ module VBADocuments
       r = UploadSubmission.find_by guid: guid
       if r&.status.eql?('success')
         UploadSubmission.transaction do
-          # record this as the final status to the current time
-          r.metadata[UploadSubmission::FINAL_SUCCESS_STATUS_KEY] = Time.now.to_i
-          r.save!
+          unless r.metadata[UploadSubmission::FINAL_SUCCESS_STATUS_KEY]
+            # record this as the final status to the current time
+            r.metadata[UploadSubmission::FINAL_SUCCESS_STATUS_KEY] = Time.now.to_i
+            r.save!(touch: false)
+          end
         end
       end
       r.nil?
