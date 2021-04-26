@@ -1807,6 +1807,39 @@ paths:
       operationId: claimsAndAppealsOverview
       security:
         - Bearer: []
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date-time
+          description: The start date for the range of appointments in ISO 8601 UTC format
+          example: 2020-10-29T07:00:00.000Z
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date-time
+          description: The end date for the range of appointments in ISO 8601 UTC format
+          example: 2021-11-29T08:00:00.000Z
+        - in: query
+          name: page[number]
+          schema:
+            type: integer
+          description: The page number requested
+          example: 1
+        - in: query
+          name: page[size]
+          schema:
+            type: integer
+          description: The number of records to return per page
+          example: 10
+        - in: query
+          name: useCache
+          schema:
+            type: boolean
+          description: Whether or not to use this API's cache or fetch records from the upstream service
+          example: true
       responses:
         '200':
           description: OK

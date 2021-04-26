@@ -8,6 +8,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
   let!(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
+  let(:headers) { fixture_as_json 'valid_200996_headers_minimum.json' }
 
   describe '#create' do
     let(:double_setup) do
@@ -20,20 +21,32 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
     end
 
-    it 'returns submission attributes and location url' do
+    let(:valid_post_with_settings) do
       with_settings(Settings.vba_documents.location,
                     prefix: 'https://fake.s3.url/foo/',
                     replacement: 'https://api.vets.gov/proxy/') do
         double_setup
-        post(path, params: { nod_id: notice_of_disagreement.id })
-        body = JSON.parse(response.body)['data']
-        expect(body).to have_key('id')
-        expect(body).to have_key('type')
-        expect(body['attributes']['status']).to eq('pending')
-        expect(body['attributes']['appealId']).to eq(notice_of_disagreement.id)
-        expect(body['attributes']['appealType']).to eq('NoticeOfDisagreement')
-        expect(body['attributes']['location']).to eq('https://api.vets.gov/proxy/uuid')
+        post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
       end
+    end
+
+    it 'creates the evidence submission and persists the data' do
+      valid_post_with_settings
+      submission = AppealsApi::EvidenceSubmission.last
+      expected_attributes = %w[supportable_type supportable_id guid upload_submission_id]
+      expect(submission.source).to eq('va.gov')
+      expect(submission.attributes).to include(*expected_attributes)
+    end
+
+    it 'returns submission attributes and location url' do
+      valid_post_with_settings
+      body = JSON.parse(response.body)['data']
+      expect(body).to have_key('id')
+      expect(body).to have_key('type')
+      expect(body['attributes']['status']).to eq('pending')
+      expect(body['attributes']['appealId']).to eq(notice_of_disagreement.id)
+      expect(body['attributes']['appealType']).to eq('NoticeOfDisagreement')
+      expect(body['attributes']['location']).to eq('https://api.vets.gov/proxy/uuid')
     end
 
     context 'with no matching record' do
