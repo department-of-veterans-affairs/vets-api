@@ -26,6 +26,9 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     context 'creates an NOD and persists the data' do
       it 'with all headers' do
         post(path, params: @data, headers: @headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
