@@ -36,7 +36,7 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
             expect { subject.perform }.to change(CovidVaccine::EnrollmentUploadJob.jobs, :size).by(1)
           end
         end
-
+        # test test
         it 'logs its progress including an enrollment jid' do
           with_settings(
             Settings.covid_vaccine.enrollment_service, { job_enabled: true }
