@@ -98,7 +98,7 @@ module OpenidAuth
 
         vista_ids.each do |vista_id|
           parsed_sta3n = vista_id.match(/\d{3}|/)
-          if !sta3n.to_s.eql?(parsed_sta3n.to_s)
+          if sta3n.to_s.eql?(parsed_sta3n.to_s)
             duz = vista_id.match(/\|\d+\^/).to_s.match(/\d+/)
             return validation_from_charon(duz, sta3n)
           end
