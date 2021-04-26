@@ -38,7 +38,18 @@ describe HealthQuest::QuestionnaireManager::BasicQuestionnaireManagerFormatter d
   let(:hashed_questionnaires) do
     {
       'vha_442_3049' => [
-        double('Questionnaire', resource: double('Resource', id: 'abc-123-def-455', title: 'Primary Care'))
+        double(
+          'Questionnaire',
+          resource: double(
+            'Resource',
+            id: 'abc-123-def-455',
+            title: 'Primary Care',
+            item: [
+              double('item', linkId: '01', text: 'one'),
+              double('item', linkId: '02', text: 'two')
+            ]
+          )
+        )
       ]
     }
   end
@@ -73,7 +84,14 @@ describe HealthQuest::QuestionnaireManager::BasicQuestionnaireManagerFormatter d
           appointment: { id: 'I2-SLRRT64GFG' },
           organization: { id: 'vha_442' },
           location: { id: 'I2-LABC' },
-          questionnaire: [{ id: 'abc-123-def-455', title: 'Primary Care', questionnaire_response: [] }]
+          questionnaire: [
+            {
+              id: 'abc-123-def-455',
+              title: 'Primary Care',
+              item: [{ 'linkId' => '01', 'text' => 'one' }, { 'linkId' => '02', 'text' => 'two' }],
+              questionnaire_response: []
+            }
+          ]
         }.with_indifferent_access
       ]
 
@@ -93,7 +111,14 @@ describe HealthQuest::QuestionnaireManager::BasicQuestionnaireManagerFormatter d
     end
 
     it 'returns a basic structure' do
-      response = [{ id: 'abc-123-def-455', title: 'Primary Care', questionnaire_response: [] }.with_indifferent_access]
+      response = [
+        {
+          id: 'abc-123-def-455',
+          title: 'Primary Care',
+          item: [{ 'linkId' => '01', 'text' => 'one' }, { 'linkId' => '02', 'text' => 'two' }],
+          questionnaire_response: []
+        }.with_indifferent_access
+      ]
 
       expect(basic_structure.questions_with_qr('vha_442_3049')).to eq(response)
     end
