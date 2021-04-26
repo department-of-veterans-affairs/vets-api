@@ -70,7 +70,7 @@ Example `metadata.json` file:
   "fileNumber": "012345678",
   "zipCode": "94402",
   "source": "Vets.gov",
-  "docType": "21-22",
+  "docType": "316",
   "businessLine": "BVA"
 }
 ```
