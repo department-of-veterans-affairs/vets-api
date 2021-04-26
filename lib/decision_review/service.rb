@@ -154,18 +154,18 @@ module DecisionReview
     ##
     # Get the url to upload supporting evidence for a Notice of Disagreement
     #
-    # @param path [String] The url for the document to be uploaded
+    # @param upload_url [String] The url for the document to be uploaded
     # @param file_path [String] The file path for the document to be uploaded
     # @param metadata [Hash] additional data
     #
     # @return [Faraday::Response]
     #
 
-    def put_notice_of_disagreement_upload(path:, file_path:, metadata:)
+    def put_notice_of_disagreement_upload(upload_url:, file_path:, metadata:)
       params = { metadata: metadata }
       params[:content] = Faraday::UploadIO.new(file_path, Mime[:pdf].to_s)
       with_monitoring_and_error_handling do
-        perform :put, path, params, nil
+        perform :put, upload_url, params, nil
       end
     end
 
