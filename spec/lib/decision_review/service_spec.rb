@@ -342,12 +342,12 @@ describe DecisionReview::Service do
 
   describe '#put_notice_of_disagreement_upload' do
     subject do
-      described_class.new.put_notice_of_disagreement_upload(path: path, file_path: file_path, metadata: metadata)
+      described_class.new.put_notice_of_disagreement_upload(upload_url: path, file_path: file_path, metadata: metadata)
     end
 
     let(:file_path) { 'spec/fixtures/files/doctors-note.pdf' }
     let(:path) do
-      'https://sandbox-api.va.gov/services_user_content/vba_documents/e9d205ba-3874-42c3-9cd5-784edef5e1d7?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210422/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210422T204833Z&X-Amz-Expires=900&X-Amz-Signature=c8a2eecf5b6582722840512ee9e752d0519987ba59071bccef54cee9d103db7e&X-Amz-SignedHeaders=host'
+      'https://sandbox-api.va.gov/services_user_content/vba_documents/021d2fab-b3ca-4928-b90d-94b4c45529d8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210426/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210426T163153Z&X-Amz-Expires=900&X-Amz-Signature=33e56786dfc1b5d6758abd931d9d50388f6206302708074b1924929c6e33da00&X-Amz-SignedHeaders=host'
     end
     let(:metadata) { { foo: 'bar' } }
 

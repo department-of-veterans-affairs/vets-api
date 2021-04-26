@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: https://sandbox-api.va.gov/services_user_content/vba_documents/e9d205ba-3874-42c3-9cd5-784edef5e1d7?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210422/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210422T204833Z&X-Amz-Expires=900&X-Amz-Signature=c8a2eecf5b6582722840512ee9e752d0519987ba59071bccef54cee9d103db7e&X-Amz-SignedHeaders=host
+    uri: https://sandbox-api.va.gov/services_user_content/vba_documents/021d2fab-b3ca-4928-b90d-94b4c45529d8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210426/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210426T163153Z&X-Amz-Expires=900&X-Amz-Signature=33e56786dfc1b5d6758abd931d9d50388f6206302708074b1924929c6e33da00&X-Amz-SignedHeaders=host
     body:
       encoding: UTF-8
-      string: '{"metadata":{"foo":"bar"},"content":"#<UploadIO:0x00007fa15e0b4ff8>"}'
+      string: '{"metadata":{},"content":"#<UploadIO:0x00007f819d985758>"}'
     headers:
       Accept:
       - application/json
@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - <LIGHTHOUSE_API_KEY>
+      - "<LIGHTHOUSE_API_KEY>"
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -23,21 +23,21 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 22 Apr 2021 20:49:20 GMT
+      - Mon, 26 Apr 2021 16:32:23 GMT
       Content-Length:
       - '0'
       Connection:
       - keep-alive
       X-Amz-Id-2:
-      - zyxq1lCg9orPOX89JXDJG1ViNIm61cIPEbVjEsJktjRZYfqXHiS7k3V8sdbxBxO6+yZ0P71So4A=
+      - e+qO4z0R7JR6hkhqiE6lRCntYuAZkpefqjigfKtH2NNpIv+xmFbjJ/MQO+URmWBkTaGQPhWKdKc=
       X-Amz-Request-Id:
-      - CT1Q82T5BQ1NR7QB
+      - K8WGRVYV9B8JVKEN
       X-Amz-Version-Id:
-      - ULGlDSA1krtktrTTs.WEEmPa670FMEBL
+      - mzTcBhWbGsTv25mhQRq_RrrzeZcwKFk4
       X-Amz-Server-Side-Encryption:
       - AES256
       Etag:
-      - '"f3df59353d7830755f77a44e4ec2b39e"'
+      - '"a249aba72035d6940a1271e75168fabf"'
       Cache-Control:
       - ''
       - no-cache, no-store
@@ -46,10 +46,10 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - TS0108eb76=01c8917e488d0dc160058bc149e0d06302658e6e994ffbaf8634961b2b390e730cf1f1cd909883487d2b44cf709bbe05067cd3af20;
+      - TS0164a718=01874af5a4bf5d44c110b80d57eb350414ee7ec7c5910c86b0a9bce99a2d01bd981a0883c9b973f5bc31d132fe06b711f7ec9b6b99;
         Max-Age=900; Path=/
     body:
       encoding: UTF-8
       string: ''
-  recorded_at: Thu, 22 Apr 2021 20:49:20 GMT
+  recorded_at: Mon, 26 Apr 2021 16:32:23 GMT
 recorded_with: VCR 6.0.0
