@@ -11,6 +11,10 @@ module OpenidAuth
 
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
+      rescue => e
+        status_code = e.message.match(/\d{3}/)[0].to_i
+        status_code = status_code >= 500 ? 503 : 401
+        render status: status_code
       end
 
       def valid_strict?
@@ -59,7 +63,7 @@ module OpenidAuth
           return payload_object unless
             validate_with_charon?(payload_object.aud) && !charon_token_screen?(payload_object)
 
-          raise error_klass('Invalid request')
+          raise error_klass('401 Invalid request')
         end
 
         if token.client_credentials_token?
@@ -116,13 +120,10 @@ module OpenidAuth
         response = RestClient.get(Settings.oidc.charon.endpoint,
                                   { params: {duz: duz, site: site}})
         return true unless response.code != 200
-        return false unless response.code >= 500
-        raise Common::Exceptions::InternalServerError # temporary
+        false
       rescue => e
         log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
-        puts(e.as_json)
-        # raise Common::Exceptions::InternalServerError unless e.initial_response_code >= 500 # temporary
-        false
+        raise e
       end
 
     end
