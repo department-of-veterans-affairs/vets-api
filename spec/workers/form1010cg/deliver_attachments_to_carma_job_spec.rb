@@ -24,6 +24,9 @@ RSpec.describe Form1010cg::DeliverAttachmentsToCARMAJob do
       end
 
       context 'without POA attachment' do
+      end
+
+      context 'with POA attachment' do
         let(:poa_attachment_id) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
         let(:carma_case_id)     { '4ycecujyo5k9rmlCAK' }
         let(:attachment)        { build(:form1010cg_attachment, guid: poa_attachment_id) }
@@ -58,9 +61,6 @@ RSpec.describe Form1010cg::DeliverAttachmentsToCARMAJob do
 
         it 'sends the PDF of claim to CARMA' do
         end
-      end
-
-      context 'with POA attachment' do
       end
     end
   end
