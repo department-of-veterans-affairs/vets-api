@@ -80,9 +80,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     updated_form = parsed_form
 
     add_veteran_info(updated_form, user) if user&.loa3?
-
-    @office_location = check_office_location
-    updated_form['veteranInformation'].merge!({ 'regional_office' => @office_location })
+    add_office_location(updated_form) if updated_form['veteranInformation'].present?
 
     update(form: updated_form.to_json)
   end
@@ -97,6 +95,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'dob' => user.birth_date
       }
     ).except!('vaFileNumber')
+  end
+
+  def add_office_location(updated_form)
+    @office_location = check_office_location
+    updated_form['veteranInformation']&.merge!({ 'regional_office' => @office_location })
   end
 
   def send_to_vre(user)
