@@ -37,6 +37,7 @@ module Form1010cg
 
       # The CaregiversAssistanceClaim we are processing with this service
       @claim        = claim
+
       # The Form1010cg::Submission
       @submission   = submission
 
