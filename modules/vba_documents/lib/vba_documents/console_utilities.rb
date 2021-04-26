@@ -19,6 +19,9 @@ module VBADocuments
     end
 
     def pull_download(guid)
+      doc_exists = UploadSubmission.where('guid = ? and s3_deleted is null', guid).count.positive?
+      raise 'Temp file no longer exists on AWS' unless doc_exists
+
       tempfile = VBADocuments::PayloadManager.download_raw_file(guid).first
       upload_model = UploadFile.new
       upload_model.multipart.attach(io: tempfile, filename: upload_model.guid)

@@ -42,3 +42,13 @@ The submission statuses begin with pending and end with success.
 | processing   | Indicates intake has begun, the Intake, Conversion and Mail Handling Services (ICMHS) group is processing the appeal data. |
 | success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |
 | error   | An error occurred. See the error code and message for further information. |
+
+### Status Caching
+
+Due to current system limitations, data for the status attribute for the following endpoints is cached for one hour.
+
+- GET `/higher_level_reviews/{uuid}`
+- GET `/notice_of_disagreements/{uuid}`
+- GET `/notice_of_disagreements/evidence_submission/{uuid}`
+
+The updated_at field indicates the last time the status for a given GUID was updated.
