@@ -79,8 +79,22 @@ module HealthQuest
       #
       def questions_with_qr(key)
         hashed_questionnaires[key].map do |quest|
-          { id: quest.resource.id, title: quest.resource.title, questionnaire_response: [] }.with_indifferent_access
+          {
+            id: quest.resource.id,
+            title: quest.resource.title,
+            item: build_questionnaire_items(quest.resource.item),
+            questionnaire_response: []
+          }.with_indifferent_access
         end
+      end
+
+      ##
+      # Builds an Array of question and answer hash items from the given questionnaire item
+      #
+      # @return [Array]
+      #
+      def build_questionnaire_items(quest_list)
+        quest_list.each_with_object([]) { |ele, acc| acc << { linkId: ele.linkId, text: ele.text } }
       end
     end
   end
