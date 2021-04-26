@@ -39,6 +39,15 @@ module VBADocuments
       upload_file.delete
     end
 
+    def mark_success_as_final(guids)
+      invalid_guids = []
+      guids.each do |g|
+        invalid_guid = mark_success_final(g)
+        invalid_guids << g if invalid_guid
+      end
+      invalid_guids
+    end
+
     private
 
     def manual_status_change(guid, from, to, error)
@@ -57,6 +66,19 @@ module VBADocuments
             r.detail = error['detail']
           end
           r.status = to
+          r.save!
+        end
+      end
+      r.nil?
+    end
+
+    # this method marks records in success status that will no longer be checked for manual promotion to vbms
+    def mark_success_final(guid)
+      r = UploadSubmission.find_by guid: guid
+      if r&.status.eql?('success')
+        UploadSubmission.transaction do
+          # record this as the final status to the current time
+          r.metadata[UploadSubmission::FINAL_SUCCESS_STATUS_KEY] = Time.now.to_i
           r.save!
         end
       end
