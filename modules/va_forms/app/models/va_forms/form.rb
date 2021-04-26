@@ -27,7 +27,7 @@ module VAForms
     end
 
     def self.search_by_form_number(search_term)
-      query = search_term.sub! '-', '%'
+      search_term.sub! '-', '%'
       query = search_term.split.join('%').upcase
       Form.where('upper(form_name) LIKE ?', "%#{query}%")
     end
