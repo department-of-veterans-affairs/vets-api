@@ -16,9 +16,9 @@ class AppealSubmission < ApplicationRecord
     appeal_submission.save!
 
     uploads_arr.each do |upload_attrs|
-      DecisionReview::SubmitUpload.perform(user_uuid: current_user.uuid,
-                                           upload_attrs: upload_attrs,
-                                           appeal_submission_id: appeal_submission.id)
+      DecisionReview::SubmitUpload.perform_async(user_uuid: current_user.uuid,
+                                                 upload_attrs: upload_attrs,
+                                                 appeal_submission_id: appeal_submission.id)
     end
     nod_response_body
   end
