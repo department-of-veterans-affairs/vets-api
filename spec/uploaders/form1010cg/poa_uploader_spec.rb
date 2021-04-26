@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe Form1010cg::PoaUploader, uploader_helpers: true do
-  let(:form_attachment_guid) { '19f5f0e2-ee59-4438-8849-4d5b2a95f53f' }
+  let(:form_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
   let(:subject) { described_class.new(form_attachment_guid) }
   let(:source_file_name) { 'doctors-note.jpg' }
   let(:source_file_path) { "spec/fixtures/files/#{source_file_name}" }
@@ -30,7 +30,7 @@ describe Form1010cg::PoaUploader, uploader_helpers: true do
       expect(subject.aws_credentials).to eq(
         access_key_id: 'my-aws-key-id',
         secret_access_key: 'my-aws-access-key',
-        region: 'us-east-1'
+        region: 'us-gov-west-1'
       )
     end
   end
@@ -71,7 +71,7 @@ describe Form1010cg::PoaUploader, uploader_helpers: true do
     end
 
     it 'stores file in aws' do
-      VCR.use_cassette('s3/object/put/200', vcr_options) do
+      VCR.use_cassette("s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
         expect(subject.filename).to eq(nil)
         expect(subject.file).to eq(nil)
         expect(subject.versions).to eq({})
@@ -83,18 +83,13 @@ describe Form1010cg::PoaUploader, uploader_helpers: true do
 
         # Should not versions objects so they can be permanently destroyed
         expect(subject.versions).to eq({})
-
-        # Contents of the source file and stored s3 file should match
-        expect(subject.file.read).to eq(
-          File.read(source_file_path)
-        )
       end
     end
   end
 
   describe '#retrieve_from_store!' do
     it 'retrieves the stored file in s3' do
-      VCR.use_cassette('s3/object/get/200', vcr_options) do
+      VCR.use_cassette("s3/object/get/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
         subject.retrieve_from_store!(source_file_name)
 
         expect(subject.file.filename).to eq('doctors-note.jpg')
