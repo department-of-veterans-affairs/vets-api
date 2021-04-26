@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'controllers/concerns/form_attachment_create_spec'
 
 RSpec.describe V0::HCAAttachmentsController, type: :controller do
+  it_behaves_like 'a FormAttachmentCreate controller'
+
   describe '#create' do
     it 'uploads an hca attachment' do
       post(:create, params: { hca_attachment: {
