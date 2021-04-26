@@ -13,8 +13,8 @@ module OpenidAuth
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
         status_code = e.message.match(/\d{3}/).to_i
-        status_code = status_code.nil? || status_code.size.eql?(0)
-        status_code = status_code[0] >= 500 ? 503 : 401
+        status_code = !status_code.nil? && status_code.size >= 1 ? status_code[0] : 500
+        status_code = status_code >= 500 ? 503 : 401
         render status: status_code
       end
 
