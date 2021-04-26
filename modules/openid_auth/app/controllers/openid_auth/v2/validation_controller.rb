@@ -114,14 +114,15 @@ module OpenidAuth
 
       def validation_from_charon(duz, site)
         response = RestClient.get(Settings.oidc.charon.endpoint,
-                                  { Authorization: 'Bearer ' + token.token_string,
-                                    params: {duz: duz, site: site}})
+                                  { params: {duz: duz, site: site}})
         return true unless response.code != 200
         return false unless response.code >= 500
         raise Common::Exceptions::InternalServerError # temporary
       rescue => e
         log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
-        nil
+        puts(e.as_json)
+        # raise Common::Exceptions::InternalServerError unless e.initial_response_code >= 500 # temporary
+        false
       end
 
     end
