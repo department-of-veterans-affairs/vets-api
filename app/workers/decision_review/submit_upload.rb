@@ -17,14 +17,16 @@ module DecisionReview
     #
     def perform(user_uuid, appeal_submission_id, upload_attrs)
       Raven.tags_context(source: '10182-board-appeal')
-      upload_url_response = DecisionReview::Service.new.get_notice_of_disagreement_upload_url(nod_id: appeal_submission_id)
+      upload_url_response = DecisionReview::Service.new
+                                                   .get_notice_of_disagreement_upload_url(nod_id: appeal_submission_id)
       upload_url = upload_url_response.body.dig('data', 'attributes', 'location')
       upload_id = upload_url_response.body.dig('data', 'id')
       Rails.logger.info "DecisionReview::SubmitUpload upload #{upload_id} uploaded for user #{user_uuid}"
-      carrierwave_sanitized_file = DecisionReviewEvidenceAttachment.find_by(guid: upload_attrs['confirmationCode'])&.get_file
-      put_response = DecisionReview::Service.new.put_notice_of_disagreement_upload(upload_url: upload_url,
-                                                                                   file_path: carrierwave_sanitized_file.path,
-                                                                                   metadata: {})
+      carrierwave_sanitized_file = DecisionReviewEvidenceAttachment.find_by(guid: upload_attrs['confirmationCode'])
+                                  &.get_file
+      DecisionReview::Service.new.put_notice_of_disagreement_upload(upload_url: upload_url,
+                                                                    file_path: carrierwave_sanitized_file.path,
+                                                                    metadata: {})
     end
   end
 end
