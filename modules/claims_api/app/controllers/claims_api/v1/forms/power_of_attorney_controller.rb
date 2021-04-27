@@ -8,6 +8,7 @@ module ClaimsApi
       class PowerOfAttorneyController < ClaimsApi::V1::Forms::Base
         include ClaimsApi::DocumentValidations
         include ClaimsApi::EndpointDeprecation
+        include ClaimsApi::PoaVerification
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.write]
@@ -20,6 +21,10 @@ module ClaimsApi
         # @return [JSON] Record in pending state
         def submit_form_2122 # rubocop:disable Metrics/MethodLength
           validate_json_schema
+
+          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          validate_poa_code!(poa_code)
+          validate_poa_code_for_current_user!(poa_code) if header_request?
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
