@@ -6,7 +6,10 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NoticeOfDisagreement, type: :model do
   include FixtureHelpers
 
-  let(:notice_of_disagreement) { build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers) }
+  let(:notice_of_disagreement) do
+    review_option = form_data['data']['attributes']['boardReviewOption']
+    build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers, board_review_option: review_option)
+  end
 
   let(:auth_headers) { default_auth_headers }
   let(:form_data) { default_form_data }
@@ -121,13 +124,15 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
         veteran_data.delete('address')
       end
 
-      it do
-        expect(notice_of_disagreement.zip_code_5).to eq '00000'
-      end
+      it { expect(notice_of_disagreement.zip_code_5).to eq '00000' }
     end
   end
 
   describe '#lob' do
     it { expect(notice_of_disagreement.lob).to eq 'BVA' }
+  end
+
+  describe '#board_review_option' do
+    it { expect(notice_of_disagreement.board_review_option).to eq 'hearing' }
   end
 end

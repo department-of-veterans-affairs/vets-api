@@ -91,7 +91,7 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
-    def board_review_option
+    def board_review_value
       form_data&.dig('data', 'attributes', 'boardReviewOption')
     end
 
@@ -124,7 +124,7 @@ module AppealsApi
     end
 
     def board_review_hearing_selected?
-      board_review_option == 'hearing'
+      board_review_value == 'hearing'
     end
 
     def includes_hearing_type_preference?
