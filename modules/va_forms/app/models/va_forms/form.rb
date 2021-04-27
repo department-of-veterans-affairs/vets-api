@@ -8,8 +8,7 @@ module VAForms
                     using: { tsearch: { normalization: 4, any_word: true, prefix: true, dictionary: 'english' },
                              trigram: {
                                word_similarity: true
-                             } },
-                    order_within_rank: 'va_forms_forms.weight DESC'
+                             } }
 
     has_paper_trail only: ['sha256']
 
