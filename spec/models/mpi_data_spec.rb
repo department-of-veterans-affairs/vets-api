@@ -69,17 +69,6 @@ describe MPIData, skip_mvi: true do
     end
   end
 
-  describe '#validate_user' do
-    context 'with invalid names' do
-      let(:user) { build(:user, :loa3, first_name: 'Nai3', last_name: 'B&dname,', middle_name: nil) }
-
-      it 'returns with an error' do
-        user.mpi.mvi_add_person
-        expect_any_instance_of(MPIData).to receive(:validate_user)
-      end
-    end
-  end
-
   describe '#profile' do
     context 'when the cache is empty' do
       it 'caches and return an :ok response', :aggregate_failures do

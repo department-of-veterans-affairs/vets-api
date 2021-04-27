@@ -126,7 +126,6 @@ class MPIData < Common::RedisStore
   #
   # @return [MPI::Responses::AddPersonResponse] the response returned from MVI Add Person call
   def mvi_add_person
-    validate_user(user)
     search_response = MPI::OrchSearchService.new.find_profile(user)
     if search_response.ok?
       @mvi_response = search_response
@@ -141,15 +140,6 @@ class MPIData < Common::RedisStore
   end
 
   private
-
-  def validate_user(user)
-    {
-      first_name: /^\w+$/.match?(user.first_name),
-      middle_name: user.middle_name.nil? || /^\w+$/.match?(user.middle_name),
-      last_name: /^\w+$/.match?(user.last_name),
-      ssn: /\d{9}/.match?(user.ssn)
-    }
-  end
 
   def add_ids(response)
     # set new ids in the profile and recache the response

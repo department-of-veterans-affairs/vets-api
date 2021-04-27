@@ -17,5 +17,6 @@ module MPI
     class FailedRequestError < MPI::Errors::ServiceError; end
     class InvalidRequestError < MPI::Errors::ServiceError; end
     class DuplicateRecords < MPI::Errors::RecordNotFound; end
+    class AttributeValidationError < MPI::Errors::ServiceError; end
   end
 end

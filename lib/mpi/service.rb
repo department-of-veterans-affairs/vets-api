@@ -40,6 +40,7 @@ module MPI
 
     # rubocop:disable Metrics/MethodLength
     def add_person(user_identity)
+      validate_user(user_identity)
       with_monitoring do
         measure_info(user_identity) do
           raw_response = perform(
@@ -50,6 +51,9 @@ module MPI
           MPI::Responses::AddPersonResponse.with_parsed_response(raw_response)
         end
       end
+    rescue MPI::Errors::AttributeValidationError => e
+      log_message_to_sentry("MPI add_person failed with validation errors: #{e.message}", :warn)
+      mpi_add_validation_exception_response_for('MVI_422', e)
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
       log_message_to_sentry('MVI add_person connection failed.', :warn)
@@ -111,6 +115,20 @@ module MPI
 
     private
 
+    def validate_user(user)
+      validator = {
+        first_name: /^\w+$/.match?(user.first_name),
+        middle_name: user.middle_name.nil? || /^\w+$/.match?(user.middle_name),
+        last_name: /^\w+$/.match?(user.last_name),
+        ssn: /\d{9}/.match?(user.ssn)
+      }
+      if validator.value?(false)
+        failures = validator.reject { |_key, value| value == true }
+        raise MPI::Errors::AttributeValidationError, failures.keys
+      end
+      validator
+    end
+
     def measure_info(user_identity)
       Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user_identity)) { yield }
     end
@@ -120,6 +138,12 @@ module MPI
       return 'MVI_502_DUP' if error_name == 'Duplicate Key Identifier'
 
       'MVI_502'
+    end
+
+    def mpi_add_validation_exception_response_for(key, error)
+      exception = build_exception(key, error)
+
+      MPI::Responses::AddPersonResponse.with_attribute_error(exception)
     end
 
     def mvi_add_exception_response_for(key, error)

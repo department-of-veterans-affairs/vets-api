@@ -18,6 +18,7 @@ describe MPI::Service do
   let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
   let(:not_found) { MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_found] }
   let(:server_error) { MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:server_error] }
+  let(:attribute_error) { MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:attribute_error] }
 
   let(:mvi_profile) do
     build(
@@ -177,6 +178,28 @@ describe MPI::Service do
         expect(exception.code).to eq 'MVI_503'
         expect(exception.status).to eq '503'
         expect(exception.source).to eq MPI::Service
+      end
+    end
+  end
+
+  describe '.validate_user' do
+    context 'with invalid user fields' do
+      let(:user_hash) do
+        {
+          first_name: 'B@d',
+          last_name: 'N&me',
+          middle_name: 'Good',
+          birth_date: '1980-05-21',
+          ssn: '7340927821'
+        }
+      end
+      let(:user) { build(:user, :loa3, user_hash) }
+
+      it 'raises an error' do
+        VCR.use_cassette('mpi/add_person/add_person_invalid_request') do
+          response = subject.add_person(user)
+          expect(response.status).to eq attribute_error
+        end
       end
     end
   end

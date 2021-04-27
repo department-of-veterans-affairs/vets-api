@@ -22,6 +22,17 @@ module MPI
       # Builds a response with a server error status and a nil mvi_codes
       #
       # @return [MPI::Responses::AddPersonResponse] the response
+      def self.with_attribute_error(exception = nil)
+        AddPersonResponse.new(
+          status: AddPersonResponse::RESPONSE_STATUS[:attribute_error],
+          mvi_codes: nil,
+          error: exception
+        )
+      end
+
+      # Builds a response with a server error status and a nil mvi_codes
+      #
+      # @return [MPI::Responses::AddPersonResponse] the response
       def self.with_server_error(exception = nil)
         AddPersonResponse.new(
           status: AddPersonResponse::RESPONSE_STATUS[:server_error],

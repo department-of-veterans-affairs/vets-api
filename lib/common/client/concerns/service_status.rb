@@ -10,6 +10,7 @@ module Common
           ok: 'OK',
           not_found: 'NOT_FOUND',
           server_error: 'SERVER_ERROR',
+          attribute_error: 'ATTRIBUTE_ERROR',
           not_authorized: 'NOT_AUTHORIZED'
         }.freeze
       end
