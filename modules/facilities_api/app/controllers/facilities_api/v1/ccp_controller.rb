@@ -2,8 +2,6 @@
 
 require_dependency 'facilities_api/application_controller'
 
-require 'facilities/ppms/v1/client'
-
 module FacilitiesApi
   class V1::CcpController < ApplicationController
     # Provider supports the following query parameters:

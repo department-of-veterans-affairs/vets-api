@@ -43,7 +43,7 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil, a
       end
     end
 
-    def expect_form_attachment_creation(req_params:) # rubocop:disable Metrics/AbcSize
+    def expect_form_attachment_creation(req_params:)
       form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
 
       expect(form_attachment_model).to receive(:new) do
