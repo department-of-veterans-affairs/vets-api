@@ -60,6 +60,56 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   describe '#perform' do
     let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
 
+    context 'duplicates' do
+      before(:context) do
+        @transaction_state = use_transactional_tests
+        # need all subprocesses to see the state of the DB.  Transactional isolation will hurt us here.
+        self.use_transactional_tests = false
+        @upload_model = VBADocuments::UploadSubmission.new
+        @upload_model.status = 'uploaded'
+        @upload_model.save!
+      end
+
+      after(:context) do
+        self.use_transactional_tests = @transaction_state
+        @upload_model.delete
+      end
+
+      # Put in as a response to https://vajira.max.gov/browse/API-6651
+      it 'does not send duplicates if called multiple times concurrently on the same guid' do
+        allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return('')
+        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(client_stub).to receive(:upload).and_return(faraday_response)
+        num_times = 7
+        # Why 7?  That's the most times a duplicate ever occurred.  See the excel spreadsheet in the ticket!
+        temp_files = []
+        num_times.times do
+          temp_files << Tempfile.new
+        end
+        pids = []
+        num_times.times do |i|
+          # Why fork instead of threads?  We are testing the advisory lock under different processes just as sidekiq
+          # will run the jobs.
+          pids << fork do
+            response = described_class.new.perform(@upload_model.guid)
+            writing = response.to_s
+            temp_files[i].write(writing)
+            temp_files[i].close
+          end
+        end
+        pids.each { |pid| Process.waitpid(pid) } # wait for my children to complete
+        responses = []
+        temp_files.each do |tf|
+          responses << File.open(tf.path, &:read)
+        end
+        expect(responses.select { |e| e.eql?('true') }.length).to eq(1)
+        expect(responses.select { |e| e.eql?('false') }.length).to eq(num_times - 1)
+      end
+    end
+
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
