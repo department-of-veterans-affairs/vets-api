@@ -5,8 +5,16 @@ module AppealsApi::V1
     module NoticeOfDisagreements
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
         skip_before_action :authenticate
+        before_action :nod_id_present?, only: :create
         before_action :set_notice_of_disagreement, only: :create
+        before_action :validate_board_review_option, only: :create
         before_action :set_submission_attributes, only: :create
+
+        class InvalidReviewOption < StandardError
+          def message
+            I18n.t('appeals_api.errors.invalid_evidence_submission_lane')
+          end
+        end
 
         def create
           upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
@@ -30,11 +38,17 @@ module AppealsApi::V1
 
         private
 
-        def set_notice_of_disagreement
-          return unless params[:nod_id]
+        def nod_id_present?
+          raise Common::Exceptions::ParameterMissing, 'nod_id' unless params[:nod_id]
+        end
 
+        def set_notice_of_disagreement
           @notice_of_disagreement ||= AppealsApi::NoticeOfDisagreement.find_by(id: params[:nod_id])
           raise Common::Exceptions::RecordNotFound, params[:nod_id] unless @notice_of_disagreement
+        end
+
+        def validate_board_review_option
+          raise InvalidReviewOption unless @notice_of_disagreement.accepts_evidence?
         end
 
         def set_submission_attributes

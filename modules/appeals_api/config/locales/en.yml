@@ -1,6 +1,7 @@
 en:
   appeals_api:
       errors:
+        invalid_evidence_submission_lane: "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
         contact_info_presence: "At least one must be included: '/data/attributes/veteran'"
         hearing_type_preference_inclusion: "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
         hearing_type_preference_missing: "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
