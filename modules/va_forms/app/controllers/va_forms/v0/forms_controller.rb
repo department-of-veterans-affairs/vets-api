@@ -37,7 +37,7 @@ module VAForms
       end
 
       def old_search
-        render json: Form.old_search(params[:query]),
+        render json: Form.old_search(search_term: params[:query]),
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: VAForms::FormListSerializer
       end
