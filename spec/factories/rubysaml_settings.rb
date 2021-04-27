@@ -12,7 +12,7 @@ FactoryBot.define do
     idp_entity_id                   { 'api.idmelabs.com' }
     idp_slo_target_url              { 'https://api.idmelabs.com/saml/SingleLogoutService' }
     idp_sso_target_url              { 'https://api.idmelabs.com/saml/SingleSignOnService' }
-    name_identifier_format          { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
+    name_identifier_format { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
 
     trait :rollover_cert do
       certificate_new { Settings.saml.certificate }
@@ -42,7 +42,7 @@ FactoryBot.define do
     idp_entity_id                   { 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20' }
     idp_slo_target_url              { 'https://pint.eauth.va.gov/pkmslogout' }
     idp_sso_target_url              { 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login' }
-    name_identifier_format          { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
+    name_identifier_format { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
 
     trait :rollover_cert do
       certificate_new { Settings.saml.certificate }
@@ -59,6 +59,6 @@ FactoryBot.define do
     idp_entity_id                   { 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20' }
     idp_slo_target_url              { 'https://pint.eauth.va.gov/pkmslogout' }
     idp_sso_target_url              { 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login' }
-    name_identifier_format          { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
+    name_identifier_format { 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified' }
   end
 end
