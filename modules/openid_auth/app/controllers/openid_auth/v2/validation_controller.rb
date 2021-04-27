@@ -56,7 +56,7 @@ module OpenidAuth
         if token.ssoi_token?
           payload_object = populate_act_payload(payload_object)
           return payload_object unless
-            validate_with_charon?(payload_object.aud) && !charon_token_screen?(payload_object)
+            should_validate_with_charon?(payload_object.aud) && !authorized_by_charon?(payload_object)
 
           raise error_klass('Invalid request')
         end
@@ -87,7 +87,7 @@ module OpenidAuth
         payload_object
       end
 
-      def charon_token_screen?(payload_object)
+      def authorized_by_charon?(payload_object)
         act_vista_id = payload_object.act[:vista_id]
         sta3n = payload_object.launch['sta3n']
         return false unless !act_vista_id.nil? && !sta3n.nil?
@@ -103,7 +103,7 @@ module OpenidAuth
         false
       end
 
-      def validate_with_charon?(aud)
+      def should_validate_with_charon?(aud)
         return false unless !Settings.oidc.charon.enabled.nil? && Settings.oidc.charon.enabled.eql?(true)
 
         [*Settings.oidc.charon.audience].include?(aud)
