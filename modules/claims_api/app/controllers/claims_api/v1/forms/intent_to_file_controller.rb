@@ -12,7 +12,7 @@ module ClaimsApi
         before_action except: %i[schema] do
           permit_scopes %w[claim.write]
         end
-        before_action :verify_power_of_attorney_using_bgs_service, if: :header_request?
+        before_action :verify_power_of_attorney!, if: :header_request?
 
         FORM_NUMBER = '0966'
         ITF_TYPES = %w[compensation pension burial].freeze
