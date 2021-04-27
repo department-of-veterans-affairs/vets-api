@@ -59,9 +59,6 @@ jobs:
       - name: Install dependencies (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
 
-      - name: Bundle install
-        run: bundle install --path vendor/bundle
-
       - name: Setup Database
         run: bundle exec rake db:schema:load
 
