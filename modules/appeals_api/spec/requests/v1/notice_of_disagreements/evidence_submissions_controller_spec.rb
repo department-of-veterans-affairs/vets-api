@@ -12,7 +12,6 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
 
   describe '#create' do
-    # rubocop:disable Metrics/AbcSize
     def with_s3_settings
       with_settings(Settings.modules_appeals_api.evidence_submissions.location,
                     prefix: 'http://some.fakesite.com/path',
@@ -27,8 +26,6 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         yield
       end
     end
-    # rubocop:enable Metrics/AbcSize
-
     context "when 'nod_id' is included" do
       before do
         with_s3_settings do
