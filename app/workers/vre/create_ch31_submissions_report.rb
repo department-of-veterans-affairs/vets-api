@@ -5,12 +5,6 @@ module VRE
     require 'csv'
     include Sidekiq::Worker
 
-    def format_name(full_name)
-      return if full_name.blank?
-
-      [full_name['first'], full_name['last']].compact.join(' ')
-    end
-
     def updated_at_range
       (@time - 24.hours)..@time
     end
