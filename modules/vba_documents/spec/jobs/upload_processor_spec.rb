@@ -85,7 +85,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         allow(client_stub).to receive(:upload).and_return(faraday_response)
         num_times = 7
         # Why 7?  That's the most times a duplicate ever occurred.  See the excel spreadsheet in the ticket!
-        # ¯\_(:-)_/¯
         temp_files = []
         num_times.times do
           temp_files << Tempfile.new
