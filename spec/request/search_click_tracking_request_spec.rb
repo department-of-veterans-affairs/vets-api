@@ -16,7 +16,8 @@ describe 'search_click_tracking', type: :request do
             position: 0,
             query: 'testQuery',
             url: 'https://www.testurl.com',
-            user_agent: 'testUserAgent'
+            user_agent: 'testUserAgent',
+            module_code: 'I14Y'
           }
         )
       end
@@ -38,7 +39,8 @@ describe 'search_click_tracking', type: :request do
             position: 0,
             query: '',
             url: 'https://www.testurl.com',
-            user_agent: 'testUserAgent'
+            user_agent: 'testUserAgent',
+            module_code: 'I14Y'
           }
         )
       end
