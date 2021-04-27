@@ -12,6 +12,7 @@ jobs:
       RAILS_ENV: test
       PGHOST: localhost
       PGUSER: vets-api
+      PGPASSWORD: postgres
       LANG: en_US.UTF-8
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
