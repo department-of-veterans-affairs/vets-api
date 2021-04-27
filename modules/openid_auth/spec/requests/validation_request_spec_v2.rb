@@ -378,7 +378,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns json response if valid user' do
       charon_response = instance_double(RestClient::Response,
-                      code: 200)
+                                        code: 200)
       with_ssoi_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
         post '/internal/auth/v2/validation',
@@ -392,7 +392,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'v2 POST returns 401 response if invalid user, charon returns 401' do
+    it 'v2 POST returns 401 response if invalid user, charon returns 401, will not really happen with RestClient' do
       charon_response = instance_double(RestClient::Response,
                                         code: 401)
       with_ssoi_configured do
@@ -409,7 +409,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
                                         code: 401)
       exception = RestClient::ExceptionWithResponse.new(charon_response)
       with_ssoi_configured do
-        allow(RestClient).to receive(:get).with('http://example.com/smart/launch', any_args).and_return(launch_with_sta3n_response)
+        allow(RestClient).to receive(:get).with('http://example.com/smart/launch',
+                                                any_args).and_return(launch_with_sta3n_response)
         allow(RestClient).to receive(:get).with('http://example.com/services/charon', any_args).and_raise(exception)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
@@ -423,7 +424,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
                                         code: 400)
       exception = RestClient::ExceptionWithResponse.new(charon_response)
       with_ssoi_configured do
-        allow(RestClient).to receive(:get).with('http://example.com/smart/launch', any_args).and_return(launch_with_sta3n_response)
+        allow(RestClient).to receive(:get).with('http://example.com/smart/launch',
+                                                any_args).and_return(launch_with_sta3n_response)
         allow(RestClient).to receive(:get).with('http://example.com/services/charon', any_args).and_raise(exception)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
@@ -437,7 +439,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
                                         code: 500)
       exception = RestClient::ExceptionWithResponse.new(charon_response)
       with_ssoi_configured do
-        allow(RestClient).to receive(:get).with('http://example.com/smart/launch', any_args).and_return(launch_with_sta3n_response)
+        allow(RestClient).to receive(:get).with('http://example.com/smart/launch',
+                                                any_args).and_return(launch_with_sta3n_response)
         allow(RestClient).to receive(:get).with('http://example.com/services/charon', any_args).and_raise(exception)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
