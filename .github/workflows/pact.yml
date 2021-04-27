@@ -63,7 +63,7 @@ jobs:
         run: bundle install --path vendor/bundle
 
       - name: Setup Database
-        run: bundle exec rake db:drop db:create db:schema:load db:migrate db:migrate:status
+        run: bundle exec rake db:drop db:create db:schema:load db:reset db:migrate
 
       - name: Verify stable Pacts
         run: bundle exec rake pact:verify
