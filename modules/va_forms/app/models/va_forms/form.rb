@@ -31,6 +31,16 @@ module VAForms
       Form.where('upper(form_name) LIKE ?', "%#{query}%")
     end
 
+    def self.old_search(search_term: nil)
+      query = Form.all
+      if search_term.present?
+        search_term.strip!
+        terms = search_term.split.map { |term| "%#{term}%" }
+        query = query.where('form_name ilike ANY ( array[?] ) OR title ilike ANY ( array[?] )', terms, terms)
+      end
+      query
+    end
+
     private
 
     def set_revision

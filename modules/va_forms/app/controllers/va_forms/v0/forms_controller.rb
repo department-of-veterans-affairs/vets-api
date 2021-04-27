@@ -6,17 +6,21 @@ module VAForms
       skip_before_action(:authenticate)
 
       def index
-        if params[:query].present?
-          if params[:query].match(/^\d{2}(?:[pP])?[- \s]\d+(?:[a-zA-Z])?$/)
-                           .present? || params[:query]
-             .match(/^[sS][fF](?:[- \s])?\d+(?:[a-zA-Z])?$/)
-             .present?
-            search_by_form_number
+        if Flipper.enabled?(:new_va_forms_search)
+          if params[:query].present?
+            if params[:query].match(/^\d{2}(?:[pP])?[- \s]\d+(?:[a-zA-Z])?$/)
+                             .present? || params[:query]
+               .match(/^[sS][fF](?:[- \s])?\d+(?:[a-zA-Z])?$/)
+               .present?
+              search_by_form_number
+            else
+              search_by_text
+            end
           else
-            search_by_text
+            return_all
           end
         else
-          return_all
+          old_search
         end
       end
 
@@ -28,6 +32,12 @@ module VAForms
 
       def search_by_text
         render json: Form.search(params[:query]),
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: VAForms::FormListSerializer
+      end
+
+      def old_search
+        render json: Form.old_search(params[:query]),
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: VAForms::FormListSerializer
       end
