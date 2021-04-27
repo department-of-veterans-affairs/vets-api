@@ -52,12 +52,15 @@ def with_ssoi_configured(&block)
         audience: 'https://example.com/xxxxxxservices/xxxxx',
         endpoint: 'http://example.com/services/charon',
       ) do
-        VCR.use_cassette('okta/metadata') do
-          VCR.use_cassette('okta/openid-user-charon') do
-            yield block
+          with_settings(
+            Settings.oidc, smart_launch_url: 'http://example.com/smart/launch') do
+              VCR.use_cassette('okta/metadata') do
+                VCR.use_cassette('okta/openid-user-charon') do
+                  yield block
+                end
+              end
           end
         end
-      end
     end
   end
 end
