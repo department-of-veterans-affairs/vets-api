@@ -2,9 +2,10 @@ name: Pact Contract Tests
 on: [push]
 jobs:
   tests:
-    name: Test
+    name: Pact Contract Tests
     runs-on: ubuntu-16.04
     env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets-api-test"
       RAILS_ENV: test
       PGHOST: localhost
