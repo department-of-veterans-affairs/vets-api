@@ -27,7 +27,7 @@ module Veteran
       @current_poa_information ||= bgs_service.claimant.find_poa_by_participant_id(@user.participant_id)
     end
 
-    def previous_poa_code # rubocop:disable Metrics/AbcSize
+    def previous_poa_code
       return @previous_poa_code if @previous_poa_code.present?
 
       poa_history = bgs_service.org.find_poa_history_by_ptcpnt_id(@user.participant_id)
