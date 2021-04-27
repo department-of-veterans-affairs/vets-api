@@ -4,7 +4,7 @@ require 'rails_helper'
 # require 'search_click_tracking/service'
 
 describe SearchClickTracking::Service do
-  subject { described_class.new(url, query, position, user_agent, client_ip) }
+  subject { described_class.new(url, query, position, user_agent, module_code, client_ip) }
 
   before do
     allow_any_instance_of(described_class).to receive(:access_key).and_return('TESTKEY')
@@ -14,6 +14,7 @@ describe SearchClickTracking::Service do
   let(:user_agent) { 'testUserAgent' }
   let(:position) { '0' }
   let(:url) { 'https://www.testurl.com' }
+  let(:module_code) { 'I14Y' }
 
   describe '#track_click' do
     context 'when successful' do
