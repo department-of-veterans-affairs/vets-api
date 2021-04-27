@@ -49,7 +49,8 @@ def with_ssoi_configured(&block)
       with_settings(
         Settings.oidc.charon,
         enabled: true,
-        audience: 'https://example.com/xxxxxxservices/xxxxx'
+        audience: 'https://example.com/xxxxxxservices/xxxxx',
+        endpoint: 'http://example.com/services/charon',
       ) do
         VCR.use_cassette('okta/metadata') do
           VCR.use_cassette('okta/openid-user-charon') do

@@ -12,6 +12,7 @@ module OpenidAuth
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
+        puts e.message
         status_code = e.message.match(/\d{3}/).to_i
         status_code = !status_code.nil? && status_code.size >= 1 ? status_code[0] : 500
         status_code = status_code >= 500 ? 503 : 401
@@ -124,6 +125,8 @@ module OpenidAuth
 
         false
       rescue => e
+        puts("###########################################################")
+        puts(e.message)
         log_message_to_sentry('Failed validation with Charon', :error, body: e.message)
         raise e
       end
