@@ -105,12 +105,12 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def send_to_vre(user)
     prepare_form_data
 
+    upload_to_vbms
+
     @office_location = check_office_location if @office_location.nil?
 
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
     VeteranReadinessEmploymentMailer.build(user, email_addr).deliver_now if user.present?
-
-    upload_to_vbms
 
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
     # send the data to them. We always send a pdf to VBMS
