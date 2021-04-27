@@ -1,26 +1,20 @@
 name: Pact Contract Tests
-on: [workflow_dispatch]
+on: [push]
 jobs:
   tests:
-    name: Pact Contract Tests
+    name: Test
     runs-on: ubuntu-16.04
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-      CI: true
       DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets-api-test"
-      DISABLE_BOOTSNAP: true
       RAILS_ENV: test
       PGHOST: localhost
       PGUSER: vets-api
       PGPASSWORD: postgres
-      LANG: en_US.UTF-8
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets-api-test"
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.binaries.clamdscan": "clamscan"
-      TERM: xterm-256color
-      GIT_COMMIT_SHA: ${{ github.sha }}
-      CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
 
     services:
       postgres:
