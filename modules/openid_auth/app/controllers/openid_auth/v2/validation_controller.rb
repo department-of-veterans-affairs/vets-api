@@ -12,7 +12,7 @@ module OpenidAuth
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
-        if (e.is_a?(RestClient::ExceptionWithResponse))
+        if e.is_a?(RestClient::ExceptionWithResponse)
           status_code = e.response.code >= 500 ? 503 : 401
           render status: status_code
         else
