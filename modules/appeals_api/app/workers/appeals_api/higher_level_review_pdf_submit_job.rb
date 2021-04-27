@@ -90,7 +90,15 @@ module AppealsApi
       higher_level_review.update(status: 'error', code: e.code, detail: e.detail)
 
       if e.code == 'DOC201' || e.code == 'DOC202'
-        # do nothing, these jobs will have to be manually retried to not DDoS CMP
+        AppealsApi::SidekiqRetryNotifier.notify!(
+          {
+            'class' => self.class.name,
+            'retry_count' => '-',
+            'error_class' => e.code,
+            'error_message' => e.detail,
+            'failed_at' => Time.zone.now
+          }
+        )
       else
         # allow sidekiq to retry immediately
         raise

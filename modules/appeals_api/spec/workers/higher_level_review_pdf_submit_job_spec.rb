@@ -71,9 +71,18 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
 
     it 'puts the HLR into an error state' do
       expect(client_stub).to receive(:upload) { |_arg| faraday_response }
+      allow(AppealsApi::SidekiqRetryNotifier).to receive(:notify!).and_return(true)
       described_class.new.perform(higher_level_review.id)
       expect(higher_level_review.reload.status).to eq('error')
       expect(higher_level_review.code).to eq('DOC201')
+    end
+
+    it 'sends a retry notification' do
+      expect(client_stub).to receive(:upload) { |_arg| faraday_response }
+      allow(AppealsApi::SidekiqRetryNotifier).to receive(:notify!).and_return(true)
+      described_class.new.perform(higher_level_review.id)
+
+      expect(AppealsApi::SidekiqRetryNotifier).to have_received(:notify!)
     end
   end
 
