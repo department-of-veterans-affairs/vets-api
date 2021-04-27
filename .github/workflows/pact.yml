@@ -7,7 +7,7 @@ jobs:
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CI: true
-      DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
+      DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets-api-test?pool=4"
       DISABLE_BOOTSNAP: true
       RAILS_ENV: test
       PGHOST: localhost
