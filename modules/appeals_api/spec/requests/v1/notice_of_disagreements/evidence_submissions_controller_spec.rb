@@ -30,13 +30,11 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     # rubocop:enable Metrics/AbcSize
 
     context "when 'nod_id' is included" do
-      before do
+      it "returns submission attributes including 'appealId'" do
         with_s3_settings do
           post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
         end
-      end
 
-      it "returns submission attributes including 'appealId'" do
         data = JSON.parse(response.body)['data']
 
         expect(data).to have_key('id')
@@ -57,13 +55,11 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     end
 
     context "when 'nod_id' is not included" do
-      before do
+      it 'returns submission attributes' do
         with_s3_settings do
           post(path, params: { headers: headers })
         end
-      end
 
-      it 'returns submission attributes' do
         data = JSON.parse(response.body)['data']
 
         expect(data).to have_key('id')
