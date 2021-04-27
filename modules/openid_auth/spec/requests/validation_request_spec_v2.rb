@@ -377,8 +377,10 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns json response if valid user' do
+      charon_response = instance_double(RestClient::Response,
+                      code: 200)
       with_ssoi_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
+        allow(RestClient).to receive(:get){Settings.oidc.smart_launch_url}.and_return(launch_with_sta3n_response, charon_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
@@ -390,7 +392,42 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'v2 POST returns 401 response if invalid user' do
+    it 'v2 POST returns 401 response if invalid user, charon returns 401' => true do
+      charon_response = instance_double(RestClient::Response,
+                                        code: 401)
+      with_ssoi_configured do
+        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    it 'v2 POST returns 401 response if invalid user, raised error charon returns 401' do
+      with_ssoi_configured do
+        allow(RestClient).to receive(:get).with(Settings.oidc.smart_launch_url).and_return(launch_with_sta3n_response)
+        allow(RestClient).to receive(:get).with(Settings.oidc.charon.endpoint).and_raise("401 not authorized")
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    it 'v2 POST returns 503 response if server error, charon returns 500', :focus => true do
+
+      with_ssoi_configured do
+        allow(RestClient).to receive(:get).with(Settings.oidc.smart_launch_url).and_return(launch_with_sta3n_response)
+        allow(RestClient).to receive(:get).with(Settings.oidc.charon.endpoint).and_raise(RestClient::ExceptionWithResponse.new("500 error"))
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(503)
+      end
+    end
+
+    it 'v2 POST returns 401 response if invalid user, launch sta3n mismatch on vista_id' do
       with_ssoi_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_wrong_sta3n_response)
         post '/internal/auth/v2/validation',
