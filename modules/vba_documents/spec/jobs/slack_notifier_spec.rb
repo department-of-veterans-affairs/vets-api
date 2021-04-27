@@ -122,4 +122,28 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
       end
     end
   end
+
+  it 're-notifies if at least one requires notification' do
+    u = VBADocuments::UploadSubmission.new
+    status = 'received'
+    u.status = status
+    u.save!
+    u.metadata['status'][status]['start'] = 5.years.ago.to_i
+    u.save!
+    @job.perform
+    u.reload
+    last_notified = u.metadata['last_slack_notification'].to_i # nil to zero
+    guid = u.guid
+    u = VBADocuments::UploadSubmission.new
+    status = 'received'
+    u.status = status
+    u.save!
+    u.metadata['status'][status]['start'] = 5.years.ago.to_i
+    u.save!
+    Timecop.travel(1.minute.from_now) do
+      @job.perform
+    end
+    u = VBADocuments::UploadSubmission.find_by(guid: guid)
+    expect(last_notified).to be < u.metadata['last_slack_notification'].to_i
+  end
 end

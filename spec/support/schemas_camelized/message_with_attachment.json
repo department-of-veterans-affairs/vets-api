@@ -156,7 +156,8 @@
             "type": "object",
             "required": [
               "messageId",
-              "name"
+              "name",
+              "attachmentSize"
             ],
             "properties": {
               "messageId": {
@@ -164,6 +165,9 @@
               },
               "name": {
                 "type": "string"
+              },
+              "attachmentSize": {
+                "type": "integer"
               }
             }
           },

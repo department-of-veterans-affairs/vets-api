@@ -93,7 +93,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
           ],
           'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'act' => {
-            'icn' => '73806470379396828'
+            'icn' => '73806470379396828',
+            'type' => 'patient'
           },
           'launch' => {
             'icn' => '73806470379396828'
@@ -124,7 +125,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
           ],
           'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
           'act' => {
-            'icn' => nil
+            'icn' => nil,
+            'type' => 'system'
           },
           'launch' => {
             'patient' => '73806470379396828'
@@ -141,6 +143,52 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       allow(JWT).to receive(:decode).and_return(jwt)
       Session.create(token: token, uuid: user.uuid)
       user.save
+    end
+
+    it 'v2 POST returns invalid audience for strict=true, aud=nil' do
+      with_okta_configured do
+        post '/internal/auth/v2/validation', params: { strict: 'true' }, headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid audience'
+      end
+    end
+
+    it 'v2 POST returns invalid audience for strict=true, and aud not in list' do
+      with_okta_configured do
+        post '/internal/auth/v2/validation', params: { strict: 'true', aud: %w[http://test foo://bar] },
+                                             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid audience'
+      end
+    end
+
+    it 'v2 POST returns invalid audience for invalid strict value' do
+      with_okta_configured do
+        post '/internal/auth/v2/validation', params: { strict: 'foo', aud: 'http://test' }, headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid strict value'
+      end
+    end
+
+    it 'v2 POST returns valid response for strict=false, and aud not in list' do
+      with_okta_configured do
+        post '/internal/auth/v2/validation', params: { strict: 'false', aud: 'http://test' },
+                                             headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+      end
+    end
+
+    it 'v2 POST returns valid response for strict=true, and aud is in list' do
+      with_okta_configured do
+        post '/internal/auth/v2/validation', params: { strict: 'true', aud: 'api://default' },
+                                             headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+      end
     end
 
     it 'v2 POST returns true if the user is a veteran' do
@@ -197,8 +245,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'v2 POST returns a not found when va profile returns not found', :aggregate_failures do
-      allow_any_instance_of(OpenidUser).to receive(:va_profile_status).and_return('NOT_FOUND')
+    it 'v2 POST returns a not found when mpi profile returns not found', :aggregate_failures do
+      allow_any_instance_of(OpenidUser).to receive(:mpi_status).and_return('NOT_FOUND')
       with_okta_configured do
         post '/internal/auth/v1/validation', params: nil, headers: auth_header
 
@@ -207,8 +255,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'v2 POST returns a server error when va profile returns server error', :aggregate_failures do
-      allow_any_instance_of(OpenidUser).to receive(:va_profile_status).and_return('SERVER_ERROR')
+    it 'v2 POST returns a server error when mpi profile returns server error', :aggregate_failures do
+      allow_any_instance_of(OpenidUser).to receive(:mpi_status).and_return('SERVER_ERROR')
       with_okta_configured do
         post '/internal/auth/v1/validation', params: nil, headers: auth_header
 
@@ -239,17 +287,15 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'with client credentials jwt and failed launch lookup' do
     before do
       allow(JWT).to receive(:decode).and_return(client_credentials_jwt)
-      allow(RestClient).to receive(:get).and_return(failed_launch_response)
+      allow(RestClient).to receive(:get).and_raise(failed_launch_response)
     end
 
-    it 'v2 POST returns true if the user is a veteran' do
+    it 'v2 POST returns 401 Invalid launch context' do
       with_okta_configured do
         post '/internal/auth/v2/validation', params: nil, headers: auth_header
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys)
-          .to eq(json_cc_api_response['data']['attributes'].keys)
-        expect(JSON.parse(response.body)['data']['attributes']['launch']['patient']).to eq(nil)
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid launch context'
       end
     end
   end

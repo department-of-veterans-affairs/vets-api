@@ -24,6 +24,8 @@ class SavedClaim::EducationBenefits::VA10203 < SavedClaim::EducationBenefits
   # rubocop:enable Metrics/CyclomaticComplexity
 
   def create_stem_automated_decision(user)
+    logger.info "EDIPI available for submit STEM claim id=#{education_benefits_claim.id}: #{user.edipi.present?}"
+
     education_benefits_claim.build_education_stem_automated_decision(
       user_uuid: user.uuid,
       auth_headers_json: EVSS::AuthHeaders.new(user).to_h.to_json

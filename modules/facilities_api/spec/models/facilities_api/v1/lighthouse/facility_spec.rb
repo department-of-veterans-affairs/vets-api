@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 module FacilitiesApi
-  RSpec.describe V1::Lighthouse::Facility, type: :model do
+  RSpec.describe V1::Lighthouse::Facility, type: :model, team: :facilities do
     context 'Creating' do
       let(:attributes) do
         {
@@ -24,6 +24,7 @@ module FacilitiesApi
             active_status: nil,
             address: nil,
             classification: nil,
+            detailed_services: nil,
             distance: nil,
             facility_type: nil,
             facility_type_prefix: 'abc',
