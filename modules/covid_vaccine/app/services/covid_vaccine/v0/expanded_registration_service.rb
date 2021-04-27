@@ -74,9 +74,24 @@ module CovidVaccine
       end
 
       def handle_no_facility_error(submission)
-        # We may want to send these to backend as well, especially if we can find the user in MPI
-        submission.enrollment_requires_intervention!
-        raise Common::Exceptions::UnprocessableEntity.new(detail: "No Preferred Facility for record #{submission.id}")
+        Rails.logger.info(
+          "#{self.class.name}:No preferred facility selected",
+          submission: submission.id,
+          submission_date: submission.created_at
+        )
+        # if record is already in state=enrollment_out_of_band, we can just process it with no facility match
+        # return if submission.state == 'enrollment_out_of_band'
+
+        # we could change this to keep the  'no facility' records in enrollment_pending so we keep trying to 
+        # find the ICN in MPI. After 24 hours they will be sent to vetext with state as either
+        # registered_no_icn or registered_no_facility
+        # log info here instead of raising 
+
+        # Plan is to make code not care about out of band state, and to treat the no facility records the same as 
+        # the MPI no facility found records.  Then we will update state from out of band to pending, and all records
+        #  will process.  
+        # submission.enrollment_requires_intervention!
+        # raise Common::Exceptions::UnprocessableEntity.new(detail: "No Preferred Facility for record #{submission.id}")
       end
 
       def transform_form_data(raw_form_data, facility, mpi_attributes)

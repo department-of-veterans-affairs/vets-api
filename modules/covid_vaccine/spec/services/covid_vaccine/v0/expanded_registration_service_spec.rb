@@ -12,6 +12,10 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
   let(:submission_non_us) { create(:covid_vax_expanded_registration, :unsubmitted, :non_us) }
   let(:submission_composite_facility) { create(:covid_vax_expanded_registration, :unsubmitted, :composite_facility) }
   let(:submission_eligibility_info) { create(:covid_vax_expanded_registration, :unsubmitted, :eligibility_info) }
+  let(:submission_enrollment_out_of_band) do
+    create(:covid_vax_expanded_registration, :unsubmitted,
+           :no_preferred_facility, :enrollment_out_of_band)
+  end
 
   let(:mvi_profile) { build(:mvi_profile, { vha_facility_ids: %w[358 516 553 200HD 200IP 200MHV] }) }
   let(:mvi_profile_no_facility) { build(:mvi_profile) }
@@ -201,20 +205,44 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           subject.register(submission)
         end
 
-        it 'updates state when preferred location does not exist' do
+        it 'does not submit when preferred location does not exist and MPI matches ICN' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
-          expect_any_instance_of(MPI::Service).not_to receive(:find_profile)
-          expect do
-            subject.register(submission_no_facility)
-          end.to raise_error(Common::Exceptions::UnprocessableEntity)
+          allow_any_instance_of(MPI::Service).to receive(:find_profile)
+          .and_return(mvi_facility_not_found)
+          expect(Rails.logger).to receive(:info).with("#{described_class}:Error in MPI Lookup",
+                                                      'mpi_error': 'no matching facility found for ',
+                                                      'submission': submission_no_facility.id,
+                                                      'submission_date': submission_no_facility.created_at)
+          expect(Rails.logger).to receive(:info).with("#{described_class}:No preferred facility selected",
+                                                      'submission': submission_no_facility.id,
+                                                      'submission_date': submission_no_facility.created_at)
+          subject.register(submission_no_facility)
           expect(submission_no_facility.reload.vetext_sid).to be_nil
-          expect(submission_no_facility.reload.state).to match('enrollment_out_of_band')
+          expect(submission_no_facility.reload.state).to match('enrollment_pending')
+        end
+
+        it 'does not submit when preferred location does not exist and MPI does not match ICN' do
+          expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
+          allow_any_instance_of(MPI::Service).to receive(:find_profile)
+          .and_return(mvi_profile_not_found)
+          expect(Rails.logger).to receive(:info).with("#{described_class}:Error in MPI Lookup",
+                                                      'mpi_error': 'no ICN found',
+                                                      'submission': submission_no_facility.id,
+                                                      'submission_date': submission_no_facility.created_at)
+          expect(Rails.logger).to receive(:info).with("#{described_class}:No preferred facility selected",
+                                                      'submission': submission_no_facility.id,
+                                                      'submission_date': submission_no_facility.created_at)
+          subject.register(submission_no_facility)
+          expect(submission_no_facility.reload.vetext_sid).to be_nil
+          expect(submission_no_facility.reload.state).to match('enrollment_pending')
         end
 
         context 'with created_at older than 24 hours' do
           before do
             submission.created_at = 1.day.ago
             submission.save!
+            submission_no_facility.created_at = 1.day.ago
+            submission_no_facility.save!
           end
 
           it 'submits and updates state when MPI Profile is not found and create_date >= 24 hours' do
@@ -239,6 +267,30 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             subject.register(submission)
             expect(submission.reload.vetext_sid).to match(sid)
             expect(submission.reload.state).to match('registered_no_facility')
+          end
+
+          it 'submits and updates state when preferred location does not exist and MPI matches ICN' do
+            sid = SecureRandom.uuid
+            allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+            .and_return({ sid: sid })
+            allow_any_instance_of(MPI::Service).to receive(:find_profile)
+            .and_return(mvi_facility_not_found)
+            
+            subject.register(submission_no_facility)
+            expect(submission_no_facility.reload.vetext_sid).to match(sid)
+            expect(submission_no_facility.reload.state).to match('registered_no_facility')
+          end
+  
+          it 'submits and updates state when preferred location does not exist and MPI does not match ICN' do
+            sid = SecureRandom.uuid
+            allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+            .and_return({ sid: sid })
+            allow_any_instance_of(MPI::Service).to receive(:find_profile)
+            .and_return(mvi_profile_not_found)
+            
+            subject.register(submission_no_facility)
+            expect(submission_no_facility.reload.vetext_sid).to match(sid)
+            expect(submission_no_facility.reload.state).to match('registered_no_icn')
           end
         end
 
@@ -275,5 +327,36 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         end
       end
     end
+
+    # context 'processing when state=enrollment_out_of_band' do
+    #   before do
+    #     submission_enrollment_out_of_band.created_at = 1.day.ago
+    #     submission_enrollment_out_of_band.save!
+    #   end
+
+    #   it 'updates state to registered_no_icn' do
+    #     sid = SecureRandom.uuid
+    #     allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+    #       .and_return({ sid: sid })
+    #     allow_any_instance_of(MPI::Service).to receive(:find_profile)
+    #       .and_return(mvi_profile_not_found)
+
+    #     subject.register(submission_enrollment_out_of_band)
+    #     expect(submission_enrollment_out_of_band.reload.vetext_sid).to match(sid)
+    #     expect(submission_enrollment_out_of_band.reload.state).to match('registered_no_icn')
+    #   end
+
+    #   it 'updates state to registered_no_facility' do
+    #     sid = SecureRandom.uuid
+    #     allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+    #       .and_return({ sid: sid })
+    #     allow_any_instance_of(MPI::Service).to receive(:find_profile)
+    #       .and_return(mvi_facility_not_found)
+
+    #     subject.register(submission_enrollment_out_of_band)
+    #     expect(submission_enrollment_out_of_band.reload.vetext_sid).to match(sid)
+    #     expect(submission_enrollment_out_of_band.reload.state).to match('registered_no_facility')
+    #   end
+    # end
   end
 end
