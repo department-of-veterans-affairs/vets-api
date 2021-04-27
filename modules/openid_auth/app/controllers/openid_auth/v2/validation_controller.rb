@@ -87,6 +87,10 @@ module OpenidAuth
         payload_object
       end
 
+      #
+      # Screens the payload, for an additional authorization
+      # check with charon
+      #
       def authorized_by_charon?(payload_object)
         act_vista_id = payload_object.act[:vista_id]
         sta3n = payload_object.launch['sta3n']
@@ -97,8 +101,7 @@ module OpenidAuth
 
         vista_ids.each do |vista_id|
           parsed_sta3n = vista_id.match(/\d{3}[A-Z]*/)
-          no_match =  !sta3n.to_s.eql?(parsed_sta3n.to_s)
-          return true unless no_match
+          return true if sta3n.to_s.eql?(parsed_sta3n.to_s)
         end
         false
       end
