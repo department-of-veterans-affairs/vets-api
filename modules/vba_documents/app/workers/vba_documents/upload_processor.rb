@@ -16,14 +16,18 @@ module VBADocuments
 
     def perform(guid, retries = 0)
       @retries = retries
-      @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      if @upload
-        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
-        Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
-        download_and_process
-        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
-        Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
+      response = nil
+      VBADocuments::UploadSubmission.with_advisory_lock(guid) do
+        @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+        if @upload
+          tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
+          Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
+          response = download_and_process
+          tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
+          Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
+        end
       end
+      response&.success? ? true : false
     end
 
     private
@@ -31,6 +35,7 @@ module VBADocuments
     # rubocop:disable Metrics/MethodLength
     def download_and_process
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
+      response = nil
       begin
         update_size(@upload, tempfile.size)
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
@@ -52,6 +57,7 @@ module VBADocuments
         tempfile.close
         close_part_files(parts) if parts.present?
       end
+      response
     end
     # rubocop:enable Metrics/MethodLength
 
