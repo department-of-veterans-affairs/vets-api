@@ -1,5 +1,5 @@
 name: Pact Contract Tests
-on: [push]
+on: [workflow_dispatch]
 jobs:
   tests:
     name: Test
