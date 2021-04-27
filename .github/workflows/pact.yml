@@ -27,7 +27,7 @@ jobs:
         image: postgis/postgis:11-2.5
         env:
           POSTGRES_USER: vets-api
-          POSTGRES_DB: vets_api_test
+          POSTGRES_DB: vets-api-test
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
