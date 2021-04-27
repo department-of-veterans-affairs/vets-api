@@ -96,7 +96,7 @@ module OpenidAuth
         return false unless vista_ids
 
         vista_ids.each do |vista_id|
-          parsed_sta3n = vista_id.match(/\d{3}|/)
+          parsed_sta3n = vista_id.match(/\d{3}[A-Z]*/)
           no_match =  !sta3n.to_s.eql?(parsed_sta3n.to_s)
           return true unless no_match
         end
