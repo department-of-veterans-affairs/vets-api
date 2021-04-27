@@ -20,11 +20,9 @@ module SearchTypeahead
 
     attr_reader :query
 
-    # rubocop:disable Lint/MissingSuper
     def initialize(query)
       @query = query
     end
-    # rubocop:enable Lint/MissingSuper
 
     # GETs suggestion data from search.gov
     #
