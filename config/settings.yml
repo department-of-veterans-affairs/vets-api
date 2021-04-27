@@ -665,7 +665,6 @@ search_typeahead:
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
-  module_code: I14Y
   mock: false
   url: https://api.gsa.gov/technology/searchgov/v2
 
