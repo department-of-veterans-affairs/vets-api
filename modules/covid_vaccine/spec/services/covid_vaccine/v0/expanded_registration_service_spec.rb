@@ -325,6 +325,69 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
 
           subject.register(submission)
         end
+
+        context 'with created_at older than 24 hours' do
+          before do
+            submission.created_at = 1.day.ago
+            submission.save!
+          end
+
+          it 'submits and updates state when MPI Profile is not found and create_date >= 24 hours' do
+            sid = SecureRandom.uuid
+            allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+              .and_return({ sid: sid })
+            allow_any_instance_of(MPI::Service).to receive(:find_profile)
+              .and_return(mvi_profile_not_found)
+
+            subject.register(submission)
+            expect(submission.reload.vetext_sid).to match(sid)
+            expect(submission.reload.state).to match('registered_no_icn')
+          end
+
+          it 'submits and updates state when MPI facility does not match and create_date >= 24 hours' do
+            sid = SecureRandom.uuid
+            allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+              .and_return({ sid: sid })
+            allow_any_instance_of(MPI::Service).to receive(:find_profile)
+              .and_return(mvi_facility_not_found)
+
+            subject.register(submission)
+            expect(submission.reload.vetext_sid).to match(sid)
+            expect(submission.reload.state).to match('registered_no_facility')
+          end
+        end
+
+        it 'does not submit when MPI Facility does not match and create_date < 24 hours' do
+          created_at_date = 23.hours.ago
+          expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
+          allow_any_instance_of(MPI::Service).to receive(:find_profile)
+            .and_return(mvi_facility_not_found)
+          submission.created_at = created_at_date
+          submission.save!
+          expect(Rails.logger).to receive(:info).with(
+            'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
+            'mpi_error': 'no matching facility found for 516', 'submission': submission.id,
+            'submission_date': created_at_date
+          )
+
+          subject.register(submission)
+        end
+
+        it 'does not submit when MPI Profile is not found and create_date < 24 hours' do
+          created_at_date = 23.hours.ago
+          expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
+          allow_any_instance_of(MPI::Service).to receive(:find_profile)
+            .and_return(mvi_profile_not_found)
+          submission.created_at = created_at_date
+          submission.save!
+          expect(Rails.logger).to receive(:info).with(
+            'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
+            'mpi_error': 'no ICN found', 'submission': submission.id,
+            'submission_date': created_at_date
+          )
+
+          subject.register(submission)
+        end
       end
     end
 

@@ -446,3 +446,13 @@ features:
     enable_in_development: true
     description: >
       Form 10182 Notice of Disagreement - Request a board appeal
+  virtual_agent_bot_a:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Points to Bot A
+  sharable_link:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggles the availability of sharable links to deep link to content

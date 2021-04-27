@@ -42,6 +42,8 @@ module VBADocuments
         lobs = UploadSubmission.where(created_at: @from..@to, consumer_name: name)
                                .where("uploaded_pdf->'line_of_business' is not null")
                                .pluck("uploaded_pdf->'line_of_business'").uniq
+        # put ticks around all lobs
+        lobs.map! { |e| "'#{e}'" }
 
         # ensure that all appeals submissions have lob passed in
         if name.eql?(APPEALS_CONSUMER_NAME)

@@ -91,6 +91,15 @@ salesforce-carma:
 salesforce:
   env: dev
 
+form_10_10cg:
+  poa:
+    s3:
+      aws_access_key_id: my-aws-key-id
+      aws_secret_access_key: my-aws-access-key
+      bucket: my-bucket
+      enabled: true
+      region: us-gov-west-1
+
 # Settings for Education Benefits
 edu:
   prefill: true
@@ -656,7 +665,6 @@ search_typeahead:
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
-  module_code: I14Y
   mock: false
   url: https://api.gsa.gov/technology/searchgov/v2
 
@@ -679,7 +687,6 @@ flipper:
     - filip.fafara@gmail.com
     - grodriguez@governmentcio.com
     - hshin@thoughtworks.com
-    - hughes_dustin@bah.com
     - jacob.gacek@thoughtworks.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
@@ -845,6 +852,7 @@ coronavirus_chatbot:
 covid_vaccine:
   allowed_facilities: [402,405,436,437,438,442,459,460,463,501,502,503,504,506,508,509,512,515,516,517,518,519,520,521,523,526,528,529,531,534,537,538,539,540,541,542,544,546,548,549,550,552,553,554,556,557,558,561,562,564,565,568,570,573,575,578,580,581,583,585,586,589,590,593,595,596,598,600,603,605,607,608,610,612,613,614,618,619,620,621,623,626,629,630,631,632,635,636,637,640,642,644,646,648,649,650,652,653,654,655,656,657,658,659,660,662,663,664,666,667,668,671,672,673,674,675,676,678,679,687,688,689,691,692,693,695,740,756,757]
   enrollment_service:
+    job_enabled: false
     sftp:
       host: fake_host
       port: ~
@@ -852,7 +860,8 @@ covid_vaccine:
       password: fake_password
 
 virtual_agent:
-  webchat_secret: fake_secret
+  webchat_secret_a: fake_secret_a
+  webchat_secret_b: fake_secret_b
 
 # Settings for notifications client
 vanotify:
