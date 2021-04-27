@@ -91,6 +91,15 @@ salesforce-carma:
 salesforce:
   env: dev
 
+form_10_10cg:
+  poa:
+    s3:
+      aws_access_key_id: my-aws-key-id
+      aws_secret_access_key: my-aws-access-key
+      bucket: my-bucket
+      enabled: true
+      region: us-gov-west-1
+
 # Settings for Education Benefits
 edu:
   prefill: true
