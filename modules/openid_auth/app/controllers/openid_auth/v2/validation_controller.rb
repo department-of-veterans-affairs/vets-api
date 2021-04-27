@@ -12,11 +12,12 @@ module OpenidAuth
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
-        error_str = e.to_s
-        status_code = error_str.match(/\d{3}/)
-        status_code = !status_code.nil? && status_code.size >= 1 ? status_code[0].to_i : 500
-        status_code = status_code >= 500 ? 503 : 401
-        render status: status_code
+        if (e.is_a?(RestClient::ExceptionWithResponse))
+          status_code = e.response.code >= 500 ? 503 : 401
+          render status: status_code
+        else
+          raise e
+        end
       end
 
       def valid_strict?
