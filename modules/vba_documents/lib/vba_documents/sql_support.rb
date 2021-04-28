@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require './modules/vba_documents/app/models/vba_documents/upload_submission'
 
 # rubocop:disable  Metrics/ModuleLength
@@ -59,14 +61,15 @@ module VBADocuments
       order by a.consumer_name asc
     "
 
-    SUCCESS_SQL = "
-      select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
-      from vba_documents_upload_submissions a
-      where a.status = 'success'
-      and   a.updated_at >= $1 and a.updated_at < $2
-      and   a.metadata -> '#{VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY}' is null
-      order by a.consumer_name asc
-    "
+    def self.success_sql
+      %Q(select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
+         from vba_documents_upload_submissions a
+         where a.status = 'success'
+         and   a.updated_at >= $1 and a.updated_at < $2
+         and   a.metadata -> '#{VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY}' is null
+         order by a.consumer_name asc
+      )
+    end
 
     MAX_AVG_SQL = "
       select yyyy, mm,
