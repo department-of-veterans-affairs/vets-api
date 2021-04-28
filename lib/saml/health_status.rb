@@ -38,7 +38,7 @@ module SAML
         # guard against actually going and retrieving SAML metadata within the check itself
         return false unless fetch_attempted?
 
-        SettingsService.merged_saml_settings&.idp_sso_target_url&.blank? == false
+        SettingsService.merged_saml_settings&.idp_sso_service_url&.blank? == false
       end
 
       def idp_certs_valid?

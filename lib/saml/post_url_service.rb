@@ -81,7 +81,7 @@ module SAML
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
       post_params = saml_auth_request.create_params(new_url_settings, 'RelayState' => relay_state_params)
-      login_url = new_url_settings.idp_sso_target_url
+      login_url = new_url_settings.idp_sso_service_url
       [login_url, post_params]
     end
   end

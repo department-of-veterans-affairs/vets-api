@@ -7,7 +7,7 @@ module ClaimsApi
     class ClaimsController < ApplicationController
       include ClaimsApi::PoaVerification
       before_action { permit_scopes %w[claim.read] }
-      before_action :verify_power_of_attorney_using_bgs_service, if: :header_request?
+      before_action :verify_power_of_attorney!, if: :header_request?
 
       def index
         claims = claims_service.all
