@@ -7,7 +7,7 @@ module AppealsApi::V1
         skip_before_action :authenticate
         before_action :nod_id_present?, only: :create
         before_action :set_notice_of_disagreement, only: :create
-        before_action :validate_board_review_option, only: :create
+        before_action :validate_nod_attributes, only: :create
         before_action :set_submission_attributes, only: :create
 
         class InvalidReviewOption < StandardError
@@ -47,8 +47,9 @@ module AppealsApi::V1
           raise Common::Exceptions::RecordNotFound, params[:nod_id] unless @notice_of_disagreement
         end
 
-        def validate_board_review_option
+        def validate_nod_attributes
           raise InvalidReviewOption unless @notice_of_disagreement.accepts_evidence?
+          raise Common::Exceptions::Forbidden, I18n.t('appeals_api.errors.invalid_evidence_submission_ssn')
         end
 
         def set_submission_attributes

@@ -11,85 +11,93 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
 
   describe '#create' do
-    it "returns submission attributes including 'appealId'" do
-      with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                    prefix: 'http://some.fakesite.com/path',
-                    replacement: 'http://another.fakesite.com/rewrittenpath') do
-        s3_client = instance_double(Aws::S3::Resource)
-        allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
-        s3_bucket = instance_double(Aws::S3::Bucket)
-        s3_object = instance_double(Aws::S3::Object)
-        allow(s3_client).to receive(:bucket).and_return(s3_bucket)
-        allow(s3_bucket).to receive(:object).and_return(s3_object)
-        allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-        notice_of_disagreement.update(board_review_option: 'evidence_submission')
-        post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
+    context 'when corresponding notice of disagreement record not found' do
+      it 'returns an error' do
+        with_settings(Settings.modules_appeals_api.evidence_submissions.location,
+                      prefix: 'http://some.fakesite.com/path',
+                      replacement: 'http://another.fakesite.com/rewrittenpath') do
+          s3_client = instance_double(Aws::S3::Resource)
+          allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+          s3_bucket = instance_double(Aws::S3::Bucket)
+          s3_object = instance_double(Aws::S3::Object)
+          allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+          allow(s3_bucket).to receive(:object).and_return(s3_object)
+          allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
 
-        data = JSON.parse(response.body)['data']
-        expect(data).to have_key('id')
-        expect(data).to have_key('type')
-        expect(data['attributes']['status']).to eq('pending')
-        expect(data['attributes']['appealId']).to eq(notice_of_disagreement.id)
-        expect(data['attributes']['appealType']).to eq('NoticeOfDisagreement')
-        expect(data['attributes']['location']).to eq('http://another.fakesite.com/rewrittenpath/uuid')
-      end
-    end
+          post(path, params: { nod_id: 1979, headers: headers })
 
-    it 'returns an error when corresponding notice of disagreement not found' do
-      with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                    prefix: 'http://some.fakesite.com/path',
-                    replacement: 'http://another.fakesite.com/rewrittenpath') do
-        s3_client = instance_double(Aws::S3::Resource)
-        allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
-        s3_bucket = instance_double(Aws::S3::Bucket)
-        s3_object = instance_double(Aws::S3::Object)
-        allow(s3_client).to receive(:bucket).and_return(s3_bucket)
-        allow(s3_bucket).to receive(:object).and_return(s3_object)
-        allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-        notice_of_disagreement.update(board_review_option: 'evidence_submission')
-        post path, params: { nod_id: 1979}, headers: headers
-      end
-
-      expect(response.status).to eq 404
-      expect(response.body).to include 'Record not found'
-    end
-
-    it "returns an error if nod 'boardReviewOption' is not 'evidence_submission'" do
-      with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                    prefix: 'http://some.fakesite.com/path',
-                    replacement: 'http://another.fakesite.com/rewrittenpath') do
-        s3_client = instance_double(Aws::S3::Resource)
-        allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
-        s3_bucket = instance_double(Aws::S3::Bucket)
-        s3_object = instance_double(Aws::S3::Object)
-        allow(s3_client).to receive(:bucket).and_return(s3_bucket)
-        allow(s3_bucket).to receive(:object).and_return(s3_object)
-        allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-        post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
-        expect(response.status).to eq 500
-        expect(response.body).to include "'boardReviewOption' must be 'evidence_submission'"
-      end
-    end
-
-    it 'raises an error if record is not found' do
-      with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                    prefix: 'http://some.fakesite.com/path',
-                    replacement: 'http://another.fakesite.com/rewrittenpath') do
-        s3_client = instance_double(Aws::S3::Resource)
-        allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
-        s3_bucket = instance_double(Aws::S3::Bucket)
-        s3_object = instance_double(Aws::S3::Object)
-        allow(s3_client).to receive(:bucket).and_return(s3_bucket)
-        allow(s3_bucket).to receive(:object).and_return(s3_object)
-        allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-        post path, params: { nod_id: SecureRandom.uuid }
-
-        expect(response.status).to eq 404
-        expect(response.body).to include 'Record not found'
+          expect(response.status).to eq 404
+          expect(response.body).to include 'Record not found'
         end
+      end
     end
 
-    it 'creates the evidence submission and returns upload location' do
+    context 'when corresponding notice of disagreement record found' do
+      it "returns an error if nod 'boardReviewOption' is not 'evidence_submission'" do
+        with_settings(Settings.modules_appeals_api.evidence_submissions.location,
+                      prefix: 'http://some.fakesite.com/path',
+                      replacement: 'http://another.fakesite.com/rewrittenpath') do
+          s3_client = instance_double(Aws::S3::Resource)
+          allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+          s3_bucket = instance_double(Aws::S3::Bucket)
+          s3_object = instance_double(Aws::S3::Object)
+          allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+          allow(s3_bucket).to receive(:object).and_return(s3_object)
+          allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
+
+          post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+
+          expect(response.status).to eq 500
+          expect(response.body).to include "'boardReviewOption' must be 'evidence_submission'"
+        end
+      end
+
+      it 'returns an error if request and NOD Veteran SSNs do not match' do
+        with_settings(Settings.modules_appeals_api.evidence_submissions.location,
+                      prefix: 'http://some.fakesite.com/path',
+                      replacement: 'http://another.fakesite.com/rewrittenpath') do
+          s3_client = instance_double(Aws::S3::Resource)
+          allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+          s3_bucket = instance_double(Aws::S3::Bucket)
+          s3_object = instance_double(Aws::S3::Object)
+          allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+          allow(s3_bucket).to receive(:object).and_return(s3_object)
+          allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
+
+          notice_of_disagreement.update(board_review_option: 'evidence_submission')
+          binding.pry
+          post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+        end
+      end
+
+      it 'creates the evidence submission and returns upload location' do
+        with_settings(Settings.modules_appeals_api.evidence_submissions.location,
+                      prefix: 'http://some.fakesite.com/path',
+                      replacement: 'http://another.fakesite.com/rewrittenpath') do
+          s3_client = instance_double(Aws::S3::Resource)
+          allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+          s3_bucket = instance_double(Aws::S3::Bucket)
+          s3_object = instance_double(Aws::S3::Object)
+          allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+          allow(s3_bucket).to receive(:object).and_return(s3_object)
+          allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
+
+          notice_of_disagreement.update(board_review_option: 'evidence_submission')
+          post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+
+          data = JSON.parse(response.body)['data']
+
+          expect(data).to have_key('id')
+          expect(data).to have_key('type')
+          expect(data['attributes']['status']).to eq('pending')
+          expect(data['attributes']['appealId']).to eq(notice_of_disagreement.id)
+          expect(data['attributes']['appealType']).to eq('NoticeOfDisagreement')
+          expect(data['attributes']['location']).to eq('http://another.fakesite.com/rewrittenpath/uuid')
+        end
+      end
+    end
+
+    it "returns an error when 'nod_id' parameter is missing" do
       with_settings(Settings.modules_appeals_api.evidence_submissions.location,
                     prefix: 'http://some.fakesite.com/path',
                     replacement: 'http://another.fakesite.com/rewrittenpath') do
@@ -100,17 +108,11 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         allow(s3_client).to receive(:bucket).and_return(s3_bucket)
         allow(s3_bucket).to receive(:object).and_return(s3_object)
         allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-        notice_of_disagreement.update(board_review_option: 'evidence_submission')
-        post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
 
-        data = JSON.parse(response.body)['data']
+        post(path, params: { headers: headers })
 
-        expect(data).to have_key('id')
-        expect(data).to have_key('type')
-        expect(data['attributes']['status']).to eq('pending')
-        expect(data['attributes']['appealId']).to eq(notice_of_disagreement.id)
-        expect(data['attributes']['appealType']).to eq('NoticeOfDisagreement')
-        expect(data['attributes']['location']).to eq('http://another.fakesite.com/rewrittenpath/uuid')
+        expect(response.status).to eq 400
+        expect(response.body).to include 'Missing parameter'
       end
     end
 
