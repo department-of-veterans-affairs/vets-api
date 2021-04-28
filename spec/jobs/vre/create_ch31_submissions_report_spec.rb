@@ -9,13 +9,13 @@ RSpec.describe VRE::CreateCh31SubmissionsReport, type: :aws_helpers do
 
   let(:time) { Time.zone.now }
 
-  context 'with some sample claims', run_at: '2017-07-27 00:00:00 -0400' do
+  context 'with some sample claims', run_at: '2017-07-27 00:00:00' do
     let!(:vre_claim_1) do
-      create(:veteran_readiness_employment_claim, updated_at: time.beginning_of_day)
+      create(:veteran_readiness_employment_claim, updated_at: time - 24.hours)
     end
 
     let!(:vre_claim_2) do
-      create(:veteran_readiness_employment_claim, updated_at: time.beginning_of_day)
+      create(:veteran_readiness_employment_claim, updated_at: time - 1.second)
     end
 
     before do
@@ -29,8 +29,8 @@ RSpec.describe VRE::CreateCh31SubmissionsReport, type: :aws_helpers do
           subject.create_csv_array(submitted_claims)
         ).to eq(
           csv_array: [['Count', 'Regional Office', 'PID', 'Date Application Received', 'Type of Form', 'Total'],
-                      [1, '317', '600036503', '2017-07-27 00:00:00 UTC', vre_claim_1.form_id, 2],
-                      [2, '317', '600036503', '2017-07-27 00:00:00 UTC', vre_claim_2.form_id, 2]]
+                      [1, '317', '600036503', '2017-07-26 00:00:00 UTC', vre_claim_1.form_id, 2],
+                      [2, '317', '600036503', '2017-07-26 23:59:59 UTC', vre_claim_2.form_id, 2]]
         )
       end
     end
