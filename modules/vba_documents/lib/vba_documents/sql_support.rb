@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 require './modules/vba_documents/app/models/vba_documents/upload_submission'
 
 # rubocop:disable  Metrics/ModuleLength
