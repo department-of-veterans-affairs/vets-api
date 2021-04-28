@@ -531,7 +531,7 @@
                   "Army National Guard",
                   "Army Reserves",
                   "Coast Guard",
-                  "Coast Guard Reserve",
+                  "Coast Guard Reserves",
                   "Marine Corps",
                   "Marine Corps Reserves",
                   "National Oceanic &amp; Atmospheric Administration",
@@ -779,7 +779,32 @@
               "required": ["serviceBranch"],
               "properties": {
                 "serviceBranch": {
-                  "type": "string"
+                  "type": "string",
+                  "enum": [
+                    "Air Force",
+                    "Air Force Reserves",
+                    "Air National Guard",
+                    "Army",
+                    "Army National Guard",
+                    "Army Reserves",
+                    "Coast Guard",
+                    "Coast Guard Reserves",
+                    "Marine Corps",
+                    "Marine Corps Reserves",
+                    "National Oceanic &amp; Atmospheric Administration",
+                    "Navy",
+                    "Navy Reserves",
+                    "Public Health Service",
+                    "Air Force Academy",
+                    "Army Air Corps or Army Air Force",
+                    "Army Nurse Corps",
+                    "Coast Guard Academy",
+                    "Merchant Marine",
+                    "Naval Academy",
+                    "Other",
+                    "US Military Academy",
+                    "Women's Army Corps"
+                  ]
                 }
               }
             }
@@ -796,7 +821,7 @@
       "properties": {
         "accountType": {
           "type": "string",
-          "enum": ["Checking", "Savings"]
+          "enum": ["CHECKING", "SAVINGS"]
         },
         "accountNumber": {
           "minLength": 4,

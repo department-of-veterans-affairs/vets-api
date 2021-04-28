@@ -272,16 +272,28 @@ module ClaimsApi
                       key :description, 'Branch of Service during period'
                       key :enum, [
                         'Air Force',
-                        'Air Force Reserve',
+                        'Air Force Reserves',
+                        'Air National Guard',
                         'Army',
-                        'Army Reserve',
+                        'Army National Guard',
+                        'Army Reserves',
                         'Coast Guard',
-                        'Coast Guard Reserve',
+                        'Coast Guard Reserves',
                         'Marine Corps',
-                        'Marine Corps Reserve',
+                        'Marine Corps Reserves',
+                        'National Oceanic & Atmospheric Administration',
                         'Navy',
-                        'Navy Reserve',
-                        'NOAA'
+                        'Navy Reserves',
+                        'Public Health Service',
+                        'Air Force Academy',
+                        'Army Air Corps or Army Air Force',
+                        'Army Nurse Corps',
+                        'Coast Guard Academy',
+                        'Merchant Marine',
+                        'Naval Academy',
+                        'Other',
+                        'US Military Academy',
+                        "Women's Army Corps"
                       ]
                     end
 
@@ -909,16 +921,28 @@ module ClaimsApi
                       key :example, 'Air Force'
                       key :enum, [
                         'Air Force',
-                        'Air Force Reserve',
+                        'Air Force Reserves',
+                        'Air National Guard',
                         'Army',
-                        'Army Reserve',
+                        'Army National Guard',
+                        'Army Reserves',
                         'Coast Guard',
-                        'Coast Guard Reserve',
+                        'Coast Guard Reserves',
                         'Marine Corps',
-                        'Marine Corps Reserve',
+                        'Marine Corps Reserves',
+                        'National Oceanic & Atmospheric Administration',
                         'Navy',
-                        'Navy Reserve',
-                        'NOAA'
+                        'Navy Reserves',
+                        'Public Health Service',
+                        'Air Force Academy',
+                        'Army Air Corps or Army Air Force',
+                        'Army Nurse Corps',
+                        'Coast Guard Academy',
+                        'Merchant Marine',
+                        'Naval Academy',
+                        'Other',
+                        'US Military Academy',
+                        "Women's Army Corps"
                       ]
                     end
                   end

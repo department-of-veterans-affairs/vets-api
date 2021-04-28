@@ -155,7 +155,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
       [
         double('FHIR::Location',
                resource: double('FHIR::Bundle',
-                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                                identifier: [double('first', value: 'vha_442_3049')],
                                 to_hash: { id: 'I2-LABC' }))
       ]
     end
@@ -234,7 +234,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
       [
         double('FHIR::Location',
                resource: double('FHIR::Bundle',
-                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                                identifier: [double('first', value: 'vha_442_3049')],
                                 managingOrganization: double('Reference', reference: '/O/I2-OABC'),
                                 to_hash: { id: 'I2-LABC' }))
       ]
@@ -257,12 +257,19 @@ describe HealthQuest::QuestionnaireManager::Factory do
       [
         double('FHIR::Location',
                resource: double('FHIR::Bundle',
-                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')]))
+                                identifier: [double('first', value: 'vha_442_3049')]))
+      ]
+    end
+    let(:organizations) do
+      [
+        double('FHIR::Organization',
+               resource: double('Resource',
+                                identifier: [double('last', value: 'vha_442')]))
       ]
     end
 
     before do
-      allow_any_instance_of(subject).to receive(:locations).and_return(locations)
+      allow_any_instance_of(subject).to receive(:organizations).and_return(organizations)
       allow_any_instance_of(HealthQuest::Facilities::Request).to receive(:get).with(anything).and_return(facilities)
     end
 
@@ -307,8 +314,11 @@ describe HealthQuest::QuestionnaireManager::Factory do
     let(:questionnaire_response_id) { '1bc-123-345' }
 
     it 'returns the id for now' do
+      allow_any_instance_of(described_class).to receive(:generate_questionnaire_response_pdf)
+        .with(questionnaire_response_id).and_return('')
+
       expect(described_class.new(user).generate_questionnaire_response_pdf(questionnaire_response_id))
-        .to eq(questionnaire_response_id)
+        .to be_a(String)
     end
   end
 end

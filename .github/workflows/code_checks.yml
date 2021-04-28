@@ -18,9 +18,6 @@ jobs:
       - name: Install System Packages (pdftk, poppler, imagemagick)
         run: sudo apt install imagemagick pdftk poppler-utils
           
-      - name: Install Dependencies
-        run: bundle install --path vendor/bundle
-
       - name: Run bundle-audit (checks gems for CVE issues)
         run:  bundle exec bundle-audit check --update
  
@@ -40,3 +37,72 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
           REPORT_PATH: brakeman.json
         if: hashFiles('brakeman.json') != ''
+
+  tests:
+    name: Test
+    runs-on: ubuntu-16.04
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      CI: true
+      DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
+      DISABLE_BOOTSNAP: true
+      RAILS_ENV: test
+      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
+      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+      "Settings.binaries.clamdscan": "clamscan"
+      TERM: xterm-256color
+      GIT_COMMIT_SHA: ${{ github.sha }}
+      CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+
+    services:
+      postgres:
+        image: postgis/postgis:11-2.5
+        env:
+          POSTGRES_USER: vets-api
+          POSTGRES_DB: vets-api_test
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
+
+      redis:
+        image: circleci/redis:5.0-alpine
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Install System Packages (pdftk, poppler, imagemagick)
+        run: |
+          sudo apt install imagemagick pdftk poppler-utils
+          sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
+
+      - name: Setup Database
+        run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
+
+      - name: Setup Code Climate Reporting
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+          ./cc-test-reporter before-build
+
+      - name: Run Specs
+        run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty'
+
+      - name: Publish Code Climate coverage
+        run: |
+          export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
+          ./cc-test-reporter after-build -t simplecov
+
+      - name: Publish Test Results
+        uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
+        if: always()
+        with:
+          check_name: Test Results
+          comment_on_pr: false
+          files: log/*.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}

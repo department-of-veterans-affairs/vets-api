@@ -3,8 +3,7 @@
   "required": [
     "preferenceId",
     "preferenceName",
-    "value",
-    "autoOptIn"
+    "value"
   ],
   "properties": {
     "preferenceId": {
@@ -17,10 +16,6 @@
     },
     "value": {
       "description": "current setting of preference",
-      "type": "boolean"
-    },
-    "autoOptIn": {
-      "description": "determines if this endpoint is automatically opted-in to this preference",
       "type": "boolean"
     }
   },

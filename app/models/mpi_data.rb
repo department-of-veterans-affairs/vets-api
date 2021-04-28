@@ -79,6 +79,16 @@ class MPIData < Common::RedisStore
   # @return [String] the search token
   delegate :search_token, to: :profile, allow_nil: true
 
+  # A Cerner ID
+  #
+  # @return [String] the Cerner id
+  delegate :cerner_id, to: :profile, allow_nil: true
+
+  # The user's Cerner facility ids
+  #
+  # @return [Array[String]] the the list of Cerner facility ids
+  delegate :cerner_facility_ids, to: :profile
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MPI::Models::MviProfile] patient 'golden record' data from MVI
