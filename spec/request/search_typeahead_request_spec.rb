@@ -27,7 +27,7 @@ describe 'search_typeahead', type: :request do
           get '/v0/search_typeahead', params: { query: '' }
 
           expect(response).to have_http_status(:ok)
-          expect(response.body).to eq ""
+          expect(response.body).to eq ''
         end
       end
     end
