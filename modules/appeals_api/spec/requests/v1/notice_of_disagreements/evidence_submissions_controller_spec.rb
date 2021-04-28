@@ -52,7 +52,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         end
       end
 
-      it 'returns an error if request and NOD Veteran SSNs do not match' do
+      it "returns an error if request 'headers['X-VA-SSN'] and NOD record SSNs do not match" do
         with_settings(Settings.modules_appeals_api.evidence_submissions.location,
                       prefix: 'http://some.fakesite.com/path',
                       replacement: 'http://another.fakesite.com/rewrittenpath') do
@@ -65,8 +65,12 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
 
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
-          binding.pry
+          headers['X-VA-SSN'] = "1111111111"
+
           post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+
+          expect(response.status).to eq 500
+          expect(response.body).to include "'X-VA-SSN' does not match"
         end
       end
 

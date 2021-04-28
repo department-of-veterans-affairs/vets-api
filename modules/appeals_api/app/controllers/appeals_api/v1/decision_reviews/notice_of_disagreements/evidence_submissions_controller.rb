@@ -12,7 +12,13 @@ module AppealsApi::V1
 
         class InvalidReviewOption < StandardError
           def message
-            I18n.t('appeals_api.errors.invalid_evidence_submission_lane')
+            I18n.t('appeals_api.errors.no_evidence_submission_accepted')
+          end
+        end
+
+        class InvalidVeteranSSN < StandardError
+          def message
+            I18n.t('appeals_api.errors.invalid_submission_ssn')
           end
         end
 
@@ -49,7 +55,13 @@ module AppealsApi::V1
 
         def validate_nod_attributes
           raise InvalidReviewOption unless @notice_of_disagreement.accepts_evidence?
-          raise Common::Exceptions::Forbidden, I18n.t('appeals_api.errors.invalid_evidence_submission_ssn')
+          raise InvalidVeteranSSN unless ssn_match?
+        end
+
+        def ssn_match?
+          return unless @notice_of_disagreement.auth_headers
+
+          params['headers']['X-VA-SSN'] == @notice_of_disagreement.auth_headers['X-VA-SSN']
         end
 
         def set_submission_attributes
