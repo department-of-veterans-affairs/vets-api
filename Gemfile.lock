@@ -216,7 +216,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.7.3)
       msgpack (~> 1.0)
-    brakeman (5.0.0)
+    brakeman (5.0.1)
     breakers (0.4.0)
       faraday (>= 0.7.4, < 0.18)
       multi_json (~> 1.0)

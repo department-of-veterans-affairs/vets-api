@@ -5,5 +5,6 @@ FacilitiesApi::Engine.routes.draw do
     resources :ccp, only: :index do
       get 'specialties', on: :collection, to: 'ccp#specialties'
     end
+    resources :va, only: %i[index show]
   end
 end
