@@ -3,7 +3,6 @@
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require 'common/client/errors'
-require 'search_typeahead/response'
 require 'search_typeahead/configuration'
 
 module SearchTypeahead
