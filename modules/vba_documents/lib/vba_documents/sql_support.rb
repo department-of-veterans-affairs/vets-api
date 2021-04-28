@@ -64,7 +64,7 @@ module VBADocuments
       from vba_documents_upload_submissions a
       where a.status = 'success'
       and   a.updated_at >= $1 and a.updated_at < $2
-      and   a.metadata -> '#{UploadSubmission::FINAL_SUCCESS_STATUS_KEY}' is null
+      and   a.metadata -> '#{VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY}' is null
       order by a.consumer_name asc
     "
 
