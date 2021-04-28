@@ -102,6 +102,7 @@ pipeline {
           stringParam(name: 'devops_branch', value: 'master'),
           stringParam(name: 'api_branch', value: env.THE_BRANCH),
           stringParam(name: 'web_branch', value: 'master'),
+          stringParam(name: 'content_branch', value: 'master'),
           stringParam(name: 'source_repo', value: 'vets-api'),
         ], wait: false
       }

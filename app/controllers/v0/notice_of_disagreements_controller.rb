@@ -3,13 +3,7 @@
 module V0
   class NoticeOfDisagreementsController < AppealsBaseController
     def create
-      nod_response_body = decision_review_service
-                          .create_notice_of_disagreement(request_body: request_body_hash, user: @current_user)
-                          .body
-      submitted_appeal_uuid = nod_response_body.dig('data', 'id')
-      AppealSubmission.create!(user_uuid: @current_user.uuid,
-                               type_of_appeal: 'NOD',
-                               submitted_appeal_uuid: submitted_appeal_uuid)
+      nod_response_body = AppealSubmission.submit_nod(current_user: @current_user, request_body_hash: request_body_hash)
       render json: nod_response_body
     rescue => e
       request = begin

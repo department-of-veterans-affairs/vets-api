@@ -26,6 +26,9 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     context 'creates an NOD and persists the data' do
       it 'with all headers' do
         post(path, params: @data, headers: @headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
@@ -36,7 +39,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'fails when a required header is missing' do
-        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-Veteran-SSN'))
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end

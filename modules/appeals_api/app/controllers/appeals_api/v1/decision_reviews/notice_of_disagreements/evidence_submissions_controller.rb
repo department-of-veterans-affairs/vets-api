@@ -7,6 +7,7 @@ module AppealsApi::V1
         include AppealsApi::StatusSimulation
 
         skip_before_action :authenticate
+        before_action :set_notice_of_disagreement, only: :create
         before_action :set_submission_attributes, only: :create
 
         def create
@@ -37,12 +38,16 @@ module AppealsApi::V1
 
         private
 
-        def set_submission_attributes
-          @appeal ||= AppealsApi::NoticeOfDisagreement.find_by(id: params[:nod_id])
-          raise Common::Exceptions::RecordNotFound, params[:nod_id] unless @appeal
+        def set_notice_of_disagreement
+          return unless params[:nod_id]
 
+          @notice_of_disagreement ||= AppealsApi::NoticeOfDisagreement.find_by(id: params[:nod_id])
+          raise Common::Exceptions::RecordNotFound, params[:nod_id] unless @notice_of_disagreement
+        end
+
+        def set_submission_attributes
           @submission_attributes ||= {
-            source: request.headers['X-Consumer-Username'],
+            source: params['headers']['X-Consumer-Username'],
             supportable_id: params[:nod_id],
             supportable_type: 'AppealsApi::NoticeOfDisagreement'
           }

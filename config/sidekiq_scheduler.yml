@@ -225,7 +225,7 @@ CovidVaccine::ScheduledBatchJob:
   description: Batches received vaccine records and schedules upload to enrollment service.
 
 CovidVaccine::ExpandedScheduledSubmissionJob:
-  every: ['15m', first_in: '24h']
+  every: '15m'
   class: CovidVaccine::ExpandedScheduledSubmissionJob
   description: Iterates vaccine records with state=enrollment_pending and attempts MPI lookup and send to Vetext.
 
