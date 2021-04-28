@@ -84,7 +84,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
 
       parameter do
-        key :name, 'X-VA-Veteran-File-Number'
+        key :name, 'X-VA-File-Number'
         key :in, :header
         key :required, false
         key :description, 'VA file number'
@@ -92,7 +92,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
 
       parameter do
-        key :name, 'X-VA-Veteran-Birth-Date'
+        key :name, 'X-VA-Birth-Date'
         key :in, :header
         key :required, false
         key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
@@ -377,14 +377,14 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
 
       parameter do
-        key :name, 'X-VA-Veteran-File-Number'
+        key :name, 'X-VA-File-Number'
         key :in, :header
         key :required, false
         key :description, 'VA file number'
       end
 
       parameter do
-        key :name, 'X-VA-Veteran-Birth-Date'
+        key :name, 'X-VA-Birth-Date'
         key :in, :header
         key :required, false
         key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'

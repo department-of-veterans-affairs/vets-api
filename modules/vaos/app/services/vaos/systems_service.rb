@@ -47,7 +47,7 @@ module VAOS
           'clinical-service' => type_of_care_id,
           'institution-code' => facility_id
         }
-        response = perform(:get, url, url_params, headers, timeout: 30)
+        response = perform(:get, url, url_params, headers)
         response.body.map { |clinic| OpenStruct.new(clinic) }
       end
     end
@@ -100,7 +100,7 @@ module VAOS
       with_monitoring do
         url = "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{system_id}" \
                 "/patient/ICN/#{@user.icn}/pact-team"
-        response = perform(:get, url, nil, headers, timeout: 30)
+        response = perform(:get, url, nil, headers)
         response.body.map { |pact| OpenStruct.new(pact) }
       end
     end

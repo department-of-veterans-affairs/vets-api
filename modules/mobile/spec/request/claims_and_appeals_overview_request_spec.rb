@@ -63,7 +63,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
           page: { number: 2, size: 12 } }
       end
 
-      it 'and a results are for page 2 of a 12 item pages which only has 10 entries' do
+      it 'and the results are for page 2 of a 12 item pages which only has 10 entries' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
@@ -72,6 +72,56 @@ RSpec.describe 'claims and appeals overview', type: :request do
             parsed_response_contents = response.parsed_body.dig('data')
             expect(response.parsed_body.dig('links', 'next')).to be(nil)
             expect(parsed_response_contents.length).to eq(10)
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+    end
+
+    describe '#index (all user claims) is polled requesting only closed claims' do
+      before { iam_sign_in }
+
+      let(:params) do
+        { useCache: false,
+          startDate: '2017-05-01T07:00:00.000Z',
+          showCompleted: true }
+      end
+
+      it 'and the results contain only closed records' do
+        VCR.use_cassette('claims/claims') do
+          VCR.use_cassette('appeals/appeals') do
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            expect(response).to have_http_status(:ok)
+            # check a couple entries to make sure the data is correct
+            parsed_response_contents = response.parsed_body.dig('data')
+            parsed_response_contents.each do |entry|
+              expect(entry.dig('attributes', 'completed')).to eq(true)
+            end
+            expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
+          end
+        end
+      end
+    end
+
+    describe '#index (all user claims) is polled requesting only open claims' do
+      before { iam_sign_in }
+
+      let(:params) do
+        { useCache: false,
+          startDate: '2017-05-01T07:00:00.000Z',
+          showCompleted: false }
+      end
+
+      it 'and the results contain only open records' do
+        VCR.use_cassette('claims/claims') do
+          VCR.use_cassette('appeals/appeals') do
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            expect(response).to have_http_status(:ok)
+            # check a couple entries to make sure the data is correct
+            parsed_response_contents = response.parsed_body.dig('data')
+            parsed_response_contents.each do |entry|
+              expect(entry.dig('attributes', 'completed')).to eq(false)
+            end
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
