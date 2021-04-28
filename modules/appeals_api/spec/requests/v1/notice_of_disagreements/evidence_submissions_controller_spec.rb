@@ -23,11 +23,10 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
           allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-
           post(path, params: { nod_id: 1979, headers: headers })
 
           expect(response.status).to eq 404
-          expect(response.body).to include 'Record not found'
+          expect(response.body).to include 'not found'
         end
       end
     end
@@ -44,10 +43,9 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
           allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-
           post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
 
-          expect(response.status).to eq 500
+          expect(response.status).to eq 422
           expect(response.body).to include "'boardReviewOption' must be 'evidence_submission'"
         end
       end
@@ -65,11 +63,11 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
 
           notice_of_disagreement.update(board_review_option: 'evidence_submission')
-          headers['X-VA-SSN'] = "1111111111"
+          headers['X-VA-SSN'] = '1111111111'
 
           post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
 
-          expect(response.status).to eq 500
+          expect(response.status).to eq 422
           expect(response.body).to include "'X-VA-SSN' does not match"
         end
       end
@@ -90,7 +88,6 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
 
           data = JSON.parse(response.body)['data']
-
           expect(data).to have_key('id')
           expect(data).to have_key('type')
           expect(data['attributes']['status']).to eq('pending')
@@ -116,7 +113,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         post(path, params: { headers: headers })
 
         expect(response.status).to eq 400
-        expect(response.body).to include 'Missing parameter'
+        expect(response.body).to include 'Must supply a corresponding NOD'
       end
     end
 
