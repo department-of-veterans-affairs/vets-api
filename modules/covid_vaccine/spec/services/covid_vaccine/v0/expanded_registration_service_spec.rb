@@ -12,10 +12,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
   let(:submission_non_us) { create(:covid_vax_expanded_registration, :unsubmitted, :non_us) }
   let(:submission_composite_facility) { create(:covid_vax_expanded_registration, :unsubmitted, :composite_facility) }
   let(:submission_eligibility_info) { create(:covid_vax_expanded_registration, :unsubmitted, :eligibility_info) }
-  let(:submission_enrollment_out_of_band) do
-    create(:covid_vax_expanded_registration, :unsubmitted,
-           :no_preferred_facility, :enrollment_out_of_band)
-  end
 
   let(:mvi_profile) { build(:mvi_profile, { vha_facility_ids: %w[358 516 553 200HD 200IP 200MHV] }) }
   let(:mvi_profile_no_facility) { build(:mvi_profile) }
@@ -208,7 +204,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         it 'does not submit when preferred location does not exist and MPI matches ICN' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile)
-          .and_return(mvi_facility_not_found)
+            .and_return(mvi_facility_not_found)
           expect(Rails.logger).to receive(:info).with("#{described_class}:Error in MPI Lookup",
                                                       'mpi_error': 'no matching facility found for ',
                                                       'submission': submission_no_facility.id,
@@ -224,7 +220,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
         it 'does not submit when preferred location does not exist and MPI does not match ICN' do
           expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
           allow_any_instance_of(MPI::Service).to receive(:find_profile)
-          .and_return(mvi_profile_not_found)
+            .and_return(mvi_profile_not_found)
           expect(Rails.logger).to receive(:info).with("#{described_class}:Error in MPI Lookup",
                                                       'mpi_error': 'no ICN found',
                                                       'submission': submission_no_facility.id,
@@ -272,29 +268,29 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           it 'submits and updates state when preferred location does not exist and MPI matches ICN' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-            .and_return({ sid: sid })
+              .and_return({ sid: sid })
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
-            .and_return(mvi_facility_not_found)
-            
+              .and_return(mvi_facility_not_found)
+
             subject.register(submission_no_facility)
             expect(submission_no_facility.reload.vetext_sid).to match(sid)
             expect(submission_no_facility.reload.state).to match('registered_no_facility')
           end
-  
+
           it 'submits and updates state when preferred location does not exist and MPI does not match ICN' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
-            .and_return({ sid: sid })
+              .and_return({ sid: sid })
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
-            .and_return(mvi_profile_not_found)
-            
+              .and_return(mvi_profile_not_found)
+
             subject.register(submission_no_facility)
             expect(submission_no_facility.reload.vetext_sid).to match(sid)
             expect(submission_no_facility.reload.state).to match('registered_no_icn')
           end
         end
 
-        context 'with created_at newer than 24 hours' do 
+        context 'with created_at newer than 24 hours' do
           created_at_date = 23.hours.ago
           before do
             submission.created_at = created_at_date
@@ -302,6 +298,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             submission_no_facility.created_at = created_at_date
             submission_no_facility.save!
           end
+
           it 'does not submit when MPI Facility does not match' do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
@@ -312,6 +309,8 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
               'submission_date': created_at_date
             )
             subject.register(submission)
+            expect(submission.reload.vetext_sid).to be_nil
+            expect(submission.reload.state).to match('enrollment_pending')
           end
 
           it 'does not submit when MPI Profile is not found' do
@@ -324,6 +323,8 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
               'submission_date': created_at_date
             )
             subject.register(submission)
+            expect(submission.reload.vetext_sid).to be_nil
+            expect(submission.reload.state).to match('enrollment_pending')
           end
 
           it 'does not submit when No facility is selected' do
@@ -336,9 +337,11 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
               'submission_date': created_at_date
             )
             expect(Rails.logger).to receive(:info).with("#{described_class}:No preferred facility selected",
-                                                      'submission': submission_no_facility.id,
-                                                      'submission_date': submission_no_facility.created_at)
+                                                        'submission': submission_no_facility.id,
+                                                        'submission_date': submission_no_facility.created_at)
             subject.register(submission_no_facility)
+            expect(submission_no_facility.reload.vetext_sid).to be_nil
+            expect(submission_no_facility.reload.state).to match('enrollment_pending')
           end
         end
       end

@@ -90,9 +90,9 @@ FactoryBot.define do
       }
     end
 
-    trait :enrollment_out_of_band do
-      state { 'enrollment_out_of_band' }
-    end
+    # trait :enrollment_out_of_band do
+    #   state { 'enrollment_out_of_band' }
+    # end
 
     trait :blank_email do
       default_raw_options {
