@@ -10,6 +10,12 @@ module OpenidAuth
 
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
+      rescue => e
+        if e.is_a?(Common::Exceptions::TokenValidationError)
+          raise e
+        else
+          raise Common::Exceptions::InternalServerError, e
+        end
       end
 
       def valid_strict?
