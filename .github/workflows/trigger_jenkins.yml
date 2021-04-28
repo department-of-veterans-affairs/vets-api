@@ -9,9 +9,8 @@ jobs:
       runs-on: ubuntu-latest
       steps:
         - name: Trigger Jenkins deployment
-          uses: appleboy/jenkins-action@master
+          uses: wei/curl@v1
           with:
-            url: http://dev.va.gov/jenkins
-            user: ${{ secrets.JENKINS_USER }}
-            token: ${{ secrets.JENKINS_TOKEN }}
-            job: vets-gov-autodeploy-vets-api
+            args: >
+              https://dev.va.gov/jenkins/vets-gov-autodeploy-vets-api
+              --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
