@@ -13,6 +13,6 @@ jobs:
           uses: appleboy/jenkins-action@master
           with:
             url: http://dev.va.gov/jenkins
-            user: ${{ secrets.API_USER }}
-            token: ${{ secrets.API_TOKEN }}
+            user: ${{ secrets.JENKINS_USER }}
+            token: ${{ secrets.JENKINS_TOKEN }}
             job: vets-gov-autodeploy-vets-api
