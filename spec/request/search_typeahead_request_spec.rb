@@ -15,7 +15,7 @@ describe 'search_typeahead', type: :request do
 
           expect(response).to have_http_status(:ok)
           # rubocop:disable Layout/LineLength
-          expect(response.body).to include '[\"ebenefits direct deposit\",\"ebenefits disability compensation\",\"ebenefits update contact information\",\"ebenefits your records\",\"ebenefits\"]'
+          expect(response.body).to include '["ebenefits direct deposit","ebenefits disability compensation","ebenefits update contact information","ebenefits your records","ebenefits"]'
           # rubocop:enable Layout/LineLength
         end
       end
@@ -27,7 +27,7 @@ describe 'search_typeahead', type: :request do
           get '/v0/search_typeahead', params: { query: '' }
 
           expect(response).to have_http_status(:ok)
-          expect(response.body).to include 'null'
+          expect(response.body).to eq ''
         end
       end
     end
