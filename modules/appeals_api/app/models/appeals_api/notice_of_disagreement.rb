@@ -32,19 +32,19 @@ module AppealsApi
     end
 
     def veteran_first_name
-      header_field_as_string 'X-VA-Veteran-First-Name'
+      header_field_as_string 'X-VA-First-Name'
     end
 
     def veteran_last_name
-      header_field_as_string 'X-VA-Veteran-Last-Name'
+      header_field_as_string 'X-VA-Last-Name'
     end
 
     def ssn
-      header_field_as_string 'X-VA-Veteran-SSN'
+      header_field_as_string 'X-VA-SSN'
     end
 
     def file_number
-      header_field_as_string 'X-VA-Veteran-File-Number'
+      header_field_as_string 'X-VA-File-Number'
     end
 
     def consumer_name
