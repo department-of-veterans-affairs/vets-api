@@ -86,12 +86,10 @@ module VBADocuments
     def process_response(response)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
+      elsif response.status == 429 && response.body =~ /UUID already in cache/
+        process_concurrent_duplicate
       else
-        if response.status == 429 && response.body =~ /UUID already in cache/
-          process_concurrent_duplicate
-        else
-          map_error(response.status, response.body, VBADocuments::UploadError)
-        end
+        map_error(response.status, response.body, VBADocuments::UploadError)
       end
     end
 
