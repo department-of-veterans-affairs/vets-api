@@ -1,9 +1,8 @@
 name: Trigger Jenkins Deployment
-on: [push]
-# on:
-#   push:
-#     branches:
-#       - master
+on:
+  push:
+    branches:
+      - 23096-trigger-jenkins-from-gha
 jobs:
   trigger_jenkins_deploy:
       name: Trigger jenkins deployment
