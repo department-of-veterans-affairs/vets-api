@@ -46,7 +46,6 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
 
         expect(mail.to).to eq(
           %w[
-            VRE-CMS.VBAVACO@va.gov
             Jason.Wolf@va.gov
           ]
         )
