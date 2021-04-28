@@ -87,8 +87,20 @@ module VBADocuments
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
       else
-        map_error(response.status, response.body, VBADocuments::UploadError)
+        if response.status == 429 && response.body =~ /UUID already in cache/
+          process_concurrent_duplicate
+        else
+          map_error(response.status, response.body, VBADocuments::UploadError)
+        end
       end
+    end
+
+    def process_concurrent_duplicate
+      # This should never occur now that we are using with_advisory_lock in perform, but if it does we will record it
+      # and otherwise leave this model alone as another instance of this job is currently also processing this guid
+      @upload.metadata['uuid_already_in_cache_count'] ||= 0
+      @upload.metadata['uuid_already_in_cache_count'] += 1
+      @upload.save!
     end
   end
 end
