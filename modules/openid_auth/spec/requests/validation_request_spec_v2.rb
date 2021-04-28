@@ -16,6 +16,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       'exp' => Time.current.utc.to_i + 3600,
       'cid' => '0oa1c01m77heEXUZt2p7',
       'uid' => '00u1zlqhuo3yLa2Xs2p7',
+      'icn' => '73806470379396828',
       'scp' => %w[profile email openid veteran_status.read],
       'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
     }, {
