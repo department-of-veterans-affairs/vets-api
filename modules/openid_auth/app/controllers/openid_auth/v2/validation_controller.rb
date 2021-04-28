@@ -18,6 +18,14 @@ module OpenidAuth
         end
       end
 
+      def act_vista_id_match_pattern
+        /\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/
+      end
+
+      def parsed_sta3n_match_pattern
+        /\d{3}[A-Z]*/
+      end
+
       def valid_strict?
         %w[true false].include?(fetch_strict)
       end
@@ -102,11 +110,11 @@ module OpenidAuth
         sta3n = payload_object.launch['sta3n']
         return false unless !act_vista_id.nil? && !sta3n.nil?
 
-        vista_ids = act_vista_id.scan(/\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/)
+        vista_ids = act_vista_id.scan(act_vista_id_match_pattern)
         return false unless vista_ids
 
         vista_ids.each do |vista_id|
-          parsed_sta3n = vista_id.match(/\d{3}[A-Z]*/)
+          parsed_sta3n = vista_id.match(parsed_sta3n_match_pattern)
           return true if sta3n.to_s.eql?(parsed_sta3n.to_s)
         end
         false
