@@ -8,4 +8,5 @@ class PowerOfAttorney < Common::Base
   attribute :code
   attribute :name
   attribute :organization
+  attribute :begin_date
 end

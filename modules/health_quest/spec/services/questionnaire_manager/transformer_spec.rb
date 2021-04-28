@@ -203,7 +203,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
         'I2-LABC' => double(
           'Location',
           resource: double('Resource',
-                           identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                           identifier: [double('first', value: 'vha_442_3049')],
                            to_hash: { id: 'I2-LABC' })
         )
       }
@@ -219,7 +219,18 @@ describe HealthQuest::QuestionnaireManager::Transformer do
     let(:hashed_questionnaires) do
       {
         'vha_442_3049' => [
-          double('Questionnaire', resource: double('Resource', id: 'abc-123-def-455', title: 'Primary Care'))
+          double(
+            'Questionnaire',
+            resource: double(
+              'Resource', id:
+              'abc-123-def-455',
+                          title: 'Primary Care',
+                          item: [
+                            double('item', linkId: '01', text: 'one'),
+                            double('item', linkId: '02', text: 'two')
+                          ]
+            )
+          )
         ]
       }
     end
@@ -254,6 +265,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
                 {
                   id: 'abc-123-def-455',
                   title: 'Primary Care',
+                  item: [{ 'linkId' => '01', 'text' => 'one' }, { 'linkId' => '02', 'text' => 'two' }],
                   questionnaire_response: []
                 }
               ]
@@ -303,6 +315,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
                 {
                   id: 'abc-123-def-455',
                   title: 'Primary Care',
+                  item: [{ 'linkId' => '01', 'text' => 'one' }, { 'linkId' => '02', 'text' => 'two' }],
                   questionnaire_response: [
                     {
                       id: 'abc-123-def-455',
@@ -344,6 +357,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
                 {
                   id: 'abc-123-def-455',
                   title: 'Primary Care',
+                  item: [{ 'linkId' => '01', 'text' => 'one' }, { 'linkId' => '02', 'text' => 'two' }],
                   questionnaire_response: [
                     {
                       form_id: 'HC-QSTNR_I2-SLRRT64GFG_abc-123-def-455',
@@ -371,8 +385,30 @@ describe HealthQuest::QuestionnaireManager::Transformer do
       let(:hashed_questionnaires) do
         {
           'vha_442_3049' => [
-            double('Questionnaire', resource: double('Resource', id: 'abc-123-def-455', title: 'Primary Care')),
-            double('Questionnaire', resource: double('Resource', id: 'ccc-123-ddd-455', title: 'Donut Intake'))
+            double(
+              'Questionnaire',
+              resource: double(
+                'Resource',
+                id: 'abc-123-def-455',
+                title: 'Primary Care',
+                item: [
+                  double('item', linkId: '01', text: 'one'),
+                  double('item', linkId: '02', text: 'two')
+                ]
+              )
+            ),
+            double(
+              'Questionnaire',
+              resource: double(
+                'Resource',
+                id: 'ccc-123-ddd-455',
+                title: 'Donut Intake',
+                item: [
+                  double('item', linkId: '01', text: 'one'),
+                  double('item', linkId: '02', text: 'two')
+                ]
+              )
+            )
           ]
         }
       end
@@ -406,6 +442,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
                 {
                   id: 'abc-123-def-455',
                   title: 'Primary Care',
+                  item: [{ 'linkId' => '01', 'text' => 'one' }, { 'linkId' => '02', 'text' => 'two' }],
                   questionnaire_response: [
                     {
                       id: 'abc-123-def-455',
@@ -417,6 +454,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
                 {
                   id: 'ccc-123-ddd-455',
                   title: 'Donut Intake',
+                  item: [{ 'linkId' => '01', 'text' => 'one' }, { 'linkId' => '02', 'text' => 'two' }],
                   questionnaire_response: [
                     {
                       form_id: 'HC-QSTNR_I2-SLRRT64GFG_ccc-123-ddd-455',

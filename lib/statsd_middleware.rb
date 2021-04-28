@@ -11,6 +11,7 @@ class StatsdMiddleware
     0994-edu-benefits
     0996-higher-level-review
     1010cg-application-caregiver-assistance
+    10182-board-appeal
     10203-edu-benefits
     1990-edu-benefits
     1990e-edu-benefits

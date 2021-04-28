@@ -30,15 +30,6 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
 
       expect_unauthorized
     end
-
-    context 'with a flipper disabled user' do
-      before do
-        allow(User).to receive(:find).with(user.uuid).and_return(user)
-        expect(Flipper).to receive(:enabled?).with(:ch33_dd, user).and_return(false).twice
-      end
-
-      expect_unauthorized
-    end
   end
 
   def expect_find_ch33_dd_eft_res

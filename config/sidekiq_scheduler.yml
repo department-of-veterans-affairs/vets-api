@@ -120,7 +120,7 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful benefits intake submissions"
 
 VBADocuments::ReportMonthlySubmissions:
-  cron: "4 3 2 7 * * America/New_York"
+  cron: "4 3 2 1 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
   description: "Monthly report of benefits intake submissions at 02:03:04 on the first of the month"
 
@@ -130,7 +130,7 @@ ClaimsApi::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful claims submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
-  every: "8h"
+  every: "2h"
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
@@ -215,7 +215,22 @@ Veteran::VSOReloader:
   class: Veteran::VSOReloader
   description: Pulls down current list of VSOs and updates accordingly 
 
+VBADocuments::DeploymentsNotifier:
+  at: "<%=0.seconds.from_now%>"
+  description: Does a slack notification of the new code merged into this release for benefits intake
+
 CovidVaccine::ScheduledBatchJob:
   cron: "*/15 * * * * America/New_York"
   class: CovidVaccine::ScheduledBatchJob
   description: Batches received vaccine records and schedules upload to enrollment service.
+
+CovidVaccine::ExpandedScheduledSubmissionJob:
+  every: '15m'
+  class: CovidVaccine::ExpandedScheduledSubmissionJob
+  description: Iterates vaccine records with state=enrollment_pending and attempts MPI lookup and send to Vetext.
+
+CovidVaccine::ExpandedSubmissionStateJob:
+  every: '1h'
+  class: CovidVaccine::ExpandedSubmissionStateJob
+  description: Logs count of states in the covid_vaccine_expanded_registration_submissions table.
+  

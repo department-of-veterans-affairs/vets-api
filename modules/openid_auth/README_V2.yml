@@ -23,8 +23,10 @@ info:
 
     1. Client Request: POST https://api.va.gov/internal/auth/v2/validation
        * Provide the Bearer token as a header: `Authorization: Bearer <token>`
-       * Provide a body parameter for appropriate audience for validation
+       * Provide a body parameter for appropriate audience for validation can be a string or an array
          aud: https://api.va.gov/services/fhir
+       * Provide a body parameter to specify if audience must match one provided by the user (defaults to false)
+         strict: true/false
 
     2. Status Response: A JSON API object with the individual's validated token and VA identifier ICN
 

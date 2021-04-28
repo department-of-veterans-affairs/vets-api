@@ -82,5 +82,11 @@
         "decisionDate": "1900-01-06"
       }
     }
+  ],
+  "nodUploads": [
+    {
+      "name": "my_file.pdf",
+      "confirmationCode": "aaad6f52-2e85-43d4-a5a3-1d9cb4e482a0"
+    }
   ]
 }

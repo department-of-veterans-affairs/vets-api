@@ -53,7 +53,7 @@ module Swagger
         end
 
         swagger_schema(
-          'ContestableIssues',
+          'hlrContestableIssues',
           remove_null_from_type_array(
             VetsJsonSchema::SCHEMAS.fetch('HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200')
           ).merge(

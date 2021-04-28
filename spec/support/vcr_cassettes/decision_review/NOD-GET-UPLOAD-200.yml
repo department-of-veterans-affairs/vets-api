@@ -1,0 +1,82 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/848134d0-1842-488a-b8bb-5e94d717b2c6
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 23 Apr 2021 16:50:49 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Etag:
+      - W/"a41a3433a28b9b1cbb9dd3f51951ec0e"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - ea3d01e6bdf1536ec015142f9e049ae1a41be645
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 308b1d65-7b4c-4236-9c87-c0e0e7064c56
+      X-Runtime:
+      - '0.028316'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Kong-Upstream-Latency:
+      - '30'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/1.2.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS0108eb76=01c8917e4864d48feedeef54b77bd6453cca029f6fd79656f4d6d0034cc32d12ddf26c08321c0957a902e5e10df7d454157a956a82;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"848134d0-1842-488a-b8bb-5e94d717b2c6","type":"evidenceSubmission","attributes":{"status":"pending","code":null,"detail":"","appealType":"NoticeOfDisagreement","appealId":"6d0c3dba-8a1f-41be-bd16-59bf22d273e7","location":null,"createdAt":"2021-04-21T19:04:57.280Z","updatedAt":"2021-04-21T19:04:57.280Z"}}}'
+  recorded_at: Fri, 23 Apr 2021 16:50:49 GMT
+recorded_with: VCR 6.0.0
