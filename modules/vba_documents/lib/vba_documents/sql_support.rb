@@ -62,7 +62,7 @@ module VBADocuments
     "
 
     def self.success_sql
-      %(select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
+      %Q(select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
          from vba_documents_upload_submissions a
          where a.status = 'success'
          and   a.updated_at >= $1 and a.updated_at < $2
