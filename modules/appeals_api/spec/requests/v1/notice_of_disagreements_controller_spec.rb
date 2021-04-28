@@ -39,7 +39,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'fails when a required header is missing' do
-        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-Veteran-SSN'))
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
