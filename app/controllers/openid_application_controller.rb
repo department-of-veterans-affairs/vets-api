@@ -72,6 +72,7 @@ class OpenidApplicationController < ApplicationController
     token.payload['last_login_type'] = 'ssoi'
     token.payload['icn'] = profile.attrs['icn']
     token.payload['npi'] = profile.attrs['npi']
+    token.payload['sec_id'] = profile.attrs['SecId']
     token.payload['vista_id'] = profile.attrs['VistaId']
   end
 
