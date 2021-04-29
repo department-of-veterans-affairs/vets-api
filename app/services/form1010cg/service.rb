@@ -30,6 +30,29 @@ module Form1010cg
       carma_attachments.submit!
     end
 
+    def self.collect_attachments(claim)
+      poa_attachment_id   = claim.parsed_form['poaAttachmentId']
+      claim_pdf_path      = claim.to_pdf(sign: true)
+      poa_attachment_path = nil
+
+      if poa_attachment_id
+        attachment = Form1010cg::Attachment.find_by(guid: claim.parsed_form['poaAttachmentId'])
+        poa_attachment_path = attachment.to_local_file if attachment
+      end
+
+      [claim_pdf_path, poa_attachment_path]
+    end
+
+    def self.submit_attachments!(carma_case_id, veteran_name, claim_pdf_path, poa_attachment_path = nil)
+      raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?
+
+      carma_attachments = CARMA::Models::Attachments.new(carma_case_id, veteran_name['first'], veteran_name['last'])
+
+      carma_attachments.add('10-10CG', claim_pdf_path)
+      carma_attachments.add('POA', poa_attachment_path) if poa_attachment_path
+      carma_attachments.submit!
+    end
+
     def initialize(claim, submission = nil)
       # This service makes assumptions on what data is present on the claim
       # Make sure the claim is valid, so we can be assured the required data is present.
