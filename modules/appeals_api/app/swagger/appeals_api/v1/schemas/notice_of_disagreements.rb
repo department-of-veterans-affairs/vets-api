@@ -390,7 +390,7 @@ module AppealsApi::V1
               key :type, :string
               key :example, 'Effective Date'
               key :example, 'The point of contention for this specific issue'
-              key :maxLength, 255
+              key :maxLength, 100
             end
           end
         end

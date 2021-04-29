@@ -126,7 +126,7 @@
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },
         "ratingDecisionReferenceId": { "type": "string" },
-        "disagreementReason":        { "type": "string", "maxLength": 255 }
+        "disagreementReason":        { "type": "string", "maxLength": 100 }
       },
       "required": [ "issue", "decisionDate" ]
     },
