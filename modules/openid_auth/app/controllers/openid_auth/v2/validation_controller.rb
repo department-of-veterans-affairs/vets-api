@@ -137,9 +137,7 @@ module OpenidAuth
       def validation_from_charon(duz, site)
         response = RestClient.get(Settings.oidc.charon.endpoint,
                                   { params: { duz: duz, site: site } })
-        return true unless response.code != 200
-
-        false
+        response.code == 200
       rescue => e
         log_message_to_sentry('Failed validation with Charon', :error, body: e.message)
         raise e
