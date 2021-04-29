@@ -72,7 +72,7 @@ class OpenidApplicationController < ApplicationController
     token.payload['last_login_type'] = 'ssoi'
     token.payload['icn'] = profile.attrs['icn']
     token.payload['npi'] = profile.attrs['npi']
-    token.payload['sec_id'] = profile.attrs['SecId']
+    token.payload['sec_id'] = profile.attrs['SecID']
     token.payload['vista_id'] = profile.attrs['VistaId']
   end
 
@@ -115,7 +115,7 @@ class OpenidApplicationController < ApplicationController
     ttl = token.payload['exp'] - Time.current.utc.to_i
     user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
-    @session = build_session(ttl, profile)
+    @session = build_session(ttl, Okta::UserProfile.new({'last_login_type' => profile['last_login_type'], 'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'], 'npi' => profile['npi']}))
     @session.save && user_identity.save && @current_user.save
   end
 
