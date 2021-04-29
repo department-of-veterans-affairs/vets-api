@@ -27,7 +27,6 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
     end
 
     describe 'unit' do
-      # rubocop:disable RSpec/StubbedMock
       let(:claim_guid) { SecureRandom.uuid }
       let(:pdf_file_path) { "tmp/pdfs/10-10CG_#{claim_guid}.pdf" }
       let(:poa_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
@@ -185,7 +184,7 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
         let(:submission) { build(:form1010cg_submission, claim_guid: claim_guid) }
 
         let(:pdf_generation_exception) do
-          class MyPdfGenerationError < StandardError; end # rubocop:disable Lint/ConstantDefinitionInBlock
+          class MyPdfGenerationError < StandardError; end
           MyPdfGenerationError.new('PDF could not be generated')
         end
 
@@ -228,7 +227,7 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
           context 'and PDF deletion fails' do
             it_behaves_like 'a successful job with one document' do
               let(:pdf_delete_exception) do
-                class MyPdfDeleteError < StandardError; end # rubocop:disable Lint/ConstantDefinitionInBlock
+                class MyPdfDeleteError < StandardError; end
                 MyPdfDeleteError.new('PDF could not be deleted')
               end
 
@@ -265,7 +264,7 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
           context 'and PDF deletion fails' do
             it_behaves_like 'a successful job with two documents' do
               let(:pdf_delete_exception) do
-                class MyPdfDeleteError < StandardError; end # rubocop:disable Lint/ConstantDefinitionInBlock
+                class MyPdfDeleteError < StandardError; end
                 MyPdfDeleteError.new('POA could not be deleted')
               end
 
@@ -293,7 +292,6 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
           end
         end
       end
-      # rubocop:enable RSpec/StubbedMock
     end
 
     describe 'integration' do
