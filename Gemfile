@@ -130,6 +130,7 @@ gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
+gem 'with_advisory_lock'
 
 group :development do
   gem 'benchmark-ips'

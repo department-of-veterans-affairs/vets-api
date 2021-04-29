@@ -80,9 +80,9 @@ module AppealsApi
 
             it 'truncates the signature if name is too long' do
               full_first_name = Faker::Lorem.characters(number: 99)
-              notice_of_disagreement.auth_headers['X-VA-Veteran-First-Name'] = full_first_name
+              notice_of_disagreement.auth_headers['X-VA-First-Name'] = full_first_name
               full_last_name = Faker::Lorem.characters(number: 99)
-              notice_of_disagreement.auth_headers['X-VA-Veteran-Last-Name'] = full_last_name
+              notice_of_disagreement.auth_headers['X-VA-Last-Name'] = full_last_name
 
               full_name = form_data.veteran_name
               expect(form_data.signature).to eq(
@@ -110,7 +110,7 @@ module AppealsApi
 
             it 'truncates the last name if too long' do
               full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
-              notice_of_disagreement.auth_headers['X-VA-Veteran-Last-Name'] = full_last_name
+              notice_of_disagreement.auth_headers['X-VA-Last-Name'] = full_last_name
               expect(form_data.stamp_text).to eq 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdd... - 6789'
             end
           end

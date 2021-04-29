@@ -37,7 +37,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       { application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        parsed_status: inelig_character_of_discharge }
+        parsed_status: inelig_character_of_discharge,
+        primary_eligibility: 'SC LESS THAN 50%' }
     end
     let(:loa1_response) do
       { parsed_status: login_required }
@@ -116,6 +117,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             enrollment_date: '2018-12-27T17:15:39.000-06:00',
             preferred_facility: '988 - DAYT20',
             effective_date: '2019-01-02T21:58:55.000-06:00',
+            primary_eligibility: 'SC LESS THAN 50%',
             parsed_status: enrolled
           }
         end

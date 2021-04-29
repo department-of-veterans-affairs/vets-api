@@ -203,7 +203,7 @@ describe HealthQuest::QuestionnaireManager::Transformer do
         'I2-LABC' => double(
           'Location',
           resource: double('Resource',
-                           identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                           identifier: [double('first', value: 'vha_442_3049')],
                            to_hash: { id: 'I2-LABC' })
         )
       }
