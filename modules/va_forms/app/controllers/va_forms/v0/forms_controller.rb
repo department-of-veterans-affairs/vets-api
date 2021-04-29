@@ -17,7 +17,7 @@ module VAForms
                                             .present?
 
             return search_by_text
-            end
+          end
           return_all
         else
           old_search
