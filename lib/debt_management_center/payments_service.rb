@@ -3,8 +3,19 @@
 module DebtManagementCenter
   class PaymentsService
     def initialize(current_user)
-      @person = BGS::PeopleService.new(current_user).find_person_by_participant_id
-      @payments = BGS::PaymentService.new(current_user).payment_history(@person)[:payments][:payment]
+      @person =
+        begin
+          BGS::PeopleService.new(current_user).find_person_by_participant_id.presence || {}
+        rescue Savon::SOAPFault
+          {}
+        end
+
+      @payments =
+        begin
+          BGS::PaymentService.new(current_user).payment_history(@person)[:payments][:payment].presence || []
+        rescue Savon::SOAPFault
+          []
+        end
     end
 
     def compensation_and_pension
@@ -18,6 +29,8 @@ module DebtManagementCenter
     private
 
     def select_payments(type)
+      return nil if @payments.blank?
+
       type = if type == :compensation
                'Compensation & Pension - Recurring'
              elsif type == :education

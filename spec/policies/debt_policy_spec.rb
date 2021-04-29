@@ -12,18 +12,28 @@ describe DebtPolicy do
       it 'grants access' do
         expect(subject).to permit(user, :debt)
       end
+
+      it 'increments the StatsD success counter' do
+        expect { DebtPolicy.new(user, :debt).access? }.to trigger_statsd_increment('api.debt.policy.success')
+      end
     end
 
     context 'with a user who does not have the required debt attributes' do
-      let(:user) { build(:user, :loa3) }
+      let(:user) { build(:user, :loa1) }
 
-      it 'denies access' do
+      before do
         user.identity.attributes = {
           icn: nil,
           ssn: nil
         }
+      end
 
+      it 'denies access' do
         expect(subject).not_to permit(user, :debt)
+      end
+
+      it 'increments the StatsD failure counter' do
+        expect { DebtPolicy.new(user, :debt).access? }.to trigger_statsd_increment('api.debt.policy.failure')
       end
     end
   end
