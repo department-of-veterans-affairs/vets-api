@@ -385,6 +385,13 @@ module AppealsApi::V1
               key :example, 'The decision date for the contested issue'
               key :maxLength, 10
             end
+
+            property :disagreementReason do
+              key :type, :string
+              key :example, 'Effective Date'
+              key :example, 'The point of contention for this specific issue'
+              key :maxLength, 255
+            end
           end
         end
 

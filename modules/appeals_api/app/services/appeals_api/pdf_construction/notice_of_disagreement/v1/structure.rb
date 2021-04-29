@@ -69,19 +69,8 @@ module AppealsApi
                 height: 24
               )
             )
-            form_data
-              .contestable_issues
-              .take(5)
-              .each_with_index do |issue, index|
-                ypos = 288 - (45 * index)
-                pdf.text_box issue['attributes']['issue'],
-                             text_opts.merge(
-                               at: [0, ypos],
-                               width: 444,
-                               height: 38,
-                               valign: :top
-                             )
-              end
+
+            insert_issues_into_text_boxes(pdf, text_opts)
 
             pdf.text_box(
               form_data.signature,
@@ -179,6 +168,34 @@ module AppealsApi
           form_data.hearing_type_preference.present? ||
             form_data.contestable_issues.count > 5
         end
+
+        # rubocop:disable Metrics/MethodLength
+        def insert_issues_into_text_boxes(pdf, text_opts)
+          form_data
+            .contestable_issues
+            .take(5)
+            .each_with_index do |issue, index|
+              ypos = 288 - (45 * index)
+              pdf.text_box issue['attributes']['issue'],
+                           text_opts.merge(
+                             at: [0, ypos],
+                             width: 444,
+                             height: 38,
+                             valign: :top
+                           )
+
+              next unless issue['attributes']['disagreementReason']
+
+              pdf.text_box "Disagreement Reason: #{issue['attributes']['disagreementReason']}",
+                           text_opts.merge(
+                             at: [0, ypos],
+                             width: 444,
+                             height: 38,
+                             valign: :bottom
+                           )
+            end
+        end
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end
