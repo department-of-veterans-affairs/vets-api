@@ -183,12 +183,21 @@ describe MPI::Service do
   end
 
   describe '.validate_user' do
+    context 'with valid user fields' do
+      it 'does not raise an error' do
+        VCR.use_cassette('mpi/add_person/add_person_success') do
+          response = subject.add_person(user)
+          expect(response.error).to be_nil
+        end
+      end
+    end
+
     context 'with invalid user fields' do
       let(:user_hash) do
         {
           first_name: 'B@d',
           last_name: 'N&me',
-          middle_name: 'Good',
+          middle_name: 'M!ddl3',
           birth_date: '1980-05-21',
           ssn: '7340927821'
         }
