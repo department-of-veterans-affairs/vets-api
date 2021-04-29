@@ -9,7 +9,8 @@ module Swagger
 
         DecisionReview::Schemas::NOD_CREATE_REQUEST['definitions'].each do |k, v|
           # removed values that Swagger 2.0 doesn't recognize
-          swagger_schema k, v.except('if', 'then', '$comment')
+          value = v.except('if', 'then', '$comment')
+          swagger_schema k, value
         end
 
         swagger_schema 'nodCreateRoot' do

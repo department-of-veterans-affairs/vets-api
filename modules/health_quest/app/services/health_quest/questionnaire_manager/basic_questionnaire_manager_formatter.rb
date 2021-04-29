@@ -15,6 +15,7 @@ module HealthQuest
     #   @return [Hash]
     class BasicQuestionnaireManagerFormatter
       ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
+      ORG_ID_MATCHER = /(^vha_\d{3,})/.freeze
 
       attr_reader :appointments, :hashed_organizations, :hashed_locations, :hashed_questionnaires
 
@@ -45,8 +46,8 @@ module HealthQuest
         appointments.each_with_object([]) do |appt, accumulator|
           location_id = appt_location_id(appt)
           location = hashed_locations[location_id]
-          quest_key = location.resource.identifier.last.value
-          org_key = location.resource.identifier.first.value
+          quest_key = location.resource.identifier.first.value
+          org_key = quest_key.match(ORG_ID_MATCHER)[1]
           org = hashed_organizations[org_key]
 
           next unless hashed_questionnaires.key?(quest_key)

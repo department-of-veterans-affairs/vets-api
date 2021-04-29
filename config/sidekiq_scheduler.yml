@@ -225,7 +225,7 @@ CovidVaccine::ScheduledBatchJob:
   description: Batches received vaccine records and schedules upload to enrollment service.
 
 CovidVaccine::ExpandedScheduledSubmissionJob:
-  every: ['15m', first_in: '24h']
+  every: '15m'
   class: CovidVaccine::ExpandedScheduledSubmissionJob
   description: Iterates vaccine records with state=enrollment_pending and attempts MPI lookup and send to Vetext.
 
@@ -233,4 +233,7 @@ CovidVaccine::ExpandedSubmissionStateJob:
   every: '1h'
   class: CovidVaccine::ExpandedSubmissionStateJob
   description: Logs count of states in the covid_vaccine_expanded_registration_submissions table.
-  
+
+VRE::CreateCh31SubmissionsReport:
+  cron: "0 0 * * * America/New_York"
+  description: "Send a daily report to the VRE team about Chapter 31 submissions"
