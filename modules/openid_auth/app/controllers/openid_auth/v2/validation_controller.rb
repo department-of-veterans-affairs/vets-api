@@ -12,11 +12,11 @@ module OpenidAuth
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
-        case e.class.name
-        when 'RestClient::ExceptionWithResponse', 'RestClient::InternalServerError'
+        case e
+        when RestClient::ExceptionWithResponse
           status_code = e.response.code >= 500 ? 503 : 401
           render status: status_code
-        when 'Common::Exceptions::TokenValidationError'
+        when Common::Exceptions::TokenValidationError
           raise e
         else
           raise Common::Exceptions::InternalServerError, e
