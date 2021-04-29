@@ -54,18 +54,18 @@ describe FakeController do
     end
   end
 
-  describe '#status_simulation_for' do
+  describe '#with_status_simulation' do
     describe 'only allows mocking valid statuses' do
       it 'valid status' do
         request.headers['Status-Simulation'] = 'other_status'
 
-        expect(subject.status_simulation_for(AppealTypeModel.new).status).to eq('other_status')
+        expect(subject.with_status_simulation(AppealTypeModel.new).status).to eq('other_status')
       end
 
       it 'invalid status' do
         request.headers['Status-Simulation'] = 'invalid_status'
 
-        expect(subject.status_simulation_for(AppealTypeModel.new).status).to eq('default_status')
+        expect(subject.with_status_simulation(AppealTypeModel.new).status).to eq('default_status')
       end
     end
   end

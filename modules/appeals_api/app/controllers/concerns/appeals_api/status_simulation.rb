@@ -26,7 +26,7 @@ module AppealsApi
         Settings.modules_appeals_api.status_simulation_enabled && allowed_envs.include?(Settings.vsp_environment)
       end
 
-      def status_simulation_for(appeal)
+      def with_status_simulation(appeal)
         wrapped_appeal = StatusSimulator.new(appeal)
         wrapped_appeal.status = request.headers['Status-Simulation']
         wrapped_appeal

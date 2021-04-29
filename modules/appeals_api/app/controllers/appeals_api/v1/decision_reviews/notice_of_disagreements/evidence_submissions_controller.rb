@@ -26,7 +26,7 @@ module AppealsApi::V1
 
           # rubocop:disable Style/IfUnlessModifier
           if status_simulation_requested? && status_simulation_allowed?
-            submission = status_simulation_for(submission)
+            submission = with_status_simulation(submission)
           end
           # rubocop:enable Style/IfUnlessModifier
 
