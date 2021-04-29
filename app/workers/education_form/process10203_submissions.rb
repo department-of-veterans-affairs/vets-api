@@ -64,7 +64,10 @@ module EducationForm
         log_info "EDIPI available for process STEM claim ids=#{claim_ids}: #{auth_headers&.key?('va_eauth_dodedipnid')}"
 
         gi_bill_status = get_gi_bill_status(auth_headers)
-        poa = get_user_poa_status(auth_headers)
+        poa = submissions.last.education_stem_automated_decision.poa
+
+        # only check EVSS if poa wasn't set on submit
+        poa = get_user_poa_status(auth_headers) if poa.nil?
 
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each do |submission|
