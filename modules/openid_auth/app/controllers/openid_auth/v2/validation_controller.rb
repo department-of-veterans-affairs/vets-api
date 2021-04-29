@@ -13,7 +13,7 @@ module OpenidAuth
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
         case e.class.name
-        when 'RestClient::ExceptionWithResponse'
+        when 'RestClient::ExceptionWithResponse', 'RestClient::InternalServerError'
           status_code = e.response.code >= 500 ? 503 : 401
           render status: status_code
         when 'Common::Exceptions::TokenValidationError'
@@ -136,7 +136,7 @@ module OpenidAuth
 
       def validation_from_charon(duz, site)
         response = RestClient.get(Settings.oidc.charon.endpoint,
-                                  { params: { duz: duz, site: site } })
+                                  { params: { duz: '000001', site: site } })
         return true unless response.code != 200
 
         false
