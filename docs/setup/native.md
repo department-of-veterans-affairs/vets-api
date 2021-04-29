@@ -2,7 +2,7 @@
 
 Vets API requires:
 
-- Ruby 2.6.6
+- Ruby 2.6.7
 - PostgreSQL 11.x (including PostGIS 2.5)
 - Redis 5.0.x
 
