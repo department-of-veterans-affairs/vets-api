@@ -20,11 +20,11 @@ module AppealsApi
       begin
         @retries = retries
         stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
-        higher_level_review.update!(status: 'submitting')
+        higher_level_review.update_status!(status: 'submitting')
         upload_to_central_mail(higher_level_review, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)
       rescue => e
-        higher_level_review.update!(status: 'error', code: e.class.to_s, detail: e.message)
+        higher_level_review.update_status!(status: 'error', code: e.class.to_s, detail: e.message)
         raise
       end
     end
@@ -63,7 +63,7 @@ module AppealsApi
 
     def process_response(response, higher_level_review)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
-        higher_level_review.update!(status: 'submitted')
+        higher_level_review.update_status!(status: 'submitted')
       else
         map_error(response.status, response.body, AppealsApi::UploadError)
       end
