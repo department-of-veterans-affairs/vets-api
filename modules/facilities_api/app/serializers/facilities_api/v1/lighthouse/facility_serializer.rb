@@ -14,7 +14,9 @@ module FacilitiesApi
       obj.address.deep_stringify_keys.deep_transform_keys { |key| key.camelize(:lower) }
     end
     attribute :classification
-    attribute :detailed_services
+    attribute :detailed_services do |obj|
+      obj.detailed_services.deep_stringify_keys.deep_transform_keys { |key| key.camelize(:lower) }
+    end
     attribute :facility_type
     attribute :feedback do |obj|
       obj.feedback.deep_stringify_keys.deep_transform_keys { |key| key.camelize(:lower) }
