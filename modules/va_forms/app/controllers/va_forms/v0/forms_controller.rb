@@ -8,17 +8,17 @@ module VAForms
       def index
         if Flipper.enabled?(:new_va_forms_search)
           if params[:query].present?
-            if params[:query].match(/^\d{2}(?:[pP])?[- \s]\d+(?:[a-zA-Z])?$/)
-                             .present? || params[:query]
-               .match(/^[sS][fF](?:[- \s])?\d+(?:[a-zA-Z])?$/)
-               .present?
-              search_by_form_number
-            else
-              search_by_text
+            # The regex below checks to see if a form follows the DD-DDDD format (with optional alpha characters)
+            va_prefix_regex = /^\d{2}(?:[pP])?[- \s]\d+(?:[a-zA-Z])?$/
+            sf_form_regex = /^[sS][fF](?:[- \s])?\d+(?:[a-zA-Z])?$/
+            return search_by_form_number if params[:query].match(va_prefix_regex)
+                                                          .present? || params[:query]
+                                            .match(sf_form_regex)
+                                            .present?
+
+            return search_by_text
             end
-          else
-            return_all
-          end
+          return_all
         else
           old_search
         end
