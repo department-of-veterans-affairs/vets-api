@@ -209,7 +209,8 @@ RSpec.describe 'health_quest questionnaire_manager', type: :request do
       end
 
       it 'returns the questionnaire_response disposition' do
-        content_disposition = "inline; filename=\"questionnaire_response\"; filename*=UTF-8''questionnaire_response"
+        content_disposition =
+          "inline; filename=\"questionnaire_response.pdf\"; filename*=UTF-8''questionnaire_response.pdf"
 
         get '/health_quest/v0/questionnaire_manager/123-1bc'
 

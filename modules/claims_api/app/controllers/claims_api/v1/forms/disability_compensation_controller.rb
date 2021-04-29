@@ -21,7 +21,7 @@ module ClaimsApi
           permit_scopes %w[claim.write]
         end
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
-        before_action :verify_power_of_attorney_using_bgs_service, if: :header_request?
+        before_action :verify_power_of_attorney!, if: :header_request?
 
         # POST to submit disability claim.
         #

@@ -47,7 +47,7 @@ module V0
           :email,
           :date_of_birth,
           :married,
-          :ages_of_other_dependents,
+          ages_of_other_dependents: [],
           veteran_full_name: full_name,
           address: address,
           spouse_full_name: full_name,
@@ -86,7 +86,7 @@ module V0
         ],
         discretionary_income: %i[
           net_monthly_income_less_expenses
-          amoun_can_be_paid_toward_debt
+          amount_can_be_paid_toward_debt
         ],
         assets: [
           :cash_in_bank,

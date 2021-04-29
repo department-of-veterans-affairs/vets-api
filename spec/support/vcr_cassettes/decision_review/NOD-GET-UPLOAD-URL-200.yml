@@ -1,0 +1,81 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions
+    body:
+      encoding: UTF-8
+      string: '{"nod_id":"6d0c3dba-8a1f-41be-bd16-59bf22d273e7"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - "<LIGHTHOUSE_API_KEY>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Mon, 26 Apr 2021 16:31:53 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Connection:
+      - keep-alive
+      Etag:
+      - W/"554a1c5fdaf48a1814444e6e2f628386"
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Vary:
+      - Origin
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Git-Sha:
+      - 5ee7f4393e537de19baa4d81b63c49204b70c98e
+      X-Github-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Request-Id:
+      - 4c69dee7-db49-4af8-b0c4-04f9041a45bc
+      X-Runtime:
+      - '0.050647'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Kong-Upstream-Latency:
+      - '53'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/1.2.2
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      Cache-Control:
+      - no-cache, no-store
+      Pragma:
+      - no-cache
+      Set-Cookie:
+      - TS0164a718=01874af5a40a9b8711307f6ac124fe61caca34a77c390c0b4e08c46767b15f5b842432cd801d4aed51369d43594db24eeb2ccc08bd;
+        Max-Age=900; Path=/
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"id":"73af3378-e5c6-401c-ba38-a557e0f82d50","type":"evidenceSubmission","attributes":{"status":"pending","code":null,"detail":"","appealType":"NoticeOfDisagreement","appealId":"6d0c3dba-8a1f-41be-bd16-59bf22d273e7","location":"https://sandbox-api.va.gov/services_user_content/vba_documents/021d2fab-b3ca-4928-b90d-94b4c45529d8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210426%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210426T163153Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=33e56786dfc1b5d6758abd931d9d50388f6206302708074b1924929c6e33da00","createdAt":"2021-04-26T16:31:53.643Z","updatedAt":"2021-04-26T16:31:53.643Z"}}}'
+  recorded_at: Mon, 26 Apr 2021 16:31:53 GMT

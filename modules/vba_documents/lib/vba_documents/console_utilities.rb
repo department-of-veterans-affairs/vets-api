@@ -18,6 +18,48 @@ module VBADocuments
       invalid_guids
     end
 
+    def pull_download(guid)
+      doc_exists = UploadSubmission.where('guid = ? and s3_deleted is null', guid).count.positive?
+      raise 'Temp file no longer exists on AWS' unless doc_exists
+
+      tempfile = VBADocuments::PayloadManager.download_raw_file(guid).first
+      upload_model = UploadFile.new
+      upload_model.multipart.attach(io: tempfile, filename: upload_model.guid)
+      upload_model.status = 'forensics'
+      upload_model.save!
+      upload_model.parse_and_upload!
+      upload_model
+    end
+
+    def cleanup(upload_file)
+      raise 'Invalid upload file parameter passed.' unless upload_file.is_a? UploadFile
+
+      upload_file.remove_from_storage
+      upload_file.parsed_files.purge
+      upload_file.delete
+    end
+
+    def mark_success_as_final(guids)
+      invalid_guids = []
+      guids.each do |g|
+        invalid_guid = mark_success_final(g)
+        invalid_guids << g if invalid_guid
+      end
+      invalid_guids
+    end
+
+    def monthly_success_csv
+      dt = 1.month.ago.end_of_month
+      status_dates = 'status = ? and created_at >= ? and created_at < ?'
+
+      # ["57a1b2be-e229-45a2-be6f-5c49438b7cc1|2020-08-27 15:44:13 UTC",..]
+      VBADocuments::UploadSubmission
+        .where(status_dates, 'success', VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE, dt)
+        .where("metadata -> '#{VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY}' is null")
+        .order(created_at: :asc)
+        .pluck(:guid, :created_at).map { |data| data.join('|') }
+    end
+
     private
 
     def manual_status_change(guid, from, to, error)
@@ -37,6 +79,21 @@ module VBADocuments
           end
           r.status = to
           r.save!
+        end
+      end
+      r.nil?
+    end
+
+    # this method marks records in success status that will no longer be checked for manual promotion to vbms
+    def mark_success_final(guid)
+      r = UploadSubmission.find_by guid: guid
+      if r&.status.eql?('success')
+        UploadSubmission.transaction do
+          unless r.metadata[UploadSubmission::FINAL_SUCCESS_STATUS_KEY]
+            # record this as the final status to the current time
+            r.metadata[UploadSubmission::FINAL_SUCCESS_STATUS_KEY] = Time.now.to_i
+            r.save!(touch: false)
+          end
         end
       end
       r.nil?

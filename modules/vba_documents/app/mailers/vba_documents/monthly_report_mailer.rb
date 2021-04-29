@@ -18,10 +18,12 @@ module VBADocuments
 
     # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
-    def build(monthly_totals, summary, still_processing, avg_processing_time, last_month_start, last_month_end)
+    def build(monthly_totals, summary, still_processing, still_success,
+              avg_processing_time, last_month_start, last_month_end)
       @monthly_totals = monthly_totals
       @summary_totals = summary
       @last_month_still_processing = still_processing
+      @last_month_still_success = still_success
       @avg_processing_time = avg_processing_time
       @last_month_start = last_month_start
       @last_month_end = last_month_end
@@ -36,6 +38,7 @@ module VBADocuments
       )
       template = File.read(path)
       body = ERB.new(template).result(binding)
+
       mail(
         to: RECIPIENTS,
         subject: "Monthly Benefits Intake Submission Report for #{@environment}",

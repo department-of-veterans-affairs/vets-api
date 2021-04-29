@@ -45,7 +45,8 @@ module Mobile
         directDepositBenefits: :evss,
         lettersAndDocuments: :evss,
         militaryServiceHistory: :emis,
-        userProfileUpdate: :vet360
+        userProfileUpdate: :vet360,
+        secureMessaging: :mhv_messaging
       }.freeze
 
       def self.filter_keys(value, keys)
@@ -75,7 +76,7 @@ module Mobile
       end
 
       def self.facility(user, facility_id)
-        cerner_facility_ids = user.va_profile.cerner_facility_ids || []
+        cerner_facility_ids = user.cerner_facility_ids || []
         {
           facility_id: facility_id,
           is_cerner: cerner_facility_ids.include?(facility_id)
@@ -85,7 +86,7 @@ module Mobile
       attribute :health do |user|
         {
           facilities: user.va_treatment_facility_ids.map { |id| facility(user, id) },
-          is_cerner_patient: !user.va_profile.cerner_id.nil?
+          is_cerner_patient: !user.cerner_id.nil?
         }
       end
     end

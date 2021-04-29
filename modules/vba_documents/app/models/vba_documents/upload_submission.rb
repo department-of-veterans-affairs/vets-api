@@ -15,8 +15,11 @@ module VBADocuments
     after_find :set_initial_status
     attr_reader :current_status
 
+    # We don't want to check successes before
+    # this date as it used to be the endpoint
+    VBMS_IMPLEMENTATION_DATE = Date.parse('28-06-2019')
+    FINAL_SUCCESS_STATUS_KEY = 'final_success_status'
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
-
     ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
     RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
