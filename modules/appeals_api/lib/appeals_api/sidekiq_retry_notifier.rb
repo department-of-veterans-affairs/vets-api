@@ -15,7 +15,7 @@ module AppealsApi
         "
         The sidekiq job #{params['class']} has hit #{params['retry_count']} retries.
         \nError Type: #{params['error_class']} \n Error Message: \n #{params['error_message']} \n\n
-This job failed at: #{Time.zone.at(params['failed_at'])}, and was retried at: #{retried_at(params['retried_at'])}
+This job failed at: #{Time.zone.at(params['failed_at'])}, and #{retried_at(params['retried_at'])}
         "
       end
 
@@ -36,9 +36,9 @@ This job failed at: #{Time.zone.at(params['failed_at'])}, and was retried at: #{
       end
 
       def retried_at(retried_time)
-        return 'was not retried' unless retried_time
+        return 'was not retried.' unless retried_time
 
-        Time.zone.at(retried_time)
+        "was retried at: #{Time.zone.at(retried_time)}."
       end
 
       def slack_channel_id
