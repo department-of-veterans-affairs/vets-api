@@ -136,7 +136,7 @@ module OpenidAuth
 
       def validation_from_charon(duz, site)
         response = RestClient.get(Settings.oidc.charon.endpoint,
-                                  { params: { duz: '000001', site: site } })
+                                  { params: { duz: duz, site: site } })
         return true unless response.code != 200
 
         false
