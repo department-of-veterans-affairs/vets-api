@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VAOS::V1::AppointmentService do
+describe VAOS::V2::AppointmentService do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :vaos) }
@@ -15,7 +15,7 @@ describe VAOS::V1::AppointmentService do
   describe '#get_appointments' do
     context 'with an appointment' do
       it 'returns an appointment' do
-        VCR.use_cassette('vaos/v1/appointments/get_appointments', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments', match_requests_on: %i[method uri]) do
           response = subject.get_appointments(start_date, end_date)
           expect(response[:data].size).to eq(1)
         end
@@ -24,7 +24,7 @@ describe VAOS::V1::AppointmentService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v1/appointments/get_appointments_500', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_500', match_requests_on: %i[method uri]) do
           expect { subject.get_appointments(start_date, end_date) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )

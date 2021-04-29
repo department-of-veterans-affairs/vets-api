@@ -5,7 +5,7 @@ require 'common/client/errors'
 require 'json'
 
 module VAOS
-  module V1
+  module V2
     class AppointmentService < VAOS::SessionService
       def get_appointments(start_date, end_date, pagination_params = {})
         params = date_params(start_date, end_date).merge(page_params(pagination_params)).compact

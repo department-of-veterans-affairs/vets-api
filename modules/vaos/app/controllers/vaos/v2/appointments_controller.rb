@@ -14,7 +14,7 @@ module VAOS
       private
 
       def appointment_service
-        VAOS::V1::AppointmentService.new(current_user)
+        VAOS::V2::AppointmentService.new(current_user)
       end
 
       def appointments

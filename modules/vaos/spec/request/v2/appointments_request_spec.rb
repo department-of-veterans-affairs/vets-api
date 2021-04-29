@@ -23,7 +23,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'returns list of appointments' do
         it 'has access and returns va appointments' do
-          VCR.use_cassette('vaos/v1/appointments/get_appointments', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments', match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments', params: params
 
             expect(response).to have_http_status(:ok)
