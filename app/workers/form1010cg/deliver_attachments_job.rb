@@ -2,16 +2,16 @@
 
 module Form1010cg
   class DeliverAttachmentsJob
-    # class MissingClaimException < StandardError; end
+    class MissingClaimException < StandardError; end
 
-    attr_reader :claim
+    attr_reader :submission
 
     include Sidekiq::Worker
 
     def perform(claim_guid)
-      find_claim(claim_guid)
+      find_submission(claim_guid)
 
-      claim_pdf_path, poa_attachment_path = Form1010cg::Service.collect_attachments(claim)
+      claim_pdf_path, poa_attachment_path = Form1010cg::Service.collect_attachments(submission.claim)
       carma_attachments = Form1010cg::Service.submit_attachments!(
         submission.carma_case_id,
         veteran_name,
@@ -21,18 +21,19 @@ module Form1010cg
 
       record_success(claim_guid, submission.carma_case_id, carma_attachments.to_hash)
       delete_files(claim_pdf_path, poa_attachment_path)
-      attachment&.destroy! # deletes the DB record and S3 object
-      claim.destroy! # destroys the submission and claim
+      delete_resources(poa_attachment_path.present?)
     end
 
     private
 
-    def find_claim(claim_guid)
-      @claim ||= SavedClaim::CaregiversAssistanceClaim.includes(:submission).find_by(guid: claim_guid)
+    def find_submission(claim_guid)
+      Raven.tags_context(claim_guid: claim_guid)
+      @submission = Form1010cg::Submission.includes(:claim).find_by!(claim_guid: claim_guid)
+      raise missing_claim_error if submission.claim.nil?
     end
 
-    def submission
-      claim.submission
+    def claim
+      submission.claim
     end
 
     def attachment
@@ -41,6 +42,11 @@ module Form1010cg
 
     def veteran_name
       claim.veteran_data['fullName']
+    end
+
+    def delete_resources(delete_attachment)
+      attachment.destroy! if delete_attachment # deletes the DB record and S3 object
+      submission.destroy! # destroys the submission and claim
     end
 
     def delete_files(claim_pdf_path, poa_attachment_path)
@@ -65,6 +71,10 @@ module Form1010cg
 
     def auditor
       Form1010cg::Auditor.new(logger)
+    end
+
+    def missing_claim_error
+      MissingClaimException.new('Could not find a claim associated to this submission')
     end
   end
 end
