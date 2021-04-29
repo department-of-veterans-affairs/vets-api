@@ -15,9 +15,19 @@ module OpenidAuth
         if e.is_a?(RestClient::ExceptionWithResponse)
           status_code = e.response.code >= 500 ? 503 : 401
           render status: status_code
-        else
+        elsif e.is_a?(Common::Exceptions::TokenValidationError)
           raise e
+        else
+          raise Common::Exceptions::InternalServerError, e
         end
+      end
+
+      def act_vista_id_match_pattern
+        /\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/
+      end
+
+      def parsed_sta3n_match_pattern
+        /\d{3}[A-Z]*/
       end
 
       def valid_strict?
@@ -64,9 +74,9 @@ module OpenidAuth
         if token.ssoi_token?
           payload_object = populate_act_payload(payload_object)
           return payload_object unless
-            validate_with_charon?(payload_object.aud) && !charon_token_screen?(payload_object)
+            should_validate_with_charon?(payload_object.aud) && !authorized_by_charon?(payload_object)
 
-          raise error_klass('401 Invalid request')
+          raise error_klass('Invalid request')
         end
 
         if token.client_credentials_token?
@@ -95,16 +105,20 @@ module OpenidAuth
         payload_object
       end
 
-      def charon_token_screen?(payload_object)
+      #
+      # Screens the payload, for an additional authorization
+      # check with charon
+      #
+      def authorized_by_charon?(payload_object)
         act_vista_id = payload_object.act[:vista_id]
         sta3n = payload_object.launch['sta3n']
         return false unless !act_vista_id.nil? && !sta3n.nil?
 
-        vista_ids = act_vista_id.scan(/\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/)
+        vista_ids = act_vista_id.scan(act_vista_id_match_pattern)
         return false unless vista_ids
 
         vista_ids.each do |vista_id|
-          parsed_sta3n = vista_id.match(/\d{3}|/)
+          parsed_sta3n = vista_id.match(parsed_sta3n_match_pattern)
           if sta3n.to_s.eql?(parsed_sta3n.to_s)
             duz = vista_id.match(/\|\d+\^/).to_s.match(/\d+/)
             return validation_from_charon(duz, sta3n)
@@ -113,7 +127,7 @@ module OpenidAuth
         false
       end
 
-      def validate_with_charon?(aud)
+      def should_validate_with_charon?(aud)
         return false unless !Settings.oidc.charon.enabled.nil? && Settings.oidc.charon.enabled.eql?(true)
 
         [*Settings.oidc.charon.audience].include?(aud)
