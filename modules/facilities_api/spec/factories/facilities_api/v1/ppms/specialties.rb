@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :v1_ppms_specialty, class: 'FacilitiesApi::V1::PPMS::Specialty' do
+  factory :facilities_api_v1_ppms_specialty, class: 'FacilitiesApi::V1::PPMS::Specialty' do
     classification { Faker::IndustrySegments.industry }
     grouping { Faker::IndustrySegments.super_sector }
     name { Faker::IndustrySegments.sector }
