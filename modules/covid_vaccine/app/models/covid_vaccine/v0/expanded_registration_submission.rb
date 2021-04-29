@@ -22,13 +22,11 @@ module CovidVaccine
         # submission is successfully sent to VeText without an ICN
         event :successful_registration_no_icn do
           transitions from: :enrollment_failed, to: :registered_no_icn
-          # transitions from: :enrollment_out_of_band, to: :registered_no_icn
         end
 
         # submission is successfully sent to VeText without a facility match
         event :successful_registration_no_facility do
           transitions from: :enrollment_failed, to: :registered_no_facility
-          # transitions from: :enrollment_out_of_band, to: :registered_no_facility
         end
 
         # Enrollment returned a success; transitions to enrollment_complete
@@ -44,13 +42,7 @@ module CovidVaccine
         # Enrollment returned a failure; transitions to enrollment_failed
         event :failed_enrollment do
           transitions from: :enrollment_pending, to: :enrollment_failed
-          # transitions from: :enrollment_out_of_band, to: :enrollment_failed
         end
-
-        # If there is no preferred facility the registration will need to be handled manually
-        # event :enrollment_requires_intervention do
-        #   transitions from: :enrollment_pending, to: :enrollment_out_of_band
-        # end
       end
 
       after_initialize do |reg|
