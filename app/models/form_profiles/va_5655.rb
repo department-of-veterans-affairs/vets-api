@@ -35,13 +35,21 @@ class FormProfiles::VA5655 < FormProfile
   private
 
   def va_file_number_last_four
-    (
-      BGS::PeopleService.new(user).find_person_by_participant_id[:file_nbr].presence ||
-        user.ssn.presence
-    )&.last(4)
+    return unless user.authorize :debt, :access?
+
+    file_number =
+      begin
+        BGS::PeopleService.new(@user).find_person_by_participant_id[:file_nbr].presence || @user.ssn
+      rescue Savon::SOAPFault
+        @user.ssn
+      end
+
+    file_number&.last(4)
   end
 
   def init_payments
+    return {} unless user.authorize :debt, :access?
+
     payments = DebtManagementCenter::PaymentsService.new(user)
 
     DebtManagementCenter::Payment.new(

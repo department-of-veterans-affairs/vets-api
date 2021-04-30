@@ -17,7 +17,7 @@ class Session < Common::RedisStore
   attribute :uuid
   attribute :created_at
   attribute :ssoe_transactionid
-
+  attribute :profile
   validates :token, presence: true
   validates :uuid, presence: true
   validates :created_at, presence: true
