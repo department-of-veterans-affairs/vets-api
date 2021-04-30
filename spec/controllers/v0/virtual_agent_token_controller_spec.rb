@@ -73,6 +73,7 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
     context 'when external service is unavailable' do
       it 'returns service unavailable' do
         allow(Flipper).to receive(:enabled?).with(:virtual_agent_token).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:virtual_agent_bot_a).and_return(true)
 
         VCR.use_cassette('virtual_agent/webchat_error') do
           post :create
