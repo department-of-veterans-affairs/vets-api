@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: https://veteran.apps.va.gov/vaos/v1/locations/442/clinics?clinic-ids%5B%5D=111&clinic-ids%5B%5D=222&clinic-ids%5B%5D=333&clinical-service=primaryCare&location-id=442&page-number=0&page-size=0&patient-icn=54321
+      uri: https://veteran.apps.va.gov/vaos/v1/locations/442/clinics?clinic-ids%5B%5D=111&clinic-ids%5B%5D=222&clinic-ids%5B%5D=333&clinical-service=primaryCare&location-id=442&page-number=0&page-size=0&patient-icn=321
       body:
         encoding: US-ASCII
         string: ''

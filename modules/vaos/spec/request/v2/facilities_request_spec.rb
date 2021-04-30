@@ -18,12 +18,12 @@ RSpec.describe 'facilities', type: :request do
 
     describe 'GET facility clinics' do
       let(:location_id) { 442 }
-      let(:patient_icn) { 54321 }
+      let(:patient_icn) { 321 }
       let(:clinic_ids) { %w[111 222 333] }
-      let(:clinical_service) { "primaryCare" }
+      let(:clinical_service) { 'primaryCare' }
       let(:page_size) { 0 }
       let(:page_number) { 0 }
-      let(:params) {
+      let(:params) do
         {
           location_id: location_id,
           patient_icn: patient_icn,
@@ -32,7 +32,7 @@ RSpec.describe 'facilities', type: :request do
           page_size: page_size,
           page_number: page_number
         }
-      }
+      end
 
       it 'returns list of clinics' do
         VCR.use_cassette('vaos/v2/systems/get_facility_clinics', match_requests_on: %i[method uri]) do

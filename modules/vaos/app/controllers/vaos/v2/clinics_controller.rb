@@ -4,14 +4,7 @@ module VAOS
   module V2
     class ClinicsController < VAOS::V0::BaseController
       def index
-        response = systems_service.get_facility_clinics(
-          clinics_params[:location_id],
-          clinics_params[:patient_icn],
-          clinics_params[:clinic_ids],
-          clinics_params[:clinical_service],
-          clinics_params[:page_size],
-          clinics_params[:page_number]
-        )
+        response = systems_service.get_facility_clinics(clinics_params)
         render json: VAOS::V2::ClinicsSerializer.new(response)
       end
 
