@@ -153,12 +153,12 @@ module PdfFill
 
       def extract_email
         email_address = @form_data['emailAddress']
-        return if email_address.nil?
+        return if email_address.blank?
 
         if email_address.length > 17 && email_address.length < 37
           @form_data['email1'] = email_address[0..17]
           @form_data['email2'] = email_address[18..]
-        elsif
+        else
           @form_data['email1'] = email_address
         end
       end
