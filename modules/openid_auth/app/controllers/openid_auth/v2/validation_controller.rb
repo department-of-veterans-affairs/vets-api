@@ -49,7 +49,7 @@ module OpenidAuth
         if token.ssoi_token?
           payload_object.act[:icn] = token.payload['icn']
           payload_object.act[:npi] = token.payload['npi']
-          payload_object.act[:sec_id] = token.payload['sub']
+          payload_object.act[:sec_id] = token.payload['sec_id']
           payload_object.act[:vista_id] = token.payload['vista_id']
           payload_object.act[:type] = 'user'
           return payload_object
