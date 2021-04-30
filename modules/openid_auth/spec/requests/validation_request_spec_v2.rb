@@ -423,7 +423,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns json response if valid user' do
-      with_ssoi_configured do
+      with_ssoi_charon_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
@@ -437,7 +437,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns 401 response if invalid user' do
-      with_ssoi_configured do
+      with_ssoi_charon_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_wrong_sta3n_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
@@ -447,7 +447,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns server error' do
-      with_ssoi_configured do
+      with_ssoi_charon_configured do
         allow(RestClient).to receive(:get).and_return(bad_launch_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },

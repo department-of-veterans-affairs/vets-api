@@ -58,7 +58,7 @@ def with_ssoi_profile_configured(&block)
   end
 end
 
-def with_ssoi_configured(&block)
+def with_ssoi_charon_configured(&block)
   with_settings(
     Settings.oidc,
     auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
