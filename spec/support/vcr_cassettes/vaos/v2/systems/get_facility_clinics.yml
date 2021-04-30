@@ -60,27 +60,53 @@ http_interactions:
         encoding: UTF-8
         string: |-
           [ {
-                      "locationId" : "442",
-                      "patientIcn" : "54321",
-                      "clinicId" : "111",
-                      "clinicalService" : "primaryCare",
-                      "pageSize" : "0",
-                      "pageNumber" : "0"
-                    }, {
-                      "locationId" : "442",
-                      "patientIcn" : "54321",
-                      "clinicId" : "222",
-                      "clinicalService" : "primaryCare",
-                      "pageSize" : "0",
-                      "pageNumber" : "0"
-                    }, {
-                      "locationId" : "442",
-                      "patientIcn" : "54321",
-                      "clinicId" : "333",
-                      "clinicalService" : "primaryCare",
-                      "pageSize" : "0",
-                      "pageNumber" : "0"
-                    } ]
+              "vistaSite": 0,
+              "id": "",
+              "serviceName": "",
+              "physicalLocation": "",
+              "phoneNumber": "123-456-7890 ext. 112",
+              "stationId": "",
+              "stationName": "",
+              "primaryStopCode": 0,
+              "primaryStopCodeName": "OCCUPATIONAL HEALTH",
+              "secondaryStopCode": 0,
+              "secondaryStopCodeName": "",
+              "patientDirectScheduling": true,
+              "patientDisplay": true,
+              "char4": "CDQC"
+            },
+            {
+              "vistaSite": 1,
+              "id": "",
+              "serviceName": "",
+              "physicalLocation": "",
+              "phoneNumber": "123-456-7890 ext. 112",
+              "stationId": "",
+              "stationName": "",
+              "primaryStopCode": 0,
+              "primaryStopCodeName": "OCCUPATIONAL HEALTH",
+              "secondaryStopCode": 0,
+              "secondaryStopCodeName": "",
+              "patientDirectScheduling": true,
+              "patientDisplay": true,
+              "char4": "CDQC"
+            },
+            {
+              "vistaSite": 2,
+              "id": "",
+              "serviceName": "",
+              "physicalLocation": "",
+              "phoneNumber": "123-456-7890 ext. 112",
+              "stationId": "",
+              "stationName": "",
+              "primaryStopCode": 0,
+              "primaryStopCodeName": "OCCUPATIONAL HEALTH",
+              "secondaryStopCode": 0,
+              "secondaryStopCodeName": "",
+              "patientDirectScheduling": true,
+              "patientDisplay": true,
+              "char4": "CDQC"
+            } ]
         http_version:
     recorded_at: Fri, 08 Nov 2019 00:51:58 GMT
 recorded_with: VCR 3.0.3

@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "string",
+  "enum": [
+    "primaryCare",
+    "socialWork",
+    "optometry",
+    "clinicalPharmacyPrimaryCare",
+    "ophthalmology",
+    "foodAndNutrition",
+    "audiology",
+    "amputation",
+    "homeSleepTesting",
+    "moveProgram",
+    "cpap",
+    "outpatientMentalHealth",
+    "covid"
+  ]
+}

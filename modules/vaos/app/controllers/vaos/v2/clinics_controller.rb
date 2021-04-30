@@ -12,7 +12,6 @@ module VAOS
           clinics_params[:page_size],
           clinics_params[:page_number]
         )
-
         render json: VAOS::V2::ClinicsSerializer.new(response)
       end
 
@@ -20,11 +19,6 @@ module VAOS
 
       def systems_service
         VAOS::V2::SystemsService.new(current_user)
-      end
-
-      def clinics
-        @clinics ||=
-          systems_service.get_facility_clinics()
       end
 
       def clinics_params
@@ -36,6 +30,7 @@ module VAOS
           :page_size,
           :page_number
         )
+        params
       end
     end
   end
