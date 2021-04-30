@@ -1,6 +1,4 @@
 common:
-  - 'gregory.bowman@libertyits.com'
-common_hold:
   - 'cristopher.shupp@libertyits.com'
   - 'gregory.bowman@libertyits.com'
   - 'mark.viterna@libertyits.com'
@@ -11,7 +9,6 @@ dev:
 staging:
 sandbox:
 prod:
-prod_hold:
   - 'david.mazik@va.gov'
   - 'ryan.link@oddball.io'
   - 'christopher.stone@libertyits.com'
