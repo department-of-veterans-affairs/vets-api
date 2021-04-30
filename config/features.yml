@@ -423,6 +423,11 @@ features:
     enable_in_development: true
     description: >
       Points to Bot A
+  virtual_agent_token:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables connection to webchat
   sharable_link:
     actor_type: user
     enable_in_development: true
