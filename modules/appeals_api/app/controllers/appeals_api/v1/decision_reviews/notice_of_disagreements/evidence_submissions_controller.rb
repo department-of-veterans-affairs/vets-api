@@ -36,7 +36,8 @@ module AppealsApi::V1
                    key_transform: :camel_lower,
                    render_location: true
           else
-            render json: { errors: [log_error(error)] }, status: error[:title].to_sym
+            log_error(error)
+            render json: { errors: [error] }, status: error[:title].to_sym
           end
         end
 
@@ -58,7 +59,9 @@ module AppealsApi::V1
 
         def nod_id_missing_error
           error = { title: 'bad_request', detail: I18n.t('appeals_api.errors.missing_nod_id') }
-          render json: { errors: [log_error(error)] }, status: :bad_request
+          log_error(error)
+
+          render json: { errors: [error] }, status: :bad_request
         end
 
         def submission_attributes

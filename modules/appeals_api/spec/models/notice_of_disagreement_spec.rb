@@ -6,13 +6,12 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NoticeOfDisagreement, type: :model do
   include FixtureHelpers
 
+  let(:auth_headers) { fixture_as_json 'valid_10182_headers.json' }
+  let(:form_data) { fixture_as_json 'valid_10182.json' }
   let(:notice_of_disagreement) do
     review_option = form_data['data']['attributes']['boardReviewOption']
     build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers, board_review_option: review_option)
   end
-
-  let(:auth_headers) { fixture_as_json 'valid_10182_headers.json' }
-  let(:form_data) { fixture_as_json 'valid_10182.json' }
 
   describe '.build' do
     before { notice_of_disagreement.valid? }

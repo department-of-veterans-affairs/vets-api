@@ -14,15 +14,15 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     context 'when corresponding notice of disagreement record not found' do
       it 'returns an error' do
         with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                      prefix: 'http://some.fakesite.com/path',
-                      replacement: 'http://another.fakesite.com/rewrittenpath') do
+                      prefix: 'https://fake.s3.url/foo/',
+                      replacement: 'https://api.vets.gov/proxy/') do
           s3_client = instance_double(Aws::S3::Resource)
           allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
           s3_bucket = instance_double(Aws::S3::Bucket)
           s3_object = instance_double(Aws::S3::Object)
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
-          allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
+          allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
           post(path, params: { nod_id: 1979, headers: headers })
 
           expect(response.status).to eq 404
@@ -34,15 +34,15 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     context 'when corresponding notice of disagreement record found' do
       it "returns an error if nod 'boardReviewOption' is not 'evidence_submission'" do
         with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                      prefix: 'http://some.fakesite.com/path',
-                      replacement: 'http://another.fakesite.com/rewrittenpath') do
+                      prefix: 'https://fake.s3.url/foo/',
+                      replacement: 'https://api.vets.gov/proxy/') do
           s3_client = instance_double(Aws::S3::Resource)
           allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
           s3_bucket = instance_double(Aws::S3::Bucket)
           s3_object = instance_double(Aws::S3::Object)
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
-          allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
+          allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
           post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
 
           expect(response.status).to eq 422
@@ -53,19 +53,17 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       context "when nod record 'auth_headers' are present" do
         it "returns an error if request 'headers['X-VA-SSN'] and NOD record SSNs do not match" do
           with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                        prefix: 'http://some.fakesite.com/path',
-                        replacement: 'http://another.fakesite.com/rewrittenpath') do
+                        prefix: 'https://fake.s3.url/foo/',
+                        replacement: 'https://api.vets.gov/proxy/') do
             s3_client = instance_double(Aws::S3::Resource)
             allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
             s3_bucket = instance_double(Aws::S3::Bucket)
             s3_object = instance_double(Aws::S3::Object)
             allow(s3_client).to receive(:bucket).and_return(s3_bucket)
             allow(s3_bucket).to receive(:object).and_return(s3_object)
-            allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-
+            allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
             notice_of_disagreement.update(board_review_option: 'evidence_submission')
             headers['X-VA-SSN'] = '1111111111'
-
             post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
 
             expect(response.status).to eq 422
@@ -77,17 +75,16 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       context "when nod record 'auth_headers' are not present" do
         # if PII expunged not validating for matching SSNs
         it 'creates the evidence submission and returns upload location' do
-          with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                        prefix: 'http://some.fakesite.com/path',
-                        replacement: 'http://another.fakesite.com/rewrittenpath') do
+          with_settings(Settings.vba_documents.location,
+                        prefix: 'https://fake.s3.url/foo/',
+                        replacement: 'https://api.vets.gov/proxy/') do
             s3_client = instance_double(Aws::S3::Resource)
             allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
             s3_bucket = instance_double(Aws::S3::Bucket)
             s3_object = instance_double(Aws::S3::Object)
             allow(s3_client).to receive(:bucket).and_return(s3_bucket)
             allow(s3_bucket).to receive(:object).and_return(s3_object)
-            allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-
+            allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
             notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
             post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
 
@@ -97,25 +94,23 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
             expect(data['attributes']['status']).to eq('pending')
             expect(data['attributes']['appealId']).to eq(notice_of_disagreement.id)
             expect(data['attributes']['appealType']).to eq('NoticeOfDisagreement')
-            expect(data['attributes']['location']).to eq('http://another.fakesite.com/rewrittenpath/uuid')
+            expect(data['attributes']['location']).to eq('https://api.vets.gov/proxy/uuid')
           end
         end
       end
 
-
       it 'creates the evidence submission and returns upload location' do
-        with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                      prefix: 'http://some.fakesite.com/path',
-                      replacement: 'http://another.fakesite.com/rewrittenpath') do
+        with_settings(Settings.vba_documents.location,
+                      prefix: 'https://fake.s3.url/foo/',
+                      replacement: 'https://api.vets.gov/proxy/') do
           s3_client = instance_double(Aws::S3::Resource)
           allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
           s3_bucket = instance_double(Aws::S3::Bucket)
           s3_object = instance_double(Aws::S3::Object)
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
-          allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-
-          notice_of_disagreement.update(board_review_option: 'evidence_submission')
+          allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
+          notice_of_disagreement.update!(board_review_option: 'evidence_submission')
           post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
 
           data = JSON.parse(response.body)['data']
@@ -124,23 +119,22 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           expect(data['attributes']['status']).to eq('pending')
           expect(data['attributes']['appealId']).to eq(notice_of_disagreement.id)
           expect(data['attributes']['appealType']).to eq('NoticeOfDisagreement')
-          expect(data['attributes']['location']).to eq('http://another.fakesite.com/rewrittenpath/uuid')
+          expect(data['attributes']['location']).to eq('https://api.vets.gov/proxy/uuid')
         end
       end
     end
 
     it "returns an error when 'nod_id' parameter is missing" do
       with_settings(Settings.modules_appeals_api.evidence_submissions.location,
-                    prefix: 'http://some.fakesite.com/path',
-                    replacement: 'http://another.fakesite.com/rewrittenpath') do
+                    prefix: 'https://fake.s3.url/foo/',
+                    replacement: 'https://api.vets.gov/proxy/') do
         s3_client = instance_double(Aws::S3::Resource)
         allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
         s3_bucket = instance_double(Aws::S3::Bucket)
         s3_object = instance_double(Aws::S3::Object)
         allow(s3_client).to receive(:bucket).and_return(s3_bucket)
         allow(s3_bucket).to receive(:object).and_return(s3_object)
-        allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-
+        allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
         post(path, params: { headers: headers })
 
         expect(response.status).to eq 400
