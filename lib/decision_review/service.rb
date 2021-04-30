@@ -249,6 +249,10 @@ module DecisionReview
     end
 
     def save_error_details(error)
+      PersonalInformationLog.create!(
+        error_class: "#{self.class.name}#save_error_details exception #{error.class} (HLR) (NOD)",
+        data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
+      )
       Raven.tags_context external_service: self.class.to_s.underscore
       Raven.extra_context url: config.base_path, message: error.message
     end

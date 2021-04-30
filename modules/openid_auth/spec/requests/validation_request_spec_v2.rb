@@ -135,6 +135,39 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       }
     }
   end
+  let(:json_ssoi_api_response) do
+    {
+      'data' => {
+        'id' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'type' => 'validated_token',
+        'attributes' => {
+          'ver' => 1,
+          'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+          'iss' => 'https://example.com/oauth2/default',
+          'aud' => 'api://default',
+          'iat' => 1_541_453_784,
+          'exp' => 1_541_457_384,
+          'cid' => '0oa1c01m77heEXUZt2p7',
+          'uid' => '00u1zlqhuo3yLa2Xs2p7',
+          'scp' => [
+            'profile',
+            'email',
+            'openid',
+            'veteran_status.read'
+          ],
+          'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+          'act' => {
+            'icn' => nil,
+            'npi' => nil,
+            'sec_id' => 'ae9ff5f4e4b741389904087d94cd19b2',
+            'vista_id' => '',
+            'type' => 'user'
+          },
+          'launch' => {}
+        }
+      }
+    }
+  end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
   let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
 
@@ -197,6 +230,18 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
+      end
+    end
+
+    it 'ssoi returns 200 and add the user to the session' do
+      with_ssoi_profile_configured do
+        post '/internal/auth/v2/validation', params: nil, headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to \
+          eq(json_ssoi_api_response['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['act'].keys).to \
+          eq(json_ssoi_api_response['data']['attributes']['act'].keys)
       end
     end
   end
