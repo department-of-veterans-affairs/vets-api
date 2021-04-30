@@ -1,16 +1,14 @@
 # frozen_string_literal: true
 
-require 'fast_jsonapi'
-
 module VAOS
   module V2
-    class ClinicSerializer
+    class ClinicsSerializer
       include FastJsonapi::ObjectSerializer
 
       set_id :id
 
       set_type :clinics
-      
+
       attributes :vista_site,
                  :service_name,
                  :physical_location,

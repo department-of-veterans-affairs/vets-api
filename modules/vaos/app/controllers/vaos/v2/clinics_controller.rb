@@ -13,7 +13,7 @@ module VAOS
           clinics_params[:page_number]
         )
 
-        render json: VAOS::V2::ClinicSerializer.new(response)
+        render json: VAOS::V2::ClinicsSerializer.new(response)
       end
 
       private
@@ -22,10 +22,14 @@ module VAOS
         VAOS::V2::SystemsService.new(current_user)
       end
 
+      def clinics
+        @clinics ||=
+          systems_service.get_facility_clinics()
+      end
+
       def clinics_params
         params.require(:location_id)
         params.permit(
-          :location_id,
           :patient_icn,
           :clinic_ids,
           :clinical_service,

@@ -20,7 +20,8 @@ describe VAOS::V2::SystemsService do
     context 'with 3 clinics' do
       it 'returns an array of size 3' do
         VCR.use_cassette('vaos/v2/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-          response = subject.get_facility_clinics(location_id, patient_icn, clinic_ids, clinical_service, page_size, page_number)
+          response = subject.get_facility_clinics(location_id, patient_icn, clinic_ids, clinical_service, page_size,
+                                                  page_number)
           expect(response.size).to eq(3)
         end
       end
@@ -29,7 +30,10 @@ describe VAOS::V2::SystemsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/systems/get_facility_clinics_500', match_requests_on: %i[method uri]) do
-          expect { subject.get_facility_clinics(location_id, patient_icn, clinic_ids, clinical_service, page_size, page_number) }.to raise_error(
+          expect {
+            subject.get_facility_clinics(location_id, patient_icn, clinic_ids, clinical_service, page_size,
+                                         page_number)
+          }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end

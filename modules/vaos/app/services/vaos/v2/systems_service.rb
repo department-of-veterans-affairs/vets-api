@@ -3,7 +3,6 @@
 module VAOS
   module V2
     class SystemsService < VAOS::SessionService
-
       def get_facility_clinics(location_id, patient_icn, clinic_ids, clinical_service, page_size, page_number)
         with_monitoring do
           url = "/vaos/v1/locations/#{location_id}/clinics"

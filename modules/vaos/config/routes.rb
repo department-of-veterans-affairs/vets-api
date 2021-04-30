@@ -43,6 +43,6 @@ VAOS::Engine.routes.draw do
   end
 
   namespace :v2, defaults: { format: :json } do
-    get '/locations/:id/clinics', to: 'clinics#index'
+    get '/locations/:location_id/clinics', to: 'clinics#index'
   end
 end
