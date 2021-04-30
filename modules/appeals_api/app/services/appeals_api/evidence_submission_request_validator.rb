@@ -34,7 +34,8 @@ module AppealsApi
     end
 
     def ssn_match?
-      return unless @notice_of_disagreement.auth_headers
+      # if PII expunged not validating for matching SSNs
+      return true unless @notice_of_disagreement.auth_headers
 
       @request_ssn == @notice_of_disagreement.auth_headers['X-VA-SSN']
     end
