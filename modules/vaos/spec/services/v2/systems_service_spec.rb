@@ -17,11 +17,11 @@ describe VAOS::V2::SystemsService do
   let(:page_number) { 0 }
 
   describe '#get_facility_clinics' do
-    context 'with 1 clinic' do
-      it 'returns an array of size 1' do
+    context 'with 3 clinics' do
+      it 'returns an array of size 3' do
         VCR.use_cassette('vaos/v2/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
           response = subject.get_facility_clinics(location_id, patient_icn, clinic_ids, clinical_service, page_size, page_number)
-          expect(response.size).to eq(4)
+          expect(response.size).to eq(3)
         end
       end
     end

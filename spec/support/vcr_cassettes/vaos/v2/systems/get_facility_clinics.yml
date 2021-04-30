@@ -62,28 +62,21 @@ http_interactions:
           [ {
                       "locationId" : "442",
                       "patientIcn" : "54321",
-                      "clinicIds" : "111, 222, 333",
+                      "clinicId" : "111",
                       "clinicalService" : "primaryCare",
                       "pageSize" : "0",
                       "pageNumber" : "0"
                     }, {
                       "locationId" : "442",
                       "patientIcn" : "54321",
-                      "clinicIds" : "111, 222, 333",
+                      "clinicId" : "222",
                       "clinicalService" : "primaryCare",
                       "pageSize" : "0",
                       "pageNumber" : "0"
                     }, {
                       "locationId" : "442",
                       "patientIcn" : "54321",
-                      "clinicIds" : "111, 222, 333",
-                      "clinicalService" : "primaryCare",
-                      "pageSize" : "0",
-                      "pageNumber" : "0"
-                    }, {
-                      "locationId" : "442",
-                      "patientIcn" : "54321",
-                      "clinicIds" : "111, 222, 333",
+                      "clinicId" : "333",
                       "clinicalService" : "primaryCare",
                       "pageSize" : "0",
                       "pageNumber" : "0"
