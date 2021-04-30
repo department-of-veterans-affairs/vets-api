@@ -24,11 +24,7 @@ module AppealsApi::V1
           submission = AppealsApi::EvidenceSubmission.find_by(guid: params[:id])
           raise Common::Exceptions::RecordNotFound, params[:id] unless submission
 
-          # rubocop:disable Style/IfUnlessModifier
-          if status_simulation_requested? && status_simulation_allowed?
-            submission = with_status_simulation(submission)
-          end
-          # rubocop:enable Style/IfUnlessModifier
+          submission = with_status_simulation(submission) if status_requested_and_allowed?
 
           render json: submission,
                  serializer: AppealsApi::EvidenceSubmissionSerializer,
