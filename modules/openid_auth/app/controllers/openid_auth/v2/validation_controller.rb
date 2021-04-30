@@ -84,6 +84,7 @@ module OpenidAuth
           payload_object.act[:icn] = @current_user.icn
           payload_object.launch[:patient] = @current_user.icn
         end
+
         payload_object
       end
 
