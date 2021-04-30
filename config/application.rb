@@ -39,6 +39,18 @@ module VetsAPI
     # Middleware like session, flash, cookies can be added back manually.
     # Skip views, helpers and assets when generating a new resource.
     config.api_only = true
+
+    # Currently used for overriding a before_action
+    # For the PGHero gem
+    # see pghero_home_controller_override
+    overrides = "#{Rails.root}/app/overrides"
+    Rails.autoloaders.main.ignore(overrides)
+    config.to_prepare do
+      Dir.glob("#{overrides}/**/*_override.rb").each do |override|
+        load override
+      end
+    end
+
     config.relative_url_root = Settings.relative_url_root
 
     # This prevents rails from escaping html like & in links when working with JSON
@@ -67,6 +79,7 @@ module VetsAPI
     config.middleware.use StatsdMiddleware
     config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies
+    config.middleware.use ActionDispatch::Flash
     config.middleware.insert_after ActionDispatch::Cookies,
                                    ActionDispatch::Session::CookieStore,
                                    key: 'api_session',

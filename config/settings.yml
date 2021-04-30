@@ -929,3 +929,7 @@ github_cvu:
   installation_id: ~
   integration_id: ~
   private_pem: ~
+
+pg_hero:
+  username: ~
+  password: ~
