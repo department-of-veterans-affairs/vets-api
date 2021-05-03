@@ -108,6 +108,10 @@ module AppealsApi
       'BVA'
     end
 
+    def update_status!(status:, code: nil, detail: nil)
+      update!(status: status, code: code, detail: detail)
+    end
+
     private
 
     def validate_hearing_type_selection

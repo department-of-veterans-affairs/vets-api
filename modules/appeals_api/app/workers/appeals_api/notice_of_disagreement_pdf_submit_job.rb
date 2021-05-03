@@ -19,12 +19,12 @@ module AppealsApi
       notice_of_disagreement = NoticeOfDisagreement.find(id)
 
       begin
-        notice_of_disagreement.update!(status: 'submitting')
+        notice_of_disagreement.update_status!(status: 'submitting')
         stamped_pdf = PdfConstruction::Generator.new(notice_of_disagreement).generate
         upload_to_central_mail(notice_of_disagreement, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)
       rescue => e
-        notice_of_disagreement.update!(status: 'error', code: e.class.to_s, detail: e.message)
+        notice_of_disagreement.update_status!(status: 'error', code: e.class.to_s, detail: e.message)
         raise
       end
     end
@@ -64,7 +64,7 @@ module AppealsApi
 
     def process_response(response, notice_of_disagreement)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
-        notice_of_disagreement.update!(status: 'submitted')
+        notice_of_disagreement.update_status!(status: 'submitted')
       else
         map_error(response.status, response.body, AppealsApi::UploadError)
       end
