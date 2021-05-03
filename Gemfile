@@ -30,10 +30,13 @@ path 'modules' do
 end
 # End Modules
 
+# needed for PGHero performance dashboard
+gem 'sass-rails', '>= 6'
+
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.7'
 gem 'puma-plugin-statsd', '~> 0.1.0'
-gem 'rails', '~> 6.0.2'
+gem 'rails', '~> 6.0.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
@@ -85,6 +88,7 @@ gem 'levenshtein-ffi'
 gem 'liquid'
 gem 'mail', '2.7.1'
 gem 'memoist'
+gem 'mimemagic', '~> 0.3.10'
 gem 'mini_magick', '~> 4.11.0'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.11'

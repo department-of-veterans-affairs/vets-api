@@ -378,6 +378,8 @@ Rails.application.routes.draw do
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
+  mount PgHero::Engine, at: 'pghero'
+
   mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
