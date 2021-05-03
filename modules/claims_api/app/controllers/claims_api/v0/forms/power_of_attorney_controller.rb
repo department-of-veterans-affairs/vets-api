@@ -110,7 +110,6 @@ module ClaimsApi
           @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
         end
 
-
         def header_md5
           @header_md5 ||= Digest::MD5.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
                                                                     'va_eauth_service_transaction_id',

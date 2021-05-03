@@ -88,6 +88,7 @@ module ClaimsApi
         # @return [JSON] Last POA change request through Claims API
         def active
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
+
           validate_poa_code_for_current_user!(current_poa_code)
 
           render json: {
