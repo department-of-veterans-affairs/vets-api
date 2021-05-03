@@ -48,6 +48,155 @@ RSpec.describe Form1010cg::Service do
     end
   end
 
+  describe '::collect_attachments' do
+    let(:claim_pdf_path) { 'tmp/10-10cg-application.pdf' }
+    let(:poa_attachment_path) { 'tmp/poa_file.jpg' }
+
+    before do
+      expect(claim).to receive(:to_pdf).with(sign: true).and_return(claim_pdf_path)
+    end
+
+    context 'when "poaAttachmentId" is not provided on claim' do
+      let(:claim) { build(:caregivers_assistance_claim) }
+
+      it 'returns the claim pdf path only' do
+        expect(
+          described_class.collect_attachments(claim)
+        ).to eq(
+          [claim_pdf_path, nil]
+        )
+      end
+    end
+
+    context 'when "poaAttachmentId" is provided on claim' do
+      let(:poa_attachment_guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
+      let(:form_data)           { build_claim_data { |d| d['poaAttachmentId'] = poa_attachment_guid }.to_json }
+      let(:claim)               { build(:caregivers_assistance_claim, form: form_data) }
+
+      context 'when the Form1010cg::Attachment is not found' do
+        it 'returns the claim pdf path only' do
+          expect(
+            described_class.collect_attachments(claim)
+          ).to eq(
+            [claim_pdf_path, nil]
+          )
+        end
+      end
+
+      context 'when the Form1010cg::Attachment is found' do
+        let(:attachment) { build(:form1010cg_attachment, guid: poa_attachment_guid) }
+        let(:vcr_options) do
+          {
+            record: :none,
+            allow_unused_http_interactions: false,
+            match_requests_on: %i[method host body]
+          }
+        end
+
+        before do
+          VCR.use_cassette("s3/object/put/#{poa_attachment_guid}/doctors-note_jpg", vcr_options) do
+            attachment.set_file_data!(
+              Rack::Test::UploadedFile.new(
+                Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.jpg'),
+                'image/jpg'
+              )
+            )
+          end
+
+          attachment.save!
+          expect_any_instance_of(attachment.class).to receive(:to_local_file).and_return(poa_attachment_path)
+        end
+
+        after do
+          Form1010cg::Attachment.delete_all
+        end
+
+        it 'returns the claim pdf path and attachment path' do
+          expect(
+            described_class.collect_attachments(claim)
+          ).to eq(
+            [claim_pdf_path, poa_attachment_path]
+          )
+        end
+      end
+    end
+  end
+
+  describe '::submit_attachments!' do
+    let(:carma_case_id) { 'CAS_1234' }
+    let(:veteran_name) { { 'first' => 'Jane', 'last' => 'Doe' } }
+    let(:claim_pdf_path) { 'tmp/10-10cg-application.pdf' }
+    let(:poa_attachment_path) { 'tmp/poa_file.jpg' }
+
+    it 'requires carma_case_id, veteran_name, claim_pdf_path' do
+      expect { described_class.submit_attachments! }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 0, expected 3..4)')
+      end
+
+      expect { described_class.submit_attachments!(carma_case_id) }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 1, expected 3..4)')
+      end
+
+      expect { described_class.submit_attachments!(carma_case_id, veteran_name) }.to raise_error(ArgumentError) do |e|
+        expect(e.message).to eq('wrong number of arguments (given 2, expected 3..4)')
+      end
+    end
+
+    context 'when veteran_name is invalid' do
+      it 'raises error' do
+        expect { described_class.submit_attachments!(carma_case_id, nil, claim_pdf_path) }.to raise_error(
+          'invalid veteran_name'
+        )
+
+        expect { described_class.submit_attachments!(carma_case_id, {}, claim_pdf_path) }.to raise_error(
+          'invalid veteran_name'
+        )
+
+        arguments = [carma_case_id, { 'fullName' => {} }, claim_pdf_path]
+        expect { described_class.submit_attachments!(*arguments) }.to raise_error(
+          'invalid veteran_name'
+        )
+      end
+    end
+
+    context 'with valid paramaters' do
+      let(:carma_attachments) { double }
+
+      before do
+        expect(CARMA::Models::Attachments).to receive(:new).with(
+          carma_case_id, veteran_name['first'], veteran_name['last']
+        ).and_return(carma_attachments)
+      end
+
+      context 'with claim PDF only' do
+        before do
+          expect(carma_attachments).to receive(:add).with('10-10CG', claim_pdf_path).and_return(carma_attachments)
+          expect(carma_attachments).to receive(:submit!).and_return(:PROCESSED_ATTACHMENTS)
+        end
+
+        it 'submits the documents to carma' do
+          expect(
+            described_class.submit_attachments!(carma_case_id, veteran_name, claim_pdf_path)
+          ).to eq(:PROCESSED_ATTACHMENTS)
+        end
+      end
+
+      context 'with claim PDF and POA attachment' do
+        before do
+          expect(carma_attachments).to receive(:add).with('10-10CG', claim_pdf_path).and_return(carma_attachments)
+          expect(carma_attachments).to receive(:add).with('POA', poa_attachment_path).and_return(carma_attachments)
+          expect(carma_attachments).to receive(:submit!).and_return(:PROCESSED_ATTACHMENTS)
+        end
+
+        it 'submits the documents to carma' do
+          expect(
+            described_class.submit_attachments!(carma_case_id, veteran_name, claim_pdf_path, poa_attachment_path)
+          ).to eq(:PROCESSED_ATTACHMENTS)
+        end
+      end
+    end
+  end
+
   describe '::submit_attachment!' do
     let(:carma_case_id) { 'CAS_1234' }
     let(:veteran_name) { { 'first' => 'Jane', 'last' => 'Doe' } }
