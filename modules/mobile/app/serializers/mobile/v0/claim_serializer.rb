@@ -11,6 +11,8 @@ module Mobile
                  :va_representative, :events_timeline
       attribute :updated_at do |data|
         data.attributes[:updated_at].to_time.iso8601
+        StatsD.increment('mobile.claims_and_appeals.claim.type',
+                         tags: ["type:#{data.attributes[:claim_type]}"], sample_rate: 1.0)
       end
     end
   end

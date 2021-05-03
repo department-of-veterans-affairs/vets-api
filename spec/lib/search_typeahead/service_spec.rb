@@ -48,7 +48,7 @@ describe SearchTypeahead::Service do
       it 'returns an empty body' do
         VCR.use_cassette('search_typeahead/missing_query', VCR::MATCH_EVERYTHING) do
           response = subject.suggestions
-          expect(response.body).to eq nil
+          expect(response.body).to eq ''
         end
       end
     end

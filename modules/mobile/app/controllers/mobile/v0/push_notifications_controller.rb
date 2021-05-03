@@ -7,14 +7,14 @@ module Mobile
     class PushNotificationsController < ApplicationController
       def register
         result = service.register(
-          params[:appName],
-          params[:deviceToken],
+          params[:app_name],
+          params[:device_token],
           @current_user.icn,
-          params[:osName],
-          params[:deviceName] || params[:osName]
+          params[:os_name],
+          params[:device_name] || params[:osName]
         )
 
-        render json: Mobile::V0::PushRegisterSerializer.new(params[:appName], result.body[:sid])
+        render json: Mobile::V0::PushRegisterSerializer.new(params[:app_name], result.body[:sid])
       end
 
       def get_prefs
@@ -22,14 +22,15 @@ module Mobile
                                                             service.get_preferences(params[:endpoint_sid]).body)
       end
 
-      def set_prefs
+      def set_pref
         service.set_preference(params[:endpoint_sid], params[:preference], params[:enabled].to_s.downcase == 'true')
 
         render json: {}, status: :ok
       end
 
       def send_notification
-        service.send_notification(params[:appName], @current_user.icn, params[:templateId], params[:personalization])
+        service.send_notification(params[:app_name], @current_user.icn, params[:template_id], params[:personalization])
+
         render json: {}, status: :ok
       end
 

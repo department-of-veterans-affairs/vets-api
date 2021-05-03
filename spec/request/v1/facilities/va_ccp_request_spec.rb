@@ -210,6 +210,7 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
                     }
                   },
                   'classification' => 'VA Medical Center (VAMC)',
+                  'detailedServices' => nil,
                   'facilityType' => 'va_health_facility',
                   'feedback' => {
                     'health' => {

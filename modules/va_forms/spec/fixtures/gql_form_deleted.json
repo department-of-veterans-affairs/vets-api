@@ -46,9 +46,7 @@
   "fieldVaFormDeletedDate": {
     "value": "2020-07-16"
   },
-  "langcode": {
-    "value": "en"
-  },
+  "fieldVaFormLanguage": "en",
   "entityUrl": {
     "path": "/find-forms/about-form-21-0966"
   },

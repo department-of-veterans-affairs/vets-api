@@ -9,6 +9,7 @@ module CovidVaccine
       include IgnoreNotFound
 
       before_action :validate_raw_form_data, only: :create
+      skip_before_action :verify_authenticity_token, only: :opt_out
 
       def create
         raw_form_data = params[:registration].merge(attributes_from_user)

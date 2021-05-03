@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 4eba200159ceff1b4df0fe8d4c406ff41c18598b
+  revision: 07d0bca2d60ff5259bb239e8b33dad26aa693ecf
   specs:
     bgs_ext (0.21.0)
       httpclient
@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 7a747b65016e57625341c64f3eee5b1d19ad2605
+  revision: 4128d1a62e97add367209dbed619f231274bf7eb
   branch: master
   specs:
-    vets_json_schema (20.1.0)
+    vets_json_schema (20.3.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -188,8 +188,8 @@ GEM
     attr_extras (6.2.4)
     awesome_print (1.9.2)
     aws-eventstream (1.1.1)
-    aws-partitions (1.436.0)
-    aws-sdk-core (3.113.0)
+    aws-partitions (1.445.0)
+    aws-sdk-core (3.114.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
@@ -197,11 +197,11 @@ GEM
     aws-sdk-kms (1.43.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.93.0)
+    aws-sdk-s3 (1.94.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
-    aws-sdk-sns (1.39.0)
+    aws-sdk-sns (1.40.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.2.3)
@@ -216,7 +216,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.7.3)
       msgpack (~> 1.0)
-    brakeman (5.0.0)
+    brakeman (5.0.1)
     breakers (0.4.0)
       faraday (>= 0.7.4, < 0.18)
       multi_json (~> 1.0)
@@ -322,16 +322,14 @@ GEM
       dry-initializer (~> 3.0)
       dry-logic (~> 1.0)
       dry-types (~> 1.2)
-    dry-struct (1.3.0)
-      dry-core (~> 0.4, >= 0.4.4)
-      dry-equalizer (~> 0.3)
-      dry-types (~> 1.3)
+    dry-struct (1.4.0)
+      dry-core (~> 0.5, >= 0.5)
+      dry-types (~> 1.5)
       ice_nine (~> 0.11)
-    dry-types (1.4.0)
+    dry-types (1.5.1)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.3)
-      dry-core (~> 0.4, >= 0.4.4)
-      dry-equalizer (~> 0.3)
+      dry-core (~> 0.5, >= 0.5)
       dry-inflector (~> 0.1, >= 0.1.2)
       dry-logic (~> 1.0, >= 1.0.2)
     dry-validation (1.4.1)
@@ -376,7 +374,7 @@ GEM
       activesupport (>= 4.2)
     fastimage (2.2.3)
     ffi (1.14.2)
-    fhir_client (4.0.4)
+    fhir_client (4.0.5)
       activesupport (>= 3)
       addressable (>= 2.3)
       fhir_dstu2_models (>= 1.0.10)
@@ -387,17 +385,17 @@ GEM
       rack (>= 1.5)
       rest-client (~> 2.0)
       tilt (>= 1.1)
-    fhir_dstu2_models (1.0.10)
+    fhir_dstu2_models (1.0.11)
       bcp47 (>= 0.3)
       date_time_precision (>= 0.8)
       mime-types (>= 3.0)
       nokogiri (>= 1.10.4)
-    fhir_models (4.1.0)
+    fhir_models (4.1.2)
       bcp47 (>= 0.3)
       date_time_precision (>= 0.8)
       mime-types (>= 3.0)
       nokogiri (>= 1.10.4)
-    fhir_stu3_models (3.0.1)
+    fhir_stu3_models (3.0.2)
       bcp47 (>= 0.3)
       date_time_precision (>= 0.8)
       mime-types (>= 3.0)
@@ -538,7 +536,7 @@ GEM
     method_source (1.0.0)
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2020.0512)
+    mime-types-data (3.2021.0225)
     mimemagic (0.3.10)
       nokogiri (~> 1)
       rake
@@ -565,18 +563,18 @@ GEM
     notiffany (0.1.3)
       nenv (~> 0.1)
       shellany (~> 0.0)
-    notifications-ruby-client (5.1.2)
+    notifications-ruby-client (5.3.0)
       jwt (>= 1.5, < 3)
-    oauth2 (1.4.4)
+    oauth2 (1.4.7)
       faraday (>= 0.8, < 2.0)
       jwt (>= 1.0, < 3.0)
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
       rack (>= 1.2, < 3)
-    octokit (4.20.0)
+    octokit (4.21.0)
       faraday (>= 0.9)
       sawyer (~> 0.8.0, >= 0.5.3)
-    oj (3.11.3)
+    oj (3.11.5)
     okcomputer (1.18.4)
     olive_branch (3.0.0)
       multi_json
@@ -618,11 +616,11 @@ GEM
     parallel (1.20.1)
     parallel_tests (3.6.0)
       parallel
-    parser (3.0.0.0)
+    parser (3.0.1.0)
       ast (~> 2.4.1)
     patience_diff (1.1.0)
       trollop (~> 1.16)
-    pdf-core (0.7.0)
+    pdf-core (0.9.0)
     pdf-forms (1.3.0)
       cliver (~> 0.3.2)
       safe_shell (>= 1.0.3, < 2.0)
@@ -636,11 +634,14 @@ GEM
       ttfunk
     pg (1.2.3)
     pg_query (1.3.0)
+    pg_search (2.3.5)
+      activerecord (>= 5.2)
+      activesupport (>= 5.2)
     pghero (2.8.1)
       activerecord (>= 5)
-    prawn (2.2.2)
-      pdf-core (~> 0.7.0)
-      ttfunk (~> 1.5)
+    prawn (2.4.0)
+      pdf-core (~> 0.9.0)
+      ttfunk (~> 1.7)
     prawn-table (0.2.2)
       prawn (>= 1.3.0, < 3.0.0)
     pry (0.13.1)
@@ -710,7 +711,7 @@ GEM
       ffi (~> 1.0)
     rchardet (1.8.0)
     redis (4.1.4)
-    redis-namespace (1.7.0)
+    redis-namespace (1.8.1)
       redis (>= 3.0.4)
     regexp_parser (1.8.2)
     representable (3.0.4)
@@ -768,7 +769,7 @@ GEM
     rspec-support (3.10.0)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (1.12.0)
+    rubocop (1.13.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -789,10 +790,11 @@ GEM
       rubocop-ast (>= 1.1.0)
     rubocop-thread_safety (0.4.2)
       rubocop (>= 0.53.0)
-    ruby-progressbar (1.10.1)
+    ruby-progressbar (1.11.0)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.11.0)
-      nokogiri (>= 1.5.10)
+    ruby-saml (1.12.1)
+      nokogiri (>= 1.10.5)
+      rexml
     ruby-vips (2.0.17)
       ffi (~> 1.9)
     rubyzip (2.0.0)
@@ -889,7 +891,7 @@ GEM
     tins (1.26.0)
       sync
     trollop (1.16.2)
-    ttfunk (1.5.1)
+    ttfunk (1.7.0)
     typhoeus (1.4.0)
       ethon (>= 0.9.0)
     tzinfo (1.2.9)
@@ -926,6 +928,8 @@ GEM
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     will_paginate (3.3.0)
+    with_advisory_lock (4.6.0)
+      activerecord (>= 4.2)
     xmldsig (0.3.2)
       nokogiri
     xmlenc (0.7.1)
@@ -987,7 +991,7 @@ DEPENDENCIES
   faraday_middleware
   fast_jsonapi
   fastimage
-  fhir_client (~> 4.0.4)
+  fhir_client (~> 4.0.5)
   flipper (~> 0.20.4)
   flipper-active_record (~> 0.20.4)
   flipper-active_support_cache_store (~> 0.20.4)
@@ -1021,7 +1025,7 @@ DEPENDENCIES
   mobile!
   net-sftp
   nokogiri (~> 1.11)
-  notifications-ruby-client (~> 5.1)
+  notifications-ruby-client (~> 5.3)
   octokit
   oj
   okcomputer
@@ -1040,6 +1044,7 @@ DEPENDENCIES
   pdf-reader
   pg
   pg_query (>= 0.9.0)
+  pg_search
   pghero
   prawn
   prawn-table
@@ -1110,6 +1115,7 @@ DEPENDENCIES
   webrick (>= 1.6.1)
   websocket-extensions (>= 0.1.5)
   will_paginate
+  with_advisory_lock
   yard
 
 RUBY VERSION

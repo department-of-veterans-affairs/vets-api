@@ -23,8 +23,8 @@ describe Mobile::V0::Appointments::Service do
   after { Timecop.return }
 
   describe '#get_appointments' do
-    let(:start_date) { Time.now.utc }
-    let(:end_date) { start_date + 3.months }
+    let(:start_date) { (DateTime.now.utc.beginning_of_day - 1.year) }
+    let(:end_date) { (DateTime.now.utc.beginning_of_day + 1.year) }
 
     context 'when both va and cc appointments return 200s' do
       let(:responses) do
@@ -90,7 +90,8 @@ describe Mobile::V0::Appointments::Service do
               'mobile appointments backend service exception',
               hash_including(url: '/appointments/v1/patients/24811694708759028/appointments')
             ).once
-            service.get_appointments(start_date, end_date, false)
+
+            service.get_appointments(start_date, end_date)
           end
         end
       end
@@ -107,7 +108,8 @@ describe Mobile::V0::Appointments::Service do
                   '/patient/ICN/24811694708759028/booked-cc-appointments'
               )
             ).once
-            service.get_appointments(start_date, end_date, false)
+
+            service.get_appointments(start_date, end_date)
           end
         end
       end
@@ -120,7 +122,8 @@ describe Mobile::V0::Appointments::Service do
             expect(Rails.logger).to receive(:error).with(
               'mobile appointments backend service exception', any_args
             ).twice
-            service.get_appointments(start_date, end_date, false)
+
+            service.get_appointments(start_date, end_date)
           end
         end
       end

@@ -9,8 +9,8 @@ module Mobile
 
       def perform(uuid)
         user = IAMUser.find(uuid)
-        start_date = (DateTime.now.utc.beginning_of_day - 3.months)
-        end_date = (DateTime.now.utc.beginning_of_day + 6.months)
+        start_date = (DateTime.now.utc.beginning_of_day - 1.year)
+        end_date = (DateTime.now.utc.beginning_of_day + 1.year)
 
         appointments, errors = appointments_proxy(user).get_appointments(
           start_date: start_date,

@@ -1031,6 +1031,32 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
+    describe 'decision review evidence upload' do
+      it 'supports uploading a file' do
+        expect(subject).to validate(
+          :post,
+          '/v0/decision_review_evidence',
+          200,
+          headers.update(
+            '_data' => {
+              'decision_review_evidence_attachment' => {
+                'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+              }
+            }
+          )
+        )
+      end
+
+      it 'returns a 400 if no attachment data is given' do
+        expect(subject).to validate(
+          :post,
+          '/v0/decision_review_evidence',
+          400,
+          headers
+        )
+      end
+    end
+
     describe 'secure messaging' do
       include SM::ClientHelpers
 
@@ -1827,10 +1853,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'contestable_issues' do
+    describe 'HLR contestable_issues' do
       let(:benefit_type) { 'compensation' }
       let(:ssn) { '212222112' }
-      let(:receipt_date) { '2020-09-02' }
       let(:status) { 200 }
 
       it 'documents contestable_issues 200' do
@@ -1871,6 +1896,79 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
               status,
               headers.merge('benefit_type' => benefit_type)
+            )
+          end
+        end
+      end
+    end
+
+    describe 'NOD contestable_issues' do
+      let(:ssn) { '212222112' }
+
+      it 'documents contestable_issues 200' do
+        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
+          expect(subject).to validate(
+            :get,
+            '/v0/notice_of_disagreements/contestable_issues',
+            200,
+            headers
+          )
+        end
+      end
+
+      context '404' do
+        let(:ssn) { '000000000' }
+
+        it 'documents contestable_issues 404' do
+          VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
+            expect(subject).to validate(
+              :get,
+              '/v0/notice_of_disagreements/contestable_issues',
+              404,
+              headers
+            )
+          end
+        end
+      end
+    end
+
+    describe 'notice_of_disagreements' do
+      context 'GET' do
+        it 'documents notice_of_disagreements 200' do
+          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200') do
+            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
+                                        200, headers.merge('uuid' => '1234567a-89b0-123c-d456-789e01234f56'))
+          end
+        end
+
+        it 'documents higher_level_reviews 404' do
+          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404') do
+            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
+                                        404, headers.merge('uuid' => '0'))
+          end
+        end
+      end
+
+      context 'POST' do
+        it 'documents notice_of_disagreements 200' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200') do
+            # NoticeOfDisagreementsController is a pass-through, and uses request.body directly (not params[]).
+            # The validate helper does not create a parsable request.body string that works with the controller.
+            allow_any_instance_of(V0::NoticeOfDisagreementsController).to receive(:request_body_hash).and_return(
+              JSON.parse(File.read(Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                                   'valid_NOD_create_request.json')))
+            )
+            expect(subject).to validate(:post, '/v0/notice_of_disagreements', 200, headers)
+          end
+        end
+
+        it 'documents notice_of_disagreements 422' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE--422') do
+            expect(subject).to validate(
+              :post,
+              '/v0/notice_of_disagreements',
+              422,
+              headers.merge('_data' => { '_json' => '' })
             )
           end
         end
@@ -2217,6 +2315,83 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             200,
             headers.merge('_data' => telephone.as_json)
           )
+        end
+      end
+
+      context 'communication preferences' do
+        before do
+          allow_any_instance_of(User).to receive(:vet360_id).and_return('18277')
+
+          headers['_headers'].merge!(
+            'accept' => 'application/json',
+            'content-type' => 'application/json'
+          )
+        end
+
+        let(:valid_params) do
+          {
+            communication_item: {
+              id: 2,
+              communication_channels: [
+                {
+                  id: 1,
+                  communication_permission: {
+                    allowed: true
+                  }
+                }
+              ]
+            }
+          }
+        end
+
+        it 'supports the communication preferences update response', run_at: '2021-03-24T23:46:17Z' do
+          path = '/v0/profile/communication_preferences/{communication_permission_id}'
+          expect(subject).to validate(:patch, path, 401, 'communication_permission_id' => 1)
+
+          VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :patch,
+              path,
+              200,
+              headers.merge(
+                '_data' => valid_params.to_json,
+                'communication_permission_id' => 46
+              )
+            )
+          end
+        end
+
+        it 'supports the communication preferences create response', run_at: '2021-03-24T22:38:21Z' do
+          valid_params[:communication_item][:communication_channels][0][:communication_permission][:allowed] = false
+          path = '/v0/profile/communication_preferences'
+          expect(subject).to validate(:post, path, 401)
+
+          VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do
+            expect(subject).to validate(
+              :post,
+              path,
+              200,
+              headers.merge(
+                '_data' => valid_params.to_json
+              )
+            )
+          end
+        end
+
+        it 'supports the communication preferences index response' do
+          path = '/v0/profile/communication_preferences'
+          expect(subject).to validate(:get, path, 401)
+
+          VCR.use_cassette('va_profile/communication/get_communication_permissions', VCR::MATCH_EVERYTHING) do
+            VCR.use_cassette('va_profile/communication/communication_items', VCR::MATCH_EVERYTHING) do
+              expect(subject).to validate(
+                :get,
+                path,
+                200,
+                headers
+              )
+            end
+          end
         end
       end
 
@@ -2612,21 +2787,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'search click tracking' do
       context 'when successful' do
         # rubocop:disable Layout/LineLength
-        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => 'testQuery', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent' } }
+        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => 'testQuery', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent', 'module_code' => 'I14Y' } }
 
         it 'sends data as query params' do
           VCR.use_cassette('search_click_tracking/success') do
-            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&user_agent={user_agent}', 204, params)
+            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 204, params)
           end
         end
       end
 
       context 'with an empty search query' do
-        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => '', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent' } }
+        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => '', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent', 'module_code' => 'I14Y' } }
 
         it 'returns a 400 with error details' do
           VCR.use_cassette('search_click_tracking/missing_parameter') do
-            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&user_agent={user_agent}', 400, params)
+            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 400, params)
           end
           # rubocop:enable Layout/LineLength
         end
@@ -3047,7 +3222,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'virtual agent' do
       describe 'POST v0/virtual_agent_token' do
         it 'returns webchat token' do
-          VCR.use_cassette('virtual_agent/webchat_token') do
+          VCR.use_cassette('virtual_agent/webchat_token_a') do
             expect(subject).to validate(:post, '/v0/virtual_agent_token', 200)
           end
         end

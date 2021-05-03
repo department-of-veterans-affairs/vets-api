@@ -8,6 +8,7 @@ module ClaimsApi
       class PowerOfAttorneyController < ClaimsApi::V1::Forms::Base
         include ClaimsApi::DocumentValidations
         include ClaimsApi::EndpointDeprecation
+        include ClaimsApi::PoaVerification
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.write]
@@ -21,6 +22,10 @@ module ClaimsApi
         def submit_form_2122 # rubocop:disable Metrics/MethodLength
           validate_json_schema
 
+          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          validate_poa_code!(poa_code)
+          validate_poa_code_for_current_user!(poa_code) if header_request?
+
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
           unless power_of_attorney&.status&.in?(%w[submitted pending])
@@ -29,7 +34,7 @@ module ClaimsApi
               auth_headers: auth_headers,
               form_data: form_attributes,
               source_data: source_data,
-              current_poa: current_poa,
+              current_poa: current_poa_code,
               header_md5: header_md5
             )
 
@@ -82,20 +87,24 @@ module ClaimsApi
         #
         # @return [JSON] Last POA change request through Claims API
         def active
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
-                                                                                          source_name: source_name)
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
-          if current_poa
-            lighthouse_poa = power_of_attorney.attributes
-            lighthouse_poa['current_poa'] = current_poa
-            lighthouse_poa['form_data'] = power_of_attorney.form_data
-            combined = ClaimsApi::PowerOfAttorney.new(lighthouse_poa)
-
-            render json: combined, serializer: ClaimsApi::PowerOfAttorneySerializer
-          else
-            render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
-          end
+          render json: {
+            data: {
+              id: nil,
+              type: 'claims_api_power_of_attorneys',
+              attributes: {
+                status: ClaimsApi::PowerOfAttorney::UPDATED,
+                date_request_accepted: current_poa_begin_date,
+                representative: {
+                  service_organization: {
+                    poa_code: current_poa_code
+                  }
+                },
+                previous_poa: previous_poa_code
+              }
+            }
+          }
         end
 
         # POST to validate 2122 submission payload.
@@ -109,8 +118,22 @@ module ClaimsApi
 
         private
 
+        def current_poa_begin_date
+          return nil if current_poa.try(:begin_date).blank?
+
+          Date.strptime(current_poa.begin_date, '%m/%d/%Y')
+        end
+
+        def current_poa_code
+          current_poa.try(:code)
+        end
+
         def current_poa
           @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+        end
+
+        def previous_poa_code
+          @previous_poa_code ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).previous_poa_code
         end
 
         def header_md5

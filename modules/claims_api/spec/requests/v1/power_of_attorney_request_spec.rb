@@ -31,34 +31,64 @@ RSpec.describe 'Power of Attorney ', type: :request do
       end
     end
 
-    it 'returns a successful response with all the data' do
-      with_okta_user(scopes) do |auth_header|
-        post path, params: data, headers: headers.merge(auth_header)
-        parsed = JSON.parse(response.body)
-        expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-        expect(parsed['data']['attributes']['status']).to eq('pending')
+    context 'when poa code is valid' do
+      before do
+        Veteran::Service::Representative.new(poa_codes: ['074']).save!
+      end
+
+      context 'when poa code is associated with current user' do
+        before do
+          Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+        end
+
+        it 'assigns a source' do
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data, headers: headers.merge(auth_header)
+            token = JSON.parse(response.body)['data']['id']
+            poa = ClaimsApi::PowerOfAttorney.find(token)
+            expect(poa.source_data['name']).to eq('abraham lincoln')
+            expect(poa.source_data['icn'].present?).to eq(true)
+            expect(poa.source_data['email']).to eq('abraham.lincoln@vets.gov')
+          end
+        end
+
+        it 'returns a successful response with all the data' do
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data, headers: headers.merge(auth_header)
+            parsed = JSON.parse(response.body)
+            expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
+            expect(parsed['data']['attributes']['status']).to eq('pending')
+          end
+        end
+
+        it 'returns the same successful response with all the data' do
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data, headers: headers.merge(auth_header)
+            parsed = JSON.parse(response.body)
+            expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
+            post path, params: data, headers: headers.merge(auth_header)
+            newly_parsed = JSON.parse(response.body)
+            expect(newly_parsed['data']['id']).to eq(parsed['data']['id'])
+          end
+        end
+      end
+
+      context 'when poa code is not associated with current user' do
+        it 'responds with invalid poa code message' do
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data, headers: headers.merge(auth_header)
+            expect(response.status).to eq(400)
+          end
+        end
       end
     end
 
-    it 'returns the same successful response with all the data' do
-      with_okta_user(scopes) do |auth_header|
-        post path, params: data, headers: headers.merge(auth_header)
-        parsed = JSON.parse(response.body)
-        expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-        post path, params: data, headers: headers.merge(auth_header)
-        newly_parsed = JSON.parse(response.body)
-        expect(newly_parsed['data']['id']).to eq(parsed['data']['id'])
-      end
-    end
-
-    it 'assigns a source' do
-      with_okta_user(scopes) do |auth_header|
-        post path, params: data, headers: headers.merge(auth_header)
-        token = JSON.parse(response.body)['data']['id']
-        poa = ClaimsApi::PowerOfAttorney.find(token)
-        expect(poa.source_data['name']).to eq('abraham lincoln')
-        expect(poa.source_data['icn'].present?).to eq(true)
-        expect(poa.source_data['email']).to eq('abraham.lincoln@vets.gov')
+    context 'when poa code is not valid' do
+      it 'responds with invalid poa code message' do
+        with_okta_user(scopes) do |auth_header|
+          post path, params: data, headers: headers.merge(auth_header)
+          expect(response.status).to eq(400)
+        end
       end
     end
 
@@ -152,10 +182,13 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#active' do
-      context 'when there is no Lighthouse active power of attorney' do
+      let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
+
+      context 'when there is no BGS active power of attorney' do
         it 'returns a 404' do
           with_okta_user(scopes) do |auth_header|
-            allow(ClaimsApi::PowerOfAttorney).to receive(:find_using_identifier_and_source).and_return(nil)
+            allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+            expect(bgs_poa_verifier).to receive(:current_poa).and_return(nil)
             get('/services/claims/v1/forms/2122/active',
                 params: nil, headers: headers.merge(auth_header))
 
@@ -164,45 +197,19 @@ RSpec.describe 'Power of Attorney ', type: :request do
         end
       end
 
-      context 'when there is a Lightouse active power of attorney' do
-        let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
-        let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
+      context 'when there is a BGS active power of attorney' do
+        it 'returns a 200' do
+          with_okta_user(scopes) do |auth_header|
+            allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+            expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+            expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
+            get('/services/claims/v1/forms/2122/active',
+                params: nil, headers: headers.merge(auth_header))
 
-        context 'when there is no BGS active power of attorney' do
-          it "the 'previous_poa' attribute is nil" do
-            with_okta_user(scopes) do |auth_header|
-              expect(ClaimsApi::PowerOfAttorney).to receive(
-                :find_using_identifier_and_source
-              ).and_return(power_of_attorney)
-              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return(nil)
-              get('/services/claims/v1/forms/2122/active',
-                  params: nil, headers: headers.merge(auth_header))
-
-              parsed = JSON.parse(response.body)
-              expect(response.status).to eq(200)
-              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
-              expect(parsed['data']['attributes']['previous_poa']).to eq(nil)
-            end
-          end
-        end
-
-        context 'when there is a BGS active power of attorney' do
-          it "the 'previous_poa' attribute is populated" do
-            with_okta_user(scopes) do |auth_header|
-              expect(ClaimsApi::PowerOfAttorney).to receive(
-                :find_using_identifier_and_source
-              ).and_return(power_of_attorney)
-              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
-              expect(bgs_poa_verifier).to receive(:current_poa).and_return('HelloWorld')
-              get('/services/claims/v1/forms/2122/active',
-                  params: nil, headers: headers.merge(auth_header))
-
-              parsed = JSON.parse(response.body)
-              expect(response.status).to eq(200)
-              expect(parsed['data']['attributes']['representative']['service_organization']['poa_code']).to eq('074')
-              expect(parsed['data']['attributes']['previous_poa']).to eq('HelloWorld')
-            end
+            parsed = JSON.parse(response.body)
+            expect(response.status).to eq(200)
+            expect(parsed['data']['attributes']['representative']['service_organization']['poa_code'])
+              .to eq('HelloWorld')
           end
         end
       end

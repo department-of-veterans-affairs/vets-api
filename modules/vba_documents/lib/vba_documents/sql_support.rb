@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
+# rubocop:disable  Metrics/ModuleLength
 module VBADocuments
   module SQLSupport
     STATUS_ELAPSED_TIME = %(
       select status,
       min(duration) as min_secs,
       max(duration) as max_secs,
-      round(avg(duration)) as avg_secs,
+      round(avg(duration))::integer as avg_secs,
     	count(*) as rowcount
       from (
         select guid,
@@ -31,9 +32,166 @@ module VBADocuments
       ) as closed_statuses
       group by status
     )
+
+    # monthly report SQL start
+    MONTHLY_COUNT_SQL = "
+      select
+        to_char(created_at, 'YYYYMM') as yyyymm,
+        consumer_name,
+        sum(case when status = 'error' then 1 else 0 end) as errored,
+        sum(case when status = 'expired' then 1 else 0 end) as expired,
+        sum(case when status = 'pending' or status = 'uploaded' or
+            status = 'received' or status = 'processing' then 1 else 0 end) as processing,
+        sum(case when status = 'success' then 1 else 0 end) as success,
+        sum(case when status = 'vbms' then 1 else 0 end) as vbms,
+        count(*) as total
+      from vba_documents_upload_submissions a
+      where a.created_at >= $1 and a.created_at < $2
+      group by to_char(created_at, 'YYYYMM'), a.consumer_name
+      order by to_char(created_at, 'YYYYMM') asc, a.consumer_name asc
+    "
+
+    PROCESSING_SQL = "
+      select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
+      from vba_documents_upload_submissions a
+      where a.status in ('uploaded','received', 'processing','pending')
+      and   a.updated_at < $1
+      order by a.consumer_name asc
+    "
+
+    SUCCESS_SQL = "
+      select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
+      from vba_documents_upload_submissions a
+      where a.status = 'success'
+      and   a.created_at >= $1 and a.created_at < $2
+      and   a.metadata -> 'final_success_status' is null
+      order by a.consumer_name, a.created_at asc
+    "
+
+    MAX_AVG_SQL = "
+      select yyyy, mm,
+        NULLIF(sum(max_pages)::integer,0) as max_pages, NULLIF(sum(avg_pages)::integer,0) as avg_pages,
+        NULLIF(sum(max_size)::bigint,0) as max_size, NULLIF(sum(avg_size)::bigint,0) as avg_size
+      from (
+      ( select
+        date_part('year', a.created_at)::integer as yyyy,
+        date_part('month', a.created_at)::integer as mm,
+        max((uploaded_pdf->>'total_pages')::integer) as max_pages,
+        round(avg((uploaded_pdf->>'total_pages')::integer))::integer as avg_pages,
+        0::bigint as max_size,
+        0::bigint as avg_size
+      from vba_documents_upload_submissions a
+      where a.uploaded_pdf is not null
+      and   a.status != 'error'
+      and   a.created_at < $1
+      group by 1,2
+      order by 1 desc, 2 desc
+      limit 12
+      )
+    union
+      ( select
+        date_part('year', a.created_at)::integer as yyyy,
+        date_part('month', a.created_at)::integer as mm,
+        0::integer as max_pages,
+        0::integer as avg_pages,
+        max((metadata->'size')::bigint) as max_size_bytes,
+        round(avg((metadata->'size')::bigint))::bigint as avg_size_bytes
+      from vba_documents_upload_submissions a
+      where a.metadata->'size' is not null
+      and   a.status != 'error'
+      and   a.created_at < $1
+      group by 1,2
+      order by 1 desc, 2 desc
+      limit 12
+      )
+    ) as max_avg
+    group by 1,2
+    order by 1 desc, 2 desc
+    "
+
+    MODE_SQL = "
+    select yyyy, mm, NULLIF(sum(mode_pages)::integer,0) as mode_pages, NULLIF(sum(mode_size)::bigint,0) as mode_size
+    from (
+        ( select
+          date_part('year', a.created_at)::integer as yyyy,
+          date_part('month', a.created_at)::integer as mm,
+          mode() within group (order by (uploaded_pdf->>'total_pages')::integer) as mode_pages,
+          0::bigint as mode_size
+        from vba_documents_upload_submissions a
+        where a.uploaded_pdf is not null
+        and   a.status != 'error'
+        and   a.created_at < $1
+        group by 1,2
+        order by 1 desc, 2 desc
+        limit 12 )
+      union
+        ( select
+            date_part('year', a.created_at)::integer as yyyy,
+            date_part('month', a.created_at)::integer as mm,
+            0::integer as mode_pages,
+            mode() within group (order by (metadata->>'size')::bigint) as mode_size
+          from vba_documents_upload_submissions a
+          where a.metadata is not null
+          and   a.status != 'error'
+          and   a.created_at < $1
+          group by 1,2
+          order by 1 desc, 2 desc
+          limit 12
+        )
+    ) as mode_results
+    group by 1,2
+    order by 1 desc, 2 desc
+    "
+
+    MEDIAN_SQL = "
+      select NULLIF(sum(median_pages)::integer,0) as median_pages, NULLIF(sum(median_size)::bigint,0) as median_size
+      from (
+        (select (uploaded_pdf->>'total_pages')::integer as median_pages, 0::bigint as median_size
+        from vba_documents_upload_submissions a
+        where a.uploaded_pdf is not null
+        and   a.status != 'error'
+        and   to_char(a.created_at,'yyyymm') = $1
+        order by (uploaded_pdf->>'total_pages')::bigint
+        offset (select count(*) from vba_documents_upload_submissions
+        where uploaded_pdf is not null
+        and   status != 'error'
+        and   to_char(created_at,'yyyymm') = $1)/2
+        limit 1)
+        UNION
+        (select 0::integer as median_pages, (metadata->>'size')::bigint as median_size
+        from vba_documents_upload_submissions a
+        where a.metadata is not null
+        and   a.status != 'error'
+        and   to_char(a.created_at,'yyyymm') = $1
+        order by (metadata->>'size')::bigint
+        offset (select count(*) from vba_documents_upload_submissions
+        where metadata->>'size' is not null
+        and   status != 'error'
+        and   to_char(created_at,'yyyymm') = $1)/2
+        limit 1)
+      ) as median_results
+    "
+
+    AVG_TIME_TO_VBMS_SQL = "
+      select
+      date_part('year', a.created_at)::integer as yyyy,
+      date_part('month', a.created_at)::integer as mm,
+      count(*) as count,
+    	avg(date_part('epoch', a.updated_at)::bigint -
+        date_part('epoch', a.created_at)::bigint)::integer as avg_time_secs
+      from vba_documents_upload_submissions a
+      where a.status = 'vbms'
+      and   a.created_at < $1
+      group by 1,2
+      order by 1 desc, 2 desc
+      limit 12
+    "
+    # monthly report SQL end
+
     def status_elapsed_time_sql(consumer_name = nil)
       sql_part = consumer_name ? "and consumer_name = '#{consumer_name}' " : ''
       STATUS_ELAPSED_TIME.sub('CONSUMER_NAME_PART', sql_part)
     end
   end
 end
+# rubocop:enable  Metrics/ModuleLength

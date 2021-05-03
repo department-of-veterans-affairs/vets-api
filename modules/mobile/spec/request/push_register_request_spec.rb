@@ -8,6 +8,8 @@ RSpec.describe 'push register', type: :request do
   include JsonSchemaMatchers
   before { iam_sign_in }
 
+  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+
   describe 'PUT /mobile/v0/push/register' do
     context 'with a valid put body' do
       it 'matches the register schema' do
@@ -19,7 +21,7 @@ RSpec.describe 'push register', type: :request do
           deviceName: 'My Iphone'
         }
         VCR.use_cassette('vetext/register_success') do
-          put '/mobile/v0/push/register', headers: iam_headers, params: params
+          put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
           expect(response).to have_http_status(:ok)
           expect(response.body).to match_json_schema('push_register')
         end
@@ -35,7 +37,7 @@ RSpec.describe 'push register', type: :request do
           osVersion: '13.1',
           deviceName: 'My Iphone'
         }
-        put '/mobile/v0/push/register', headers: iam_headers, params: params
+        put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
         expect(response).to have_http_status(:not_found)
         expect(response.body).to match_json_schema('errors')
       end
@@ -51,7 +53,7 @@ RSpec.describe 'push register', type: :request do
           deviceName: 'My Iphone'
         }
         VCR.use_cassette('vetext/register_bad_request') do
-          put '/mobile/v0/push/register', headers: iam_headers, params: params
+          put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
           expect(response).to have_http_status(:bad_request)
           expect(response.body).to match_json_schema('errors')
         end
@@ -68,7 +70,7 @@ RSpec.describe 'push register', type: :request do
           deviceName: 'My Iphone'
         }
         VCR.use_cassette('vetext/register_internal_server_error') do
-          put '/mobile/v0/push/register', headers: iam_headers, params: params
+          put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json
           expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('errors')
         end

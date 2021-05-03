@@ -3,7 +3,6 @@
 class FailedClaimsReportMailer < ApplicationMailer
   RECIPIENTS = %w[
     anna@adhocteam.us
-    ed.mangimelli@adhocteam.us
   ].freeze
 
   def build(failed_uploads)

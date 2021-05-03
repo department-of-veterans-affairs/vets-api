@@ -66,6 +66,7 @@ Rails.application.routes.draw do
 
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
+    resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
     resource :sessions, only: [] do
@@ -95,6 +96,10 @@ Rails.application.routes.draw do
 
     resources :caregivers_assistance_claims, only: :create
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
+
+    namespace :form1010cg do
+      resources :attachments, only: :create unless Settings.vsp_environment == 'production'
+    end
 
     resources :dependents_applications, only: %i[create show] do
       collection do
@@ -257,6 +262,7 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+      resources :communication_preferences, only: %i[index create update]
 
       resources :ch33_bank_accounts, only: %i[index]
       put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'

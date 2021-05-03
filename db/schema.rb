@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_01_071242) do
+ActiveRecord::Schema.define(version: 2021_04_20_131905) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -64,8 +64,15 @@ ActiveRecord::Schema.define(version: 2021_04_01_071242) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "appeals_api_event_subscriptions", force: :cascade do |t|
+    t.string "topic"
+    t.string "callback"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["topic", "callback"], name: "index_appeals_api_event_subscriptions_on_topic_and_callback"
+  end
+
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
-    t.string "status", default: "pending", null: false
     t.string "supportable_type"
     t.string "supportable_id"
     t.datetime "created_at", precision: 6, null: false
@@ -74,8 +81,12 @@ ActiveRecord::Schema.define(version: 2021_04_01_071242) do
     t.string "encrypted_file_data_iv"
     t.string "source"
     t.string "code"
-    t.string "details"
+    t.string "detail"
+    t.uuid "guid", null: false
+    t.integer "upload_submission_id", null: false
+    t.index ["guid"], name: "index_appeals_api_evidence_submissions_on_guid"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
+    t.index ["upload_submission_id"], name: "index_appeals_api_evidence_submissions_on_upload_submission_id", unique: true
   end
 
   create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -102,6 +113,18 @@ ActiveRecord::Schema.define(version: 2021_04_01_071242) do
     t.string "code"
     t.string "detail"
     t.string "source"
+    t.string "board_review_option"
+  end
+
+  create_table "appeals_api_status_updates", force: :cascade do |t|
+    t.string "from"
+    t.string "to"
+    t.string "statusable_type"
+    t.string "statusable_id"
+    t.datetime "status_update_time"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -238,6 +261,7 @@ ActiveRecord::Schema.define(version: 2021_04_01_071242) do
     t.string "encrypted_form_data_iv"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
     t.index ["encrypted_eligibility_info_iv"], name: "index_covid_vaccine_expanded_on_el_iv", unique: true
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_expanded_on_form_iv", unique: true
     t.index ["encrypted_raw_form_data_iv"], name: "index_covid_vaccine_expanded_on_raw_iv", unique: true
@@ -726,6 +750,17 @@ ActiveRecord::Schema.define(version: 2021_04_01_071242) do
     t.jsonb "va_form_administration"
     t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
+  end
+
+  create_table "vba_documents_git_items", force: :cascade do |t|
+    t.string "url", null: false
+    t.jsonb "git_item"
+    t.boolean "notified", default: false
+    t.string "label"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
+    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|
