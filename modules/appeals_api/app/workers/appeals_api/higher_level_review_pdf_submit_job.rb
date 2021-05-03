@@ -14,23 +14,25 @@ module AppealsApi
     include Sidekiq::MonitoredWorker
     include CentralMail::Utilities
 
-    def perform(higher_level_review_id, retries = 0)
+    def perform(higher_level_review_id)
       higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
 
       begin
-        @retries = retries
         stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
         higher_level_review.update!(status: 'submitting')
         upload_to_central_mail(higher_level_review, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      rescue AppealsApi::UploadError => e
+        handle_upload_error(higher_level_review, e)
       rescue => e
         higher_level_review.update!(status: 'error', code: e.class.to_s, detail: e.message)
+        Rails.logger.info("#{self.class} error: #{e}")
         raise
       end
     end
 
     def retry_limits_for_notification
-      [6, 10]
+      [2, 5]
     end
 
     def notify(retry_params)
@@ -56,9 +58,6 @@ module AppealsApi
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
       process_response(CentralMail::Service.new.upload(body), higher_level_review)
       log_submission(higher_level_review, metadata)
-    rescue AppealsApi::UploadError => e
-      e.detail = "#{e.detail} (retry attempt #{@retries})"
-      retry_errors(e, higher_level_review)
     end
 
     def process_response(response, higher_level_review)
@@ -74,6 +73,36 @@ module AppealsApi
         .created_at
         .in_time_zone('Central Time (US & Canada)')
         .strftime('%Y-%m-%d %H:%M:%S')
+    end
+
+    def log_upload_error(higher_level_review, e)
+      Rails.logger.info("#{higher_level_review.class.to_s.gsub('::', ' ')}: Submission failure",
+                        'source' => higher_level_review.consumer_name,
+                        'consumer_id' => higher_level_review.consumer_id,
+                        'consumer_username' => higher_level_review.consumer_name,
+                        'uuid' => higher_level_review.id,
+                        'code' => e.code,
+                        'detail' => e.detail)
+    end
+
+    def handle_upload_error(higher_level_review, e)
+      log_upload_error(higher_level_review, e)
+      higher_level_review.update(status: 'error', code: e.code, detail: e.detail)
+
+      if e.code == 'DOC201' || e.code == 'DOC202'
+        AppealsApi::SidekiqRetryNotifier.notify!(
+          {
+            'class' => self.class.name,
+            'retry_count' => '-',
+            'error_class' => e.code,
+            'error_message' => e.detail,
+            'failed_at' => Time.zone.now
+          }
+        )
+      else
+        # allow sidekiq to retry immediately
+        raise
+      end
     end
   end
 end
