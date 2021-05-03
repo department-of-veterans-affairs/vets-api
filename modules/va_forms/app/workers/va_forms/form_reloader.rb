@@ -87,12 +87,7 @@ module VAForms
         benefit_categories: map_benefit_categories(form['fieldBenefitCategories']),
         va_form_administration: form.dig('fieldVaFormAdministration', 'entity', 'entityLabel')
       }
-      mapped[:form_details_url] =
-        if form['entityPublished']
-          "#{FORM_BASE_URL}#{form.dig('entityUrl', 'path')}"
-        else
-          ''
-        end
+      mapped[:form_details_url] = form['entityPublished'] ? "#{FORM_BASE_URL}#{form.dig('entityUrl', 'path')}" : ''
       mapped
     end
 
