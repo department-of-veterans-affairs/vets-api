@@ -91,7 +91,8 @@ module VAForms
         if form['entityPublished']
           "#{FORM_BASE_URL}#{form.dig('entityUrl', 'path')}"
         else
-          '' end
+          ''
+        end
       mapped
     end
 
