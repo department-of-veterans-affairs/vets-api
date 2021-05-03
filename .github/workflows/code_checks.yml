@@ -81,7 +81,7 @@ jobs:
           bundler-cache: true
 
       - name: Setup Database
-        run: bundle exec parallel_test -n 8 -e 'bundle exec rake db:reset'
+        run: bundle exec parallel_test -n 16 -e 'bundle exec rake db:reset'
 
       - name: Setup Code Climate Reporting
         run: |
@@ -90,7 +90,7 @@ jobs:
           ./cc-test-reporter before-build
 
       - name: Run Specs
-        run: bundle exec parallel_rspec spec/ modules -n 8 -o '--color --tty'
+        run: bundle exec parallel_rspec spec/ modules -n 16 -o '--color --tty'
 
       - name: Publish Code Climate coverage
         run: |
