@@ -191,7 +191,7 @@ module ClaimsApi
           key(
             :description,
             <<~X
-              Used to upload a completed, wet-signed 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.
+              Used to upload a completed, wet-signed (or e-signed) 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.
               <br/><br/>
               This endpoint works by accepting a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3). Each attachment should be encoded separately rather than encoding the whole payload together as with the Benefits Intake API.
               <br/><br/>
