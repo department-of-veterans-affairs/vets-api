@@ -582,6 +582,10 @@ oidc:
     default: ~
     veteran_verification: ~
     claims: ~
+  charon:
+    enabled: ~
+    endpoint: ~
+    audience: ~
   base_api_url: https://example.com
   base_api_token: ~
   smart_launch_url: ~
