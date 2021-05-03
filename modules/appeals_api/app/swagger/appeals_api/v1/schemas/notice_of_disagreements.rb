@@ -376,7 +376,7 @@ module AppealsApi::V1
               key :type, :string
               key :example, 'tinnitus'
               key :example, 'The type of issue being contested'
-              key :maxLength, 255
+              key :maxLength, 180
             end
 
             property :decisionDate do
@@ -384,6 +384,13 @@ module AppealsApi::V1
               key :example, '1900-01-01'
               key :example, 'The decision date for the contested issue'
               key :maxLength, 10
+            end
+
+            property :disagreementReason do
+              key :type, :string
+              key :example, 'Effective Date'
+              key :example, 'The point of contention for this specific issue'
+              key :maxLength, 90
             end
           end
         end
