@@ -7,7 +7,7 @@ module VBADocuments
       select status,
       min(duration) as min_secs,
       max(duration) as max_secs,
-      round(avg(duration)) as avg_secs,
+      round(avg(duration))::integer as avg_secs,
     	count(*) as rowcount
       from (
         select guid,
@@ -63,9 +63,9 @@ module VBADocuments
       select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
       from vba_documents_upload_submissions a
       where a.status = 'success'
-      and   a.updated_at >= $1 and a.updated_at < $2
+      and   a.created_at >= $1 and a.created_at < $2
       and   a.metadata -> 'final_success_status' is null
-      order by a.consumer_name asc
+      order by a.consumer_name, a.created_at asc
     "
 
     MAX_AVG_SQL = "

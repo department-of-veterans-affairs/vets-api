@@ -873,6 +873,7 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(User).to(
           receive(:participant_id).and_return('600061742')
         )
+        allow(user).to receive(:authorize).and_return(true)
       end
 
       it 'returns a prefilled 5655 form' do
