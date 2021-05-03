@@ -180,7 +180,7 @@ module AppealsApi
                            text_opts.merge(
                              at: [0, ypos],
                              width: 444,
-                             height: 38,
+                             height: 19,
                              valign: :top
                            )
 
@@ -188,9 +188,9 @@ module AppealsApi
 
               pdf.text_box "Disagreement Reason: #{issue['attributes']['disagreementReason']}",
                            text_opts.merge(
-                             at: [0, ypos],
+                             at: [0, ypos - 19],
                              width: 444,
-                             height: 38,
+                             height: 19,
                              valign: :bottom
                            )
             end
