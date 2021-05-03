@@ -11,10 +11,9 @@ module VAForms
             # The regex below checks to see if a form follows the DD-DDDD format (with optional alpha characters)
             va_prefix_regex = /^\d{2}(?:[pP])?[- \s]\d+(?:[a-zA-Z])?$/
             sf_form_regex = /^[sS][fF](?:[- \s])?\d+(?:[a-zA-Z])?$/
-            return search_by_form_number if params[:query].match(va_prefix_regex)
-                                                          .present? || params[:query]
-                                            .match(sf_form_regex)
-                                            .present?
+            if params[:query].match(va_prefix_regex).present? || params[:query].match(sf_form_regex).present?
+              return search_by_form_number
+            end
 
             return search_by_text
           end
