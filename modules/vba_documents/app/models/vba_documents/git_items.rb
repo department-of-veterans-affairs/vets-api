@@ -13,7 +13,6 @@ module VBADocuments
 
     module ClassMethods
       # notifies slack of all new deployments.  Returns the number notified on.
-      # rubocop:disable Metrics/AbcSize
       def notify(label)
         slack_url = fetch_url(label)
         text = "The following new merges are now in #{label.underscore.titleize}:\n"
@@ -57,15 +56,14 @@ module VBADocuments
         end
         GitItems.where(label: label).count
       end
-      # rubocop:enable Metrics/AbcSize
 
       def query_git(params)
         Faraday.new(url: GIT_QUERY, params: params).get
       end
 
       def fetch_url(label)
-        { 'BenefitsIntake' => Settings.vba_documents.slack.deployment_notification_url,
-          'Forms' => Settings.vba_documents.slack.deployment_notification_url }[label]
+        { 'BenefitsIntake' => Settings.vba_documents.slack.deployment_notification_benefits_url,
+          'Forms' => Settings.vba_documents.slack.deployment_notification_forms_url }[label]
       end
     end
     extend ClassMethods

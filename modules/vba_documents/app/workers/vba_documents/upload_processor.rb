@@ -16,14 +16,18 @@ module VBADocuments
 
     def perform(guid, retries = 0)
       @retries = retries
-      @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      if @upload
-        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
-        Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
-        download_and_process
-        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
-        Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
+      response = nil
+      VBADocuments::UploadSubmission.with_advisory_lock(guid) do
+        @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+        if @upload
+          tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
+          Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
+          response = download_and_process
+          tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
+          Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
+        end
       end
+      response&.success? ? true : false
     end
 
     private
@@ -31,6 +35,7 @@ module VBADocuments
     # rubocop:disable Metrics/MethodLength
     def download_and_process
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
+      response = nil
       begin
         update_size(@upload, tempfile.size)
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
@@ -52,6 +57,7 @@ module VBADocuments
         tempfile.close
         close_part_files(parts) if parts.present?
       end
+      response
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -80,9 +86,19 @@ module VBADocuments
     def process_response(response)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
+      elsif response.status == 429 && response.body =~ /UUID already in cache/
+        process_concurrent_duplicate
       else
         map_error(response.status, response.body, VBADocuments::UploadError)
       end
+    end
+
+    def process_concurrent_duplicate
+      # This should never occur now that we are using with_advisory_lock in perform, but if it does we will record it
+      # and otherwise leave this model alone as another instance of this job is currently also processing this guid
+      @upload.metadata['uuid_already_in_cache_count'] ||= 0
+      @upload.metadata['uuid_already_in_cache_count'] += 1
+      @upload.save!
     end
   end
 end

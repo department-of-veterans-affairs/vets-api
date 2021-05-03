@@ -7,7 +7,7 @@ module VBADocuments
       select status,
       min(duration) as min_secs,
       max(duration) as max_secs,
-      round(avg(duration)) as avg_secs,
+      round(avg(duration))::integer as avg_secs,
     	count(*) as rowcount
       from (
         select guid,
@@ -63,9 +63,9 @@ module VBADocuments
       select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
       from vba_documents_upload_submissions a
       where a.status = 'success'
-      and   a.uploaded_pdf is not null
-      and   a.updated_at < $1
-      order by a.consumer_name asc
+      and   a.created_at >= $1 and a.created_at < $2
+      and   a.metadata -> 'final_success_status' is null
+      order by a.consumer_name, a.created_at asc
     "
 
     MAX_AVG_SQL = "
@@ -144,7 +144,7 @@ module VBADocuments
     "
 
     MEDIAN_SQL = "
-      select NULLIF(sum(median_pages),0) as median_pages, NULLIF(sum(median_size),0) as median_size
+      select NULLIF(sum(median_pages)::integer,0) as median_pages, NULLIF(sum(median_size)::bigint,0) as median_size
       from (
         (select (uploaded_pdf->>'total_pages')::integer as median_pages, 0::bigint as median_size
         from vba_documents_upload_submissions a

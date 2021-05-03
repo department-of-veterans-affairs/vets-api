@@ -20,10 +20,6 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
-  ch33_dd:
-    actor_type: user
-    description: >
-      Allows user to access chapter 33 benefits direct deposit view/update APIs
   ch33_dd_profile:
     actor_type: user
     enable_in_development: true
@@ -136,30 +132,6 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to directly schedule VA appointments
-  va_online_scheduling_vsp_appointment_list:
-    actor_type: user
-    description: >
-      Enables the use of VSP for VA appointment data and cancellation on list page
-  va_online_scheduling_vsp_appointment_new:
-    actor_type: user
-    description: >
-      Enables the use of VSP for creating a new VA appointment
-  va_online_scheduling_ccsp_appointment_list:
-    actor_type: user
-    description: >
-      Enables the use of CCSP for Community Care appointment data on list page
-  va_online_scheduling_ccsp_request_new:
-    actor_type: user
-    description: >
-      Enables the use of CCSP for making a new Community Care appointment request
-  va_online_scheduling_vsp_request_list:
-    actor_type: user
-    description: >
-      Enables the use of VSP for request data and cancellation on list page
-  va_online_scheduling_vsp_request_new:
-    actor_type: user
-    description: >
-      Enables the use of VSP for making a new VA appointment request
   va_online_scheduling_express_care_new:
     actor_type: user
     enable_in_development: true
@@ -209,16 +181,11 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
-  form526_confirmation_email:
+  new_va_forms_search:
     actor_type: user
     enable_in_development: true
     description: >
-      Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
-  form526_confirmation_email_show_copy:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Shows vets-website content to inform veterans to expect a form526 confirmation email. Owned by va-notify team.
+      Uses the new search algorithm
   va_view_dependents_access:
     actor_type: user
     description: >
@@ -456,3 +423,18 @@ features:
     enable_in_development: true
     description: >
       Form 10182 Notice of Disagreement - Request a board appeal
+  virtual_agent_bot_a:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Points to Bot A
+  virtual_agent_token:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables connection to webchat
+  sharable_link:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggles the availability of sharable links to deep link to content

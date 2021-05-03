@@ -41,6 +41,7 @@ module DecisionReview
         faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
 
+        faraday.request :multipart
         faraday.request :json
 
         faraday.response :betamocks if mock_enabled?

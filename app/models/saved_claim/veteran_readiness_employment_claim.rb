@@ -79,6 +79,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     updated_form = parsed_form
 
+    add_veteran_info(updated_form, user) if user&.loa3?
+    add_office_location(updated_form) if updated_form['veteranInformation'].present?
+
+    update(form: updated_form.to_json)
+  end
+
+  def add_veteran_info(updated_form, user)
     updated_form['veteranInformation'].merge!(
       {
         'VAFileNumber' => updated_form['veteranInformation']['vaFileNumber'] || veteran_va_file_number(user),
@@ -88,22 +95,26 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'dob' => user.birth_date
       }
     ).except!('vaFileNumber')
+  end
 
-    update(form: updated_form.to_json)
+  def add_office_location(updated_form)
+    @office_location = check_office_location
+    updated_form['veteranInformation']&.merge!({ 'regionalOffice' => @office_location })
   end
 
   def send_to_vre(user)
     prepare_form_data
-    office_location = check_office_location
-
-    email_addr = REGIONAL_OFFICE_EMAILS[office_location] || 'VRE.VBACO@va.gov'
-    VeteranReadinessEmploymentMailer.build(user, email_addr).deliver_now if user.present?
 
     upload_to_vbms
 
+    @office_location = check_office_location if @office_location.nil?
+
+    email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+    VeteranReadinessEmploymentMailer.build(user, email_addr).deliver_now if user.present?
+
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
     # send the data to them. We always send a pdf to VBMS
-    return unless PERMITTED_OFFICE_LOCATIONS.include?(office_location)
+    return unless PERMITTED_OFFICE_LOCATIONS.include?(@office_location)
 
     service = VRE::Ch31Form.new(user: user, claim: self)
     service.submit

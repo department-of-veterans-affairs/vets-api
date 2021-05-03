@@ -167,6 +167,20 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         application_10203.reload
         expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(true)
       end
+
+      it 'sets claim poa for claim with decision poa flag' do
+        application_10203 = create(:education_benefits_claim_10203,
+                                   processed_at: Time.zone.now.beginning_of_day,
+                                   education_stem_automated_decision: build(:education_stem_automated_decision,
+                                                                            :with_poa, :denied))
+        gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)
+        allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
+                                                                .and_return(gi_bill_status)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_stem_automated_decision.poa).to eq(true)
+      end
     end
     # rubocop:enable Layout/MultilineMethodCallIndentation
 
