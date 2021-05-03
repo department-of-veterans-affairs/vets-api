@@ -207,6 +207,39 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       }
     }
   end
+  let(:json_ssoi_api_response) do
+    {
+      'data' => {
+        'id' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'type' => 'validated_token',
+        'attributes' => {
+          'ver' => 1,
+          'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+          'iss' => 'https://example.com/oauth2/default',
+          'aud' => 'api://default',
+          'iat' => 1_541_453_784,
+          'exp' => 1_541_457_384,
+          'cid' => '0oa1c01m77heEXUZt2p7',
+          'uid' => '00u1zlqhuo3yLa2Xs2p7',
+          'scp' => [
+            'profile',
+            'email',
+            'openid',
+            'veteran_status.read'
+          ],
+          'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+          'act' => {
+            'icn' => nil,
+            'npi' => nil,
+            'sec_id' => 'ae9ff5f4e4b741389904087d94cd19b2',
+            'vista_id' => '',
+            'type' => 'user'
+          },
+          'launch' => {}
+        }
+      }
+    }
+  end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
   let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
 
@@ -269,6 +302,18 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
+      end
+    end
+
+    it 'ssoi returns 200 and add the user to the session' do
+      with_ssoi_profile_configured do
+        post '/internal/auth/v2/validation', params: nil, headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to \
+          eq(json_ssoi_api_response['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['act'].keys).to \
+          eq(json_ssoi_api_response['data']['attributes']['act'].keys)
       end
     end
   end
@@ -380,7 +425,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     it 'v2 POST returns json response if valid user' do
       charon_response = instance_double(RestClient::Response,
                                         code: 200)
-      with_ssoi_configured do
+      with_ssoi_charon_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
@@ -393,65 +438,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'v2 POST returns 401 response if invalid user, charon returns 401, will not really happen with RestClient' do
-      charon_response = instance_double(RestClient::Response,
-                                        code: 401)
-      with_ssoi_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
-        post '/internal/auth/v2/validation',
-             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
-             headers: auth_header
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    it 'v2 POST returns 401 response if invalid user, raised error charon returns 401' do
-      charon_response = instance_double(RestClient::Response,
-                                        code: 401)
-      exception = RestClient::ExceptionWithResponse.new(charon_response)
-      with_ssoi_configured do
-        allow(RestClient).to receive(:get).with('http://example.com/smart/launch',
-                                                any_args).and_return(launch_with_sta3n_response)
-        allow(RestClient).to receive(:get).with('http://example.com/services/charon', any_args).and_raise(exception)
-        post '/internal/auth/v2/validation',
-             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
-             headers: auth_header
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    it 'v2 POST returns 401 response if invalid user, raised error charon returns 400' do
-      charon_response = instance_double(RestClient::Response,
-                                        code: 400)
-      exception = RestClient::ExceptionWithResponse.new(charon_response)
-      with_ssoi_configured do
-        allow(RestClient).to receive(:get).with('http://example.com/smart/launch',
-                                                any_args).and_return(launch_with_sta3n_response)
-        allow(RestClient).to receive(:get).with('http://example.com/services/charon', any_args).and_raise(exception)
-        post '/internal/auth/v2/validation',
-             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
-             headers: auth_header
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
-    it 'v2 POST returns 503 response if server error, charon returns 500' do
-      charon_response = instance_double(RestClient::Response,
-                                        code: 500)
-      exception = RestClient::ExceptionWithResponse.new(charon_response)
-      with_ssoi_configured do
-        allow(RestClient).to receive(:get).with('http://example.com/smart/launch',
-                                                any_args).and_return(launch_with_sta3n_response)
-        allow(RestClient).to receive(:get).with('http://example.com/services/charon', any_args).and_raise(exception)
-        post '/internal/auth/v2/validation',
-             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
-             headers: auth_header
-        expect(response).to have_http_status(503)
-      end
-    end
-
-    it 'v2 POST returns 401 response if invalid user, launch sta3n mismatch on vista_id' do
-      with_ssoi_configured do
+    it 'v2 POST returns 401 response if invalid user' do
+      with_ssoi_charon_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_wrong_sta3n_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
@@ -461,7 +449,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns server error' do
-      with_ssoi_configured do
+      with_ssoi_charon_configured do
         allow(RestClient).to receive(:get).and_return(bad_launch_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },

@@ -11,6 +11,8 @@ RSpec.describe 'email_address', type: :request do
 
   before do
     Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
+    allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+    user.vet360_contact_info
     sign_in_as(user)
   end
 

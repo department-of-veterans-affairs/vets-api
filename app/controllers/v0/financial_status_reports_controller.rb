@@ -4,6 +4,8 @@ require 'debt_management_center/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
+    before_action { authorize :debt, :access? }
+
     def create
       render json: service.submit_financial_status_report(fsr_form)
     end
