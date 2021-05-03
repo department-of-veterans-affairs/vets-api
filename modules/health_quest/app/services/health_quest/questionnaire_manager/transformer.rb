@@ -76,7 +76,6 @@ module HealthQuest
         questionnaire_manager_data =
           appointments_with_questionnaires.each_with_object([]) do |base_structure, accumulator|
             groups = get_groups(base_structure)
-            return base_data if groups.empty?
 
             set_responses_for_base_structure(groups)
             accumulator << base_structure

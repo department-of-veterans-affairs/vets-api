@@ -9,9 +9,6 @@ module VBADocuments
       unique_until: :success
     )
 
-    # We don't want to check successes before
-    # this date as it used to be the endpoint
-    VBMS_IMPLEMENTATION_DATE = Date.parse('28-06-2019')
     DIVISION_SIZE = 5.0
 
     def perform
@@ -29,9 +26,10 @@ module VBADocuments
     end
 
     def filtered_submissions
+      where_str = "status = 'success' AND created_at < ?"
       VBADocuments::UploadSubmission
         .in_flight
-        .where.not("status = 'success' AND created_at < ?", VBMS_IMPLEMENTATION_DATE)
+        .where.not(where_str, VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE)
         .order(created_at: :asc)
         .pluck(:guid)
     end

@@ -18,7 +18,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
     describe '#index (all user claims) is polled' do
       before { iam_sign_in }
 
-      let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
+      let(:params) { { useCache: false } }
 
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
         VCR.use_cassette('claims/claims') do
@@ -131,7 +131,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
     describe '#index is polled' do
       before { iam_sign_in }
 
-      let(:params) { { useCache: false, startDate: '1800-10-29T07:00:00.000Z' } }
+      let(:params) { { useCache: false } }
 
       it 'and claims service fails, but appeals succeeds' do
         VCR.use_cassette('claims/claims_with_errors') do
@@ -202,7 +202,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
 
     context 'when there are cached claims and appeals' do
       let(:user) { FactoryBot.build(:iam_user) }
-      let(:params) { { useCache: true, startDate: '1800-10-29T07:00:00.000Z' } }
+      let(:params) { { useCache: true } }
 
       before do
         iam_sign_in
