@@ -43,7 +43,7 @@ module VetsAPI
     # Currently used for overriding a before_action
     # For the PGHero gem
     # see pghero_home_controller_override
-    overrides = "#{Rails.root}/app/overrides"
+    overrides = Rails.root.join('app', 'overrides')
     Rails.autoloaders.main.ignore(overrides)
     config.to_prepare do
       Dir.glob("#{overrides}/**/*_override.rb").each do |override|

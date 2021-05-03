@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 PgHero::HomeController.class_eval do
   unless Rails.env.development?
     http_basic_authenticate_with name: Settings.pg_hero.username,
