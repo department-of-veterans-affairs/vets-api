@@ -43,10 +43,7 @@ VAOS::Engine.routes.draw do
   end
 
   namespace :v2, defaults: { format: :json } do
-<<<<<<< HEAD
     get '/locations/:location_id/clinics', to: 'clinics#index'
-=======
     get '/patients/', to: 'patients#index'
->>>>>>> WIP
   end
 end
