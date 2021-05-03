@@ -60,17 +60,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
             expect(parsed['data']['attributes']['status']).to eq('pending')
           end
         end
-
-        it 'returns the same successful response with all the data' do
-          with_okta_user(scopes) do |auth_header|
-            post path, params: data, headers: headers.merge(auth_header)
-            parsed = JSON.parse(response.body)
-            expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-            post path, params: data, headers: headers.merge(auth_header)
-            newly_parsed = JSON.parse(response.body)
-            expect(newly_parsed['data']['id']).to eq(parsed['data']['id'])
-          end
-        end
       end
 
       context 'when poa code is not associated with current user' do

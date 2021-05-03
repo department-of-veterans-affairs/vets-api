@@ -12,7 +12,7 @@ module CovidVaccine
         # Fire off job to determine EMIS eligibility to kick off after hours; transition to eligible or ineligible
         state :received, initial: true
         state :enrollment_pending, :enrollment_complete, :enrollment_failed, :registered,
-              :enrollment_out_of_band, :registered_no_icn, :registered_no_facility
+              :registered_no_icn, :registered_no_facility
 
         # Batch id is updated based on time that batch was submitted; transitions to enrollment_pending
         event :submitted_for_enrollment do
@@ -42,11 +42,6 @@ module CovidVaccine
         # Enrollment returned a failure; transitions to enrollment_failed
         event :failed_enrollment do
           transitions from: :enrollment_pending, to: :enrollment_failed
-        end
-
-        # If there is no preferred facility the registration will need to be handled manually
-        event :enrollment_requires_intervention do
-          transitions from: :enrollment_pending, to: :enrollment_out_of_band
         end
       end
 
