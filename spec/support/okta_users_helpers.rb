@@ -38,6 +38,14 @@ def with_okta_profile_configured(&block)
   end
 end
 
+def vcr_cassette(open_id_cassette, &block)
+  VCR.use_cassette('okta/metadata') do
+    VCR.use_cassette(open_id_cassette) do
+      yield block
+    end
+  end
+end
+
 def with_ssoi_profile_configured(&block)
   with_settings(
     Settings.oidc,
