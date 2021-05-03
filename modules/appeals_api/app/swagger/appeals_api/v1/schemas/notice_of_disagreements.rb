@@ -376,7 +376,7 @@ module AppealsApi::V1
               key :type, :string
               key :example, 'tinnitus'
               key :example, 'The type of issue being contested'
-              key :maxLength, 255
+              key :maxLength, 180
             end
 
             property :decisionDate do
@@ -390,7 +390,7 @@ module AppealsApi::V1
               key :type, :string
               key :example, 'Effective Date'
               key :example, 'The point of contention for this specific issue'
-              key :maxLength, 100
+              key :maxLength, 90
             end
           end
         end
