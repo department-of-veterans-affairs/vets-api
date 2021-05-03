@@ -116,6 +116,7 @@ module HealthQuest
         return default_response if lighthouse_appointments.blank?
 
         concurrent_pgd_requests
+        @facilities = get_facilities
         return default_response if patient.blank? || questionnaires.blank?
 
         compose
@@ -186,7 +187,6 @@ module HealthQuest
         # rubocop:disable ThreadSafety/NewThread
         request_threads << Thread.new { @patient = get_patient.resource }
         request_threads << Thread.new { @organizations = get_organizations }
-        request_threads << Thread.new { @facilities = get_facilities }
         request_threads << Thread.new { @questionnaires = get_questionnaires.resource&.entry }
         request_threads << Thread.new { @questionnaire_responses = get_questionnaire_responses.resource&.entry }
         request_threads << Thread.new { @save_in_progress = get_save_in_progress }
@@ -291,7 +291,7 @@ module HealthQuest
       # @return [Array]
       #
       def get_facilities
-        list = locations.map { |loc| loc.resource.identifier.first.value }
+        list = organizations.map { |org| org.resource.identifier.last.value }
         facilities_ids = list.join(',')
 
         facilities_request.get(facilities_ids)

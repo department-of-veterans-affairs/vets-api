@@ -23,9 +23,7 @@ module DecisionReview
     HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200'
     HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200'
     HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
-    REQUIRED_CREATE_NOTICE_OF_DISAGREEMENT_HEADERS = %w[X-VA-Veteran-First-Name X-VA-Veteran-Last-Name
-                                                        X-VA-Veteran-SSN X-VA-Veteran-Birth-Date].freeze
-    REQUIRED_CREATE_HIGHER_LEVEL_REVIEW_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
+    REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 
     ##
     # Create a Higher-Level Review
@@ -197,7 +195,7 @@ module DecisionReview
         'X-VA-Insurance-Policy-Number' => nil
       }.compact
 
-      missing_required_fields = REQUIRED_CREATE_HIGHER_LEVEL_REVIEW_HEADERS - headers.keys
+      missing_required_fields = REQUIRED_CREATE_HEADERS - headers.keys
       if missing_required_fields.present?
         raise Common::Exceptions::Forbidden.new(
           source: "#{self.class}##{__method__}",
@@ -210,15 +208,15 @@ module DecisionReview
 
     def create_notice_of_disagreement_headers(user)
       headers = {
-        'X-VA-Veteran-First-Name' => user.first_name.to_s.strip, # can be an empty string for those with 1 legal name
-        'X-VA-Veteran-Middle-Initial' => middle_initial(user),
-        'X-VA-Veteran-Last-Name' => user.last_name.to_s.strip.presence,
-        'X-VA-Veteran-SSN' => user.ssn.to_s.strip.presence,
-        'X-VA-Veteran-File-Number' => nil,
-        'X-VA-Veteran-Birth-Date' => user.birth_date.to_s.strip.presence
+        'X-VA-First-Name' => user.first_name.to_s.strip, # can be an empty string for those with 1 legal name
+        'X-VA-Middle-Initial' => middle_initial(user),
+        'X-VA-Last-Name' => user.last_name.to_s.strip.presence,
+        'X-VA-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-File-Number' => nil,
+        'X-VA-Birth-Date' => user.birth_date.to_s.strip.presence
       }.compact
 
-      missing_required_fields = REQUIRED_CREATE_NOTICE_OF_DISAGREEMENT_HEADERS - headers.keys
+      missing_required_fields = REQUIRED_CREATE_HEADERS - headers.keys
       if missing_required_fields.present?
         raise Common::Exceptions::Forbidden.new(
           source: "#{self.class}##{__method__}",
@@ -251,6 +249,10 @@ module DecisionReview
     end
 
     def save_error_details(error)
+      PersonalInformationLog.create!(
+        error_class: "#{self.class.name}#save_error_details exception #{error.class} (HLR) (NOD)",
+        data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
+      )
       Raven.tags_context external_service: self.class.to_s.underscore
       Raven.extra_context url: config.base_path, message: error.message
     end
