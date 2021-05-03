@@ -20,7 +20,7 @@ module AppealsApi
     end
 
     def retry_limits_for_notification
-      [6, 10]
+      [2, 5]
     end
 
     def notify(retry_params)
