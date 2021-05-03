@@ -79,6 +79,8 @@ module ClaimsApi
         def active
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
+
+          validate_poa_code_for_current_user!(current_poa_code)
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
@@ -99,6 +101,15 @@ module ClaimsApi
         end
 
         private
+
+        def current_poa_code
+          current_poa.try(:code)
+        end
+
+        def current_poa
+          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+        end
+
 
         def header_md5
           @header_md5 ||= Digest::MD5.hexdigest(auth_headers.except('va_eauth_authenticationauthority',
