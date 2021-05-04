@@ -4,5 +4,4 @@
 <% if ENV['CI'] %>
 --format RspecJunitFormatter
 --out log/rspec<%= ENV['TEST_ENV_NUMBER'] %>.xml
---format ParallelTests::RSpec::RuntimeLogger --out tmp/parallel_runtime_rspec.log
 <% end %>
