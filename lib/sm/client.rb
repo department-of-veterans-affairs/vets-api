@@ -58,7 +58,7 @@ module SM
       get_preferences
     end
     # @!endgroup
-    #test
+
     ##
     # @!group Folders
     ##

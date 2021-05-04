@@ -126,7 +126,8 @@ development: &defaults
   mobile_app_claims_store:
     namespace: mobile-app-claims-store
     each_ttl: 1800
-
+  mobile_app_secure_messaging_store:
+    namespace: mobile_app_secure_messaging_store
 test:
   <<: *defaults
   redis:
