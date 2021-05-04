@@ -102,7 +102,9 @@ module VAProfile
     end
 
     class EmailTransactionResponse < TransactionResponse; end
+
     class TelephoneTransactionResponse < TransactionResponse; end
+
     class PermissionTransactionResponse < TransactionResponse; end
   end
 end

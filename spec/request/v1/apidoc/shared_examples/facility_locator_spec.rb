@@ -19,6 +19,7 @@ RSpec.shared_examples 'V1 Facility Locator' do
     end
 
     it { is_expected.to validate(:get, '/v1/facilities/va', 200, params) }
+
     it {
       expect(subject).to validate(:get, '/v1/facilities/va', 400,
                                   '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')

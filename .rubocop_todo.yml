@@ -14,18 +14,6 @@ Bundler/OrderedGems:
   Exclude:
     - 'Gemfile'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, Severity.
-# SupportedStylesAlignWith: start_of_line, begin
-Layout/BeginEndAlignment:
-  Exclude:
-    - 'app/controllers/concerns/failed_request_loggable.rb'
-    - 'app/controllers/v0/higher_level_reviews_controller.rb'
-    - 'app/services/form1010cg/service.rb'
-    - 'rakelib/ci.rake'
-    - 'rakelib/form526.rake'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Layout/CommentIndentation:
@@ -37,18 +25,6 @@ Layout/CommentIndentation:
 Layout/EmptyLineAfterGuardClause:
   Exclude:
     - 'lib/common/models/collection.rb'
-
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: EmptyLineBetweenMethodDefs, EmptyLineBetweenClassDefs, EmptyLineBetweenModuleDefs, AllowAdjacentOneLineDefs, NumberOfEmptyLines.
-Layout/EmptyLineBetweenDefs:
-  Exclude:
-    - 'lib/common/client/errors.rb'
-    - 'lib/mpi/errors/errors.rb'
-    - 'lib/mpi/messages/message_builder.rb'
-    - 'lib/saml/settings_service.rb'
-    - 'lib/va_profile/contact_information/transaction_response.rb'
-    - 'lib/vre/errors/ch31_errors.rb'
 
 # Offense count: 5
 # Cop supports --auto-correct.
@@ -91,12 +67,6 @@ Lint/DeprecatedOpenSSLConstant:
   Exclude:
     - 'lib/vic/url_helper.rb'
 
-# Offense count: 1
-# Configuration parameters: AllowComments.
-Lint/EmptyFile:
-  Exclude:
-    - 'spec/factories/686c/step_child_relationships.rb'
-
 # Offense count: 93
 Lint/MissingSuper:
   Enabled: false
@@ -123,18 +93,6 @@ Lint/RedundantCopDisableDirective:
 Lint/StructNewOverride:
   Exclude:
     - 'spec/request/authentication/standard_authentication.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: AllowComments.
-Lint/UselessMethodDefinition:
-  Exclude:
-    - 'lib/common/client/middleware/request/camelcase.rb'
-    - 'lib/common/client/middleware/request/multipart_request.rb'
-    - 'lib/evss/gi_bill_status/external_service_unavailable.rb'
-    - 'lib/evss/gi_bill_status/outside_working_hours.rb'
-    - 'modules/health_quest/app/services/health_quest/middleware/health_quest_logging.rb'
-    - 'modules/vaos/app/services/vaos/middleware/vaos_logging.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -184,12 +142,6 @@ RSpec/ContextMethod:
     - 'spec/request/address_request_spec.rb'
     - 'spec/request/evss_claims_async_spec.rb'
     - 'spec/services/users/profile_spec.rb'
-
-# Offense count: 152
-# Cop supports --auto-correct.
-# Configuration parameters: AllowConsecutiveOneLiners.
-RSpec/EmptyLineAfterExample:
-  Enabled: false
 
 # Offense count: 139
 # Cop supports --auto-correct.

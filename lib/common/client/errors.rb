@@ -18,7 +18,9 @@ module Common
       end
 
       class NotAuthenticated < ClientError; end
+
       class Serialization < ClientError; end
+
       class ParsingError < ClientError; end
 
       class HTTPError < ClientError

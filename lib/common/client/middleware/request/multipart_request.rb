@@ -9,10 +9,6 @@ module Common
         class MultipartRequest < Faraday::Middleware
           include Rack::Mime
 
-          def initialize(app)
-            super(app)
-          end
-
           def call(env)
             return @app.call(env) unless env[:body].is_a?(Hash)
 

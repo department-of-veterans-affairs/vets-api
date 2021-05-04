@@ -18,9 +18,11 @@ RSpec.describe SAML::SettingsService do
         SAML::SettingsService.saml_settings
         expect(a_request(:get, Settings.saml.metadata_url)).to have_been_made.at_most_once
       end
+
       it 'returns a settings instance' do
         expect(SAML::SettingsService.merged_saml_settings(true)).to be_an_instance_of(OneLogin::RubySaml::Settings)
       end
+
       it 'overrides name-id to be "persistent"' do
         expect(SAML::SettingsService.merged_saml_settings(true).name_identifier_format)
           .to eq('urn:oasis:names:tc:SAML:2.0:nameid-format:persistent')
@@ -54,6 +56,7 @@ RSpec.describe SAML::SettingsService do
         expect(Rails.logger).to receive(:error).once.with(/Failed to load SAML metadata: 500: try \d of 3/)
         SAML::SettingsService.merged_saml_settings(true)
       end
+
       it 'keeps making GET calls to fetch metadata' do
         SAML::SettingsService.merged_saml_settings(true)
         SAML::SettingsService.saml_settings

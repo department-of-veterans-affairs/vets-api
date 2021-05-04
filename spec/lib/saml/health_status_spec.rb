@@ -21,6 +21,7 @@ RSpec.describe SAML::HealthStatus do
     it '.healthy? returns true' do
       expect(subject.healthy?).to eq(true)
     end
+
     it '.error_message is blank' do
       VCR.use_cassette('saml/idp_metadata') do
         expect(subject.error_message).to eq('')
@@ -36,6 +37,7 @@ RSpec.describe SAML::HealthStatus do
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
     end
+
     it '.error_message returns NOT_ATTEMPTED' do
       expect(subject.error_message).to eq(SAML::StatusMessages::NOT_ATTEMPTED)
     end
@@ -52,6 +54,7 @@ RSpec.describe SAML::HealthStatus do
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
     end
+
     it '.error_message returns MISSING' do
       expect(subject.error_message).to eq(SAML::StatusMessages::MISSING)
     end
@@ -71,6 +74,7 @@ RSpec.describe SAML::HealthStatus do
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
     end
+
     it '.error_message returns CERT_INVALID' do
       expect(subject.error_message).to eq(SAML::StatusMessages::CERT_INVALID)
     end

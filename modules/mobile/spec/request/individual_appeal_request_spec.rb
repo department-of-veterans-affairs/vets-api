@@ -16,6 +16,7 @@ RSpec.describe 'individual appeal', type: :request do
         expect(response).to have_http_status(:ok)
       end
     end
+
     it 'and attempting to access a nonexistant appeal returns a 404 wtih an error ' do
       VCR.use_cassette('caseflow/appeals') do
         get '/mobile/v0/appeal/1234567', headers: iam_headers

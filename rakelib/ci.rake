@@ -13,12 +13,12 @@ namespace :spec do
       system('cc-test-reporter before-build')
     end
     exit_status = begin
-                    Rake::Task['spec'].invoke
-                  rescue SystemExit => e
-                    e.status
+      Rake::Task['spec'].invoke
+    rescue SystemExit => e
+      e.status
                   else
                     0
-                  end
+    end
 
     if ENV['CC_TEST_REPORTER_ID']
       puts 'reporting coverage to CodeClimate'

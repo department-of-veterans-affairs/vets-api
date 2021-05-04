@@ -215,6 +215,7 @@ describe PdfFill::Forms::Va214142 do
         "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1"
       )
     end
+
     it 'shows a single date range correctly' do
       date_ranges = [
         {
@@ -226,6 +227,7 @@ describe PdfFill::Forms::Va214142 do
         'from: 1980-1-1 to: 1985-1-1'
       )
     end
+
     it 'handles no date ranges' do
       date_ranges = []
       expect(new_form_class.combine_date_ranges(date_ranges)).to eq('')

@@ -30,6 +30,7 @@ RSpec.describe 'individual claim', type: :request do
         expect(response.body).to match_json_schema('evss_errors')
       end
     end
+
     it 'and attempting to access another users claim returns a 404 with an error ',
        run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       VCR.use_cassette('evss/claims/claim_with_docs') do

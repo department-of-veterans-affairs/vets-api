@@ -118,6 +118,7 @@ module SAML
       end
     end
   end
+
   class InternalServerError < StandardError
   end
 end

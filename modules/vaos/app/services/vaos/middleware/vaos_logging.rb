@@ -8,10 +8,6 @@ module VAOS
     class VAOSLogging < Faraday::Middleware
       STATSD_KEY_PREFIX = 'api.vaos.va_mobile.response'
 
-      def initialize(app)
-        super(app)
-      end
-
       # #call
       #
       # Logs all outbound request / responses to VAMF api gateway as :info when success and :warn when fail

@@ -26,6 +26,7 @@ RSpec.describe StemApplicantScoMailer, type: [:mailer] do
         first_initial_last_name = "#{name.first} #{name.last}"
         expect(subject.body.raw_source).to include("Dear #{first_initial_last_name},")
       end
+
       it 'includes school name' do
         expect(subject.body.raw_source).to include(
           "We sent the email below to the School Certifying Official (SCO) at #{applicant.schoolName} to gather"
