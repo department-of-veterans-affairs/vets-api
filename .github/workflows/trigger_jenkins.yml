@@ -8,25 +8,25 @@ jobs:
       name: Trigger jenkins deployment
       runs-on: ubuntu-latest
       steps:
-        - name: 
+        - name: Deploy vets-api server in dev
           uses: wei/curl@v1
           with:
             args: >
               https://dev.va.gov/jenkins/job/deploys/job/vets-api-server-vagov-dev/build
               --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
-        - name: 
+        - name: Deploy vets-api worker in dev
           uses: wei/curl@v1
           with:
             args: >
               https://dev.va.gov/jenkins/job/deploys/job/vets-api-worker-vagov-dev/build
               --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
-        - name: 
+        - name: Deploy vets-api server in staging
           uses: wei/curl@v1
           with:
             args: >
               https://dev.va.gov/jenkins/job/deploys/job/vets-api-server-vagov-staging/build
               --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
-        - name: 
+        - name: Deploys vets-api worker in staging
           uses: wei/curl@v1
           with:
             args: >
