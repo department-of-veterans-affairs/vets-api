@@ -2,15 +2,33 @@ name: Trigger Jenkins Deployment
 on:
   push:
     branches:
-      - 23096-trigger-jenkins-from-gha
+      - master
 jobs:
   trigger_jenkins_deploy:
       name: Trigger jenkins deployment
       runs-on: ubuntu-latest
       steps:
-        - name: Trigger Jenkins deployment
+        - name: 
           uses: wei/curl@v1
           with:
             args: >
-              https://dev.va.gov/jenkins/vets-gov-autodeploy-vets-api
+              https://dev.va.gov/jenkins/job/deploys/job/vets-api-server-vagov-dev/build
+              --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
+        - name: 
+          uses: wei/curl@v1
+          with:
+            args: >
+              https://dev.va.gov/jenkins/job/deploys/job/vets-api-worker-vagov-dev/build
+              --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
+        - name: 
+          uses: wei/curl@v1
+          with:
+            args: >
+              https://dev.va.gov/jenkins/job/deploys/job/vets-api-server-vagov-staging/build
+              --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
+        - name: 
+          uses: wei/curl@v1
+          with:
+            args: >
+              https://dev.va.gov/jenkins/job/deploys/job/vets-api-worker-vagov-staging/build
               --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
