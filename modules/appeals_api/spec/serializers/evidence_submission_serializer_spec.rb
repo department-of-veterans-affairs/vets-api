@@ -4,7 +4,8 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe AppealsApi::EvidenceSubmissionSerializer do
-  let(:evidence_submission) { create(:evidence_submission, :with_detail, :for_nod) }
+  let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+  let(:evidence_submission) { create(:evidence_submission, :with_detail, supportable: notice_of_disagreement) }
   let(:rendered_hash) { described_class.new(evidence_submission).serializable_hash }
 
   it 'includes guid' do
