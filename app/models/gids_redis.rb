@@ -51,11 +51,11 @@ class GIDSRedis < Common::RedisStore
   end
 
   def respond_to_missing_v1?(name)
-    gi_service.respond_to?(name)
+    gi_service_v1.respond_to?(name)
   end
 
   def search_respond_to_v1?(name)
-    gi_search_service.respond_to?(name)
+    gi_search_service_v1.respond_to?(name)
   end
 
   private
