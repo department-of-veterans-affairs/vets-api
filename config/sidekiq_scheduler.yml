@@ -213,7 +213,7 @@ ClaimsApi::ClaimAuditor:
 Veteran::VSOReloader:
   cron: "0 2 * * * America/New_York"
   class: Veteran::VSOReloader
-  description: Pulls down current list of VSOs and updates accordingly 
+  description: Pulls down current list of VSOs and updates accordingly
 
 VBADocuments::DeploymentsNotifier:
   at: "<%=0.seconds.from_now%>"
@@ -237,3 +237,11 @@ CovidVaccine::ExpandedSubmissionStateJob:
 VRE::CreateCh31SubmissionsReport:
   cron: "0 0 * * * America/New_York"
   description: "Send a daily report to the VRE team about Chapter 31 submissions"
+
+PgHeroQueryStatsJob:
+  cron: "0 8 * * * America/New_York"
+  description: captures PgHero query stats every day
+
+PgHeroCleanQueryStatsJob:
+  cron: "0 0 1 * * America/New_York"
+  description: Remove old PgHero query stats once per month
