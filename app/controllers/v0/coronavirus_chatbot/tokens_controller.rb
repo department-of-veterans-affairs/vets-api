@@ -57,7 +57,7 @@ module V0
       end
 
       def bearer_token
-        @bearer_token ||= 'Bearer ' + Settings.coronavirus_chatbot.webchat_secret
+        @bearer_token ||= "Bearer #{Settings.coronavirus_chatbot.webchat_secret}"
       end
 
       def service_exception_handler(exception)

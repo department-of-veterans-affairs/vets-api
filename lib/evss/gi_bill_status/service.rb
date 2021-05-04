@@ -42,7 +42,7 @@ module EVSS
           current_time = get_current_time
           end_hour = current_time.saturday? ? OPERATING_HOURS[:saturday_end] : OPERATING_HOURS[:end]
           tz = ActiveSupport::TimeZone.new(OPERATING_ZONE)
-          service_end_time = tz.parse(tz.today.to_s + ' ' + end_hour.to_s + ':00:00')
+          service_end_time = tz.parse("#{tz.today} #{end_hour}:00:00")
           service_end_time - current_time
         else
           0
@@ -55,7 +55,7 @@ module EVSS
       def self.retry_after_time
         current_time = get_current_time
         tz = ActiveSupport::TimeZone.new(OPERATING_ZONE)
-        service_start_time = tz.parse(tz.today.to_s + ' 0' + OPERATING_HOURS[:start].to_s + ':00:00')
+        service_start_time = tz.parse("#{tz.today} 0#{OPERATING_HOURS[:start]}:00:00")
 
         return service_start_time.httpdate if current_time.hour < OPERATING_HOURS[:start]
 

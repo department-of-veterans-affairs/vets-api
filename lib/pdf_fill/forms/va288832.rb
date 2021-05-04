@@ -372,12 +372,12 @@ module PdfFill
         @form_data['claimantVaFileNumber'] = @form_data.dig('claimantInformation', 'vaFileNumber')
         # possible values for relationship: ['isActiveDuty', 'isVeteran', 'isSpouse', 'isChild']
         # on the PDF we want to remove the 'is' from the beginning of each of those values
-        @form_data['claimantRelationship'] = @form_data.dig('status')[2..]
+        @form_data['claimantRelationship'] = @form_data['status'][2..]
         @form_data['claimantEmail'] = @form_data.dig('claimantInformation', 'emailAddress')
         @form_data['claimantTelephone'] = @form_data.dig('claimantInformation', 'phoneNumber')
-        @form_data['claimantMailingAddress'] = combine_full_address(@form_data.dig('claimantAddress'))
-        @form_data['veteranName'] = combine_full_name(@form_data.dig('veteranFullName'))
-        @form_data['veteranVaFileNumber'] = @form_data.dig('vaFileNumber')
+        @form_data['claimantMailingAddress'] = combine_full_address(@form_data['claimantAddress'])
+        @form_data['veteranName'] = combine_full_name(@form_data['veteranFullName'])
+        @form_data['veteranVaFileNumber'] = @form_data['vaFileNumber']
       end
     end
   end

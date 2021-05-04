@@ -85,7 +85,7 @@ module VBADocuments
     # add the median pages to the modes hash
     def get_median_results
       @monthly_mode.each do |row|
-        zero_pad = ('0' + row['mm'].to_s)[-2..2]
+        zero_pad = ("0#{row['mm']}")[-2..2]
         yyyymm = "#{row['yyyy']}#{zero_pad}"
         median = run_sql(SQLSupport::MEDIAN_SQL, yyyymm)
         row['median_pages'] = median.first['median_pages']

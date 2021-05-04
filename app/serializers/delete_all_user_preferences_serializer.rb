@@ -8,7 +8,7 @@ class DeleteAllUserPreferencesSerializer < ActiveModel::Serializer
   end
 
   def preference_code
-    object.dig(:code)
+    object[:code]
   end
 
   def user_preferences

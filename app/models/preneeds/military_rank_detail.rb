@@ -22,7 +22,7 @@ module Preneeds
     # return [String] #branch_of_service code and #rank_code joined with ':'
     #
     def id
-      branch_of_service_code + ':' + rank_code
+      "#{branch_of_service_code}:#{rank_code}"
     end
   end
 end

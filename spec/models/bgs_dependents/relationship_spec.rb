@@ -21,7 +21,7 @@ RSpec.describe BGSDependents::Relationship do
       vnp_ptcpnt_id_b: '146189',
       ptcpnt_rlnshp_type_nm: 'Spouse',
       family_rlnshp_type_nm: 'Spouse',
-      event_dt: DateTime.parse(event_date + ' 12:00:00').to_time.iso8601
+      event_dt: DateTime.parse("#{event_date} 12:00:00").to_time.iso8601
     }
   end
 

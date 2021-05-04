@@ -267,7 +267,7 @@ module PdfFill
           ],
           ', '
         )
-        address.prepend(address_info['name'] + ' ') if include_name
+        address.prepend("#{address_info['name']} ") if include_name
         address_info['address'] = address
       end
 

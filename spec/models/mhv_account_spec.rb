@@ -145,7 +145,7 @@ RSpec.describe MHVAccount, type: :model do
       it 'can have multiple trackers for the same uuid and icn' do
         attrs = { uuid: user.uuid, account_state: 'whatever',
                   mhv_correlation_id: 'different_id', icn: user.icn,
-                  tracker_id: (user.uuid.to_s + 'different_id') }
+                  tracker_id: "#{user.uuid}different_id" }
         MHVAccountIneligible.create(attrs)
 
         subject.creatable?
@@ -155,7 +155,7 @@ RSpec.describe MHVAccount, type: :model do
         expect(tracker.account_state).to eq(:needs_terms_acceptance)
         expect(tracker.uuid).to eq(user.uuid)
 
-        tracker = MHVAccountIneligible.find(user.uuid.to_s + 'different_id')
+        tracker = MHVAccountIneligible.find("#{user.uuid}different_id")
         expect(tracker).to be_truthy
         expect(tracker.mhv_correlation_id).to eq('different_id')
         expect(tracker.account_state).to eq('whatever')

@@ -312,7 +312,7 @@ module PdfFill
         expand_incidents(@form_data['incidents'])
 
         expand_signature(@form_data['veteranFullName'])
-        @form_data['signature'] = '/es/ ' + @form_data['signature']
+        @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
         @form_data
       end
@@ -416,9 +416,9 @@ module PdfFill
         return if incident_overflow.nil?
 
         incident_medals_citations = incident['medalsCitations'] || ''
-        incident_overflow.push("Medals Or Citations: \n\n" + incident_medals_citations)
+        incident_overflow.push("Medals Or Citations: \n\n#{incident_medals_citations}")
 
-        incident_overflow.push("Persons Involved: \n\n" + format_persons_involved(incident))
+        incident_overflow.push("Persons Involved: \n\n#{format_persons_involved(incident)}")
         incident['incidentOverflow'] = PdfFill::FormValue.new('', incident_overflow.compact.join("\n\n"))
       end
 
@@ -441,11 +441,11 @@ module PdfFill
 
         overflow_person = []
         overflow_person.push(combine_full_name(person['name']))
-        overflow_person.push('Description: ' + person['description']) unless person['description'].nil?
-        overflow_person.push('Rank: ' + person['rank']) unless person['rank'].nil?
-        overflow_person.push('Unit Assigned: ' + person['unitAssigned']) unless person['unitAssigned'].nil?
-        overflow_person.push('Injury or Death Date: ' + person['injuryDeathDate']) unless person['injuryDeathDate'].nil?
-        overflow_person.push('Injury or Death Cause: ' + cause) unless cause.empty?
+        overflow_person.push("Description: #{person['description']}") unless person['description'].nil?
+        overflow_person.push("Rank: #{person['rank']}") unless person['rank'].nil?
+        overflow_person.push("Unit Assigned: #{person['unitAssigned']}") unless person['unitAssigned'].nil?
+        overflow_person.push("Injury or Death Date: #{person['injuryDeathDate']}") unless person['injuryDeathDate'].nil?
+        overflow_person.push("Injury or Death Cause: #{cause}") unless cause.empty?
         overflow_person.join("\n")
       end
 

@@ -82,7 +82,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
 
       it 'returns all PreferenceChoices for given Preference' do
         body = json_body_for(response)['attributes']['preferences']
-        preference_set = body.select { |o| o.dig('code') == 'notifications' }.first
+        preference_set = body.select { |o| o['code'] == 'notifications' }.first
         preference_choice_codes = preference_set['preference_choices'].map { |pc| pc['code'] }
 
         expect(preference_choice_codes).to match_array notifications.choices.map(&:code)

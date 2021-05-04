@@ -149,7 +149,7 @@ class OpenidApplicationController < ApplicationController
 
   def fetch_smart_launch_context
     response = RestClient.get(Settings.oidc.smart_launch_url,
-                              { Authorization: 'Bearer ' + token.token_string })
+                              { Authorization: "Bearer #{token.token_string}" })
     raise error_klass('Invalid launch context') if response.nil?
 
     if response.code == 200
@@ -157,7 +157,7 @@ class OpenidApplicationController < ApplicationController
       json_response['launch']
     end
   rescue => e
-    log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
+    log_message_to_sentry("Error retrieving smart launch context for OIDC token: #{e.message}", :error)
     raise error_klass('Invalid launch context')
   end
 

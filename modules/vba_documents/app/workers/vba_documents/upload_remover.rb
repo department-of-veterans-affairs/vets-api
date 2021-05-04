@@ -19,7 +19,7 @@ module VBADocuments
       return unless Settings.vba_documents.s3.enabled
 
       VBADocuments::UploadSubmission.where(REMOVAL_QUERY, EXPIRATION_TIME.ago).find_each do |upload|
-        Rails.logger.info('VBADocuments: Cleaning up s3: ' + upload.inspect)
+        Rails.logger.info("VBADocuments: Cleaning up s3: #{upload.inspect}")
         break unless store.object(upload.guid).exists?
 
         store.delete(upload.guid)

@@ -8,7 +8,7 @@ RSpec::Matchers.define :match_episode_body do |expected|
   failure_message do |actual|
     message = "expected that #{actual} would match #{expected}"
     outputs = [actual, expected].map { |a| pretty(a) }
-    message += "\nDiff:" + differ.diff_as_string(*outputs)
+    message += "\nDiff:#{differ.diff_as_string(*outputs)}"
     message
   end
 

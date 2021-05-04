@@ -99,7 +99,7 @@ namespace :form526 do
           if unredacted_flag_present?(args_array)
             prnt
           else
-            ->(**fields) { prnt.call(**fields.merge(p_id: '*****' + fields[:p_id].to_s[5..])) }
+            ->(**fields) { prnt.call(**fields.merge(p_id: "*****#{fields[:p_id].to_s[5..]}")) }
           end
         ),
         print_total: ->(header, total) { puts "#{header.to_s.strip},#{total}" },
@@ -285,14 +285,14 @@ namespace :form526 do
     end
 
     def message_string(msg)
-      return nil if msg.dig('severity') == 'WARN'
+      return nil if msg['severity'] == 'WARN'
 
-      message = msg.dig('key')&.gsub(/\[(\d*)\]|\\/, '')
+      message = msg['key']&.gsub(/\[(\d*)\]|\\/, '')
       # strip the GUID from BGS errors for grouping purposes
 
       # don't show disability names, for better grouping. Can be removed after we fix inflection issue
       unless message == 'form526.treatments.treatedDisabilityNames.isInvalidValue'
-        message += msg.dig('text').gsub(/GUID.*/, '')
+        message += msg['text'].gsub(/GUID.*/, '')
       end
       message
     end
@@ -464,7 +464,7 @@ namespace :form526 do
     end
 
     def get_disability_array(form_data_hash)
-      new_conditions = form_data_hash['newDisabilities']&.collect { |d| d.dig('condition') } || []
+      new_conditions = form_data_hash['newDisabilities']&.collect { |d| d['condition'] } || []
       rated_disabilities = form_data_hash['ratedDisabilities']&.collect { |rd| rd['name'] } || []
       new_conditions + rated_disabilities
     end

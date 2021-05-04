@@ -22,7 +22,7 @@ module V0
 
       # If EVSS's list of rated disabilties does not match our prefilled rated disabilites
       if rated_disabilities_evss.present? &&
-         names_arr(parsed_form_data.dig('ratedDisabilities')) != names_arr(rated_disabilities_evss.rated_disabilities)
+         names_arr(parsed_form_data['ratedDisabilities']) != names_arr(rated_disabilities_evss.rated_disabilities)
         if parsed_form_data['ratedDisabilities'].present? &&
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'

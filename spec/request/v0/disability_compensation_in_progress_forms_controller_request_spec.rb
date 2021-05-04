@@ -53,7 +53,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController, type: :reque
         end
 
         it 'returns the form as JSON' do
-          rated_disabilities_before = JSON.parse(in_progress_form.form_data).dig('ratedDisabilities')
+          rated_disabilities_before = JSON.parse(in_progress_form.form_data)['ratedDisabilities']
           VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
             get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
           end

@@ -17,7 +17,7 @@ RSpec.describe Preneeds::MilitaryRankDetail do
       expect(subject.branch_of_service_code).to eq(params[:branch_of_service_code])
       expect(subject.rank_code).to eq(params[:rank_code])
       expect(subject.rank_descr).to eq(params[:rank_descr])
-      expect(subject.id).to eq(params[:branch_of_service_code] + ':' + params[:rank_code])
+      expect(subject.id).to eq("#{params[:branch_of_service_code]}:#{params[:rank_code]}")
     end
   end
 end

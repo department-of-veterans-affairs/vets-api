@@ -201,19 +201,16 @@ describe AppealsApi::HigherLevelReview, type: :model do
   describe '#informal_conference_rep_name_and_phone_number' do
     subject { higher_level_review.informal_conference_rep_name_and_phone_number }
 
+    rep_name = form_data['data']['attributes']['informalConferenceRep']['name']
+    rep_country_code = form_data['data']['attributes']['informalConferenceRep']['phone']['countryCode']
+    rep_area_code = form_data['data']['attributes']['informalConferenceRep']['phone']['areaCode']
+    rep_phone1 = form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumber'][0..2]
+    rep_phone2 = form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumber'][3..]
+    rep_phone_ext = form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumberExt']
+
     it('matches json') do
       expect(subject).to eq(
-        form_data['data']['attributes']['informalConferenceRep']['name'] +
-        ' +' +
-        form_data['data']['attributes']['informalConferenceRep']['phone']['countryCode'] +
-        '-' +
-        form_data['data']['attributes']['informalConferenceRep']['phone']['areaCode'] +
-        '-' +
-        form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumber'][0..2] +
-        '-' +
-        form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumber'][3..] +
-        ' ext' +
-        form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumberExt']
+        "#{rep_name} +#{rep_country_code}-#{rep_area_code}-#{rep_phone1}-#{rep_phone2} ext#{rep_phone_ext}"
       )
     end
   end

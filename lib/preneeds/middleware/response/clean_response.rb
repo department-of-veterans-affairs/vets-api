@@ -15,7 +15,7 @@ module Preneeds
           return unless env.url.to_s == Preneeds::Configuration.url
 
           relevant_xml = env.body&.gsub(/[\t\n]/, ' ')&.scan(%r{<S:Envelope[^<>]*>.*</S:Envelope[^<>]*>}i)&.first
-          env.body = '<?xml version="1.0" encoding="UTF-8"?>' + relevant_xml if relevant_xml.present?
+          env.body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>#{relevant_xml}" if relevant_xml.present?
         end
       end
     end

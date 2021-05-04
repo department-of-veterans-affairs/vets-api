@@ -186,14 +186,15 @@ RSpec.describe SAML::URLService do
 
             it 'has a login redirect url with success' do
               expect(subject.login_redirect_url)
-                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}?type=idme")
             end
 
             it 'has a login redirect url with fail' do
-              expect(subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE))
-                .to eq(values[:base_redirect] +
-                       SAML::URLService::LOGIN_REDIRECT_PARTIAL +
-                       '?auth=fail&code=001&type=idme')
+              actual = subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE)
+              primary_url = "#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"
+              expected = "#{primary_url}?auth=fail&code=001&type=idme"
+
+              expect(actual).to eq(expected)
             end
           end
 
@@ -212,14 +213,15 @@ RSpec.describe SAML::URLService do
 
             it 'is successful' do
               expect(subject.login_redirect_url)
-                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=custom')
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}?type=custom")
             end
 
             it 'is a failure' do
-              expect(subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE))
-                .to eq(values[:base_redirect] +
-                       SAML::URLService::LOGIN_REDIRECT_PARTIAL +
-                       '?auth=force-needed&code=001&type=custom')
+              actual = subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE)
+              primary_url = "#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"
+              expected = "#{primary_url}?auth=force-needed&code=001&type=custom"
+
+              expect(actual).to eq(expected)
             end
           end
         end
@@ -446,14 +448,15 @@ RSpec.describe SAML::URLService do
 
             it 'has a login redirect url with success' do
               expect(subject.login_redirect_url)
-                .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}?type=idme")
             end
 
             it 'has a login redirect url with fail' do
-              expect(subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE))
-                .to eq(values[:base_redirect] +
-                       SAML::URLService::LOGIN_REDIRECT_PARTIAL +
-                       '?auth=fail&code=001&type=idme')
+              actual = subject.login_redirect_url(auth: 'fail', code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE)
+              primary_url = "#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"
+              expected = "#{primary_url}?auth=fail&code=001&type=idme"
+
+              expect(actual).to eq(expected)
             end
           end
 
@@ -485,7 +488,8 @@ RSpec.describe SAML::URLService do
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
     let(:slug_id) { '617bed45ccb1fc2a87872b567c721009' }
     let(:saml_settings) do
-      build(:settings_no_context, assertion_consumer_service_url: 'https://staging-api.vets.gov/review_instance/saml/callback')
+      build(:settings_no_context,
+            assertion_consumer_service_url: 'https://staging-api.vets.gov/review_instance/saml/callback')
     end
 
     around do |example|

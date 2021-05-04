@@ -37,7 +37,7 @@ module Preneeds
     # return [String] branch of service code and rank code joined with ':'
     #
     def id
-      branch_of_service_cd + ':' + military_rank_detail[:rank_code]
+      "#{branch_of_service_cd}:#{military_rank_detail[:rank_code]}"
     end
 
     # Sort operator. Default sort should be by id ascending

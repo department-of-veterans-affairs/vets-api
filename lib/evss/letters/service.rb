@@ -73,7 +73,7 @@ module EVSS
       end
 
       def invalid_address_error?(error)
-        error.body.dig('messages')&.any? { |m| m['key'].include? INVALID_ADDRESS_ERROR }
+        error.body['messages']&.any? { |m| m['key'].include? INVALID_ADDRESS_ERROR }
       end
     end
   end

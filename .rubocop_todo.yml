@@ -246,12 +246,6 @@ Rails/HttpStatus:
     - 'modules/vaos/app/controllers/vaos/v0/appointments_controller.rb'
     - 'modules/veteran/app/controllers/veteran/v0/representatives_controller.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Rails/IndexBy:
-  Exclude:
-    - 'config/initializers/zcta.rb'
-
 # Offense count: 21
 # Cop supports --auto-correct.
 # Configuration parameters: Include.
@@ -506,15 +500,6 @@ Style/RedundantAssignment:
     - 'lib/pdf_fill/forms/form_helper.rb'
     - 'lib/va_profile/service.rb'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'app/models/emis_redis/military_information.rb'
-    - 'lib/common/models/base.rb'
-    - 'modules/health_quest/app/services/health_quest/questionnaire_manager/factory.rb'
-    - 'modules/vba_documents/lib/vba_documents/object_store.rb'
-
 # Offense count: 30
 # Cop supports --auto-correct.
 Style/RedundantFileExtensionInRequire:
@@ -543,11 +528,6 @@ Style/RedundantRegexpCharacterClass:
 Style/RedundantRegexpEscape:
   Enabled: false
 
-# Offense count: 115
-# Cop supports --auto-correct.
-Style/SingleArgumentDig:
-  Enabled: false
-
 # Offense count: 6
 # Cop supports --auto-correct.
 Style/SlicingWithRange:
@@ -572,11 +552,6 @@ Style/SoleNestedConditional:
     - 'spec/jobs/cypress_viewport_updater/google_analytics_reports_spec.rb'
     - 'spec/jobs/cypress_viewport_updater/viewport_spec.rb'
     - 'spec/jobs/cypress_viewport_updater/viewports_spec.rb'
-
-# Offense count: 138
-# Cop supports --auto-correct.
-Style/StringConcatenation:
-  Enabled: false
 
 # Offense count: 10
 ThreadSafety/ClassAndModuleAttributes:

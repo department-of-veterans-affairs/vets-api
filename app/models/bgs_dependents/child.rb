@@ -76,7 +76,7 @@ module BGSDependents
     def address(dependents_application)
       dependent_address(
         dependents_application: dependents_application,
-        lives_with_vet: @child_info.dig('does_child_live_with_you'),
+        lives_with_vet: @child_info['does_child_live_with_you'],
         alt_address: @child_info.dig('child_address_info', 'address')
       )
     end
@@ -98,11 +98,11 @@ module BGSDependents
     end
 
     def child_status
-      CHILD_STATUS[@child_info.dig('child_status')&.key(true)]
+      CHILD_STATUS[@child_info['child_status']&.key(true)]
     end
 
     def marriage_indicator
-      @child_info.dig('previously_married') == 'Yes' ? 'Y' : 'N'
+      @child_info['previously_married'] == 'Yes' ? 'Y' : 'N'
     end
   end
 end

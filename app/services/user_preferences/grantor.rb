@@ -95,7 +95,7 @@ module UserPreferences
 
     def derive_preference_choice_codes
       requested_user_preferences.map do |requested|
-        requested.dig('user_preferences').map do |user_preference|
+        requested['user_preferences'].map do |user_preference|
           user_preference['code']
         end
       end.flatten
@@ -113,14 +113,14 @@ module UserPreferences
 
     def assign_preference_codes(preferences)
       preference_code   = preferences.dig 'preference', 'code'
-      @user_preferences = preferences.dig 'user_preferences'
+      @user_preferences = preferences['user_preferences']
       @preference       = find_record(preference_records, preference_code)
 
       raise Common::Exceptions::RecordNotFound, preference_code if preference.blank?
     end
 
     def assign_user_preference_codes(user_preference)
-      choice_code        = user_preference.dig 'code'
+      choice_code        = user_preference['code']
       @preference_choice = find_record(preference_choice_records, choice_code)
 
       raise Common::Exceptions::RecordNotFound, choice_code if preference_choice.blank?

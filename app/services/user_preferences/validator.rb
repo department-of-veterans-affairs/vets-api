@@ -35,7 +35,7 @@ module UserPreferences
         validate_pref_code!(requested)
         validate_user_pref_key!(requested)
 
-        requested.dig('user_preferences').each do |user_preference|
+        requested['user_preferences'].each do |user_preference|
           validate_user_pref!(user_preference)
           validate_user_pref_code!(user_preference)
         end
@@ -53,7 +53,7 @@ module UserPreferences
     end
 
     def validate_user_pref_key!(requested)
-      raise_missing_parameter!('user_preferences') if requested.dig('user_preferences').blank?
+      raise_missing_parameter!('user_preferences') if requested['user_preferences'].blank?
     end
 
     def validate_user_pref!(user_preference)

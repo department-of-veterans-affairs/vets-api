@@ -218,7 +218,7 @@ end
 def returned_user_preference_codes_in(response, preference)
   pairings = response.select { |pair| pair[:preference].code == preference.code }
 
-  pairings.first.dig(:user_preferences).map(&:code)
+  pairings.first[:user_preferences].map(&:code)
 end
 
 def create_user_preference(preference, preference_choice)
