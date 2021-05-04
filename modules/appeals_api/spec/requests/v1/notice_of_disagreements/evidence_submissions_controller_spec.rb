@@ -22,7 +22,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         allow(s3_client).to receive(:bucket).and_return(s3_bucket)
         allow(s3_bucket).to receive(:object).and_return(s3_object)
         allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-        post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+        post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
 
         data = JSON.parse(response.body)['data']
         expect(data).to have_key('id')
@@ -45,10 +45,29 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         allow(s3_client).to receive(:bucket).and_return(s3_bucket)
         allow(s3_bucket).to receive(:object).and_return(s3_object)
         allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-        post(path, params: { nod_id: SecureRandom.uuid })
+        post path, params: { nod_id: SecureRandom.uuid }
 
         expect(response.status).to eq 404
         expect(response.body).to include 'Record not found'
+      end
+    end
+
+    it 'stores the source from headers' do
+      with_settings(Settings.modules_appeals_api.evidence_submissions.location,
+                    prefix: 'http://some.fakesite.com/path',
+                    replacement: 'http://another.fakesite.com/rewrittenpath') do
+        s3_client = instance_double(Aws::S3::Resource)
+        allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+        s3_bucket = instance_double(Aws::S3::Bucket)
+        s3_object = instance_double(Aws::S3::Object)
+        allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+        allow(s3_bucket).to receive(:object).and_return(s3_object)
+        allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
+        post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
+
+        data = JSON.parse(response.body)['data']
+        record = AppealsApi::EvidenceSubmission.find_by(guid: data['id'])
+        expect(record.source).to eq headers['X-Consumer-Username']
       end
     end
 
@@ -64,7 +83,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
           allow(s3_object).to receive(:presigned_url).and_return(+'http://some.fakesite.com/path/uuid')
-          post(path, params: { headers: headers })
+          post path, headers: headers
 
           data = JSON.parse(response.body)['data']
           expect(data).to have_key('id')
