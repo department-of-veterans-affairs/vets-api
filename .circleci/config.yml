@@ -181,7 +181,7 @@
         steps:
             - run:
                 name: Audit bundled gems for CVE issues
-                command: bundle exec bundle-audit check --update --ignore CVE-2021-28965
+                command: bundle exec bundle-audit check --update
     security_check:
         steps:
             - run:

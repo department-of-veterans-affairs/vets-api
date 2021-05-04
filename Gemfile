@@ -30,6 +30,9 @@ path 'modules' do
 end
 # End Modules
 
+# needed for PGHero performance dashboard
+gem 'sass-rails', '>= 6'
+
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.7'
 gem 'puma-plugin-statsd', '~> 0.1.0'
@@ -69,6 +72,8 @@ gem 'flipper-active_support_cache_store', '~> 0.20.4'
 gem 'flipper-ui', '~> 0.20.4'
 gem 'foreman'
 gem 'google-api-client'
+gem 'google-apis-core'
+gem 'google-apis-generator'
 gem 'googleauth'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'

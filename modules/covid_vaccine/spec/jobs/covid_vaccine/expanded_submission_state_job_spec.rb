@@ -21,16 +21,14 @@ RSpec.describe CovidVaccine::ExpandedSubmissionStateJob, type: :worker do
         create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_pending)
         create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_complete)
         create(:covid_vax_expanded_registration, :unsubmitted, :state_registered)
-        create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_out_of_band)
       end
 
       it 'logs data for each submission type' do
         expect(Rails.logger).to receive(:info).with('Covid_Vaccine Expanded_Submission_State_Job Start')
         expect(Rails.logger).to receive(:info).with('CovidVaccine::ExpandedSubmissionStateJob: Count of states',
-                                                    'enrollment_complete': 1, 'enrollment_out_of_band': 1,
-                                                    'enrollment_pending': 1, 'registered': 1, 'received': 1,
-                                                    'total_count_of_states': 5, 'total_count_of_submissions': 5,
-                                                    'discrepancy_count': 0)
+                                                    'enrollment_complete': 1, 'registered': 1, 'received': 1,
+                                                    'enrollment_pending': 1, 'total_count_of_states': 4,
+                                                    'total_count_of_submissions': 4, 'discrepancy_count': 0)
         subject.perform
       end
     end
@@ -40,15 +38,14 @@ RSpec.describe CovidVaccine::ExpandedSubmissionStateJob, type: :worker do
         create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_pending)
         create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_pending)
         create(:covid_vax_expanded_registration, :unsubmitted, :state_registered)
-        create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_out_of_band)
       end
 
       it 'logs data for each submission type' do
         expect(Rails.logger).to receive(:info).with('Covid_Vaccine Expanded_Submission_State_Job Start')
         expect(Rails.logger).to receive(:info).with('CovidVaccine::ExpandedSubmissionStateJob: Count of states',
-                                                    'enrollment_out_of_band': 1, 'enrollment_pending': 2,
-                                                    'registered': 1, 'total_count_of_states': 4,
-                                                    'total_count_of_submissions': 4, 'discrepancy_count': 0)
+                                                    'enrollment_pending': 2, 'registered': 1,
+                                                    'total_count_of_states': 3, 'total_count_of_submissions': 3,
+                                                    'discrepancy_count': 0)
         subject.perform
       end
     end

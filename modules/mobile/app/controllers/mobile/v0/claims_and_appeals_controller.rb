@@ -99,7 +99,7 @@ module Mobile
 
       def fill_missing_params(params)
         [
-          params[:startDate] || (DateTime.now.utc.beginning_of_day - 1.year).iso8601,
+          params[:startDate] || DateTime.new(1700).iso8601,
           params[:endDate] || (DateTime.now.utc.beginning_of_day + 1.year).iso8601,
           params[:page] || { number: 1, size: 10 },
           params[:useCache] || true
