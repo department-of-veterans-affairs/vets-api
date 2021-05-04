@@ -38,6 +38,49 @@ def with_okta_profile_configured(&block)
   end
 end
 
+def with_ssoi_profile_configured(&block)
+  with_settings(
+    Settings.oidc,
+    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
+    issuer: 'https://example.com/oauth2/default',
+    issuer_prefix: 'https://example.com/oauth2',
+    audience: 'api://default',
+    base_api_url: 'https://example.com/',
+    base_api_token: 'token'
+  ) do
+    with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+      VCR.use_cassette('okta/metadata') do
+        VCR.use_cassette('okta/ssoi-user') do
+          yield block
+        end
+      end
+    end
+  end
+end
+
+def with_ssoi_charon_configured(&block)
+  with_settings(
+    Settings.oidc,
+    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
+    issuer_prefix: 'https://example.com/oauth2',
+    audience: 'api://default'
+  ) do
+    with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+      with_settings(
+        Settings.oidc.charon,
+        enabled: true,
+        audience: 'https://example.com/xxxxxxservices/xxxxx'
+      ) do
+        VCR.use_cassette('okta/metadata') do
+          VCR.use_cassette('okta/openid-user-charon') do
+            yield block
+          end
+        end
+      end
+    end
+  end
+end
+
 def okta_jwt(scopes)
   [{
     'ver' => 1,

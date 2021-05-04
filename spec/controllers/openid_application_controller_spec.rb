@@ -195,6 +195,17 @@ RSpec.describe OpenidApplicationController, type: :controller do
           expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
         end
       end
+
+      it 'returns 200 and add the ssoi user to the session' do
+        with_ssoi_profile_configured do
+          request.headers['Authorization'] = 'Bearer FakeToken'
+          get :index
+          sesh = Session.find('FakeToken')
+          expect(sesh.profile).not_to be_nil
+          expect(sesh.token).not_to be_nil
+          expect(sesh.uuid).not_to be_nil
+        end
+      end
     end
 
     context 'with an opaque token supplied and no session' do

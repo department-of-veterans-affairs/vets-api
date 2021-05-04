@@ -181,6 +181,11 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
+  new_va_forms_search:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Uses the new search algorithm
   va_view_dependents_access:
     actor_type: user
     description: >
@@ -423,6 +428,11 @@ features:
     enable_in_development: true
     description: >
       Points to Bot A
+  virtual_agent_token:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables connection to webchat
   sharable_link:
     actor_type: user
     enable_in_development: true

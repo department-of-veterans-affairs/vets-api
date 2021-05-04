@@ -16,9 +16,8 @@ module CovidVaccine
 
         facility = handle_facility(submission)
         # MPI Query must succeed and return ICN and expected facilityID before we send this data to backend service
-        # We want to keep trying as it may take time for the registration to occur.  Need to know if there is an entry
-        # that is failing for an extended time - notification is sent to log with DB record ID and creation date
-        # Update 2021-04-21: if records are > 24 hours old, we will send to VeText service without an ICN
+        # Application will retry for 24 hours
+        # if records are > 24 hours old, we will send to VeText service without an ICN or facility match
         mpi_attributes = attributes_from_mpi(raw_form_data, facility[0..2], submission.id, submission.created_at)
         return if mpi_attributes.empty?
 
@@ -57,7 +56,7 @@ module CovidVaccine
           has_facility: attributes[:sta3n].present? || attributes[:sta6a].present?,
           is_expanded_eligibility: true
         }
-        Rails.logger.info('Covid_Vaccine Expanded Submission', log_attrs)
+        Rails.logger.info('Covid_Vaccine_Expanded Submission', log_attrs)
       end
 
       def get_state(attributes, submission)
@@ -73,10 +72,14 @@ module CovidVaccine
         facility
       end
 
+      # This occurs when no preferred_facility is passed with the form data and will be
+      # resolved after a 24 hour delay in same way MPI facility issues resolve
       def handle_no_facility_error(submission)
-        # We may want to send these to backend as well, especially if we can find the user in MPI
-        submission.enrollment_requires_intervention!
-        raise Common::Exceptions::UnprocessableEntity.new(detail: "No Preferred Facility for record #{submission.id}")
+        Rails.logger.info(
+          "#{self.class.name}:No preferred facility selected",
+          submission: submission.id,
+          submission_date: submission.created_at
+        )
       end
 
       def transform_form_data(raw_form_data, facility, mpi_attributes)

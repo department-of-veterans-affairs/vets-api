@@ -66,7 +66,7 @@ module ClaimsApi
           ClaimsApi::PoaUpdater.perform_async(@power_of_attorney.id) if header_request?
 
           @power_of_attorney.set_file_data!(documents.first, params[:doc_type])
-          @power_of_attorney.status = 'submitted'
+          @power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
           @power_of_attorney.save!
           @power_of_attorney.reload
 
