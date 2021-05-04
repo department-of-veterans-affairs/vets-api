@@ -7,7 +7,7 @@ require 'json'
 module VAOS
   module V2
     class PatientsService < VAOS::SessionService
-      def get_patient_appointment_metadata(clinic_service_id, facility_id,  type)
+      def get_patient_appointment_metadata(clinic_service_id, facility_id, type)
         params = {
           clinical_service_id: clinic_service_id,
           facility_id: facility_id,

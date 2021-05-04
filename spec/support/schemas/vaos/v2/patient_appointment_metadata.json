@@ -4,12 +4,28 @@
   "properties": {
     "data": {
       "type": "object",
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
       "properties": {
-        "hasRequiredAppointmentHistory": {
-          "type": "boolean"
+        "id": {
+          "type": "string"
         },
-        "isEligibleForNewAppointmentRequest": {
-          "type": "boolean"
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "hasRequiredAppointmentHistory": {
+              "type": "boolean"
+            },
+            "isEligibleForNewAppointmentRequest": {
+              "type": "boolean"
+            }
+          }
         }
       }
     }
