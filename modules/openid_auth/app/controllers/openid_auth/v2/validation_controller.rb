@@ -3,7 +3,7 @@
 require_dependency 'openid_auth/application_controller'
 require 'common/exceptions'
 require 'rest-client'
-
+require 'json'
 module OpenidAuth
   module V2
     class ValidationController < ApplicationController
@@ -137,8 +137,18 @@ module OpenidAuth
                                   { params: { duz: duz, site: site } })
         response.code == 200
       rescue => e
-        #TODO Parse the response.body.value
-        raise error_klass('Failed validation with Charon.')
+        msg = 'Failed validation with Charon.'
+        if e.is_a?(RestClient::ExceptionWithResponse)
+          if e.response.body
+            body = JSON.parse(e.response.body)
+            if body['message']
+              msg = body['message']
+            elsif body['status']
+              msg = body['status']
+            end
+          end
+        end
+        raise error_klass(msg)
       end
     end
   end
