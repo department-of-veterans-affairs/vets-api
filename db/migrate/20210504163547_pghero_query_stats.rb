@@ -1,6 +1,6 @@
 class PgheroQueryStats < ActiveRecord::Migration[6.0]
   def change
-    create_table "pghero_query_stats", force: :cascade do |t|
+    create_table "pghero_query_stats" do |t|
       t.text "database"
       t.text "user"
       t.text "query"
