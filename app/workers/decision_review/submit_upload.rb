@@ -19,7 +19,6 @@ module DecisionReview
       Raven.tags_context(source: '10182-board-appeal')
       appeal_submission_upload = AppealSubmissionUpload.find(appeal_submission_upload_id)
       appeal_submission = appeal_submission_upload.appeal_submission
-
       upload_url_response = DecisionReview::Service.new
                                                    .get_notice_of_disagreement_upload_url(nod_id:
                                                     appeal_submission.submitted_appeal_uuid)

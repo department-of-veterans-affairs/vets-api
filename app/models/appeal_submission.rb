@@ -11,9 +11,10 @@ class AppealSubmission < ApplicationRecord
   has_many :appeal_submission_uploads, dependent: :destroy
 
   def self.submit_nod(request_body_hash:, current_user:)
-    form_data = request_body_hash.dig('data')
-    appeal_submission = new(type_of_appeal: 'NOD', user_uuid: current_user.uuid,
-                            board_review_option: form_data['attributes']['boardReviewOption'])
+    appeal_submission = new(type_of_appeal: 'NOD',
+                            user_uuid: current_user.uuid,
+                            board_review_option: request_body_hash.dig('data')['attributes']['boardReviewOption'],
+                            upload_metadata: DecisionReview::Service.file_upload_metadata(current_user))
 
     uploads_arr = request_body_hash.delete('nodUploads')
 
@@ -27,12 +28,8 @@ class AppealSubmission < ApplicationRecord
     nod_response_body
   end
 
-  def enqueue_uploads(uploads_arr, user)
-    self.upload_metadata = DecisionReview::Service.file_upload_metadata(user)
-    save
-
+  def enqueue_uploads(uploads_arr, _user)
     uploads_arr.each do |upload_attrs|
-      binding.pry
       asu = AppealSubmissionUpload.create(decision_review_evidence_attachment_guid: upload_attrs['confirmationCode'],
                                           appeal_submission_id: id)
       DecisionReview::SubmitUpload.perform_async(asu.id)
