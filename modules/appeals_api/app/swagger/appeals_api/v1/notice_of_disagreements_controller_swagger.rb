@@ -508,14 +508,14 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
                 end
 
                 property :status do
-                  key :description, 'status description here...'
+                  key :description, ''
                   key :type, :string
                   key :enum, %i[pending ...]
                   key :example, 'pending'
                 end
 
                 property :code do
-                  key :description, 'code description here...'
+                  key :description, ''
                   key :type, :string
                 end
 
@@ -560,7 +560,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     operation :put, tags: NOD_TAG do
       key :operationId, 'putNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Accepts Notice of Disagreement Evidence Submission document upload.'
-      key :description, 'Detailed description here...'
+      key :description, ''
 
       parameter do
         key :name, 'Content-MD5'
