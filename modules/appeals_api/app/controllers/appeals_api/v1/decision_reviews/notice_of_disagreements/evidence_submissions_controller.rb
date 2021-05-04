@@ -11,21 +11,9 @@ module AppealsApi::V1
         skip_before_action :authenticate
         before_action :nod_id_present?, only: :create
 
-        class InvalidReviewOption < StandardError
-          def message
-            I18n.t('appeals_api.errors.no_evidence_submission_accepted')
-          end
-        end
-
-        class InvalidVeteranSSN < StandardError
-          def message
-            I18n.t('appeals_api.errors.invalid_submission_ssn')
-          end
-        end
-
         def create
           status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(params[:nod_id],
-                                                                             params['headers']['X-VA-SSN']).call
+                                                                             request.headers['X-VA-SSN']).call
 
           if status == :ok
             upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
@@ -66,7 +54,7 @@ module AppealsApi::V1
 
         def submission_attributes
           {
-            source: params['headers']['X-Consumer-Username'],
+            source: request.headers['X-Consumer-Username'],
             supportable_id: params[:nod_id],
             supportable_type: 'AppealsApi::NoticeOfDisagreement'
           }

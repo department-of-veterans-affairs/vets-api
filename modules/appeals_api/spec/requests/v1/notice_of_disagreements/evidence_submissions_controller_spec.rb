@@ -23,7 +23,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
           allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
-          post(path, params: { nod_id: 1979, headers: headers })
+          post path, params: { nod_id: 1979 }, headers: headers
 
           expect(response.status).to eq 404
           expect(response.body).to include 'not found'
@@ -43,7 +43,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
           allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
-          post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+          post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
 
           expect(response.status).to eq 422
           expect(response.body).to include "'boardReviewOption' must be 'evidence_submission'"
@@ -64,7 +64,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
             allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
             notice_of_disagreement.update(board_review_option: 'evidence_submission')
             headers['X-VA-SSN'] = '1111111111'
-            post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+            post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
 
             expect(response.status).to eq 422
             expect(response.body).to include "'X-VA-SSN' does not match"
@@ -86,7 +86,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
             allow(s3_bucket).to receive(:object).and_return(s3_object)
             allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
             notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
-            post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+            post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
 
             data = JSON.parse(response.body)['data']
             expect(data).to have_key('id')
@@ -111,7 +111,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_bucket).to receive(:object).and_return(s3_object)
           allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
           notice_of_disagreement.update!(board_review_option: 'evidence_submission')
-          post(path, params: { nod_id: notice_of_disagreement.id, headers: headers })
+          post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
 
           data = JSON.parse(response.body)['data']
           expect(data).to have_key('id')
@@ -135,7 +135,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         allow(s3_client).to receive(:bucket).and_return(s3_bucket)
         allow(s3_bucket).to receive(:object).and_return(s3_object)
         allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
-        post(path, params: { headers: headers })
+        post path, headers: headers
 
         expect(response.status).to eq 400
         expect(response.body).to include 'Must supply a corresponding NOD'
