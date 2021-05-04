@@ -355,11 +355,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
               .and_return(mvi_facility_not_found)
-            expect(Rails.logger).to receive(:info).with(
-              'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
-              'mpi_error': 'no matching facility found for 516', 'submission': submission.id,
-              'submission_date': created_at_date
-            )
             subject.register(submission)
             expect(submission.reload.vetext_sid).to be_nil
             expect(submission.reload.state).to match('enrollment_pending')
@@ -369,11 +364,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
               .and_return(mvi_profile_not_found)
-            expect(Rails.logger).to receive(:info).with(
-              'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
-              'mpi_error': 'no ICN found', 'submission': submission.id,
-              'submission_date': created_at_date
-            )
             subject.register(submission)
             expect(submission.reload.vetext_sid).to be_nil
             expect(submission.reload.state).to match('enrollment_pending')
@@ -383,14 +373,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
               .and_return(mvi_facility_not_found)
-            expect(Rails.logger).to receive(:info).with(
-              'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
-              'mpi_error': 'no matching facility found for ', 'submission': submission_no_facility.id,
-              'submission_date': created_at_date
-            )
-            expect(Rails.logger).to receive(:info).with("#{described_class}:No preferred facility selected",
-                                                        'submission': submission_no_facility.id,
-                                                        'submission_date': submission_no_facility.created_at)
             subject.register(submission_no_facility)
             expect(submission_no_facility.reload.vetext_sid).to be_nil
             expect(submission_no_facility.reload.state).to match('enrollment_pending')
