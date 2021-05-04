@@ -20,8 +20,6 @@ module AppealsApi
 
     private
 
-    attr_accessor :notice_of_disagreement
-
     def notice_of_disagreement
       @notice_of_disagreement ||= AppealsApi::NoticeOfDisagreement.find_by(id: @nod_id)
     end
@@ -31,13 +29,14 @@ module AppealsApi
     end
 
     def within_legal_window?
-      notice_of_disagreement
-        .status_updates
-        .where(
-          "appeals_api_status_updates.status_update_time >= ? AND
-          appeals_api_status_updates.to = 'submitted'",
-          EVIDENCE_SUBMISSION_DAYS_WINDOW.days.ago
-        ).any?
+      submitted_status_update = notice_of_disagreement
+                                .status_updates
+                                .where(to: 'submitted').order(created_at: :desc).first
+
+      return true unless submitted_status_update
+
+      submitted_status_update.status_update_time >=
+        EVIDENCE_SUBMISSION_DAYS_WINDOW.days.ago.end_of_day
     end
 
     def ssn_match?
