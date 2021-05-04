@@ -20,8 +20,8 @@ module CovidVaccine
         # if records are > 24 hours old, we will send to VeText service without an ICN or facility match
         mpi_attributes = attributes_from_mpi(raw_form_data, facility[0..2], submission.id, submission.created_at)
         return if mpi_attributes.empty?
-        
-        if (submission.state != 'enrollment_complete') 
+
+        if submission.state != 'enrollment_complete'
           submission.created_at <= 1.day.ago ? submission.failed_enrollment! : submission.detected_enrollment!
         end
 

@@ -12,8 +12,9 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
   let(:submission_non_us) { create(:covid_vax_expanded_registration, :unsubmitted, :non_us) }
   let(:submission_composite_facility) { create(:covid_vax_expanded_registration, :unsubmitted, :composite_facility) }
   let(:submission_eligibility_info) { create(:covid_vax_expanded_registration, :unsubmitted, :eligibility_info) }
-  let(:submission_enrollment_complete) { create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_complete) }
-
+  let(:submission_enrollment_complete) do
+    create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_complete)
+  end
 
   let(:mvi_profile) { build(:mvi_profile, { vha_facility_ids: %w[358 516 553 200HD 200IP 200MHV] }) }
   let(:mvi_profile_no_facility) { build(:mvi_profile) }
@@ -246,7 +247,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
             expect(submission_enrollment_complete.reload.vetext_sid).to be_truthy
           end
-    
+
           it 'updates state to registered' do
             sid = SecureRandom.uuid
             allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
@@ -327,7 +328,7 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
               expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
               expect(submission_enrollment_complete.reload.vetext_sid).to be_truthy
             end
-      
+
             it 'updates state to registered' do
               sid = SecureRandom.uuid
               allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
