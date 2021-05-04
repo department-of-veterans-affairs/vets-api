@@ -38,6 +38,14 @@ def with_okta_profile_configured(&block)
   end
 end
 
+def vcr_cassette(open_id_cassette, &block)
+  VCR.use_cassette('okta/metadata') do
+    VCR.use_cassette(open_id_cassette) do
+      yield block
+    end
+  end
+end
+
 def with_ssoi_profile_configured(&block)
   with_settings(
     Settings.oidc,
@@ -65,17 +73,22 @@ def with_ssoi_charon_configured(&block)
     issuer_prefix: 'https://example.com/oauth2',
     audience: 'api://default'
   ) do
-    with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+    with_oidc_charon_configured(&block)
+  end
+end
+
+def with_oidc_charon_configured(&block)
+  with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+    with_settings(
+      Settings.oidc.charon,
+      enabled: true,
+      audience: 'https://example.com/xxxxxxservices/xxxxx',
+      endpoint: 'http://example.com/services/charon'
+    ) do
       with_settings(
-        Settings.oidc.charon,
-        enabled: true,
-        audience: 'https://example.com/xxxxxxservices/xxxxx'
+        Settings.oidc, smart_launch_url: 'http://example.com/smart/launch'
       ) do
-        VCR.use_cassette('okta/metadata') do
-          VCR.use_cassette('okta/openid-user-charon') do
-            yield block
-          end
-        end
+        vcr_cassette('okta/openid-user-charon', &block)
       end
     end
   end
