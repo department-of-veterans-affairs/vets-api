@@ -161,8 +161,7 @@ module DecisionReview
 
     def put_notice_of_disagreement_upload(upload_url:, file_path:, metadata:)
       params = { content: [Faraday::UploadIO.new(metadata, Mime[:json].to_s, 'metadata.json'),
-                           Faraday::UploadIO.new(file_path, Mime[:pdf].to_s)]
-                }
+                           Faraday::UploadIO.new(file_path, Mime[:pdf].to_s)] }
       with_monitoring_and_error_handling do
         perform :put, upload_url, params, nil
       end
@@ -180,6 +179,17 @@ module DecisionReview
       with_monitoring_and_error_handling do
         perform :get, "notice_of_disagreements/evidence_submissions/#{guid}", nil
       end
+    end
+
+    def self.file_upload_metadata(user)
+      {
+        'veteranFirstName' => user.first_name.to_s.strip,
+        'veteranLastName' => user.last_name.to_s.strip.presence,
+        'zipCode' => user.zip,
+        'fileNumber' => user.ssn.to_s.strip,
+        'source' => 'Vets.gov',
+        'businessLine' => 'BVA'
+      }.to_json
     end
 
     private
@@ -206,18 +216,6 @@ module DecisionReview
 
       headers
     end
-
-    def self.file_upload_metadata(user)
-      {
-        "veteranFirstName" =>  user.first_name.to_s.strip,
-        "veteranLastName" => user.last_name.to_s.strip.presence,
-        "zipCode" => user.zip,
-        "fileNumber" => user.ssn.to_s.strip,
-        "source" => "Vets.gov",
-        "businessLine" => "BVA"
-      }.to_json
-    end
-
 
     def create_notice_of_disagreement_headers(user)
       headers = {
