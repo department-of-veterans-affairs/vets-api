@@ -130,4 +130,27 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   describe '#lob' do
     it { expect(notice_of_disagreement.lob).to eq 'BVA' }
   end
+
+  describe '#update_status!' do
+    it 'error status' do
+      notice_of_disagreement.update_status!(status: 'error', code: 'code', detail: 'detail')
+
+      expect(notice_of_disagreement.status).to eq('error')
+      expect(notice_of_disagreement.code).to eq('code')
+      expect(notice_of_disagreement.detail).to eq('detail')
+    end
+
+    it 'other valid status' do
+      notice_of_disagreement.update_status!(status: 'success')
+
+      expect(notice_of_disagreement.status).to eq('success')
+    end
+
+    it 'invalid status' do
+      expect do
+        notice_of_disagreement.update_status!(status: 'invalid_status')
+      end.to raise_error(ActiveRecord::RecordInvalid,
+                         'Validation failed: Status is not included in the list')
+    end
+  end
 end

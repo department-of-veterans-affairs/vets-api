@@ -178,6 +178,10 @@ module AppealsApi
       auth_headers&.dig('X-Consumer-ID')
     end
 
+    def update_status!(status:, code: nil, detail: nil)
+      update!(status: status, code: code, detail: detail)
+    end
+
     private
 
     def data_attributes

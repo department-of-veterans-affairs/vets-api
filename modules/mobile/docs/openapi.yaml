@@ -1813,14 +1813,14 @@ paths:
           schema:
             type: string
             format: date-time
-          description: The start date for the range of appointments in ISO 8601 UTC format
+          description: The start date for the range of appointments in ISO 8601 UTC format. If not provided the start date will be considered Jan. 1st 1700.
           example: 2020-10-29T07:00:00.000Z
         - in: query
           name: endDate
           schema:
             type: string
             format: date-time
-          description: The end date for the range of appointments in ISO 8601 UTC format
+          description: The end date for the range of appointments in ISO 8601 UTC format. If not provided the end date will be 1 year from today's date
           example: 2021-11-29T08:00:00.000Z
         - in: query
           name: page[number]
