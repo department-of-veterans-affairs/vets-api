@@ -160,11 +160,18 @@ module DecisionReview
     #
 
     def put_notice_of_disagreement_upload(upload_url:, file_path:, metadata:)
-      params = { content: [Faraday::UploadIO.new(metadata, Mime[:json].to_s, 'metadata.json'),
+      # After we start using Faradata >=1.0 we won't need to use the tmpfile
+      metadata_tmpfile = Tempfile.new('metadata_json')
+      metadata_tmpfile.write(metadata.to_json)
+      metadata_tmpfile.rewind
+      params = { content: [Faraday::UploadIO.new(metadata_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
                            Faraday::UploadIO.new(file_path, Mime[:pdf].to_s)] }
       with_monitoring_and_error_handling do
         perform :put, upload_url, params, nil
       end
+    ensure
+      metadata_tmpfile.close
+      metadata_tmpfile.unlink
     end
 
     ##
