@@ -113,26 +113,24 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
 
       describe 'cleanup' do
         context 'when PDF is still present' do
-          before do
-            expect(File).to receive(:exist?).with(pdf_file_path).and_return(true)
-          end
-
           context 'and PDF deletion succeeds' do
             it_behaves_like 'a successful job' do
               before do
+                expect(File).to receive(:exist?).with(pdf_file_path).and_return(true)
                 expect(File).to receive(:delete).with(pdf_file_path).and_return(true)
               end
             end
           end
 
           context 'and PDF deletion fails' do
-            let(:pdf_delete_exception) do
-              class MyPdfDeleteError < StandardError; end
-              MyPdfDeleteError.new('PDF could not be deleted')
-            end
-
             it_behaves_like 'a successful job' do
+              let(:pdf_delete_exception) do
+                class MyPdfDeleteError < StandardError; end
+                MyPdfDeleteError.new('PDF could not be deleted')
+              end
+
               before do
+                expect(File).to receive(:exist?).with(pdf_file_path).and_return(true)
                 expect(File).to receive(:delete).with(pdf_file_path).and_raise(pdf_delete_exception)
                 expect(Sidekiq.logger).to receive(:error).with(pdf_delete_exception)
               end
@@ -204,7 +202,7 @@ RSpec.describe Form1010cg::DeliverPdfToCARMAJob do
 
       it 'processes attachment', run_at: timestamp.iso8601 do
         VCR.use_cassette('carma/auth/token/200', vcr_options[:auth]) do
-          VCR.use_cassette('carma/attachments/upload/201', vcr_options[:attachments]) do
+          VCR.use_cassette('carma/attachments/upload/claim-pdf/201', vcr_options[:attachments]) do
             subject.perform(claim_guid)
           end
         end

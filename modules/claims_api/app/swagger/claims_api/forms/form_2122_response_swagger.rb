@@ -238,10 +238,20 @@ module ClaimsApi
                 key :description, 'AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT\'S BEHALF TO CHANGE CLAIMANT\'S ADDRESS'
               end
 
-              property :consentLimit do
-                key :type, :string
+              property :consentLimits do
+                key :type, :array
                 key :description, 'Consent in Item 19 for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection
 with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as follows'
+                items do
+                  key :type, :string
+                  key :example, 'DRUG ABUSE'
+                  key :enum, [
+                    'DRUG ABUSE',
+                    'ALCOHOLISM',
+                    'HIV',
+                    'SICKLE CELL'
+                  ]
+                end
               end
             end
           end
