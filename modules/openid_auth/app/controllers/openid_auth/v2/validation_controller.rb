@@ -2,6 +2,7 @@
 
 require_dependency 'openid_auth/application_controller'
 require 'common/exceptions'
+require 'rest-client'
 
 module OpenidAuth
   module V2
@@ -11,7 +12,11 @@ module OpenidAuth
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
-        if e.is_a?(Common::Exceptions::TokenValidationError)
+        case e
+        when RestClient::ExceptionWithResponse
+          status_code = e.response.code >= 500 ? 503 : 401
+          render status: status_code
+        when Common::Exceptions::TokenValidationError
           raise e
         else
           raise Common::Exceptions::InternalServerError, e
@@ -116,7 +121,10 @@ module OpenidAuth
 
         vista_ids.each do |vista_id|
           parsed_sta3n = vista_id.match(parsed_sta3n_match_pattern)
-          return true if sta3n.to_s.eql?(parsed_sta3n.to_s)
+          if sta3n.to_s.eql?(parsed_sta3n.to_s)
+            duz = vista_id.match(/\|\d+\^/).to_s.match(/\d+/)
+            return validation_from_charon(duz, sta3n)
+          end
         end
         false
       end
@@ -125,6 +133,15 @@ module OpenidAuth
         return false unless !Settings.oidc.charon.enabled.nil? && Settings.oidc.charon.enabled.eql?(true)
 
         [*Settings.oidc.charon.audience].include?(aud)
+      end
+
+      def validation_from_charon(duz, site)
+        response = RestClient.get(Settings.oidc.charon.endpoint,
+                                  { params: { duz: duz, site: site } })
+        response.code == 200
+      rescue => e
+        log_message_to_sentry('Failed validation with Charon', :error, body: e.message)
+        raise e
       end
     end
   end

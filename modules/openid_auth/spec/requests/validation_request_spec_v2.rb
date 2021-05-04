@@ -423,8 +423,10 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns json response if valid user' do
+      charon_response = instance_double(RestClient::Response,
+                                        code: 200)
       with_ssoi_charon_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
+        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
