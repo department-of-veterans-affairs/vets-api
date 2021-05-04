@@ -75,7 +75,7 @@ module Common
           handlers = connection.builder.handlers
 
           if handlers.include?(Faraday::Adapter::HTTPClient) &&
-             !handlers.include?(Common::Client::Middleware::Request::RemoveCookies)
+             handlers.exclude?(Common::Client::Middleware::Request::RemoveCookies)
             raise SecurityError, 'http client needs cookies stripped'
           end
 

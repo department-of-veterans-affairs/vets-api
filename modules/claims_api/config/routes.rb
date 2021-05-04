@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 ClaimsApi::Engine.routes.draw do
-  match '/metadata', to: 'metadata#index', via: [:get]
-  match '/v0/upstream_healthcheck', to: 'upstream_healthcheck#index', via: [:get], defaults: { format: 'json' }
-  match '/v1/upstream_healthcheck', to: 'upstream_healthcheck#index', via: [:get], defaults: { format: 'json' }
+  get '/metadata', to: 'metadata#index'
+  get '/v0/upstream_healthcheck', to: 'upstream_healthcheck#index', defaults: { format: 'json' }
+  get '/v1/upstream_healthcheck', to: 'upstream_healthcheck#index', defaults: { format: 'json' }
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 

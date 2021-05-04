@@ -54,7 +54,7 @@ module VeteranConfirmation
           original_attr = params['gender']
           params['gender'] = params['gender'].upcase
           gender_options = %w[M F]
-          no_matching_option = !gender_options.include?(params['gender'])
+          no_matching_option = gender_options.exclude?(params['gender'])
           raise Common::Exceptions::InvalidFieldValue.new('gender', original_attr) if no_matching_option
         else
           raise Common::Exceptions::InvalidFieldValue.new('gender', params['gender'])

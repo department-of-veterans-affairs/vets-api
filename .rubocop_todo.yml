@@ -198,32 +198,6 @@ Rails/HttpStatus:
     - 'modules/vaos/app/controllers/vaos/v0/appointments_controller.rb'
     - 'modules/veteran/app/controllers/veteran/v0/representatives_controller.rb'
 
-# Offense count: 21
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: config/routes.rb, config/routes/**/*.rb
-Rails/MatchRoute:
-  Exclude:
-    - 'modules/appeals_api/config/routes.rb'
-    - 'modules/apps_api/config/routes.rb'
-    - 'modules/claims_api/config/routes.rb'
-    - 'modules/va_forms/config/routes.rb'
-    - 'modules/vba_documents/config/routes.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-Rails/NegateInclude:
-  Exclude:
-    - 'app/workers/education_form/create_daily_fiscal_year_to_date_report.rb'
-    - 'app/workers/education_form/create_daily_year_to_date_report.rb'
-    - 'lib/common/client/base.rb'
-    - 'lib/common/models/collection.rb'
-    - 'lib/sentry/processor/pii_sanitizer.rb'
-    - 'modules/claims_api/app/controllers/claims_api/v0/forms/intent_to_file_controller.rb'
-    - 'modules/claims_api/app/controllers/claims_api/v1/forms/intent_to_file_controller.rb'
-    - 'modules/veteran_confirmation/app/controllers/veteran_confirmation/v0/veteran_status_controller.rb'
-    - 'rakelib/form526.rake'
-
 # Offense count: 8
 # Cop supports --auto-correct.
 Rails/Pluck:
@@ -236,12 +210,6 @@ Rails/Pluck:
     - 'modules/vaos/spec/services/systems_service_spec.rb'
     - 'spec/lib/common/exceptions/detailed_schema_errors_spec.rb'
     - 'spec/services/bgs/dependency_verification_service_spec.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Rails/RedundantForeignKey:
-  Exclude:
-    - 'app/models/form526_submission.rb'
 
 # Offense count: 4
 # Configuration parameters: ForbiddenMethods, AllowedMethods.
