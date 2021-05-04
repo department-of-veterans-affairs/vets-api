@@ -28,14 +28,16 @@ module AppealsApi
       notice_of_disagreement.accepts_evidence?
     end
 
+    def submitted_status
+      @submitted_status ||= notice_of_disagreement
+                            .status_updates
+                            .where(to: 'submitted').order(created_at: :desc).first
+    end
+
     def within_legal_window?
-      submitted_status_update = notice_of_disagreement
-                                .status_updates
-                                .where(to: 'submitted').order(created_at: :desc).first
+      return true unless submitted_status
 
-      return true unless submitted_status_update
-
-      submitted_status_update.status_update_time >=
+      submitted_status.status_update_time >=
         EVIDENCE_SUBMISSION_DAYS_WINDOW.days.ago.end_of_day
     end
 
