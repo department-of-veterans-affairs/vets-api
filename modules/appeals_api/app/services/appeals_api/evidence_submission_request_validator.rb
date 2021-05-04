@@ -2,7 +2,6 @@
 
 module AppealsApi
   class EvidenceSubmissionRequestValidator
-
     EVIDENCE_SUBMISSION_DAYS_WINDOW = 91
 
     def initialize(nod_id, request_ssn)
@@ -11,7 +10,7 @@ module AppealsApi
     end
 
     def call
-      return [:error, record_not_found_error] unless notice_of_disagreement.present?
+      return [:error, record_not_found_error] if notice_of_disagreement.blank?
       return [:error, invalid_review_option_error] unless evidence_accepted?
       return [:error, outside_legal_window_error] unless within_legal_window?
       return [:error, invalid_veteran_id_error] unless ssn_match?
@@ -32,9 +31,9 @@ module AppealsApi
     end
 
     def within_legal_window?
-      notice_of_disagreement.
-        status_updates.
-        where(
+      notice_of_disagreement
+        .status_updates
+        .where(
           "appeals_api_status_updates.status_update_time >= ? AND
           appeals_api_status_updates.to = 'submitted'",
           EVIDENCE_SUBMISSION_DAYS_WINDOW.days.ago
