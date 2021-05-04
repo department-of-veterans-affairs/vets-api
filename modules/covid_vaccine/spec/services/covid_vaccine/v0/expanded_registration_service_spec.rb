@@ -12,6 +12,9 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
   let(:submission_non_us) { create(:covid_vax_expanded_registration, :unsubmitted, :non_us) }
   let(:submission_composite_facility) { create(:covid_vax_expanded_registration, :unsubmitted, :composite_facility) }
   let(:submission_eligibility_info) { create(:covid_vax_expanded_registration, :unsubmitted, :eligibility_info) }
+  let(:submission_enrollment_complete) do
+    create(:covid_vax_expanded_registration, :unsubmitted, :state_enrollment_complete)
+  end
 
   let(:mvi_profile) { build(:mvi_profile, { vha_facility_ids: %w[358 516 553 200HD 200IP 200MHV] }) }
   let(:mvi_profile_no_facility) { build(:mvi_profile) }
@@ -233,12 +236,38 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
           expect(submission_no_facility.reload.state).to match('enrollment_pending')
         end
 
+        context 'with state=enrollment_complete' do
+          it 'updates submission record' do
+            sid = SecureRandom.uuid
+            allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+              .and_return({ sid: sid })
+            allow_any_instance_of(MPI::Service).to receive(:find_profile)
+              .and_return(mvi_profile_response)
+            subject.register(submission_enrollment_complete)
+            expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
+            expect(submission_enrollment_complete.reload.vetext_sid).to be_truthy
+          end
+
+          it 'updates state to registered' do
+            sid = SecureRandom.uuid
+            allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+              .and_return({ sid: sid })
+            allow_any_instance_of(MPI::Service).to receive(:find_profile)
+              .and_return(mvi_profile_response)
+            subject.register(submission_enrollment_complete)
+            expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
+            expect(submission_enrollment_complete.reload.state).to match('registered')
+          end
+        end
+
         context 'with created_at older than 24 hours' do
           before do
             submission.created_at = 1.day.ago
             submission.save!
             submission_no_facility.created_at = 1.day.ago
             submission_no_facility.save!
+            submission_enrollment_complete.created_at = 1.day.ago
+            submission_enrollment_complete.save!
           end
 
           it 'submits and updates state when MPI Profile is not found' do
@@ -288,6 +317,29 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect(submission_no_facility.reload.vetext_sid).to match(sid)
             expect(submission_no_facility.reload.state).to match('registered_no_icn')
           end
+          context 'with state=enrollment_complete' do
+            it 'updates submission record' do
+              sid = SecureRandom.uuid
+              allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+                .and_return({ sid: sid })
+              allow_any_instance_of(MPI::Service).to receive(:find_profile)
+                .and_return(mvi_profile_response)
+              subject.register(submission_enrollment_complete)
+              expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
+              expect(submission_enrollment_complete.reload.vetext_sid).to be_truthy
+            end
+
+            it 'updates state to registered' do
+              sid = SecureRandom.uuid
+              allow_any_instance_of(CovidVaccine::V0::VetextService).to receive(:put_vaccine_registry)
+                .and_return({ sid: sid })
+              allow_any_instance_of(MPI::Service).to receive(:find_profile)
+                .and_return(mvi_profile_response)
+              subject.register(submission_enrollment_complete)
+              expect(submission_enrollment_complete.reload.vetext_sid).to match(sid)
+              expect(submission_enrollment_complete.reload.state).to match('registered')
+            end
+          end
         end
 
         context 'with created_at newer than 24 hours' do
@@ -303,11 +355,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
               .and_return(mvi_facility_not_found)
-            expect(Rails.logger).to receive(:info).with(
-              'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
-              'mpi_error': 'no matching facility found for 516', 'submission': submission.id,
-              'submission_date': created_at_date
-            )
             subject.register(submission)
             expect(submission.reload.vetext_sid).to be_nil
             expect(submission.reload.state).to match('enrollment_pending')
@@ -317,11 +364,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
               .and_return(mvi_profile_not_found)
-            expect(Rails.logger).to receive(:info).with(
-              'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
-              'mpi_error': 'no ICN found', 'submission': submission.id,
-              'submission_date': created_at_date
-            )
             subject.register(submission)
             expect(submission.reload.vetext_sid).to be_nil
             expect(submission.reload.state).to match('enrollment_pending')
@@ -331,14 +373,6 @@ describe CovidVaccine::V0::ExpandedRegistrationService do
             expect_any_instance_of(CovidVaccine::V0::VetextService).not_to receive(:put_vaccine_registry)
             allow_any_instance_of(MPI::Service).to receive(:find_profile)
               .and_return(mvi_facility_not_found)
-            expect(Rails.logger).to receive(:info).with(
-              'CovidVaccine::V0::ExpandedRegistrationService:Error in MPI Lookup',
-              'mpi_error': 'no matching facility found for ', 'submission': submission_no_facility.id,
-              'submission_date': created_at_date
-            )
-            expect(Rails.logger).to receive(:info).with("#{described_class}:No preferred facility selected",
-                                                        'submission': submission_no_facility.id,
-                                                        'submission_date': submission_no_facility.created_at)
             subject.register(submission_no_facility)
             expect(submission_no_facility.reload.vetext_sid).to be_nil
             expect(submission_no_facility.reload.state).to match('enrollment_pending')
