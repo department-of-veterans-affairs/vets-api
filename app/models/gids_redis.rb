@@ -20,12 +20,25 @@ class GIDSRedis < Common::RedisStore
     self.rest_call = name
     self.scrubbed_params = args.first
 
-    if respond_to?(name)
-      response_from_redis_or_service(gi_service).body
-    elsif search_respond_to?(name)
-      response_from_redis_or_service(gi_search_service).body
+    if scrubbed_params[:v1]
+
+      if respond_to_missing_v1?(name)
+        response_from_redis_or_service(gi_service).body
+      elsif search_respond_to_v1?(name)
+        response_from_redis_or_service(gi_search_service).body
+      else
+        super
+      end
+
     else
-      super
+
+      if respond_to?(name)
+        response_from_redis_or_service(gi_service).body
+      elsif search_respond_to?(name)
+        response_from_redis_or_service(gi_search_service).body
+      else
+        super
+      end
     end
   end
 
@@ -34,6 +47,14 @@ class GIDSRedis < Common::RedisStore
   end
 
   def search_respond_to?(name)
+    gi_search_service.respond_to?(name)
+  end
+
+  def respond_to_missing_v1?(name)
+    gi_service.respond_to?(name)
+  end
+
+  def search_respond_to_v1?(name)
     gi_search_service.respond_to?(name)
   end
 
@@ -51,5 +72,13 @@ class GIDSRedis < Common::RedisStore
 
   def gi_search_service
     @search_client ||= ::GI::SearchClient.new
+  end
+
+  def gi_service_v1
+    @client ||= ::GI::V1::Client.new
+  end
+
+  def gi_search_service_v1
+    @search_client ||= ::GI::V1::SearchClient.new
   end
 end
