@@ -89,7 +89,7 @@ module ClaimsApi
         def active
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
-          validate_poa_code_for_current_user!(current_poa_code)
+          validate_user_is_accredited! if header_request?
 
           render json: {
             data: {
