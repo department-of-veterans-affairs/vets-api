@@ -527,9 +527,10 @@ module PdfFill
         timestamp = generate_signiture_timestamp
 
         subjects.each do |subject|
-          signature = combine_full_name(@form_data.dig(subject, 'fullName'))
+          user_provided_signature = @form_data.dig(subject, 'signature')
+          signature = user_provided_signature || combine_full_name(@form_data.dig(subject, 'fullName'))
 
-          if @form_data[subject].present? && signature
+          if @form_data[subject].present? && signature.present?
             @form_data['helpers'][subject]['signature'] = {
               'name' => "/es/ #{signature}",
               'date' => timestamp

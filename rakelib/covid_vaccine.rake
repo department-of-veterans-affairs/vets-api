@@ -74,4 +74,14 @@ namespace :covid_vaccine do
     end
     puts "Updated mapped facility info for #{count} records in batch #{batch_id}"
   end
+
+  desc 'Reprocess records with state = enrollment_complete that have not been sent to vetext'
+  task reprocess_completed_records: [:environment] do |_task|
+    count = 0
+    CovidVaccine::V0::ExpandedRegistrationSubmission.where(state: 'enrollment_complete').find_each do |submission|
+      CovidVaccine::ExpandedSubmissionJob.perform_async(submission.id)
+      count += 1
+    end
+    puts "Processed #{count} records with state=enrollment_complete"
+  end
 end

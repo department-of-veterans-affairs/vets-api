@@ -49,15 +49,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
         expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
-
-      it 'returns the same successful response with all the data' do
-        post path, params: data, headers: headers
-        parsed = JSON.parse(response.body)
-        expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-        post path, params: data, headers: headers
-        newly_parsed = JSON.parse(response.body)
-        expect(newly_parsed['data']['id']).to eq(parsed['data']['id'])
-      end
     end
 
     context 'when poa code is not valid' do
