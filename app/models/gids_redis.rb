@@ -75,10 +75,10 @@ class GIDSRedis < Common::RedisStore
   end
 
   def gi_service_v1
-    @client ||= ::GI::V1::Client.new
+    @client_v1 ||= ::GI::V1::Client.new
   end
 
   def gi_search_service_v1
-    @search_client ||= ::GI::V1::SearchClient.new
+    @search_client_v1 ||= ::GI::V1::SearchClient.new
   end
 end
