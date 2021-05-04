@@ -81,7 +81,7 @@ module ClaimsApi
                                                                                           source_name: source_name)
 
           validate_user_is_accredited! if header_request?
-          
+
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
