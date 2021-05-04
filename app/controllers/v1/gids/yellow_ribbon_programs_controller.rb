@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module V0
+module V1
   module GIDS
     class YellowRibbonProgramsController < GIDSController
       def index
