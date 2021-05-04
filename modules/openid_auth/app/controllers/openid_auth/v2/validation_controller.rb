@@ -13,9 +13,6 @@ module OpenidAuth
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
         case e
-        when RestClient::ExceptionWithResponse
-          status_code = e.response.code >= 500 ? 503 : 401
-          render status: status_code
         when Common::Exceptions::TokenValidationError
           raise e
         else
@@ -140,8 +137,8 @@ module OpenidAuth
                                   { params: { duz: duz, site: site } })
         response.code == 200
       rescue => e
-        log_message_to_sentry('Failed validation with Charon', :error, body: e.message)
-        raise e
+        #TODO Parse the response.body.value
+        raise error_klass('Failed validation with Charon.')
       end
     end
   end
