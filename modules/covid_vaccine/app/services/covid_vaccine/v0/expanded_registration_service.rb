@@ -21,7 +21,9 @@ module CovidVaccine
         mpi_attributes = attributes_from_mpi(raw_form_data, facility[0..2], submission.id, submission.created_at)
         return if mpi_attributes.empty?
 
-        submission.created_at <= 1.day.ago ? submission.failed_enrollment! : submission.detected_enrollment!
+        if submission.state != 'enrollment_complete'
+          submission.created_at <= 1.day.ago ? submission.failed_enrollment! : submission.detected_enrollment!
+        end
 
         vetext_attributes = transform_form_data(raw_form_data, facility, mpi_attributes)
         submit_and_save(vetext_attributes, submission)
