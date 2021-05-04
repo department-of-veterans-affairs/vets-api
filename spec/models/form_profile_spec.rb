@@ -1102,7 +1102,7 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           end
 
-          # Note: `increase only` and `all claims` use the same form prefilling
+          # NOTE: `increase only` and `all claims` use the same form prefilling
           context 'when Vet360 prefill is disabled' do
             it 'returns prefilled 21-526EZ' do
               VCR.use_cassette('evss/pciu_address/address_domestic') do

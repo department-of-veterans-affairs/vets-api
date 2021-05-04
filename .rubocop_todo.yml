@@ -50,11 +50,6 @@ Layout/RescueEnsureAlignment:
     - 'rakelib/ci.rake'
     - 'rakelib/form526.rake'
 
-# Offense count: 2
-Lint/BinaryOperatorWithIdenticalOperands:
-  Exclude:
-    - 'app/workers/education_form/forms/va_0994.rb'
-
 # Offense count: 67
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: enums
@@ -93,12 +88,6 @@ Lint/RedundantCopDisableDirective:
 Lint/StructNewOverride:
   Exclude:
     - 'spec/request/authentication/standard_authentication.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UselessTimes:
-  Exclude:
-    - 'spec/request/user_request_spec.rb'
 
 # Offense count: 428
 # Configuration parameters: IgnoredMethods, CountRepeatedAttributes.
@@ -304,18 +293,6 @@ Style/ClassEqualityComparison:
 Style/CombinableLoops:
   Exclude:
     - 'modules/vba_documents/spec/mailers/unsuccessful_report_mailer_spec.rb'
-
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords.
-# Keywords: TODO, FIXME, OPTIMIZE, HACK, REVIEW, NOTE
-Style/CommentAnnotation:
-  Exclude:
-    - 'app/controllers/v0/backend_statuses_controller.rb'
-    - 'modules/claims_api/app/workers/claims_api/flash_updater.rb'
-    - 'spec/controllers/v0/evss_claims_async_controller_spec.rb'
-    - 'spec/controllers/v0/evss_claims_controller_spec.rb'
-    - 'spec/models/form_profile_spec.rb'
 
 # Offense count: 15
 # Cop supports --auto-correct.

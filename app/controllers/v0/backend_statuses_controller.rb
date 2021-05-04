@@ -7,7 +7,7 @@ module V0
   class BackendStatusesController < ApplicationController
     skip_before_action :authenticate
 
-    # Note: this endpoint is somewhat misleading.  Index gets data from PagerDuty and
+    # NOTE: this endpoint is somewhat misleading.  Index gets data from PagerDuty and
     # show only looks at GI bill scheduled downtime (and gets no data from PagerDuty)
     def index
       statuses = ExternalServicesRedis::Status.new.fetch_or_cache
