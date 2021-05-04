@@ -9,13 +9,5 @@ FactoryBot.define do
     trait :with_detail do
       detail { SecureRandom.alphanumeric(150) }
     end
-
-    trait :for_nod do
-      supportable { create(:notice_of_disagreement) }
-    end
-
-    trait :set_supportable_type do
-      supportable_type { 'AppealsApi::NoticeOfDisagreement' }
-    end
   end
 end
