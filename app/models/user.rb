@@ -237,17 +237,17 @@ class User < Common::RedisStore
   def va_profile
     mpi.profile
   end
-  deprecate :va_profile, :none, 2021, 8
+  deprecate :va_profile, :none, 2021, 5
 
   def va_profile_error
     mpi.error
   end
-  deprecate :va_profile_error, :mpi_error, 2021, 8
+  deprecate :va_profile_error, :mpi_error, 2021, 5
 
   def va_profile_status
     mpi.status
   end
-  deprecate :va_profile_status, :mpi_status, 2021, 8
+  deprecate :va_profile_status, :mpi_status, 2021, 5
 
   # MPI setter methods
 
