@@ -99,7 +99,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         end
       end
 
-      it 'creates the evidence submission and returns upload location' do
+      it 'returns an error if location cannot be generated' do
         with_settings(Settings.vba_documents.location,
                       prefix: 'https://fake.s3.url/foo/',
                       replacement: 'https://api.vets.gov/proxy/') do
@@ -109,17 +109,13 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           s3_object = instance_double(Aws::S3::Object)
           allow(s3_client).to receive(:bucket).and_return(s3_bucket)
           allow(s3_bucket).to receive(:object).and_return(s3_object)
-          allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/uuid')
-          notice_of_disagreement.update!(board_review_option: 'evidence_submission')
+          allow(s3_object).to receive(:presigned_url).and_return(+'https://nope/')
+
+          notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
           post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
 
-          data = JSON.parse(response.body)['data']
-          expect(data).to have_key('id')
-          expect(data).to have_key('type')
-          expect(data['attributes']['status']).to eq('pending')
-          expect(data['attributes']['appealId']).to eq(notice_of_disagreement.id)
-          expect(data['attributes']['appealType']).to eq('NoticeOfDisagreement')
-          expect(data['attributes']['location']).to eq('https://api.vets.gov/proxy/uuid')
+          expect(response.status).to eq 500
+          expect(response.body).to include('Unable to provide document upload location')
         end
       end
     end

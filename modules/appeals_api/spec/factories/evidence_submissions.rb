@@ -10,5 +10,9 @@ FactoryBot.define do
     trait :with_detail do
       detail { SecureRandom.alphanumeric(150) }
     end
+
+    trait :with_code do
+      code { 404 }
+    end
   end
 end
