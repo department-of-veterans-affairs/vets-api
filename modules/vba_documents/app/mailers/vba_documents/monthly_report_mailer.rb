@@ -16,6 +16,7 @@ module VBADocuments
 
     RECIPIENTS = fetch_recipients.freeze
 
+    # rubocop:disable Metrics/MethodLength
     # rubocop:disable Metrics/ParameterLists
     def build(monthly_totals, summary, still_processing, still_success,
               avg_processing_time, rolling_elapsed_times, last_month_start, last_month_end)
@@ -45,6 +46,7 @@ module VBADocuments
         body: body
       )
     end
+    # rubocop:disable Metrics/MethodLength
     # rubocop:enable Metrics/ParameterLists
   end
 end
