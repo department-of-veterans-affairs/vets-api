@@ -17,10 +17,10 @@ jobs:
           bundler-cache: true
 
       - name: Run Danger
-          uses: MeilCli/danger-action@v5
-          if: github.event_name == 'pull_request'
-          with:
-            plugins_file: 'Gemfile'
-            install_path: 'vendor/bundle'
-            danger_file: 'Dangerfile'
-            danger_id: 'danger-pr'
+        uses: MeilCli/danger-action@v5
+        if: github.event_name == 'pull_request'
+        with:
+          plugins_file: 'Gemfile'
+          install_path: 'vendor/bundle'
+          danger_file: 'Dangerfile'
+          danger_id: 'danger-pr'
