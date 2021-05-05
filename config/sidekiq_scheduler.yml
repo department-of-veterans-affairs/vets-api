@@ -243,5 +243,5 @@ PgHeroQueryStatsJob:
   description: captures PgHero query stats every day
 
 PgHeroCleanQueryStatsJob:
-  cron: "0 0 1 * * America/New_York"
-  description: Remove old PgHero query stats once per month
+  cron: "0 0 1,15 * *America/New_York"
+  description: Remove old PgHero query stats twice per month (1 and 15)
