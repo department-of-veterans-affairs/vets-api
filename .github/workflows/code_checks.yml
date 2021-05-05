@@ -1,5 +1,5 @@
 name: Code Checks
-on: [push, pull_request]
+on: [push]
 jobs:
   linting_and_security:
     name: Linting and Security
@@ -54,7 +54,6 @@ jobs:
       TERM: xterm-256color
       GIT_COMMIT_SHA: ${{ github.sha }}
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-      DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     services:
       postgres:
@@ -107,12 +106,3 @@ jobs:
           comment_on_pr: false
           files: log/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Run Danger
-        uses: MeilCli/danger-action@v5
-        if: github.event_name == 'pull_request'
-        with:
-          plugins_file: 'Gemfile'
-          install_path: 'vendor/bundle'
-          danger_file: 'Dangerfile'
-          danger_id: 'danger-pr'
