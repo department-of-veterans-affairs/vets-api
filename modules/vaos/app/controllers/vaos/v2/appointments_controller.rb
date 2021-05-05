@@ -13,13 +13,13 @@ module VAOS
 
       private
 
-      def appointment_service
-        VAOS::V2::AppointmentService.new(current_user)
+      def appointments_service
+        VAOS::V2::AppointmentsService.new(current_user)
       end
 
       def appointments
         @appointments ||=
-          appointment_service.get_appointments(start_date, end_date, pagination_params)
+          appointments_service.get_appointments(start_date, end_date, pagination_params)
       end
 
       def validate_params

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VAOS::V2::AppointmentService do
+describe VAOS::V2::AppointmentsService do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :vaos) }

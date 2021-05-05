@@ -6,7 +6,7 @@ require 'json'
 
 module VAOS
   module V2
-    class AppointmentService < VAOS::SessionService
+    class AppointmentsService < VAOS::SessionService
       def get_appointments(start_date, end_date, pagination_params = {})
         params = date_params(start_date, end_date).merge(page_params(pagination_params)).compact
 

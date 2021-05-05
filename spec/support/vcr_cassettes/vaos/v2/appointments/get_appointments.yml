@@ -48,8 +48,8 @@ http_interactions:
           [
             {
               "id": "need to record vcr cassette",
-              "kind": "need to record vcr cassette",
-              "status": "need to record vcr cassette",
+              "kind": "clinic",
+              "status": "arrived",
               "serviceType": "need to record vcr cassette",
               "patientIcn": "need to record vcr cassette",
               "locationId": "need to record vcr cassette",
@@ -100,7 +100,7 @@ http_interactions:
               "contact": {
                 "telecom": [
                   {
-                    "type": "need to record vcr cassette",
+                    "type": "email",
                     "value": "need to record vcr cassette"
                   }
                 ]
