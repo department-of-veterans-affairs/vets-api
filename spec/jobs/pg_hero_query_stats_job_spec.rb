@@ -9,7 +9,7 @@ RSpec.describe PgHeroQueryStatsJob, type: :worker do
     let(:query_stat_count) { PgHero::QueryStats.count }
 
     context 'when it runs the query stat task' do
-      it 'deletes old records' do
+      it 'records new query stats' do
         subject.perform
         expect(PgHero::QueryStats.count).to be >= query_stat_count
       end
