@@ -80,8 +80,6 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
 
-          validate_user_is_accredited! if header_request?
-
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
