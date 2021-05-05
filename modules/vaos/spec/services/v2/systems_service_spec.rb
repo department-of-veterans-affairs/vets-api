@@ -47,4 +47,39 @@ describe VAOS::V2::SystemsService do
       end
     end
   end
+
+  describe '#get_available_slots' do
+    let(:slots_params) do
+      {
+        location_id: '534gd',
+        clinic_id: '333',
+        start: '2020-01-01T00:00:00Z',
+        end: '2020-12-31T23:59:59Z'
+      }
+    end
+
+    context 'when the upstream server returns status code 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method uri]) do
+          expect { subject.get_available_slots(slots_params) }
+            .to raise_error do |error|
+              expect(error).to be_a(Common::Exceptions::BackendServiceException)
+              expect(error.status_code).to eq(502)
+            end
+        end
+      end
+    end
+
+    context 'when the upstream server returns status code 200' do
+      it 'returns a list of available slots' do
+        VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method uri]) do
+          available_slots = subject.get_available_slots(slots_params)
+          expect(available_slots.size).to eq(3)
+          expect(available_slots[1].id).to eq('ce1c5976-e96c-4e9b-9fed-ca1150cf4296')
+          expect(available_slots[1].start).to eq('2020-01-01T12:30:00Z')
+          expect(available_slots[1].end).to eq('2020-01-01T13:00:00Z')
+        end
+      end
+    end
+  end
 end
