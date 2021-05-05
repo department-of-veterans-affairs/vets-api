@@ -41,7 +41,7 @@ module FacilitiesQuery
 
     # The distance attribute is only set if lat/long are sent in as params
     def distance_query(lat, long)
-      <<-SQL
+      <<-SQL.squish
         base_facilities.*,
         ST_Distance(base_facilities.location,
         ST_MakePoint(#{long},#{lat})) / #{METERS_PER_MILE} AS distance
