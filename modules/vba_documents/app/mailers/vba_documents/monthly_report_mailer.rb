@@ -46,7 +46,7 @@ module VBADocuments
         body: body
       )
     end
-    # rubocop:disable Metrics/MethodLength
+    # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/ParameterLists
   end
 end
