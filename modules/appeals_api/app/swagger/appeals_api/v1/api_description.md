@@ -43,6 +43,16 @@ The submission statuses begin with pending and end with success.
 | success   | The centralized mail portal, Digital Mail Handling System (DHMS), has received the data. |
 | error   | An error occurred. See the error code and message for further information. |
 
+#### Status Simulation
+
+Sandbox test submissions do not progress through the same statuses as in the Production environment.  In the lower environments (i.e. Sandbox or Staging), the final status of a submission is either `submitted` (for NOD) or `received` (for HLR). In the lower environments, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate the other statuses.
+
+Statuses can be simulated for both HLR/NOD submissions as well as evidence document uploads.
+
+The **submission statuses** available for simulation are the statuses listed in the NOD or HLR Submission Statuses table above (for either the NOD or HLR respectively).
+
+The **evidence upload** statuses available for simulation are the statuses listed in the Evidence Upload Statuses table below (for simulating the status of uploaded evidence documents).
+
 ### Evidence Uploads
 
 Our NOD evidence submission endpoints allow a client to upload a document package (documents and metadata) of supporting evidence for their submitted NOD by following these steps.
