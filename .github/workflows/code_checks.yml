@@ -106,7 +106,7 @@ jobs:
           comment_on_pr: false
           files: log/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
-    
+
       - name: Run Danger
         uses: MeilCli/danger-action@v5
         if: github.event_name == 'pull_request'
