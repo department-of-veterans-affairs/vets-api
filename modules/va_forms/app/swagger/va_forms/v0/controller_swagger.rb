@@ -63,7 +63,7 @@ module VAForms
               schema do
                 property :message do
                   key :type, :string
-                  key :example, 'Too many requests'
+                  key :example, 'API rate limit exceeded'
                 end
               end
             end
@@ -143,7 +143,7 @@ module VAForms
               schema do
                 property :message do
                   key :type, :string
-                  key :example, 'Too many requests'
+                  key :example, 'API rate limit exceeded'
                 end
               end
             end
