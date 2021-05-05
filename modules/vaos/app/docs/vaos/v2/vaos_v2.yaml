@@ -12,6 +12,8 @@ info:
 tags:
   - name: appointments
     description: Appointments
+  - name: patients
+    description: Patients
   - name: systems
     description: Systems
 servers:
@@ -199,7 +201,58 @@ paths:
         '503':
           $ref: '#/components/responses/ServiceUnavailable'
         '504':
-          $ref: '#/components/responses/GatewayTimeout'
+          $ref: '#/components/responses/GatewayTimeout'  
+  "/patients":
+    get:
+      tags:
+        - patients
+      summary: Returns patient appointment metadata
+      operationId: getPatients
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - type
+                  - attributes
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                  attributes:
+                    type: object
+                    properties:
+                      hasRequiredAppointmentHistory:
+                        type: boolean
+                      isEligibleForNewAppointmentRequest:
+                        type: boolean
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+
 components:
   responses:
     "BadGateway":
@@ -385,7 +438,7 @@ components:
           properties:
             start:
               type: string
-              example:  '2020-01-01T12:30:00Z'
+              example:  "2020-01-01T12:30:00Z"
             end:
               type: string
-              example:  '2020-01-01T13:00:00Z'
+              example:  "2020-01-01T13:00:00Z"
