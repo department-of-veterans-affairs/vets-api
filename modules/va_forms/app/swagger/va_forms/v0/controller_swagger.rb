@@ -46,15 +46,27 @@ module VAForms
           end
 
           response 401 do
-            key :description, 'Invalid authentication credentials'
-          end
-
-          response 404 do
-            key :description, 'Not Found'
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                property :message do
+                  key :type, :string
+                  key :example, 'Invalid authentication credentials'
+                end
+              end
+            end
           end
 
           response 429 do
-            key :description, 'API rate limit exceeded'
+            key :description, 'Too many requests'
+            content 'application/json' do
+              schema do
+                property :message do
+                  key :type, :string
+                  key :example, 'Too many requests'
+                end
+              end
+            end
           end
         end
       end
@@ -95,15 +107,46 @@ module VAForms
           end
 
           response 401 do
-            key :description, 'Invalid authentication credentials'
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                property :message do
+                  key :type, :string
+                  key :example, 'Invalid authentication credentials'
+                end
+              end
+            end
           end
 
           response 404 do
             key :description, 'Not Found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    property :message do
+                      key :type, :string
+                      key :example, 'Form not found'
+                    end
+                  end
+                end
+              end
+            end
           end
 
           response 429 do
-            key :description, 'API rate limit exceeded'
+            key :description, 'Too many requests'
+            content 'application/json' do
+              schema do
+                property :message do
+                  key :type, :string
+                  key :example, 'Too many requests'
+                end
+              end
+            end
           end
         end
       end
