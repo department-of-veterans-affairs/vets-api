@@ -530,6 +530,7 @@ components:
         - "cpap"
         - "outpatientMentalHealth"
         - "covid"
+<<<<<<< HEAD
     Slot:
       type: object
       required:
@@ -555,6 +556,8 @@ components:
             end:
               type: string
               example: "2020-01-01T13:00:00Z"
+=======
+>>>>>>> merged in master
     ContactPoint:
       type: object
       properties:
