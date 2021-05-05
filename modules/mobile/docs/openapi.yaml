@@ -2220,7 +2220,12 @@ paths:
   /v0/messaging/health/folders/{id}/messages:
     get:
       summary: /v0/messaging/health/folders/{id}/messages
-      description: List messages in a secure messaging folder
+      description: |
+        List messages in a secure messaging folder. 
+        
+        When listing messages, the response for each message will include most but not all of the message attributes. 
+        Specifically, the message body and attachment information is not included. Those attributes can be obtained by 
+        getting the specific message resource. 
       operationId: get_folder_messages
       security:
         - Bearer: []
@@ -2256,6 +2261,7 @@ paths:
 
           <strong>NOTES:</strong>
           <ul>
+            <li>If a subject isn't included, default subject will be "{{Category}} Inquiry" (e.g. Medication Inquiry)</li>
             <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
             <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
             <li>
@@ -2279,6 +2285,16 @@ paths:
               properties:
                 uploads[]:
                   type: array
+                  description: |
+                    One or more message attachments. 
+                    
+                    <strong>NOTES:</strong> 
+                    <ul>
+                    <li>A single message may have a maximum of 4 attachments.</li>
+                    <li>A single attachment cannot exceed 3 MB</li>
+                    <li>All attachments combined cannot exceed 6 MB</li>
+                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
+                    </ul>
                   items:
                     type: string
                     format: binary
@@ -2308,11 +2324,13 @@ paths:
     get:
       summary: /v0/messaging/health/messages/{id}
       description: |
-        Get a secure message and mark message as read
+        Get a secure message <strong>and mark the message as read</strong>. 
 
         <strong>NOTES:</strong>
         <ul>
-          <li>Performing this GET will set readReceipt field as 'READ'</li>
+          <li>Unlike listing messages in a folder, the message resource returned from this operation will include
+        the message body and attachment information.</li>
+          <li>This GET operation is not fully idempotent and will set readReceipt field as 'READ'</li>
           <li>If message has an attachment included, attachmentSize is displayed in bytes</li>
         </ul>
       operationId: get_message
@@ -2458,6 +2476,16 @@ paths:
               properties:
                 uploads[]:
                   type: array
+                  description: |
+                    One or more message attachments. 
+                    
+                    <strong>NOTES:</strong> 
+                    <ul>
+                    <li>A single message may have a maximum of 4 attachments.</li>
+                    <li>A single attachment cannot exceed 3 MB</li>
+                    <li>All attachments combined cannot exceed 6 MB</li>
+                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
+                    </ul>
                   items:
                     type: string
                     format: binary

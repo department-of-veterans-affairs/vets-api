@@ -5,6 +5,7 @@ require 'appeals_api/form_schemas'
 
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
+  include AppealsApi::StatusSimulation
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
@@ -28,6 +29,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def show
+    @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
     render_notice_of_disagreement
   end
 
@@ -79,7 +81,8 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
     @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.new(
       auth_headers: headers,
       form_data: @json_body,
-      source: headers['X-Consumer-Username']
+      source: headers['X-Consumer-Username'],
+      board_review_option: @json_body['data']['attributes']['boardReviewOption']
     )
     render_model_errors unless @notice_of_disagreement.validate
   end
