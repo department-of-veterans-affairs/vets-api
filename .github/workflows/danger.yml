@@ -18,7 +18,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - uses: actions/setup-ruby@v1
+    - uses: ruby/setup-ruby@v1
       with:
         bundler-cache: true
 
