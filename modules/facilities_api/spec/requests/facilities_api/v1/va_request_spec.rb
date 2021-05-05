@@ -47,7 +47,8 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       next_link = next_page ? "http://www.example.com/facilities_api/v1/va?#{next_params}" : nil
 
       expect(parsed_body[:links]).to match(
-        self: "http://www.example.com/facilities_api/v1/va?#{params.merge({ page: current_page, per_page: 10 }).to_query}",
+        self: "http://www.example.com/facilities_api/v1/va?#{params.merge({ page: current_page,
+                                                                            per_page: 10 }).to_query}",
         first: "http://www.example.com/facilities_api/v1/va?#{params.merge({ per_page: 10 }).to_query}",
         prev: prev_link,
         next: next_link,
