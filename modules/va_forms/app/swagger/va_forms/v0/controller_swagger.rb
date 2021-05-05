@@ -52,6 +52,10 @@ module VAForms
           response 404 do
             key :description, 'Not Found'
           end
+
+          response 429 do
+            key :description, 'API rate limit exceeded'
+          end
         end
       end
 
@@ -96,6 +100,10 @@ module VAForms
 
           response 404 do
             key :description, 'Not Found'
+          end
+
+          response 429 do
+            key :description, 'API rate limit exceeded'
           end
         end
       end
