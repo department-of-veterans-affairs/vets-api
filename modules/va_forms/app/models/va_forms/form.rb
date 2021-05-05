@@ -2,6 +2,14 @@
 
 module VAForms
   class Form < ApplicationRecord
+    include PgSearch::Model
+    pg_search_scope :search,
+                    against: %i[title form_name],
+                    using: { tsearch: { normalization: 4, any_word: true, prefix: true, dictionary: 'english' },
+                             trigram: {
+                               word_similarity: true
+                             } }
+
     has_paper_trail only: ['sha256']
 
     validates :title, presence: true
@@ -13,7 +21,17 @@ module VAForms
 
     before_save :set_revision
 
-    def self.search(search_term: nil)
+    def self.return_all
+      Form.all.sort_by(&:updated_at)
+    end
+
+    def self.search_by_form_number(search_term)
+      search_term.sub! '-', '%'
+      query = search_term.split.join('%').upcase
+      Form.where('upper(form_name) LIKE ?', "%#{query}%")
+    end
+
+    def self.old_search(search_term: nil)
       query = Form.all
       if search_term.present?
         search_term.strip!

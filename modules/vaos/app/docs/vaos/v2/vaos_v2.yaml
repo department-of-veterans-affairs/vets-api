@@ -1,0 +1,354 @@
+openapi: "3.0.0"
+info:
+  version: 2.0.0
+  title: VAOS
+  description: |
+    ## The API for managing Veterans Affairs Online Scheduling
+
+    These endpoints give hooks into VAOS, an existing product suite, containing a veteran-facing healthcare appointment online scheduling tool of
+    the same name (formerly named VAR - Veteran Appointment Request), a scheduler-facing appointment management tool named Schedule Manager, and a schedule configuration utility for VA facilities, named VATS (VA Tool Set).
+  contact:
+    name: va.gov
+tags:
+  - name: appointments
+    description: Appointments
+  - name: patients
+    description: Patients
+  - name: systems
+    description: Systems
+servers:
+  - url: https://sandbox-api.va.gov/v2/vaos/{version}
+    description: VA.gov API sandbox environment
+    variables:
+      version:
+        default: v2
+  - url: https://api.va.gov/v2/vaos/{version}
+    description: VA.gov API production environment
+    variables:
+      version:
+        default: v2
+paths:
+  "/locations/{location_id}/clinics":
+    get:
+      tags:
+        - facilities
+      summary: Returns a list of clinics for a given facility
+      operationId: getClinics
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: location_id
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: patient_icn
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: clinic_ids
+          schema:
+            type: string
+        - in: query
+          required: false
+          name: clinical_service
+          schema:
+            type: string
+            $ref: "#/components/schemas/ClinicalServiceType"
+        - in: query
+          required: false
+          name: page_size
+          schema:
+            type: integer
+        - in: query
+          required: false
+          name: page_number
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Clinic"
+              example:
+                data:
+                  - id: "983"
+                    type: "clinic"
+                    attributes:
+                      vista_site: "983"
+                      id: "308"
+                      service_name: "CHY PC KILPATRICK"
+                      physical_location: "Green Team Clinic1"
+                      phone_number: "111-222-3333"
+                      station_id: ""
+                      station_name: ""
+                      primary_stop_code: "323"
+                      primary_stop_code_name: ""
+                      secondary_stop_code: ""
+                      secondary_stop_code_name: ""
+                      patient_direct_scheduling: true
+                      patient_display: true
+                      char4: "CDQC"
+                  - id: "983"
+                    type: "clinic"
+                    attributes:
+                      vista_site: "983"
+                      id: "308"
+                      service_name: "CHY PC KILPATRICK"
+                      physical_location: "Green Team Clinic1"
+                      phone_number: "111-222-3333"
+                      station_id: ""
+                      station_name: ""
+                      primary_stop_code: "323"
+                      primary_stop_code_name: ""
+                      secondary_stop_code: ""
+                      secondary_stop_code_name: ""
+                      patient_direct_scheduling: true
+                      patient_display: true
+                      char4: "CDQC"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+  "/patients":
+    get:
+      tags:
+        - patients
+      summary: Returns patient appointment metadata
+      operationId: getPatients
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - type
+                  - attributes
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                  attributes:
+                    type: object
+                    properties:
+                      hasRequiredAppointmentHistory:
+                        type: boolean
+                      isEligibleForNewAppointmentRequest:
+                        type: boolean
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+
+components:
+  responses:
+    "BadGateway":
+      description: "The server was acting as a gateway or proxy and received an invalid response from the upstream server."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "BadRequest":
+      description: "Bad Request, the server cannot or will not process the request due to an apparent client error."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "Conflict":
+      description: "Conflict, indicates that the request could not be processed because of conflict in the current state of the appointment."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "Forbidden":
+      description: "Forbidden, user does not have access to VAOS scheduling."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "GatewayTimeout":
+      description: "The server was acting as a gateway or proxy and did not receive a timely response from the upstream server."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "InternalServerError":
+      description: "A generic error message, given when an unexpected condition was encountered and no more specific message is suitable."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "NotFound":
+      description: "Requested resource could not be found."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "NotImplemented":
+      description: "The server either does not recognize the request method, or it lacks the ability to fulfil the request. Usually this implies future availability (e.g., a new feature of a web-service API)."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "ServiceUnavailable":
+      description: "The server cannot handle the request (because it is overloaded or down for maintenance). Generally, this is a temporary state."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "Unauthorized":
+      description: "Unauthorized"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+    "Unprocessable":
+      description: "Unprocessable Entity, the request was well-formed but was unable to be followed due to parameter validation errors."
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Errors"
+  securitySchemes:
+    bearerAuth:
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+  schemas:
+    Errors:
+      required:
+        - "errors"
+      properties:
+        errors:
+          type: "array"
+          items:
+            type: "object"
+            properties:
+              status:
+                type: "string"
+              code:
+                type: "string"
+              title:
+                type: "string"
+              detail:
+                type: "string"
+    Clinic:
+      type: "object"
+      required:
+        - "id"
+        - "type"
+        - "attributes"
+      properties:
+        id:
+          type: "string"
+        type:
+          type: "string"
+        attributes:
+          type: "object"
+          required:
+            - "vista_site"
+            - "id"
+            - "service_name"
+            - "physical_location"
+            - "phone_number"
+            - "station_id"
+            - "station_name"
+            - "primary_stop_code"
+            - "primary_stop_code_name"
+            - "secondary_stop_code"
+            - "secondary_stop_code_name"
+            - "patient_direct_scheduling"
+            - "patient_display"
+            - "char4"
+          properties:
+            vista_site:
+              type: "integer"
+            id:
+              type: "string"
+            service_name:
+              type: "string"
+            physical_location:
+              type: "string"
+            phone_number:
+              type: "string"
+            station_id:
+              type: "string"
+            station_name:
+              type: "string"
+            primary_stop_code:
+              type: "integer"
+            primary_stop_code_name:
+              type: "string"
+            secondary_stop_code:
+              type: "integer"
+            secondary_stop_code_name:
+              type: "string"
+            patient_direct_scheduling:
+              type: "boolean"
+            patient_display:
+              type: "boolean"
+            char4:
+              type: "string"
+    ClinicalServiceType:
+      type: "string"
+      enum:
+        - "primaryCare"
+        - "socialWork"
+        - "optometry"
+        - "clinicalPharmacyPrimaryCare"
+        - "ophthalmology"
+        - "foodAndNutrition"
+        - "audiology"
+        - "amputation"
+        - "homeSleepTesting"
+        - "moveProgram"
+        - "cpap"
+        - "outpatientMentalHealth"
+        - "covid"

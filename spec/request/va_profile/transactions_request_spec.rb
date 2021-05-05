@@ -14,6 +14,8 @@ RSpec.describe 'transactions', type: :request do
         profile: build(:mvi_profile, vet360_id: '1')
       )
     )
+    allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+    user.vet360_contact_info
     sign_in_as(user)
   end
 

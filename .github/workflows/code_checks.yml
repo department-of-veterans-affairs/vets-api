@@ -19,7 +19,7 @@ jobs:
         run: sudo apt install imagemagick pdftk poppler-utils
 
       - name: Run bundle-audit (checks gems for CVE issues)
-        run:  bundle exec bundle-audit check --update --ignore CVE-2021-28965
+        run:  bundle exec bundle-audit check --update
 
       - name: Run Rubocop
         run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
@@ -40,7 +40,7 @@ jobs:
 
   tests:
     name: Test
-    runs-on: ubuntu-16.04
+    runs-on: asg
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CI: true
@@ -54,6 +54,8 @@ jobs:
       TERM: xterm-256color
       GIT_COMMIT_SHA: ${{ github.sha }}
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+      ImageOS: ubuntu20
+      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
 
     services:
       postgres:
@@ -76,13 +78,8 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install System Packages (pdftk, poppler, imagemagick)
-        run: |
-          sudo apt install imagemagick pdftk poppler-utils
-          sudo sed -i 's/^.*policy.*coder.*none.*PDF.*//' /etc/ImageMagick-6/policy.xml
-
       - name: Setup Database
-        run: bundle exec parallel_test -n 4 -e 'bundle exec rake db:reset'
+        run: bundle exec parallel_test -n 16 -e 'bundle exec rake db:reset'
 
       - name: Setup Code Climate Reporting
         run: |
@@ -91,7 +88,7 @@ jobs:
           ./cc-test-reporter before-build
 
       - name: Run Specs
-        run: bundle exec parallel_rspec spec/ modules -n 4 -o '--color --tty'
+        run: bundle exec parallel_rspec spec/ modules -n 16 -o '--color --tty'
 
       - name: Publish Code Climate coverage
         run: |

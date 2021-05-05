@@ -41,4 +41,9 @@ VAOS::Engine.routes.draw do
     post '/Appointment', to: 'appointments#create'
     put '/Appointment/:id', to: 'appointments#update'
   end
+
+  namespace :v2, defaults: { format: :json } do
+    get '/locations/:location_id/clinics', to: 'clinics#index'
+    get '/patients/', to: 'patients#index'
+  end
 end

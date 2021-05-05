@@ -181,6 +181,11 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
+  new_va_forms_search:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Uses the new search algorithm
   va_view_dependents_access:
     actor_type: user
     description: >
@@ -348,10 +353,6 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
-  async_10_10_cg_attachments:
-    actor_type: cookie_id
-    description: >
-      This will process attachments of 10-10CG submissions using sidekiq.
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >

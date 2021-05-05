@@ -12,7 +12,7 @@ module VAProfileRedis
     # @param user [User] The current user
     #
     def self.invalidate(user)
-      contact_info = user.vet360_contact_info
+      contact_info = VAProfileRedis::ContactInformation.find(user.uuid)
 
       if contact_info.present?
         contact_info.destroy

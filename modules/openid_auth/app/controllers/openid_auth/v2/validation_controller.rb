@@ -2,6 +2,7 @@
 
 require_dependency 'openid_auth/application_controller'
 require 'common/exceptions'
+require 'rest-client'
 
 module OpenidAuth
   module V2
@@ -11,7 +12,23 @@ module OpenidAuth
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
       rescue => e
-        raise Common::Exceptions::InternalServerError, e
+        case e
+        when RestClient::ExceptionWithResponse
+          status_code = e.response.code >= 500 ? 503 : 401
+          render status: status_code
+        when Common::Exceptions::TokenValidationError
+          raise e
+        else
+          raise Common::Exceptions::InternalServerError, e
+        end
+      end
+
+      def act_vista_id_match_pattern
+        /\d{3}[A-Z]*\|\d+\^[A-Z]{2}\^\d{3}[A-Z]*\^[A-Z]{5}\|[A-Z]{1}/
+      end
+
+      def parsed_sta3n_match_pattern
+        /\d{3}[A-Z]*/
       end
 
       def valid_strict?
@@ -42,17 +59,25 @@ module OpenidAuth
 
       private
 
+      def populate_act_payload(payload_object)
+        payload_object.act[:icn] = token.payload['icn']
+        payload_object.act[:npi] = token.payload['npi']
+        payload_object.act[:sec_id] = token.payload['sub']
+        payload_object.act[:vista_id] = token.payload['vista_id']
+        payload_object.act[:type] = 'user'
+        payload_object
+      end
+
       def validated_payload
         # Ensure the token has `act` and `launch` keys.
         payload_object = setup_structure
 
         if token.ssoi_token?
-          payload_object.act[:icn] = token.payload['icn']
-          payload_object.act[:npi] = token.payload['npi']
-          payload_object.act[:sec_id] = token.payload['sec_id']
-          payload_object.act[:vista_id] = token.payload['vista_id']
-          payload_object.act[:type] = 'user'
-          return payload_object
+          payload_object = populate_act_payload(payload_object)
+          return payload_object unless
+            should_validate_with_charon?(payload_object.aud) && !authorized_by_charon?(payload_object)
+
+          raise error_klass('Invalid request')
         end
 
         if token.client_credentials_token?
@@ -80,6 +105,43 @@ module OpenidAuth
           payload_object.launch = token.payload[:launch]
         end
         payload_object
+      end
+
+      #
+      # Screens the payload, for an additional authorization
+      # check with charon
+      #
+      def authorized_by_charon?(payload_object)
+        act_vista_id = payload_object.act[:vista_id]
+        sta3n = payload_object.launch['sta3n']
+        return false unless !act_vista_id.nil? && !sta3n.nil?
+
+        vista_ids = act_vista_id.scan(act_vista_id_match_pattern)
+        return false unless vista_ids
+
+        vista_ids.each do |vista_id|
+          parsed_sta3n = vista_id.match(parsed_sta3n_match_pattern)
+          if sta3n.to_s.eql?(parsed_sta3n.to_s)
+            duz = vista_id.match(/\|\d+\^/).to_s.match(/\d+/)
+            return validation_from_charon(duz, sta3n)
+          end
+        end
+        false
+      end
+
+      def should_validate_with_charon?(aud)
+        return false unless !Settings.oidc.charon.enabled.nil? && Settings.oidc.charon.enabled.eql?(true)
+
+        [*Settings.oidc.charon.audience].include?(aud)
+      end
+
+      def validation_from_charon(duz, site)
+        response = RestClient.get(Settings.oidc.charon.endpoint,
+                                  { params: { duz: duz, site: site } })
+        response.code == 200
+      rescue => e
+        log_message_to_sentry('Failed validation with Charon', :error, body: e.message)
+        raise e
       end
     end
   end

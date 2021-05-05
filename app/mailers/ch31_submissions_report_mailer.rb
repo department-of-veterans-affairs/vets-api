@@ -6,6 +6,7 @@ class Ch31SubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Chapter 31 Submissions Report'
 
   VRE_RECIPIENTS = %w[
+    VRE-CMS.VBAVACO@va.gov
     Jason.Wolf@va.gov
   ].freeze
 
