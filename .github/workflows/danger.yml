@@ -28,4 +28,4 @@ jobs:
         plugins_file: 'Gemfile'
         install_path: 'vendor/bundle'
         danger_file: 'Dangerfile'
-        danger_id: 'danger-pr'        
+        danger_id: 'danger-pr'
