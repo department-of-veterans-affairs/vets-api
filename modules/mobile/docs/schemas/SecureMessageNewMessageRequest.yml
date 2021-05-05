@@ -18,7 +18,7 @@ properties:
     example: "OTHER"
   body:
     type: string
-    example: "I have a question about my medication."
+    example: "What is the proper dosage and how long should I take this medication?"
   subject:
     type: string
-    example: Medication question
+    example: "Question about my medication"
