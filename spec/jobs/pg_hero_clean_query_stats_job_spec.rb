@@ -17,13 +17,15 @@ RSpec.describe PgHeroCleanQueryStatsJob, type: :worker do
 
       context 'when error occurs' do
         before do
-          allow_any_instance_of(PgHeroCleanQueryStatsJob).to receive(:handle_errors)
-            .and_return('stub error handling')
           allow(PgHero).to receive(:clean_query_stats).and_raise(PgHero::Error)
         end
 
         it 'raises an exception when an error occurs' do
-          expect(subject.perform).to eq('stub error handling')
+          with_settings(Settings.sentry, dsn: 'T') do
+            expect(Raven).to receive(:capture_exception)
+            expect(Rails.logger).to receive(:error).at_least(:once)
+            expect { subject.perform }.to raise_error(PgHero::Error)
+          end
         end
       end
     end
