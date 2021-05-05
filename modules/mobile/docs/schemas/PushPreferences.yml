@@ -1,10 +1,13 @@
 type: object
 required:
-  - data
+  - preference
+  - enabled
 properties:
-  pushNotificationTypes:
-    type: array
-    items:
-      type: object
-      $ref: "./PushNotificationType.yml"
+  preference:
+    type: string
+    example: "appointment_reminders"
+  enabled:
+    type: boolean
+    example: true
+
 

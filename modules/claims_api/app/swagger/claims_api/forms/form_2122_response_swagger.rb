@@ -62,12 +62,12 @@ module ClaimsApi
         schema :Veteran do
           property :address do
             key :type, :object
-            key :'$ref', :Address
+            key :$ref, :Address
           end
 
           property :phone do
             key :type, :object
-            key :'$ref', :Phone
+            key :$ref, :Phone
           end
 
           property :email do
@@ -118,12 +118,12 @@ module ClaimsApi
 
           property :address do
             key :type, :object
-            key :'$ref', :Address
+            key :$ref, :Address
           end
 
           property :phone do
             key :type, :object
-            key :'$ref', :Phone
+            key :$ref, :Phone
           end
 
           property :relationship do
@@ -183,7 +183,7 @@ module ClaimsApi
 
                 property :address do
                   key :type, :object
-                  key :'$ref', :Address
+                  key :$ref, :Address
                 end
 
                 property :jobTitle do
@@ -208,12 +208,12 @@ module ClaimsApi
 
               property :veteran do
                 key :type, :object
-                key :'$ref', :Veteran
+                key :$ref, :Veteran
               end
 
               property :claimant do
                 key :type, :object
-                key :'$ref', :Claimant
+                key :$ref, :Claimant
               end
 
               property :signatures do
@@ -238,10 +238,20 @@ module ClaimsApi
                 key :description, 'AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT\'S BEHALF TO CHANGE CLAIMANT\'S ADDRESS'
               end
 
-              property :consentLimit do
-                key :type, :string
+              property :consentLimits do
+                key :type, :array
                 key :description, 'Consent in Item 19 for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection
 with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as follows'
+                items do
+                  key :type, :string
+                  key :example, 'DRUG ABUSE'
+                  key :enum, [
+                    'DRUG ABUSE',
+                    'ALCOHOLISM',
+                    'HIV',
+                    'SICKLE CELL'
+                  ]
+                end
               end
             end
           end

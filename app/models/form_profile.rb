@@ -2,6 +2,7 @@
 
 require 'string_helpers'
 require 'sentry_logging'
+require 'va_profile/configuration'
 
 # TODO(AJD): Virtus POROs for now, will become ActiveRecord when the profile is persisted
 class FormFullName
@@ -93,12 +94,12 @@ class FormProfile
 
   ALL_FORMS = {
     edu: %w[22-1990 22-1990N 22-1990E 22-1995 22-5490
-            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203],
+            22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S],
     evss: ['21-526EZ'],
     hca: ['1010ez'],
     pension_burial: %w[21P-530 21P-527EZ],
     dependents: ['686C-674'],
-    decision_review: ['20-0996'],
+    decision_review: %w[20-0996 10182],
     mdot: ['MDOT'],
     fsr: ['5655'],
     vre_counseling: ['28-8832'],
@@ -108,6 +109,7 @@ class FormProfile
   FORM_ID_TO_CLASS = {
     '0873' => ::FormProfiles::VA0873,
     '1010EZ' => ::FormProfiles::VA1010ez,
+    '10182' => ::FormProfiles::VA10182,
     '20-0996' => ::FormProfiles::VA0996,
     '21-526EZ' => ::FormProfiles::VA526ez,
     '22-1990' => ::FormProfiles::VA1990,
@@ -126,6 +128,7 @@ class FormProfile
     'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool,
     'MDOT' => ::FormProfiles::MDOT,
     '22-10203' => ::FormProfiles::VA10203,
+    '22-1990S' => ::FormProfiles::VA1990s,
     '5655' => ::FormProfiles::VA5655,
     '28-8832' => ::FormProfiles::VA288832,
     '28-1900' => ::FormProfiles::VA281900
@@ -276,7 +279,7 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if Settings.vet360.prefill && user.vet360_id.present?
+    if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     end
     @vet360_contact_info

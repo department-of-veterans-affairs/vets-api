@@ -12,7 +12,7 @@ module BGS
         endpoint: "#{Settings.vet_verification.mock_bgs_url}/RatingServiceBean/RatingService"
       }
       @client ||= Savon.client(options)
-      response = request(:find_rating_data, 'fileNumber': current_user.ssn)
+      response = request(:find_rating_data, fileNumber: current_user.ssn)
       response.body[:find_rating_data_response][:return]
     end
 

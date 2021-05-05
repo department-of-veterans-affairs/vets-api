@@ -10,10 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_17_132241) do
+
+ActiveRecord::Schema.define(version: 2021_05_04_163547) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
+  enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -55,24 +57,48 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
-  create_table "appeal_submissions", force: :cascade do |t|
-    t.string "user_uuid"
-    t.string "submitted_appeal_uuid"
-    t.string "type_of_appeal"
-    t.string "board_review_otpion"
+  create_table "appeal_submission_uploads", force: :cascade do |t|
+    t.string "decision_review_evidence_attachment_guid"
+    t.string "appeal_submission_id"
+    t.string "lighthouse_upload_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "appeal_submissions", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "submitted_appeal_uuid"
+    t.string "type_of_appeal"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "board_review_option"
+    t.string "encrypted_upload_metadata"
+    t.string "encrypted_upload_metadata_iv"
+  end
+
+  create_table "appeals_api_event_subscriptions", force: :cascade do |t|
+    t.string "topic"
+    t.string "callback"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["topic", "callback"], name: "index_appeals_api_event_subscriptions_on_topic_and_callback"
+  end
+
   create_table "appeals_api_evidence_submissions", force: :cascade do |t|
-    t.string "status", default: "pending", null: false
     t.string "supportable_type"
     t.string "supportable_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
+    t.string "source"
+    t.string "code"
+    t.string "detail"
+    t.uuid "guid", null: false
+    t.integer "upload_submission_id", null: false
+    t.index ["guid"], name: "index_appeals_api_evidence_submissions_on_guid"
     t.index ["supportable_type", "supportable_id"], name: "evidence_submission_supportable_id_type_index"
+    t.index ["upload_submission_id"], name: "index_appeals_api_evidence_submissions_on_upload_submission_id", unique: true
   end
 
   create_table "appeals_api_higher_level_reviews", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -99,6 +125,18 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.string "code"
     t.string "detail"
     t.string "source"
+    t.string "board_review_option"
+  end
+
+  create_table "appeals_api_status_updates", force: :cascade do |t|
+    t.string "from"
+    t.string "to"
+    t.string "statusable_type"
+    t.string "statusable_id"
+    t.datetime "status_update_time"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -219,6 +257,31 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.uuid "auto_established_claim_id"
   end
 
+  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
+    t.string "submission_uuid", null: false
+    t.string "vetext_sid"
+    t.boolean "sequestered", default: true, null: false
+    t.string "state"
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
+    t.string "batch_id"
+    t.string "encrypted_raw_form_data"
+    t.string "encrypted_raw_form_data_iv"
+    t.string "encrypted_eligibility_info"
+    t.string "encrypted_eligibility_info_iv"
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
+    t.index ["encrypted_eligibility_info_iv"], name: "index_covid_vaccine_expanded_on_el_iv", unique: true
+    t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_expanded_on_form_iv", unique: true
+    t.index ["encrypted_raw_form_data_iv"], name: "index_covid_vaccine_expanded_on_raw_iv", unique: true
+    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
+    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
+    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
+  end
+
   create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
     t.string "sid"
     t.uuid "account_id"
@@ -228,6 +291,10 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.datetime "updated_at", null: false
     t.string "encrypted_raw_form_data"
     t.string "encrypted_raw_form_data_iv"
+    t.boolean "expanded", default: false, null: false
+    t.boolean "sequestered", default: false, null: false
+    t.string "email_confirmation_id"
+    t.string "enrollment_id"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["encrypted_form_data_iv"], name: "index_covid_vaccine_registry_submissions_on_iv", unique: true
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
@@ -434,6 +501,21 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.string "timestamp"
   end
 
+  create_table "health_quest_questionnaire_responses", force: :cascade do |t|
+    t.string "user_uuid"
+    t.string "appointment_id"
+    t.string "questionnaire_response_id"
+    t.string "encrypted_questionnaire_response_data"
+    t.string "encrypted_questionnaire_response_data_iv"
+    t.string "encrypted_user_demographics_data"
+    t.string "encrypted_user_demographics_data_iv"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["encrypted_questionnaire_response_data_iv"], name: "qr_key", unique: true
+    t.index ["encrypted_user_demographics_data_iv"], name: "user_demographics_key", unique: true
+    t.index ["user_uuid", "questionnaire_response_id"], name: "find_by_user_qr", unique: true
+  end
+
   create_table "id_card_announcement_subscriptions", id: :serial, force: :cascade do |t|
     t.string "email", null: false
     t.datetime "created_at", null: false
@@ -521,6 +603,17 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_personal_information_logs_on_created_at"
     t.index ["error_class"], name: "index_personal_information_logs_on_error_class"
+  end
+
+  create_table "pghero_query_stats", force: :cascade do |t|
+    t.text "database"
+    t.text "user"
+    t.text "query"
+    t.bigint "query_hash"
+    t.float "total_time"
+    t.bigint "calls"
+    t.datetime "captured_at"
+    t.index ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at"
   end
 
   create_table "preference_choices", id: :serial, force: :cascade do |t|
@@ -639,10 +732,10 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
   end
 
@@ -678,7 +771,19 @@ ActiveRecord::Schema.define(version: 2021_03_17_132241) do
     t.jsonb "benefit_categories"
     t.string "form_details_url"
     t.jsonb "va_form_administration"
+    t.integer "row_id"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
+  end
+
+  create_table "vba_documents_git_items", force: :cascade do |t|
+    t.string "url", null: false
+    t.jsonb "git_item"
+    t.boolean "notified", default: false
+    t.string "label"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["notified", "label"], name: "index_vba_documents_git_items_on_notified_and_label"
+    t.index ["url"], name: "index_vba_documents_git_items_on_url", unique: true
   end
 
   create_table "vba_documents_upload_submissions", id: :serial, force: :cascade do |t|

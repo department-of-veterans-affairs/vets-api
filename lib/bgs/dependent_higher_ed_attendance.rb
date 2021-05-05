@@ -24,8 +24,8 @@ module BGS
         'Child',
         'Biological',
         {
-          'type': '674',
-          'dep_has_income_ind': formatted_info['dependent_income']
+          type: '674',
+          dep_has_income_ind: formatted_info['dependent_income']
         }
       )
     end

@@ -35,7 +35,7 @@ module Swagger
             response 201 do
               key :description, 'Successful inquiry creation'
               schema do
-                key :'$ref', :SuccessfulInquiryCreation
+                key :$ref, :SuccessfulInquiryCreation
               end
             end
 
@@ -56,7 +56,7 @@ module Swagger
             response 200 do
               key :description, 'Response is OK'
               schema do
-                key :'$ref', :InquiriesList
+                key :$ref, :InquiriesList
               end
             end
           end

@@ -8,7 +8,7 @@ module EducationForm
   class FormattingError < StandardError
   end
 
-  class Process10203SubmissionsLogging < StandardError
+  class Process10203EVSSError < StandardError
   end
 
   class Process10203Submissions
@@ -59,8 +59,14 @@ module EducationForm
     def process_user_submissions(user_submissions)
       user_submissions.each_value do |submissions|
         auth_headers = submissions.last.education_stem_automated_decision.auth_headers
+
+        claim_ids = submissions.map(&:id).join(', ')
+        log_info "EDIPI available for process STEM claim ids=#{claim_ids}: #{auth_headers&.key?('va_eauth_dodedipnid')}"
+
         gi_bill_status = get_gi_bill_status(auth_headers)
-        poa = get_user_poa_status(auth_headers)
+
+        # only check EVSS if poa wasn't set on submit
+        poa = submissions.last.education_stem_automated_decision.poa || get_user_poa_status(auth_headers)
 
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each do |submission|
@@ -81,18 +87,19 @@ module EducationForm
       service = EVSS::GiBillStatus::Service.new(nil, auth_headers)
       service.get_gi_bill_status(auth_headers)
     rescue => e
-      Rails.logger.error "Failed to retrieve GiBillStatus data: #{e.message}"
+      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve GiBillStatus data: #{e.message}"))
       {}
     end
 
     # Retrieve poa status fromEVSS VSOSearch for a user
     def get_user_poa_status(auth_headers)
       return nil if auth_headers.nil?
+      return nil unless auth_headers.key?('va_eauth_dodedipnid')
 
       service = EVSS::VSOSearch::Service.new(nil, auth_headers)
       service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
-      Rails.logger.error "Failed to retrieve VSOSearch data: #{e.message}"
+      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}"))
       nil
     end
 
@@ -162,15 +169,7 @@ module EducationForm
     end
 
     def format_application(data)
-      # This check was added to ensure that the model passes validation before
-      # attempting to build a form from it. This logic should be refactored as
-      # part of a larger effort to clean up the spool file generation if that occurs.
-      if data.saved_claim.valid?
-        EducationForm::Forms::VA10203.build(data)
-      else
-        inform_on_error(data)
-        nil
-      end
+      EducationForm::Forms::VA10203.build(data)
     rescue => e
       inform_on_error(data, e)
       nil
@@ -201,7 +200,7 @@ module EducationForm
     end
 
     def log_info(message)
-      log_exception_to_sentry(Process10203SubmissionsLogging.new(message), {}, {}, :info)
+      logger.info(message)
     end
   end
 end

@@ -15,10 +15,20 @@ module HealthQuest
         render json: data
       end
 
+      def show
+        send_data factory.generate_questionnaire_response_pdf(params[:id]),
+                  filename: 'questionnaire_response.pdf',
+                  type: 'application/pdf',
+                  disposition: 'inline'
+      end
+
       private
 
       def questionnaire_response_params
-        params.require(:questionnaireResponse).permit!
+        params.require(:questionnaireResponse)
+              .permit(appointment: [:id],
+                      questionnaire: %i[id title],
+                      item: [:linkId, :text, { answer: [:valueString] }])
       end
 
       def factory

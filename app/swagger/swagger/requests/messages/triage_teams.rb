@@ -25,7 +25,7 @@ module Swagger
               key :description, 'triage team recipients response'
 
               schema do
-                key :'$ref', :TriageTeams
+                key :$ref, :TriageTeams
               end
             end
           end

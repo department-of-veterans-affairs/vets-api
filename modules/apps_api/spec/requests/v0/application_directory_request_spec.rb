@@ -13,26 +13,26 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   end
   let(:valid_params) do
     {
-      "name": 'testing',
-      "logo_url": 'www.example.com/image2',
-      "service_categories": ['Health'],
-      "app_type": 'Third-Party-OAuth',
-      "platforms": ['iOS'],
-      "app_url": 'www.example.com',
-      "description": 'This is the testing description',
-      "privacy_url": 'www.example.com/privacy',
-      "tos_url": 'www.example.com/tos'
+      name: 'testing',
+      logo_url: 'www.example.com/image2',
+      service_categories: ['Health'],
+      app_type: 'Third-Party-OAuth',
+      platforms: ['iOS'],
+      app_url: 'www.example.com',
+      description: 'This is the testing description',
+      privacy_url: 'www.example.com/privacy',
+      tos_url: 'www.example.com/tos'
     }
   end
   let(:invalid_params) do
     {
       # missing required variables
-      "name": 'testing',
-      "platforms": ['iOS'],
-      "app_url": 'www.example.com',
-      "description": 'This is the testing description',
-      "privacy_url": 'www.example.com/privacy',
-      "tos_url": 'www.example.com/tos'
+      name: 'testing',
+      platforms: ['iOS'],
+      app_url: 'www.example.com',
+      description: 'This is the testing description',
+      privacy_url: 'www.example.com/privacy',
+      tos_url: 'www.example.com/tos'
     }
   end
 
@@ -137,6 +137,16 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes'
         expect(response).to have_http_status(:no_content)
+      end
+    end
+  end
+
+  describe '#get /services/apps/v0/directory/:page' do
+    context 'when paginating' do
+      it 'returns paginated apps' do
+        get '/services/apps/v0/directory?page=1'
+        body = JSON.parse(response.body)
+        expect(body['data'].length).to be <= 10
       end
     end
   end

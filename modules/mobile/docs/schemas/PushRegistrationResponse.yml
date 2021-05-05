@@ -13,13 +13,13 @@ properties:
         type: string
         example: "pushRegister"
       id:
-        description: appSid
+        description: app name generated when registering an app with push vetext service
         type: string
-        example: "EC15A7E1767C4018AC50B442AAC50D1E"
+        example: "va_mobile_app"
       attributes:
         type: object
         required:
-          - letters
+          - endpointSid
         properties:
           endpointSid:
             type: string

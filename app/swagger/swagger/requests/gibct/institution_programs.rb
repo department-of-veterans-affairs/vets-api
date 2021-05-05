@@ -19,7 +19,7 @@ module Swagger
               key :description, 'autocomplete response'
 
               schema do
-                key :'$ref', :GibctInstitutionProgramsAutocomplete
+                key :$ref, :GibctInstitutionProgramsAutocomplete
               end
             end
           end
@@ -41,7 +41,7 @@ module Swagger
               key :description, 'search response'
 
               schema do
-                key :'$ref', :GibctInstitutionProgramsSearch
+                key :$ref, :GibctInstitutionProgramsSearch
               end
             end
           end

@@ -81,7 +81,7 @@
             <fieldset <% if @feature.boolean_value %>disabled<% end %>>
               <%== csrf_input_tag %>
               <label for="percentage-of-time-input" class="vads-u-margin--0">
-                <%= Flipper::UI.configuration.percentage_of_time.title %>
+                Percentage of Time
               </label>
               <input id="percentage-of-time-input" type="text" name="value" <% if @feature.percentage_of_time_value > 0 %>value="<%= @feature.percentage_of_time_value %>"<% end %>>
               <button class="vads-u-margin-top--1 vads-u-width--auto" type="submit">Set value</button>
@@ -113,7 +113,7 @@
       <div class="vads-l-col--6">
         <div class="vads-u-border--1px vads-u-border-color--gray-lighter vads-u-margin-right--1 vads-u-padding--2">
           <% if @feature.boolean_value || Flipper.groups.empty? || @feature.disabled_groups.empty? %>
-            <div><%= Flipper::UI.configuration.groups.title %></div>
+            <div>Groups</div>
           <% else %>
             <form action="<%= script_name %>/features/<%= @feature.key %>/groups" method="post" class="usa-form">
               <%== csrf_input_tag %>

@@ -13,12 +13,16 @@ module HealthQuest
     #   @return [Array]
     # @!attribute organizations
     #   @return [Array]
+    # @!attribute facilities
+    #   @return [Array]
     # @!attribute aggregated_data
     #   @return [Hash]
     # @!attribute patient
     #   @return [FHIR::Patient]
     # @!attribute questionnaires
     #   @return [Array]
+    # @!attribute questionnaire_response
+    #   @return [HealthQuest::QuestionnaireResponse]
     # @!attribute questionnaire_responses
     #   @return [Array]
     # @!attribute save_in_progress
@@ -35,6 +39,8 @@ module HealthQuest
     #   @return [HealthQuest::Resource::Factory]
     # @!attribute questionnaire_service
     #   @return [HealthQuest::Resource::Factory]
+    # @!attribute facilities_request
+    #   @return [HealthQuest::Facilities::Request]
     # @!attribute sip_model
     #   @return [InProgressForm]
     # @!attribute transformer
@@ -47,13 +53,16 @@ module HealthQuest
       HEALTH_CARE_FORM_PREFIX = 'HC-QSTNR'
       USE_CONTEXT_DELIMITER = ','
       ID_MATCHER = /([I2\-a-zA-Z0-9]+)\z/i.freeze
+      SUCCESS_STATUS = '201'
 
       attr_reader :lighthouse_appointments,
                   :locations,
                   :organizations,
+                  :facilities,
                   :aggregated_data,
                   :patient,
                   :questionnaires,
+                  :questionnaire_response,
                   :questionnaire_responses,
                   :request_threads,
                   :save_in_progress,
@@ -64,6 +73,7 @@ module HealthQuest
                   :patient_service,
                   :questionnaire_response_service,
                   :questionnaire_service,
+                  :facilities_request,
                   :sip_model,
                   :transformer,
                   :user
@@ -81,12 +91,14 @@ module HealthQuest
       def initialize(user)
         @aggregated_data = default_response
         @user = user
+        @questionnaire_response = HealthQuest::QuestionnaireResponse.new
         @lighthouse_appointment_service = HealthQuest::Resource::Factory.manufacture(appointment_type)
         @location_service = HealthQuest::Resource::Factory.manufacture(location_type)
         @organization_service = HealthQuest::Resource::Factory.manufacture(organization_type)
         @patient_service = HealthQuest::Resource::Factory.manufacture(patient_type)
         @questionnaire_service = HealthQuest::Resource::Factory.manufacture(questionnaire_type)
         @questionnaire_response_service = HealthQuest::Resource::Factory.manufacture(questionnaire_response_type)
+        @facilities_request = HealthQuest::Facilities::Request.build
         @request_threads = []
         @sip_model = InProgressForm
         @transformer = Transformer
@@ -104,19 +116,60 @@ module HealthQuest
         return default_response if lighthouse_appointments.blank?
 
         concurrent_pgd_requests
+        @facilities = get_facilities
         return default_response if patient.blank? || questionnaires.blank?
 
         compose
       end
 
       ##
-      # Create a QuestionnaireResponse resource
+      # Create a QuestionnaireResponse resource in the Lighthouse PGD.
+      # If the resource creation is successful, then store an encrypted snapshot of
+      # the User's demographics and the submitted answers to the Questionnaire so
+      # that we can construct a PDF for the signed in Patient.
       #
       # @param data [Hash] questionnaire answers and appointment data hash.
       # @return [FHIR::ClientReply] an instance of ClientReply
       #
       def create_questionnaire_response(data)
-        questionnaire_response_service.create(data.to_h.with_indifferent_access)
+        attrs = data.to_h.with_indifferent_access
+        response = questionnaire_response_service.create(attrs)
+
+        response.tap do |resp|
+          if resp.response[:code] == SUCCESS_STATUS
+            questionnaire_response.tap do |qr|
+              qr.user_uuid = user.uuid
+              qr.appointment_id = attrs.dig(:appointment, :id)
+              qr.questionnaire_response_id = resp.resource.id
+              qr.user = user
+              qr.questionnaire_response_data = data
+
+              qr.save
+            end
+          end
+        end
+      end
+
+      ##
+      # Factory method for generating a PDF document containing questions and answers
+      # and demographics information filled out by the patient for a pre-visit questionnaire.
+      # This will return the questionnaire_response_id string for the time being.
+      #
+      # @param questionnaire_response_id [String]
+      # @return [String]
+      #
+      def generate_questionnaire_response_pdf(questionnaire_response_id)
+        snapshot = HealthQuest::QuestionnaireResponse
+                   .where(user_uuid: user.uuid, questionnaire_response_id: questionnaire_response_id.to_s)
+                   .first
+
+        appointment = lighthouse_appointment_service.get(snapshot.appointment_id)
+        location = location_service.get(appointment.resource.participant.first.actor.reference.match(ID_MATCHER)[1])
+        org = organization_service.get(location.resource.managingOrganization.reference.match(ID_MATCHER)[1])
+
+        HealthQuest::QuestionnaireManager::QuestionnaireResponseReport
+          .manufacture(questionnaire_response: snapshot, appointment: appointment, location: location, org: org)
+          .render
       end
 
       ##
@@ -140,6 +193,28 @@ module HealthQuest
         # rubocop:enable ThreadSafety/NewThread
 
         request_threads.each(&:join)
+      end
+
+      ##
+      # Calls the `combine` transformer object method and passes the appointment,
+      # questionnaire_response, questionnaire and SIP data as key/value arguments.
+      #
+      # @return [Hash] the final aggregated data structure for the UI/FE
+      #
+      def compose
+        @compose ||= begin
+          @aggregated_data = transformer.manufacture(
+            lighthouse_appointments: lighthouse_appointments,
+            locations: locations,
+            organizations: organizations,
+            facilities: facilities,
+            questionnaires: questionnaires,
+            questionnaire_responses: questionnaire_responses,
+            save_in_progress: save_in_progress
+          )
+
+          aggregated_data.combine
+        end
       end
 
       ##
@@ -172,14 +247,16 @@ module HealthQuest
       #
       def get_locations
         location_references =
-          lighthouse_appointments.map do |appt|
+          lighthouse_appointments.each_with_object({}) do |appt, acc|
             reference = appt.resource.participant.first.actor.reference
+            location_id = reference.match(ID_MATCHER)[1]
 
-            reference.match(ID_MATCHER)[1]
+            acc[location_id] ||= []
+            acc[location_id] << appt
           end
 
-        location_references.each_with_object([]) do |ref, accumulator|
-          loc = location_service.get(ref)
+        location_references.each_with_object([]) do |(k, _v), accumulator|
+          loc = location_service.get(k)
 
           accumulator << loc
         end
@@ -191,13 +268,33 @@ module HealthQuest
       # @return [Array] a list of Organizations
       #
       def get_organizations
-        locations.each_with_object([]) do |loc, accumulator|
-          reference = loc.resource.managingOrganization.reference
-          org_id = reference.match(ID_MATCHER)[1]
-          org = organization_service.get(org_id)
+        org_references =
+          locations.each_with_object({}) do |loc, acc|
+            reference = loc.resource.managingOrganization.reference
+            org_id = reference.match(ID_MATCHER)[1]
+
+            acc[org_id] ||= []
+            acc[org_id] << loc
+          end
+
+        org_references.each_with_object([]) do |(k, _v), accumulator|
+          org = organization_service.get(k)
 
           accumulator << org
         end
+      end
+
+      ##
+      # Return a list of facilities from the Facilities API
+      # so that we can add phone numbers to our organizations
+      #
+      # @return [Array]
+      #
+      def get_facilities
+        list = organizations.map { |org| org.resource.identifier.last.value }
+        facilities_ids = list.join(',')
+
+        facilities_request.get(facilities_ids)
       end
 
       ##
@@ -236,27 +333,6 @@ module HealthQuest
           .where('form_id LIKE ?', "%#{HEALTH_CARE_FORM_PREFIX}%")
           .where(user_uuid: user.uuid)
           .to_a
-      end
-
-      ##
-      # Calls the `combine` transformer object method and passes the appointment,
-      # questionnaire_response, questionnaire and SIP data as key/value arguments.
-      #
-      # @return [Hash] the final aggregated data structure for the UI/FE
-      #
-      def compose
-        @compose ||= begin
-          @aggregated_data = transformer.manufacture(
-            lighthouse_appointments: lighthouse_appointments,
-            locations: locations,
-            organizations: organizations,
-            questionnaires: questionnaires,
-            questionnaire_responses: questionnaire_responses,
-            save_in_progress: save_in_progress
-          )
-
-          aggregated_data.combine
-        end
       end
 
       ##

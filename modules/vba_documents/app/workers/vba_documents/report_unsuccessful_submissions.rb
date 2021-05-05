@@ -5,40 +5,53 @@ require 'sidekiq'
 module VBADocuments
   class ReportUnsuccessfulSubmissions
     include Sidekiq::Worker
+    include VBADocuments
+
+    APPEALS_CONSUMER_NAME = 'appeals_api_nod_evidence_submission'
 
     def perform
       if Settings.vba_documents.report_enabled
         @to = Time.zone.now
         @from = @to.monday? ? 7.days.ago : 1.day.ago
-        @consumers = VBADocuments::UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq
-        VBADocuments::UnsuccessfulReportMailer.build(totals, stuck, errored, @from, @to).deliver_now
+        @consumers = UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq
+        UnsuccessfulReportMailer.build(totals, stuck, errored, @from, @to).deliver_now
       end
     end
 
     def errored
-      VBADocuments::UploadSubmission.where(
+      UploadSubmission.where(
         created_at: @from..@to,
         status: %w[error expired]
       ).order(:consumer_name, :status)
     end
 
     def stuck
-      VBADocuments::UploadSubmission.where(
+      UploadSubmission.where(
         created_at: @from..@to,
         status: 'uploaded'
       ).order(:consumer_name, :status)
     end
 
     # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/PerceivedComplexity
-    # rubocop:disable Metrics/CyclomaticComplexity
-    # rubocop:disable Metrics/AbcSize
     def totals
       ret_hash = {}
-      sum_hash = VBADocuments::UploadSubmission::RPT_STATUSES.index_with { |_v| 0; }
+      sum_hash = UploadSubmission::RPT_STATUSES.index_with { |_v| 0; }
 
       @consumers.each do |name|
-        counts = VBADocuments::UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
+        counts = UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
+        lobs = UploadSubmission.where(created_at: @from..@to, consumer_name: name)
+                               .where("uploaded_pdf->'line_of_business' is not null")
+                               .pluck("uploaded_pdf->'line_of_business'").uniq
+        # put ticks around all lobs
+        lobs.map! { |e| "'#{e}'" }
+
+        # ensure that all appeals submissions have lob passed in
+        if name.eql?(APPEALS_CONSUMER_NAME)
+          appeals_null_lob_count = UploadSubmission.where(created_at: @from..@to, consumer_name: name)
+                                                   .where("uploaded_pdf->'line_of_business' is null").count
+          lobs << "#{appeals_null_lob_count} NULL" if appeals_null_lob_count.positive?
+        end
+
         totals = counts.sum { |_k, v| v }
         error_rate = counts['error'] ? (100.0 / totals * counts['error']).round : 0
         expired_rate = counts['expired'] ? (100.0 / totals * counts['expired']).round : 0
@@ -48,10 +61,11 @@ module VBADocuments
         success_rate = success_count.positive? ? (100.0 / totals * success_count).round : 0
 
         if totals.positive?
-          ret_hash[name] = counts.merge('totals': totals,
+          ret_hash[name] = counts.merge(totals: totals,
                                         success_rate: "#{success_rate}%",
                                         error_rate: "#{error_rate}%",
-                                        expired_rate: "#{expired_rate}%")
+                                        expired_rate: "#{expired_rate}%",
+                                        lobs: lobs.join(', '))
 
           # add the consumer counts to the summary hash for the given status
           counts.each_key do |k|
@@ -87,8 +101,5 @@ module VBADocuments
       ret_hash
     end
     # rubocop:enable Metrics/MethodLength
-    # rubocop:enable Metrics/PerceivedComplexity
-    # rubocop:enable Metrics/CyclomaticComplexity
-    # rubocop:enable Metrics/AbcSize
   end
 end

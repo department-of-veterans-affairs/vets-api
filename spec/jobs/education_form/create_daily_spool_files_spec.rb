@@ -42,6 +42,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'skips observed holidays' do
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(false).at_least(:once)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
+
         possible_runs.each do |day, should_run|
           Timecop.freeze(Time.zone.parse(day.to_s).beginning_of_day) do
             expect(subject.perform).to be(should_run)
@@ -59,21 +62,13 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'does not skip informal holidays', run_at: '2017-04-01 03:00:00 EDT' do
       # Sanity check that this *is* an informal holiday we're testing
       expect(Holidays.on(Time.zone.today, :us, :informal).first[:name]).to eq("April Fool's Day")
+      expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
       expect(subject).to receive(:write_files)
       expect(subject.perform).to be true
     end
   end
 
   context '#format_application' do
-    it 'logs an error if the record is invalid' do
-      application_1606.saved_claim.form = {}.to_json
-      application_1606.saved_claim.save!(validate: false)
-
-      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
-
-      subject.format_application(EducationBenefitsClaim.find(application_1606.id))
-    end
-
     context 'with a 1990 form' do
       it 'tracks and returns a form object' do
         expect(subject).to receive(:track_form_type).with('22-1990', 999)
@@ -123,8 +118,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'processes the valid messages' do
-        expect(subject).to receive(:log_exception_to_sentry).at_least(:once)
-        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
+        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
+        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
         expect(Dir[spool_files].count).to eq(2)
       end
     end
@@ -138,6 +133,18 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(subject).not_to receive(:write_files)
         expect(subject).to receive('log_info').with('No records to process.').once
         expect(subject.perform).to be(true)
+      end
+
+      it 'notifies slack', run_at: '2017-02-21 00:00:00 EDT' do
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(true).once
+
+        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+
+        with_settings(Settings.edu,
+                      audit_enabled: true,
+                      slack: OpenStruct.new(webhook_url: 'https://example.com')) do
+          described_class.new.perform
+        end
       end
     end
   end
@@ -190,6 +197,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       before do
         expect(Rails.env).to receive('development?').once.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
       end
 
       after do
@@ -209,8 +217,58 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
+    context 'on first retry attempt with a previous success' do
+      let(:file_path) { "tmp/spool_files/#{filename}" }
+
+      before do
+        expect(Rails.env).to receive('development?').twice.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).twice.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
+      end
+
+      after do
+        File.delete(file_path)
+      end
+
+      it 'notifies file was already created for filename and RPO' do
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+        subject.perform
+
+        create(:va1995)
+        expect(subject).to receive(:log_info).once
+
+        msg = 'A spool file for 307 on 09172016 was already created'
+        expect(subject).to receive(:log_info).with(msg)
+        subject.perform
+      end
+    end
+
+    context 'notifies which file failed during initial attempt' do
+      let(:file_path) { "tmp/spool_files/#{filename}" }
+
+      before do
+        expect(Rails.env).to receive('development?').once.and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_3).and_return(false).at_least(:once)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(true).at_least(:once)
+        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
+      end
+
+      it 'logs exception to sentry' do
+        local_mock = instance_double('SFTPWriter::Local')
+
+        expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+        expect(SFTPWriter::Local).to receive(:new).once.and_return(local_mock)
+        expect(local_mock).to receive(:write).and_raise('boom')
+        expect(local_mock).to receive(:close).once.and_return(true)
+        expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::DailySpoolFileError))
+
+        subject.perform
+      end
+    end
+
     it 'writes files out over sftp' do
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
+      expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
 
       key_path = "#{::Rails.root}/spec/fixtures/files/idme_cert.crt" # any readable file will work for this spec
       with_settings(Settings.edu.sftp, host: 'localhost', key_path: key_path) do

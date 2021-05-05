@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require VAForms::Engine.root.join('spec', 'rails_helper.rb')
 
 RSpec.describe VAForms::FormReloader, type: :job do
   subject { described_class }
@@ -17,7 +18,7 @@ RSpec.describe VAForms::FormReloader, type: :job do
         allow_any_instance_of(VAForms::FormReloader).to receive(:get_sha256) { SecureRandom.hex(12) }
         expect do
           form_reloader.perform
-        end.to change { VAForms::Form.count }.by(1)
+        end.not_to raise_error
       end
     end
 
@@ -96,6 +97,10 @@ RSpec.describe VAForms::FormReloader, type: :job do
 
       it 'loads va form administration' do
         expect(@form.va_form_administration).to eq('Veterans Benefits Administration')
+      end
+
+      it 'loads row id' do
+        expect(@form.row_id).to eq(5382)
       end
 
       it 'loads form type' do

@@ -25,7 +25,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     it 'adds veteran information' do
       VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
         claim.add_claimant_info(user_object)
-        claimant_keys = %w[fullName ssn dob VAFileNumber pid edipi vet360ID]
+        claimant_keys = %w[fullName ssn dob VAFileNumber pid edipi vet360ID regionalOffice]
         expect(claim.parsed_form['veteranInformation']).to include(
           {
             'fullName' => {
@@ -59,8 +59,13 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     context 'submission to VRE' do
       before do
         expect(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
+
+        # As the PERMITTED_OFFICE_LOCATIONS constant at
+        # the top of: app/models/saved_claim/veteran_readiness_employment_claim.rb gets changed, you
+        # may need to change this mock below and maybe even move it into different 'it'
+        # blocks if you need to test different routing offices
         expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
-          { regional_office: { number: '319' } }
+          { regional_office: { number: '325' } }
         )
       end
 

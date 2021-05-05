@@ -4,14 +4,13 @@
 <table>
   <thead>
   <tr>
-    <th>CONSUMER</th>
-    <th>EXPIRED</th>
-    <th>ERRORED</th>
-    <th>PROCESSING *</th>
-    <th>SUCCESS</th>
-    <th>VBMS</th>
-    <th>TOTAL SUBMISSIONS</th>
-  </tr>
+    <th style="width: 28%">CONSUMER</th>
+    <th style="width: 12%">EXPIRED</th>
+    <th style="width: 12%">ERRORED</th>
+    <th style="width: 12%">PROCESSING *</th>
+    <th style="width: 12%">SUCCESS</th>
+    <th style="width: 12%">VBMS</th>
+    <th style="width: 12%">TOTAL SUBMISSIONS</th></tr>
   </thead>
   <tbody>
   <% @monthly_totals.each do |row| %>
@@ -40,21 +39,33 @@
   <% end %>
   </tfoot>
 </table>
-<h5>* Processing statuses include: uploaded, received, and processing</h5>
+<h5>* Processing statuses include: pending, uploaded, received, and processing</h5>
 <br>
 <br>
-<h2>Prior Twelve Months - Average Time to VBMS</h2>
+<h2>Prior Twelve Months - Average Time to VBMS (Hours:Minutes:Seconds), Page Counts, and Page Sizes</h2>
 <table>
   <thead>
+  <tr>
+    <th style="width: 8%"></th>
+    <th style="width: 8%"></th>
+    <th style="width: 8%"></th>
+    <th style="width: 8%">AVG TIME</th>
+    <th  style="width: 34%" colspan="4">PAGE COUNTS</th>
+    <th  style="width: 34%"colspan="4">UPLOAD SIZE (MB)</th>
+  </tr>
   <tr>
     <th>YEAR</th>
     <th>MONTH</th>
     <th>COUNT</th>
-    <th>AVERAGE TIME TO VBMS</th>
-    <th>MAX PAGE COUNT</th>
-    <th>AVERAGE PAGE COUNT</th>
-    <th>MEDIAN PAGE COUNT</th>
-    <th>MODE PAGE COUNT</th>
+    <th>TO VBMS</th>
+    <th>MAX</th>
+    <th>AVG</th>
+    <th>MEDIAN</th>
+    <th>MODE</th>
+    <th>MAX</th>
+    <th>AVG</th>
+    <th>MEDIAN</th>
+    <th>MODE</th>
   </tr>
   </thead>
   <tbody>
@@ -68,37 +79,19 @@
       <td style="text-align: right"><%= row['avg_pages'].to_s %></td>
       <td style="text-align: right"><%= row['median_pages'].to_s %></td>
       <td style="text-align: right"><%= row['mode_pages'].to_s %></td>
+      <td style="text-align: right"><%= row['max_mb'].to_s %></td>
+      <td style="text-align: right"><%= row['avg_mb'].to_s %></td>
+      <td style="text-align: right"><%= row['median_size'].to_s %></td>
+      <td style="text-align: right"><%= row['mode_size'].to_s %></td>
     </tr>
   <% end if @avg_processing_time %>
   </tbody>
 </table>
 <br>
 <br>
-<h2>Submissions Still Processing Prior to <%= @two_months_ago_start.strftime("%B") %> <%= @two_months_ago_start.strftime("%Y") %>:</h2>
-<h3>Count <%= @last_month_still_processing.count %></h3>
-<% if @last_month_still_processing.count > 0 %>
-  <table>
-    <thead>
-    <tr>
-      <th>CONSUMER</th>
-      <th>GUID</th>
-      <th>STATUS</th>
-      <th>CREATED AT</th>
-      <th>LAST UPDATED</th>
-    </tr>
-    </thead>
-    <tbody>
-    <% @last_month_still_processing.each do |row| %>
-      <tr>
-        <td><%= row['consumer_name'] %></td>
-        <td><%= row['guid'] %></td>
-        <td><%= row['status'] %></td>
-        <td><%= row['created_at'] %></td>
-        <td><%= row['updated_at'] %></td>
-      </tr>
-    <% end if @last_month_still_processing %>
-    </tbody>
-  </table>
-  <% end %>
+<%= render partial: 'vba_documents/monthly_report_mailer/monthly_processing_success',
+           locals: {collection: @last_month_still_processing, type: 'processing'} %>
 <br>
 <br>
+<%= render partial: 'vba_documents/monthly_report_mailer/monthly_processing_success',
+           locals: {collection: @last_month_still_success, type: 'success'} %>

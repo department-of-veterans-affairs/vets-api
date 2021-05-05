@@ -425,8 +425,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}", 'version:v1']
 
-          Timecop.freeze(Time.current)
-          cookie_expiration_time = 30.minutes.from_now.iso8601(0)
+          new_user_sign_in = Time.current + 30.minutes
+          Timecop.freeze(new_user_sign_in)
+          cookie_expiration_time = (new_user_sign_in + 30.minutes).iso8601(0)
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
@@ -435,7 +436,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           new_user = User.find(uuid)
           expect(new_user.ssn).to eq('796111863')
-          expect(new_user.va_profile.ssn).not_to eq('155256322')
+          expect(new_user.ssn_mpi).not_to eq('155256322')
           expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
           expect(new_user.multifactor).to be_falsey
           expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)

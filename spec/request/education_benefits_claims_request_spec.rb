@@ -43,8 +43,8 @@ RSpec.describe 'Education Benefits Claims Integration', type: %i[request seriali
             form: {
               privacyAgreementAccepted: true,
               veteranFullName: {
-                "first": 'Mark',
-                "last": 'Olson'
+                first: 'Mark',
+                last: 'Olson'
               },
               preferredContactMethod: 'mail'
             }.to_json

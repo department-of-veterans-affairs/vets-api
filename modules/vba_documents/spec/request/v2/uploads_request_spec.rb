@@ -144,7 +144,10 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         @attributes = json['data']['attributes']
+        pdf_data = json['data']['attributes']['uploaded_pdf']
         expect(@attributes['status']).to eq('uploaded')
+        expect(pdf_data['line_of_business']).to eq(key)
+        expect(pdf_data['submitted_line_of_business']).to eq(nil)
       end
     end
 
@@ -152,7 +155,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       it 'Returns a 400 error when an invalid line of business is submitted' do
         fixture = get_fixture('valid_metadata.json')
         metadata = JSON.parse(File.read(fixture))
-        metadata['businessLine'] = 'BAD'
+        metadata['businessLine'] = 'BAD_STATUS'
         metadata_file = { metadata: Rack::Test::UploadedFile.new(
           StringIO.new(metadata.to_json), 'application/json', false,
           original_filename: 'metadata.json'
@@ -164,6 +167,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         expect(@attributes['status']).to eq('error')
         expect(@attributes['code']).to eq('DOC102')
         expect(@attributes['detail']).to start_with('Invalid businessLine provided')
+        expect(@attributes['detail']).to match(/BAD_STATUS/)
       end
 
       %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|

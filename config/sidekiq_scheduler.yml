@@ -24,7 +24,7 @@ EducationForm::Create10203SpoolSubmissionsReport:
   description: "Send the daily 10203 report to the call center about spool file submissions"
 
 EducationForm::Create10203ApplicantDecisionLetters:
-  every: '2m'
+  cron: "45 4 * * MON-FRI America/New_York"
   description: "Send 10203 applicant decision letters to applicants"
 
 Preneeds::DeleteOldUploads:
@@ -94,6 +94,11 @@ MaintenanceWindowRefresh:
   class: PagerDuty::PollMaintenanceWindows
   description: "Poll PagerDuty API for maintenance window information"
 
+VBADocuments::SlackNotifier:
+  cron: "0 0 * * * * America/New_York"
+  class: VBADocuments::SlackNotifier
+  description: "Notifies slack channel if certain benefits states get stuck at the top of every hour"
+
 VBADocuments::UploadScanner:
   cron: "0,30 * * * * * America/New_York"
   class: VBADocuments::UploadScanner
@@ -115,9 +120,9 @@ VBADocuments::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful benefits intake submissions"
 
 VBADocuments::ReportMonthlySubmissions:
-  cron: "0 2 1 * MON-FRI America/New_York"
+  cron: "4 3 2 1 * * America/New_York"
   class: VBADocuments::ReportMonthlySubmissions
-  description: "Monthly report of benefits intake submissions at 0200 on the first of the month"
+  description: "Monthly report of benefits intake submissions at 02:03:04 on the first of the month"
 
 ClaimsApi::ReportUnsuccessfulSubmissions:
   cron: "0 0 * * MON-FRI America/New_York"
@@ -125,7 +130,7 @@ ClaimsApi::ReportUnsuccessfulSubmissions:
   description: "Weekly report of unsuccessful claims submissions"
 
 VBADocuments::RunUnsuccessfulSubmissions:
-  every: "8h"
+  every: "2h"
   class: VBADocuments::RunUnsuccessfulSubmissions
   description: "Run VBADocuments::UploadProcessor for submissions that are stuck in uploaded status"
 
@@ -135,7 +140,7 @@ AppealsApi::DecisionReviewReportDaily:
   description: "Daily report of appeals submissions"
 
 AppealsApi::DecisionReviewReportWeekly:
-  cron: "0 23 * * MON America/New_York"
+  cron: "0 23 * * SUN America/New_York"
   class: AppealsApi::DecisionReviewReportWeekly
   description: "Weekly report of appeals submissions"
 
@@ -191,7 +196,7 @@ AppsApi::FetchConnections:
   description: "Fetches and handles notifications for recent application connections and disconnections"
 
 EducationForm::Process10203Submissions:
-  every: '2m'
+  cron: "0 6-18 * * * America/New_York"
   class: EducationForm::Process10203Submissions
   description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
 
@@ -204,3 +209,31 @@ ClaimsApi::ClaimAuditor:
   every: "12h"
   class: ClaimsApi::ClaimAuditor
   description: "Daily alert of pending claims longer than acceptable threshold"
+
+Veteran::VSOReloader:
+  cron: "0 2 * * * America/New_York"
+  class: Veteran::VSOReloader
+  description: Pulls down current list of VSOs and updates accordingly 
+
+VBADocuments::DeploymentsNotifier:
+  at: "<%=0.seconds.from_now%>"
+  description: Does a slack notification of the new code merged into this release for benefits intake
+
+CovidVaccine::ScheduledBatchJob:
+  cron: "*/15 * * * * America/New_York"
+  class: CovidVaccine::ScheduledBatchJob
+  description: Batches received vaccine records and schedules upload to enrollment service.
+
+CovidVaccine::ExpandedScheduledSubmissionJob:
+  every: '15m'
+  class: CovidVaccine::ExpandedScheduledSubmissionJob
+  description: Iterates vaccine records with state=enrollment_pending and attempts MPI lookup and send to Vetext.
+
+CovidVaccine::ExpandedSubmissionStateJob:
+  every: '1h'
+  class: CovidVaccine::ExpandedSubmissionStateJob
+  description: Logs count of states in the covid_vaccine_expanded_registration_submissions table.
+
+VRE::CreateCh31SubmissionsReport:
+  cron: "0 0 * * * America/New_York"
+  description: "Send a daily report to the VRE team about Chapter 31 submissions"

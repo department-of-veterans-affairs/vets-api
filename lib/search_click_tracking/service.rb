@@ -7,8 +7,7 @@ require 'common/client/errors'
 require 'search_click_tracking/configuration'
 
 module SearchClickTracking
-  # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
-  # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
+  # This class builds a wrapper around Search.gov web click tracking API.
   #
   # @see https://search.usa.gov/sites/7378/api_instructions
   #
@@ -23,15 +22,19 @@ module SearchClickTracking
     attr_reader :query
     attr_reader :position
     attr_reader :client_ip
+    attr_reader :module_code
     attr_reader :user_agent
 
-    def initialize(url, query, position, user_agent, client_ip = request.remote_ip)
+    # rubocop:disable Metrics/ParameterLists
+    def initialize(url, query, position, user_agent, module_code = 'I14Y', client_ip = request.remote_ip)
       @url = url
       @query = query
       @position = position
       @client_ip = client_ip
       @user_agent = user_agent
+      @module_code = module_code
     end
+    # rubocop:enable Metrics/ParameterLists
 
     # POSTs click tracking query param data to search.gov
     #
@@ -78,10 +81,6 @@ module SearchClickTracking
 
     def access_key
       Settings.search_click_tracking.access_key
-    end
-
-    def module_code
-      Settings.search_click_tracking.module_code
     end
   end
 end

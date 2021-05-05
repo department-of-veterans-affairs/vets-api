@@ -60,6 +60,76 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   describe '#perform' do
     let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
 
+    context 'duplicates' do
+      before(:context) do
+        @transaction_state = use_transactional_tests
+        # need all subprocesses to see the state of the DB.  Transactional isolation will hurt us here.
+        self.use_transactional_tests = false
+        @upload_model = VBADocuments::UploadSubmission.new
+        @upload_model.status = 'uploaded'
+        @upload_model.save!
+      end
+
+      after(:context) do
+        self.use_transactional_tests = @transaction_state
+        @upload_model.delete
+      end
+
+      # Put in as a response to https://vajira.max.gov/browse/API-6651
+      it 'does not send duplicates if called multiple times concurrently on the same guid' do
+        allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return('')
+        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(client_stub).to receive(:upload).and_return(faraday_response)
+        num_times = 7
+        # Why 7?  That's the most times a duplicate ever occurred.  See the excel spreadsheet in the ticket!
+        temp_files = []
+        num_times.times do
+          temp_files << Tempfile.new
+        end
+        pids = []
+        num_times.times do |i|
+          # Why fork instead of threads?  We are testing the advisory lock under different processes just as sidekiq
+          # will run the jobs.
+          pids << fork do
+            response = described_class.new.perform(@upload_model.guid)
+            writing = response.to_s
+            temp_files[i].write(writing)
+            temp_files[i].close
+          end
+        end
+        pids.each { |pid| Process.waitpid(pid) } # wait for my children to complete
+        responses = []
+        temp_files.each do |tf|
+          responses << File.open(tf.path, &:read)
+        end
+        expect(responses.select { |e| e.eql?('true') }.length).to eq(1)
+        expect(responses.select { |e| e.eql?('false') }.length).to eq(num_times - 1)
+      end
+    end
+
+    it 'counts concurrent duplicates that our vendor asserts occurred' do
+      upload_model = VBADocuments::UploadSubmission.new
+      upload_model.status = 'uploaded'
+      upload_model.save!
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive(:status).and_return(429)
+      allow(faraday_response).to receive(:body).and_return("UUID already in cache [uuid: #{upload_model.guid}]")
+      allow(faraday_response).to receive(:success?).and_return(false)
+      allow(client_stub).to receive(:upload).and_return(faraday_response)
+      allow(File).to receive(:size).and_return(10)
+      allow_any_instance_of(File).to receive(:rewind).and_return(nil)
+      response = described_class.new.perform(upload_model.guid)
+      expect(response).to be(false)
+      described_class.new.perform(upload_model.guid)
+      described_class.new.perform(upload_model.guid)
+      upload_model.reload
+      expect(upload_model.metadata['uuid_already_in_cache_count']).to eq(3)
+    end
+
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
@@ -258,21 +328,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    it 'sets error status for invalid line of business in the metadata' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) {
-        v = valid_parts
-        hash = JSON.parse(v['metadata'])
-        hash['businessLine'] = 'BAD'
-        v['metadata'] = hash.to_json
-        v
-      }
-      described_class.new.perform(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC102')
-      expect(updated.detail).to start_with('Invalid businessLine provided')
-    end
-
     context 'with locked pdf' do
       { 'sets error status for locked pdf attachment' => [:valid_parts_locked_attachment,
                                                           'Invalid PDF content, part attachment1'],
@@ -359,6 +414,55 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(content).to have_key('page_count')
       expect(content).to have_key('dimensions')
       expect(content).to have_key('attachments')
+    end
+
+    context 'with valid line of business' do
+      before do
+        @md = JSON.parse(valid_metadata)
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'metadata' => @md.to_json, 'content' => valid_doc }
+        }
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return('')
+        allow(faraday_response).to receive(:success?).and_return(true)
+        capture_body = nil
+        expect(client_stub).to receive(:upload) { |arg|
+          capture_body = arg
+          faraday_response
+        }
+      end
+
+      it 'records line of business' do
+        @md['businessLine'] = 'CMP'
+        described_class.new.perform(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.uploaded_pdf['line_of_business']).to eq('CMP')
+      end
+
+      %w[LOG MED BUR OTH DROC].each do |future_lob|
+        it "maps the future line of business #{future_lob} to CMP" do
+          @md['businessLine'] = future_lob
+          described_class.new.perform(upload.guid)
+          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+          expect(updated.uploaded_pdf['line_of_business']).to eq(future_lob)
+          expect(updated.uploaded_pdf['submitted_line_of_business']).to eq('CMP')
+        end
+      end
+    end
+
+    it 'sets error status and records invalid lines of business' do
+      md = JSON.parse(valid_metadata)
+      md['businessLine'] = 'BAD_STATUS'
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc }
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+      expect(updated.detail).to start_with('Invalid businessLine provided')
+      expect(updated.detail).to match(/BAD_STATUS/)
     end
 
     xit 'sets error status for non-PDF attachment parts' do

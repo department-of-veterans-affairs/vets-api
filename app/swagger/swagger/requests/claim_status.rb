@@ -20,7 +20,7 @@ module Swagger
             key :description, ''
             key :required, true
             schema do
-              key :'$ref', :ClaimDocumentInput
+              key :$ref, :ClaimDocumentInput
             end
           end
 

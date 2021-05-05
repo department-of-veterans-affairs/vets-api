@@ -10,7 +10,7 @@ module Swagger
 
         property :data, type: :array
         items do
-          key :'$ref', :TermsAndConditionsBody
+          key :$ref, :TermsAndConditionsBody
         end
       end
 

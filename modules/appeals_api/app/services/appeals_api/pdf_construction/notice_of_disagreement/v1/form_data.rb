@@ -11,19 +11,19 @@ module AppealsApi
         delegate :mailing_address, to: :notice_of_disagreement
 
         def veteran_name
-          name('Veteran')
+          name
         end
 
         def veteran_ssn
-          header_field_as_string('X-VA-Veteran-SSN')
+          header_field_as_string('X-VA-SSN')
         end
 
         def veteran_file_number
-          header_field_as_string('X-VA-Veteran-File-Number')
+          header_field_as_string('X-VA-File-Number')
         end
 
         def veteran_dob
-          dob 'Veteran'
+          dob
         end
 
         def homeless
@@ -39,15 +39,15 @@ module AppealsApi
         end
 
         def direct_review
-          board_review_option == 'direct_review' ? 1 : 'Off'
+          notice_of_disagreement.board_review_option == 'direct_review' ? 1 : 'Off'
         end
 
         def evidence_submission
-          board_review_option == 'evidence_submission' ? 1 : 'Off'
+          notice_of_disagreement.board_review_option == 'evidence_submission' ? 1 : 'Off'
         end
 
         def hearing
-          board_review_option == 'hearing' ? 1 : 'Off'
+          notice_of_disagreement.board_review_option == 'hearing' ? 1 : 'Off'
         end
 
         def extra_contestable_issues
@@ -59,11 +59,8 @@ module AppealsApi
         end
 
         def signature
-          first_last = [first_name('Veteran'), last_name('Veteran')]
-          formatted_name = first_last.map(&:presence).compact.map(&:strip).join(' ')
-          auth_statement = 'signed by digital authentication to api.va.gov'
-
-          "#{formatted_name} - #{auth_statement}"
+          # 180 characters is the max allowed by the Name field on the pdf
+          "#{name[0...180]}\n- Signed by digital authentication to api.va.gov"
         end
 
         def date_signed
@@ -77,7 +74,7 @@ module AppealsApi
         end
 
         def stamp_text
-          "#{last_name('Veteran')} - #{veteran_ssn.last(4)}"
+          "#{last_name.truncate(35)} - #{veteran_ssn.last(4)}"
         end
 
         def representatives_name
@@ -90,31 +87,31 @@ module AppealsApi
 
         attr_accessor :notice_of_disagreement
 
-        def name(who)
-          initial = middle_initial(who)
+        def name
+          initial = middle_initial
           initial = "#{initial}." if initial.size.positive?
 
           [
-            first_name(who),
+            first_name,
             initial,
-            last_name(who)
-          ].map(&:presence).compact.map(&:strip).join(' ')
+            last_name
+          ].map(&:presence).compact.join(' ')
         end
 
-        def first_name(who)
-          header_field_as_string "X-VA-#{who}-First-Name"
+        def first_name
+          header_field_as_string 'X-VA-First-Name'
         end
 
-        def middle_initial(who)
-          header_field_as_string "X-VA-#{who}-Middle-Initial"
+        def middle_initial
+          header_field_as_string 'X-VA-Middle-Initial'
         end
 
-        def last_name(who)
-          header_field_as_string "X-VA-#{who}-Last-Name"
+        def last_name
+          header_field_as_string 'X-VA-Last-Name'
         end
 
-        def dob(who)
-          header_field_as_string "X-VA-#{who}-Birth-Date"
+        def dob
+          header_field_as_string 'X-VA-Birth-Date'
         end
 
         def header_field_as_string(key)
@@ -123,10 +120,6 @@ module AppealsApi
 
         def header_field(key)
           notice_of_disagreement.auth_headers&.dig(key)
-        end
-
-        def board_review_option
-          notice_of_disagreement.form_data&.dig('data', 'attributes', 'boardReviewOption')
         end
       end
     end

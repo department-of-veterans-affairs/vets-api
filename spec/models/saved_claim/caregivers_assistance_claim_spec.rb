@@ -64,34 +64,34 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   describe '#form_subjects' do
     it 'returns a list of subjects present in #parsed_form' do
       claim_1 = described_class.new(form: {
-        "veteran": {}
+        veteran: {}
       }.to_json)
       expect(claim_1.form_subjects).to eq(%w[veteran])
 
       claim_2 = described_class.new(form: {
-        "veteran": {},
-        "primaryCaregiver": {}
+        veteran: {},
+        primaryCaregiver: {}
       }.to_json)
       expect(claim_2.form_subjects).to eq(%w[veteran primaryCaregiver])
 
       claim_3 = described_class.new(form: {
-        "veteran": {},
-        "secondaryCaregiverOne": {}
+        veteran: {},
+        secondaryCaregiverOne: {}
       }.to_json)
       expect(claim_3.form_subjects).to eq(%w[veteran secondaryCaregiverOne])
 
       claim_4 = described_class.new(form: {
-        "veteran": {},
-        "primaryCaregiver": {},
-        "secondaryCaregiverOne": {}
+        veteran: {},
+        primaryCaregiver: {},
+        secondaryCaregiverOne: {}
       }.to_json)
       expect(claim_4.form_subjects).to eq(%w[veteran primaryCaregiver secondaryCaregiverOne])
 
       claim_5 = described_class.new(form: {
-        "veteran": {},
-        "primaryCaregiver": {},
-        "secondaryCaregiverOne": {},
-        "secondaryCaregiverTwo": {}
+        veteran: {},
+        primaryCaregiver: {},
+        secondaryCaregiverOne: {},
+        secondaryCaregiverTwo: {}
       }.to_json)
       expect(claim_5.form_subjects).to eq(%w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo])
     end

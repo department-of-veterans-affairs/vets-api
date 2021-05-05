@@ -89,7 +89,6 @@ namespace :form526 do
       )
     end
 
-    # rubocop:disable Metrics/AbcSize
     def bdd_stats_mode(args_array)
       dates = dates_from_array args_array
       prnt = ->(**fields) { puts ROW[:order].map { |key| fields[key].try(:iso8601) || fields[key].inspect }.join(',') }
@@ -112,7 +111,6 @@ namespace :form526 do
         success_failure_totals_header_string: '* Job Success/Failure counts *'
       )
     end
-    # rubocop:enable Metrics/AbcSize
 
     def bdd_stats_mode_dates_from_args(args)
       args_array = args.values_at :first, :second, :third
@@ -309,9 +307,32 @@ namespace :form526 do
     )
 
     submissions.find_each do |submission|
-      job_statuses = submission.form526_job_statuses.where.not(status: [Form526JobStatus::STATUS[:try],
-                                                                        Form526JobStatus::STATUS[:success]])
-      job_statuses.each do |job_status|
+      submit_jobs = submission.form526_job_statuses.where(
+        job_class: Form526Submission::SUBMIT_FORM_526_JOB_CLASSES
+      )
+
+      ancillary_jobs = submission.form526_job_statuses.where.not(
+        job_class: Form526Submission::SUBMIT_FORM_526_JOB_CLASSES
+      )
+
+      unsuccessful_submit_jobs, unsuccessful_ancillary_jobs = [submit_jobs, ancillary_jobs].map do |jobs|
+        jobs.where.not status: [Form526JobStatus::STATUS[:try], Form526JobStatus::STATUS[:success]]
+      end
+
+      in_progress_submit_jobs = submit_jobs.where status: Form526JobStatus::STATUS[:try]
+
+      the_submission_has_been_successfully_submitted = submission.a_submit_form_526_job_succeeded?
+
+      it_is_still_trying = in_progress_submit_jobs.present?
+
+      # we're not interested in unsuccessful submit jobs if submit eventually succeeded (or is still being attempted)
+      unsuccessful_jobs = if the_submission_has_been_successfully_submitted || it_is_still_trying
+                            unsuccessful_ancillary_jobs
+                          else
+                            unsuccessful_ancillary_jobs.or unsuccessful_submit_jobs
+                          end
+
+      unsuccessful_jobs.each do |job_status|
         # Check if its an EVSS error and parse, otherwise store the entire message
         messages = if job_status.error_message.include?('=>') &&
                       !job_status.error_message.include?('BackendServiceException')
@@ -539,5 +560,42 @@ namespace :form526 do
         in_progress_form.save!
       end
     end
+  end
+
+  desc 'pretty print MPI profile for submission'
+  task mpi: :environment do |_, args|
+    def puts_mpi_profile(submission)
+      ids = {}
+      ids[:edipi] = edipi submission.auth_headers
+      ids[:icn] = icn ids[:edipi]
+
+      pp mpi_profile(user_identity(**ids)).as_json
+    end
+
+    def mpi_profile(user_identity)
+      find_profile_response = MPI::Service.new.find_profile user_identity
+      raise find_profile_response.error if find_profile_response.error
+
+      find_profile_response.profile
+    end
+
+    def user_identity(icn:, edipi:)
+      OpenStruct.new mhv_icn: icn, dslogon_edipi: edipi
+    end
+
+    def edipi(auth_headers)
+      auth_headers['va_eauth_dodedipnid']
+    end
+
+    def icn(edipi)
+      raise Error, 'no edipi' unless edipi
+
+      icns = Account.where(edipi: edipi).pluck :icn
+      raise Error, 'multiple icns' if icns.uniq.length > 1
+
+      icns.first
+    end
+
+    Form526Submission.where(id: args.extras).each { |sub| puts_mpi_profile sub }
   end
 end

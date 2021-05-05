@@ -8,6 +8,7 @@ require:
   - rubocop-thread_safety
 
 AllCops:
+  NewCops: enable
   TargetRailsVersion: 6.0
   Include:
     - '**/Dangerfile'
@@ -40,6 +41,19 @@ Style/Documentation:
 
 Style/ClassAndModuleChildren:
   Enabled: false
+
+# Bug in 1.11.0
+RSpec/FactoryBot/CreateList:
+  Enabled: false
+
+# Bug in 1.11.0
+RSpec/Rails/HttpStatus:
+  Enabled: false
+
+# Bug in 1.11.0
+RSpec/VariableName:
+  Exclude:
+    - spec/jobs/facilities/pssg_download_spec.rb
 
 # This cop forces you to put a return at the beginning of a block of code rather than having an if statement
 # whose body carries to the end of the function. For example:
@@ -89,12 +103,10 @@ Metrics/MethodLength:
   Max: 20
   Exclude:
     - 'spec/support/form1010cg_helpers/build_claim_data_for.rb'
+    - 'app/workers/education_form/create_daily_spool_files.rb'
 
 Metrics/ClassLength:
   Max: 400
-
-Metrics/AbcSize:
-  Max: 40
 
 # removing rule because get_session implies HTTP GET, and informs method
 Naming/AccessorMethodName:
@@ -192,6 +204,11 @@ RSpec/FilePath:
     - 'spec/request/in_progress_forms_request_spec.rb'
     - 'spec/jobs/pagerduty/**/*'
     - 'spec/lib/pagerduty/**/*'
+    - 'spec/lib/common/client/middleware/response/appeals_response_middleware_spec.rb'
+    - 'spec/lib/common/client/middleware/response/gids_response_middleware_spec.rb'
+    - 'spec/lib/common/client/middleware/response/response_middleware_spec.rb'
+    - 'spec/lib/evss/pciu_address/pciu_address_spec.rb'
+    - 'spec/lib/sm/client/message_drafts_spec.rb'
   CustomTransform:
     SSOeSettingsService: ssoe_settings_service
 
@@ -289,6 +306,7 @@ RSpec/MultipleDescribes:
     - 'spec/jobs/evss/request_decision_spec.rb'
     - 'spec/lib/emis/veteran_status_service_spec.rb'
     - 'spec/request/swagger_spec.rb'
+    - 'spec/jobs/cypress_viewport_updater/existing_github_file_spec.rb'
 
 # These instances seem to be false positives
 RSpec/RepeatedExample:
@@ -343,10 +361,6 @@ RSpec/SubjectStub:
     - 'spec/services/form1010cg/service_spec.rb'
     - 'spec/services/form1010cg/auditor_spec.rb'
 
-# the default style recently changed, but it's not worth changing
-Rails/FilePath:
-  EnforcedStyle: arguments
-
 # Added in v0.81
 Lint/RaiseException:
   Enabled: true
@@ -380,3 +394,19 @@ Style/SlicingWithRange:
 # Added in v0.84
 Lint/DeprecatedOpenSSLConstant:
   Enabled: true
+
+# the default style recently changed, but it's not worth changing
+Rails/FilePath:
+  EnforcedStyle: arguments
+
+# This one doesn’t always make sense, it’s mostly the swagger,
+# factories and pact provider states — which need a tear_down block regardless
+Lint/EmptyBlock:
+  Enabled: false
+
+Lint/NoReturnInBeginEndBlocks:
+  Exclude:
+    - 'app/services/form1010cg/service.rb'
+
+Lint/SymbolConversion:
+  Enabled: false

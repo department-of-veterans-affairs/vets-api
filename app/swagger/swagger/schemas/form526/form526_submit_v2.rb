@@ -15,7 +15,7 @@ module Swagger
           property :form526, type: :object do
             property :alternateNames, type: :array do
               items type: :object do
-                key :'$ref', :AlternateName
+                key :$ref, :AlternateName
               end
             end
             property :atRiskHousingSituation, type: :string, enum:
@@ -26,7 +26,7 @@ module Swagger
               ]
             property :attachments, type: :array do
               items type: :object do
-                key :'$ref', :Attachment
+                key :$ref, :Attachment
               end
             end
             property :bankAccountNumber, type: :string, minLength: 4, maxLength: 17
@@ -47,7 +47,7 @@ module Swagger
             end
             property :confinements, type: :array do
               items do
-                key :'$ref', :DateRangeAllRequired
+                key :$ref, :DateRangeAllRequired
               end
             end
             property :employmentRequestAttachments, type: :array do
@@ -59,16 +59,16 @@ module Swagger
               end
             end
             property :form0781, type: :object do
-              key :'$ref', :Form0781
+              key :$ref, :Form0781
             end
             property :form4142, type: :object do
-              key :'$ref', :Form4142
+              key :$ref, :Form4142
             end
             property :form8940, type: :object do
-              key :'$ref', :Form8940
+              key :$ref, :Form8940
             end
             property :forwardingAddress, type: :object do
-              key :'$ref', :ForwardingAddress
+              key :$ref, :ForwardingAddress
             end
             property :hasTrainingPay, type: :boolean
             property :homelessHousingSituation, type: :string, enum:
@@ -96,10 +96,10 @@ module Swagger
             end
             property :isVaEmployee, type: :boolean
             property :mailingAddress, type: :object do
-              key :'$ref', :AddressRequiredFields
+              key :$ref, :AddressRequiredFields
             end
             property :mentalChanges, type: :object do
-              key :'$ref', :MentalChanges
+              key :$ref, :MentalChanges
             end
             property :militaryRetiredPayBranch, type: :string, enum:
               [
@@ -114,12 +114,12 @@ module Swagger
             property :needToLeaveHousing, type: :boolean
             property :newPrimaryDisabilities, type: :array do
               items type: :object do
-                key :'$ref', :NewDisability
+                key :$ref, :NewDisability
               end
             end
             property :newSecondaryDisabilities, type: :array do
               items type: :object do
-                key :'$ref', :NewDisability
+                key :$ref, :NewDisability
               end
             end
             property :otherAtRiskHousing, type: :string
@@ -138,7 +138,7 @@ module Swagger
             end
             property :privateMedicalRecordAttachments, type: :array do
               items type: :object do
-                key :'$ref', :PrivateMedicalRecordAttachment
+                key :$ref, :PrivateMedicalRecordAttachment
               end
             end
             property :ratedDisabilities,
@@ -146,12 +146,12 @@ module Swagger
                      minItems: 1,
                      maxItems: 100 do
               items type: :object do
-                key :'$ref', :RatedDisability
+                key :$ref, :RatedDisability
               end
             end
             property :secondaryAttachment, type: :array do
               items type: :object do
-                key :'$ref', :SecondaryAttachment
+                key :$ref, :SecondaryAttachment
               end
             end
             property :separationPayBranch, type: :string, enum:
@@ -169,18 +169,18 @@ module Swagger
             property :servedInCombatZonePost911, type: :boolean
             property :serviceInformation, type: :object do
               items do
-                key :'$ref', :ServiceInformation
+                key :$ref, :ServiceInformation
               end
             end
             property :standardClaim, type: :boolean, default: false
             property :unemployabilityAttachments, type: :array do
               items type: :object do
-                key :'$ref', :UnemployabilityAttachments
+                key :$ref, :UnemployabilityAttachments
               end
             end
             property :vaTreatmentFacilities, type: :array do
               items type: :object do
-                key :'$ref', :VATreatmentFacility
+                key :$ref, :VATreatmentFacility
               end
             end
             property :waiveRetirementPay, type: :boolean
@@ -270,7 +270,7 @@ module Swagger
                    type: :string,
                    pattern: /^\\d{5}(?:([-\\s]?)\\d{4})?$/
           property :effectiveDate, type: :object do
-            key :'$ref', :DateRange
+            key :$ref, :DateRange
           end
         end
 
@@ -342,7 +342,7 @@ module Swagger
                 ]
               property :dateRange, type: :array do
                 items do
-                  key :'$ref', :DateRangeAllRequired
+                  key :$ref, :DateRangeAllRequired
                 end
               end
             end
@@ -371,17 +371,17 @@ module Swagger
                        pattern: /^([a-zA-Z0-9\-'.#][a-zA-Z0-9\-'.# ]?)*$/
               property :obligationTermOfServiceDateRange, type: :array do
                 items do
-                  key :'$ref', :DateRangeAllRequired
+                  key :$ref, :DateRangeAllRequired
                 end
               end
               property :receivingTrainingPay, type: :boolean
               property :title10Activation, type: :object do
                 items do
                   property :title10ActivationDate, type: :array do
-                    key :'$ref', :DateRange
+                    key :$ref, :DateRange
                   end
                   property :anticipatedSeparationDate, type: :array do
-                    key :'$ref', :DateRange
+                    key :$ref, :DateRange
                   end
                 end
               end
@@ -409,7 +409,7 @@ module Swagger
                    maxLength: 100,
                    pattern: /^([a-zA-Z0-9\-'.#]([a-zA-Z0-9\-'.# ])?)+$/
           property :treatmentDateRange, type: :array do
-            key :'$ref', :DateRangeFromRequired
+            key :$ref, :DateRangeFromRequired
           end
           property :treatmentCenterAddress, type: :object do
             key :required, [:country]

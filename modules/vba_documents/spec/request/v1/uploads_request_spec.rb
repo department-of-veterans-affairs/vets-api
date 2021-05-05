@@ -2,18 +2,23 @@
 
 require 'rails_helper'
 require_relative '../../support/vba_document_fixtures'
-
+require_dependency 'vba_documents/payload_manager'
 require_dependency 'vba_documents/object_store'
 require_dependency 'vba_documents/multipart_parser'
 
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures
 
+  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+  let(:valid_doc) { get_fixture('valid_doc.pdf') }
+
   describe '#create /v1/uploads' do
     it 'returns a UUID and location' do
       with_settings(Settings.vba_documents.location,
-                    'prefix': 'https://fake.s3.url/foo/',
-                    'replacement': 'https://api.vets.gov/proxy/') do
+                    prefix: 'https://fake.s3.url/foo/',
+                    replacement: 'https://api.vets.gov/proxy/') do
         s3_client = instance_double(Aws::S3::Resource)
         allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
         s3_bucket = instance_double(Aws::S3::Bucket)
@@ -77,6 +82,50 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       get "/services/vba_documents/v1/uploads/#{upload.guid}"
       json = JSON.parse(response.body)
       expect(json['data']['attributes']['detail']).to eql(upload.detail.to_s)
+    end
+
+    context 'line of business' do
+      before do
+        @md = JSON.parse(valid_metadata)
+        @upload_submission = VBADocuments::UploadSubmission.new
+        @upload_submission.update(status: 'uploaded')
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'metadata' => @md.to_json, 'content' => valid_doc }
+        }
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return([[], []].to_json)
+        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(VBADocuments::PayloadManager).to receive(:download_raw_file) { [Tempfile.new, Time.zone.now] }
+        expect(client_stub).to receive(:upload) {
+          faraday_response
+        }
+        expect(client_stub).to receive(:status) {
+          faraday_response
+        }
+      end
+
+      it 'displays the line of business' do
+        @md['businessLine'] = 'CMP'
+        VBADocuments::UploadProcessor.new.perform(@upload_submission.guid)
+        get "/services/vba_documents/v1/uploads/#{@upload_submission.guid}"
+        json = JSON.parse(response.body)
+        pdf_data = json['data']['attributes']['uploaded_pdf']
+        expect(pdf_data['line_of_business']).to eq('CMP')
+        expect(pdf_data['submitted_line_of_business']).to eq(nil)
+      end
+
+      # for ticket: https://vajira.max.gov/browse/API-5293
+      # production was broken, the pull request below fixes it.  This test ensures it never comes back.
+      # https://github.com/department-of-veterans-affairs/vets-api/pull/6186
+      it 'succeeds when giving a status on legacy data' do
+        @md['businessLine'] = 'CMP'
+        @upload_submission.metadata = {}
+        @upload_submission.save!
+        VBADocuments::UploadProcessor.new.perform(@upload_submission.guid)
+        get "/services/vba_documents/v1/uploads/#{@upload_submission.guid}"
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     it 'returns not_found for an expired submission' do
@@ -155,7 +204,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
     it '200S even with an invalid doc' do
       allow(VBADocuments::PayloadManager).to receive(:download_raw_file).and_return(invalid_doc)
-      get "/services/vba_documents/v0/uploads/#{upload.guid}/download"
+      get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
       expect(response.status).to eq(200)
       expect(response.headers['Content-Type']).to eq('application/zip')
     end

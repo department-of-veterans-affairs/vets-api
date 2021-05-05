@@ -1,12 +1,9 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 require_relative '../../../../app/services/covid_research/volunteer/form_service.rb'
-require_relative '../../../covid_research_spec_helper.rb'
 require_relative '../../../../lib/redis_format.rb' # No Rails helper no auto-load
-
-RSpec.configure do |c|
-  c.include CovidResearchSpecHelper
-end
 
 RSpec.describe CovidResearch::Volunteer::FormService do
   let(:valid)   { JSON.parse(read_fixture('valid-submission.json')) }

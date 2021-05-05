@@ -74,9 +74,9 @@ RSpec.describe EducationForm::EducationFacility do
 
   describe '#regional_office_for' do
     {
-      eastern: ['VA', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
-      central: ['CO', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
-      western: ['AK', "Western Region\nVA Regional Office\nP.O. Box 8888\nMuskogee, OK 74402-8888"]
+      eastern: ['VA', "VA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
+      central: ['CO', "VA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
+      western: ['AK', "VA Regional Office\nP.O. Box 8888\nMuskogee, OK 74402-8888"]
     }.each do |region, region_data|
       context "with a #{region} address" do
         before do
@@ -98,7 +98,7 @@ RSpec.describe EducationForm::EducationFacility do
         form = education_benefits_claim.parsed_form
         form['newSchool'] = {
           'address' => {
-            'state': 'IL'
+            state: 'IL'
           }
         }
         education_benefits_claim.saved_claim.form = form.to_json
@@ -127,12 +127,19 @@ RSpec.describe EducationForm::EducationFacility do
       end
     end
 
+    context '22-1990s' do
+      it 'routes to Western RPO' do
+        education_benefits_claim.saved_claim.form_id = '22-1990s'
+        expect(described_class.region_for(education_benefits_claim)).to eq(:western)
+      end
+    end
+
     context 'address country Phillipines' do
       it 'routes to Western RPO' do
         form = education_benefits_claim.parsed_form
         form['educationProgram'] = {
           'address' => {
-            'country': 'PHL'
+            country: 'PHL'
           }
         }
         education_benefits_claim.saved_claim.form = form.to_json

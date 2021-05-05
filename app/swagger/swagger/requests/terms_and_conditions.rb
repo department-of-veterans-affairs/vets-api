@@ -16,7 +16,7 @@ module Swagger
           response 200 do
             key :description, 'get terms and conditions response'
             schema do
-              key :'$ref', :TermsAndConditions
+              key :$ref, :TermsAndConditions
             end
           end
         end
@@ -41,14 +41,14 @@ module Swagger
           response 200 do
             key :description, 'get named terms and conditions response'
             schema do
-              key :'$ref', :TermsAndConditionsSingle
+              key :$ref, :TermsAndConditionsSingle
             end
           end
 
           response 404 do
             key :description, 'terms not found'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
         end
@@ -77,14 +77,14 @@ module Swagger
           response 200 do
             key :description, 'get user data for terms and conditions response'
             schema do
-              key :'$ref', :TermsAndConditionsAcceptance
+              key :$ref, :TermsAndConditionsAcceptance
             end
           end
 
           response 404 do
             key :description, 'terms not found'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
         end
@@ -111,21 +111,21 @@ module Swagger
           response 200 do
             key :description, 'create an acceptance for the terms and conditions response'
             schema do
-              key :'$ref', :TermsAndConditionsAcceptance
+              key :$ref, :TermsAndConditionsAcceptance
             end
           end
 
           response 404 do
             key :description, 'terms not found'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
 
           response 422 do
             key :description, 'errors on acceptance creation'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
         end

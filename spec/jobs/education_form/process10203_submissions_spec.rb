@@ -9,16 +9,40 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
   let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
-  describe '#format_application' do
-    it 'logs an error if the record is invalid' do
-      application_10203 = create(:va10203)
-      application_10203.create_stem_automated_decision(evss_user)
-      application_10203.education_benefits_claim.saved_claim.form = {}.to_json
-      application_10203.education_benefits_claim.saved_claim.save!(validate: false)
+  context 'scheduling' do
+    before do
+      allow(Rails.env).to receive('development?').and_return(true)
+    end
 
-      expect(subject).to receive(:log_exception_to_sentry).with(instance_of(EducationForm::FormattingError))
+    context 'job only runs between 6-18', run_at: '2017-01-01 00:00:00 EDT' do
+      let(:scheduler) { Rufus::Scheduler.new }
+      let(:possible_runs) do
+        ['2017-01-01 06:00:00 -0500',
+         '2017-01-01 07:00:00 -0500',
+         '2017-01-01 08:00:00 -0500',
+         '2017-01-01 09:00:00 -0500',
+         '2017-01-01 10:00:00 -0500',
+         '2017-01-01 11:00:00 -0500',
+         '2017-01-01 12:00:00 -0500',
+         '2017-01-01 13:00:00 -0500',
+         '2017-01-01 14:00:00 -0500',
+         '2017-01-01 15:00:00 -0500',
+         '2017-01-01 16:00:00 -0500',
+         '2017-01-01 17:00:00 -0500',
+         '2017-01-01 18:00:00 -0500']
+      end
 
-      subject.send(:format_application, EducationBenefitsClaim.find(application_10203.education_benefits_claim.id))
+      before do
+        yaml = YAML.load_file(Rails.root.join('config', 'sidekiq_scheduler.yml'))
+        cron = yaml['EducationForm::Process10203Submissions']['cron']
+        scheduler.schedule_cron(cron) {} # schedule_cron requires a block
+      end
+
+      it 'is only triggered by sidekiq-scheduler between 6-18' do
+        upcoming_runs = scheduler.timeline(Time.zone.now, 1.day.from_now).map(&:first)
+        expected_runs = possible_runs.map { |d| EtOrbi.parse(d.to_s) }
+        expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))
+      end
     end
   end
 
@@ -142,6 +166,20 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         subject.perform
         application_10203.reload
         expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(true)
+      end
+
+      it 'sets claim poa for claim with decision poa flag' do
+        application_10203 = create(:education_benefits_claim_10203,
+                                   processed_at: Time.zone.now.beginning_of_day,
+                                   education_stem_automated_decision: build(:education_stem_automated_decision,
+                                                                            :with_poa, :denied))
+        gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)
+        allow_any_instance_of(EVSS::GiBillStatus::Service).to receive(:get_gi_bill_status)
+                                                                .and_return(gi_bill_status)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_stem_automated_decision.poa).to eq(true)
       end
     end
     # rubocop:enable Layout/MultilineMethodCallIndentation

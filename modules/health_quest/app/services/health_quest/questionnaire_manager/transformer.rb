@@ -11,6 +11,8 @@ module HealthQuest
     #   @return [Array]
     # @!attribute organizations
     #   @return [Array]
+    # @!attribute facilities
+    #   @return [Array]
     # @!attribute questionnaires
     #   @return [Array]
     # @!attribute questionnaire_responses
@@ -27,6 +29,7 @@ module HealthQuest
       attr_reader :appointments,
                   :locations,
                   :organizations,
+                  :facilities,
                   :questionnaires,
                   :questionnaire_responses,
                   :save_in_progress,
@@ -50,6 +53,7 @@ module HealthQuest
         @appointments = opts[:lighthouse_appointments]
         @locations = opts[:locations]
         @organizations = opts[:organizations]
+        @facilities = opts[:facilities]
         @questionnaires = opts[:questionnaires]
         @questionnaire_responses = opts[:questionnaire_responses]
         @save_in_progress = opts[:save_in_progress]
@@ -72,7 +76,6 @@ module HealthQuest
         questionnaire_manager_data =
           appointments_with_questionnaires.each_with_object([]) do |base_structure, accumulator|
             groups = get_groups(base_structure)
-            return base_data if groups.empty?
 
             set_responses_for_base_structure(groups)
             accumulator << base_structure
@@ -166,7 +169,7 @@ module HealthQuest
       # @return [Hash] a hash of organizations
       #
       def organizations_by_facility_ids
-        OrganizationFormatter.build(organizations).to_h
+        OrganizationFormatter.build(organizations, facilities).to_h
       end
     end
   end

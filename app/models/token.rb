@@ -60,12 +60,16 @@ class Token
       payload['aud'] == Settings.oidc.isolated_audience.default
     else
       # Temorarily accept the default audience or the API specificed audience
-      [Settings.oidc.isolated_audience.default, @aud].include?(payload['aud'])
+      [Settings.oidc.isolated_audience.default, *@aud].include?(payload['aud'])
     end
   end
 
   def client_credentials_token?
     payload['sub'] == payload['cid']
+  end
+
+  def ssoi_token?
+    payload['last_login_type'] == 'ssoi'
   end
 
   def identifiers

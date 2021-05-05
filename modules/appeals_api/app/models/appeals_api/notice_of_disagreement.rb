@@ -23,6 +23,7 @@ module AppealsApi
     validate :validate_hearing_type_selection, if: :pii_present?
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
+    has_many :status_updates, as: :statusable, dependent: :destroy
 
     def pdf_structure(version)
       Object.const_get(
@@ -31,19 +32,19 @@ module AppealsApi
     end
 
     def veteran_first_name
-      header_field_as_string 'X-VA-Veteran-First-Name'
+      header_field_as_string 'X-VA-First-Name'
     end
 
     def veteran_last_name
-      header_field_as_string 'X-VA-Veteran-Last-Name'
+      header_field_as_string 'X-VA-Last-Name'
     end
 
     def ssn
-      header_field_as_string 'X-VA-Veteran-SSN'
+      header_field_as_string 'X-VA-SSN'
     end
 
     def file_number
-      header_field_as_string 'X-VA-Veteran-File-Number'
+      header_field_as_string 'X-VA-File-Number'
     end
 
     def consumer_name
@@ -90,7 +91,7 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
-    def board_review_option
+    def board_review_value
       form_data&.dig('data', 'attributes', 'boardReviewOption')
     end
 
@@ -105,6 +106,23 @@ module AppealsApi
 
     def lob
       'BVA'
+    end
+
+    def accepts_evidence?
+      board_review_option == 'evidence_submission'
+    end
+
+    def update_status!(status:, code: nil, detail: nil)
+      handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
+                                      from: self.status,
+                                      to: status,
+                                      status_update_time: Time.zone.now,
+                                      statusable_id: id
+                                    })
+
+      update!(status: status, code: code, detail: detail)
+
+      handler.handle!
     end
 
     private
@@ -123,7 +141,7 @@ module AppealsApi
     end
 
     def board_review_hearing_selected?
-      board_review_option == 'hearing'
+      board_review_value == 'hearing'
     end
 
     def includes_hearing_type_preference?

@@ -9,6 +9,9 @@
 # The actor_type should be either `user` for features you want to be "sticky" for a logged in user (default)
 #  or `cookie_id` of you wish to use the Google Analytics id as the unique identifier.
 features:
+  can_upload_10_10cg_poa:
+    actor_type: cookie_id
+    description: Allows users to upload POA documentation when completing the 10-10CG.
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -17,10 +20,6 @@ features:
       of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products
       team.
-  ch33_dd:
-    actor_type: user
-    description: >
-      Allows user to access chapter 33 benefits direct deposit view/update APIs
   ch33_dd_profile:
     actor_type: user
     enable_in_development: true
@@ -39,10 +38,19 @@ features:
     description: >
       Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
       Note: When this is enabled, the 'Sign in' button will be hidden
+  covid_vaccine_registration_frontend_enable_expanded_eligibility:
+    actor_type: user
+    description: >
+      Toggles the 'continue' button to launch the new expanded eligibility VAFS app
   covid_vaccine_registration:
     actor_type: user
     description: >
       Toggles availability of covid vaccine form API.
+  covid_vaccine_registration_expanded:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggles availability of covid vaccine expanded registration form API.
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: >
@@ -124,30 +132,6 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to directly schedule VA appointments
-  va_online_scheduling_vsp_appointment_list:
-    actor_type: user
-    description: >
-      Enables the use of VSP for VA appointment data and cancellation on list page
-  va_online_scheduling_vsp_appointment_new:
-    actor_type: user
-    description: >
-      Enables the use of VSP for creating a new VA appointment
-  va_online_scheduling_ccsp_appointment_list:
-    actor_type: user
-    description: >
-      Enables the use of CCSP for Community Care appointment data on list page
-  va_online_scheduling_ccsp_request_new:
-    actor_type: user
-    description: >
-      Enables the use of CCSP for making a new Community Care appointment request
-  va_online_scheduling_vsp_request_list:
-    actor_type: user
-    description: >
-      Enables the use of VSP for request data and cancellation on list page
-  va_online_scheduling_vsp_request_new:
-    actor_type: user
-    description: >
-      Enables the use of VSP for making a new VA appointment request
   va_online_scheduling_express_care_new:
     actor_type: user
     enable_in_development: true
@@ -173,6 +157,11 @@ features:
     enable_in_development: true
     description: >
       Set up toggle in anticipation of the next iteration of facility selection, version 2.2.
+  va_online_scheduling_unenrolled_vaccine:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle for unenrolled vaccine scheduling discovery work.
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -192,16 +181,11 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
-  form526_confirmation_email:
+  new_va_forms_search:
     actor_type: user
     enable_in_development: true
     description: >
-      Allows veterans to receive a confirmation email after submitting form526. Owned by va-notify team.
-  form526_confirmation_email_show_copy:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Shows vets-website content to inform veterans to expect a form526 confirmation email. Owned by va-notify team.
+      Uses the new search algorithm
   va_view_dependents_access:
     actor_type: user
     description: >
@@ -228,6 +212,16 @@ features:
     actor_type: user
     description: >
       Enables debt letters
+  show_financial_status_report_wizard:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables the Wizard for VA Form 5655 (Financial Status Report)
+  show_financial_status_report:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables VA Form 5655 (Financial Status Report)
   show_edu_benefits_5495_wizard:
     actor_type: user
     description: >
@@ -359,10 +353,6 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
-  async_10_10_cg_attachments:
-    actor_type: cookie_id
-    description: >
-      This will process attachments of 10-10CG submissions using sidekiq.
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -387,11 +377,6 @@ features:
     enable_in_development: true
     description: >
       Add automated decision to 10203 application workflow
-  edu_form_omb_and_expiration:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Update OMB # and expiration dates for forms
   in_progress_form_custom_expiration:
     actor_type: user
     enable_in_development: true
@@ -402,21 +387,11 @@ features:
     enable_in_development: true
     description: >
       Enable frontend application and cta for Search Representative application
-  gibct_state_search:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Include state abbreviation when searching on comparison tool
   dependents_management:
     actor_type: user
     enable_in_development: true
     description: >
       Manage dependent removal from view dependent page
-  vanotify_service_enhancement:
-    actor_type: user
-    enable_in_development: true
-    description: >
-      Allow consumer to use service specific VaNotify client. Owned by va-notify team.
   subform_8940_4192:
     actor_type: user
     enable_in_development: true
@@ -425,17 +400,37 @@ features:
   spool_testing_error_1:
     actor_type: user
     description: >
-      Support testing of track file spool file creation by RPO
+      Enables spool_file_events tracking rows to be used to prevent multiple spool files per RPO per date
   spool_testing_error_2:
     actor_type: user
     description: >
-      Create notification for when spool file processing fails
+      Enables Slack notifications for CreateDailySpoolFiles
   spool_testing_error_3:
     actor_type: user
     description: >
-      Update processing retry functionality
+      Enables email notifications for CreateDailySpoolFiles errors
   dependency_verification:
     actor_type: user
     enable_in_development: true
     description: >
       Feature gates the dependency verification modal for updating the diaries service.
+  form10182_nod:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Form 10182 Notice of Disagreement - Request a board appeal
+  virtual_agent_bot_a:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Points to Bot A
+  virtual_agent_token:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables connection to webchat
+  sharable_link:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggles the availability of sharable links to deep link to content

@@ -91,6 +91,15 @@ salesforce-carma:
 salesforce:
   env: dev
 
+form_10_10cg:
+  poa:
+    s3:
+      aws_access_key_id: my-aws-key-id
+      aws_secret_access_key: my-aws-access-key
+      bucket: my-bucket
+      enabled: true
+      region: us-gov-west-1
+
 # Settings for Education Benefits
 edu:
   prefill: true
@@ -99,7 +108,23 @@ edu:
     pass: ~
     user: ~
     port: ~
-
+  slack:
+    webhook_url: https://example.com
+  spool_error:
+    emails:
+      - Joseph.Preisser@va.gov
+      - Shay.Norton-Leonard@va.gov
+      - PIERRE.BROWN@va.gov
+      - VAVBAHIN/TIMS@vba.va.gov
+      - EDUAPPMGMT.VBACO@VA.GOV
+    staging_emails:
+      - sonntag_adam@bah.com
+      - shawkey_daniel@bah.com
+      - neel_darrell@bah.com
+      - turner_desiree@bah.com
+      - mccurdy_devin@bah.com
+      - roth_matthew@bah.com
+      - delli-gatti_michael@bah.com
 dependents:
   prefill: true
 
@@ -119,7 +144,7 @@ bip:
   claims:
     url: "https://claims-uat.dev8.bip.va.gov"
 
-# Settings for Vet360
+# Settings for VAProfile
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
@@ -183,6 +208,10 @@ modules_appeals_api:
         - laura.trager@adhocteam.us
         - nathan.wright@oddball.io
   schema_dir: config/schemas
+  evidence_submissions:
+    location:
+      prefix: http://some.fakesite.com/path
+      replacement: http://another.fakesite.com/rewrittenpath
   s3:
     uploads_enabled: false
     aws_access_key_id: "aws_access_key_id"
@@ -553,6 +582,10 @@ oidc:
     default: ~
     veteran_verification: ~
     claims: ~
+  charon:
+    enabled: ~
+    endpoint: ~
+    audience: ~
   base_api_url: https://example.com
   base_api_token: ~
   smart_launch_url: ~
@@ -626,11 +659,16 @@ search:
   mock_search: true
   url: https://search.usa.gov/api/v2
 
+# Settings for search-typeahead
+search_typeahead:
+  api_key: API_GOV_ACCESS_KEY
+  name: va
+  url: https://api.gsa.gov/technology/searchgov/v1
+
   # Settings for search-click-tracking
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
-  module_code: I14Y
   mock: false
   url: https://api.gsa.gov/technology/searchgov/v2
 
@@ -639,35 +677,36 @@ flipper:
     - adewitt@thoughtworks.com
     - alastair@adhocteam.us
     - anna@adhoc.team
-    - bconley@governmentcio.com
     - bill.ryan@adhocteam.us
     - cory.trimm@va.gov
+    - cwheeler@governmentcio.com
     - dan.hinze@adhocteam.us
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
     - draju@governmentcio.com
-    - ed.mangimelli@adhocteam.us
+    - dror@matal.com
     - elder_joseph@bah.com
     - eric.buckley@adhocteam.us
     - erik@adhocteam.us
     - filip.fafara@gmail.com
+    - fahmed@governmentcio.com
     - grodriguez@governmentcio.com
     - hshin@thoughtworks.com
-    - hughes_dustin@bah.com
     - jacob.gacek@thoughtworks.com
     - jbalboni@gmail.com
     - jeff@adhocteam.us
     - jennie.mcgibney@va.gov
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
+    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kam@adhocteam.us
-    - keifer@oddball.io
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
+    - lauren.ernest@adhocteam.us
     - lihan@adhocteam.us
     - lindsey.hattamer@oddball.io
     - lsanchez@governmentcio.com
@@ -677,6 +716,7 @@ flipper:
     - mccurdy_devin@bah.com
     - mdewey@governmentcio.com
     - micah@adhocteam.us
+    - michael.chelen@va.gov
     - michael.fleet@oddball.io
     - mnunemak@thoughtworks.com
     - n.ratana@gmail.com
@@ -686,15 +726,11 @@ flipper:
     - patrick@adhocteam.us
     - paul.phillips@thoughtworks.com
     - pherbert@thoughtworks.com
-    - philip.becker@oddball.io
     - regarr@gmail.com # Robin Garrison - AdHoc
-    - rian.fowler@adhoc.team
-    - rianfowler@outlook.com
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
-    - shallie@governmentcio.com
     - shawkey_daniel@bah.com
     - shefai.nayak@thoughtworks.com
     - sonntag_adam@bah.com
@@ -706,10 +742,6 @@ flipper:
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
-    - callen@governmentcio.com # Remove after Profile 2.0 UAT
-    - matt.shea@adhocteam.us # Remove after Profile 2.0 UAT
-    - tressa.furner@adhocteam.us # Remove after Profile 2.0 UAT
-    - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
 
 bgs:
   application: ~
@@ -723,7 +755,6 @@ bgs:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
-  staging_flag: ~
   health_server_id: ~
 
 va_mobile:
@@ -744,6 +775,9 @@ hqva_mobile:
   key_path: /srv/vets-api/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
+  facilities:
+    url: "https://api.va.gov"
+    ids_path: "/v1/facilities/va"
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"
@@ -776,11 +810,18 @@ hqva_mobile:
       - "patient/Organization.read"
       - "patient/Patient.read"
 
+# settings va.gov uses related to lighthouse api's
 lighthouse:
   api_key: fake_key
   facilities:
     url: https://sandbox-api.va.gov
     api_key: fake_key
+  decision_reviews:
+    s3:
+      aws_access_key_id: "aws_access_key_id"
+      aws_secret_access_key: "aws_secret_access_key"
+      region: "region"
+      bucket: "bucket"
 
 forms:
   url: https://sandbox-api.va.gov/services/va_forms/v0/
@@ -813,8 +854,19 @@ coronavirus_chatbot:
   directline_uri: northamerica.directline.botframework.com
   webchat_secret: fake_secret
 
+covid_vaccine:
+  allowed_facilities: [402,405,436,437,438,442,459,460,463,501,502,503,504,506,508,509,512,515,516,517,518,519,520,521,523,526,528,529,531,534,537,538,539,540,541,542,544,546,548,549,550,552,553,554,556,557,558,561,562,564,565,568,570,573,575,578,580,581,583,585,586,589,590,593,595,596,598,600,603,605,607,608,610,612,613,614,618,619,620,621,623,626,629,630,631,632,635,636,637,640,642,644,646,648,649,650,652,653,654,655,656,657,658,659,660,662,663,664,666,667,668,671,672,673,674,675,676,678,679,687,688,689,691,692,693,695,740,756,757]
+  enrollment_service:
+    job_enabled: false
+    sftp:
+      host: fake_host
+      port: ~
+      username: fake_username
+      password: fake_password
+
 virtual_agent:
-  webchat_secret: fake_secret
+  webchat_secret_a: fake_secret_a
+  webchat_secret_b: fake_secret_b
 
 # Settings for notifications client
 vanotify:
@@ -825,21 +877,14 @@ vanotify:
       template_id:
         form526_confirmation_email: fake_template_id
         covid_vaccine_registration: fake_template_id
+        covid_vaccine_expanded_registration: fake_template_id
+        direct_deposit_edu: edu_template_id
+        direct_deposit_comp_pen: comp_pen_template_id
     lighthouse:
       api_key: fake_secret
       template_id:
         disconnection_template: fake_template_id
         connection_template: fake_template_id
-
-  # will be removed once the vanotify_service_enhancement feature toggle is removed
-  api_key: fake_secret
-  template_id:
-    form526_confirmation_email: fake_template_id
-    connection_template: fake_template_id
-    disconnection_template: fake_template_id
-    covid_vaccine_registration: fake_template_id
-    direct_deposit_edu: edu_template_id
-    direct_deposit_comp_pen: comp_pen_template_id
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -857,6 +902,13 @@ genisis:
   service_path: /COVID19Service
   user: TestUser
   pass: bogus
+
+# Settings for the VEText integration (mobile push notifications)
+vetext_push:
+  va_mobile_app_sid: mobile-app-sid
+  base_url: https://vetext1.r01.med.va.gov
+  user: vets-api-username
+  pass: secret
 
 veteran_readiness_and_employment:
   base_url: ~
@@ -881,3 +933,7 @@ github_cvu:
   installation_id: ~
   integration_id: ~
   private_pem: ~
+
+pg_hero:
+  username: ~
+  password: ~

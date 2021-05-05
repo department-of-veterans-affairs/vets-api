@@ -58,7 +58,12 @@ module VAOS
       end
 
       def each_serializer
-        "VAOS::V0::#{params[:type].upcase}AppointmentsSerializer".constantize
+        case params[:type].upcase
+        when 'CC'
+          VAOS::V0::CCAppointmentsSerializer
+        when 'VA'
+          VAOS::V0::VAAppointmentsSerializer
+        end
       end
 
       def validate_params

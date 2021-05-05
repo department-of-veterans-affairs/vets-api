@@ -36,11 +36,7 @@ module VAOS
             log(:warn, 'VAOS service call failed!', log_tags(env, start_time, response_env))
           end
         end
-      rescue Timeout::Error, Faraday::TimeoutError => e
-        statsd_increment("#{STATSD_KEY_PREFIX}.fail", env, e)
-        log(:warn, "VAOS service call failed - #{e.message}", log_tags(env, start_time))
-        raise
-      rescue Faraday::ConnectionFailed => e
+      rescue Timeout::Error, Faraday::TimeoutError, Faraday::ConnectionFailed => e
         statsd_increment("#{STATSD_KEY_PREFIX}.fail", env, e)
         log(:warn, "VAOS service call failed - #{e.message}", log_tags(env, start_time))
         raise
@@ -90,7 +86,7 @@ module VAOS
       #
       # @return [Boolean] true if user session request, false otherwise
       def user_session_request?(env)
-        env.url.to_s.include?('users/v2/session?processRules=true') ? true : false
+        env.url.to_s.include?('users/v2/session?processRules=true')
       end
 
       # #jti is the value from the JWT key value pair in the response and needed for logging and audit purposes

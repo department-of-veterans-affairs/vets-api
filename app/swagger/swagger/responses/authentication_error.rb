@@ -7,7 +7,7 @@ module Swagger
         base.response 401 do
           key :description, 'Not authorized'
           schema do
-            key :'$ref', :Errors
+            key :$ref, :Errors
           end
         end
       end

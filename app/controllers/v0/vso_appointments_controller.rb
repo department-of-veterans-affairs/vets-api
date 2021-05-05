@@ -24,9 +24,9 @@ module V0
       resp = form.send_pdf
 
       if resp.status == 200
-        render json: { "message": 'submitted' }
+        render json: { message: 'submitted' }
       else
-        render json: { "message": 'error', "details": resp.body }, status: resp.status
+        render json: { message: 'error', details: resp.body }, status: resp.status
       end
     end
   end

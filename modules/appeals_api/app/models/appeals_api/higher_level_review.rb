@@ -37,6 +37,7 @@ module AppealsApi
     )
 
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
+    has_many :status_updates, as: :statusable, dependent: :destroy
 
     def pdf_structure(version)
       Object.const_get(
@@ -175,6 +176,19 @@ module AppealsApi
 
     def consumer_id
       auth_headers&.dig('X-Consumer-ID')
+    end
+
+    def update_status!(status:, code: nil, detail: nil)
+      handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
+                                      from: self.status,
+                                      to: status,
+                                      status_update_time: Time.zone.now,
+                                      statusable_id: id
+                                    })
+
+      update!(status: status, code: code, detail: detail)
+
+      handler.handle!
     end
 
     private

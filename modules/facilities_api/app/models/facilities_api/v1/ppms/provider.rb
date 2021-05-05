@@ -38,7 +38,7 @@ module FacilitiesApi
       new_attr[:contact_method] ||= new_attr.delete(:contact_method)
       new_attr[:fax] ||= new_attr.delete(:organization_fax)
       new_attr[:gender] ||= new_attr.delete(:provider_gender)
-      new_attr[:id] ||= new_attr.delete(:provider_identifier)
+      new_attr[:id] ||= new_attr[:provider_identifier]
       new_attr[:provider_type] ||= 'GroupPracticeOrAgency'
 
       self.attributes = new_attr
@@ -51,7 +51,7 @@ module FacilitiesApi
       ).to_a.join('|'))
     end
 
-    def set_group_practive_or_agency!
+    def set_group_practice_or_agency!
       self.provider_type = 'GroupPracticeOrAgency'
     end
 

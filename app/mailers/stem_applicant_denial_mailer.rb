@@ -13,7 +13,7 @@ class StemApplicantDenialMailer < TransactionalEmailMailer
 
   def your_claims_status_url
     env = FeatureFlipper.staging_email? ? 'staging.' : ''
-    "https://#{env}va.gov/track-claims/your-stem-claims/#{@claim.id}/status"
+    "https://#{env}va.gov/track-claims/your-stem-claims/#{@claim.id}/status?utm_medium=email&utm_campaign=stem_scholarship_decision"
   end
 
   def build(claim, ga_client_id)

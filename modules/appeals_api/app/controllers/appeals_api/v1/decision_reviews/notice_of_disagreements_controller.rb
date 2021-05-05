@@ -76,7 +76,12 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def new_notice_of_disagreement
-    @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.new(auth_headers: headers, form_data: @json_body)
+    @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.new(
+      auth_headers: headers,
+      form_data: @json_body,
+      source: headers['X-Consumer-Username'],
+      board_review_option: @json_body['data']['attributes']['boardReviewOption']
+    )
     render_model_errors unless @notice_of_disagreement.validate
   end
 

@@ -13,20 +13,22 @@ module ClaimsApi
 
     PENDING = 'pending'
     UPDATED = 'updated'
+    SUBMITTED = 'submitted'
     ERRORED = 'errored'
 
-    before_validation :set_md5
-    validates :md5, uniqueness: true
+    before_save :set_md5
 
     def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil)
       primary_identifier = {}
       primary_identifier[:id] = id if id.present?
       primary_identifier[:header_md5] = header_md5 if header_md5.present?
       primary_identifier[:md5] = md5 if md5.present?
-      poa = ClaimsApi::PowerOfAttorney.find_by(primary_identifier)
-      return nil if poa.present? && poa.source_data['name'] != source_name
+      # it's possible to have duplicate POAs, so be sure to return the most recently created match
+      poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(created_at: :desc)
+      poas = poas.select { |poa| poa.source_data['name'] == source_name }
+      return nil if poas.blank?
 
-      poa
+      poas.last
     end
 
     def sign_pdf
@@ -110,6 +112,7 @@ module ClaimsApi
                                     'va_eauth_service_transaction_id',
                                     'va_eauth_issueinstant',
                                     'Authorization')
+      headers['status'] = status
       self.header_md5 = Digest::MD5.hexdigest headers.to_json
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
@@ -123,7 +126,9 @@ module ClaimsApi
     end
 
     def external_uid
-      source_data.present? ? source_data['icn'] : Settings.bgs.external_uid
+      return source_data['icn'] if source_data.present? && source_data['icn'].present?
+
+      Settings.bgs.external_uid
     end
 
     def signature_image_paths

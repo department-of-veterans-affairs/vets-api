@@ -111,8 +111,12 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   end
 
   describe '#create' do
+    let(:claim) { build(:caregivers_assistance_claim) }
+
     it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :create do
       before do
+        expect(Raven).not_to receive(:tags_context).with(claim_guid: claim.guid)
+
         expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
         expect(described_class::AUDITOR).to receive(:record).with(
           :submission_failure_client_data,
@@ -123,6 +127,8 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
     it_behaves_like '10-10CG request with missing param: form', :create do
       before do
+        expect(Raven).not_to receive(:tags_context).with(claim_guid: claim.guid)
+
         expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
         expect(described_class::AUDITOR).to receive(:record).with(
           :submission_failure_client_data,
@@ -132,10 +138,14 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     end
 
     it_behaves_like '10-10CG request with invalid form data', :create do
-      before do
+      let(:expected_errors) do
         # Need to build a duplicate claim in order to not change the state of the
         # mocked claim that is passed into the src code for testing
-        expected_errors = build(:caregivers_assistance_claim, form: form_data).tap(&:valid?).errors.messages
+        build(:caregivers_assistance_claim, form: form_data).tap(&:valid?).errors.messages
+      end
+
+      before do
+        expect(Raven).not_to receive(:tags_context).with(claim_guid: claim.guid)
 
         expect(described_class::AUDITOR).to receive(:record).with(:submission_attempt)
         expect(described_class::AUDITOR).to receive(:record).with(
@@ -147,7 +157,6 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     end
 
     it 'submits claim using Form1010cg::Service' do
-      claim = build(:caregivers_assistance_claim)
       form_data = claim.form
       params = { caregivers_assistance_claim: { form: form_data } }
       service = double
@@ -164,6 +173,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       ).and_return(
         claim
       )
+
+      expect(Raven).to receive(:tags_context).once.with(claim_guid: claim.guid)
+      allow(Raven).to receive(:tags_context).with(any_args).and_call_original
 
       expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
       expect(service).to receive(:process_claim!).and_return(submission)
@@ -193,7 +205,6 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
     context 'when Form1010cg::Service raises InvalidVeteranStatus' do
       it 'renders backend service outage' do
-        claim         = build(:caregivers_assistance_claim)
         form_data     = claim.form
         params        = { caregivers_assistance_claim: { form: form_data } }
         service       = double
@@ -203,6 +214,9 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         ).and_return(
           claim
         )
+
+        expect(Raven).to receive(:tags_context).once.with(claim_guid: claim.guid)
+        allow(Raven).to receive(:tags_context).with(any_args).and_call_original
 
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Form1010cg::Service::InvalidVeteranStatus)
@@ -233,7 +247,6 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       end
 
       it 'matches the response of a Common::Client::Errors::ClientError' do
-        claim = build(:caregivers_assistance_claim)
         form_data = claim.form
         params = { caregivers_assistance_claim: { form: form_data } }
         service = double
@@ -245,6 +258,10 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
         ).and_return(
           claim
         )
+
+        # called in #create and again when error is raised
+        expect(Raven).to receive(:tags_context).twice.with(claim_guid: claim.guid)
+        allow(Raven).to receive(:tags_context).with(any_args).and_call_original
 
         expect(Form1010cg::Service).to receive(:new).with(claim).and_return(service)
         expect(service).to receive(:process_claim!).and_raise(Common::Client::Errors::ClientError)

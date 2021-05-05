@@ -19,14 +19,14 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
       let(:upload) { FactoryBot.create(:upload_submission, status: 'received', created_at: 11.days.ago) }
 
       it 'deletes the s3 object' do
-        with_settings(Settings.vba_documents.s3, 'enabled': true) do
+        with_settings(Settings.vba_documents.s3, enabled: true) do
           expect(@objstore).to receive(:delete).with(upload.guid)
           described_class.new.perform
         end
       end
 
       it 'sets s3_deleted to true' do
-        with_settings(Settings.vba_documents.s3, 'enabled': true) do
+        with_settings(Settings.vba_documents.s3, enabled: true) do
           allow(@objstore).to receive(:delete).with(upload.guid)
           described_class.new.perform
           upload.reload
@@ -39,7 +39,7 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
       let(:upload) { FactoryBot.create(:upload_submission, status: 'error', created_at: 11.days.ago) }
 
       it 'deletes the s3 object' do
-        with_settings(Settings.vba_documents.s3, 'enabled': true) do
+        with_settings(Settings.vba_documents.s3, enabled: true) do
           expect(@objstore).to receive(:delete).with(upload.guid)
           described_class.new.perform
         end
@@ -50,7 +50,7 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
       let(:upload) { FactoryBot.create(:upload_submission, status: 'received') }
 
       it 'does nothing' do
-        with_settings(Settings.vba_documents.s3, 'enabled': true) do
+        with_settings(Settings.vba_documents.s3, enabled: true) do
           expect(@objstore).not_to receive(:delete).with(upload.guid)
           described_class.new.perform
           upload.reload
