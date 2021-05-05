@@ -13,5 +13,6 @@ class PgHeroCleanQueryStatsJob
   def handle_errors(ex)
     Rails.logger.error('PgHero Query Stat Cleanup Failed')
     log_exception_to_sentry(ex)
+    raise ex
   end
 end

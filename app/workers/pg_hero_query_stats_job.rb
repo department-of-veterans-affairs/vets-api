@@ -13,5 +13,6 @@ class PgHeroQueryStatsJob
   def handle_errors(ex)
     Rails.logger.error('PgHero Query Stat Capture Failed')
     log_exception_to_sentry(ex)
+    raise ex
   end
 end
