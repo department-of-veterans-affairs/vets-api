@@ -19,6 +19,9 @@ FactoryBot.define do
       updated_at { 8.days.ago }
       status { AppealsApi::NoticeOfDisagreement::COMPLETE_STATUSES.sample }
     end
+    trait :board_review_hearing do
+      board_review_option { 'hearing' }
+    end
   end
 
   factory :minimal_notice_of_disagreement, class: 'AppealsApi::NoticeOfDisagreement' do
