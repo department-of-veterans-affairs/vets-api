@@ -12,17 +12,15 @@ jobs:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       RAILS_ENV: test
     runs-on: ubuntu-20.04
+
     if: github.event_name  == 'pull_request'
+
     steps:
     - uses: actions/checkout@v2
+
     - uses: actions/setup-ruby@v1
       with:
         bundler-cache: true
-    - uses: MeilCli/danger-action@v5
-      with:
-        plugins_file: 'Gemfile'
-        install_path: 'vendor/bundle'
-        danger_file: 'Dangerfile'
-        danger_id: 'danger-pr'
-      env:
-        DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run Danger
+      run: bundle exec danger --verbose
