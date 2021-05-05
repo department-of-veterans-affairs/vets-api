@@ -7,7 +7,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
 
   context request_params do
     before do
-      get facilities_api.v1_va_index_url, params: params
+      get '/facilities_api/v1/va', params: params
     end
 
     it { expect(response).to be_successful }
@@ -43,15 +43,15 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       prev_params = params.merge({ page: prev_page, per_page: 10 }).to_query
       next_params = params.merge({ page: next_page, per_page: 10 }).to_query
 
-      prev_link = prev_page ? "#{facilities_api.v1_va_index_url}?#{prev_params}" : nil
-      next_link = next_page ? "#{facilities_api.v1_va_index_url}?#{next_params}" : nil
+      prev_link = prev_page ? "http://www.example.com/facilities_api/v1/va?#{prev_params}" : nil
+      next_link = next_page ? "http://www.example.com/facilities_api/v1/va?#{next_params}" : nil
 
       expect(parsed_body[:links]).to match(
-        self: "#{facilities_api.v1_va_index_url}?#{params.merge({ page: current_page, per_page: 10 }).to_query}",
-        first: "#{facilities_api.v1_va_index_url}?#{params.merge({ per_page: 10 }).to_query}",
+        self: "http://www.example.com/facilities_api/v1/va?#{params.merge({ page: current_page, per_page: 10 }).to_query}",
+        first: "http://www.example.com/facilities_api/v1/va?#{params.merge({ per_page: 10 }).to_query}",
         prev: prev_link,
         next: next_link,
-        last: "#{facilities_api.v1_va_index_url}?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
+        last: "http://www.example.com/facilities_api/v1/va?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
       )
     end
   end
@@ -69,22 +69,22 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
 
   describe 'GET #index' do
     it 'returns 400 for invalid type parameter' do
-      get facilities_api.v1_va_index_url, params: { type: 'bogus' }
+      get '/facilities_api/v1/va', params: { type: 'bogus' }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for query with services but no type' do
-      get facilities_api.v1_va_index_url, params: { services: 'EyeCare' }
+      get '/facilities_api/v1/va', params: { services: 'EyeCare' }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for health query with unknown service' do
-      get facilities_api.v1_va_index_url, params: { type: 'health', services: ['OilChange'] }
+      get '/facilities_api/v1/va', params: { type: 'health', services: ['OilChange'] }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for benefits query with unknown service' do
-      get facilities_api.v1_va_index_url, params: { type: 'benefits', services: ['Haircut'] }
+      get '/facilities_api/v1/va', params: { type: 'benefits', services: ['Haircut'] }
       expect(response).to have_http_status(:bad_request)
     end
 
@@ -100,7 +100,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
       )
 
       expect do
-        get facilities_api.v1_va_index_url, params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
+        get '/facilities_api/v1/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
       end.to instrument('lighthouse.facilities.request.faraday')
     end
 
@@ -227,7 +227,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
 
   describe 'GET #show' do
     before do
-      get facilities_api.v1_va_url('vha_648A4')
+      get '/facilities_api/v1/va/vha_648A4'
     end
 
     it { expect(response).to be_successful }
