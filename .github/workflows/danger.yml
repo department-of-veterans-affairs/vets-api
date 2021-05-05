@@ -11,6 +11,7 @@ jobs:
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       RAILS_ENV: test
+      DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: ubuntu-20.04
 
     if: github.event_name == 'pull_request'
@@ -27,6 +28,4 @@ jobs:
         plugins_file: 'Gemfile'
         install_path: 'vendor/bundle'
         danger_file: 'Dangerfile'
-        danger_id: 'danger-pr'
-      env:
-        DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        danger_id: 'danger-pr'        
