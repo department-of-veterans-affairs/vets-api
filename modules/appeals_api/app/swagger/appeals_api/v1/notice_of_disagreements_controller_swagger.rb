@@ -471,7 +471,11 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     operation :post, tags: NOD_TAG do
       key :operationId, 'postNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Get a location for subsequent evidence submission document upload PUT request'
-      key :description, ''
+      key :description, <<~DESC
+        This is the first step to submitting supporting evidence for an NOD.  (See the Evidence Uploads section above for additional information.)
+
+        The Notice of Disagreement GUID that is returned when the NOD is submitted, is supplied to this endpoint to ensure the NOD is in a valid state for sending supporting evidence documents.  Only NODs that selected the Evidence Submission lane are allowed to submit evidence documents up to 90 days after the NOD is received by VA.
+      DESC
       parameter name: 'uuid', 'in': 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
         schema { key :'$ref', :uuid }
       end
@@ -542,6 +546,98 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
                   key :description, 'Only populated after submission starts processing'
                   key :example, 'null'
                 end
+              end
+            end
+          end
+        end
+      end
+
+      response 400 do
+        key :description, 'Bad Request'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            property :errors do
+              key :type, :array
+
+              items do
+                property :status do
+                  key :type, :integer
+                  key :example, 400
+                end
+                property :detail do
+                  key :type, :string
+                  key :example, 'Must supply a corresponding NOD id in order to submit evidence'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      response 404 do
+        key :description, 'Associated Notice of Disagreement not found'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            property :errors do
+              key :type, :array
+
+              items do
+                property :status do
+                  key :type, :integer
+                  key :example, 404
+                end
+                property :detail do
+                  key :type, :string
+                  key :example, 'The record identified by {uuid} not found.'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      response 422 do
+        key :description, 'Validation errors'
+        content 'application/json' do
+          schema do
+            key :type, :object
+
+            property :title do
+              key :type, :string
+              key :enum, [:unprocessable_entity]
+              key :example, 'unprocessable_entity'
+            end
+
+            property :detail do
+              key :type, :string
+              key :enum,
+                  ["Request header 'X-VA-SSN' does not match the associated Notice of Disagreement's SSN",
+                   "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"]
+              key :example, "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
+            end
+
+            property :status do
+              key :type, :integer
+              key :description, 'Standard HTTP error response code.'
+              key :example, 422
+            end
+          end
+        end
+      end
+
+      response 500 do
+        key :description, 'Unknown Error'
+
+        content 'application/json' do
+          schema do
+            key :type, :object
+            key :example, ERROR_500_EXAMPLE
+            property :errors do
+              key :type, :array
+              items do
+                key :$ref, :errorModel
               end
             end
           end
