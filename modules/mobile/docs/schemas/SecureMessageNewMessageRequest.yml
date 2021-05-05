@@ -12,3 +12,6 @@ properties:
     example: "OTHER"
   body:
     type: string
+  subject:
+    type: string
+    example: "Question about my medication"
