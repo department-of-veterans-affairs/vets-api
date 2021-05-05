@@ -168,7 +168,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       get "#{path}#{evidence_submissions.sample.guid}"
       expect(response).to have_http_status(:ok)
     end
-    
+
     it 'allow for status simulation' do
       with_settings(Settings, vsp_environment: 'development') do
         with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
