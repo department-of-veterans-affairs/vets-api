@@ -153,5 +153,15 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end.to raise_error(ActiveRecord::RecordInvalid,
                          'Validation failed: Status is not included in the list')
     end
+
+    it 'emits an event' do
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      notice_of_disagreement.update_status!(status: 'pending')
+
+      expect(handler).to have_received(:handle!)
+    end
   end
 end
