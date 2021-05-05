@@ -38,7 +38,7 @@ describe GIDSRedis do
     context 'when there is cached data' do
       it 'returns the cached data', :aggregate_failures do
         subject.cache(
-          :get_calculator_constants.to_s + scrubbed_params.to_s,
+          :get_calculator_constants_v0.to_s + scrubbed_params.to_s,
           gids_response
         )
         expect_any_instance_of(GI::Client).not_to receive(:get_calculator_constants_v0).with(scrubbed_params)
