@@ -46,7 +46,6 @@ module EducationForm
           relation = build_submission_relation(range_type, region, form_type, status)
 
           if show_individual_benefits(form_type)
-            binding.pry
             application_types.each do |application_type|
               region_submissions[application_type] = relation.where(application_type => true).count
             end
