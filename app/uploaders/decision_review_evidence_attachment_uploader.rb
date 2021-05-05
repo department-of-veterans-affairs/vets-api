@@ -24,7 +24,7 @@ class DecisionReviewEvidenceAttachmentUploader < CarrierWave::Uploader::Base
   def set_storage_options!
     #  defaults to CarrierWave::Storage::File if not AWS
     if Rails.env.production?
-      s3_settings = Settings.lighthouse.decision_reviews.s3
+      s3_settings = Settings.decision_review.s3
       set_aws_config(
         s3_settings.aws_access_key_id,
         s3_settings.aws_secret_access_key,

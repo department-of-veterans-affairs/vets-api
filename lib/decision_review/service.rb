@@ -143,9 +143,10 @@ module DecisionReview
     # @return [Faraday::Response]
     #
 
-    def get_notice_of_disagreement_upload_url(nod_id:)
+    def get_notice_of_disagreement_upload_url(nod_id:, ssn:)
       with_monitoring_and_error_handling do
-        perform :post, 'notice_of_disagreements/evidence_submissions', nod_id: nod_id
+        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_id: nod_id },
+                { 'X-VA-SSN' => ssn.to_s.strip.presence }
       end
     end
 
