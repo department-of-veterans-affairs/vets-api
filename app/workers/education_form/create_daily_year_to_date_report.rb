@@ -11,7 +11,7 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES - %w[1990s]
+    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES
 
     FORM_TYPE_HEADERS = EducationBenefitsClaim.form_headers(FORM_TYPES).map do |form_header|
       [form_header, '', '']
@@ -46,6 +46,7 @@ module EducationForm
           relation = build_submission_relation(range_type, region, form_type, status)
 
           if show_individual_benefits(form_type)
+            binding.pry
             application_types.each do |application_type|
               region_submissions[application_type] = relation.where(application_type => true).count
             end

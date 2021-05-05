@@ -80,6 +80,8 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
       end
       create(:education_benefits_submission, form_type: '0994',
                                              created_at: date, region: :eastern, vettec: true, chapter33: false)
+      create(:education_benefits_submission, form_type: '1990s',
+                                             created_at: date, region: :western, vrrap: true)
     end
 
     context 'with the date variable set' do
