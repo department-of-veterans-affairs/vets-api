@@ -120,7 +120,12 @@ module OpenidAuth
           parsed_sta3n = vista_id.match(parsed_sta3n_match_pattern)
           if sta3n.to_s.eql?(parsed_sta3n.to_s)
             duz = vista_id.match(/\|\d+\^/).to_s.match(/\d+/)
-            return validation_from_charon(duz, sta3n)
+            charon_response = validation_from_charon(duz, sta3n)
+            if charon_response.code == 200
+              return true
+            else
+              raise error_klass(charon_response.body)
+            end
           end
         end
         false
@@ -135,20 +140,9 @@ module OpenidAuth
       def validation_from_charon(duz, site)
         response = RestClient.get(Settings.oidc.charon.endpoint,
                                   { params: { duz: duz, site: site } })
-        response.code == 200
+        response
       rescue => e
-        msg = 'Failed validation with Charon.'
-        if e.is_a?(RestClient::ExceptionWithResponse)
-          if e.response.body
-            body = JSON.parse(e.response.body)
-            if body['message']
-              msg = body['message']
-            elsif body['status']
-              msg = body['status']
-            end
-          end
-        end
-        raise error_klass(msg)
+        raise error_klass('Failed validation with Charon.')
       end
     end
   end
