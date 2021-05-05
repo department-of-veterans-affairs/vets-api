@@ -13,9 +13,9 @@ describe GIDSRedis do
 
   context 'when `GIDSRedis` responds to method' do
     it 'delegates to `GI::Client`' do
-      allow_any_instance_of(GI::Client).to receive(:get_institution_details).and_return(gids_response)
+      allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0).and_return(gids_response)
 
-      expect(subject.get_institution_details(scrubbed_params)).to eq(gids_response.body)
+      expect(subject.get_institution_details_v0(scrubbed_params)).to eq(gids_response.body)
     end
   end
 
