@@ -2256,6 +2256,7 @@ paths:
 
           <strong>NOTES:</strong>
           <ul>
+            <li>If a subject isn't included, default subject will be "{{Category}} Inquiry" (e.g. Medication Inquiry)</li>
             <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
             <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
             <li>
