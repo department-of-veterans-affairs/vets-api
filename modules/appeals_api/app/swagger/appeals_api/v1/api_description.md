@@ -45,7 +45,7 @@ The submission statuses begin with pending and end with success.
 
 #### Status Simulation
 
-Sandbox test submissions do not progress to Central Mail / VBMS.  In the lower environments (i.e. Sandbox or Staging), the final status of a submission is either `submitted` (for NOD) or `received` (for HLR). In the lower environments, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate the other statuses.
+Sandbox test submissions do not progress through the same statuses as in the Production environment.  In the lower environments (i.e. Sandbox or Staging), the final status of a submission is either `submitted` (for NOD) or `received` (for HLR). In the lower environments, we allow passing a `Status-Simulation` header on the show endpoints so that you can simulate the other statuses.
 
 Statuses can be simulated for both HLR/NOD submissions as well as evidence document uploads.
 
