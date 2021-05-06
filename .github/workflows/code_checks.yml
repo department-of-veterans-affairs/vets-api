@@ -80,17 +80,16 @@ jobs:
 
       - name: Figure out where config file is
         run: |
-          ls /etc
-          ls /var/lib/
+          ls /etc/postgresql/
 
       - name: Setup postgres config
         env:
           POSTGRES_USER: vets-api
           POSTGRES_PASSWORD: postgres
         run: |
-          echo "shared_preload_libraries = 'pg_stat_statements'" >> /var/lib/postgres/data/postgresql.conf
-          echo "pg_stat_statements.max = 10000" >> /var/lib/postgres/data/postgresql.conf
-          echo "pg_stat_statements.track = all" >> /var/lib/postgres/data/postgresql.conf
+          # echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/11/main/postgresql.conf
+          # echo "pg_stat_statements.max = 10000" >> /etc/postgresql/11/main/postgresql.conf
+          # echo "pg_stat_statements.track = all" >> /etc/postgresql/11/main/postgresql.conf
 
       - name: Setup Database
         run: bundle exec parallel_test -n 16 -e 'bundle exec rake db:reset'
