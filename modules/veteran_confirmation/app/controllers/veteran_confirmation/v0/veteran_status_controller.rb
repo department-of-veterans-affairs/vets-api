@@ -18,7 +18,7 @@ module VeteranConfirmation
           gender: params['gender']
         )
 
-        render json: { veteran_status: status, receiving_benefits: true/false }
+        render json: { veteran_status: status }
       end
 
       private
