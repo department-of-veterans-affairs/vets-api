@@ -91,7 +91,7 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
-    def board_review_option
+    def board_review_value
       form_data&.dig('data', 'attributes', 'boardReviewOption')
     end
 
@@ -108,8 +108,21 @@ module AppealsApi
       'BVA'
     end
 
+    def accepts_evidence?
+      board_review_option == 'evidence_submission'
+    end
+
     def update_status!(status:, code: nil, detail: nil)
+      handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
+                                      from: self.status,
+                                      to: status,
+                                      status_update_time: Time.zone.now,
+                                      statusable_id: id
+                                    })
+
       update!(status: status, code: code, detail: detail)
+
+      handler.handle!
     end
 
     private
@@ -128,7 +141,7 @@ module AppealsApi
     end
 
     def board_review_hearing_selected?
-      board_review_option == 'hearing'
+      board_review_value == 'hearing'
     end
 
     def includes_hearing_type_preference?
