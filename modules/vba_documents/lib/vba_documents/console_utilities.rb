@@ -54,7 +54,7 @@ module VBADocuments
       status_dates = 'created_at >= ? and created_at < ?'
 
       # ["57a1b2be-e229-45a2-be6f-5c49438b7cc1|2020-08-27 15:44:13 UTC",..]
-      statuses = VBADocuments::UploadSubmission::IN_FLIGHT_STATUSES.to_a.map {|e| e} << 'uploaded'
+      statuses = VBADocuments::UploadSubmission::IN_FLIGHT_STATUSES.to_a.map { |e| e } << 'uploaded'
       VBADocuments::UploadSubmission
         .where(status: statuses)
         .where(status_dates, VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE, dt)
