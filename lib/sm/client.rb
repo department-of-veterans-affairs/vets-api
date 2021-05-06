@@ -67,7 +67,7 @@ module SM
     # @return [Common::Collection[Folder]]
     #
     def get_folders(params)
-      cache_key = @current_user + '-folders'
+      cache_key = @current_user.uuid + '-folders'
 
       if params[:use_cache]
         Common::Collection.new(Folder, Folder.get_cached(cache_key))
@@ -119,7 +119,7 @@ module SM
       folder_id = params[:folder_id].to_s
       use_cache = params[:use_cache]
 
-      cache_key = @current_user + "-#{folder_id}"
+      cache_key = @current_user.uuid + "-#{folder_id}"
       if use_cache
         Common::Collection.new(Message, Message.get_cached(cache_key))
       else
