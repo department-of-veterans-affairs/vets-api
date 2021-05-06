@@ -8,7 +8,8 @@ module Mobile
       include Filterable
 
       def index
-        resource = client.get_folder_messages(params, @current_user)
+        use_cache = params[:useCache] == 'true'
+        resource = client.get_folder_messages(@current_user, params[:folder_id].to_s, use_cache)
         raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource

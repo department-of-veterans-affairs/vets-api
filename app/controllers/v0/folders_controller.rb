@@ -3,8 +3,8 @@
 module V0
   class FoldersController < SMController
     def index
-      resource = client.get_folders(params, @current_user)
-      resource = resource.paginate(pagination_params)
+      use_cache = params[:useCache] == 'true'
+      resource = client.get_folders(@current_user, use_cache)
 
       render json: resource.data,
              serializer: CollectionSerializer,

@@ -66,15 +66,20 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders(params, user)
+    def get_folders(user, use_cache)
       cache_key = user.uuid + '-folders'
+      folders = nil
+      folders = Folder.get_cached(cache_key) if use_cache
 
-      if params[:use_cache]
-        Common::Collection.new(Folder, Folder.get_cached(cache_key))
+      if folders
+        Rails.logger.info('secure messaging folders cache fetch', cache_key)
+        Common::Collection.new(Folder, { data: folders })
       else
+        Rails.logger.info('secure messaging folders service fetch', cache_key)
         json = perform(:get, 'folder', nil, token_headers).body
-        Folder.set_cached(cache_key, json)
-        Common::Collection.new(Folder, json)
+        folders = Common::Collection.new(Folder, json)
+        Folder.set_cached(cache_key, folders)
+        folders
       end
     end
 
@@ -115,14 +120,17 @@ module SM
     #
     # @return [Common::Collection]
     #
-    def get_folder_messages(params, user)
-      folder_id = params[:folder_id].to_s
-      use_cache = params[:use_cache]
+    # rubocop:disable Metrics/MethodLength
+    def get_folder_messages(user, folder_id, use_cache)
+      cache_key = "#{user.uuid}-folder-messages-#{folder_id}"
+      messages = nil
+      messages = Message.get_cached(cache_key) if use_cache
 
-      cache_key = user.uuid + "-#{folder_id}"
-      if use_cache
-        Common::Collection.new(Message, Message.get_cached(cache_key))
+      if messages
+        Rails.logger.info('secure messaging folder messages cache fetch', cache_key)
+        Common::Collection.new(Message, { data: messages })
       else
+        Rails.logger.info('secure messaging folder messages service fetch', cache_key)
         page = 1
         json = { data: [], errors: {}, metadata: {} }
 
@@ -135,8 +143,9 @@ module SM
 
           page += 1
         end
-
-        Common::Collection.new(Message, json)
+        messages = Common::Collection.new(Message, json)
+        Message.set_cached(cache_key, messages)
+        messages
       end
     end
     # @!endgroup

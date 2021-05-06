@@ -7,7 +7,8 @@ module Mobile
   module V0
     class FoldersController < MessagingController
       def index
-        resource = client.get_folders(params, @current_user)
+        use_cache = params[:useCache] == 'true'
+        resource = client.get_folders(@current_user, use_cache)
         resource = resource.paginate(pagination_params)
 
         render json: resource.data,
