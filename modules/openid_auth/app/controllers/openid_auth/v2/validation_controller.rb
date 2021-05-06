@@ -145,7 +145,7 @@ module OpenidAuth
 
       def validation_from_charon(duz, site)
         RestClient.get(Settings.oidc.charon.endpoint, { params: { duz: duz, site: site } })
-      rescue
+      rescue => e
         log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
         raise Common::Exceptions::TokenValidationError.new(
           status: 500, code: 500, detail: 'Failed validation with Charon.'
