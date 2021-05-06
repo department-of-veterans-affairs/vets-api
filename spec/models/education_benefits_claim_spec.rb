@@ -82,6 +82,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         'transfer_of_entitlement' => false,
         'chapter1607' => false,
         'vettec' => false,
+        'vrrap' => false,
         'education_benefits_claim_id' => subject.education_benefits_claim.id
       }
     end
@@ -207,7 +208,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     it 'does not create a submission after save if it was already submitted' do
       subject.education_benefits_claim.update!(processed_at: Time.zone.now)
-      expect(EducationBenefitsSubmission.count).to eq(1)
+      expect(EducationBenefitsSubmission.count).to eq(2)
     end
   end
 
