@@ -39,15 +39,15 @@ module AppealsApi
         end
 
         def direct_review
-          board_review_option == 'direct_review' ? 1 : 'Off'
+          notice_of_disagreement.board_review_option == 'direct_review' ? 1 : 'Off'
         end
 
         def evidence_submission
-          board_review_option == 'evidence_submission' ? 1 : 'Off'
+          notice_of_disagreement.board_review_option == 'evidence_submission' ? 1 : 'Off'
         end
 
         def hearing
-          board_review_option == 'hearing' ? 1 : 'Off'
+          notice_of_disagreement.board_review_option == 'hearing' ? 1 : 'Off'
         end
 
         def extra_contestable_issues
@@ -120,10 +120,6 @@ module AppealsApi
 
         def header_field(key)
           notice_of_disagreement.auth_headers&.dig(key)
-        end
-
-        def board_review_option
-          notice_of_disagreement.form_data&.dig('data', 'attributes', 'boardReviewOption')
         end
       end
     end
