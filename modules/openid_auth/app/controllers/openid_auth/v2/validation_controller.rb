@@ -138,13 +138,13 @@ module OpenidAuth
           raise error_klass('Charon menu-code: ' + json_response['value'])
         else
           raise Common::Exceptions::TokenValidationError.new(
-              status: 500, code: 500, detail: 'Failed validation with Charon.'
+            status: 500, code: 500, detail: 'Failed validation with Charon.'
           )
         end
       rescue => e
         log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
         raise Common::Exceptions::TokenValidationError.new(
-            status: 500, code: 500, detail: 'Failed validation with Charon.'
+          status: 500, code: 500, detail: 'Failed validation with Charon.'
         )
       end
     end

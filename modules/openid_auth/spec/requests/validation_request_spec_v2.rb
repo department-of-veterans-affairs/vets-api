@@ -455,9 +455,11 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     it 'v2 POST returns json response if 401 charon response' do
       with_ssoi_charon_configured do
         stub_request(:get, 'http://example.com/smart/launch').to_return(
-            body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200)
+          body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+        )
         stub_request(:get, 'http://example.com/services/charon?duz=789012345&site=456').to_raise(
-            RestClient::ExceptionWithResponse.new(failed_charon_response, 401))
+          RestClient::ExceptionWithResponse.new(failed_charon_response, 401)
+        )
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
@@ -470,9 +472,11 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     it 'v2 POST returns json response if 500 charon response' do
       with_ssoi_charon_configured do
         stub_request(:get, 'http://example.com/smart/launch').to_return(
-          body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200)
+          body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+        )
         stub_request(:get, 'http://example.com/services/charon?duz=789012345&site=456').to_raise(
-          RestClient::ExceptionWithResponse.new(bad_charon_response, 500))
+          RestClient::ExceptionWithResponse.new(bad_charon_response, 500)
+        )
 
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
