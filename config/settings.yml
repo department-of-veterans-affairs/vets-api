@@ -190,7 +190,7 @@ modules_appeals_api:
     api_token: ''
     appeals_channel_id: ''
   documentation:
-    notice_of_disagreements_v1: false
+    path_enabled_flag: false
   higher_level_review_pii_expunge_enabled: true
   higher_level_review_updater_enabled: true
   notice_of_disagreement_pii_expunge_enabled: true

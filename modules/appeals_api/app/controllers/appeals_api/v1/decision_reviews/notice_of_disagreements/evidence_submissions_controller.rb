@@ -4,6 +4,7 @@ module AppealsApi::V1
   module DecisionReviews
     module NoticeOfDisagreements
       class EvidenceSubmissionsController < AppealsApi::ApplicationController
+        include AppealsApi::StatusSimulation
         include SentryLogging
 
         class EvidenceSubmissionRequestValidatorError < StandardError; end
@@ -32,6 +33,8 @@ module AppealsApi::V1
         def show
           submission = AppealsApi::EvidenceSubmission.find_by(guid: params[:id])
           raise Common::Exceptions::RecordNotFound, params[:id] unless submission
+
+          submission = with_status_simulation(submission) if status_requested_and_allowed?
 
           render json: submission,
                  serializer: AppealsApi::EvidenceSubmissionSerializer,
