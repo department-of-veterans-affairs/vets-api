@@ -78,16 +78,15 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Install PostgreSQL client
+      - name: Figure out where config file is
         run: |
-          sudo apt install --yes postgresql-client
+          ps aux  | grep 'postgres *-D'
 
       - name: Setup postgres config
         env:
           POSTGRES_USER: vets-api
           POSTGRES_PASSWORD: postgres
         run: |
-          psql -t -P format=unaligned -c 'show config_file';
           # echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/11/main/postgresql.conf
           # echo "pg_stat_statements.max = 10000" >> /etc/postgresql/11/main/postgresql.conf
           # echo "pg_stat_statements.track = all" >> /etc/postgresql/11/main/postgresql.conf
