@@ -49,7 +49,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
           .and_return(gi_bill_status)
 
         gids_response = build(:gids_response)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details)
+        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
       end
 
@@ -65,7 +65,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
           .and_return(gi_bill_status)
 
         gids_response = build(:gids_response, :empty)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details)
+        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
       end
 
@@ -81,7 +81,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
           .and_return(gi_bill_status)
 
         gids_response = build(:gids_response)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details)
+        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
       end
 
@@ -101,7 +101,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
           .and_return(gi_bill_status)
 
         gids_response = build(:gids_response, :no_scos)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details)
+        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
       end
 
@@ -117,7 +117,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
           .and_return(gi_bill_status)
 
         gids_response = build(:gids_response)
-        allow_any_instance_of(::GI::Client).to receive(:get_institution_details)
+        allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
 
         allow_any_instance_of(ActionMailer::MessageDelivery).to receive(:deliver_now)
