@@ -78,6 +78,11 @@ jobs:
         with:
           bundler-cache: true
 
+      - name: Install PostgreSQL client
+        run: |
+          apt-get update
+          apt-get install --yes postgresql-client
+
       - name: Setup postgres config
         env:
           POSTGRES_USER: vets-api
