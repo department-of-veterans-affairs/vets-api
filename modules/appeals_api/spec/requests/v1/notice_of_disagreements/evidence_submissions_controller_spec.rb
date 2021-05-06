@@ -169,6 +169,19 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       expect(response).to have_http_status(:ok)
     end
 
+    it 'allow for status simulation' do
+      with_settings(Settings, vsp_environment: 'development') do
+        with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
+          es = evidence_submissions.sample
+          status_simulation_headers = { 'Status-Simulation' => 'error' }
+          get "#{path}#{es.guid}", headers: status_simulation_headers
+
+          submission = JSON.parse(response.body)
+          expect(submission.dig('data', 'attributes', 'status')).to eq('error')
+        end
+      end
+    end
+
     it 'returns details for the evidence submission' do
       es = evidence_submissions.sample
       nod_id = es.supportable_id

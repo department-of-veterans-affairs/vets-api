@@ -56,7 +56,6 @@ paths:
           required: false
           name: clinical_service
           schema:
-            type: string
             $ref: "#/components/schemas/ClinicalServiceType"
         - in: query
           required: false
@@ -137,6 +136,72 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  '/locations/{location_id}/clinics/{clinic_id}/slots':
+    get:
+      tags:
+        - appointments
+      summary: Returns a list of available appointment slots for a given clinic
+      operationId: getAppointmentSlots
+      security:
+        - bearerAuth: []
+      parameters:                                      
+        - in: path
+          required: true
+          name: location_id
+          description: The facility division ID
+          schema:
+            type: string
+        - in: path
+          required: true
+          name: clinic_id
+          description: The clinic IEN
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: start
+          description:  The start date for the query
+          schema:
+            type: string
+        - in: query
+          required: true
+          name: end
+          description:  The end date for the query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Retrives a list of available appointment slots for a given clinic
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Slot'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/Unprocessable'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '501':
+          $ref: '#/components/responses/NotImplemented'
+        '502':
+          $ref: '#/components/responses/BadGateway'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'  
   "/patients":
     get:
       tags:
@@ -352,3 +417,28 @@ components:
         - "cpap"
         - "outpatientMentalHealth"
         - "covid"
+    Slot:
+      type: object
+      required: 
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: ee003057-84b6-4df6-989b-ffac9c8c52d2
+        type:
+          type: string
+          example: slots
+        attributes:
+          type: object
+          required: 
+            - start
+            - end
+          properties:
+            start:
+              type: string
+              example:  "2020-01-01T12:30:00Z"
+            end:
+              type: string
+              example:  "2020-01-01T13:00:00Z"
