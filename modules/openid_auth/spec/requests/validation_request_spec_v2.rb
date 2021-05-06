@@ -107,6 +107,21 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     instance_double(RestClient::Response,
                     code: 503)
   end
+  let(:charon_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { status: '200', value: '1' }.to_json)
+  end
+  let(:bad_charon_response) do
+    instance_double(RestClient::Response,
+                    code: 401,
+                    body: { status: '401', value: '-1' }.to_json)
+  end
+  let(:failed_charon_response) do
+    instance_double(RestClient::Response,
+                    code: 500,
+                    body: { status: '500', value: '-2' }.to_json)
+  end
   let(:json_api_response) do
     {
       'data' => {
@@ -423,8 +438,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns json response if valid user' do
-      charon_response = instance_double(RestClient::Response,
-                                        code: 200)
       with_ssoi_charon_configured do
         allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
         post '/internal/auth/v2/validation',
@@ -439,27 +452,26 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns json response if 401 charon response' do
-      charon_response = instance_double(RestClient::Response, code: 401, body: JSON.parse('{"status": "401"}'))
       with_ssoi_charon_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
+        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, bad_charon_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
         expect(response).to have_http_status(:unauthorized)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Charon menu-code: -1'
       end
     end
 
     it 'v2 POST returns json response if 500 charon response' do
-      charon_json = JSON.parse('{"status": "500","value": "-1"}')
-      charon_response = instance_double(RestClient::Response, code: 401, body: charon_json)
       with_ssoi_charon_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
+        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, failed_charon_response)
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
-        expect(response).to have_http_status(:unauthorized)
-        binding.pry
+        expect(response).to have_http_status(:internal_server_error)
         expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Failed validation with Charon.'
       end
     end
 

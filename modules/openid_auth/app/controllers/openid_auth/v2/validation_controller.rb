@@ -11,13 +11,10 @@ module OpenidAuth
 
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
+      rescue Common::Exceptions::TokenValidationError => e
+        raise e
       rescue => e
-        case e
-        when Common::Exceptions::TokenValidationError
-          raise e
-        else
-          raise Common::Exceptions::InternalServerError, e
-        end
+        raise Common::Exceptions::InternalServerError, e
       end
 
       def act_vista_id_match_pattern
@@ -123,8 +120,11 @@ module OpenidAuth
             charon_response = validation_from_charon(duz, sta3n)
             if charon_response.code == 200
               return true
+            elsif charon_response.code.between?(400, 499)
+              json_response = JSON.parse(charon_response.body)
+              raise error_klass("Charon menu-code: " + json_response['value'])
             else
-              raise error_klass(charon_response.body)
+              raise Common::Exceptions::TokenValidationError.new(status: 500, code: 500, detail: 'Failed validation with Charon.')
             end
           end
         end
@@ -142,7 +142,7 @@ module OpenidAuth
                                   { params: { duz: duz, site: site } })
         response
       rescue => e
-        raise error_klass('Failed validation with Charon.')
+        raise Common::Exceptions::TokenValidationError.new(detail: 'Failed validation with Charon.', status_code: 500)
       end
     end
   end
