@@ -11,6 +11,8 @@ module VAOS
         render json: VAOS::V2::AppointmentsSerializer.new(appointments[:data], meta: appointments[:meta])
       end
 
+      def update; end
+
       private
 
       def appointments_service
