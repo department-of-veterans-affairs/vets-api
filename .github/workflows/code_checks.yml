@@ -80,9 +80,9 @@ jobs:
 
       - name: Setup postgres config
         run: |
-          echo "shared_preload_libraries = 'pg_stat_statements'" >> data/postgresql.conf
-          echo "pg_stat_statements.max = 10000" >> data/postgresql.conf
-          echo "pg_stat_statements.track = all" >> data/postgresql.conf
+          echo "shared_preload_libraries = 'pg_stat_statements'" >> psql -U postgres -c 'SHOW config_file'
+          echo "pg_stat_statements.max = 10000" >> psql -U postgres -c 'SHOW config_file'
+          echo "pg_stat_statements.track = all" >> psql -U postgres -c 'SHOW config_file'
 
       - name: Setup Database
         run: bundle exec parallel_test -n 16 -e 'bundle exec rake db:reset'
