@@ -11,7 +11,7 @@ module VAForms
             key :apikey, []
           end
 
-          key :summary, 'All VA Forms'
+          key :summary, 'Query for a Form or return all'
           key :description, 'Returns all VA Forms and their last revision date'
           key :operationId, 'findForms'
           key :produces, [
@@ -30,7 +30,7 @@ module VAForms
           end
 
           response 200 do
-            key :description, 'VAForms index response'
+            key :description, 'VA Forms index response'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -77,7 +77,7 @@ module VAForms
             key :apikey, []
           end
           key :summary, 'Find form by form name'
-          key :description, 'Returns a single form '
+          key :description, 'Returns a single form and the full revision history'
           key :operationId, 'findFormByFormName'
           key :tags, [
             'Forms'
@@ -94,7 +94,7 @@ module VAForms
           end
 
           response 200 do
-            key :description, 'VaForm response'
+            key :description, 'VA Form Show response'
             content 'application/json' do
               schema do
                 key :type, :object
