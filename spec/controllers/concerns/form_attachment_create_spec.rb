@@ -66,10 +66,6 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil, a
 
       expect(form_attachment_model).to receive(:new) do
         expect(form_attachment).to receive(:set_file_data!)
-        # .with(
-        #   req_params[param_namespace][:file_data],
-        #   req_params[param_namespace][:password]
-        # )
 
         expect(form_attachment).to receive(:save!) do
           form_attachment.id = 99
@@ -88,6 +84,7 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil, a
       params = { param_namespace => { file_data: pdf_file } }
       expect_form_attachment_creation(req_params: params)
       post(:create, params: params)
+
       expect(response).to have_http_status(:ok)
       expect(
         JSON.parse(response.body)
