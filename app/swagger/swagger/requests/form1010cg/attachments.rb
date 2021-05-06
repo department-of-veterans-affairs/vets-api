@@ -9,6 +9,7 @@ module Swagger
         swagger_path '/v0/form1010cg/attachments' do
           operation :post do
             extend Swagger::Responses::ValidationError
+            extend Swagger::Responses::BadRequestError
 
             key :description, 'Upload Power of Attorney attachment for a caregivers assistance claim.'
 
