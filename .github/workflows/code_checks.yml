@@ -80,8 +80,7 @@ jobs:
 
       - name: Install PostgreSQL client
         run: |
-          apt-get update
-          apt-get install --yes postgresql-client
+          sudo apt install --yes postgresql-client
 
       - name: Setup postgres config
         env:
