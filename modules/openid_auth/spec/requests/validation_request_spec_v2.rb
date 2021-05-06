@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'webmock'
 
 RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true do
   include SchemaMatchers
@@ -112,12 +113,12 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
                     code: 200,
                     body: { status: '200', value: '1' }.to_json)
   end
-  let(:bad_charon_response) do
+  let(:failed_charon_response) do
     instance_double(RestClient::Response,
                     code: 401,
-                    body: { status: '401', value: '-1' }.to_json)
+                    body: { status: '500', value: '-1' }.to_json)
   end
-  let(:failed_charon_response) do
+  let(:bad_charon_response) do
     instance_double(RestClient::Response,
                     code: 500,
                     body: { status: '500', value: '-2' }.to_json)
@@ -453,7 +454,10 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns json response if 401 charon response' do
       with_ssoi_charon_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, bad_charon_response)
+        stub_request(:get, 'http://example.com/smart/launch').to_return(
+            body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200)
+        stub_request(:get, 'http://example.com/services/charon?duz=789012345&site=456').to_raise(
+            RestClient::ExceptionWithResponse.new(failed_charon_response, 401))
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
@@ -465,7 +469,11 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
     it 'v2 POST returns json response if 500 charon response' do
       with_ssoi_charon_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, failed_charon_response)
+        stub_request(:get, 'http://example.com/smart/launch').to_return(
+          body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200)
+        stub_request(:get, 'http://example.com/services/charon?duz=789012345&site=456').to_raise(
+          RestClient::ExceptionWithResponse.new(bad_charon_response, 500))
+
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
