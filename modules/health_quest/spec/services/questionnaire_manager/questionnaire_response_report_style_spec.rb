@@ -14,7 +14,8 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReportStyle do
           size: 9,
           align: :right,
           padding: [0, 0, 10, 0]
-        }
+        },
+        header: true
       }
 
       expect(subject.header_style).to eq(hash)
@@ -27,10 +28,11 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReportStyle do
         column_widths: { 1 => 410 },
         cell_style: {
           border_width: 0,
-          size: 11,
+          size: 12,
           align: :left,
           padding: [10, 10, 0, 0]
-        }
+        },
+        header: true
       }
 
       expect(subject.default_table_style).to eq(hash)
@@ -42,11 +44,12 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReportStyle do
       hash = {
         cell_style: {
           border_width: 0,
-          size: 16,
+          size: 20,
           align: :left,
           font_style: :bold,
           padding: [0, 0, 0, 0]
-        }
+        },
+        header: true
       }
 
       expect(subject.title_style).to eq(hash)
@@ -63,7 +66,8 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReportStyle do
           align: :left,
           font_style: :bold,
           padding: [0, 0, 0, 20]
-        }
+        },
+        header: true
       }
 
       expect(subject.table_question_style).to eq(hash)
@@ -78,7 +82,8 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReportStyle do
           size: 12,
           align: :left,
           padding: [0, 0, 0, 20]
-        }
+        },
+        header: true
       }
 
       expect(subject.table_answer_style).to eq(hash)
@@ -90,30 +95,15 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReportStyle do
       hash = {
         cell_style: {
           border_width: 0,
-          size: 14,
+          size: 16,
           align: :left,
           font_style: :bold,
-          padding: [24, 0, 0, 0]
-        }
+          padding: 0
+        },
+        header: true
       }
 
       expect(subject.heading_one_style).to eq(hash)
-    end
-  end
-
-  describe '#heading_two_style' do
-    it 'has a heading_two_style' do
-      hash = {
-        cell_style: {
-          border_width: 0,
-          size: 14,
-          align: :left,
-          font_style: :bold,
-          padding: [0, 0, 0, 0]
-        }
-      }
-
-      expect(subject.heading_two_style).to eq(hash)
     end
   end
 
@@ -125,7 +115,8 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReportStyle do
           size: 12,
           align: :left,
           padding: [10, 10, 0, 0]
-        }
+        },
+        header: true
       }
 
       expect(subject.normal_text_style).to eq(hash)
