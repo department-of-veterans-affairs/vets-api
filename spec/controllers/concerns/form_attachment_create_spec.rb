@@ -61,7 +61,7 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil, a
       )
     end
 
-    def expect_form_attachment_creation(_req_params:)
+    def expect_form_attachment_creation
       form_attachment = build(attachment_factory_id, guid: form_attachment_guid)
 
       expect(form_attachment_model).to receive(:new) do
@@ -82,7 +82,7 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil, a
 
     it 'creates a FormAttachment' do
       params = { param_namespace => { file_data: pdf_file } }
-      expect_form_attachment_creation(req_params: params)
+      expect_form_attachment_creation
       post(:create, params: params)
 
       expect(response).to have_http_status(:ok)
