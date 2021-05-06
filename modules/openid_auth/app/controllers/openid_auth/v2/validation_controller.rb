@@ -142,7 +142,7 @@ module OpenidAuth
                                   { params: { duz: duz, site: site } })
         response
       rescue => e
-        raise Common::Exceptions::TokenValidationError.new(detail: 'Failed validation with Charon.', status_code: 500)
+        raise Common::Exceptions::TokenValidationError.new(status: 500, code: 500, detail: 'Failed validation with Charon.')
       end
     end
   end
