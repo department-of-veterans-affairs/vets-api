@@ -142,7 +142,8 @@
         "decisionDate":              { "$ref": "#/definitions/nodCreateDate" },
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },
-        "ratingDecisionReferenceId": { "type": "string" }
+        "ratingDecisionReferenceId": { "type": "string" },
+        "disagreementReason":        { "type": "string", "maxLength": 90 }
       },
       "required": [ "issue", "decisionDate" ]
     },
