@@ -78,15 +78,12 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Figure out where config file is
-        run: |
-          ls /etc/postgresql/13/main/
-
       - name: Setup postgres config
         env:
           POSTGRES_USER: vets-api
           POSTGRES_PASSWORD: postgres
         run: |
+          sudo chmod -R 777 /etc/postgresql/13/main/postgresql.conf
           sudo echo "shared_preload_libraries = 'pg_stat_statements'" >> /etc/postgresql/13/main/postgresql.conf
           sudo echo "pg_stat_statements.max = 10000" >> /etc/postgresql/13/main/postgresql.conf
           sudo echo "pg_stat_statements.track = all" >> /etc/postgresql/13/main/postgresql.conf
