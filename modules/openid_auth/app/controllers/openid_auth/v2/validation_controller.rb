@@ -122,9 +122,10 @@ module OpenidAuth
               return true
             elsif charon_response.code.between?(400, 499)
               json_response = JSON.parse(charon_response.body)
-              raise error_klass("Charon menu-code: " + json_response['value'])
+              raise error_klass('Charon menu-code: ' + json_response['value'])
             else
-              raise Common::Exceptions::TokenValidationError.new(status: 500, code: 500, detail: 'Failed validation with Charon.')
+              raise Common::Exceptions::TokenValidationError.new(
+                  status: 500, code: 500, detail: 'Failed validation with Charon.')
             end
           end
         end
@@ -141,8 +142,9 @@ module OpenidAuth
         response = RestClient.get(Settings.oidc.charon.endpoint,
                                   { params: { duz: duz, site: site } })
         response
-      rescue => e
-        raise Common::Exceptions::TokenValidationError.new(status: 500, code: 500, detail: 'Failed validation with Charon.')
+      rescue
+        raise Common::Exceptions::TokenValidationError.new(
+            status: 500, code: 500, detail: 'Failed validation with Charon.')
       end
     end
   end

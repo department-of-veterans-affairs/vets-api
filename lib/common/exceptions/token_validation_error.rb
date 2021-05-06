@@ -7,9 +7,7 @@ module Common
   module Exceptions
     # Validation Error - an ActiveModel having validation errors, can be sent to this exception
     class TokenValidationError < BaseError
-      attr_reader :detail
-      attr_reader :code
-      attr_reader :status
+      attr_reader :code, :detail, :status
 
       def initialize(options = {})
         @code = options[:code] || 401
