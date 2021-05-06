@@ -143,6 +143,35 @@ module VBADocuments
     order by 1 desc, 2 desc
     "
 
+    MEDIAN_ELAPSED_TIME_SQL = "
+    select duration as median_secs
+    from (
+      select status_key as status,
+        (status_json -> status_key -> 'end')::INTEGER - (status_json -> status_key -> 'start')::INTEGER as duration
+      from (
+          SELECT jsonb_object_keys(metadata -> 'status') as status_key, metadata -> 'status' as status_json
+          from vba_documents_upload_submissions
+          where to_char(created_at,'yyyymm') = $1
+        ) as n1
+      where status_json -> status_key -> 'end' is not null
+      and   status_key = $2
+      ) as closed_statuses
+      order by duration asc
+      offset(
+        select count(*)/2
+        from (
+          SELECT guid,
+          jsonb_object_keys(metadata -> 'status') as status_key,
+          metadata -> 'status' as status_json
+          from vba_documents_upload_submissions
+          where to_char(created_at,'yyyymm') = $1
+        ) as n1
+        where status_json -> status_key -> 'end' is not null
+        and   status_key = $2
+      )
+      limit 1
+    "
+
     MEDIAN_SQL = "
       select NULLIF(sum(median_pages)::integer,0) as median_pages, NULLIF(sum(median_size)::bigint,0) as median_size
       from (
