@@ -11,6 +11,10 @@ module VAOS
         render json: VAOS::V2::AppointmentsSerializer.new(appointments[:data], meta: appointments[:meta])
       end
 
+      def show
+        render json: VAOS::V2::AppointmentSerializer.new(appointment)
+      end
+
       private
 
       def appointments_service
@@ -20,6 +24,11 @@ module VAOS
       def appointments
         @appointments ||=
           appointments_service.get_appointments(start_date, end_date, pagination_params)
+      end
+
+      def appointment
+        @appointment ||= 
+          appointments_service.get_appointment(icn, appointment_id)
       end
 
       def validate_params
