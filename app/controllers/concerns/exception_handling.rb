@@ -35,7 +35,8 @@ module ExceptionHandling
           Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
         when ActionController::InvalidAuthenticityToken
           Common::Exceptions::Forbidden.new(detail: 'Invalid Authenticity Token')
-        when Common::Exceptions::TokenValidationError, Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute
+        when Common::Exceptions::TokenValidationError,
+            Common::Exceptions::BaseError, JsonSchema::JsonApiMissingAttribute
           exception
         when ActionController::ParameterMissing
           Common::Exceptions::ParameterMissing.new(exception.param)

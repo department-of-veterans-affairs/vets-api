@@ -117,7 +117,7 @@ module OpenidAuth
           parsed_sta3n = vista_id.match(parsed_sta3n_match_pattern)
           if sta3n.to_s.eql?(parsed_sta3n.to_s)
             duz = vista_id.match(/\|\d+\^/).to_s.match(/\d+/)
-            return is_valid_with_charon?(duz, sta3n)
+            return valid_with_charon?(duz, sta3n)
           end
         end
         false
@@ -129,24 +129,23 @@ module OpenidAuth
         [*Settings.oidc.charon.audience].include?(aud)
       end
 
-      def is_valid_with_charon?(duz, sta3n)
+      def valid_with_charon?(duz, sta3n)
         charon_response = validation_from_charon(duz, sta3n)
         if charon_response.code == 200
-          return true
+          true
         elsif charon_response.code.between?(400, 499)
           json_response = JSON.parse(charon_response.body)
           raise error_klass('Charon menu-code: ' + json_response['value'])
         else
           raise Common::Exceptions::TokenValidationError.new(
-              status: 500, code: 500, detail: 'Failed validation with Charon.'
+            status: 500, code: 500, detail: 'Failed validation with Charon.'
           )
         end
       end
 
       def validation_from_charon(duz, site)
-        response = RestClient.get(Settings.oidc.charon.endpoint,
+        RestClient.get(Settings.oidc.charon.endpoint,
                                   { params: { duz: duz, site: site } })
-        response
       rescue
         log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
         raise Common::Exceptions::TokenValidationError.new(
