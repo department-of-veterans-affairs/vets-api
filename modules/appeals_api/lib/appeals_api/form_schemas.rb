@@ -4,12 +4,15 @@ require 'json_schema/form_schemas'
 
 module AppealsApi
   class FormSchemas < JsonSchema::FormSchemas
-    def initialize(error_type = JsonSchema::JsonApiMissingAttribute)
+    def initialize(error_type = JsonSchema::JsonApiMissingAttribute, schema_version = 'v1')
       @error_type = error_type
+      @schema_version = schema_version
     end
 
+    attr_accessor :schema_version
+
     def base_dir
-      Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir)
+      Rails.root.join('modules', 'appeals_api', Settings.modules_appeals_api.schema_dir, schema_version)
     end
 
     def validate!(form, payload)
