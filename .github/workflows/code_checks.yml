@@ -80,7 +80,7 @@ jobs:
 
       - name: Setup postgres config
         run: |
-          postures -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
+          postgres -c shared_preload_libraries=pg_stat_statements -c pg_stat_statements.track=all -c max_connections=200
 
       - name: Setup Database
         run: bundle exec parallel_test -n 16 -e 'bundle exec rake db:reset'
