@@ -208,7 +208,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     it 'does not create a submission after save if it was already submitted' do
       subject.education_benefits_claim.update!(processed_at: Time.zone.now)
-      expect(EducationBenefitsSubmission.count).to eq(2)
+      expect(EducationBenefitsSubmission.count).to eq(1)
     end
   end
 
