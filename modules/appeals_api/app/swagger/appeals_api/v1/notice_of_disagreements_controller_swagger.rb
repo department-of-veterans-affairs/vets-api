@@ -476,7 +476,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
         The Notice of Disagreement GUID that is returned when the NOD is submitted, is supplied to this endpoint to ensure the NOD is in a valid state for sending supporting evidence documents.  Only NODs that selected the Evidence Submission lane are allowed to submit evidence documents up to 90 days after the NOD is received by VA.
       DESC
-      parameter name: 'uuid', 'in': 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
+      parameter name: 'nod_uuid', 'in': 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
         schema { key :'$ref', :uuid }
       end
 
