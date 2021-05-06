@@ -5,7 +5,7 @@ module V0
     include Filterable
 
     def index
-      resource = client.get_folder_messages(params)
+      resource = client.get_folder_messages(params, @current_user)
       raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
 
       resource = params[:filter].present? ? resource.find_by(filter_params) : resource
