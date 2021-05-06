@@ -66,9 +66,16 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders
-      json = perform(:get, 'folder', nil, token_headers).body
-      Common::Collection.new(Folder, json)
+    def get_folders(use_cache: false)
+      cache_key = @current_user + '-folders'
+
+      if use_cache
+        Common::Collection.new(Folder, Folder.get_cached(cache_key))
+      else
+        json = perform(:get, 'folder', nil, token_headers).body
+        Folder.set_cached(cache_key, json)
+        Common::Collection.new(Folder, json)
+      end
     end
 
     ##
@@ -108,21 +115,26 @@ module SM
     #
     # @return [Common::Collection]
     #
-    def get_folder_messages(folder_id)
-      page = 1
-      json = { data: [], errors: {}, metadata: {} }
+    def get_folder_messages(folder_id, use_cache: false)
+      cache_key = @current_user + "-#{folder_id}"
+      if use_cache
+        Common::Collection.new(Message, Message.get_cached(cache_key))
+      else
+        page = 1
+        json = { data: [], errors: {}, metadata: {} }
 
-      loop do
-        path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-        page_data = perform(:get, path, nil, token_headers).body
-        json[:data].concat(page_data[:data])
-        json[:metadata].merge(page_data[:metadata])
-        break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
+        loop do
+          path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
+          page_data = perform(:get, path, nil, token_headers).body
+          json[:data].concat(page_data[:data])
+          json[:metadata].merge(page_data[:metadata])
+          break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
 
-        page += 1
+          page += 1
+        end
+
+        Common::Collection.new(Message, json)
       end
-
-      Common::Collection.new(Message, json)
     end
     # @!endgroup
 

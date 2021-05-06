@@ -3,7 +3,7 @@
 module V0
   class FoldersController < SMController
     def index
-      resource = client.get_folders
+      resource = client.get_folders(params[:use_cache])
       resource = resource.paginate(pagination_params)
 
       render json: resource.data,
