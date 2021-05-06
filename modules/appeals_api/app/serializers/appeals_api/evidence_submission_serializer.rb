@@ -14,10 +14,7 @@ module AppealsApi
       object.guid
     end
 
-    def status
-      object.upload_submission.status
-    end
-
+    delegate :status, to: :object
     delegate :code, to: :object
 
     def detail

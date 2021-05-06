@@ -11,6 +11,7 @@ module AppealsApi
                class_name: 'VBADocuments::UploadSubmission',
                dependent: :destroy
 
+    STATUSES = VBADocuments::UploadSubmission::ALL_STATUSES
     delegate :status, to: :upload_submission
   end
 end
