@@ -66,8 +66,8 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders(user, use_cache)
-      cache_key = user.uuid + '-folders'
+    def get_folders(user_uuid, use_cache)
+      cache_key = "#{user_uuid}-folders"
       folders = nil
       folders = Folder.get_cached(cache_key) if use_cache
 
@@ -121,8 +121,8 @@ module SM
     # @return [Common::Collection]
     #
     # rubocop:disable Metrics/MethodLength
-    def get_folder_messages(user, folder_id, use_cache)
-      cache_key = "#{user.uuid}-folder-messages-#{folder_id}"
+    def get_folder_messages(user_uuid, folder_id, use_cache)
+      cache_key = "#{user_uuid}-folder-messages-#{folder_id}"
       messages = nil
       messages = Message.get_cached(cache_key) if use_cache
 
@@ -148,6 +148,7 @@ module SM
         messages
       end
     end
+    # rubocop:enable Metrics/MethodLength
     # @!endgroup
 
     ##
