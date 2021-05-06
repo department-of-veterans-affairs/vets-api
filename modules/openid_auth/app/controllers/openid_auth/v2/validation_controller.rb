@@ -129,7 +129,7 @@ module OpenidAuth
         [*Settings.oidc.charon.audience].include?(aud)
       end
 
-      def is_valid_with_charon?(duz, site)
+      def is_valid_with_charon?(duz, sta3n)
         charon_response = validation_from_charon(duz, sta3n)
         if charon_response.code == 200
           return true
