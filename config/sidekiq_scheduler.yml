@@ -237,3 +237,11 @@ CovidVaccine::ExpandedSubmissionStateJob:
 VRE::CreateCh31SubmissionsReport:
   cron: "0 0 * * * America/New_York"
   description: "Send a daily report to the VRE team about Chapter 31 submissions"
+
+PgHeroQueryStatsJob:
+  cron: "0 8 * * * America/New_York"
+  description: captures PgHero query stats every day
+
+PgHeroCleanQueryStatsJob:
+  cron: "0 0 1,15 * *America/New_York"
+  description: Remove old PgHero query stats twice per month (1 and 15)
