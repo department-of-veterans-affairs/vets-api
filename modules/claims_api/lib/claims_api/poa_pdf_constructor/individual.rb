@@ -22,7 +22,7 @@ module ClaimsApi
 
       def page2_signatures(signatures)
         [
-          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 322),
+          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 263),
           ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['representative'], x: 35, y: 216)
         ]
       end
@@ -30,9 +30,9 @@ module ClaimsApi
       def page2_options(data)
         base_form = 'form1[0].#subform[1]'
         {
-          "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[1]": auth_headers['va_eauth_pnid'][0..2],
-          "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[1]": auth_headers['va_eauth_pnid'][3..4],
-          "#{base_form}.SocialSecurityNumber_LastFourNumbers[1]": auth_headers['va_eauth_pnid'][5..9],
+          "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[1]": data.dig('veteran', 'ssn')[0..2],
+          "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[1]": data.dig('veteran', 'ssn')[3..4],
+          "#{base_form}.SocialSecurityNumber_LastFourNumbers[1]": data.dig('veteran', 'ssn')[5..9],
           "#{base_form}.AuthorizationForRepAccessToRecords[0]": data['recordConcent'] == true ? 1 : 0,
           "#{base_form}.AuthorizationForRepActClaimantsBehalf[0]": data['consentAddressChange'] == true ? 1 : 0,
           "#{base_form}.Date_Signed[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
@@ -45,15 +45,15 @@ module ClaimsApi
         base_form = 'form1[0].#subform[0]'
         {
           # Veteran
-          "#{base_form}.VeteransLastName[0]": auth_headers['va_eauth_lastName'],
-          "#{base_form}.VeteransFirstName[0]": auth_headers['va_eauth_firstName'],
+          "#{base_form}.VeteransLastName[0]": data.dig('veteran', 'lastName'),
+          "#{base_form}.VeteransFirstName[0]": data.dig('veteran', 'firstName'),
           "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
-          "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": auth_headers['va_eauth_pnid'][0..2],
-          "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": auth_headers['va_eauth_pnid'][3..4],
-          "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": auth_headers['va_eauth_pnid'][5..9],
-          "#{base_form}.DOBmonth[0]": auth_headers['va_eauth_birthdate'].split('-').second,
-          "#{base_form}.DOBday[0]": auth_headers['va_eauth_birthdate'].split('-').last.first(2),
-          "#{base_form}.DOByear[0]": auth_headers['va_eauth_birthdate'].split('-').first,
+          "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
+          "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
+          "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..9],
+          "#{base_form}.DOBmonth[0]": data.dig('veteran', 'birthdate').split('-').second,
+          "#{base_form}.DOBday[0]": data.dig('veteran', 'birthdate').split('-').last.first(2),
+          "#{base_form}.DOByear[0]": data.dig('veteran', 'birthdate').split('-').first,
           "#{base_form}.Veterans_MailingAddress_NumberAndStreet[0]": data.dig('veteran', 'address', 'numberAndStreet'),
           "#{base_form}.MailingAddress_ApartmentOrUnitNumber[1]": data.dig('veteran', 'address', 'aptUnitNumber'),
           "#{base_form}.MailingAddress_City[1]": data.dig('veteran', 'address', 'city'),
