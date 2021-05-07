@@ -170,10 +170,8 @@ module DecisionReview
       content_tmpfile.write(file_upload.read)
       content_tmpfile.rewind
 
-
       params = { metadata: Faraday::UploadIO.new(metadata_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
-                 content:  Faraday::UploadIO.new(content_tmpfile.path , file_upload.content_type, file_upload.filename)
-                }
+                 content: Faraday::UploadIO.new(content_tmpfile.path, file_upload.content_type, file_upload.filename) }
       with_monitoring_and_error_handling do
         perform :put, upload_url, params, nil
       end
