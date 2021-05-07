@@ -20,6 +20,5 @@ module CHARON
     def call_charon(duz, site)
       CHARON::Response.new call('get', Settings.oidc.charon.endpoint, duz, site)
     end
-
   end
 end
