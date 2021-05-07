@@ -5,6 +5,7 @@ module V0
     def index
       use_cache = params[:useCache] == 'true'
       resource = client.get_folders(@current_user.uuid, use_cache)
+      resource = resource.paginate(pagination_params)
 
       render json: resource.data,
              serializer: CollectionSerializer,
