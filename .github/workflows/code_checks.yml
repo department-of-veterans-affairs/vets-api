@@ -91,12 +91,12 @@ jobs:
         with:
           bundler-cache: true
 
-      - name: Setup postgres config
-        run: |
-          echo "$USER"
-          echo "shared_preload_libraries = 'pg_stat_statements'" | tee -a /etc/postgresql/13/main/postgresql.conf
-          echo "pg_stat_statements.max = 10000" | tee -a /etc/postgresql/13/main/postgresql.conf
-          echo "pg_stat_statements.track = all" | tee -a /etc/postgresql/13/main/postgresql.conf
+      # - name: Setup postgres config
+      #   run: |
+      #     echo "$USER"
+      #     echo "shared_preload_libraries = 'pg_stat_statements'" | tee -a /etc/postgresql/13/main/postgresql.conf
+      #     echo "pg_stat_statements.max = 10000" | tee -a /etc/postgresql/13/main/postgresql.conf
+      #     echo "pg_stat_statements.track = all" | tee -a /etc/postgresql/13/main/postgresql.conf
 
       - name: Setup Database
         run: bundle exec parallel_test -n 16 -e 'bundle exec rake db:reset'
