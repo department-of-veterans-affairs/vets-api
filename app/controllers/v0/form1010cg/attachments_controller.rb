@@ -6,6 +6,7 @@ module V0
       include FormAttachmentCreate
 
       skip_before_action :authenticate, raise: false
+      skip_before_action :verify_authenticity_token
 
       FORM_ATTACHMENT_MODEL = ::Form1010cg::Attachment
     end
