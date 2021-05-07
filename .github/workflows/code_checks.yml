@@ -56,7 +56,7 @@ jobs:
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
       ImageOS: ubuntu20
       NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
-	  GITHUB_ACTIONS: true
+      GITHUB_ACTIONS: true
 
     services:
       postgres:
