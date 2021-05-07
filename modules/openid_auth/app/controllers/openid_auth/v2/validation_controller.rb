@@ -135,7 +135,9 @@ module OpenidAuth
       rescue RestClient::ExceptionWithResponse => e
         if e.response.code.between?(400, 499)
           json_response = JSON.parse(e.response.body)
-          raise error_klass('Charon menu-code: ' + json_response['value'])
+          msg = json_response['message']
+          msg = json_response['status'] if msg.nil?
+          raise error_klass('Charon menu-code: ' + msg)
         else
           raise Common::Exceptions::TokenValidationError.new(
             status: 500, code: 500, detail: 'Failed validation with Charon.'
