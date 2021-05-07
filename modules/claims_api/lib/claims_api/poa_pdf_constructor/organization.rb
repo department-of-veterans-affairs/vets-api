@@ -30,14 +30,17 @@ module ClaimsApi
       def page2_options(data)
         base_form = 'F[0].Page_2[0]'
         {
-          "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[1]": data.dig('veteran', 'ssn')[0..2],
-          "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[1]": data.dig('veteran', 'ssn')[3..4],
-          "#{base_form}.SocialSecurityNumber_LastFourNumbers[1]": data.dig('veteran', 'ssn')[5..9],
-          "#{base_form}.AuthorizationForRepAccessToRecords[0]": data['recordConcent'] == true ? 1 : 0,
-          "#{base_form}.AuthorizationForRepActClaimantsBehalf[0]": data['consentAddressChange'] == true ? 1 : 0,
+          "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
+          "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
+          "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..9],
+          "#{base_form}.I_Authorize[1]": data['recordConcent'] == true ? 1 : 0,
+          "#{base_form}.Drug_Abuse[0]": data['consentLimits'].include?('DRUG ABUSE') ? 1 : 0,
+          "#{base_form}.Alcoholism_Or_Alcohol_Abuse[0]": data['consentLimits'].include?('ALCOHOLISM') ? 1 : 0,
+          "#{base_form}.Infection_With_The_Human_Immunodeficiency_Virus_HIV[0]": data['consentLimits'].include?('HIV') ? 1 : 0,
+          "#{base_form}.sicklecellanemia[0]": data['consentLimits'].include?('SICKLE CELL') ? 1 : 0,
+          "#{base_form}.I_Authorize[0]": data['consentAddressChange'] == true ? 1 : 0,
           "#{base_form}.Date_Signed[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
-          "#{base_form}.Date_Signed[1]": I18n.l(Time.zone.now.to_date, format: :va_form),
-          "#{base_form}.LIMITATIONOFCONSENT[0]": data['consentLimits']&.join(', ')
+          "#{base_form}.Date_Signed[1]": I18n.l(Time.zone.now.to_date, format: :va_form)
         }
       end
 
@@ -77,13 +80,10 @@ module ClaimsApi
           "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email'),
           "#{base_form}.Relationship_To_Veteran[0]": data.dig('claimant', 'relationship'),
 
-          "#{base_form}.NAME_OF_INDIVIDUAL_APPOINTED_AS_REPRESENTATIVE[0]": "#{data.dig('serviceOrganization', 'firstName')} #{data.dig('serviceOrganization', 'lastName')}",
-          "#{base_form}.Checkbox3[0]": 1,
-          "#{base_form}.ADDRESSOFINDIVIDUALAPPOINTEDASCLAIMANTSREPRESENTATATIVE[0]": stringify_address(data.dig('serviceOrganization', 'address')),
-          "#{base_form}.SpecifyOrganization[0]": data.dig('serviceOrganization', 'organizationName'),
+          "#{base_form}.Name_Of_Service_Organization[0]": data.dig('serviceOrganization', 'organizationName'),
+          "#{base_form}.Name_Of_Official_Representative[0]": "#{data.dig('serviceOrganization', 'firstName')} #{data.dig('serviceOrganization', 'lastName')}",
 
-          "#{base_form}.Date_Of_Signature[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
-          "#{base_form}.Date_Of_Signature[1]": I18n.l(Time.zone.now.to_date, format: :va_form)
+          "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
         }
       end
     end
