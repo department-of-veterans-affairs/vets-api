@@ -137,7 +137,7 @@ module OpenidAuth
         when 400
           json_response = JSON.parse(e.response.body)
           raise error_klass(json_response['message'])
-        when 401
+        when 401, 403
           json_response = JSON.parse(e.response.body)
           raise error_klass('Charon menu-code: ' + json_response['value'])
         else
