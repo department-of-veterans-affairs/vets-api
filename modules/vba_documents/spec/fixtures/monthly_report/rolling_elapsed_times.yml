@@ -1,0 +1,103 @@
+---
+- '202104':
+    pending:
+      min_secs: 1
+      max_secs: 1282
+      avg_secs: 12
+      rowcount: 49692
+      median_secs: 6
+      min_secs_fmt: '00:00:01'
+      max_secs_fmt: '00:21:22'
+      avg_secs_fmt: '00:00:12'
+      median_secs_fmt: '00:00:06'
+    processing:
+      min_secs: 3
+      max_secs: 529500
+      avg_secs: 6571
+      rowcount: 41198
+      median_secs: 3604
+      min_secs_fmt: '00:00:03'
+      max_secs_fmt: '147:05:00'
+      avg_secs_fmt: '01:49:31'
+      median_secs_fmt: '01:00:04'
+    received:
+      min_secs: 2
+      max_secs: 11283
+      avg_secs: 2055
+      rowcount: 48118
+      median_secs: 1904
+      min_secs_fmt: '00:00:02'
+      max_secs_fmt: '03:08:03'
+      avg_secs_fmt: '00:34:15'
+      median_secs_fmt: '00:31:44'
+    success:
+      min_secs: 268
+      max_secs: 2053370
+      avg_secs: 72575
+      rowcount: 47876
+      median_secs: 53138
+      min_secs_fmt: '00:04:28'
+      max_secs_fmt: '570:22:50'
+      avg_secs_fmt: '20:09:35'
+      median_secs_fmt: '14:45:38'
+    uploaded:
+      min_secs: 0
+      max_secs: 64916
+      avg_secs: 78
+      rowcount: 49546
+      median_secs: 3
+      min_secs_fmt: '00:00:00'
+      max_secs_fmt: '18:01:56'
+      avg_secs_fmt: '00:01:18'
+      median_secs_fmt: '00:00:03'
+- '202103':
+    pending:
+      min_secs: 1
+      max_secs: 89147
+      avg_secs: 22
+      rowcount: 26637
+      median_secs: 5
+      min_secs_fmt: '00:00:01'
+      max_secs_fmt: '24:45:47'
+      avg_secs_fmt: '00:00:22'
+      median_secs_fmt: '00:00:05'
+    processing:
+      min_secs: 5
+      max_secs: 308654
+      avg_secs: 11531
+      rowcount: 24177
+      median_secs: 7192
+      min_secs_fmt: '00:00:05'
+      max_secs_fmt: '85:44:14'
+      avg_secs_fmt: '03:12:11'
+      median_secs_fmt: '01:59:52'
+    received:
+      min_secs: 10
+      max_secs: 155455
+      avg_secs: 3380
+      rowcount: 25808
+      median_secs: 1965
+      min_secs_fmt: '00:00:10'
+      max_secs_fmt: '43:10:55'
+      avg_secs_fmt: '00:56:20'
+      median_secs_fmt: '00:32:45'
+    success:
+      min_secs: 64
+      max_secs: 3661819
+      avg_secs: 80261
+      rowcount: 25796
+      median_secs: 57603
+      min_secs_fmt: '00:01:04'
+      max_secs_fmt: '1017:10:19'
+      avg_secs_fmt: '22:17:41'
+      median_secs_fmt: '16:00:03'
+    uploaded:
+      min_secs: 0
+      max_secs: 1805644
+      avg_secs: 126
+      rowcount: 26556
+      median_secs: 3
+      min_secs_fmt: '00:00:00'
+      max_secs_fmt: '501:34:04'
+      avg_secs_fmt: '00:02:06'
+      median_secs_fmt: '00:00:03'

@@ -54,7 +54,7 @@ module EducationForm
     end
 
     def get_institution
-      GIDSRedis.new.get_institution_details({ id: @facility_code })[:data][:attributes]
+      GIDSRedis.new.get_institution_details_v0({ id: @facility_code })[:data][:attributes]
     end
 
     def less_than_six_months?
