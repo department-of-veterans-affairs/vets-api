@@ -333,9 +333,21 @@ module SM
     #
     # @return [Common::Collection[TriageTeam]]
     #
-    def get_triage_teams
-      json = perform(:get, 'triageteam', nil, token_headers).body
-      Common::Collection.new(TriageTeam, json)
+    def get_triage_teams(user_uuid, use_cache)
+      cache_key = "#{user_uuid}-triage-teams"
+      triage_teams = nil
+      triage_teams = Folder.get_cached(cache_key) if use_cache
+
+      if triage_teams
+        Rails.logger.info('secure messaging triage_teams cache fetch', cache_key)
+        Common::Collection.new(TriageTeam, { data: triage_teams })
+      else
+        Rails.logger.info('secure messaging triage_teams service fetch', cache_key)
+        json = perform(:get, 'triageteam', nil, token_headers).body
+        triage_teams = Common::Collection.new(TriageTeam, json)
+        TriageTeam.set_cached(cache_key, triage_teams)
+        triage_teams
+      end
     end
     # @!endgroup
 
