@@ -8,6 +8,7 @@ class AppealsApi::Docs::V1::DocsController < ApplicationController
     AppealsApi::V1::NoticeOfDisagreementsControllerSwagger,
     AppealsApi::V1::Schemas::NoticeOfDisagreements,
     AppealsApi::V1::Schemas::HigherLevelReviews,
+    AppealsApi::V1::SecuritySchemeSwagger,
     AppealsApi::V1::SwaggerRoot
   ].freeze
 
