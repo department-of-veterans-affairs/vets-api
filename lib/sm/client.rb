@@ -68,7 +68,12 @@ module SM
     #
     def get_folders(user_uuid, use_cache)
       cache_key = "#{user_uuid}-folders"
-      get_cached_or_fetch_data('folder', use_cache, cache_key, Folder)
+      get_cached_or_fetch_data(use_cache, cache_key, Folder) do
+        json = perform(:get, 'folder', nil, token_headers).body
+        data = Common::Collection.new(Folder, json)
+        Folder.set_cached(cache_key, data)
+        data
+      end
     end
 
     ##
@@ -108,17 +113,9 @@ module SM
     #
     # @return [Common::Collection]
     #
-    # rubocop:disable Metrics/MethodLength
     def get_folder_messages(user_uuid, folder_id, use_cache)
       cache_key = "#{user_uuid}-folder-messages-#{folder_id}"
-      messages = nil
-      messages = Message.get_cached(cache_key) if use_cache
-
-      if messages
-        Rails.logger.info('secure messaging folder messages cache fetch', cache_key)
-        Common::Collection.new(Message, { data: messages })
-      else
-        Rails.logger.info('secure messaging folder messages service fetch', cache_key)
+      get_cached_or_fetch_data(use_cache, cache_key, Message) do
         page = 1
         json = { data: [], errors: {}, metadata: {} }
 
@@ -136,7 +133,6 @@ module SM
         messages
       end
     end
-    # rubocop:enable Metrics/MethodLength
     # @!endgroup
 
     ##
@@ -323,11 +319,16 @@ module SM
     #
     def get_triage_teams(user_uuid, use_cache)
       cache_key = "#{user_uuid}-triage-teams"
-      get_cached_or_fetch_data('triageteam', use_cache, cache_key, TriageTeam)
+      get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
+        json = perform(:get, 'triageteam', nil, token_headers).body
+        data = Common::Collection.new(TriageTeam, json)
+        TriageTeam.set_cached(cache_key, data)
+        data
+      end
     end
     # @!endgroup
 
-    def get_cached_or_fetch_data(path, use_cache, cache_key, model)
+    def get_cached_or_fetch_data(use_cache, cache_key, model)
       data = nil
       data = model.get_cached(cache_key) if use_cache
 
@@ -336,10 +337,7 @@ module SM
         Common::Collection.new(model, { data: data })
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
-        json = perform(:get, path, nil, token_headers).body
-        data = Common::Collection.new(model, json)
-        model.set_cached(cache_key, data)
-        data
+        yield
       end
     end
 
