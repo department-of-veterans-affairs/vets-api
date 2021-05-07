@@ -109,7 +109,7 @@ paths:
             type: string
         - in: path
           required: true
-          name: appointment-id
+          name: "appointment-id"
           schema:
             type: integer
       responses:
