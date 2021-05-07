@@ -336,7 +336,7 @@ module SM
     def get_triage_teams(user_uuid, use_cache)
       cache_key = "#{user_uuid}-triage-teams"
       triage_teams = nil
-      triage_teams = Folder.get_cached(cache_key) if use_cache
+      triage_teams = TriageTeam.get_cached(cache_key) if use_cache
 
       if triage_teams
         Rails.logger.info('secure messaging triage_teams cache fetch', cache_key)
