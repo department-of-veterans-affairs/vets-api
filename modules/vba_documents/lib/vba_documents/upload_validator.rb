@@ -6,6 +6,7 @@ require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_info'
 
+# rubocop:disable Metrics/ModuleLength
 module VBADocuments
   module UploadValidations
     include CentralMail::Utilities
@@ -46,6 +47,8 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Missing required keys: #{missing_keys.join(',')}")
       end
 
+      validate_not_empty(veteranFirstName: metadata['veteranFirstName'], veteranLastName: metadata['veteranLastName'])
+
       rejected = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
       if rejected.present?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Non-string values for keys: #{rejected.join(',')}")
@@ -57,6 +60,13 @@ module VBADocuments
       validate_line_of_business(metadata['businessLine'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
+    end
+
+    def validate_not_empty(hash)
+      unless hash.values.map(&:to_s).select(&:empty?).empty?
+        msg = "Empty value given - The following values must be non-empty: #{hash.keys.join(',')}"
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
+      end
     end
 
     def validate_line_of_business(lob)
@@ -124,3 +134,4 @@ module VBADocuments
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength

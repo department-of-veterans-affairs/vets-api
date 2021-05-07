@@ -9,6 +9,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+  let(:missing_first) { get_fixture('missing_first_metadata.json').read }
+  let(:missing_last) { get_fixture('missing_last_metadata.json').read }
   let(:invalid_metadata_missing) { get_fixture('invalid_metadata_missing.json').read }
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
 
@@ -184,6 +186,20 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC101')
+    end
+
+    %i[missing_first missing_last].each do |missing|
+      it "sets error status for #{missing} name" do
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'metadata' => send(missing), 'content' => valid_doc }
+        }
+
+        described_class.new.perform(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).to eq('error')
+        expect(updated.code).to eq('DOC102')
+        expect(updated.detail).to match(/^Empty value given - The following values must be non-empty:/)
+      end
     end
 
     it 'sets error status for non-JSON metadata part' do
