@@ -15,6 +15,7 @@ RSpec.describe PgHeroCleanQueryStatsJob, type: :worker do
         expect(old_query_stat_count).to eq(0)
       end
 
+      # cleanup
       context 'when error occurs' do
         before do
           allow(PgHero).to receive(:clean_query_stats).and_raise(PgHero::Error)
