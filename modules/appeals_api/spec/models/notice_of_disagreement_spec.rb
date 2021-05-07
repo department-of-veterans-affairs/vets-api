@@ -6,13 +6,12 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NoticeOfDisagreement, type: :model do
   include FixtureHelpers
 
-  let(:notice_of_disagreement) { build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers) }
-
-  let(:auth_headers) { default_auth_headers }
-  let(:form_data) { default_form_data }
-
-  let(:default_auth_headers) { fixture_as_json 'valid_10182_headers.json' }
-  let(:default_form_data) { fixture_as_json 'valid_10182.json' }
+  let(:auth_headers) { fixture_as_json 'valid_10182_headers.json' }
+  let(:form_data) { fixture_as_json 'valid_10182.json' }
+  let(:notice_of_disagreement) do
+    review_option = form_data['data']['attributes']['boardReviewOption']
+    build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers, board_review_option: review_option)
+  end
 
   describe '.build' do
     before { notice_of_disagreement.valid? }
@@ -116,18 +115,53 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
     context 'when homeless and no address' do
       before do
-        veteran_data = default_form_data['data']['attributes']['veteran']
+        veteran_data = form_data['data']['attributes']['veteran']
         veteran_data['homeless'] = true
         veteran_data.delete('address')
       end
 
-      it do
-        expect(notice_of_disagreement.zip_code_5).to eq '00000'
-      end
+      it { expect(notice_of_disagreement.zip_code_5).to eq '00000' }
     end
   end
 
   describe '#lob' do
     it { expect(notice_of_disagreement.lob).to eq 'BVA' }
+  end
+
+  describe '#board_review_option' do
+    it { expect(notice_of_disagreement.board_review_option).to eq 'hearing' }
+  end
+
+  describe '#update_status!' do
+    it 'error status' do
+      notice_of_disagreement.update_status!(status: 'error', code: 'code', detail: 'detail')
+
+      expect(notice_of_disagreement.status).to eq('error')
+      expect(notice_of_disagreement.code).to eq('code')
+      expect(notice_of_disagreement.detail).to eq('detail')
+    end
+
+    it 'other valid status' do
+      notice_of_disagreement.update_status!(status: 'success')
+
+      expect(notice_of_disagreement.status).to eq('success')
+    end
+
+    it 'invalid status' do
+      expect do
+        notice_of_disagreement.update_status!(status: 'invalid_status')
+      end.to raise_error(ActiveRecord::RecordInvalid,
+                         'Validation failed: Status is not included in the list')
+    end
+
+    it 'emits an event' do
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      notice_of_disagreement.update_status!(status: 'pending')
+
+      expect(handler).to have_received(:handle!)
+    end
   end
 end

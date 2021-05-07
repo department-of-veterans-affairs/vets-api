@@ -95,7 +95,7 @@ module AppealsApi
         attributes = attributes.merge(detail: "Downstream status: #{central_mail_status.error_message}")
       end
 
-      appeal.update! attributes
+      appeal.update_status! attributes
     end
 
     def central_mail_status_lookup(appeal)

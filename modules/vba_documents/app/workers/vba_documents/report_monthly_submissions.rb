@@ -15,13 +15,24 @@ module VBADocuments
         last_month_start = (Date.current - 1.month).beginning_of_month
         last_month_end = Date.current.beginning_of_month
 
+        # leave for testing locally with fixtures
+        # @monthly_counts = get_fixture_yml('monthly_report/monthly_counts.yml')
+        # still_processing = get_fixture_yml('monthly_report/still_processing.yml')
+        # still_success = get_fixture_yml('monthly_report/still_success.yml')
+        # @avg_processing_time = get_fixture_yml('monthly_report/avg_processing_time.yml')
+        # @monthly_mode = get_fixture_yml('monthly_report/mode.yml')
+        # @monthly_max_avg = get_fixture_yml('monthly_report/max_avg.yml')
+        # rolling_elapsed_times = get_fixture_yml('monthly_report/rolling_elapsed_times.yml')
+
         # execute SQL for monthly counts
         @monthly_counts = run_sql(SQLSupport::MONTHLY_COUNT_SQL, last_month_start, last_month_end)
         still_processing = run_sql(SQLSupport::PROCESSING_SQL, last_month_start)
-        still_success = run_sql(SQLSupport::SUCCESS_SQL, last_month_start)
+        still_success = run_sql(SQLSupport::SUCCESS_SQL,
+                                VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE, last_month_start)
         @avg_processing_time = run_sql(SQLSupport::AVG_TIME_TO_VBMS_SQL, last_month_end)
         @monthly_max_avg = run_sql(SQLSupport::MAX_AVG_SQL, last_month_end)
         @monthly_mode = run_sql(SQLSupport::MODE_SQL, last_month_end)
+        rolling_elapsed_times = rolling_status_times
         get_median_results
         add_max_avg_mb
         final_monthly_results = join_monthly_results
@@ -29,7 +40,7 @@ module VBADocuments
         # build the monthly report and email it
         VBADocuments::MonthlyReportMailer.build(
           @monthly_counts, summary, still_processing, still_success,
-          final_monthly_results, last_month_start, last_month_end
+          final_monthly_results, rolling_elapsed_times, last_month_start, last_month_end
         ).deliver_now
       end
     end
@@ -89,6 +100,48 @@ module VBADocuments
         row['median_pages'] = median.first['median_pages']
         row['mode_size'] = bytes_to_megabytes(row['mode_size'])
         row['median_size'] = bytes_to_megabytes(median.first['median_size'])
+      end
+    end
+
+    def rolling_status_times
+      results_set = []
+      12.times do |ym|
+        from = (ym + 1).months.ago.beginning_of_month
+        to = (ym + 1).month.ago.end_of_month
+        yyyymm = from.year.to_s + ('00' + from.month.to_s).last(2)
+        r = UploadSubmission.status_elapsed_times(from, to)
+        break if r.empty?
+
+        status_hash = r.each_with_object({}) do |k, hash|
+          s = k['status']
+          hash[s] = k.tap do |h|
+            h.delete('status')
+          end
+        end
+        month_data = { yyyymm => status_hash }
+        get_elapsed_median(month_data)
+        calc_times(month_data, %w[min_secs max_secs avg_secs median_secs])
+        results_set << month_data
+      end
+      results_set
+    end
+
+    # format all of the times in seconds to hh:mm:ss
+    def calc_times(data, keys)
+      data.each_value do |v|
+        v.each_pair do |_key, t|
+          keys.each do |k|
+            t["#{k}_fmt"] = seconds_to_hms(t[k]) if t.key?(k)
+          end
+        end
+      end
+    end
+
+    def get_elapsed_median(month_data)
+      yyyymm = month_data.keys[0]
+      month_data[yyyymm].each_pair do |status, data|
+        median = run_sql(SQLSupport::MEDIAN_ELAPSED_TIME_SQL, yyyymm, status).first
+        data.merge!(median)
       end
     end
 

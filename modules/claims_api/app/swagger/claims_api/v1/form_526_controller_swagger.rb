@@ -69,11 +69,11 @@ module ClaimsApi
               A 200 response indicates the submission was successful, but the claim has not reached VBMS until it has a “claim established” status. Check claim status using the GET /claims/{id} endpoint.
               <br/><br/>
               **Original claims**<br/>
-              An original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have the Veteran’s wet signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s wet signature. Uploading a PDF for subsequent claims is not required or recommended.
+              An original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have either the Veteran’s wet signature or e-signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s signature. Uploading a PDF for subsequent claims is not required or recommended.
               <br/><br/>
               POST the original claim with the autoCestPDFGenerationDisabled boolean as true. After a 200 response, use the PUT /forms/526/{id} endpoint to upload a scanned PDF of your form, signed in ink, by the Veteran.
               <br/><br/>
-              The claim data submitted through the POST endpoint must match the wet-signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.
+              The claim data submitted through the POST endpoint must match the signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.
               <br/><br/>
               **Standard and fully developed claims (FDCs)**<br/>
               [Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/) are claims certified by the submitter to include all information needed for processing. These claims process faster than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, it will route through the standard claim process.
@@ -191,7 +191,7 @@ module ClaimsApi
           key(
             :description,
             <<~X
-              Used to upload a completed, wet-signed 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.
+              Used to upload a completed, signed 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.
               <br/><br/>
               This endpoint works by accepting a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3). Each attachment should be encoded separately rather than encoding the whole payload together as with the Benefits Intake API.
               <br/><br/>

@@ -76,7 +76,7 @@ class FormProfiles::VA10203 < FormProfile
     return {} if most_recent.blank?
 
     service = GIDSRedis.new
-    profile_response = service.get_institution_details({ id: most_recent.facility_code })
+    profile_response = service.get_institution_details_v0({ id: most_recent.facility_code })
 
     VA10203::FormInstitutionInfo.new(
       name: profile_response[:data][:attributes][:name],

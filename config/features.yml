@@ -132,30 +132,6 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to directly schedule VA appointments
-  va_online_scheduling_vsp_appointment_list:
-    actor_type: user
-    description: >
-      Enables the use of VSP for VA appointment data and cancellation on list page
-  va_online_scheduling_vsp_appointment_new:
-    actor_type: user
-    description: >
-      Enables the use of VSP for creating a new VA appointment
-  va_online_scheduling_ccsp_appointment_list:
-    actor_type: user
-    description: >
-      Enables the use of CCSP for Community Care appointment data on list page
-  va_online_scheduling_ccsp_request_new:
-    actor_type: user
-    description: >
-      Enables the use of CCSP for making a new Community Care appointment request
-  va_online_scheduling_vsp_request_list:
-    actor_type: user
-    description: >
-      Enables the use of VSP for request data and cancellation on list page
-  va_online_scheduling_vsp_request_new:
-    actor_type: user
-    description: >
-      Enables the use of VSP for making a new VA appointment request
   va_online_scheduling_express_care_new:
     actor_type: user
     enable_in_development: true
@@ -205,6 +181,11 @@ features:
     enable_in_development: true
     description: >
       Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
+  new_va_forms_search:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Uses the new search algorithm
   va_view_dependents_access:
     actor_type: user
     description: >
@@ -372,10 +353,6 @@ features:
     enable_in_development: true
     description: >
       Enables type ahead search functionality
-  async_10_10_cg_attachments:
-    actor_type: cookie_id
-    description: >
-      This will process attachments of 10-10CG submissions using sidekiq.
   multiple_address_10_10ez:
     actor_type: cookie_id
     description: >
@@ -447,6 +424,11 @@ features:
     enable_in_development: true
     description: >
       Points to Bot A
+  virtual_agent_token:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Enables connection to webchat
   sharable_link:
     actor_type: user
     enable_in_development: true

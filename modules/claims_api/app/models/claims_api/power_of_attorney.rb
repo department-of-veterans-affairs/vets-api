@@ -13,17 +13,18 @@ module ClaimsApi
 
     PENDING = 'pending'
     UPDATED = 'updated'
+    SUBMITTED = 'submitted'
     ERRORED = 'errored'
 
-    before_validation :set_md5
-    validates :md5, uniqueness: true
+    before_save :set_md5
 
     def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil)
       primary_identifier = {}
       primary_identifier[:id] = id if id.present?
       primary_identifier[:header_md5] = header_md5 if header_md5.present?
       primary_identifier[:md5] = md5 if md5.present?
-      poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(:created_at)
+      # it's possible to have duplicate POAs, so be sure to return the most recently created match
+      poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(created_at: :desc)
       poas = poas.select { |poa| poa.source_data['name'] == source_name }
       return nil if poas.blank?
 
