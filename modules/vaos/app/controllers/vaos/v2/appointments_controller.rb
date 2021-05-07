@@ -47,6 +47,18 @@ module VAOS
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
       end
+
+      def icn
+        params[:icn]
+      rescue ArgumentError
+        raise Common::Exceptions::InvalidFieldValue.new('icn', params[:icn])
+      end
+
+      def appointment_id
+        params[:appointment_id]
+      rescue ArgumentError
+        raise Common::Exceptions::InvalidFieldValue.new('appointment_id', params[:appointment_id])
+      end
     end
   end
 end
