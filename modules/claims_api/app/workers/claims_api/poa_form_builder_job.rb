@@ -39,7 +39,7 @@ module ClaimsApi
     # 
     # @return [Hash] All data to be inserted into pdf
     def data(power_of_attorney)
-      power_of_attorney.form_data.merge({
+      power_of_attorney.form_data.deep_merge({
         'veteran' => {
           'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
           'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],

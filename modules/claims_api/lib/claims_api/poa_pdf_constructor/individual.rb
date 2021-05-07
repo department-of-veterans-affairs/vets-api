@@ -9,20 +9,23 @@ module ClaimsApi
       protected
 
       def page1_template_path
-        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22', '1.pdf')
+        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22A', '1.pdf')
       end
 
       def page2_template_path
-        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22', '2.pdf')
+        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22A', '2.pdf')
       end
 
       def page1_signatures(signatures)
-        []
+        [
+          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 90),
+          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['representative'], x: 35, y: 118)
+        ]
       end
 
       def page2_signatures(signatures)
         [
-          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 263),
+          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 322),
           ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['representative'], x: 35, y: 216)
         ]
       end

@@ -29,7 +29,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
         },
         phone: {
           areaCode: '555',
-          ohoneNumber: '5551337'
+          phoneNumber: '5551337'
         }
       },
       claimant: {
@@ -47,7 +47,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
         },
         phone: {
           areaCode: '555',
-          ohoneNumber: '5551337'
+          phoneNumber: '5551337'
         }
       },
       serviceOrganization: {

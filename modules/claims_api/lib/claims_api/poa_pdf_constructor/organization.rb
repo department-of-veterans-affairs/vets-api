@@ -9,29 +9,26 @@ module ClaimsApi
       protected
 
       def page1_template_path
-        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22A', '1.pdf')
+        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22', '1.pdf')
       end
 
       def page2_template_path
-        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22A', '2.pdf')
+        Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22', '2.pdf')
       end
 
       def page1_signatures(signatures)
-        [
-          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 90),
-          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['representative'], x: 35, y: 118)
-        ]
+        []
       end
 
       def page2_signatures(signatures)
         [
-          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 322),
+          ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['veteran'], x: 35, y: 263),
           ClaimsApi::PoaPdfConstructor::Signature.new(data: signatures['representative'], x: 35, y: 216)
         ]
       end
 
       def page2_options(data)
-        base_form = 'form1[0].#subform[1]'
+        base_form = 'F[0].Page_2[0]'
         {
           "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[1]": data.dig('veteran', 'ssn')[0..2],
           "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[1]": data.dig('veteran', 'ssn')[3..4],
@@ -45,12 +42,12 @@ module ClaimsApi
       end
 
       def page1_options(data)
-        base_form = 'form1[0].#subform[0]'
+        base_form = 'F[0].Page_1[0]'
         {
           # Veteran
           "#{base_form}.VeteransLastName[0]": data.dig('veteran', 'lastName'),
           "#{base_form}.VeteransFirstName[0]": data.dig('veteran', 'firstName'),
-          "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
+          "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
           "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
           "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
           "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..9],
@@ -59,35 +56,26 @@ module ClaimsApi
           "#{base_form}.DOByear[0]": data.dig('veteran', 'birthdate').split('-').first,
           "#{base_form}.Veterans_MailingAddress_NumberAndStreet[0]": data.dig('veteran', 'address', 'numberAndStreet'),
           "#{base_form}.MailingAddress_ApartmentOrUnitNumber[1]": data.dig('veteran', 'address', 'aptUnitNumber'),
-          "#{base_form}.MailingAddress_City[1]": data.dig('veteran', 'address', 'city'),
-          "#{base_form}.MailingAddress_StateOrProvince[1]": data.dig('veteran', 'address', 'state'),
-          "#{base_form}.MailingAddress_Country[1]": data.dig('veteran', 'address', 'country'),
-          "#{base_form}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.dig('veteran', 'address', 'zipFirstFive'),
-          "#{base_form}.MailingAddress_ZIPOrPostalCode_ZIPOrPostalCode_LastFourNumbers[1]": data.dig('veteran', 'address', 'zipLastFour'),
-
-          # Service Branch
-          "#{base_form}.ARMYCheckbox1[0]": (data.dig('veteran', 'serviceBranch') == 'ARMY' ? 1 : 0),
-          "#{base_form}.NAVYCheckbox2[0]": (data.dig('veteran', 'serviceBranch') == 'NAVY' ? 1 : 0),
-          "#{base_form}.AIR_FORCECheckbox3[0]": (data.dig('veteran', 'serviceBranch') == 'AIR FORCE' ? 1 : 0),
-          "#{base_form}.MARINE_CORPSCheckbox4[0]": (data.dig('veteran', 'serviceBranch') == 'MARINE CORPS' ? 1 : 0),
-          "#{base_form}.COAST_GUARDCheckbox5[0]": (data.dig('veteran', 'serviceBranch') == 'COAST GUARD' ? 1 : 0),
-          "#{base_form}.OTHER_Checkbox6[0]": (data.dig('veteran', 'serviceBranch') == 'OTHER' ? 1 : 0),
-          "#{base_form}.JF15[0]": data.dig('veteran', 'serviceBranchOther'),
+          "#{base_form}.Claimants_MailingAddress_City[1]": data.dig('veteran', 'address', 'city'),
+          "#{base_form}.Claimants_MailingAddress_StateOrProvince[1]": data.dig('veteran', 'address', 'state'),
+          "#{base_form}.Claimants_MailingAddress_Country[1]": data.dig('veteran', 'address', 'country'),
+          "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": data.dig('veteran', 'address', 'zipFirstFive'),
+          "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": data.dig('veteran', 'address', 'zipLastFour'),
 
           # Claimant
-          "#{base_form}.Claimants_First_Name[0]": data.dig('claimant', 'firstName'),
-          "#{base_form}.Claimants_Last_Name[0]": data.dig('claimant', 'lastName'),
-          "#{base_form}.Claimants_Middle_Initial1[0]": data.dig('claimant', 'middleInitial'),
-          "#{base_form}.MailingAddress_NumberAndStreet[0]": data.dig('claimant', 'address', 'numberAndStreet'),
-          "#{base_form}.MailingAddress_ApartmentOrUnitNumber[0]": data.dig('claimant', 'address', 'aptUnitNumber'),
-          "#{base_form}.MailingAddress_City[0]": data.dig('claimant', 'address', 'city'),
-          "#{base_form}.MailingAddress_StateOrProvince[0]": data.dig('claimant', 'address', 'state'),
-          "#{base_form}.MailingAddress_Country[0]": data.dig('claimant', 'address', 'country'),
-          "#{base_form}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.dig('claimant', 'address', 'zipFirstFive'),
-          "#{base_form}.MailingAddress_ZIPOrPostalCode_ZIPOrPostalCode_LastFourNumbers[0]": data.dig('address', 'zipLastFour'),
-          "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
-          "#{base_form}.EmailAddress_Optional[1]": data.dig('claimant', 'email'),
-          "#{base_form}.RelationshipToVeteran[0]": data.dig('claimant', 'relationship'),
+          "#{base_form}.Claimants_FirstName[0]": data.dig('claimant', 'firstName'),
+          "#{base_form}.Claimants_LastName[0]": data.dig('claimant', 'lastName'),
+          "#{base_form}.Claimants_MiddleInitial1[0]": data.dig('claimant', 'middleInitial'),
+          "#{base_form}.Claimants_MailingAddress_NumberAndStreet[0]": data.dig('claimant', 'address', 'numberAndStreet'),
+          "#{base_form}.Claimants_MailingAddress_ApartmentOrUnitNumber[0]": data.dig('claimant', 'address', 'aptUnitNumber'),
+          "#{base_form}.Claimants_MailingAddress_City[0]": data.dig('claimant', 'address', 'city'),
+          "#{base_form}.Claimants_MailingAddress_StateOrProvince[0]": data.dig('claimant', 'address', 'state'),
+          "#{base_form}.Claimants_MailingAddress_Country[0]": data.dig('claimant', 'address', 'country'),
+          "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.dig('claimant', 'address', 'zipFirstFive'),
+          "#{base_form}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.dig('address', 'zipLastFour'),
+          "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
+          "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email'),
+          "#{base_form}.Relationship_To_Veteran[0]": data.dig('claimant', 'relationship'),
 
           "#{base_form}.NAME_OF_INDIVIDUAL_APPOINTED_AS_REPRESENTATIVE[0]": "#{data.dig('serviceOrganization', 'firstName')} #{data.dig('serviceOrganization', 'lastName')}",
           "#{base_form}.Checkbox3[0]": 1,
