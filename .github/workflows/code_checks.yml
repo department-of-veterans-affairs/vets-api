@@ -56,36 +56,37 @@ jobs:
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
       ImageOS: ubuntu20
       NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
+	  GITHUB_ACTIONS: true
 
     services:
-      # postgres:
-      #   image: postgis/postgis:11-2.5
-      #   env:
-      #     POSTGRES_USER: vets-api
-      #     POSTGRES_DB: vets-api_test
-      #     POSTGRES_PASSWORD: postgres
-      #   ports:
-      #     - 5432:5432
-      #   options: |
-      #
-      #     --health-cmd pg_isready
-      #     --health-interval 10s
-      #     --health-timeout 5s
-      #     --health-retries 5
+      postgres:
+        image: postgis/postgis:11-2.5
+        env:
+          POSTGRES_USER: vets-api
+          POSTGRES_DB: vets-api_test
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: |
+
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
       redis:
         image: circleci/redis:5.0-alpine
 
     steps:
-      - uses: nyaruka/postgis-action@v2.1.0
-        with:
-          postgresql version: '11'  # See https://https://hub.docker.com/r/mdillon/postgis for available versions, if it is not specified, use the default value 'latest'
-          postgis version: '2.5'
-          postgresql password: 'postgres'
-          postgresql user: 'vets-api'
-          postgresql db: 'vets-api_test'
-          postgresql arguments: '-p 5432:5432 --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15'
-          # postgresql init scripts: pg_init
+      # - uses: nyaruka/postgis-action@v2.1.0
+      #   with:
+      #     postgresql version: '11'  # See https://https://hub.docker.com/r/mdillon/postgis for available versions, if it is not specified, use the default value 'latest'
+      #     postgis version: '2.5'
+      #     postgresql password: 'postgres'
+      #     postgresql user: 'vets-api'
+      #     postgresql db: 'vets-api_test'
+      #     postgresql arguments: '-p 5432:5432 --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15'
+      #     # postgresql init scripts: pg_init
 
       - uses: actions/checkout@v2
 
