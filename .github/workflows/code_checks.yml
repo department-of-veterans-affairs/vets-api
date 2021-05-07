@@ -67,40 +67,17 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5432:5432
-        options: |
-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
 
       redis:
         image: circleci/redis:5.0-alpine
 
     steps:
-      # - uses: nyaruka/postgis-action@v2.1.0
-      #   with:
-      #     postgresql version: '11'  # See https://https://hub.docker.com/r/mdillon/postgis for available versions, if it is not specified, use the default value 'latest'
-      #     postgis version: '2.5'
-      #     postgresql password: 'postgres'
-      #     postgresql user: 'vets-api'
-      #     postgresql db: 'vets-api_test'
-      #     postgresql arguments: '-p 5432:5432 --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15'
-      #     # postgresql init scripts: pg_init
-
       - uses: actions/checkout@v2
 
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      # - name: Setup postgres config
-      #   run: |
-      #     echo "$USER"
-      #     echo "shared_preload_libraries = 'pg_stat_statements'" | tee -a /etc/postgresql/13/main/postgresql.conf
-      #     echo "pg_stat_statements.max = 10000" | tee -a /etc/postgresql/13/main/postgresql.conf
-      #     echo "pg_stat_statements.track = all" | tee -a /etc/postgresql/13/main/postgresql.conf
-
       - name: Setup Database
         run: bundle exec parallel_test -n 16 -e 'bundle exec rake db:reset'
 
