@@ -138,7 +138,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString", "maxLength": 255 },
+        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString", "maxLength": 180 },
         "decisionDate":              { "$ref": "#/definitions/nodCreateDate" },
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },
