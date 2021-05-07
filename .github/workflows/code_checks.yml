@@ -83,8 +83,7 @@ jobs:
           POSTGRES_USER: vets-api
           POSTGRES_PASSWORD: postgres
         run: |
-          # sudo -u $USER chown -R $USER:$USER /etc/postgresql/13/main/postgresql.conf
-          sudo su
+          echo "$USER"
           echo "shared_preload_libraries = 'pg_stat_statements'" | sudo tee -a /etc/postgresql/13/main/postgresql.conf
           echo "pg_stat_statements.max = 10000" | sudo tee -a /etc/postgresql/13/main/postgresql.conf
           echo "pg_stat_statements.track = all" | sudo tee -a /etc/postgresql/13/main/postgresql.conf
