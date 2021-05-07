@@ -66,8 +66,8 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
 
   describe 'generating the filled and signed pdf' do
     it 'generates the pdf to match example' do
-      expect(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:new).with(power_of_attorney.id).and_call_original
-      expect_any_instance_of(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:fill_pdf).twice.and_call_original
+      expect(ClaimsApi::PoaPdfConstructor::Organization).to receive(:new).and_call_original
+      expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
       subject.new.perform(power_of_attorney.id)
     end
   end

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'claims_api/power_of_attorney_pdf_constructor'
+require 'claims_api/poa_pdf_constructor/organization'
+require 'claims_api/poa_pdf_constructor/individual'
 require_relative '../../support/pdf_matcher'
 
 describe ClaimsApi::PowerOfAttorneyPdfConstructor do
