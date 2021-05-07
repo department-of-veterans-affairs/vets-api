@@ -68,19 +68,7 @@ module SM
     #
     def get_folders(user_uuid, use_cache)
       cache_key = "#{user_uuid}-folders"
-      folders = nil
-      folders = Folder.get_cached(cache_key) if use_cache
-
-      if folders
-        Rails.logger.info('secure messaging folders cache fetch', cache_key)
-        Common::Collection.new(Folder, { data: folders })
-      else
-        Rails.logger.info('secure messaging folders service fetch', cache_key)
-        json = perform(:get, 'folder', nil, token_headers).body
-        folders = Common::Collection.new(Folder, json)
-        Folder.set_cached(cache_key, folders)
-        folders
-      end
+      get_cached_or_fetch_data('folder', use_cache, cache_key, Folder)
     end
 
     ##
@@ -335,21 +323,25 @@ module SM
     #
     def get_triage_teams(user_uuid, use_cache)
       cache_key = "#{user_uuid}-triage-teams"
-      triage_teams = nil
-      triage_teams = TriageTeam.get_cached(cache_key) if use_cache
-
-      if triage_teams
-        Rails.logger.info('secure messaging triage_teams cache fetch', cache_key)
-        Common::Collection.new(TriageTeam, { data: triage_teams })
-      else
-        Rails.logger.info('secure messaging triage_teams service fetch', cache_key)
-        json = perform(:get, 'triageteam', nil, token_headers).body
-        triage_teams = Common::Collection.new(TriageTeam, json)
-        TriageTeam.set_cached(cache_key, triage_teams)
-        triage_teams
-      end
+      get_cached_or_fetch_data('triageteam', use_cache, cache_key, TriageTeam)
     end
     # @!endgroup
+
+    def get_cached_or_fetch_data(path, use_cache, cache_key, model)
+      data = nil
+      data = model.get_cached(cache_key) if use_cache
+
+      if data
+        Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
+        Common::Collection.new(model, { data: data })
+      else
+        Rails.logger.info("secure messaging #{model} service fetch", cache_key)
+        json = perform(:get, path, nil, token_headers).body
+        data = Common::Collection.new(model, json)
+        model.set_cached(cache_key, data)
+        data
+      end
+    end
 
     private
 
