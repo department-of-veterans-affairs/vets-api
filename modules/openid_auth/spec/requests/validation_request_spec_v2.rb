@@ -113,6 +113,11 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
                     code: 200,
                     body: { status: '200', value: '1' }.to_json)
   end
+  let(:invalid_site_charon_response) do
+    instance_double(RestClient::Response,
+                    code: 400,
+                    body: { status: '400', message: 'Unknown vista site specified: [442]' }.to_json)
+  end
   let(:failed_charon_response) do
     instance_double(RestClient::Response,
                     code: 401,
@@ -449,6 +454,23 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(JSON.parse(response.body)['data']['attributes'].keys)
           .to eq(json_api_response_vista_id['data']['attributes'].keys)
         expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
+      end
+    end
+
+    it 'v2 POST returns json response if 400 charon response' do
+      with_ssoi_charon_configured do
+        stub_request(:get, 'http://example.com/smart/launch').to_return(
+            body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+        )
+        stub_request(:get, 'http://example.com/services/charon?duz=789012345&site=456').to_raise(
+            RestClient::ExceptionWithResponse.new(invalid_site_charon_response, 400)
+        )
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Unknown vista site specified: [442]'
       end
     end
 

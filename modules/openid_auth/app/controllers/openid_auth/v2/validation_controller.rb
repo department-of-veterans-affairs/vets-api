@@ -133,18 +133,18 @@ module OpenidAuth
       def validation_from_charon(duz, site)
         RestClient.get(Settings.oidc.charon.endpoint, { params: { duz: duz, site: site } })
       rescue RestClient::ExceptionWithResponse => e
-        if e.response.code.between?(400, 499)
+        if e.response.code == 400
           json_response = JSON.parse(e.response.body)
-          msg = json_response['message']
-          msg = 'Charon menu-code: ' + json_response['value'] if msg.nil?
-          raise error_klass(msg)
+          raise error_klass(json_response['message'])
+        elsif e.response.code == 401
+          json_response = JSON.parse(e.response.body)
+          raise error_klass('Charon menu-code: ' + json_response['value'])
         else
           raise Common::Exceptions::TokenValidationError.new(
             status: 500, code: 500, detail: 'Failed validation with Charon.'
           )
         end
       rescue => e
-        log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
         raise Common::Exceptions::TokenValidationError.new(
           status: 500, code: 500, detail: 'Failed validation with Charon.'
         )
