@@ -588,7 +588,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
                 end
                 property :detail do
                   key :type, :string
-                  key :example, 'The record identified by {uuid} not found.'
+                  key :example, 'The record identified by {nod_uuid} not found.'
                 end
               end
             end
