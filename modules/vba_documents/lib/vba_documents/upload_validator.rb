@@ -47,8 +47,6 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Missing required keys: #{missing_keys.join(',')}")
       end
 
-      validate_not_empty(veteranFirstName: metadata['veteranFirstName'], veteranLastName: metadata['veteranLastName'])
-
       rejected = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
       if rejected.present?
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: "Non-string values for keys: #{rejected.join(',')}")
@@ -57,6 +55,8 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
 
+      # this validate_not_empty check should be after the Non-string value check so we do not catch nulls
+      validate_not_empty(veteranFirstName: metadata['veteranFirstName'], veteranLastName: metadata['veteranLastName'])
       validate_line_of_business(metadata['businessLine'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
