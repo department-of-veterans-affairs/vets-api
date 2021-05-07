@@ -27,7 +27,7 @@ module VAOS
       end
 
       def appointment
-        @appointment ||= 
+        @appointment ||=
           appointments_service.get_appointment(icn, appointment_id)
       end
 
