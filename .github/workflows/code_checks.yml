@@ -77,7 +77,6 @@ jobs:
         image: circleci/redis:5.0-alpine
 
     steps:
-      - uses: actions/checkout@v2
       - uses: nyaruka/postgis-action@v2.1.0
         with:
           postgresql version: '11'  # See https://https://hub.docker.com/r/mdillon/postgis for available versions, if it is not specified, use the default value 'latest'
@@ -86,7 +85,9 @@ jobs:
           postgresql user: 'vets-api'
           postgresql db: 'vets-api_test'
           postgresql arguments: '-p 5432:5432 --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15'
-          # postgresql init scripts: pg_init
+          postgresql init scripts: pg_init
+
+      - uses: actions/checkout@v2
 
       - uses: ruby/setup-ruby@v1
         with:
