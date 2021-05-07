@@ -85,7 +85,7 @@ jobs:
           postgresql password: 'postgres'
           postgresql user: 'vets-api'
           postgresql db: 'vets-api_test'
-          postgresql arguments: '--health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15'
+          postgresql arguments: '-p 5432:5432 --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15'
           postgresql init scripts: pg_init
 
       - uses: ruby/setup-ruby@v1
