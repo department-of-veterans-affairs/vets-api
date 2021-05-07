@@ -143,7 +143,7 @@ module OpenidAuth
 
         case response.status
         when 200
-          return true
+          true
         when 400
           raise error_klass(response.body['message'])
         when 401, 403
