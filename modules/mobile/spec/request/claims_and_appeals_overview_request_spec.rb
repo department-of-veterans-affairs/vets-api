@@ -208,7 +208,7 @@ RSpec.describe 'claims and appeals overview', type: :request do
         iam_sign_in
         path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'claims_and_appeals.json')
         data = Mobile::V0::Adapters::ClaimsOverview.new.parse(JSON.parse(File.read(path)))
-        Mobile::V0::ClaimOverview.set_cached(user, data)
+        Mobile::V0::ClaimOverview.set_cached(user.uuid, data)
       end
 
       it 'retrieves the cached appointments rather than hitting the service' do

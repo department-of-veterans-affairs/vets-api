@@ -23,9 +23,9 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       it 'caches the expected claims and appeals' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
-            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+            expect(Mobile::V0::ClaimOverview.get_cached(user.uuid)).to be_nil
             subject.perform(user.uuid)
-            expect(Mobile::V0::ClaimOverview.get_cached(user).first.to_h).to eq(
+            expect(Mobile::V0::ClaimOverview.get_cached(user.uuid).first.to_h).to eq(
               {
                 id: 'SC1678',
                 type: 'appeal',
@@ -44,9 +44,9 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       it 'does not cache the appointments' do
         VCR.use_cassette('claims/claims_with_errors') do
           VCR.use_cassette('appeals/appeals') do
-            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+            expect(Mobile::V0::ClaimOverview.get_cached(user.uuid)).to be_nil
             subject.perform(user.uuid)
-            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+            expect(Mobile::V0::ClaimOverview.get_cached(user.uuid)).to be_nil
           end
         end
       end

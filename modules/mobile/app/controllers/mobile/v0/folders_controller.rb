@@ -6,6 +6,10 @@ require_dependency 'mobile/v0/folder_serializer'
 module Mobile
   module V0
     class FoldersController < MessagingController
+      include Mobile::V0::Concerns::RedisCaching
+
+      redis_config REDIS_CONFIG[:mobile_app_sm_store]
+
       def index
         resource = client.get_folders
         resource = resource.paginate(pagination_params)

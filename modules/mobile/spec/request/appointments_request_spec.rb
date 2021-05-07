@@ -297,7 +297,7 @@ RSpec.describe 'appointments', type: :request do
           )
 
           appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
-          Mobile::V0::Appointment.set_cached(user, appointments)
+          Mobile::V0::Appointment.set_cached(user.uuid, appointments)
         end
 
         after { Timecop.return }

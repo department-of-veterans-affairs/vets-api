@@ -50,7 +50,7 @@ module Mobile
 
       def fetch_all_cached_or_service(params, show_completed)
         list, errors = if params[:use_cache]
-                         [Mobile::V0::ClaimOverview.get_cached(@current_user), []]
+                         [Mobile::V0::ClaimOverview.get_cached(@current_user.uuid), []]
                        else
                          claims_proxy.get_claims_and_appeals
                        end

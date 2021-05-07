@@ -53,7 +53,7 @@ module Mobile
 
       def fetch_cached_or_service(validated_params)
         appointments = nil
-        appointments = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
+        appointments = Mobile::V0::Appointment.get_cached(@current_user.uuid) if validated_params[:use_cache]
 
         # if appointments has been retrieved from redis, delete the cached version and return recovered appointments
         # otherwise fetch appointments from the upstream service
@@ -68,7 +68,7 @@ module Mobile
                                  appointments, errors = appointments_proxy.get_appointments(
                                    start_date: one_year_ago, end_date: one_year_from_now
                                  )
-                                 Mobile::V0::Appointment.set_cached(@current_user, appointments)
+                                 Mobile::V0::Appointment.set_cached(@current_user.uuid, appointments)
                                  [appointments, errors]
                                end
 
