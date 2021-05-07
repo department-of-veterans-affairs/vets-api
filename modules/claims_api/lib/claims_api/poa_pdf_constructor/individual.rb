@@ -44,6 +44,8 @@ module ClaimsApi
         }
       end
 
+      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Layout/LineLength
       def page1_options(data)
         base_form = 'form1[0].#subform[0]'
         {
@@ -98,6 +100,8 @@ module ClaimsApi
           "#{base_form}.Date_Of_Signature[1]": I18n.l(Time.zone.now.to_date, format: :va_form)
         }
       end
+      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Layout/LineLength
     end
   end
 end

@@ -19,7 +19,7 @@ module ClaimsApi
         File.open(@path, 'wb') do |f|
           f.write(Base64.decode64(@data))
         end
-        
+
         @path
       end
     end

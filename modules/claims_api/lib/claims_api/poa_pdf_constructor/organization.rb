@@ -16,7 +16,7 @@ module ClaimsApi
         Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', '21-22', '2.pdf')
       end
 
-      def page1_signatures(signatures)
+      def page1_signatures(_signatures)
         []
       end
 
@@ -27,6 +27,7 @@ module ClaimsApi
         ]
       end
 
+      # rubocop:disable Layout/LineLength
       def page2_options(data)
         base_form = 'F[0].Page_2[0]'
         {
@@ -44,6 +45,7 @@ module ClaimsApi
         }
       end
 
+      # rubocop:disable Metrics/MethodLength
       def page1_options(data)
         base_form = 'F[0].Page_1[0]'
         {
@@ -83,9 +85,11 @@ module ClaimsApi
           "#{base_form}.Name_Of_Service_Organization[0]": data.dig('serviceOrganization', 'organizationName'),
           "#{base_form}.Name_Of_Official_Representative[0]": "#{data.dig('serviceOrganization', 'firstName')} #{data.dig('serviceOrganization', 'lastName')}",
 
-          "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
+          "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(Time.zone.now.to_date, format: :va_form)
         }
       end
+      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Layout/LineLength
     end
   end
 end
