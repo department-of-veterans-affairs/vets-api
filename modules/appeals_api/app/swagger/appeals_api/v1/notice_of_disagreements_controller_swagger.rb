@@ -37,7 +37,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'nodCreateRoot'
 
       security do
-        key :apiKey, []
+        key :apikey, []
       end
 
       parameter do
@@ -333,7 +333,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'nodValidateSchema'
 
       security do
-        key :apiKey, []
+        key :apikey, []
       end
 
       parameter do

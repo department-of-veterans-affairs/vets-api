@@ -3,7 +3,7 @@
 require_dependency 'openid_auth/application_controller'
 require 'common/exceptions'
 require 'rest-client'
-
+require 'json'
 module OpenidAuth
   module V2
     class ValidationController < ApplicationController
@@ -11,16 +11,10 @@ module OpenidAuth
 
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializerV2
+      rescue Common::Exceptions::TokenValidationError => e
+        raise e
       rescue => e
-        case e
-        when RestClient::ExceptionWithResponse
-          status_code = e.response.code >= 500 ? 503 : 401
-          render status: status_code
-        when Common::Exceptions::TokenValidationError
-          raise e
-        else
-          raise Common::Exceptions::InternalServerError, e
-        end
+        raise Common::Exceptions::InternalServerError, e
       end
 
       def act_vista_id_match_pattern
@@ -123,7 +117,8 @@ module OpenidAuth
           parsed_sta3n = vista_id.match(parsed_sta3n_match_pattern)
           if sta3n.to_s.eql?(parsed_sta3n.to_s)
             duz = vista_id.match(/\|\d+\^/).to_s.match(/\d+/)
-            return validation_from_charon(duz, sta3n)
+            charon_response = validation_from_charon(duz, sta3n)
+            return charon_response.code == 200
           end
         end
         false
@@ -136,12 +131,25 @@ module OpenidAuth
       end
 
       def validation_from_charon(duz, site)
-        response = RestClient.get(Settings.oidc.charon.endpoint,
-                                  { params: { duz: duz, site: site } })
-        response.code == 200
+        RestClient.get(Settings.oidc.charon.endpoint, { params: { duz: duz, site: site } })
+      rescue RestClient::ExceptionWithResponse => e
+        case e.response.code
+        when 400
+          json_response = JSON.parse(e.response.body)
+          raise error_klass(json_response['message'])
+        when 401, 403
+          json_response = JSON.parse(e.response.body)
+          raise error_klass('Charon menu-code: ' + json_response['value'])
+        else
+          raise Common::Exceptions::TokenValidationError.new(
+            status: 500, code: 500, detail: 'Failed validation with Charon.'
+          )
+        end
       rescue => e
-        log_message_to_sentry('Failed validation with Charon', :error, body: e.message)
-        raise e
+        log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
+        raise Common::Exceptions::TokenValidationError.new(
+          status: 500, code: 500, detail: 'Failed validation with Charon.'
+        )
       end
     end
   end
