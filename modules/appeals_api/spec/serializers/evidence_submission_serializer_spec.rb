@@ -9,6 +9,12 @@ describe AppealsApi::EvidenceSubmissionSerializer do
   let(:rendered_hash) { described_class.new(evidence_submission).serializable_hash }
   let(:path) { '/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions/' }
 
+  context 'when initialized with an object that cannot be called by the delegated attributes' do
+    it 'raises an error' do
+      expect { described_class.new(nil).serializable_hash }.to raise_error(NoMethodError)
+    end
+  end
+
   it 'includes guid' do
     expect(rendered_hash[:id]).to eq evidence_submission.guid
   end
