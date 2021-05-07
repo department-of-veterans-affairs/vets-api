@@ -13,7 +13,9 @@ module V0
     #
     def index
       response = SearchTypeahead::Service.new(query).suggestions
-      render json: response.body
+
+      render json: response.body,
+             status: response.status
     end
 
     private
