@@ -15,11 +15,12 @@ RSpec.describe 'VA Forms', type: :request do
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
   describe 'GET :index' do
-    it 'returns the forms, including those that have been deleted' do
+    it 'returns the forms, including those with deleted and created dates' do
       get base_url
       data = JSON.parse(response.body)['data']
       expect(JSON.parse(response.body)['data'].length).to eq(4)
       expect(data[1]['attributes']['deleted_at']).to be_nil
+      expect(data[1]['attributes']['created_at']).to be_truthy
       expect(data[2]['attributes']['deleted_at']).to be_truthy
       expect(response).to match_response_schema('va_forms/forms')
     end

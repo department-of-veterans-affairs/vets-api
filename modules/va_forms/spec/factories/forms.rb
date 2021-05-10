@@ -6,6 +6,7 @@ FactoryBot.define do
     row_id { 4909 }
     url { 'https://va.gov/va_form/21-526ez.pdf' }
     title { 'Disability Compensation' }
+    created_at { Time.zone.today - 2.days }
     first_issued_on { Time.zone.today - 1.day }
     last_revision_on { Time.zone.today }
     pages { 2 }
