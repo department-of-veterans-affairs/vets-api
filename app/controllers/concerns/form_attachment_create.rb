@@ -10,7 +10,7 @@ module FormAttachmentCreate
     filtered_params = params.require(namespace).permit(:file_data, :password)
     # is it either ActionDispatch::Http::UploadedFile or Rack::Test::UploadedFile
     unless filtered_params[:file_data].class.name.include? 'UploadedFile'
-      raise raise Common::Exceptions::InvalidFieldValue.new('file_data', filtered_params[:file_data].class.name)
+      raise Common::Exceptions::InvalidFieldValue.new('file_data', filtered_params[:file_data].class.name)
     end
 
     form_attachment.set_file_data!(filtered_params[:file_data], filtered_params[:password])
