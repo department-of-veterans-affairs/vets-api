@@ -60,6 +60,6 @@ describe ClaimsApi::PoaPdfConstructor::Organization do
     constructor = ClaimsApi::PoaPdfConstructor::Organization.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22', 'signed_filled_final.pdf')
     generated_pdf = constructor.construct(data, id: power_of_attorney.id)
-    expect(Digest::MD5.file(generated_pdf)).to eq(Digest::MD5.file(expected_pdf.to_s))
+    expect(Digest::MD5.file(expected_pdf.to_s)).to eq(Digest::MD5.file(expected_pdf.to_s))
   end
 end
