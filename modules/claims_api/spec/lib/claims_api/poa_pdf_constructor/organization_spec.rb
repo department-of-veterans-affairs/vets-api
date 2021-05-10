@@ -45,7 +45,26 @@ describe ClaimsApi::PoaPdfConstructor::Organization do
   end
 
   it 'construct pdf' do
+    p Time.zone.now
+
+    power_of_attorney = ClaimsApi::PowerOfAttorney.find(temp.id)
+    data = power_of_attorney.form_data.deep_merge(
+      {
+        'veteran' => {
+          'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+          'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+          'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+          'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+        }
+      }
+    )
+
+    constructor = ClaimsApi::PoaPdfConstructor::Organization.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22', 'signed_filled_final.pdf')
-    expect(Digest::MD5.file(expected_pdf.to_s)).to eq(Digest::MD5.file(expected_pdf.to_s))
+    generated_pdf = constructor.construct(data, id: power_of_attorney.id)
+    p '!!!!!!!!!!!!!'
+    p File.readlines(generated_pdf)
+    p '!!!!!!!!!!!!!'
+    expect(Digest::MD5.file(generated_pdf)).to eq(Digest::MD5.file(expected_pdf.to_s))
   end
 end
