@@ -13,5 +13,9 @@ module AppealsApi
 
     STATUSES = VBADocuments::UploadSubmission::ALL_STATUSES
     delegate :status, to: :upload_submission
+
+    scope :errored, lambda {
+      joins(:upload_submission).where('vba_documents_upload_submissions.status' => 'error')
+    }
   end
 end
