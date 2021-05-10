@@ -41,7 +41,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     }
   end.call
 
-  headers_json_schema = read_json[['config', 'schemas', '200996_headers.json']]
+  headers_json_schema = read_json[['config', 'schemas', 'v1', '200996_headers.json']]
   headers_swagger = AppealsApi::JsonSchemaToSwaggerConverter.new(headers_json_schema).to_swagger
   header_schemas = headers_swagger['components']['schemas']
   headers = header_schemas['hlrCreateParameters']['properties'].keys
@@ -55,7 +55,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     }
   end
 
-  hlr_create_json_schema = read_json[['config', 'schemas', '200996.json']]
+  hlr_create_json_schema = read_json[['config', 'schemas', 'v1', '200996.json']]
 
   hlr_create_request_body = AppealsApi::JsonSchemaToSwaggerConverter.new(
     hlr_create_json_schema
