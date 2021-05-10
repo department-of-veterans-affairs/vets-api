@@ -39,7 +39,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
             stub_mpi
 
             with_okta_user(scopes) do
-              VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('evss/claims/claims_trimmed_down') do
                 submit_request(example.metadata)
               end
             end
