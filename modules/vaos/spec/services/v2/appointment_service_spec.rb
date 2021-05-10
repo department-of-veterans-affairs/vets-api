@@ -9,7 +9,6 @@ describe VAOS::V2::AppointmentsService do
   let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
   let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
   let(:id) { '202006031600983000030800000000000000' }
-  let(:icn) { 543 }
   let(:appointment_id) { 123 }
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
@@ -39,7 +38,7 @@ describe VAOS::V2::AppointmentsService do
     context 'with an appointment' do
       it 'returns an appointment' do
         VCR.use_cassette('vaos/v2/appointments/get_appointment', match_requests_on: %i[method uri]) do
-          response = subject.get_appointment(icn, appointment_id)
+          response = subject.get_appointment(appointment_id)
           expect(response[:id]).to eq(id)
         end
       end
@@ -48,7 +47,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/appointments/get_appointment_500', match_requests_on: %i[method uri]) do
-          expect { subject.get_appointment(icn, appointment_id) }.to raise_error(
+          expect { subject.get_appointment(appointment_id) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end

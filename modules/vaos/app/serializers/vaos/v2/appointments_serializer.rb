@@ -13,6 +13,7 @@ module VAOS
                  :kind,
                  :status,
                  :service_type,
+                 :location_id,
                  :clinic,
                  :telehealth,
                  :practitioners,

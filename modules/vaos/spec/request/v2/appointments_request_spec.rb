@@ -36,14 +36,12 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     end
 
     describe 'GET appointment' do
-      let(:icn) { 543 }
       let(:appointment_id) { 123 }
-      let(:params) { { icn: icn, appointment_id: appointment_id } }
 
       context 'returns a single appointment' do
         it 'has access and returns appointment' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment', match_requests_on: %i[method uri]) do
-            get "/vaos/v2/patients/#{params[:icn]}/appointments/#{params[:appointment_id]}", params: {}
+            get "/vaos/v2/appointments/#{appointment_id}", params: {}
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)

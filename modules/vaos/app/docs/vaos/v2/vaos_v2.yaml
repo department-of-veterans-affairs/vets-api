@@ -93,7 +93,7 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-  "/patients/{icn}/appointments/{appointment-id}":
+  "/appointments/{appointment-id}":
     get:
       tags:
         - appointments

@@ -19,10 +19,10 @@ module VAOS
         end
       end
 
-      def get_appointment(icn, appointment_id)
+      def get_appointment(appointment_id)
         params = {}
         with_monitoring do
-          response = perform(:get, get_appointment_base_url(icn, appointment_id), params, headers)
+          response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
           OpenStruct.new(response.body)
         end
       end
@@ -50,8 +50,8 @@ module VAOS
         "/vaos/v1/patients/#{user.icn}/appointments"
       end
 
-      def get_appointment_base_url(icn, appointment_id)
-        "/vaos/v1/patients/#{icn}/appointments/#{appointment_id}"
+      def get_appointment_base_url(appointment_id)
+        "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
       end
 
       def date_params(start_date, end_date)

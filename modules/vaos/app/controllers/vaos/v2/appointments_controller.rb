@@ -12,7 +12,7 @@ module VAOS
       end
 
       def show
-        render json: VAOS::V2::AppointmentSerializer.new(appointment)
+        render json: VAOS::V2::AppointmentsSerializer.new(appointment)
       end
 
       private
@@ -28,7 +28,7 @@ module VAOS
 
       def appointment
         @appointment ||=
-          appointments_service.get_appointment(icn, appointment_id)
+          appointments_service.get_appointment(appointment_id)
       end
 
       def validate_params
@@ -46,12 +46,6 @@ module VAOS
         DateTime.parse(params[:end_date]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
-      end
-
-      def icn
-        params[:icn]
-      rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('icn', params[:icn])
       end
 
       def appointment_id
