@@ -397,7 +397,7 @@ Rails.application.routes.draw do
     mount Sidekiq::Web, at: '/sidekiq'
   end
 
-  mount PgHero::Engine, at: 'pg_hero'
+  mount PgHero::Engine, at: 'pghero'
 
   mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 
