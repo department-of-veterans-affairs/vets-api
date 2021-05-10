@@ -9,6 +9,7 @@ en:
       benefit_category_description: 'Description of the benefit category of the form'
       va_form_administration: 'The VA organization that administers the form'
       deleted_at: "The timestamp at which the form was deleted"
+      created_at: "Internal field for VA.gov use"
       first_issued_on: 'The date the form first became available'
       form_name: 'Name of the VA Form'
       form_tool_intro: 'Introductory text describing the VA online tool for this form'
