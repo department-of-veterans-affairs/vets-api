@@ -9,7 +9,7 @@ module V0
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
-      raise ServiceException.new() unless Flipper.enabled?(:virtual_agent_token)
+      raise ServiceException.new unless Flipper.enabled?(:virtual_agent_token)
 
       render json: { token: fetch_connector_token }
     end
