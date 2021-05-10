@@ -38,7 +38,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       )
 
       user.last_signed_in = Time.now.utc
-      pp user.va_profile
+      pp user.mpi.profile
     rescue => e
       puts "User query failed: #{e.message}"
     end
