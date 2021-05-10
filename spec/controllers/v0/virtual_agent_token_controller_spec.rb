@@ -60,16 +60,6 @@ RSpec.describe V0::VirtualAgentTokenController, type: :controller do
       end
     end
 
-    context 'virtual_agent_token toggle is off' do
-      it('returns a 404 not found http status') do
-        allow(Flipper).to receive(:enabled?).with(:virtual_agent_token).and_return(false)
-
-        post :create
-
-        expect(response).to have_http_status(:not_found)
-      end
-    end
-
     context 'when external service is unavailable' do
       it 'returns service unavailable' do
         allow(Flipper).to receive(:enabled?).with(:virtual_agent_token).and_return(true)
