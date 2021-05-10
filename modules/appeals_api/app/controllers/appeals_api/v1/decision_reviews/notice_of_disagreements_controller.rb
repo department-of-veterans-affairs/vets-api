@@ -17,7 +17,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
-      AppealsApi::Engine.root.join('config/schemas/10182_headers.json')
+      AppealsApi::Engine.root.join('config/schemas/v1/10182_headers.json')
     )
   )['definitions']['nodCreateHeadersRoot']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
