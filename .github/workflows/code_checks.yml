@@ -116,8 +116,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - uses: ruby/setup-ruby@v1
+
+      - uses: actions/cache@v1
         with:
-          bundler-cache: true
+          path: vendor/bundle
+          key: ${{ runner.os }}-gems-${{ hashFiles('Gemfile') }}
+          restore-keys: |
+            ${{ runner.os }}-gems-
 
       - name: Run Danger
         uses: MeilCli/danger-action@v5
