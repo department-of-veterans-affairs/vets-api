@@ -46,14 +46,16 @@ describe ClaimsApi::PoaPdfConstructor::Individual do
 
   it 'construct pdf' do
     power_of_attorney = ClaimsApi::PowerOfAttorney.find(temp.id)
-    data = power_of_attorney.form_data.deep_merge({
-                                             'veteran' => {
-                                               'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
-                                               'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
-                                               'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
-                                               'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
-                                             }
-                                           })
+    data = power_of_attorney.form_data.deep_merge(
+      {
+        'veteran' => {
+          'firstName' => power_of_attorney.auth_headers['va_eauth_firstName'],
+          'lastName' => power_of_attorney.auth_headers['va_eauth_lastName'],
+          'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
+          'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
+        }
+      }
+    )
 
     constructor = ClaimsApi::PoaPdfConstructor::Individual.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22A', 'signed_filled_final.pdf')
