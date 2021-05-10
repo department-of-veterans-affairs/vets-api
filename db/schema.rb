@@ -10,8 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema.define(version: 2021_05_04_163547) do
+ActiveRecord::Schema.define(version: 2021_05_07_122840) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -369,6 +368,7 @@ ActiveRecord::Schema.define(version: 2021_05_04_163547) do
     t.boolean "transfer_of_entitlement", default: false, null: false
     t.boolean "chapter1607", default: false, null: false
     t.boolean "vettec", default: false
+    t.boolean "vrrap", default: false, null: false
     t.index ["created_at"], name: "index_education_benefits_submissions_on_created_at"
     t.index ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true
     t.index ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd"
