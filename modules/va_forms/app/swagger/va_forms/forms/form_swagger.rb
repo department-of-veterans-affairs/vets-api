@@ -190,6 +190,13 @@ module VAForms
               key :example, '2020-01-17'
               key :format, 'date'
             end
+            property :created_at do
+              key :description, I18n.t('va_forms.field_descriptions.created_at')
+              key :type, :string
+              key :nullable, true
+              key :example, '2021-03-30T16:28:30.338Z'
+              key :format, 'date-time'
+            end
             property :pages do
               key :description, I18n.t('va_forms.field_descriptions.pages')
               key :type, :integer

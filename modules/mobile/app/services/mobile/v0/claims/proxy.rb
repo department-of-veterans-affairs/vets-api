@@ -29,7 +29,7 @@ module Mobile
           claim = claims_scope.find_by(evss_id: id)
           raise Common::Exceptions::RecordNotFound, id unless claim
 
-          raw_claim = claims_service.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
+          raw_claim = claims_service.find_claim_with_docs_by_id(claim.evss_id).body.fetch('claim', {})
           claim.update(data: raw_claim)
           EVSSClaimDetailSerializer.new(claim)
         end
