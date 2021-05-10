@@ -854,46 +854,46 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#relationships' do
-    let(:user) { described_class.new(build(:user_with_relationship)) }
+  # describe '#relationships' do
+  #   let(:user) { described_class.new(build(:user_with_relationship)) }
 
-    before do
-      allow(user.mpi.profile).to receive(:relationships).and_return([mpi_relationship])
-    end
+  #   before do
+  #     allow(user.mpi.profile).to receive(:relationships).and_return([mpi_relationship])
+  #   end
 
-    context 'when there are relationship entities in the MPI response' do
-      let(:mpi_relationship) do
-        build(:mpi_profile_relationship,
-              given_names: relationship_first_name,
-              family_name: relationship_last_name,
-              birth_date: relationship_birth_date,
-              person_type_code: relationship_person_type_code)
-      end
+  #   context 'when there are relationship entities in the MPI response' do
+  #     let(:mpi_relationship) do
+  #       build(:mpi_profile_relationship,
+  #             given_names: relationship_first_name,
+  #             family_name: relationship_last_name,
+  #             birth_date: relationship_birth_date,
+  #             person_type_code: relationship_person_type_code)
+  #     end
 
-      let(:relationship_first_name) { 'some-first-name' }
-      let(:relationship_last_name) { 'some-last-name' }
-      let(:relationship_birth_date) { '20100101' }
-      let(:relationship_person_type_code) { 'some-person-type-code' }
-      let(:expected_relationship_hash) do
-        {
-          first_name: relationship_first_name,
-          last_name: relationship_last_name,
-          birth_date: relationship_birth_date,
-          person_type_code: relationship_person_type_code
-        }
-      end
+  #     let(:relationship_first_name) { 'some-first-name' }
+  #     let(:relationship_last_name) { 'some-last-name' }
+  #     let(:relationship_birth_date) { '20100101' }
+  #     let(:relationship_person_type_code) { 'some-person-type-code' }
+  #     let(:expected_relationship_hash) do
+  #       {
+  #         first_name: relationship_first_name,
+  #         last_name: relationship_last_name,
+  #         birth_date: relationship_birth_date,
+  #         person_type_code: relationship_person_type_code
+  #       }
+  #     end
 
-      it 'returns a parsed array of hashes representing the different relationship entities' do
-        expect(user.relationships).to eq [expected_relationship_hash]
-      end
-    end
+  #     it 'returns a parsed array of hashes representing the different relationship entities' do
+  #       expect(user.relationships).to eq [expected_relationship_hash]
+  #     end
+  #   end
 
-    context 'when there are not relationship entities in the MPI response' do
-      let(:mpi_relationship) { nil }
+  #   context 'when there are not relationship entities in the MPI response' do
+  #     let(:mpi_relationship) { nil }
 
-      it 'returns an empty array' do
-        expect(user.relationships).to eq [nil]
-      end
-    end
-  end
+  #     it 'returns an empty array' do
+  #       expect(user.relationships).to eq [nil]
+  #     end
+  #   end
+  # end
 end

@@ -444,10 +444,17 @@ class User < Common::RedisStore
   end
 
   def relationships
-    @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
+    return if Rails.env.test?
+
+    dependent_service.get_dependents
+    # @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
   end
 
   private
+
+  def dependent_service
+    @dependent_service ||= BGS::DependentService.new(self)
+  end
 
   def relationship_hash(mpi_relationship)
     return unless mpi_relationship
