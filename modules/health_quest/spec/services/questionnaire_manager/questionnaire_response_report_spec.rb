@@ -88,10 +88,10 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReport do
   end
 
   describe '#set_font' do
-    it 'sets the font to Helvetica' do
+    it 'sets the font to HealthQuestPDF' do
       allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
 
-      expect(subject.manufacture({}).set_font.family).to eq('Helvetica')
+      expect(subject.manufacture({}).set_font.family).to eq('HealthQuestPDF')
     end
   end
 
@@ -143,14 +143,6 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReport do
       allow_any_instance_of(subject).to receive(:appointment_destination).and_return('')
 
       expect(subject.manufacture({}).set_basic_appointment_info.to_s).to include('Prawn::Table')
-    end
-  end
-
-  describe '#blank_table' do
-    it 'sets the empty table' do
-      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
-
-      expect(subject.manufacture({}).blank_table.to_s).to include('Prawn::Table')
     end
   end
 
@@ -278,6 +270,76 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReport do
       allow_any_instance_of(subject).to receive(:location).and_return(location)
 
       expect(subject.manufacture({}).loc_name).to eq('Foo')
+    end
+  end
+
+  describe '#info' do
+    it 'returns the PDF info' do
+      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
+
+      Timecop.freeze(Time.zone.now)
+
+      hsh = {
+        Lang: 'en-us',
+        Title: 'Questionnaire Details',
+        Author: 'va.gov',
+        Subject: 'Veteran Questionnaire Responses',
+        Keywords: 'questionnaire answers pre-visit',
+        Creator: 'va.gov',
+        Producer: 'va.gov API',
+        CreationDate: Time.zone.now
+      }
+
+      expect(subject.manufacture({}).info).to eq(hsh)
+      Timecop.return
+    end
+  end
+
+  describe '#qr_submitted_time' do
+    let(:qr) do
+      double(
+        'QuestionnaireResponse',
+        created_at: DateTime.parse('2001-02-03T04:05:06')
+      )
+    end
+
+    it 'returns the submitted time' do
+      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
+      allow_any_instance_of(subject).to receive(:questionnaire_response).and_return(qr)
+
+      expect(subject.manufacture({}).qr_submitted_time).to eq('February 02, 2001.')
+    end
+  end
+
+  describe '#appointment_date' do
+    let(:appt) do
+      double(
+        'Appointment',
+        resource: double('Resource', start: '2020-11-18T08:00:00Z')
+      )
+    end
+
+    it 'returns the appointment date' do
+      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
+      allow_any_instance_of(subject).to receive(:appointment).and_return(appt)
+
+      expect(subject.manufacture({}).appointment_date).to eq('Wednesday, November 18, 2020')
+    end
+  end
+
+  describe '#appointment_time' do
+    let(:appt) do
+      double(
+        'Appointment',
+        resource: double('Resource', start: '2020-11-18T08:00:00Z')
+      )
+    end
+
+    it 'returns the appointment time' do
+      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
+      allow_any_instance_of(subject).to receive(:appointment).and_return(appt)
+
+      expect(subject.manufacture({}).appointment_time).to eq('12:00 AM PST')
     end
   end
 end
