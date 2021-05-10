@@ -9,7 +9,8 @@ module V0
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
-      raise log_exception_to_sentry(ServiceException.new , 'context' => 'Toggle is off') unless Flipper.enabled?(:virtual_agent_token)
+      raise log_exception_to_sentry(ServiceException.new, 'context' => 'Toggle is off')
+      unless Flipper.enabled?(:virtual_agent_token)
 
       render json: { token: fetch_connector_token }
     end
