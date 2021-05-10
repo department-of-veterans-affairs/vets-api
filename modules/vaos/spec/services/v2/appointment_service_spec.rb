@@ -32,4 +32,28 @@ describe VAOS::V2::AppointmentsService do
       end
     end
   end
+
+  describe '#update_appointments' do
+    context 'when the upstream server returns a 400' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/v2/appointments/put_appointments_400', match_requests_on: %i[method uri]) do
+          expect { subject.update_appointment(appt_id: 1121, status: 'cancelled') }
+            .to raise_error do |error|
+            expect(error).to be_a(Common::Exceptions::BackendServiceException)
+            expect(error.status_code).to eq(400)
+          end
+        end
+      end
+    end
+
+    context 'when the upstream server successfully updates appointment' do
+      it 'returns a 200 status code and the updated appointment in body' do
+        VCR.use_cassette('vaos/v2/appointments/put_appointments_200', match_requests_on: %i[method uri]) do
+          response = subject.update_appointment(appt_id: 1121, status: 'cancelled')
+          expect(response.status).to eq(200)
+          expect(response.body[:status]).to eq('cancelled')
+        end
+      end
+    end
+  end
 end
