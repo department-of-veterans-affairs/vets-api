@@ -12,7 +12,7 @@ module GI
     self.open_timeout = Settings.gids.open_timeout || 1
 
     def base_path
-      "#{Settings.gids.url}/v0/"
+      "#{Settings.gids.url}/"
     end
 
     def service_name

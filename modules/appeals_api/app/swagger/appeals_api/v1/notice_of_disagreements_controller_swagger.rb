@@ -5,7 +5,7 @@ require_dependency 'appeals_api/form_schemas'
 class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   include Swagger::Blocks
 
-  PATH_ENABLED_FOR_ENV = Settings.modules_appeals_api.documentation.notice_of_disagreements_v1
+  PATH_ENABLED_FOR_ENV = Settings.modules_appeals_api.documentation.path_enabled_flag
 
   NOD_TAG = ['Notice of Disagreements'].freeze
 
@@ -26,8 +26,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   }.freeze
 
   swagger_path '/notice_of_disagreements' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :post, tags: NOD_TAG do
       key :summary, 'Creates a new Notice of Disagreement.'
 
@@ -39,7 +37,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'nodCreateRoot'
 
       security do
-        key :apiKey, []
+        key :apikey, []
       end
 
       parameter do
@@ -159,8 +157,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/{uuid}' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :get, tags: NOD_TAG do
       key :operationId, 'getNoticeOfDisagreement'
       key :summary, 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)'
@@ -276,8 +272,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/schema' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :get do
       key :summary, 'Gets the Notice of Disagreement JSON Schema.'
       key :operationId, 'getNodJsonSchema'
@@ -332,8 +326,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/validate' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :post, tags: NOD_TAG do
       key :summary, 'Validates a POST request body against the JSON schema.'
       desc = 'Like the `POST /notice_of_disagreement`, but *only* does the validations **—does not submit anything.**'
@@ -341,7 +333,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'nodValidateSchema'
 
       security do
-        key :apiKey, []
+        key :apikey, []
       end
 
       parameter do
@@ -466,8 +458,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/evidence_submissions' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :post, tags: NOD_TAG do
       key :operationId, 'postNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Get a location for subsequent evidence submission document upload PUT request'
@@ -555,8 +545,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/path' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :put, tags: NOD_TAG do
       key :operationId, 'putNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Accepts Notice of Disagreement Evidence Submission document upload.'
@@ -622,8 +610,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/evidence_submissions/{uuid}' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :get, tags: NOD_TAG do
       key :operationId, 'getNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Shows a specific Notice of Disagreement Evidence Submission.'

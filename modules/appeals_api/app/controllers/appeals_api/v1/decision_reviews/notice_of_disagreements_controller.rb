@@ -5,6 +5,7 @@ require 'appeals_api/form_schemas'
 
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
+  include AppealsApi::StatusSimulation
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
@@ -16,7 +17,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
-      AppealsApi::Engine.root.join('config/schemas/10182_headers.json')
+      AppealsApi::Engine.root.join('config/schemas/v1/10182_headers.json')
     )
   )['definitions']['nodCreateHeadersRoot']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
@@ -28,6 +29,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def show
+    @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
     render_notice_of_disagreement
   end
 
