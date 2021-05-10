@@ -114,6 +114,7 @@ module Mobile
             cancel_id: cancel_id,
             comment: comment(details, type),
             facility_id: facility_id,
+            sta6aid: Mobile::V0::Appointment.toggle_non_prod_id!(appointment_hash[:sta6aid]),
             healthcare_service: healthcare_service(details, type),
             location: location(details, type, facility_id),
             minutes_duration: minutes_duration(details, type),
@@ -273,6 +274,7 @@ module Mobile
         end
 
         def video_healthcare_service(details)
+          binding.pry
           providers = details[:providers]
           return nil unless providers
 
