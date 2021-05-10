@@ -14,11 +14,11 @@ module AppealsApi
     include Sidekiq::MonitoredWorker
     include CentralMail::Utilities
 
-    def perform(higher_level_review_id)
+    def perform(higher_level_review_id, version = 'V1')
       higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
 
       begin
-        stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review).generate
+        stamped_pdf = AppealsApi::PdfConstruction::Generator.new(higher_level_review, version: version).generate
         higher_level_review.update_status!(status: 'submitting')
         upload_to_central_mail(higher_level_review, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)

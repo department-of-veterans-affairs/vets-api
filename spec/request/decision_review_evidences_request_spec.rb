@@ -14,7 +14,7 @@ RSpec.describe 'Decision Review Evidences', type: :request do
     sign_in_as(user)
   end
 
-  describe 'Post /v0/upload_supporting_evidence' do
+  describe 'Post /v0/decision_review_evidence' do
     context 'with valid parameters' do
       it 'returns a 200 and an upload guid' do
         post '/v0/decision_review_evidence',
