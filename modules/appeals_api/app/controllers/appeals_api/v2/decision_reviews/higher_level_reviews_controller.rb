@@ -17,13 +17,13 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
-      AppealsApi::Engine.root.join('config/schemas/v1/200996_headers.json')
+      AppealsApi::Engine.root.join('config/schemas/v2/200996_headers.json')
     )
   )['definitions']['hlrCreateParameters']['properties'].keys
 
   def create
     @higher_level_review.save
-    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id, 'V1')
+    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id, version: 'V2')
     render_higher_level_review
   end
 
