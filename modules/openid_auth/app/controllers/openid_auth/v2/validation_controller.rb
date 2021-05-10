@@ -140,7 +140,6 @@ module OpenidAuth
             status: 500, code: 500, detail: 'Failed validation with Charon.'
           )
         end
-
         case response.status
         when 200
           true
