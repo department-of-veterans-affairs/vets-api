@@ -3,12 +3,13 @@
 module V0
   class VirtualAgentTokenController < ApplicationController
     skip_before_action :authenticate, only: [:create]
+    skip_before_action :verify_authenticity_token
 
     rescue_from 'V0::VirtualAgentTokenController::ServiceException', with: :service_exception_handler
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
-      return render status: :not_found unless Flipper.enabled?(:virtual_agent_token)
+      raise ServiceException.new() unless Flipper.enabled?(:virtual_agent_token)
 
       render json: { token: fetch_connector_token }
     end
