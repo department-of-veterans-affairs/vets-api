@@ -20,8 +20,8 @@ module FacilitiesApi
         end
 
         def covid_online_scheduling_available?
-          covid = core_settings.find {|x| x['id'] == 'covid'}
-          covid.has_key?('patientHistoryRequired')
+          covid = core_settings.find { |x| x['id'] == 'covid' }
+          covid.key?('patientHistoryRequired')
         end
       end
     end

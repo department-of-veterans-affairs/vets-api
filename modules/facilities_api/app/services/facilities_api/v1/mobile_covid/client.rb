@@ -14,7 +14,6 @@ module FacilitiesApi
           response = perform(:get, "/facilities/v1/direct-booking-eligibility-criteria/#{id}", nil)
           V1::MobileCovid::Response.new(response.body, response.status)
         end
-
       end
     end
   end

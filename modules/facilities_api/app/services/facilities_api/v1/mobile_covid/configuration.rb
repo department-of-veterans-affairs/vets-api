@@ -28,7 +28,6 @@ module FacilitiesApi
             conn.adapter Faraday.default_adapter
           end
         end
-
       end
     end
   end
