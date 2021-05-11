@@ -35,6 +35,22 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       end
     end
 
+    describe 'GET appointment' do
+      let(:appointment_id) { 123 }
+
+      context 'returns a single appointment' do
+        it 'has access and returns appointment' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointment', match_requests_on: %i[method uri]) do
+            get "/vaos/v2/appointments/#{appointment_id}", params: {}
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('vaos/v2/appointment', { strict: false })
+          end
+        end
+      end
+    end
+
     describe 'PUT appointments' do
       context 'when the appointment status is updated' do
         it 'returns a status code of 200 and the updated appointment in the body' do

@@ -93,7 +93,51 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-  "/appointments/{id}":
+  "/appointments/{appointment-id}":
+    get:
+      tags:
+        - appointments
+      summary: Retrieve appointment by id
+      operationId: fetchAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "appointment-id"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AppointmentsResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
     put:
       tags:
         - appointments
@@ -102,7 +146,7 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - name: id
+        - name: appointment-id
           in: path
           description: The id of the appointment to update.
           required: true
@@ -124,27 +168,22 @@ paths:
               - fulfilled
       responses:
         "200":
-          description: The appointment status is updated
+          description: The appointment status is updated  
           content:
             application/json:
               schema:
-                required:
-                  - data
+                required: 
+                  - id
+                  - type
+                  - attributes
                 properties:
-                  data:
-                    type: object
-                    required: 
-                      - id
-                      - type
-                      - attributes
-                    properties:
-                      id:
-                        type: string
-                      type:
-                        type: string
-                        example: appointments
-                      attributes:
-                        $ref: "#/components/schemas/Appointment" 
+                  id:
+                    type: string
+                  type:
+                    type: string
+                    example: appointments
+                  attributes:
+                    $ref: "#/components/schemas/Appointment"   
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -164,7 +203,7 @@ paths:
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
-          $ref: "#/components/responses/GatewayTimeout"    
+          $ref: "#/components/responses/GatewayTimeout"            
   "/locations/{location_id}/clinics":
     get:
       tags:
