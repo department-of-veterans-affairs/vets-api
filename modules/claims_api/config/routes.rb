@@ -73,5 +73,9 @@ ClaimsApi::Engine.routes.draw do
     namespace :v1 do
       get 'api', to: 'api#index'
     end
+
+    namespace :v2 do
+      get 'api', to: 'api#index'
+    end
   end
 end
