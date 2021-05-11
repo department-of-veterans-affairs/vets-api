@@ -17,6 +17,11 @@ module VAOS
         render json: VAOS::V2::AppointmentsSerializer.new(new_appointment), status: :created
       end
 
+      def update
+        resp_appointment = appointments_service.update_appointment(appt_id: appt_id, status: status)
+        render json: VAOS::V2::AppointmentsSerializer.new(resp_appointment)
+      end
+
       private
 
       def appointments_service
@@ -31,6 +36,14 @@ module VAOS
       def appointment
         @appointment ||=
           appointments_service.get_appointment(appointment_id)
+      end
+
+      def appt_id
+        params.require(:id)
+      end
+
+      def status
+        params.require(:status)
       end
 
       def new_appointment
