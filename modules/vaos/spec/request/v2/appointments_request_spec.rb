@@ -34,5 +34,28 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
       end
     end
+
+    describe 'PUT appointments' do
+      context 'when the appointment status is updated' do
+        it 'returns a status code of 200 and the updated appointment in the body' do
+          VCR.use_cassette('vaos/v2/appointments/put_appointments_200', match_requests_on: %i[method uri]) do
+            put '/vaos/v2/appointments/1121?status=cancelled'
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('cancelled')
+            expect(response).to match_response_schema('vaos/v2/appointment', { strict: false })
+          end
+        end
+      end
+
+      context 'when the upstream service recieves a bad update request' do
+        it 'returns a 400 status code' do
+          VCR.use_cassette('vaos/v2/appointments/put_appointments_400', match_requests_on: %i[method uri]) do
+            put '/vaos/v2/appointments/1121?status=cancelled'
+            expect(response.status).to eq(400)
+            expect(JSON.parse(response.body)['errors'][0]['source']['vamf_status']).to eq(400)
+          end
+        end
+      end
+    end
   end
 end

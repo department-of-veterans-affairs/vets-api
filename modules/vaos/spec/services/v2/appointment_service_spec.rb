@@ -47,11 +47,10 @@ describe VAOS::V2::AppointmentsService do
     end
 
     context 'when the upstream server successfully updates appointment' do
-      it 'returns a 200 status code and the updated appointment in body' do
+      it 'returns the updated appointment body' do
         VCR.use_cassette('vaos/v2/appointments/put_appointments_200', match_requests_on: %i[method uri]) do
           response = subject.update_appointment(appt_id: 1121, status: 'cancelled')
-          expect(response.status).to eq(200)
-          expect(response.body[:status]).to eq('cancelled')
+          expect(response.status).to eq('cancelled')
         end
       end
     end
