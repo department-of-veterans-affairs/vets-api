@@ -348,4 +348,37 @@ describe AppealsApi::HigherLevelReview, type: :model do
       end
     end
   end
+
+  describe '#update_status!' do
+    it 'error status' do
+      higher_level_review.update_status!(status: 'error', code: 'code', detail: 'detail')
+
+      expect(higher_level_review.status).to eq('error')
+      expect(higher_level_review.code).to eq('code')
+      expect(higher_level_review.detail).to eq('detail')
+    end
+
+    it 'other valid status' do
+      higher_level_review.update_status!(status: 'success')
+
+      expect(higher_level_review.status).to eq('success')
+    end
+
+    it 'invalid status' do
+      expect do
+        higher_level_review.update_status!(status: 'invalid_status')
+      end.to raise_error(ActiveRecord::RecordInvalid,
+                         'Validation failed: Status is not included in the list')
+    end
+
+    it 'emits an event' do
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      higher_level_review.update_status!(status: 'pending')
+
+      expect(handler).to have_received(:handle!)
+    end
+  end
 end

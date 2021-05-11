@@ -4,13 +4,15 @@
 <table>
   <thead>
   <tr>
-    <th style="width: 28%">CONSUMER</th>
-    <th style="width: 12%">EXPIRED</th>
-    <th style="width: 12%">ERRORED</th>
-    <th style="width: 12%">PROCESSING *</th>
-    <th style="width: 12%">SUCCESS</th>
-    <th style="width: 12%">VBMS</th>
-    <th style="width: 12%">TOTAL SUBMISSIONS</th></tr>
+    <th style="width: 30%">CONSUMER</th>
+    <th style="width: 10%">EXPIRED</th>
+    <th style="width: 10%">ERRORED</th>
+    <th style="width: 10%">PROCESSING *</th>
+    <th style="width: 10%">SUCCESS</th>
+    <th style="width: 10%">VBMS</th>
+    <th style="width: 10%">TOTAL SUBMISSIONS</th>
+    <th style="width: 10%">ERROR %</th>
+  </tr>
   </thead>
   <tbody>
   <% @monthly_totals.each do |row| %>
@@ -22,6 +24,9 @@
       <td style="text-align: right"><%= row['success'] %></td>
       <td style="text-align: right"><%= row['vbms'] %></td>
       <td style="text-align: right"><%= row['total'] %></td>
+      <td style="text-align: right">
+        <%= "#{((row['errored'].to_f / row['total'].to_f) * 100).round(0)} %" %>
+      </td>
     </tr>
   <% end if @monthly_totals %>
   </tbody>
@@ -35,6 +40,10 @@
       <td style="text-align: right"><%= @summary_totals['success'] %></td>
       <td style="text-align: right"><%= @summary_totals['vbms'] %></td>
       <td style="text-align: right"><%= @summary_totals['total'] %></td>
+      <td style="text-align: right">
+        <%= "#{((@summary_totals['errored'].to_f / @summary_totals['total'].to_f) * 100).round(0)} %" %>
+      </td>
+
     </tr>
   <% end %>
   </tfoot>
@@ -42,7 +51,7 @@
 <h5>* Processing statuses include: pending, uploaded, received, and processing</h5>
 <br>
 <br>
-<h2>Prior Twelve Months - Average Time to VBMS (Hours:Minutes:Seconds), Page Counts, and Page Sizes</h2>
+<h2>Prior Twelve Months - Average Time to VBMS (Hours:Minutes:Seconds), Page Counts, and Upload Sizes in MB</h2>
 <table>
   <thead>
   <tr>
@@ -51,7 +60,7 @@
     <th style="width: 8%"></th>
     <th style="width: 8%">AVG TIME</th>
     <th  style="width: 34%" colspan="4">PAGE COUNTS</th>
-    <th  style="width: 34%"colspan="4">UPLOAD SIZE (MB)</th>
+    <th  style="width: 34%" colspan="4">UPLOAD SIZE (MB)</th>
   </tr>
   <tr>
     <th>YEAR</th>
@@ -87,6 +96,10 @@
   <% end if @avg_processing_time %>
   </tbody>
 </table>
+<br>
+<br>
+<%= render partial: 'vba_documents/monthly_report_mailer/monthly_rolling_elapsed_times',
+           locals: {collection: @rolling_elapsed_times} %>
 <br>
 <br>
 <%= render partial: 'vba_documents/monthly_report_mailer/monthly_processing_success',

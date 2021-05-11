@@ -4,6 +4,8 @@ require 'debt_management_center/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
+    before_action { authorize :debt, :access? }
+
     def create
       render json: service.submit_financial_status_report(fsr_form)
     end
@@ -12,7 +14,8 @@ module V0
       send_data(
         service.get_pdf,
         type: 'application/pdf',
-        filename: 'VA Form 5655 - Submitted'
+        filename: 'VA Form 5655 - Submitted',
+        disposition: 'inline'
       )
     end
 

@@ -178,6 +178,19 @@ module AppealsApi
       auth_headers&.dig('X-Consumer-ID')
     end
 
+    def update_status!(status:, code: nil, detail: nil)
+      handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
+                                      from: self.status,
+                                      to: status,
+                                      status_update_time: Time.zone.now,
+                                      statusable_id: id
+                                    })
+
+      update!(status: status, code: code, detail: detail)
+
+      handler.handle!
+    end
+
     private
 
     def data_attributes

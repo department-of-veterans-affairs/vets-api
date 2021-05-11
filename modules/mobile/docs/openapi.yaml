@@ -1813,14 +1813,14 @@ paths:
           schema:
             type: string
             format: date-time
-          description: The start date for the range of appointments in ISO 8601 UTC format
+          description: The start date for the range of appointments in ISO 8601 UTC format. If not provided the start date will be considered Jan. 1st 1700.
           example: 2020-10-29T07:00:00.000Z
         - in: query
           name: endDate
           schema:
             type: string
             format: date-time
-          description: The end date for the range of appointments in ISO 8601 UTC format
+          description: The end date for the range of appointments in ISO 8601 UTC format. If not provided the end date will be 1 year from today's date
           example: 2021-11-29T08:00:00.000Z
         - in: query
           name: page[number]
@@ -2220,7 +2220,12 @@ paths:
   /v0/messaging/health/folders/{id}/messages:
     get:
       summary: /v0/messaging/health/folders/{id}/messages
-      description: List messages in a secure messaging folder
+      description: |
+        List messages in a secure messaging folder. 
+        
+        When listing messages, the response for each message will include most but not all of the message attributes. 
+        Specifically, the message body and attachment information is not included. Those attributes can be obtained by 
+        getting the specific message resource. 
       operationId: get_folder_messages
       security:
         - Bearer: []
@@ -2256,6 +2261,7 @@ paths:
 
           <strong>NOTES:</strong>
           <ul>
+            <li>If a subject isn't included, default subject will be "{{Category}} Inquiry" (e.g. Medication Inquiry)</li>
             <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
             <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
             <li>
@@ -2279,6 +2285,16 @@ paths:
               properties:
                 uploads[]:
                   type: array
+                  description: |
+                    One or more message attachments. 
+                    
+                    <strong>NOTES:</strong> 
+                    <ul>
+                    <li>A single message may have a maximum of 4 attachments.</li>
+                    <li>A single attachment cannot exceed 3 MB</li>
+                    <li>All attachments combined cannot exceed 6 MB</li>
+                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
+                    </ul>
                   items:
                     type: string
                     format: binary
@@ -2308,11 +2324,13 @@ paths:
     get:
       summary: /v0/messaging/health/messages/{id}
       description: |
-        Get a secure message and mark message as read
+        Get a secure message <strong>and mark the message as read</strong>. 
 
         <strong>NOTES:</strong>
         <ul>
-          <li>Performing this GET will set readReceipt field as 'READ'</li>
+          <li>Unlike listing messages in a folder, the message resource returned from this operation will include
+        the message body and attachment information.</li>
+          <li>This GET operation is not fully idempotent and will set readReceipt field as 'READ'</li>
           <li>If message has an attachment included, attachmentSize is displayed in bytes</li>
         </ul>
       operationId: get_message
@@ -2387,18 +2405,54 @@ paths:
       responses:
         '204':
           description: The message was deleted successfully
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+              example: {
+                errors: [
+                  {
+                    "title": "Operation failed",
+                    "detail": "Unable to move message",
+                    "code": "SM114",
+                    "status": "400"
+                  }
+                ]
+              }
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+              example: {
+                errors: [
+                  {
+                    "title": "Not authorized",
+                    "detail": "IAM user session is inactive",
+                    "code": "401",
+                    "status": "401"
+                  }
+                ]
+              }
         '403':
           description: Not authorized for access to secure messages
           content:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+              example: {
+                errors: [
+                    {
+                      "title": "Forbidden",
+                      "detail": "You do not have access to messaging",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+              }
   /v0/messaging/health/messages/{id}/thread:
     get:
       summary: /v0/messaging/health/messages/{id}/thread
@@ -2458,6 +2512,16 @@ paths:
               properties:
                 uploads[]:
                   type: array
+                  description: |
+                    One or more message attachments. 
+                    
+                    <strong>NOTES:</strong> 
+                    <ul>
+                    <li>A single message may have a maximum of 4 attachments.</li>
+                    <li>A single attachment cannot exceed 3 MB</li>
+                    <li>All attachments combined cannot exceed 6 MB</li>
+                    <li>Supported file types/extensions: doc, docx, gif, jpg, pdf, png, rtf, txt, xls, xlsx.</li>
+                    </ul>
                   items:
                     type: string
                     format: binary

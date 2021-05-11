@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'webmock'
 
 RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true do
   include SchemaMatchers
@@ -62,14 +63,70 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       }
     ]
   end
+  let(:jwt_charon) do
+    [
+      {
+        'ver' => 1,
+        'last_login_type' => 'ssoi',
+        'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'iss' => 'https://example.com/oauth2/default',
+        'aud' => 'https://example.com/xxxxxxservices/xxxxx',
+        'iat' => Time.current.utc.to_i,
+        'exp' => Time.current.utc.to_i + 3600,
+        'cid' => '0oa1c01m77heEXUZt2p7',
+        'uid' => '00u1zlqhuo3yLa2Xs2p7',
+        'scp' => %w[profile email openid launch],
+        'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
+      },
+      {
+        'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
+        'alg' => 'RS256'
+      }
+    ]
+  end
+
   let(:launch_response) do
     instance_double(RestClient::Response,
                     code: 200,
                     body: { launch: '73806470379396828' }.to_json)
   end
+  let(:launch_with_sta3n_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json)
+  end
+  let(:launch_with_wrong_sta3n_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { launch: 'eyJpY24iOiIxMjM0NDUiLCAic3RhM24iOiI3ODkifQo=' }.to_json)
+  end
   let(:failed_launch_response) do
     instance_double(RestClient::Response,
                     code: 401)
+  end
+  let(:bad_launch_response) do
+    instance_double(RestClient::Response,
+                    code: 503)
+  end
+  let(:charon_response) do
+    instance_double(RestClient::Response,
+                    code: 200,
+                    body: { status: '200', value: '1' }.to_json)
+  end
+  let(:invalid_site_charon_response) do
+    instance_double(RestClient::Response,
+                    code: 400,
+                    body: { status: '400', message: 'Unknown vista site specified: [442]' }.to_json)
+  end
+  let(:failed_charon_response) do
+    instance_double(RestClient::Response,
+                    code: 401,
+                    body: { status: '500', value: '-1' }.to_json)
+  end
+  let(:bad_charon_response) do
+    instance_double(RestClient::Response,
+                    code: 500,
+                    body: { status: '500', value: '-2' }.to_json)
   end
   let(:json_api_response) do
     {
@@ -103,6 +160,42 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       }
     }
   end
+  let(:json_api_response_vista_id) do
+    {
+      'data' => {
+        'id' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'type' => 'validated_token',
+        'attributes' => {
+          'ver' => 1,
+          'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+          'iss' => 'https://example.com/oauth2/default',
+          'aud' => 'api://default',
+          'iat' => 1_541_453_784,
+          'exp' => 1_541_457_384,
+          'cid' => '0oa1c01m77heEXUZt2p7',
+          'uid' => '00u1zlqhuo3yLa2Xs2p7',
+          'scp' => [
+            'profile',
+            'email',
+            'openid',
+            'launch/patient'
+          ],
+          'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+          'act' => {
+            'icn' => '73806470379396828',
+            'type' => 'patient',
+            'vista_id' => '456|789012345^XX^456^XXXXX|X|789|012345678^XX^901^XXXXX|X|
+                           234|567890^PN^234^XXXXX|X|567|890123456^XX^567^XXXXX|X|
+                           890|12345^XX^890^XXXXX|X|111|111111111^XX^111^XXXXX|X'
+          },
+          'launch' => {
+            'icn' => '73806470379396828',
+            'sta3n' => '456'
+          }
+        }
+      }
+    }
+  end
   let(:json_cc_api_response) do
     {
       'data' => {
@@ -131,6 +224,39 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
           'launch' => {
             'patient' => '73806470379396828'
           }
+        }
+      }
+    }
+  end
+  let(:json_ssoi_api_response) do
+    {
+      'data' => {
+        'id' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'type' => 'validated_token',
+        'attributes' => {
+          'ver' => 1,
+          'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+          'iss' => 'https://example.com/oauth2/default',
+          'aud' => 'api://default',
+          'iat' => 1_541_453_784,
+          'exp' => 1_541_457_384,
+          'cid' => '0oa1c01m77heEXUZt2p7',
+          'uid' => '00u1zlqhuo3yLa2Xs2p7',
+          'scp' => [
+            'profile',
+            'email',
+            'openid',
+            'veteran_status.read'
+          ],
+          'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+          'act' => {
+            'icn' => nil,
+            'npi' => nil,
+            'sec_id' => 'ae9ff5f4e4b741389904087d94cd19b2',
+            'vista_id' => '',
+            'type' => 'user'
+          },
+          'launch' => {}
         }
       }
     }
@@ -197,6 +323,18 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
         expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
+      end
+    end
+
+    it 'ssoi returns 200 and add the user to the session' do
+      with_ssoi_profile_configured do
+        post '/internal/auth/v2/validation', params: nil, headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to \
+          eq(json_ssoi_api_response['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['act'].keys).to \
+          eq(json_ssoi_api_response['data']['attributes']['act'].keys)
       end
     end
   end
@@ -296,6 +434,98 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(response).to have_http_status(:unauthorized)
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
         expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid launch context'
+      end
+    end
+  end
+
+  context 'with jwt requiring screening from charon' do
+    before do
+      allow(JWT).to receive(:decode).and_return(jwt_charon)
+    end
+
+    it 'v2 POST returns json response if valid user' do
+      with_ssoi_charon_configured do
+        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys)
+          .to eq(json_api_response_vista_id['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
+      end
+    end
+
+    it 'v2 POST returns json response if 400 charon response' do
+      with_ssoi_charon_configured do
+        stub_request(:get, 'http://example.com/smart/launch').to_return(
+          body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+        )
+        stub_request(:get, 'http://example.com/services/charon?duz=789012345&site=456').to_raise(
+          RestClient::ExceptionWithResponse.new(invalid_site_charon_response, 400)
+        )
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Unknown vista site specified: [442]'
+      end
+    end
+
+    it 'v2 POST returns json response if 401 charon response' do
+      with_ssoi_charon_configured do
+        stub_request(:get, 'http://example.com/smart/launch').to_return(
+          body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+        )
+        stub_request(:get, 'http://example.com/services/charon?duz=789012345&site=456').to_raise(
+          RestClient::ExceptionWithResponse.new(failed_charon_response, 401)
+        )
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Charon menu-code: -1'
+      end
+    end
+
+    it 'v2 POST returns json response if 500 charon response' do
+      with_ssoi_charon_configured do
+        stub_request(:get, 'http://example.com/smart/launch').to_return(
+          body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+        )
+        stub_request(:get, 'http://example.com/services/charon?duz=789012345&site=456').to_raise(
+          RestClient::ExceptionWithResponse.new(bad_charon_response, 500)
+        )
+
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:internal_server_error)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Failed validation with Charon.'
+      end
+    end
+
+    it 'v2 POST returns 401 response if invalid user' do
+      with_ssoi_charon_configured do
+        allow(RestClient).to receive(:get).and_return(launch_with_wrong_sta3n_response)
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+
+    it 'v2 POST returns server error' do
+      with_ssoi_charon_configured do
+        allow(RestClient).to receive(:get).and_return(bad_launch_response)
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end

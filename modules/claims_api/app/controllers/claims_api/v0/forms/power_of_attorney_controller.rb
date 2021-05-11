@@ -55,7 +55,7 @@ module ClaimsApi
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
                                                                                           source_name: source_name)
           power_of_attorney.set_file_data!(documents.first, params[:doc_type])
-          power_of_attorney.status = 'submitted'
+          power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
           power_of_attorney.save!
           power_of_attorney.reload
           ClaimsApi::VBMSUploadJob.perform_async(power_of_attorney.id)
