@@ -19,6 +19,14 @@ module VAOS
         end
       end
 
+      def get_appointment(appointment_id)
+        params = {}
+        with_monitoring do
+          response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
+          OpenStruct.new(response.body)
+        end
+      end
+
       def update_appointment(appt_id:, status:)
         url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status: status).params
@@ -49,6 +57,10 @@ module VAOS
 
       def get_appointments_base_url
         "/vaos/v1/patients/#{user.icn}/appointments"
+      end
+
+      def get_appointment_base_url(appointment_id)
+        "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
       end
 
       def date_params(start_date, end_date)
