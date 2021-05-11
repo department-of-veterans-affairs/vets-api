@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'charon/configuration'
-require 'charon/response'
+require 'lighthouse/charon/configuration'
+require 'lighthouse/charon/response'
 
 module Charon
   class Service < Common::Client::Base
