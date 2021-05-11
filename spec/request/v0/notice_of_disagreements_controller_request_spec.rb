@@ -29,7 +29,8 @@ RSpec.describe V0::NoticeOfDisagreementsController, type: :request do
         parsed_response = JSON.parse(response.body)
         id = parsed_response['data']['id']
         expect(previous_appeal_submission_ids).not_to include id
-        expect(AppealSubmission.find_by(submitted_appeal_uuid: id)).to be_truthy
+        appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+        expect(appeal_submission.board_review_option).to eq('hearing')
       end
     end
 
