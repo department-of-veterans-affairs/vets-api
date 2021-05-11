@@ -93,6 +93,56 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/appointments/{appointment-id}":
+    get:
+      tags:
+        - appointments
+      summary: Retrieve appointment by id
+      operationId: fetchAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "icn"
+          schema:
+            type: string
+        - in: path
+          required: true
+          name: "appointment-id"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AppointmentResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
   "/locations/{location_id}/clinics":
     get:
       tags:
