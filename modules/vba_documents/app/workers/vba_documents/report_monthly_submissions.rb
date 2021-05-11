@@ -15,15 +15,6 @@ module VBADocuments
         last_month_start = (Date.current - 1.month).beginning_of_month
         last_month_end = Date.current.beginning_of_month
 
-        # leave for testing locally with fixtures
-        # @monthly_counts = get_fixture_yml('monthly_report/monthly_counts.yml')
-        # still_processing = get_fixture_yml('monthly_report/still_processing.yml')
-        # still_success = get_fixture_yml('monthly_report/still_success.yml')
-        # @avg_processing_time = get_fixture_yml('monthly_report/avg_processing_time.yml')
-        # @monthly_mode = get_fixture_yml('monthly_report/mode.yml')
-        # @monthly_max_avg = get_fixture_yml('monthly_report/max_avg.yml')
-        # rolling_elapsed_times = get_fixture_yml('monthly_report/rolling_elapsed_times.yml')
-
         # execute SQL for monthly counts
         @monthly_counts = run_sql(SQLSupport::MONTHLY_COUNT_SQL, last_month_start, last_month_end)
         still_processing = run_sql(SQLSupport::PROCESSING_SQL, last_month_start)
@@ -109,23 +100,32 @@ module VBADocuments
         from = (ym + 1).months.ago.beginning_of_month
         to = (ym + 1).month.ago.end_of_month
         yyyymm = from.year.to_s + ('00' + from.month.to_s).last(2)
-        r = UploadSubmission.status_elapsed_times(from, to)
-        break if r.empty?
+        results = UploadSubmission.status_elapsed_times(from, to)
+        break if results.empty?
 
-        status_hash = r.each_with_object({}) do |k, hash|
-          s = k['status']
-          hash[s] = k.tap do |h|
-            h.delete('status')
-          end
-        end
+        status_hash = reformat_rolling_times(results)
         month_data = { yyyymm => status_hash }
         get_elapsed_median(month_data)
-        calc_times(month_data, %w[min_secs max_secs avg_secs median_secs])
+        tbs = get_time_between_statuses(yyyymm)
+        month_data[yyyymm] = month_data[yyyymm].merge!(tbs[yyyymm])
+        fmt_keys = %w[min_secs max_secs avg_secs median_secs min_bt_status max_bt_status avg_bt_status]
+        calc_times(month_data, fmt_keys)
         results_set << month_data
       end
       results_set
     end
 
+    def reformat_rolling_times(results)
+      results.each_with_object({}) do |k, hash|
+        s = k['status']
+        hash[s] = k.tap do |h|
+          h.delete('status')
+        end
+      end
+    end
+
+    # {"202104"=>{"pending"=>{"min_secs"=>1, "max_secs"=>1282, "avg_secs"=>12, "rowcount"=>49692, "median_secs"=>6},
+    #           "processing"=>{"min_secs"=>3, "max_secs"=>529500, "avg_secs"=>6571, "rowcount"=>41198, ...}
     # format all of the times in seconds to hh:mm:ss
     def calc_times(data, keys)
       data.each_value do |v|
@@ -143,6 +143,16 @@ module VBADocuments
         median = run_sql(SQLSupport::MEDIAN_ELAPSED_TIME_SQL, yyyymm, status).first
         data.merge!(median)
       end
+    end
+
+    def get_time_between_statuses(yyyymm)
+      sql = SQLSupport::MONTHLY_TIME_BETWEEN_STATUSES_SQL
+      ret = { yyyymm => {} }
+      ret[yyyymm].merge!({ 'pending2error' => run_sql(sql, yyyymm, 'pending', 'error').first })
+      ret[yyyymm].merge!({ 'pending2success' => run_sql(sql, yyyymm, 'pending', 'success').first })
+      ret[yyyymm].merge!({ 'pending2vbms' => run_sql(sql, yyyymm, 'pending', 'vbms').first })
+      ret[yyyymm].merge!({ 'success2vbms' => run_sql(sql, yyyymm, 'success', 'vbms').first })
+      ret
     end
 
     def run_sql(sql, *args)
