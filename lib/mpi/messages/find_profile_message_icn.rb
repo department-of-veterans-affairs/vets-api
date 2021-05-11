@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 require_relative 'find_profile_message_helpers'
+require 'mpi/constants'
 
 module MPI
   module Messages
     class FindProfileMessageIcn
       include FindProfileMessageHelpers
-      attr_reader :icn
+      attr_reader :icn, :search_type
 
-      def initialize(icn)
+      def initialize(icn, search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
         @icn = icn
+        @search_type = search_type
       end
 
       private
