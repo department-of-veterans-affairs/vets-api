@@ -11,7 +11,7 @@ module VAOS
         params = date_params(start_date, end_date).merge(page_params(pagination_params)).compact
 
         with_monitoring do
-          response = perform(:get, get_appointments_base_url, params, headers)
+          response = perform(:get, appointments_base_url, params, headers)
           {
             data: deserialized_appointments(response.body),
             meta: pagination(pagination_params)
@@ -23,6 +23,13 @@ module VAOS
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
+          OpenStruct.new(response.body)
+        end
+      end
+
+      def post_appointments(params)
+        with_monitoring do
+          response = perform(:post, appointments_base_url, params, headers)
           OpenStruct.new(response.body)
         end
       end
@@ -55,7 +62,7 @@ module VAOS
         }
       end
 
-      def get_appointments_base_url
+      def appointments_base_url
         "/vaos/v1/patients/#{user.icn}/appointments"
       end
 

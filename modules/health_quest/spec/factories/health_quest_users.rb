@@ -46,7 +46,6 @@ FactoryBot.modify do
           icn_with_aaid: '1012845331V153043^NI^200M^USVHA',
           mhv_ids: ['16701377'],
           vha_facility_ids: %w[983 984 200MHS 200ESR],
-          historical_icns: [],
           gender: 'F',
           birth_date: '19530401',
           ssn: '796061976'
