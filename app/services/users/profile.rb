@@ -48,7 +48,7 @@ module Users
       scaffold.account = account
       scaffold.profile = profile
       scaffold.vet360_contact_information = vet360_contact_information
-      scaffold.va_profile = va_profile
+      scaffold.va_profile = mpi_profile
       scaffold.veteran_status = veteran_status
       scaffold.in_progress_forms = in_progress_forms
       scaffold.prefills_available = prefills_available
@@ -101,7 +101,7 @@ module Users
       nil
     end
 
-    def va_profile
+    def mpi_profile
       status = user.mpi_status
 
       if status == RESPONSE_STATUS[:ok]
