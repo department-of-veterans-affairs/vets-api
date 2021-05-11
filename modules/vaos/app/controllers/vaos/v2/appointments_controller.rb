@@ -15,7 +15,7 @@ module VAOS
       
       def create
         new_appointment = appointments_service.post_appointments(create_params)
-        render json: VAOS::V2::AppointmentsSerializer.new(new_appointment[:data])
+        render json: VAOS::V2::AppointmentsSerializer.new(new_appointment)
       end
 
       private
