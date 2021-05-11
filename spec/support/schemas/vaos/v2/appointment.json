@@ -27,11 +27,6 @@
           "description": "the care type for the appointment",
           "type": "string"
         },
-        "patientIcn": {
-          "description": "The patient ICN",
-          "type": "string",
-          "nullable": false
-        },
         "locationId": {
           "description": "The sta6aid for the VAfacility where the appointment is registered.",
           "type": "string"
