@@ -5,7 +5,7 @@ require 'active_support/core_ext/digest/uuid'
 
 # Subclasses the `User` model. Adds a unique redis namespace for IAM users.
 # Adds IAM sourced versions of ICN, EDIPI, and SEC ID and methods to use them
-# or hit MPI via the va_profile method.
+# or hit MPI via the mpi_profile.
 #
 class IAMUser < ::User
   redis_store REDIS_CONFIG[:iam_user][:namespace]
@@ -53,7 +53,7 @@ class IAMUser < ::User
   end
 
   def sec_id
-    identity.iam_sec_id || va_profile&.sec_id
+    identity.iam_sec_id || sec_id
   end
 
   def mhv_account_type
