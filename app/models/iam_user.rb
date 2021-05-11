@@ -53,7 +53,7 @@ class IAMUser < ::User
   end
 
   def sec_id
-    identity.iam_sec_id || self.sec_id
+    identity.iam_sec_id || sec_id
   end
 
   def mhv_account_type
