@@ -494,6 +494,7 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
             with_okta_user(scopes) do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              allow(::Veteran::Service::Representative).to receive(:for_user).and_return(true)
               expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
               submit_request(example.metadata)
@@ -553,6 +554,7 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
             with_okta_user(scopes) do
               allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              allow(::Veteran::Service::Representative).to receive(:for_user).and_return(true)
               expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new(nil))
               submit_request(example.metadata)
             end
