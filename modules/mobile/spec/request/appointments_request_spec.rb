@@ -93,193 +93,6 @@ RSpec.describe 'appointments', type: :request do
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
       let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
 
-      context 'with a user has mixed upcoming appointments' do
-        before do
-          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
-                get '/mobile/v0/appointments', headers: iam_headers, params: params
-              end
-            end
-          end
-        end
-
-        let(:first_appointment) { response.parsed_body['data'].first['attributes'] }
-        let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
-
-        it 'returns an ok response' do
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'matches the expected schema' do
-          expect(response.body).to match_json_schema('appointments')
-        end
-
-        it 'sorts the appointments by startDateUtc ascending' do
-          expect(first_appointment['startDateUtc']).to be < last_appointment['startDateUtc']
-        end
-
-        it 'includes the expected properties for a VA appointment' do
-          va_appointment = response.parsed_body['data'].filter { |a| a['attributes']['appointmentType'] == 'VA' }.first
-          expect(va_appointment).to include(
-            {
-              'type' => 'appointment',
-              'attributes' => {
-                'appointmentType' => 'VA',
-                'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
-                'comment' => nil,
-                'healthcareService' => 'CHY PC KILPATRICK',
-                'location' => {
-                  'name' => 'CHEYENNE VAMC',
-                  'address' => {
-                    'street' => '2360 East Pershing Boulevard',
-                    'city' => 'Cheyenne',
-                    'state' => 'WY',
-                    'zipCode' => '82001-5356'
-                  },
-                  'lat' => 41.148027,
-                  'long' => -104.7862575,
-                  'phone' => {
-                    'areaCode' => '307',
-                    'number' => '778-7550',
-                    'extension' => nil
-                  },
-                  'url' => nil,
-                  'code' => nil
-                },
-                'minutesDuration' => 20,
-                'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
-                'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
-                'status' => 'BOOKED',
-                'timeZone' => 'America/Denver',
-                'vetextId' => '308;20201103.090000'
-              }
-            }
-          )
-        end
-
-        it 'includes the expected properties for a CC appointment' do
-          cc_appointment = response.parsed_body['data'].filter do |a|
-            a['attributes']['appointmentType'] == 'COMMUNITY_CARE'
-          end.first
-
-          expect(cc_appointment).to include(
-            {
-              'id' => '8a4885896a22f88f016a2c8834b1012d',
-              'type' => 'appointment',
-              'attributes' => {
-                'appointmentType' => 'COMMUNITY_CARE',
-                'cancelId' => nil,
-                'comment' => 'Please arrive 15 minutes ahead of appointment.',
-                'healthcareService' => 'Atlantic Medical Care',
-                'location' => {
-                  'name' => 'Atlantic Medical Care',
-                  'address' => {
-                    'street' => '123 Main Street',
-                    'city' => 'Orlando',
-                    'state' => 'FL',
-                    'zipCode' => '32826'
-                  },
-                  'lat' => nil,
-                  'long' => nil,
-                  'phone' => {
-                    'areaCode' => '407',
-                    'number' => '555-1212',
-                    'extension' => nil
-                  },
-                  'url' => nil,
-                  'code' => nil
-                },
-                'minutesDuration' => 60,
-                'startDateLocal' => '2020-11-25T19:30:00.000-05:00',
-                'startDateUtc' => '2020-11-26T00:30:00.000Z',
-                'status' => 'BOOKED',
-                'timeZone' => 'America/New_York',
-                'vetextId' => nil
-              }
-            }
-          )
-        end
-      end
-
-      context 'when va appointments succeeds but cc appointments fail' do
-        before do
-          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
-                get '/mobile/v0/appointments', headers: iam_headers, params: params
-              end
-            end
-          end
-        end
-
-        it 'returns an ok response' do
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'has va appointments' do
-          expect(response.parsed_body['data'].size).to eq(3)
-        end
-
-        it 'matches the expected schema' do
-          expect(response.body).to match_json_schema('appointments')
-        end
-      end
-
-      context 'when cc appointments succeeds but va appointments fail' do
-        before do
-          VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
-              get '/mobile/v0/appointments', headers: iam_headers, params: params
-            end
-          end
-        end
-
-        it 'returns an ok response' do
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'has va appointments' do
-          expect(response.parsed_body['data'].size).to eq(2)
-        end
-
-        it 'matches the expected schema' do
-          expect(response.body).to match_json_schema('appointments')
-        end
-      end
-
-      context 'when both fail' do
-        before do
-          VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
-              get '/mobile/v0/appointments', headers: iam_headers, params: params
-            end
-          end
-        end
-
-        it 'returns a 502 response' do
-          expect(response).to have_http_status(:bad_gateway)
-        end
-      end
-
-      context 'when the VA endpoint returns a partial response with an error' do
-        before do
-          VCR.use_cassette('appointments/get_appointments_200_with_error', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
-              get '/mobile/v0/appointments', headers: iam_headers, params: params
-            end
-          end
-        end
-
-        it 'returns a 200 response' do
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'has the right CC count' do
-          expect(response.parsed_body['data'].size).to eq(2)
-        end
-      end
-
       context 'when there are cached appointments' do
         let(:user) { FactoryBot.build(:iam_user) }
         let(:params) { { useCache: true } }
@@ -431,6 +244,308 @@ RSpec.describe 'appointments', type: :request do
               )
             end
           end
+        end
+      end
+    end
+
+    context 'with valid params' do
+      let(:params) { { page: { number: 1, size: 10 }, useCache: true } }
+
+      context 'with a user has mixed upcoming appointments' do
+        before do
+          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: iam_headers, params: params
+              end
+            end
+          end
+        end
+
+        let(:first_appointment) { response.parsed_body['data'].first['attributes'] }
+        let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
+
+        it 'returns an ok response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'matches the expected schema' do
+          expect(response.body).to match_json_schema('appointments')
+        end
+
+        it 'sorts the appointments by startDateUtc ascending' do
+          expect(first_appointment['startDateUtc']).to be < last_appointment['startDateUtc']
+        end
+
+        it 'includes the expected properties for a VA appointment' do
+          va_appointment = response.parsed_body['data'].filter { |a| a['attributes']['appointmentType'] == 'VA' }.first
+          expect(va_appointment).to include(
+                                        {
+                                            'type' => 'appointment',
+                                            'attributes' => {
+                                                'appointmentType' => 'VA',
+                                                'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                                                'comment' => nil,
+                                                'healthcareService' => 'CHY PC KILPATRICK',
+                                                'location' => {
+                                                    'name' => 'CHEYENNE VAMC',
+                                                    'address' => {
+                                                        'street' => '2360 East Pershing Boulevard',
+                                                        'city' => 'Cheyenne',
+                                                        'state' => 'WY',
+                                                        'zipCode' => '82001-5356'
+                                                    },
+                                                    'lat' => 41.148027,
+                                                    'long' => -104.7862575,
+                                                    'phone' => {
+                                                        'areaCode' => '307',
+                                                        'number' => '778-7550',
+                                                        'extension' => nil
+                                                    },
+                                                    'url' => nil,
+                                                    'code' => nil
+                                                },
+                                                'minutesDuration' => 20,
+                                                'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
+                                                'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
+                                                'status' => 'BOOKED',
+                                                'timeZone' => 'America/Denver',
+                                                'vetextId' => '308;20201103.090000'
+                                            }
+                                        }
+                                    )
+        end
+
+        it 'includes the expected properties for a CC appointment' do
+          cc_appointment = response.parsed_body['data'].filter do |a|
+            a['attributes']['appointmentType'] == 'COMMUNITY_CARE'
+          end[5]
+
+          expect(cc_appointment).to include(
+                                        {
+                                            'id' => '8a4885896a22f88f016a2c8834b1012d',
+                                            'type' => 'appointment',
+                                            'attributes' => {
+                                                'appointmentType' => 'COMMUNITY_CARE',
+                                                'cancelId' => nil,
+                                                'comment' => 'Please arrive 15 minutes ahead of appointment.',
+                                                'healthcareService' => 'Atlantic Medical Care',
+                                                'location' => {
+                                                    'name' => 'Atlantic Medical Care',
+                                                    'address' => {
+                                                        'street' => '123 Main Street',
+                                                        'city' => 'Orlando',
+                                                        'state' => 'FL',
+                                                        'zipCode' => '32826'
+                                                    },
+                                                    'lat' => nil,
+                                                    'long' => nil,
+                                                    'phone' => {
+                                                        'areaCode' => '407',
+                                                        'number' => '555-1212',
+                                                        'extension' => nil
+                                                    },
+                                                    'url' => nil,
+                                                    'code' => nil
+                                                },
+                                                'minutesDuration' => 60,
+                                                'startDateLocal' => '2020-11-25T19:30:00.000-05:00',
+                                                'startDateUtc' => '2020-11-26T00:30:00.000Z',
+                                                'status' => 'BOOKED',
+                                                'timeZone' => 'America/New_York',
+                                                'vetextId' => nil
+                                            }
+                                        }
+                                    )
+        end
+      end
+
+      context 'with a user has mixed upcoming appointments and requests a date range outside +/-1 year' do
+        let(:end_date) { (Time.now.utc + 2.years).iso8601 }
+        let(:params) { { endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
+        before do
+          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments_large_range', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('appointments/get_appointments_large_range', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: iam_headers, params: params
+              end
+            end
+          end
+        end
+
+        let(:first_appointment) { response.parsed_body['data'].first['attributes'] }
+        let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
+
+        it 'returns an ok response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'matches the expected schema' do
+          expect(response.body).to match_json_schema('appointments')
+        end
+
+        it 'sorts the appointments by startDateUtc ascending' do
+          expect(first_appointment['startDateUtc']).to be < last_appointment['startDateUtc']
+        end
+
+        it 'includes the expected properties for a VA appointment' do
+          va_appointment = response.parsed_body['data'].filter { |a| a['attributes']['appointmentType'] == 'VA' }.first
+          expect(va_appointment).to include(
+                                        {
+                                            'type' => 'appointment',
+                                            'attributes' => {
+                                                'appointmentType' => 'VA',
+                                                'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                                                'comment' => nil,
+                                                'healthcareService' => 'CHY PC KILPATRICK',
+                                                'location' => {
+                                                    'name' => 'CHEYENNE VAMC',
+                                                    'address' => {
+                                                        'street' => '2360 East Pershing Boulevard',
+                                                        'city' => 'Cheyenne',
+                                                        'state' => 'WY',
+                                                        'zipCode' => '82001-5356'
+                                                    },
+                                                    'lat' => 41.148027,
+                                                    'long' => -104.7862575,
+                                                    'phone' => {
+                                                        'areaCode' => '307',
+                                                        'number' => '778-7550',
+                                                        'extension' => nil
+                                                    },
+                                                    'url' => nil,
+                                                    'code' => nil
+                                                },
+                                                'minutesDuration' => 20,
+                                                'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
+                                                'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
+                                                'status' => 'BOOKED',
+                                                'timeZone' => 'America/Denver',
+                                                'vetextId' => '308;20201103.090000'
+                                            }
+                                        }
+                                    )
+        end
+
+        it 'includes the expected properties for a CC appointment' do
+          cc_appointment = response.parsed_body['data'].filter do |a|
+            a['attributes']['appointmentType'] == 'COMMUNITY_CARE'
+          end[5]
+
+          expect(cc_appointment).to include(
+                                        {
+                                            'id' => '8a4885896a22f88f016a2c8834b1012d',
+                                            'type' => 'appointment',
+                                            'attributes' => {
+                                                'appointmentType' => 'COMMUNITY_CARE',
+                                                'cancelId' => nil,
+                                                'comment' => 'Please arrive 15 minutes ahead of appointment.',
+                                                'healthcareService' => 'Atlantic Medical Care',
+                                                'location' => {
+                                                    'name' => 'Atlantic Medical Care',
+                                                    'address' => {
+                                                        'street' => '123 Main Street',
+                                                        'city' => 'Orlando',
+                                                        'state' => 'FL',
+                                                        'zipCode' => '32826'
+                                                    },
+                                                    'lat' => nil,
+                                                    'long' => nil,
+                                                    'phone' => {
+                                                        'areaCode' => '407',
+                                                        'number' => '555-1212',
+                                                        'extension' => nil
+                                                    },
+                                                    'url' => nil,
+                                                    'code' => nil
+                                                },
+                                                'minutesDuration' => 60,
+                                                'startDateLocal' => '2020-11-25T19:30:00.000-05:00',
+                                                'startDateUtc' => '2020-11-26T00:30:00.000Z',
+                                                'status' => 'BOOKED',
+                                                'timeZone' => 'America/New_York',
+                                                'vetextId' => nil
+                                            }
+                                        }
+                                    )
+        end
+      end
+
+      context 'when va appointments succeeds but cc appointments fail' do
+        before do
+          VCR.use_cassette('appointments/get_facilities', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
+                get '/mobile/v0/appointments', headers: iam_headers, params: params
+              end
+            end
+          end
+        end
+
+        it 'returns an ok response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'has va appointments' do
+          expect(response.parsed_body['data'].size).to eq(3)
+        end
+
+        it 'matches the expected schema' do
+          expect(response.body).to match_json_schema('appointments')
+        end
+      end
+
+      context 'when cc appointments succeeds but va appointments fail' do
+        before do
+          VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: params
+            end
+          end
+        end
+
+        it 'returns an ok response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'has va appointments' do
+          expect(response.parsed_body['data'].size).to eq(7)
+        end
+
+        it 'matches the expected schema' do
+          expect(response.body).to match_json_schema('appointments')
+        end
+      end
+
+      context 'when both fail' do
+        before do
+          VCR.use_cassette('appointments/get_appointments_500', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: params
+            end
+          end
+        end
+
+        it 'returns a 502 response' do
+          expect(response).to have_http_status(:bad_gateway)
+        end
+      end
+
+      context 'when the VA endpoint returns a partial response with an error' do
+        before do
+          VCR.use_cassette('appointments/get_appointments_200_with_error', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_cc_appointments_default', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: params
+            end
+          end
+        end
+
+        it 'returns a 200 response' do
+          expect(response).to have_http_status(:ok)
+        end
+
+        it 'has the right CC count' do
+          expect(response.parsed_body['data'].size).to eq(7)
         end
       end
     end
