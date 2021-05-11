@@ -174,19 +174,26 @@ RSpec.describe 'Power of Attorney ', type: :request do
       let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
       context 'when there is no BGS active power of attorney' do
+        before do
+          Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+        end
+
         it 'returns a 404' do
           with_okta_user(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
             expect(bgs_poa_verifier).to receive(:current_poa).and_return(nil)
             get('/services/claims/v1/forms/2122/active',
                 params: nil, headers: headers.merge(auth_header))
-
             expect(response.status).to eq(404)
           end
         end
       end
 
       context 'when there is a BGS active power of attorney' do
+        before do
+          Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+        end
+
         it 'returns a 200' do
           with_okta_user(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
@@ -199,6 +206,16 @@ RSpec.describe 'Power of Attorney ', type: :request do
             expect(response.status).to eq(200)
             expect(parsed['data']['attributes']['representative']['service_organization']['poa_code'])
               .to eq('HelloWorld')
+          end
+        end
+      end
+
+      context 'when a non-accredited representative and non-veteran request active power of attorney' do
+        it 'returns a 403' do
+          with_okta_user(scopes) do |auth_header|
+            get('/services/claims/v1/forms/2122/active',
+                params: nil, headers: headers.merge(auth_header))
+            expect(response.status).to eq(403)
           end
         end
       end
