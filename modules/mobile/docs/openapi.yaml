@@ -2405,18 +2405,54 @@ paths:
       responses:
         '204':
           description: The message was deleted successfully
+        '400':
+          description: 'Bad Request'
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+              example: {
+                errors: [
+                  {
+                    "title": "Operation failed",
+                    "detail": "Unable to move message",
+                    "code": "SM114",
+                    "status": "400"
+                  }
+                ]
+              }
         '401':
           description: Unauthorized
           content:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+              example: {
+                errors: [
+                  {
+                    "title": "Not authorized",
+                    "detail": "IAM user session is inactive",
+                    "code": "401",
+                    "status": "401"
+                  }
+                ]
+              }
         '403':
           description: Not authorized for access to secure messages
           content:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+              example: {
+                errors: [
+                    {
+                      "title": "Forbidden",
+                      "detail": "You do not have access to messaging",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+              }
   /v0/messaging/health/messages/{id}/thread:
     get:
       summary: /v0/messaging/health/messages/{id}/thread

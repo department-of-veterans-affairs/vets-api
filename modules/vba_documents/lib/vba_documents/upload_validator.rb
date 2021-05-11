@@ -6,6 +6,7 @@ require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_info'
 
+# rubocop:disable Metrics/ModuleLength
 module VBADocuments
   module UploadValidations
     include CentralMail::Utilities
@@ -54,9 +55,18 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
 
+      # this validate_not_empty check should be after the Non-string value check so we do not catch nulls
+      validate_not_empty(veteranFirstName: metadata['veteranFirstName'], veteranLastName: metadata['veteranLastName'])
       validate_line_of_business(metadata['businessLine'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
+    end
+
+    def validate_not_empty(hash)
+      unless hash.values.map(&:to_s).select(&:empty?).empty?
+        msg = "Empty value given - The following values must be non-empty: #{hash.keys.join(',')}"
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
+      end
     end
 
     def validate_line_of_business(lob)
@@ -124,3 +134,4 @@ module VBADocuments
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
