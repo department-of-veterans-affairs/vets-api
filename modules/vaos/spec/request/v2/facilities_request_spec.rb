@@ -34,6 +34,7 @@ RSpec.describe 'facilities', type: :request do
         }
       end
 
+      # TODO: record cassette from VAOS service
       it 'returns list of clinics' do
         VCR.use_cassette('vaos/v2/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
           get "/vaos/v2/locations/#{params[:location_id]}/clinics", params: params
