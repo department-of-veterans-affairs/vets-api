@@ -143,6 +143,19 @@ module VBADocuments
     order by 1 desc, 2 desc
     "
 
+    MONTHLY_TIME_BETWEEN_STATUSES_SQL = "
+      select count(*) as rowcount, min(duration)::integer as min_bt_status,
+        avg(duration)::integer as avg_bt_status, max(duration)::integer as max_bt_status
+      from (
+        SELECT (metadata -> 'status' -> $3 -> 'start')::bigint -
+                (metadata -> 'status' -> $2 -> 'start')::bigint as duration
+        from vba_documents_upload_submissions
+        where to_char(created_at,'yyyymm') = $1
+        and   (metadata -> 'status' -> $2 -> 'start') is not null
+        and   (metadata -> 'status' -> $3 -> 'start') is not null
+      ) as n1
+	  "
+
     MEDIAN_ELAPSED_TIME_SQL = "
     select duration as median_secs
     from (
