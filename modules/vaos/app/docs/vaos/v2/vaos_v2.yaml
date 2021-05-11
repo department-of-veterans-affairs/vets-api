@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 2.0.0
+  version: 1.0.0
   title: VAOS
   description: |
     ## The API for managing Veterans Affairs Online Scheduling
@@ -181,6 +181,72 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+    put:
+      tags:
+        - appointments
+      summary: Updates the appointment status
+      operationId: updateAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: appointment-id
+          in: path
+          description: The id of the appointment to update.
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: The new status to update the appointment. Currently only the cancelled update is supported.
+          required: true
+          schema:
+            type: string
+            enum: 
+              - cancelled
+              - proposed
+              - pending
+              - booked
+              - arrived
+              - noshow
+              - fulfilled
+      responses:
+        "200":
+          description: The appointment status is updated  
+          content:
+            application/json:
+              schema:
+                required: 
+                  - id
+                  - type
+                  - attributes
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                    example: appointments
+                  attributes:
+                    $ref: "#/components/schemas/Appointment"   
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"            
   "/locations/{location_id}/clinics":
     get:
       tags:
@@ -856,3 +922,4 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Errors"
+
