@@ -21,6 +21,6 @@ class SMController < ApplicationController
   end
 
   def use_cache?
-    params[:useCache].downcase == 'true'
+    params[:useCache]&.downcase == 'true'
   end
 end
