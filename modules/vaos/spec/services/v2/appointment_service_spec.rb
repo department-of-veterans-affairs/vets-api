@@ -22,7 +22,7 @@ describe VAOS::V2::AppointmentsService do
       it 'returns the created appointment' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments', match_requests_on: %i[method uri]) do
           response = subject.post_appointments(request_body)
-          expect(response).to be_a(Hash)
+          expect(response[:id]).to be_a(String)
         end
       end
     end

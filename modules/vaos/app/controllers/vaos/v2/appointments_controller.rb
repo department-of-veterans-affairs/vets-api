@@ -12,10 +12,9 @@ module VAOS
       def show
         render json: VAOS::V2::AppointmentsSerializer.new(appointment)
       end
-      
+
       def create
-        new_appointment = appointments_service.post_appointments(create_params)
-        render json: VAOS::V2::AppointmentsSerializer.new(new_appointment)
+        render json: VAOS::V2::AppointmentsSerializer.new(new_appointment), status: :created
       end
 
       private
@@ -32,6 +31,11 @@ module VAOS
       def appointment
         @appointment ||=
           appointments_service.get_appointment(appointment_id)
+      end
+
+      def new_appointment
+        @new_appointment ||=
+          appointments_service.post_appointments(create_params)
       end
 
       def appointment_params

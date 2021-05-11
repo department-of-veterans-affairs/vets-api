@@ -26,7 +26,7 @@ module VAOS
           OpenStruct.new(response.body)
         end
       end
-      
+
       def post_appointments(params)
         with_monitoring do
           response = perform(:post, appointments_base_url, params, headers)
