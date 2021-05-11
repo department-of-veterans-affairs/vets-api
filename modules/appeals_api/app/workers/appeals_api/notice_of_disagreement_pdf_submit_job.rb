@@ -14,13 +14,13 @@ module AppealsApi
     include Sidekiq::MonitoredWorker
     include CentralMail::Utilities
 
-    def perform(id, retries = 0)
+    def perform(id, retries = 0, version = 'V1')
       @retries = retries
       notice_of_disagreement = NoticeOfDisagreement.find(id)
 
       begin
         notice_of_disagreement.update_status!(status: 'submitting')
-        stamped_pdf = PdfConstruction::Generator.new(notice_of_disagreement).generate
+        stamped_pdf = PdfConstruction::Generator.new(notice_of_disagreement, version: version).generate
         upload_to_central_mail(notice_of_disagreement, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)
       rescue => e

@@ -71,9 +71,9 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/ValidatedToken'
-        '404':
-          description: Auth service responded that data for token was not found
-        '502':
+        '401':
+          description: Auth service responded that data for token was not authorized
+        '500':
           description: Auth service responded with something other than the necessary information
 components:
   securitySchemes:

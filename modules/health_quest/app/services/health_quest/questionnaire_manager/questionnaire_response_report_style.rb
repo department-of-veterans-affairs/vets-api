@@ -14,7 +14,8 @@ module HealthQuest
             size: 9,
             align: :right,
             padding: [0, 0, 10, 0]
-          }
+          },
+          header: true
         }
       end
 
@@ -23,10 +24,11 @@ module HealthQuest
           column_widths: { 1 => 410 },
           cell_style: {
             border_width: 0,
-            size: 11,
+            size: 12,
             align: :left,
             padding: [10, 10, 0, 0]
-          }
+          },
+          header: true
         }
       end
 
@@ -34,11 +36,12 @@ module HealthQuest
         {
           cell_style: {
             border_width: 0,
-            size: 16,
+            size: 20,
             align: :left,
             font_style: :bold,
             padding: [0, 0, 0, 0]
-          }
+          },
+          header: true
         }
       end
 
@@ -51,7 +54,8 @@ module HealthQuest
             align: :left,
             font_style: :bold,
             padding: [0, 0, 0, 20]
-          }
+          },
+          header: true
         }
       end
 
@@ -62,7 +66,8 @@ module HealthQuest
             size: 12,
             align: :left,
             padding: [0, 0, 0, 20]
-          }
+          },
+          header: true
         }
       end
 
@@ -70,41 +75,12 @@ module HealthQuest
         {
           cell_style: {
             border_width: 0,
-            size: 14,
+            size: 16,
             align: :left,
             font_style: :bold,
-            padding: [24, 0, 0, 0]
-          }
-        }
-      end
-
-      def heading_two_style
-        {
-          cell_style: {
-            border_width: 0,
-            size: 14,
-            align: :left,
-            font_style: :bold,
-            padding: [0, 0, 0, 0]
-          }
-        }
-      end
-
-      def blank_table
-        {
-          cell_style: {
-            border_width: 0,
-            padding: [0, 0, 10, 0]
-          }
-        }
-      end
-
-      def blank_table_two
-        {
-          cell_style: {
-            border_width: 0,
-            padding: [0, 0, 16, 0]
-          }
+            padding: 0
+          },
+          header: true
         }
       end
 
@@ -115,7 +91,21 @@ module HealthQuest
             size: 12,
             align: :left,
             padding: [10, 10, 0, 0]
-          }
+          },
+          header: true
+        }
+      end
+
+      def bold_text_style
+        {
+          cell_style: {
+            border_width: 0,
+            size: 12,
+            align: :left,
+            font_style: :bold,
+            padding: [10, 10, 0, 0]
+          },
+          header: true
         }
       end
 
