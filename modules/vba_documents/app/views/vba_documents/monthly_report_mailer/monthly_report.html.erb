@@ -25,7 +25,7 @@
       <td style="text-align: right"><%= row['vbms'] %></td>
       <td style="text-align: right"><%= row['total'] %></td>
       <td style="text-align: right">
-        <%= "#{((row['errored'].to_f / row['total'].to_f) * 100).round(2)} %" %>
+        <%= "#{((row['errored'].to_f / row['total'].to_f) * 100).round(0)} %" %>
       </td>
     </tr>
   <% end if @monthly_totals %>
@@ -41,7 +41,7 @@
       <td style="text-align: right"><%= @summary_totals['vbms'] %></td>
       <td style="text-align: right"><%= @summary_totals['total'] %></td>
       <td style="text-align: right">
-        <%= "#{((@summary_totals['errored'].to_f / @summary_totals['total'].to_f) * 100).round(2)} %" %>
+        <%= "#{((@summary_totals['errored'].to_f / @summary_totals['total'].to_f) * 100).round(0)} %" %>
       </td>
 
     </tr>
