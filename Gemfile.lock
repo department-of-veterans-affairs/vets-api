@@ -368,7 +368,7 @@ GEM
       socksify (~> 1.7)
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
-    faraday_middleware (0.13.1)
+    faraday_middleware (0.14.0)
       faraday (>= 0.7.4, < 1.0)
     fast_jsonapi (1.5)
       activesupport (>= 4.2)
