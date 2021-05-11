@@ -13,6 +13,31 @@ describe VAOS::V2::AppointmentsService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
+  describe '#post_appointment' do
+    let(:request_body) do
+      FactoryBot.build(:appointment_form_v2, :eligible).attributes
+    end
+
+    context 'when request is valid' do
+      it 'returns the created appointment' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments', match_requests_on: %i[method uri]) do
+          response = subject.post_appointments(request_body)
+          expect(response[:id]).to be_a(String)
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_500', match_requests_on: %i[method uri]) do
+          expect { subject.post_appointments(request_body) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
   describe '#get_appointments' do
     context 'with an appointment' do
       it 'returns an appointment' do

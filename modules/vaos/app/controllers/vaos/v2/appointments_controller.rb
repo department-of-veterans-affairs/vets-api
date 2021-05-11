@@ -5,14 +5,16 @@ require 'common/exceptions'
 module VAOS
   module V2
     class AppointmentsController < VAOS::V0::BaseController
-      before_action :validate_params, only: :index
-
       def index
         render json: VAOS::V2::AppointmentsSerializer.new(appointments[:data], meta: appointments[:meta])
       end
 
       def show
         render json: VAOS::V2::AppointmentsSerializer.new(appointment)
+      end
+
+      def create
+        render json: VAOS::V2::AppointmentsSerializer.new(new_appointment), status: :created
       end
 
       private
@@ -31,19 +33,30 @@ module VAOS
           appointments_service.get_appointment(appointment_id)
       end
 
-      def validate_params
-        raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
-        raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
+      def new_appointment
+        @new_appointment ||=
+          appointments_service.post_appointments(create_params)
+      end
+
+      def appointment_params
+        params.require(:start_date)
+        params.require(:end_date)
+        params
+      end
+
+      def create_params
+        params.permit(:kind, :status, :location_id, :clinic, :reason, :slot, :contact,
+                      :service_type, :requested_periods)
       end
 
       def start_date
-        DateTime.parse(params[:start_date]).in_time_zone
+        DateTime.parse(appointment_params[:start_date]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
       end
 
       def end_date
-        DateTime.parse(params[:end_date]).in_time_zone
+        DateTime.parse(appointment_params[:end_date]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
       end
