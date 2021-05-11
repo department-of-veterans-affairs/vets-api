@@ -108,26 +108,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     instance_double(RestClient::Response,
                     code: 503)
   end
-  let(:charon_response) do
-    instance_double(RestClient::Response,
-                    code: 200,
-                    body: { status: '200', value: '1' }.to_json)
-  end
-  let(:invalid_site_charon_response) do
-    instance_double(RestClient::Response,
-                    code: 400,
-                    body: { status: '400', message: 'Unknown vista site specified: [442]' }.to_json)
-  end
-  let(:failed_charon_response) do
-    instance_double(RestClient::Response,
-                    code: 401,
-                    body: { status: '500', value: '-1' }.to_json)
-  end
-  let(:bad_charon_response) do
-    instance_double(RestClient::Response,
-                    code: 500,
-                    body: { status: '500', value: '-2' }.to_json)
-  end
+
   let(:json_api_response) do
     {
       'data' => {
