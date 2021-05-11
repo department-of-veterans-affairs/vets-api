@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CHARON
+module Charon
   class Response
     attr_accessor :status, :body
 

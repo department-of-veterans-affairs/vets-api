@@ -3,10 +3,10 @@
 require 'charon/configuration'
 require 'charon/response'
 
-module CHARON
+module Charon
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-    configuration CHARON::Configuration
+    configuration Charon::Configuration
 
     def call(action, url, duz, site)
       connection.send(action) do |req|
@@ -18,7 +18,7 @@ module CHARON
     end
 
     def call_charon(duz, site)
-      CHARON::Response.new call('get', Settings.oidc.charon.endpoint, duz, site)
+      Charon::Response.new call('get', Settings.oidc.charon.endpoint, duz, site)
     end
   end
 end

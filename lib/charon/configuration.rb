@@ -2,7 +2,7 @@
 
 require 'common/client/configuration/rest'
 
-module CHARON
+module Charon
   class Configuration < Common::Client::Configuration::REST
     def base_path
       Settings.oidc.charon.endpoint || ''

@@ -133,7 +133,7 @@ module OpenidAuth
 
       def validation_from_charon(duz, site)
         begin
-          response = CHARON::Service.new.call_charon(duz, site)
+          response = Charon::Service.new.call_charon(duz, site)
         rescue => e
           log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
           raise Common::Exceptions::TokenValidationError.new(
