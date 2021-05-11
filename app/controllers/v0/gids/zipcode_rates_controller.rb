@@ -4,7 +4,7 @@ module V0
   module GIDS
     class ZipcodeRatesController < GIDSController
       def show
-        render json: service.get_zipcode_rate(scrubbed_params)
+        render json: service.get_zipcode_rate_v0(scrubbed_params)
       end
     end
   end

@@ -22,6 +22,7 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
     final_monthly_results = 'monthly_report/final_monthly_results.yml'
     mode = 'monthly_report/mode.yml'
     max_avg = 'monthly_report/max_avg.yml'
+    rolling_elapsed_times = 'monthly_report/rolling_elapsed_times.yml'
 
     it 'sends mail' do
       with_settings(Settings.vba_documents, monthly_report: true) do
@@ -37,12 +38,18 @@ RSpec.describe VBADocuments::ReportMonthlySubmissions, type: :job do
           rval = get_fixture_yml(mode) if sql.eql? VBADocuments::SQLSupport::MODE_SQL
           rval = [{ 'median_pages' => nil, 'median_size' => nil }] if sql.eql? VBADocuments::SQLSupport::MEDIAN_SQL
           rval = get_fixture_yml(max_avg) if sql.eql? VBADocuments::SQLSupport::MAX_AVG_SQL
+          rval = [{ 'median_secs' => 5 }] if sql.eql? VBADocuments::SQLSupport::MEDIAN_ELAPSED_TIME_SQL
           rval
+        end
+
+        allow(job).to receive(:rolling_status_times) do
+          get_fixture_yml(rolling_elapsed_times)
         end
 
         expect(VBADocuments::MonthlyReportMailer).to receive(:build).once.with(
           get_fixture_yml(monthly_counts), get_fixture_yml(summary), get_fixture_yml(still_processing),
-          get_fixture_yml(still_success), get_fixture_yml(final_monthly_results), last_month_start, last_month_end
+          get_fixture_yml(still_success), get_fixture_yml(final_monthly_results),
+          get_fixture_yml(rolling_elapsed_times), last_month_start, last_month_end
         ).and_return(double.tap do |mailer|
                        expect(mailer).to receive(:deliver_now).once
                      end)

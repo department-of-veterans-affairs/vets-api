@@ -4,7 +4,7 @@ module V0
   module GIDS
     class YellowRibbonProgramsController < GIDSController
       def index
-        render json: service.get_yellow_ribbon_programs(scrubbed_params)
+        render json: service.get_yellow_ribbon_programs_v0(scrubbed_params)
       end
     end
   end

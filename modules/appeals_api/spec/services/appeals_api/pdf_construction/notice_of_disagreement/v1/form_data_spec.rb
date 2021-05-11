@@ -7,7 +7,7 @@ module AppealsApi
     module NoticeOfDisagreement
       module V1
         describe FormData do
-          let(:notice_of_disagreement) { build(:notice_of_disagreement) }
+          let(:notice_of_disagreement) { create(:notice_of_disagreement, :board_review_hearing) }
           let(:form_data) { described_class.new(notice_of_disagreement) }
 
           describe '#veteran_name' do

@@ -10,7 +10,7 @@ module BGS
       raise VAFileNumberNotFound if response.nil?
 
       response
-    rescue VAFileNumberNotFound => e
+    rescue => e
       report_no_va_file_user(e)
 
       {}
