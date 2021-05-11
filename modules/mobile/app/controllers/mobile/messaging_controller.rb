@@ -30,6 +30,10 @@ module Mobile
       client.authenticate if client.session.expired?
     end
 
+    def use_cache?
+      params[:useCache] || true
+    end
+
     def pagination_params
       {
         page: params[:page],

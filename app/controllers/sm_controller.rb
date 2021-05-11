@@ -19,4 +19,8 @@ class SMController < ApplicationController
   def raise_access_denied
     raise Common::Exceptions::Forbidden, detail: 'You do not have access to messaging'
   end
+
+  def use_cache?
+    params[:useCache] || true
+  end
 end
