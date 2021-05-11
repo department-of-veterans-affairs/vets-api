@@ -99,6 +99,10 @@ module Mobile
           { errors: { cancelId: 'invalid cancel id' } }
         )
       end
+
+      def id_for_address
+        sta6aid || facility_id
+      end
     end
   end
 end

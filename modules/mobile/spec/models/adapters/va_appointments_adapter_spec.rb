@@ -20,7 +20,7 @@ describe Mobile::V0::Adapters::VAAppointments do
   end
 
   it 'returns a set of the facilities for the appointments' do
-    expect(adapted_facilities).to eq(Set.new(['442']))
+    expect(adapted_facilities).to eq(Set.new(%w[442 442GC]))
   end
 
   context 'with a booked VA appointment' do

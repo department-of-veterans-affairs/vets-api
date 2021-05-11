@@ -90,7 +90,9 @@ module Mobile
           facility_id = Mobile::V0::Appointment.toggle_non_prod_id!(
             appointment_hash[:facility_id]
           )
-          facilities.add(facility_id) if facility_id
+          sta6aid = Mobile::V0::Appointment.toggle_non_prod_id!(
+            appointment_hash[:sta6aid]
+          )
 
           details, type = parse_by_appointment_type(appointment_hash)
           healthcare_service = healthcare_service(details, type)
@@ -114,7 +116,7 @@ module Mobile
             cancel_id: cancel_id,
             comment: comment(details, type),
             facility_id: facility_id,
-            sta6aid: Mobile::V0::Appointment.toggle_non_prod_id!(appointment_hash[:sta6aid]),
+            sta6aid: sta6aid,
             healthcare_service: healthcare_service(details, type),
             location: location(details, type, facility_id),
             minutes_duration: minutes_duration(details, type),
@@ -129,14 +131,16 @@ module Mobile
             'mobile.appointments.type', tags: ["type:#{type}"], sample_rate: 0.1
           )
 
-          Mobile::V0::Appointment.new(adapted_hash)
+          model = Mobile::V0::Appointment.new(adapted_hash)
+          facilities.add(model.id_for_address)
+
+          model
         end
+        # rubocop:enable Metrics/MethodLength
 
         def vetext_id(appointment_hash, start_date_local)
           "#{appointment_hash[:clinic_id]};#{start_date_local.strftime('%Y%m%d.%H%S%M')}"
         end
-
-        # rubocop:enable Metrics/MethodLength
 
         def comment(details, type)
           va?(type) ? details[:booking_note] : details[:instructions_title]
@@ -274,7 +278,6 @@ module Mobile
         end
 
         def video_healthcare_service(details)
-          binding.pry
           providers = details[:providers]
           return nil unless providers
 

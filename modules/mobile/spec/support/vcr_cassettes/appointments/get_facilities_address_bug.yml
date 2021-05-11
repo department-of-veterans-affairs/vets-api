@@ -56,289 +56,273 @@ http_interactions:
         encoding: UTF-8
         string: |-
           {
-              "data": [
-                  {
-                      "id": "vha_442",
-                      "type": "facility",
-                      "attributes": {
-                          "access": {
-                              "health": [
-                                  {
-                                      "service": "Audiology",
-                                      "new": 21.533333,
-                                      "established": 7.026315
-                                  },
-                                  {
-                                      "service": "Cardiology",
-                                      "new": 12.5,
-                                      "established": 17.333333
-                                  },
-                                  {
-                                      "service": "Gastroenterology",
-                                      "new": 7.857142,
-                                      "established": 11.6875
-                                  },
-                                  {
-                                      "service": "Gynecology",
-                                      "new": 28.714285,
-                                      "established": 16.244444
-                                  },
-                                  {
-                                      "service": "MentalHealthCare",
-                                      "new": 5.833333,
-                                      "established": 4.936106
-                                  },
-                                  {
-                                      "service": "Ophthalmology",
-                                      "new": 17.5,
-                                      "established": 14.215517
-                                  },
-                                  {
-                                      "service": "Optometry",
-                                      "new": 48.708333,
-                                      "established": 49.144486
-                                  },
-                                  {
-                                      "service": "Orthopedics",
-                                      "new": 23.094594,
-                                      "established": 11.600938
-                                  },
-                                  {
-                                      "service": "PrimaryCare",
-                                      "new": 18.71875,
-                                      "established": 9.891732
-                                  },
-                                  {
-                                      "service": "SpecialtyCare",
-                                      "new": 27.452885,
-                                      "established": 9.848417
-                                  },
-                                  {
-                                      "service": "Urology",
-                                      "new": 49,
-                                      "established": 0
-                                  },
-                                  {
-                                      "service": "WomensHealth",
-                                      "new": 12,
-                                      "established": 16.738095
-                                  }
-                              ],
-                              "effectiveDate": "2021-04-26"
-                          },
-                          "activeStatus": "A",
-                          "address": {
-                              "mailing": {},
-                              "physical": {
-                                  "zip": "82001-5356",
-                                  "city": "Cheyenne",
-                                  "state": "WY",
-                                  "address1": "2360 East Pershing Boulevard",
-                                  "address2": null,
-                                  "address3": null
-                              }
-                          },
-                          "classification": "VA Medical Center (VAMC)",
-                          "detailedServices": [
-                              {
-                                  "name": "COVID-19 vaccines",
-                                  "descriptionFacility": null,
-                                  "appointmentLeadin": "Your VA health care team will contact you if you’re eligible to get a vaccine during this time. As the supply of vaccine increases, we'll work with our care teams to let Veterans know their options.",
-                                  "appointmentPhones": [
-                                      {
-                                          "extension": null,
-                                          "label": "Main phone",
-                                          "number": "307-778-7550",
-                                          "type": "tel"
-                                      }
-                                  ],
-                                  "onlineSchedulingAvailable": null,
-                                  "referralRequired": "true",
-                                  "walkInsAccepted": "false",
-                                  "serviceLocations": null,
-                                  "path": "https://www.cheyenne.va.gov/services/covid-19-vaccines.asp"
-                              }
-                          ],
-                          "facilityType": "va_health_facility",
-                          "feedback": {
-                              "health": {
-                                  "primaryCareUrgent": 0.6700000166893005,
-                                  "primaryCareRoutine": 0.8399999737739563,
-                                  "specialtyCareUrgent": 0.7200000286102295,
-                                  "specialtyCareRoutine": 0.800000011920929
-                              },
-                              "effectiveDate": "2021-03-05"
-                          },
-                          "hours": {
-                              "friday": "24/7",
-                              "monday": "24/7",
-                              "sunday": "24/7",
-                              "tuesday": "24/7",
-                              "saturday": "24/7",
-                              "thursday": "24/7",
-                              "wednesday": "24/7"
-                          },
-                          "id": "vha_442",
-                          "lat": 41.148027,
-                          "long": -104.7862575,
-                          "mobile": false,
-                          "name": "Cheyenne VA Medical Center",
-                          "operatingStatus": {
-                              "code": "NORMAL"
-                          },
-                          "operationalHoursSpecialInstructions": "Expanded or Nontraditional hours are available for some services on a routine and or requested basis. Please call our main phone number for details. |",
-                          "phone": {
-                              "fax": "307-778-7381",
-                              "main": "307-778-7550",
-                              "pharmacy": "866-420-6337",
-                              "afterHours": "307-778-7550",
-                              "patientAdvocate": "307-778-7550 x7517",
-                              "mentalHealthClinic": "307-778-7349",
-                              "enrollmentCoordinator": "307-778-7550 x7579"
-                          },
-                          "services": {
-                              "other": [],
-                              "health": [
-                                  "Audiology",
-                                  "Cardiology",
-                                  "Covid19Vaccine",
-                                  "DentalServices",
-                                  "EmergencyCare",
-                                  "Gastroenterology",
-                                  "Gynecology",
-                                  "MentalHealthCare",
-                                  "Nutrition",
-                                  "Ophthalmology",
-                                  "Optometry",
-                                  "Orthopedics",
-                                  "Podiatry",
-                                  "PrimaryCare",
-                                  "SpecialtyCare",
-                                  "Urology",
-                                  "WomensHealth"
-                              ],
-                              "lastUpdated": "2021-04-26"
-                          },
-                          "uniqueId": "442",
-                          "visn": "19",
-                          "website": "https://www.cheyenne.va.gov/locations/directions.asp"
-                      }
-                  },
-                  {
-                      "id": "vha_442GC",
-                      "type": "facility",
-                      "attributes": {
-                          "access": {
-                              "health": [
-                                  {
-                                      "service": "Audiology",
-                                      "new": 24.477272,
-                                      "established": 4.769784
-                                  },
-                                  {
-                                      "service": "Dermatology",
-                                      "new": 8.25,
-                                      "established": null
-                                  },
-                                  {
-                                      "service": "MentalHealthCare",
-                                      "new": 9.5,
-                                      "established": 2.451388
-                                  },
-                                  {
-                                      "service": "Orthopedics",
-                                      "new": 26.393939,
-                                      "established": 9.765625
-                                  },
-                                  {
-                                      "service": "SpecialtyCare",
-                                      "new": 26.597765,
-                                      "established": 5.131756
-                                  }
-                              ],
-                              "effectiveDate": "2021-04-26"
-                          },
-                          "activeStatus": "A",
-                          "address": {
-                              "mailing": {},
-                              "physical": {
-                                  "zip": "80526-8108",
-                                  "city": "Fort Collins",
-                                  "state": "CO",
-                                  "address1": "2509 Research Boulevard",
-                                  "address2": null,
-                                  "address3": null
-                              }
-                          },
-                          "classification": "Multi-Specialty CBOC",
-                          "detailedServices": null,
-                          "facilityType": "va_health_facility",
-                          "feedback": {
-                              "health": {
-                                  "primaryCareUrgent": 0.699999988079071,
-                                  "primaryCareRoutine": 0.8399999737739563
-                              },
-                              "effectiveDate": "2021-03-05"
-                          },
-                          "hours": {
-                              "friday": "700AM-500PM",
-                              "monday": "700AM-500PM",
-                              "sunday": "Closed",
-                              "tuesday": "700AM-500PM",
-                              "saturday": "Closed",
-                              "thursday": "700AM-500PM",
-                              "wednesday": "700AM-500PM"
-                          },
-                          "id": "vha_442GC",
-                          "lat": 40.553874,
-                          "long": -105.087951,
-                          "mobile": false,
-                          "name": "Fort Collins VA Clinic",
-                          "operatingStatus": {
-                              "code": "NORMAL"
-                          },
-                          "operationalHoursSpecialInstructions": null,
-                          "phone": {
-                              "fax": "970-407-7440",
-                              "main": "970-224-1550",
-                              "pharmacy": "866-420-6337",
-                              "afterHours": "307-778-7550",
-                              "patientAdvocate": "307-778-7550 x7517",
-                              "mentalHealthClinic": "307-778-7349",
-                              "enrollmentCoordinator": "307-778-7550 x7579"
-                          },
-                          "services": {
-                              "other": [],
-                              "health": [
-                                  "Audiology",
-                                  "Dermatology",
-                                  "MentalHealthCare",
-                                  "Orthopedics",
-                                  "SpecialtyCare"
-                              ],
-                              "lastUpdated": "2021-04-26"
-                          },
-                          "uniqueId": "442GC",
-                          "visn": "19",
-                          "website": "https://www.cheyenne.va.gov/locations/Fort_Collins_VA_CBOC.asp"
-                      }
-                  }
-              ],
-              "meta": {
-                  "pagination": {
-                      "currentPage": 1,
-                      "prevPage": null,
-                      "nextPage": null,
-                      "totalPages": 1
-                  }
-              },
-              "links": {
-                  "self": "https://staging-api.va.gov/v1/facilities/va?ids=vha_442%2Cvha_442GB%2Cvha_442GD%2Cvha_442GC%2Cvha_552%2Cvha_442QA&page=1&per_page=6",
-                  "first": "https://staging-api.va.gov/v1/facilities/va?ids=vha_442%2Cvha_442GB%2Cvha_442GD%2Cvha_442GC%2Cvha_552%2Cvha_442QA&per_page=6",
-                  "prev": null,
-                  "next": null,
-                  "last": "https://staging-api.va.gov/v1/facilities/va?ids=vha_442%2Cvha_442GB%2Cvha_442GD%2Cvha_442GC%2Cvha_552%2Cvha_442QA&page=1&per_page=6"
-              }
+          	"data": [
+          		{
+          			"id": "vha_442",
+          			"type": "va_facilities",
+          			"attributes": {
+          				"name": "Cheyenne VA Medical Center",
+          				"facility_type": "va_health_facility",
+          				"classification": "VA Medical Center (VAMC)",
+          				"website": "https://www.cheyenne.va.gov/locations/directions.asp",
+          				"lat": 41.148027,
+          				"long": -104.7862575,
+          				"address": {
+          					"mailing": {
+          					},
+          					"physical": {
+          						"zip": "82001-5356",
+          						"city": "Cheyenne",
+          						"state": "WY",
+          						"address_1": "2360 East Pershing Boulevard",
+          						"address_2": null,
+          						"address_3": null
+          					}
+          				},
+          				"phone": {
+          					"fax": "307-778-7381",
+          					"main": "307-778-7550",
+          					"pharmacy": "866-420-6337",
+          					"after_hours": "307-778-7550",
+          					"patient_advocate": "307-778-7550 x7517",
+          					"mental_health_clinic": "307-778-7349",
+          					"enrollment_coordinator": "307-778-7550 x7579"
+          				},
+          				"hours": {
+          					"friday": "24/7",
+          					"monday": "24/7",
+          					"sunday": "24/7",
+          					"tuesday": "24/7",
+          					"saturday": "24/7",
+          					"thursday": "24/7",
+          					"wednesday": "24/7"
+          				},
+          				"services": {
+          					"other": [
+
+          					],
+          					"health": [
+          						"Audiology",
+          						"Cardiology",
+          						"DentalServices",
+          						"EmergencyCare",
+          						"Gastroenterology",
+          						"Gynecology",
+          						"MentalHealthCare",
+          						"Nutrition",
+          						"Ophthalmology",
+          						"Optometry",
+          						"Orthopedics",
+          						"Podiatry",
+          						"PrimaryCare",
+          						"SpecialtyCare",
+          						"Urology",
+          						"WomensHealth"
+          					],
+          					"last_updated": "2020-12-07"
+          				},
+          				"satisfaction": {
+          					"health": {
+          						"primary_care_urgent": 0.800000011920929,
+          						"primary_care_routine": 0.8399999737739563,
+          						"specialty_care_urgent": 0.75
+          					},
+          					"effective_date": "2020-04-16"
+          				},
+          				"wait_times": {
+          					"health": [
+          						{
+          							"service": "Audiology",
+          							"new": 33.936842,
+          							"established": 12.847222
+          						},
+          						{
+          							"service": "Cardiology",
+          							"new": 26.857142,
+          							"established": 11.588235
+          						},
+          						{
+          							"service": "Gastroenterology",
+          							"new": 9.0,
+          							"established": 6.285714
+          						},
+          						{
+          							"service": "Gynecology",
+          							"new": 2.0,
+          							"established": 27.833333
+          						},
+          						{
+          							"service": "MentalHealthCare",
+          							"new": 6.903225,
+          							"established": 3.946428
+          						},
+          						{
+          							"service": "Ophthalmology",
+          							"new": 1.0,
+          							"established": 12.288461
+          						},
+          						{
+          							"service": "Optometry",
+          							"new": 42.967741,
+          							"established": 44.429292
+          						},
+          						{
+          							"service": "Orthopedics",
+          							"new": 20.424242,
+          							"established": 11.243902
+          						},
+          						{
+          							"service": "PrimaryCare",
+          							"new": 22.611111,
+          							"established": 17.347945
+          						},
+          						{
+          							"service": "SpecialtyCare",
+          							"new": 19.236714,
+          							"established": 11.766603
+          						},
+          						{
+          							"service": "Urology",
+          							"new": null,
+          							"established": 42.0
+          						},
+          						{
+          							"service": "WomensHealth",
+          							"new": null,
+          							"established": 25.970588
+          						}
+          					],
+          					"effective_date": "2020-12-07"
+          				},
+          				"mobile": false,
+          				"active_status": "A",
+          				"operating_status": {
+          					"code": "NORMAL"
+          				},
+          				"visn": "19"
+          			}
+          		},
+          		{
+          			"id": "vha_442GC",
+          			"type": "facility",
+          			"attributes": {
+          				"access": {
+          					"health": [
+          						{
+          							"service": "Audiology",
+          							"new": 24.477272,
+          							"established": 4.769784
+          						},
+          						{
+          							"service": "Dermatology",
+          							"new": 8.25,
+          							"established": null
+          						},
+          						{
+          							"service": "MentalHealthCare",
+          							"new": 9.5,
+          							"established": 2.451388
+          						},
+          						{
+          							"service": "Orthopedics",
+          							"new": 26.393939,
+          							"established": 9.765625
+          						},
+          						{
+          							"service": "SpecialtyCare",
+          							"new": 26.597765,
+          							"established": 5.131756
+          						}
+          					],
+          					"effectiveDate": "2021-04-26"
+          				},
+          				"activeStatus": "A",
+          				"address": {
+          					"mailing": {
+          					},
+          					"physical": {
+          						"zip": "80526-8108",
+          						"city": "Fort Collins",
+          						"state": "CO",
+          						"address_1": "2509 Research Boulevard",
+          						"address_2": null,
+          						"address_3": null
+          					}
+          				},
+          				"classification": "Multi-Specialty CBOC",
+          				"detailedServices": null,
+          				"facilityType": "va_health_facility",
+          				"feedback": {
+          					"health": {
+          						"primaryCareUrgent": 0.699999988079071,
+          						"primaryCareRoutine": 0.8399999737739563
+          					},
+          					"effectiveDate": "2021-03-05"
+          				},
+          				"hours": {
+          					"friday": "700AM-500PM",
+          					"monday": "700AM-500PM",
+          					"sunday": "Closed",
+          					"tuesday": "700AM-500PM",
+          					"saturday": "Closed",
+          					"thursday": "700AM-500PM",
+          					"wednesday": "700AM-500PM"
+          				},
+          				"id": "vha_442GC",
+          				"lat": 40.553874,
+          				"long": -105.087951,
+          				"mobile": false,
+          				"name": "Fort Collins VA Clinic",
+          				"operatingStatus": {
+          					"code": "NORMAL"
+          				},
+          				"operationalHoursSpecialInstructions": null,
+          				"phone": {
+          					"fax": "970-407-7440",
+          					"main": "970-224-1550",
+          					"pharmacy": "866-420-6337",
+          					"afterHours": "307-778-7550",
+          					"patientAdvocate": "307-778-7550 x7517",
+          					"mentalHealthClinic": "307-778-7349",
+          					"enrollmentCoordinator": "307-778-7550 x7579"
+          				},
+          				"services": {
+          					"other": [
+
+          					],
+          					"health": [
+          						"Audiology",
+          						"Dermatology",
+          						"MentalHealthCare",
+          						"Orthopedics",
+          						"SpecialtyCare"
+          					],
+          					"lastUpdated": "2021-04-26"
+          				},
+          				"uniqueId": "442GC",
+          				"visn": "19",
+          				"website": "https://www.cheyenne.va.gov/locations/Fort_Collins_VA_CBOC.asp"
+          			}
+          		}
+          	],
+          	"links": {
+          		"self": "https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442&page=1&per_page=10",
+          		"first": "https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442&page=1&per_page=10",
+          		"prev": null,
+          		"next": null,
+          		"last": "https://sandbox-api.va.gov/services/va_facilities/v0/facilities?ids=vha_442&page=1&per_page=10"
+          	},
+          	"meta": {
+          		"pagination": {
+          			"current_page": 1,
+          			"per_page": 10,
+          			"total_pages": 1,
+          			"total_entries": 1
+          		},
+          		"distances": [
+
+          		]
+          	}
           }
         http_version: null
     recorded_at: Wed, 16 Dec 2020 17:02:24 GMT
