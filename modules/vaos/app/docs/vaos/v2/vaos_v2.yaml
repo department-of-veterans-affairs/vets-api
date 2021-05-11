@@ -32,7 +32,7 @@ paths:
     get:
       tags:
         - appointments
-      summary: Returns a list of appointments for a given patient's ICN
+      summary: Returns a list of appointments for a given patient
       operationId: getAppointments
       security:
         - bearerAuth: []
@@ -93,6 +93,49 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+    post:
+      tags:
+        - appointments
+      summary: Creates a new appointment
+      operationId: postAppointments
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentRequest"
+      responses:
+        "201":
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AppointmentResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
   "/appointments/{appointment-id}":
     get:
       tags:
@@ -102,11 +145,6 @@ paths:
       security:
         - bearerAuth: []
       parameters:
-        - in: path
-          required: true
-          name: "icn"
-          schema:
-            type: string
         - in: path
           required: true
           name: "appointment-id"
@@ -580,6 +618,41 @@ components:
         - "cpap"
         - "outpatientMentalHealth"
         - "covid"
+    CreateAppointmentRequest:
+      description: A request to create a new appointment.
+      type: object
+      properties:
+        kind:
+          "$ref": "#/components/schemas/AppointmentKind"
+        status:
+          "$ref": "#/components/schemas/AppointmentStatus"
+        patientIcn:
+          description: The patient ICN
+          type: string
+          nullable: false
+        locationId:
+          description: The sta6aid for the VAfacility where the appointment is registered.
+          type: string
+        clinic:
+          description: The clinic ID for the Appointment
+          type: string
+        reason:
+          description:
+            The reason for an Express Care request, or the purpose for
+            a a non-Express Care request.
+          type: string
+        slot:
+          "$ref": "#/components/schemas/Slot"
+        contact:
+          "$ref": "#/components/schemas/PatientContact"
+        serviceType:
+          type: string
+          description: the care type for the appointment
+        requestedPeriods:
+          type: array
+          description: a list of requested periods for appointment
+          items:
+            "$ref": "#/components/schemas/Period"
     Slot:
       type: object
       required:
