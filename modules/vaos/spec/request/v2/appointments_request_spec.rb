@@ -71,7 +71,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             put '/vaos/v2/appointments/1121?status=cancelled'
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('cancelled')
-            expect(response).to match_response_schema('vaos/v2/put_appointment', { strict: false })
+            expect(json_body_for(response)).to match_schema('vaos/v2/appointment', { strict: false })
           end
         end
       end

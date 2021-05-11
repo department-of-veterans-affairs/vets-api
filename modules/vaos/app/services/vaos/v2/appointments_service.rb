@@ -38,8 +38,8 @@ module VAOS
         url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status: status).params
         with_monitoring do
-          resp = perform(:put, url_path, params)
-          OpenStruct.new(resp.body)
+          response = perform(:put, url_path, params)
+          OpenStruct.new(response.body)
         end
       end
 

@@ -160,7 +160,7 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/AppointmentsResponse"
+                    $ref: "#/components/schemas/AppointmentResponse"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -578,6 +578,12 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/Appointment"
+    AppointmentResponse:
+      description: A single appointment
+      type: object
+      properties:
+        data:
+          "$ref": "#/components/schemas/Appointment"
     AppointmentStatus:
       type: string
       enum:
@@ -916,3 +922,4 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Errors"
+
