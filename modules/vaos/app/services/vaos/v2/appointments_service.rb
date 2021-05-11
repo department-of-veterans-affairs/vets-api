@@ -19,6 +19,14 @@ module VAOS
         end
       end
 
+      def get_appointment(appointment_id)
+        params = {}
+        with_monitoring do
+          response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
+          OpenStruct.new(response.body)
+        end
+      end
+
       private
 
       def deserialized_appointments(appointment_list)
@@ -40,6 +48,10 @@ module VAOS
 
       def get_appointments_base_url
         "/vaos/v1/patients/#{user.icn}/appointments"
+      end
+
+      def get_appointment_base_url(appointment_id)
+        "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
       end
 
       def date_params(start_date, end_date)
