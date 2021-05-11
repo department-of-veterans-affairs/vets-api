@@ -11,13 +11,15 @@ RSpec.describe VBADocuments::MonthlyReportMailer, type: [:mailer] do
   still_processing = 'monthly_report/still_processing.yml'
   still_success = 'monthly_report/still_success.yml'
   final_monthly_results = 'monthly_report/final_monthly_results.yml'
+  rolling_elapsed_times = 'monthly_report/rolling_elapsed_times.yml'
 
   before do
     last_month_start = Date.parse('01-03-2021')
     last_month_end = Date.parse('01-04-2021')
     @email = described_class.build(get_fixture_yml(monthly_counts), get_fixture_yml(summary),
                                    get_fixture_yml(still_processing), get_fixture_yml(still_success),
-                                   get_fixture_yml(final_monthly_results), last_month_start, last_month_end)
+                                   get_fixture_yml(final_monthly_results), get_fixture_yml(rolling_elapsed_times),
+                                   last_month_start, last_month_end)
   end
 
   it 'sends monthly in the subject' do

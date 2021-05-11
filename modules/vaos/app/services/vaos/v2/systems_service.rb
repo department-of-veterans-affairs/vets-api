@@ -18,6 +18,18 @@ module VAOS
           response.body.map { |clinic| OpenStruct.new(clinic) }
         end
       end
+
+      def get_available_slots(slots_params)
+        with_monitoring do
+          url_path = "/vaos/v1/locations/#{slots_params[:location_id]}/clinics/#{slots_params[:clinic_id]}/slots"
+          url_params = {
+            'start' => slots_params[:start],
+            'end' => slots_params[:end]
+          }
+          response = perform(:get, url_path, url_params, headers)
+          response.body[:data].map { |slot| OpenStruct.new(slot) }
+        end
+      end
     end
   end
 end

@@ -54,6 +54,12 @@
                 "null"
               ]
             },
+            "createdAt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "pages": {
               "type": "integer"
             },

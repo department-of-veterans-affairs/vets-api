@@ -20,7 +20,7 @@ module VAProfile
           description: communication_channel_data['description']
         )
 
-        permission = permission_res['bios'].find do |permission_data|
+        permission = permission_res['bios']&.find do |permission_data|
           permission_data['communication_item_id'] == communication_item_id &&
             permission_data['communication_channel_id'] == communication_channel_data['communication_channel_id']
         end
