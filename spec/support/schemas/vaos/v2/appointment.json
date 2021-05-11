@@ -5,25 +5,20 @@
   "properties": {
     "data": {
       "type": "object",
-      "minItems": 0,
-      "uniqueItems": true,
-      "items": {
-        "type": "object",
-        "required": [
-          "id",
-          "type",
-          "attributes"
-        ],
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "type": {
-            "type": "string"    
-          },
-          "attributes": {
-            "$ref": "appointment_raw.json"
-          }
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"    
+        },
+        "attributes": {
+          "$ref": "appointment_raw.json"
         }
       }
     }
