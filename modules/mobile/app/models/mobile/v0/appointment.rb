@@ -18,6 +18,7 @@ module Mobile
       APPOINTMENT_TYPE = Types::String.enum(
         'COMMUNITY_CARE',
         'VA',
+        'VA_COVID_VACCINE',
         'VA_VIDEO_CONNECT_ATLAS',
         'VA_VIDEO_CONNECT_GFE',
         'VA_VIDEO_CONNECT_HOME'

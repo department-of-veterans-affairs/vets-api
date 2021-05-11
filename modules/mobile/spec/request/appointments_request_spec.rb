@@ -106,6 +106,7 @@ RSpec.describe 'appointments', type: :request do
 
         let(:first_appointment) { response.parsed_body['data'].first['attributes'] }
         let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
+        let(:covid_vaccine_appointment) { response.parsed_body['data'][1] }
 
         it 'returns an ok response' do
           expect(response).to have_http_status(:ok)
@@ -153,6 +154,44 @@ RSpec.describe 'appointments', type: :request do
                 'status' => 'BOOKED',
                 'timeZone' => 'America/Denver',
                 'vetextId' => '308;20201103.090000'
+              }
+            }
+          )
+        end
+
+        it 'includes the expected properties for a VA covid vaccine appointment' do
+          expect(covid_vaccine_appointment).to eq(
+            {
+              'id' => '202103031630983000103800000000000000', 'type' => 'appointment',
+              'attributes' => {
+                'appointmentType' => 'VA_COVID_VACCINE',
+                'cancelId' => nil,
+                'comment' => nil,
+                'healthcareService' => 'COVID VACCINE CLIN1',
+                'location' => {
+                  'name' => 'CHEYENNE VAMC',
+                  'address' => {
+                    'street' => '2360 East Pershing Boulevard',
+                    'city' => 'Cheyenne',
+                    'state' => 'WY',
+                    'zipCode' => '82001-5356'
+                  },
+                  'lat' => 41.148027,
+                  'long' => -104.7862575,
+                  'phone' => {
+                    'areaCode' => '307',
+                    'number' => '778-7550',
+                    'extension' => nil
+                  },
+                  'url' => nil,
+                  'code' => nil
+                },
+                'minutesDuration' => nil,
+                'startDateLocal' => '2020-11-03T09:30:00.000-07:00',
+                'startDateUtc' => '2020-11-03T16:30:00.000+00:00',
+                'status' => 'CANCELLED',
+                'timeZone' => 'America/Denver',
+                'vetextId' => '1038;20201103.090030'
               }
             }
           )
@@ -218,7 +257,7 @@ RSpec.describe 'appointments', type: :request do
         end
 
         it 'has va appointments' do
-          expect(response.parsed_body['data'].size).to eq(3)
+          expect(response.parsed_body['data'].size).to eq(4)
         end
 
         it 'matches the expected schema' do
@@ -314,7 +353,7 @@ RSpec.describe 'appointments', type: :request do
 
             before { get '/mobile/v0/appointments', headers: iam_headers, params: params }
 
-            it 'has 10 items' do
+            it 'has 5 items' do
               expect(response.parsed_body['data'].size).to eq(5)
             end
 
@@ -380,7 +419,7 @@ RSpec.describe 'appointments', type: :request do
 
             before { get '/mobile/v0/appointments', headers: iam_headers, params: params }
 
-            it 'has 7 items' do
+            it 'has 2 items' do
               expect(response.parsed_body['data'].size).to eq(2)
             end
 

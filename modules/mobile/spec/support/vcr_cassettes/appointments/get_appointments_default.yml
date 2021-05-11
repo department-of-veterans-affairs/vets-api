@@ -98,6 +98,35 @@ http_interactions:
           					}
           				]
           			},
+                    {
+                        "id": "202103031630983000103800000000000000",
+                        "startDate": "2020-11-03T16:30:00Z",
+                        "clinicId": "1038",
+                        "clinicFriendlyName": "COVID VACCINE CLIN1",
+                        "facilityId": "983",
+                        "char4": "CDQC",
+                        "sta6aid": "983",
+                        "stationName": "CHYSHR-Cheyenne VA Medical Center",
+                        "locationName": "COVID VACCINE CLIN1",
+                        "patientIcn": "1012845331V153043",
+                        "communityCare": false,
+                        "vdsAppointments": [
+                          {
+                            "id": "1038;20210303.093000",
+                            "appointmentTime": "2020-11-03T16:30:00Z",
+                            "clinic": {
+                              "name": "COVID VACCINE CLIN1",
+                              "specialty": "GENERAL INTERNAL MEDICINE",
+                              "stopCode": "301",
+                              "askForCheckIn": false,
+                              "facilityCode": "983"
+                            },
+                            "patientId": "7216691",
+                            "type": "REGULAR",
+                            "currentStatus": "CANCELLED BY PATIENT"
+                          }
+                        ]
+                    },
           			{
                           "id": "202006051600983000030800000000000000",
           				"startDate": "2020-11-03T20:20:00Z",
