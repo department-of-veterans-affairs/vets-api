@@ -132,7 +132,7 @@ http_interactions:
     uri: "<MPI_URL>"
     body:
       encoding: ASCII-8BIT
-      string: !binary |-
+      base64_string:
         CjxlbnY6RW52ZWxvcGUgeG1sbnM6c29hcGVuYz0iaHR0cDovL3NjaGVtYXMu
         eG1sc29hcC5vcmcvc29hcC9lbmNvZGluZy8iIHhtbG5zOnhzZD0iaHR0cDov
         L3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiIHhtbG5zOmVudj0iaHR0cDov
@@ -179,31 +179,31 @@ http_interactions:
         ICAgICA8cXVlcnlJZCByb290PSIxLjIuODQwLjExNDM1MC4xLjEzLjI4LjEu
         MTguNS45OTkiIGV4dGVuc2lvbj0iMTgyMDQiLz4KICAgICAgICAgIDxzdGF0
         dXNDb2RlIGNvZGU9Im5ldyIvPgogICAgICAgICAgPG1vZGlmeUNvZGUgY29k
-        ZT0iTVZJLkNPTVAxIi8+CiAgICAgICAgICA8aW5pdGlhbFF1YW50aXR5IHZh
-        bHVlPSIxIi8+CiAgICAgICAgICA8cGFyYW1ldGVyTGlzdD4KICAgICAgICAg
-        ICAgPGxpdmluZ1N1YmplY3RBZG1pbmlzdHJhdGl2ZUdlbmRlcj4KICAgICAg
-        ICAgICAgICA8dmFsdWUgY29kZT0iTSIvPgogICAgICAgICAgICAgIDxzZW1h
-        bnRpY3NUZXh0PkdlbmRlcjwvc2VtYW50aWNzVGV4dD4KICAgICAgICAgICAg
-        PC9saXZpbmdTdWJqZWN0QWRtaW5pc3RyYXRpdmVHZW5kZXI+CiAgICAgICAg
-        ICAgIDxsaXZpbmdTdWJqZWN0QmlydGhUaW1lPgogICAgICAgICAgICAgIDx2
-        YWx1ZSB2YWx1ZT0iMTkzMjAyMDUiLz4KICAgICAgICAgICAgICA8c2VtYW50
-        aWNzVGV4dD5EYXRlIG9mIEJpcnRoPC9zZW1hbnRpY3NUZXh0PgogICAgICAg
-        ICAgICA8L2xpdmluZ1N1YmplY3RCaXJ0aFRpbWU+CiAgICAgICAgICAgIDxs
-        aXZpbmdTdWJqZWN0SWQ+CiAgICAgICAgICAgICAgPHZhbHVlIHJvb3Q9IjIu
-        MTYuODQwLjEuMTEzODgzLjQuMSIgZXh0ZW5zaW9uPSI3OTYxMjY4NTkiLz4K
-        ICAgICAgICAgICAgICA8c2VtYW50aWNzVGV4dD5TU048L3NlbWFudGljc1Rl
-        eHQ+CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVjdElkPgogICAgICAgICAg
-        ICA8bGl2aW5nU3ViamVjdE5hbWU+CiAgICAgICAgICAgICAgPHZhbHVlIHVz
-        ZT0iTCI+CiAgICAgICAgICAgICAgICA8Z2l2ZW4+SEVDVE9SPC9naXZlbj4K
-        ICAgICAgICAgICAgICAgIDxnaXZlbj5KPC9naXZlbj4KICAgICAgICAgICAg
-        ICAgIDxmYW1pbHk+QUxMRU48L2ZhbWlseT4KICAgICAgICAgICAgICA8L3Zh
-        bHVlPgogICAgICAgICAgICAgIDxzZW1hbnRpY3NUZXh0PkxlZ2FsIE5hbWU8
-        L3NlbWFudGljc1RleHQ+CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVjdE5h
-        bWU+CiAgICAgICAgICA8L3BhcmFtZXRlckxpc3Q+CiAgICAgICAgPC9xdWVy
-        eUJ5UGFyYW1ldGVyPgogICAgICA8L2NvbnRyb2xBY3RQcm9jZXNzPgogICAg
-        PC9pZG06UFJQQV9JTjIwMTMwNVVWMDI+CiAgPC9lbnY6Qm9keT4KPC9lbnY6
-        RW52ZWxvcGU+Cg==
-    headers:
+        ZT0iTVZJLkNPTVAxLlJNUyIvPgogICAgICAgICAgPGluaXRpYWxRdWFudGl0
+        eSB2YWx1ZT0iMSIvPgogICAgICAgICAgPHBhcmFtZXRlckxpc3Q+CiAgICAg
+        ICAgICAgIDxsaXZpbmdTdWJqZWN0QWRtaW5pc3RyYXRpdmVHZW5kZXI+CiAg
+        ICAgICAgICAgICAgPHZhbHVlIGNvZGU9Ik0iLz4KICAgICAgICAgICAgICA8
+        c2VtYW50aWNzVGV4dD5HZW5kZXI8L3NlbWFudGljc1RleHQ+CiAgICAgICAg
+        ICAgIDwvbGl2aW5nU3ViamVjdEFkbWluaXN0cmF0aXZlR2VuZGVyPgogICAg
+        ICAgICAgICA8bGl2aW5nU3ViamVjdEJpcnRoVGltZT4KICAgICAgICAgICAg
+        ICA8dmFsdWUgdmFsdWU9IjE5MzIwMjA1Ii8+CiAgICAgICAgICAgICAgPHNl
+        bWFudGljc1RleHQ+RGF0ZSBvZiBCaXJ0aDwvc2VtYW50aWNzVGV4dD4KICAg
+        ICAgICAgICAgPC9saXZpbmdTdWJqZWN0QmlydGhUaW1lPgogICAgICAgICAg
+        ICA8bGl2aW5nU3ViamVjdElkPgogICAgICAgICAgICAgIDx2YWx1ZSByb290
+        PSIyLjE2Ljg0MC4xLjExMzg4My40LjEiIGV4dGVuc2lvbj0iNzk2MTI2ODU5
+        Ii8+CiAgICAgICAgICAgICAgPHNlbWFudGljc1RleHQ+U1NOPC9zZW1hbnRp
+        Y3NUZXh0PgogICAgICAgICAgICA8L2xpdmluZ1N1YmplY3RJZD4KICAgICAg
+        ICAgICAgPGxpdmluZ1N1YmplY3ROYW1lPgogICAgICAgICAgICAgIDx2YWx1
+        ZSB1c2U9IkwiPgogICAgICAgICAgICAgICAgPGdpdmVuPkhFQ1RPUjwvZ2l2
+        ZW4+CiAgICAgICAgICAgICAgICA8Z2l2ZW4+SjwvZ2l2ZW4+CiAgICAgICAg
+        ICAgICAgICA8ZmFtaWx5PkFMTEVOPC9mYW1pbHk+CiAgICAgICAgICAgICAg
+        PC92YWx1ZT4KICAgICAgICAgICAgICA8c2VtYW50aWNzVGV4dD5MZWdhbCBO
+        YW1lPC9zZW1hbnRpY3NUZXh0PgogICAgICAgICAgICA8L2xpdmluZ1N1Ympl
+        Y3ROYW1lPgogICAgICAgICAgPC9wYXJhbWV0ZXJMaXN0PgogICAgICAgIDwv
+        cXVlcnlCeVBhcmFtZXRlcj4KICAgICAgPC9jb250cm9sQWN0UHJvY2Vzcz4K
+        ICAgIDwvaWRtOlBSUEFfSU4yMDEzMDVVVjAyPgogIDwvZW52OkJvZHk+Cjwv
+        ZW52OkVudmVsb3BlPgo=
+            headers:
       Accept:
       - text/xml;charset=UTF-8
       Content-Type:
@@ -215,7 +215,7 @@ http_interactions:
       Date:
       - Tue, 29 Aug 2017 03:32:42 GMT
       Content-Length:
-      - '3115'
+      - '3119'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -272,7 +272,7 @@ http_interactions:
         extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode
         code="OK"/><resultCurrentQuantity value="1"/></queryAck><queryByParameter><queryId
         extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode
-        code="MVI.COMP1"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value
+        code="MVI.COMP1.RMS"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value
         code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value
         value="19320205"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value
         extension="796126859" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value

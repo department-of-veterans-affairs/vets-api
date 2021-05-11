@@ -2,6 +2,7 @@
 
 require_relative 'find_profile_message_fields'
 require_relative 'find_profile_message_helpers'
+require 'mpi/constants'
 
 module MPI
   module Messages
@@ -16,7 +17,7 @@ module MPI
     #
     class FindProfileMessage
       include FindProfileMessageHelpers
-      attr_reader :given_names, :family_name, :birth_date, :ssn, :gender
+      attr_reader :given_names, :family_name, :birth_date, :ssn, :gender, :search_type
 
       REQUIRED_FIELDS = %i[
         given_names
@@ -25,7 +26,10 @@ module MPI
         ssn
       ].freeze
 
-      def initialize(profile, orch_search = false, edipi = nil)
+      def initialize(profile,
+                     orch_search: false,
+                     edipi: nil,
+                     search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
         required_fields_present?(profile)
 
         @given_names = profile[:given_names]
@@ -36,6 +40,7 @@ module MPI
         @gender = profile[:gender]
         @orch_search = orch_search
         @edipi = edipi
+        @search_type = search_type
       end
 
       def required_fields_present?(profile)
