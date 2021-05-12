@@ -4,45 +4,88 @@ module ClaimsApi
   module V2
     class VeteranIdentifierControllerSwagger
       include Swagger::Blocks
+      EXAMPLE_PATH = ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'forms', 'veteran_identifier_example.json')
 
       swagger_path '/veteran-id' do
-        operation :get do
+        operation :post do
           key :summary, 'Retrieve id of Veteran'
           key :description, "Allows authenticated veteran's and veteran representatives to retrieve a veteran's id."
           key :operationId, 'getVeteranIdentifier'
           key :tags, ['Veteran Identifier']
+          key :consumes, ['application/json']
+          key :produces, ['application/json']
           security { key :bearer_token, [] }
 
           parameter do
-            key :name, 'X-VA-SSN'
-            key :in, :header
+            key :name, 'veteranSSN'
+            key :in, :body
             key :description, 'SSN of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
           parameter do
-            key :name, 'X-VA-First-Name'
-            key :in, :header
+            key :name, 'veteranFirstName'
+            key :in, :body
             key :description, 'First Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
           parameter do
-            key :name, 'X-VA-Last-Name'
-            key :in, :header
+            key :name, 'veteranLastName'
+            key :in, :body
             key :description, 'Last Name of Veteran being represented'
-            key :required, false
+            key :required, true
             key :type, :string
           end
 
           parameter do
-            key :name, 'X-VA-Birth-Date'
-            key :in, :header
+            key :name, 'veteranBirthDate'
+            key :in, :body
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
-            key :required, false
+            key :required, true
             key :type, :string
+          end
+
+          request_body do
+            key :description, 'JSON API Payload of Veteran being submitted'
+            key :required, true
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:data]
+                property :data do
+                  key :type, :object
+                  key :required, [:attributes]
+                  key :example, JSON.parse(File.read(EXAMPLE_PATH))
+                  property :attributes do
+                    key :required, %i[veteranSSN veteranFirstName veteranLastName veteranBirthDate]
+                    key :type, :object
+                    property :veteranSSN do
+                      key :type, :string
+                      key :example, '796130115'
+                      key :description, 'SSN of Veteran being represented'
+                    end
+                    property :veteranFirstName do
+                      key :type, :string
+                      key :example, 'Tamara'
+                      key :description, 'First Name of Veteran being represented'
+                    end
+                    property :veteranLastName do
+                      key :type, :string
+                      key :example, 'Ellis'
+                      key :description, 'Last Name of Veteran being represented'
+                    end
+                    property :veteranBirthDate do
+                      key :type, :string
+                      key :example, '1967-06-19'
+                      key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
+                    end
+                  end
+                end
+              end
+            end
           end
 
           response 200 do
@@ -88,7 +131,37 @@ module ClaimsApi
                     property :status do
                       key :type, :string
                       key :example, '400'
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable Entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    property :status do
+                      key :type, :string
+                      key :example, '422'
                       key :description, 'HTTP error code'
+                    end
+
+                    property :detail do
+                      key :type, :string
+                      key :example, 'The property / did not contain the required key X'
+                      key :description, 'HTTP error detail'
+                    end
+
+                    property :source do
+                      key :type, :string
+                      key :example, '/'
                     end
                   end
                 end
