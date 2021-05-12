@@ -46,7 +46,7 @@
     "email": "primaryCaregiverEmail@email.com",
     "vetRelationship": "Spouse",
     "hasHealthInsurance": true,
-    "signature": "Joan Bednar Jerde"
+    "signature": "Joan Jerde"
   },
   "secondaryCaregiverOne": {
     "fullName": {
@@ -67,8 +67,7 @@
     "primaryPhoneNumber": "1118293993",
     "alternativePhoneNumber": "0002938484",
     "email": "secondaryOneCaregiverEmail@email.com",
-    "vetRelationship": "Daughter",
-    "signature": "Pauline Amber Moen"
+    "vetRelationship": "Daughter"
   },
   "secondaryCaregiverTwo": {
     "fullName": {
