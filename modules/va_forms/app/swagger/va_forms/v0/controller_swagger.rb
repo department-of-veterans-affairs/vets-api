@@ -85,7 +85,7 @@ module VAForms
           parameter do
             key :name, :form_name
             key :in, :path
-            key :description, 'The VA form_name of the form being requested. Please note that not all VA forms follow the same format and that the exact form name must passed, including proper placement of prefix and/or hyphens.  '
+            key :description, 'The VA form_name of the form being requested. Please note that not all VA forms follow the same format and that the exact form name must passed, including proper placement of prefix and/or hyphens.'
             key :required, true
             key :example, '10-10EZ'
             schema do
