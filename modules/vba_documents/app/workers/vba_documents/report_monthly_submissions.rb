@@ -99,7 +99,7 @@ module VBADocuments
       12.times do |ym|
         from = (ym + 1).months.ago.beginning_of_month
         to = (ym + 1).month.ago.end_of_month
-        yyyymm = from.year.to_s + ('00' + from.month.to_s).last(2)
+        yyyymm = from.year.to_s + ("00#{from.month}").last(2)
         results = UploadSubmission.status_elapsed_times(from, to)
         break if results.empty?
 

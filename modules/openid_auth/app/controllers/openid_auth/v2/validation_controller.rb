@@ -135,7 +135,7 @@ module OpenidAuth
         begin
           response = Charon::Service.new.call_charon(duz, site)
         rescue => e
-          log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
+          log_message_to_sentry("Error retrieving charon context for OIDC token: #{e.message}", :error)
           raise Common::Exceptions::TokenValidationError.new(
             status: 500, code: 500, detail: 'Failed validation with Charon.'
           )
@@ -146,7 +146,7 @@ module OpenidAuth
         when 400
           raise error_klass(response.body['message'])
         when 401, 403
-          raise error_klass('Charon menu-code: ' + response.body['value'])
+          raise error_klass("Charon menu-code: #{response.body['value']}")
         else
           raise Common::Exceptions::TokenValidationError.new(
             status: 500, code: 500, detail: 'Failed validation with Charon.'
