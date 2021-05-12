@@ -8,6 +8,7 @@ The VA Forms API provides an efficient way to look up VA Forms and their relevan
 - Complete history on when the PDF changed and the SHA256 checksum.
 - Detailed metadata including: number of pages, related forms, benefit categories and more.
 - Search by Form number, keyword or title.
+- Identification when a Form is deleted by the VA.
 
 ## Technical Summary
 The VA Forms API collects Form data from the official VA Form Repository on a nightly basis. The Index endpoint can return all available forms or, optionally, passed a query parameter to filter on. The Show endpoint will return a single Form with additional metadata and full revision history. A JSON response is given with the PDF link (if published) and the corresponding Form metadata.
