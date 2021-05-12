@@ -8,6 +8,12 @@ class DecisionReviewEvidenceAttachmentUploader < CarrierWave::Uploader::Base
     1.byte...100.megabytes
   end
 
+  # Waiting on Lighthouse for the real allow list but this is my best guess
+  # based upon what EVSS accepts and then sends on to VBMS
+  def extension_allowlist
+    %w[pdf gif png tiff tif jpeg jpg bmp txt]
+  end
+
   def initialize(decision_review_guid)
     super
     @decision_review_guid = decision_review_guid

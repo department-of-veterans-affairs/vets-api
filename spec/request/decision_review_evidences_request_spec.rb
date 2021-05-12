@@ -36,6 +36,18 @@ RSpec.describe 'Decision Review Evidences', type: :request do
         expect(err['title']).to eq 'Unprocessable Entity'
         expect(err['detail']).to eq(I18n.t('errors.messages.min_size_error', min_size: '1 Byte'))
       end
+
+      it 'returns a 422  for a file that not an allowed type' do
+        post '/v0/decision_review_evidence',
+             params: { decision_review_evidence_attachment:
+                       { file_data: fixture_file_upload('spec/fixtures/files/saml_responses/loa1.xml', 'application/xml') } }
+        expect(response).to have_http_status(:unprocessable_entity)
+        err = JSON.parse(response.body)['errors'][0]
+        expect(err['title']).to eq 'Unprocessable Entity'
+        expect(err['detail']).to eq(
+          'You can’t upload "xml" files. The allowed file types are: pdf, gif, png, tiff, tif, jpeg, jpg, bmp, txt'
+          )
+      end
     end
 
     context 'with invalid parameters' do
