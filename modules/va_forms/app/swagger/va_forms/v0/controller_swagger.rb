@@ -10,9 +10,8 @@ module VAForms
           security do
             key :apikey, []
           end
-
-          key :summary, 'Returns an index of all available VA forms. Optionally, pass a ?query parameter to filter forms by form number or title.'
-          key :description, 'Returns all VA Forms and their last revision date'
+          key :summary, 'Returns all VA Forms and their last revision date'
+          key :description, 'Returns an index of all available VA forms. Optionally, pass a ?query parameter to filter forms by form number or title.'
           key :operationId, 'findForms'
           key :produces, [
             'application/json'
@@ -85,7 +84,7 @@ module VAForms
           parameter do
             key :name, :form_name
             key :in, :path
-            key :description, 'The VA form_name of the form being requested. Please note that not all VA forms follow the same format and that the exact form name must passed, including proper placement of prefix and/or hyphens.'
+            key :description, 'The VA form_name of the form being requested. The exact form name must be passed, including proper placement of prefixes and/or hyphens.'
             key :required, true
             key :example, '10-10EZ'
             schema do
