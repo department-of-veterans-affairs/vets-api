@@ -124,7 +124,7 @@
         <queryByParameter>
           <queryId extension="18204" root="2.16.840.1.113883.3.933"/>
           <statusCode code="new"/>
-          <modifyCode code="MVI.COMP1"/>
+          <modifyCode code="MVI.COMP1.RMS"/>
           <initialQuantity value="1"/>
           <parameterList>
             <livingSubjectName>
