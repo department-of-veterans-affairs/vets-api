@@ -5,7 +5,7 @@ http_interactions:
     uri: "<MPI_URL>"
     body:
       encoding: ASCII-8BIT
-      base64_string: |
+      base64_string:
         CjxlbnY6RW52ZWxvcGUgeG1sbnM6c29hcGVuYz0iaHR0cDovL3NjaGVtYXMu
         eG1sc29hcC5vcmcvc29hcC9lbmNvZGluZy8iIHhtbG5zOnhzZD0iaHR0cDov
         L3d3dy53My5vcmcvMjAwMS9YTUxTY2hlbWEiIHhtbG5zOmVudj0iaHR0cDov
@@ -51,34 +51,34 @@ http_interactions:
         YXJhbWV0ZXI+CiAgICAgICAgICA8cXVlcnlJZCByb290PSIxLjIuODQwLjEx
         NDM1MC4xLjEzLjI4LjEuMTguNS45OTkiIGV4dGVuc2lvbj0iMTgyMDQiLz4K
         ICAgICAgICAgIDxzdGF0dXNDb2RlIGNvZGU9Im5ldyIvPgogICAgICAgICAg
-        PG1vZGlmeUNvZGUgY29kZT0iTVZJLkNPTVAyIi8+CiAgICAgICAgICA8aW5p
-        dGlhbFF1YW50aXR5IHZhbHVlPSIxIi8+CiAgICAgICAgICA8cGFyYW1ldGVy
-        TGlzdD4KICAgICAgICAgICAgPGxpdmluZ1N1YmplY3RBZG1pbmlzdHJhdGl2
-        ZUdlbmRlcj4KICAgICAgICAgICAgICA8dmFsdWUgY29kZT0iTSIvPgogICAg
-        ICAgICAgICAgIDxzZW1hbnRpY3NUZXh0PkdlbmRlcjwvc2VtYW50aWNzVGV4
-        dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0QWRtaW5pc3RyYXRpdmVH
-        ZW5kZXI+CiAgICAgICAgICAgIDxsaXZpbmdTdWJqZWN0QmlydGhUaW1lPgog
-        ICAgICAgICAgICAgIDx2YWx1ZSB2YWx1ZT0iMTk5MDAyMjAiLz4KICAgICAg
-        ICAgICAgICA8c2VtYW50aWNzVGV4dD5EYXRlIG9mIEJpcnRoPC9zZW1hbnRp
-        Y3NUZXh0PgogICAgICAgICAgICA8L2xpdmluZ1N1YmplY3RCaXJ0aFRpbWU+
-        CiAgICAgICAgICAgIDxsaXZpbmdTdWJqZWN0SWQ+CiAgICAgICAgICAgICAg
-        PHZhbHVlIHJvb3Q9IjIuMTYuODQwLjEuMTEzODgzLjQuMSIgZXh0ZW5zaW9u
-        PSI3OTYyOTU5ODAiLz4KICAgICAgICAgICAgICA8c2VtYW50aWNzVGV4dD5T
-        U048L3NlbWFudGljc1RleHQ+CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVj
-        dElkPgogICAgICAgICAgICA8bGl2aW5nU3ViamVjdE5hbWU+CiAgICAgICAg
-        ICAgICAgPHZhbHVlIHVzZT0iTCI+CiAgICAgICAgICAgICAgICA8Z2l2ZW4+
-        S0VOTkVUSDwvZ2l2ZW4+CiAgICAgICAgICAgICAgICA8ZmFtaWx5PkFORFJF
-        V1M8L2ZhbWlseT4KICAgICAgICAgICAgICA8L3ZhbHVlPgogICAgICAgICAg
-        ICAgIDxzZW1hbnRpY3NUZXh0PkxlZ2FsIE5hbWU8L3NlbWFudGljc1RleHQ+
-        CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVjdE5hbWU+CiAgICAgICAgICAg
-        IDxvdGhlcklEc1Njb3BpbmdPcmdhbml6YXRpb24+CiAgICAgICAgICAgICAg
-        PHZhbHVlIGV4dGVuc2lvbj0iVkJBIiByb290PSIyLjE2Ljg0MC4xLjExMzg4
-        My40LjM0OSIvPgogICAgICAgICAgICAgIDxzZW1hbnRpY3NUZXh0Pk1WSS5P
-        UkNIRVNUUkFUSU9OPC9zZW1hbnRpY3NUZXh0PgogICAgICAgICAgICA8L290
-        aGVySURzU2NvcGluZ09yZ2FuaXphdGlvbj4KICAgICAgICAgIDwvcGFyYW1l
-        dGVyTGlzdD4KICAgICAgICA8L3F1ZXJ5QnlQYXJhbWV0ZXI+CiAgICAgIDwv
-        Y29udHJvbEFjdFByb2Nlc3M+CiAgICA8L2lkbTpQUlBBX0lOMjAxMzA1VVYw
-        Mj4KICA8L2VudjpCb2R5Pgo8L2VudjpFbnZlbG9wZT4K
+        PG1vZGlmeUNvZGUgY29kZT0iTVZJLkNPTVAxLlJNUyIvPgogICAgICAgICAg
+        PGluaXRpYWxRdWFudGl0eSB2YWx1ZT0iMSIvPgogICAgICAgICAgPHBhcmFt
+        ZXRlckxpc3Q+CiAgICAgICAgICAgIDxsaXZpbmdTdWJqZWN0QWRtaW5pc3Ry
+        YXRpdmVHZW5kZXI+CiAgICAgICAgICAgICAgPHZhbHVlIGNvZGU9Ik0iLz4K
+        ICAgICAgICAgICAgICA8c2VtYW50aWNzVGV4dD5HZW5kZXI8L3NlbWFudGlj
+        c1RleHQ+CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVjdEFkbWluaXN0cmF0
+        aXZlR2VuZGVyPgogICAgICAgICAgICA8bGl2aW5nU3ViamVjdEJpcnRoVGlt
+        ZT4KICAgICAgICAgICAgICA8dmFsdWUgdmFsdWU9IjE5OTAwMjIwIi8+CiAg
+        ICAgICAgICAgICAgPHNlbWFudGljc1RleHQ+RGF0ZSBvZiBCaXJ0aDwvc2Vt
+        YW50aWNzVGV4dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0QmlydGhU
+        aW1lPgogICAgICAgICAgICA8bGl2aW5nU3ViamVjdElkPgogICAgICAgICAg
+        ICAgIDx2YWx1ZSByb290PSIyLjE2Ljg0MC4xLjExMzg4My40LjEiIGV4dGVu
+        c2lvbj0iNzk2Mjk1OTgwIi8+CiAgICAgICAgICAgICAgPHNlbWFudGljc1Rl
+        eHQ+U1NOPC9zZW1hbnRpY3NUZXh0PgogICAgICAgICAgICA8L2xpdmluZ1N1
+        YmplY3RJZD4KICAgICAgICAgICAgPGxpdmluZ1N1YmplY3ROYW1lPgogICAg
+        ICAgICAgICAgIDx2YWx1ZSB1c2U9IkwiPgogICAgICAgICAgICAgICAgPGdp
+        dmVuPktFTk5FVEg8L2dpdmVuPgogICAgICAgICAgICAgICAgPGZhbWlseT5B
+        TkRSRVdTPC9mYW1pbHk+CiAgICAgICAgICAgICAgPC92YWx1ZT4KICAgICAg
+        ICAgICAgICA8c2VtYW50aWNzVGV4dD5MZWdhbCBOYW1lPC9zZW1hbnRpY3NU
+        ZXh0PgogICAgICAgICAgICA8L2xpdmluZ1N1YmplY3ROYW1lPgogICAgICAg
+        ICAgICA8b3RoZXJJRHNTY29waW5nT3JnYW5pemF0aW9uPgogICAgICAgICAg
+        ICAgIDx2YWx1ZSBleHRlbnNpb249IlZCQSIgcm9vdD0iMi4xNi44NDAuMS4x
+        MTM4ODMuNC4zNDkiLz4KICAgICAgICAgICAgICA8c2VtYW50aWNzVGV4dD5N
+        VkkuT1JDSEVTVFJBVElPTjwvc2VtYW50aWNzVGV4dD4KICAgICAgICAgICAg
+        PC9vdGhlcklEc1Njb3BpbmdPcmdhbml6YXRpb24+CiAgICAgICAgICA8L3Bh
+        cmFtZXRlckxpc3Q+CiAgICAgICAgPC9xdWVyeUJ5UGFyYW1ldGVyPgogICAg
+        ICA8L2NvbnRyb2xBY3RQcm9jZXNzPgogICAgPC9pZG06UFJQQV9JTjIwMTMw
+        NVVWMDI+CiAgPC9lbnY6Qm9keT4KPC9lbnY6RW52ZWxvcGU+Cg==
     headers:
       Accept:
       - text/xml;charset=UTF-8
@@ -91,7 +91,7 @@ http_interactions:
       Date:
       - Thu, 29 Aug 2019 14:29:32 GMT
       Content-Length:
-      - '3273'
+      - '3277'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -116,9 +116,89 @@ http_interactions:
       - f8ba53155d67e14c02239302
     body:
       encoding: UTF-8
-      string: |-
+      string:
         <?xml version="1.0" encoding="UTF-8"?>
-        <env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"><env:Header/><env:Body><idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns="urn:hl7-org:v3"><id extension="WSDOC1908291029321091314870791" root="2.16.840.1.113883.4.349"/><creationTime value="20190829102932"/><versionCode code="4.1"/><interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender typeCode="SND"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AE"/><targetMessage><id extension="200VGOV-03b2801a-3005-4dcc-9a3c-7e3e4c0d5293" root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code codeSystem="2.16.840.1.113883.5.1100" code="INTERR" displayName="Internal System Error"/><text>Multiple Matches Found</text></acknowledgementDetail><acknowledgementDetail><text>Multiple Matches Found</text></acknowledgementDetail></acknowledgement><controlActProcess classCode="CACT" moodCode="EVN"><code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/><queryAck><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode code="AE"/><resultCurrentQuantity value="0"/></queryAck><queryByParameter><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode code="MVI.COMP2"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value value="19900220"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value extension="796295980" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value use="L"><given>KENNETH</given><family>ANDREWS</family></value><semanticsText>Legal Name</semanticsText></livingSubjectName><otherIDsScopingOrganization><value extension="VBA" root="2.16.840.1.113883.4.349"/><semanticsText>MVI.ORCHESTRATION</semanticsText></otherIDsScopingOrganization></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>
+        <env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+          xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+          xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
+          <env:Header/>
+          <env:Body>
+            <idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd"
+              xmlns:idm="http://vaww.oed.oit.va.gov"
+              xmlns="urn:hl7-org:v3">
+              <id extension="WSDOC1908291029321091314870791" root="2.16.840.1.113883.4.349"/>
+              <creationTime value="20190829102932"/>
+              <versionCode code="4.1"/>
+              <interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/>
+              <processingCode code="T"/>
+              <processingModeCode code="T"/>
+              <acceptAckCode code="NE"/>
+              <receiver typeCode="RCV">
+                <device determinerCode="INSTANCE" classCode="DEV">
+                  <id extension="200VGOV" root="2.16.840.1.113883.4.349"/>
+                </device>
+              </receiver>
+              <sender typeCode="SND">
+                <device determinerCode="INSTANCE" classCode="DEV">
+                  <id extension="200M" root="2.16.840.1.113883.4.349"/>
+                </device>
+              </sender>
+              <acknowledgement>
+                <typeCode code="AE"/>
+                <targetMessage>
+                  <id extension="200VGOV-03b2801a-3005-4dcc-9a3c-7e3e4c0d5293" root="1.2.840.114350.1.13.0.1.7.1.1"/>
+                </targetMessage>
+                <acknowledgementDetail>
+                  <code codeSystem="2.16.840.1.113883.5.1100" code="INTERR" displayName="InternalSystem Error"/>
+                  <text>Multiple Matches Found</text>
+                </acknowledgementDetail>
+                <acknowledgementDetail>
+                  <text>Multiple MatchesFound</text>
+                </acknowledgementDetail>
+              </acknowledgement>
+              <controlActProcess classCode="CACT" moodCode="EVN">
+                <code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/>
+                <queryAck>
+                  <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
+                  <queryResponseCode code="AE"/>
+                  <resultCurrentQuantity value="0"/>
+                </queryAck>
+                <queryByParameter>
+                  <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
+                  <statusCode code="new"/>
+                  <modifyCode code="MVI.COMP1.RMS"/>
+                  <initialQuantity value="1"/>
+                  <parameterList>
+                    <livingSubjectAdministrativeGender>
+                      <value code="M"/>
+                      <semanticsText>Gender</semanticsText>
+                    </livingSubjectAdministrativeGender>
+                    <livingSubjectBirthTime>
+                      <value value="19900220"/>
+                      <semanticsText>Date of Birth</semanticsText>
+                    </livingSubjectBirthTime>
+                    <livingSubjectId>
+                      <value extension="796295980" root="2.16.840.1.113883.4.1"/>
+                      <semanticsText>SSN</semanticsText>
+                    </livingSubjectId>
+                    <livingSubjectName>
+                      <value use="L">
+                        <given>KENNETH</given>
+                        <family>ANDREWS</family>
+                      </value>
+                      <semanticsText>Legal Name</semanticsText>
+                    </livingSubjectName>
+                    <otherIDsScopingOrganization>
+                      <value extension="VBA" root="2.16.840.1.113883.4.349"/>
+                      <semanticsText>MVI.ORCHESTRATION</semanticsText>
+                    </otherIDsScopingOrganization>
+                  </parameterList>
+                </queryByParameter>
+              </controlActProcess>
+            </idm:PRPA_IN201306UV02>
+          </env:Body>
+        </env:Envelope>
     http_version: 
   recorded_at: Thu, 29 Aug 2019 14:29:33 GMT
 recorded_with: VCR 3.0.3

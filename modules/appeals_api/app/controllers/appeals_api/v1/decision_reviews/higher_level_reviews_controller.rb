@@ -17,7 +17,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
-      AppealsApi::Engine.root.join('config/schemas/200996_headers.json')
+      AppealsApi::Engine.root.join('config/schemas/v1/200996_headers.json')
     )
   )['definitions']['hlrCreateParameters']['properties'].keys
 

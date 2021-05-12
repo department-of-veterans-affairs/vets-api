@@ -31,7 +31,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a cancel id of the encoded cancel params' do
-      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=')
+      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7R3JlZW4gVGVhbSBDbGluaWMx')
     end
 
     it 'has a type of VA' do
@@ -43,7 +43,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a healthcare_service that matches the clinic name' do
-      expect(booked_va[:healthcare_service]).to eq('CHY PC KILPATRICK')
+      expect(booked_va[:healthcare_service]).to eq('Green Team Clinic1')
     end
 
     it 'has a location with a name (address to be filled in by facilities api)' do
@@ -122,7 +122,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a healthcare_service that matches the clinic name' do
-      expect(cancelled_va[:healthcare_service]).to eq('CHY PC KILPATRICK')
+      expect(cancelled_va[:healthcare_service]).to eq('Green Team Clinic1')
     end
 
     it 'has a location with a name (address to be filled in by facilities api)' do
@@ -391,7 +391,7 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     context 'with  past appointment' do
       before { Timecop.freeze(Time.zone.parse('2021-01-13')) }
-
+  
       after { Timecop.return }
 
       let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
@@ -422,6 +422,14 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
   end
 
+  context 'with a VA appointment that has a missing friendly name' do
+    let(:missing_friendly_name) { adapted_appointments[3] }
+  
+    it 'uses the VDS clinic name' do
+      expect(missing_friendly_name[:healthcare_service]).to eq('CHY PC CASSIDY')
+    end
+  end
+  
   context 'with appointments that have different facility and station ids' do
     let(:appointment_facility_station_ids_json) do
       File.read(

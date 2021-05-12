@@ -11,7 +11,7 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES - %w[1990s]
+    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES
 
     FORM_TYPE_HEADERS = EducationBenefitsClaim.form_headers(FORM_TYPES).map do |form_header|
       [form_header, '', '']

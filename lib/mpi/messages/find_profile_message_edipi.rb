@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
 require_relative 'find_profile_message_helpers'
+require 'mpi/constants'
 
 module MPI
   module Messages
     class FindProfileMessageEdipi
       include FindProfileMessageHelpers
-      attr_reader :edipi
+      attr_reader :edipi, :search_type
 
-      def initialize(edipi)
+      def initialize(edipi, search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
         @edipi = edipi
+        @search_type = search_type
       end
 
       private

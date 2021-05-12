@@ -126,9 +126,9 @@ RSpec.describe 'appointments', type: :request do
               'type' => 'appointment',
               'attributes' => {
                 'appointmentType' => 'VA',
-                'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=',
+                'cancelId' => 'MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7R3JlZW4gVGVhbSBDbGluaWMx',
                 'comment' => nil,
-                'healthcareService' => 'CHY PC KILPATRICK',
+                'healthcareService' => 'Green Team Clinic1',
                 'location' => {
                   'name' => 'Cheyenne VA Medical Center',
                   'address' => {
