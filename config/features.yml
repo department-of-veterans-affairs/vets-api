@@ -62,13 +62,17 @@ features:
     description: "Toggles the availability of the frontend form on va.gov for the covid-19 vaccine sign-up\n"
   covid_vaccine_registration_frontend_cta:
     actor_type: user
-    description: "Toggles the availability of the call-to-action prompt (cta) on \"va.gov/health-care/covid-19-vaccine/\" leading to the frontend form on va.gov for the covid-19 vaccine sign-up\n"
+    description: >
+    Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/"
+    leading to the frontend form on va.gov for the covid-19 vaccine sign-up
   covid_vaccine_registration_frontend_enable_expanded_eligibility:
     actor_type: user
     description: "Toggles the 'continue' button to launch the new expanded eligibility VAFS app\n"
   covid_vaccine_registration_frontend_hide_auth:
     actor_type: user
-    description: "Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov. Note: When this is enabled, the 'Sign in' button will be hidden\n"
+    description: >
+      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
+      Note: When this is enabled, the 'Sign in' button will be hidden
   covid_vaccine_scheduling_frontend:
     actor_type: user
     description: "Toggles the availability of covid-19 vaccine scheduling links in the facility locator frontend"
@@ -127,7 +131,9 @@ features:
     enable_in_development: true
   facility_locator_show_community_cares:
     actor_type: user
-    description: "On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option in the \"Search for\" box. This toggle is owned by Rian\n"
+    description: >
+      On https://www.va.gov/find-locations/ enable veterans to search for Community care by showing that option
+      in the "Search for" box.
     enable_in_development: true
   facility_locator_show_operational_hours_special_instructions:
     actor_type: user
@@ -151,7 +157,8 @@ features:
     enable_in_development: true
   form996_higher_level_review:
     actor_type: user
-    description: "Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.\n"
+    description: >
+      Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
     enable_in_development: true
   get_help_ask_form:
     actor_type: user
@@ -163,7 +170,9 @@ features:
     enable_in_development: true
   gibct_eyb_bottom_sheet:
     actor_type: user
-    description: "Panel that displays while the user is modifying inputs to give context to their currently estimated benefits until they reach the full your estimated benefits panel.\n"
+    description: >
+      Panel that displays while the user is modifying inputs to give context to their currently estimated benefits
+      until they reach the full your estimated benefits panel.
   gibct_school_ratings:
     actor_type: user
     description: "Show/Hide the school ratings section of the Comparison Tool School Profile Page.\n"
@@ -176,14 +185,19 @@ features:
     description: "API endpoints consumed by the VA Mobile App (iOS/Android)\n"
   multiple_address_10_10ez:
     actor_type: cookie_id
-    description: "[Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran vs only collecting a single, \"permanent\" address.\n"
+    description: >
+      [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
+      vs only collecting a single, "permanent" address.
   new_va_forms_search:
     actor_type: user
     description: "Uses the new search algorithm\n"
     enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
-    description: "Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors to VHA facilities in lieu of manual screening with a VHA employee. This toggle is owned by Patrick B. and the rest of the CTO Health Products team.\n"
+    description: >
+      Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
+      to VHA facilities in lieu of manual screening with a VHA employee.
+      This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
   profile_schema_forms:
     actor_type: user
     description: "Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page\n"
