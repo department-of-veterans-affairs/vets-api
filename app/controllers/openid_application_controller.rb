@@ -54,6 +54,8 @@ class OpenidApplicationController < ApplicationController
       return true
     end
 
+    return false if @session.uuid.nil?
+
     @current_user = OpenidUser.find(@session.uuid)
   end
 
@@ -70,9 +72,8 @@ class OpenidApplicationController < ApplicationController
     @session = Session.find(token)
     if @session.nil?
       ttl = token.payload['exp'] - Time.current.utc.to_i
-      uuid = token.payload['sub']
       launch = fetch_smart_launch_context
-      @session = build_cc_session(ttl, uuid, launch)
+      @session = build_cc_session(ttl, launch)
       @session.save
     end
     token.payload[:icn] = @session.launch
@@ -154,8 +155,8 @@ class OpenidApplicationController < ApplicationController
     session
   end
 
-  def build_cc_session(ttl, uuid, launch)
-    session = Session.new(token: token.to_s, uuid: uuid, launch: launch)
+  def build_cc_session(ttl, launch)
+    session = Session.new(token: token.to_s, launch: launch)
     session.expire(ttl)
     session
   end

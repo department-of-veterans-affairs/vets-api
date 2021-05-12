@@ -20,7 +20,7 @@ module VeteranVerification
         profile = fetch_profile(token.identifiers.okta_uid)
         establish_session(profile)
       end
-      return false if @session.nil?
+      return false if @session.nil? || @session.uuid.nil?
 
       open_id = get_open_id_user
       @current_user = open_id.find(@session.uuid)
