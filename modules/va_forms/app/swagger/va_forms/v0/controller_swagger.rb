@@ -11,7 +11,7 @@ module VAForms
             key :apikey, []
           end
 
-          key :summary, 'Query for a Form or return all'
+          key :summary, 'Returns an index of all available VA forms. Optionally, pass a ?query parameter to filter forms by form number or title.'
           key :description, 'Returns all VA Forms and their last revision date'
           key :operationId, 'findForms'
           key :produces, [
@@ -24,7 +24,7 @@ module VAForms
           parameter do
             key :name, :query
             key :in, :query
-            key :description, 'Query the form number as well as title'
+            key :description, 'Returns form data based on entered form name.'
             key :required, false
             key :type, :string
           end
@@ -85,7 +85,7 @@ module VAForms
           parameter do
             key :name, :form_name
             key :in, :path
-            key :description, 'The VA form_name of the form being requested'
+            key :description, 'The VA form_name of the form being requested. Please note that not all VA forms follow the same format and that the exact form name must passed, including proper placement of prefix and/or hyphens.  '
             key :required, true
             key :example, '10-10EZ'
             schema do
