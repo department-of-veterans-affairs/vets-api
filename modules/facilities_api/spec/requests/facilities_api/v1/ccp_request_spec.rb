@@ -24,7 +24,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
   describe '#index' do
     context 'Missing Provider', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_missing_provider') do
       it 'gracefully handles ppms provider lookup failures' do
-        get facilities_api.v1_ccp_index_url, params: params
+        get '/facilities_api/v1/ccp', params: params
 
         bod = JSON.parse(response.body)
         expect(bod['data']).to include(
@@ -58,7 +58,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
 
     context 'Empty Results', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_empty_search') do
       it 'responds to GET #index with success even if no providers are found' do
-        get facilities_api.v1_ccp_index_url, params: params
+        get '/facilities_api/v1/ccp', params: params
 
         expect(response).to be_successful
       end
@@ -76,7 +76,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         end
 
         it 'requires a specialty code' do
-          get facilities_api.v1_ccp_index_url, params: params
+          get '/facilities_api/v1/ccp', params: params
 
           bod = JSON.parse(response.body)
 
@@ -105,7 +105,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         end
 
         it 'returns a results from the pos_locator' do
-          get facilities_api.v1_ccp_index_url, params: params
+          get '/facilities_api/v1/ccp', params: params
 
           bod = JSON.parse(response.body)
 
@@ -157,7 +157,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         )
 
         expect do
-          get facilities_api.v1_ccp_index_url, params: params
+          get '/facilities_api/v1/ccp', params: params
         end.to instrument('facilities.ppms.request.faraday')
       end
 
@@ -181,7 +181,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
             ).providers
           )
 
-          get facilities_api.v1_ccp_index_url, params: params_with_pagination
+          get '/facilities_api/v1/ccp', params: params_with_pagination
           bod = JSON.parse(response.body)
 
           prev_page = page == 1 ? nil : page - 1
@@ -197,7 +197,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       it 'returns a results from the provider_locator' do
-        get facilities_api.v1_ccp_index_url, params: params
+        get '/facilities_api/v1/ccp', params: params
 
         bod = JSON.parse(response.body)
         expect(bod['data']).to include(
@@ -242,7 +242,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       it 'returns results from the pos_locator' do
-        get facilities_api.v1_ccp_index_url, params: params
+        get '/facilities_api/v1/ccp', params: params
 
         bod = JSON.parse(response.body)
 
@@ -288,7 +288,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
       end
 
       it 'returns results from the pos_locator' do
-        get facilities_api.v1_ccp_index_url, params: params
+        get '/facilities_api/v1/ccp', params: params
 
         bod = JSON.parse(response.body)
 
@@ -328,7 +328,7 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
 
   describe '#specialties', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_specialties') do
     it 'returns a list of available specializations' do
-      get facilities_api.specialties_v1_ccp_index_url
+      get '/facilities_api/v1/ccp/specialties'
 
       bod = JSON.parse(response.body)
 

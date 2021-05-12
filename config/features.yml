@@ -116,6 +116,10 @@ features:
     actor_type: user
     description: enable covid search/display
     enable_in_development: true
+  facilities_locator_mobile_covid_online_scheduling:
+    actor_type: user
+    enable_in_development: true
+    description: get covid online scheduling availability from the mobile api
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
