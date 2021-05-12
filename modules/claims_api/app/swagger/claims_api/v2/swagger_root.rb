@@ -26,7 +26,7 @@ module ClaimsApi
         end
 
         server do
-          key :url, 'https://sandbox-api.va.gov/services/claims/{version}'
+          key :url, 'https://sandbox-api.va.gov/services/benefits/{version}'
           key :description, 'VA.gov API sandbox environment'
           variable :version do
             key :default, 'v2'
@@ -34,14 +34,14 @@ module ClaimsApi
         end
 
         server do
-          key :url, 'https://api.va.gov/services/claims/{version}'
+          key :url, 'https://api.va.gov/services/benefits/{version}'
           key :description, 'VA.gov API production environment'
           variable :version do
             key :default, 'v2'
           end
         end
 
-        key :basePath, '/services/claims/v2'
+        key :basePath, '/services/benefits/v2'
         key :consumes, ['application/json']
         key :produces, ['application/json']
       end
