@@ -22,7 +22,7 @@ module ClaimsApi
 
         tag do
           key :name, 'Veteran Identifier'
-          key :description, "Allows authenticated veteran's and veteran representatives to retrieve a veteran's ICN."
+          key :description, "Allows authenticated veteran's and veteran representatives to retrieve a veteran's id."
         end
 
         server do

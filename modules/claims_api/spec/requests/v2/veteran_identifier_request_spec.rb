@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Veteran Identifier Endpoint', type: :request do
-  let(:path) { '/services/benefits/v2/veteran-identifier' }
+  let(:path) { '/services/benefits/v2/veteran-id' }
 
   context 'when all headers are present' do
     let(:headers) do

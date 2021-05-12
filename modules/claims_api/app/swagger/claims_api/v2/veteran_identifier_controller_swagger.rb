@@ -5,10 +5,10 @@ module ClaimsApi
     class VeteranIdentifierControllerSwagger
       include Swagger::Blocks
 
-      swagger_path '/veteran-identifier' do
+      swagger_path '/veteran-id' do
         operation :get do
-          key :summary, 'Retrieve ICN of Veteran'
-          key :description, "Allows authenticated veteran's and veteran representatives to retrieve a veteran's ICN."
+          key :summary, 'Retrieve id of Veteran'
+          key :description, "Allows authenticated veteran's and veteran representatives to retrieve a veteran's id."
           key :operationId, 'getVeteranIdentifier'
           key :tags, ['Veteran Identifier']
           security { key :bearer_token, [] }
