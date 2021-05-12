@@ -63,8 +63,8 @@ features:
   covid_vaccine_registration_frontend_cta:
     actor_type: user
     description: >
-    Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/"
-    leading to the frontend form on va.gov for the covid-19 vaccine sign-up
+      Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/"
+      leading to the frontend form on va.gov for the covid-19 vaccine sign-up
   covid_vaccine_registration_frontend_enable_expanded_eligibility:
     actor_type: user
     description: "Toggles the 'continue' button to launch the new expanded eligibility VAFS app\n"
