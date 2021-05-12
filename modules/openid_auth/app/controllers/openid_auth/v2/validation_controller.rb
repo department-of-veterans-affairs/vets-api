@@ -137,6 +137,8 @@ module OpenidAuth
         if response.nil?
           begin
             response = Charon::Service.new.call_charon(duz, site)
+            @session.charon_response = response
+            @session.save
           rescue => e
             log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
             raise Common::Exceptions::TokenValidationError.new(
