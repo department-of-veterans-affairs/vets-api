@@ -73,18 +73,18 @@ pipeline {
       }
     }
 
-    // stage('Run tests') {
-    //   steps {
-    //     sh 'env=$RAILS_ENV make spec_parallel'
-    //   }
-    //   post {
-    //     success {
-    //       archiveArtifacts artifacts: "coverage/**"
-    //       publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
-    //       junit 'log/*.xml'
-    //     }
-    //   }
-    // }
+    stage('Run tests') {
+      steps {
+        sh 'env=$RAILS_ENV make spec_parallel'
+      }
+      post {
+        success {
+          archiveArtifacts artifacts: "coverage/**"
+          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+          junit 'log/*.xml'
+        }
+      }
+    }
 
     stage('Review') {
       when { not { branch 'master' } }
