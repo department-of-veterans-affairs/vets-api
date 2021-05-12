@@ -391,7 +391,7 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     context 'with  past appointment' do
       before { Timecop.freeze(Time.zone.parse('2021-01-13')) }
-  
+
       after { Timecop.return }
 
       let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
@@ -424,12 +424,12 @@ describe Mobile::V0::Adapters::VAAppointments do
 
   context 'with a VA appointment that has a missing friendly name' do
     let(:missing_friendly_name) { adapted_appointments[3] }
-  
+
     it 'uses the VDS clinic name' do
       expect(missing_friendly_name[:healthcare_service]).to eq('CHY PC CASSIDY')
     end
   end
-  
+
   context 'with appointments that have different facility and station ids' do
     let(:appointment_facility_station_ids_json) do
       File.read(
