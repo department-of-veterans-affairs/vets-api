@@ -218,10 +218,6 @@ class User < Common::RedisStore
     mpi_profile&.normalized_suffix
   end
 
-  def sec_id_mpi
-    mpi_profile&.sec_id
-  end
-
   def ssn_mpi
     mpi_profile&.ssn
   end
