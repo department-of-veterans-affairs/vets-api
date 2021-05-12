@@ -58,14 +58,25 @@ class OpenidApplicationController < ApplicationController
   end
 
   def populate_payload_for_launch_scope
-    launch = fetch_smart_launch_context
-    token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { patient: launch }
+    if @session.launch.nil?
+      @session.launch = fetch_smart_launch_context
+      @session.save
+    end
+    token.payload[:launch] =
+      base64_json?(@session.launch) ? JSON.parse(Base64.decode64(@session.launch)) : { patient: @session.launch }
   end
 
   def populate_payload_for_launch_patient_scope
-    launch = fetch_smart_launch_context
-    token.payload[:icn] = launch
-    token.payload[:launch] = { patient: launch } unless launch.nil?
+    @session = Session.find(token)
+    if @session.nil?
+      ttl = token.payload['exp'] - Time.current.utc.to_i
+      uuid = token.payload['sub']
+      launch = fetch_smart_launch_context
+      @session = build_cc_session(ttl, uuid, launch)
+      @session.save
+    end
+    token.payload[:icn] = @session.launch
+    token.payload[:launch] = { patient: @session.launch } unless @session.launch.nil?
   end
 
   def populate_ssoi_token_payload(profile)
@@ -139,6 +150,12 @@ class OpenidApplicationController < ApplicationController
 
   def build_session(ttl, profile)
     session = Session.new(token: token.to_s, uuid: token.identifiers.uuid, profile: profile)
+    session.expire(ttl)
+    session
+  end
+
+  def build_cc_session(ttl, uuid, launch)
+    session = Session.new(token: token.to_s, uuid: uuid, launch: launch)
     session.expire(ttl)
     session
   end
