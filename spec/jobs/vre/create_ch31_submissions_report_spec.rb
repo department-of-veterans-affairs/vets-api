@@ -29,8 +29,8 @@ RSpec.describe VRE::CreateCh31SubmissionsReport, type: :aws_helpers do
           subject.create_csv_array(submitted_claims)
         ).to eq(
           csv_array: [['Count', 'Regional Office', 'PID', 'Date Application Received', 'Type of Form', 'Total'],
-                      [1, '317', '600036503', '2017-07-26 00:00:00 UTC', vre_claim_1.form_id, 2],
-                      [2, '317', '600036503', '2017-07-26 23:59:59 UTC', vre_claim_2.form_id, 2]]
+                      [1, '317 - St. Petersburg', '600036503', '2017-07-26 00:00:00 UTC', vre_claim_1.form_id, 2],
+                      [2, '317 - St. Petersburg', '600036503', '2017-07-26 23:59:59 UTC', vre_claim_2.form_id, 2]]
         )
       end
     end

@@ -98,8 +98,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   end
 
   def add_office_location(updated_form)
-    @office_location = check_office_location
-    updated_form['veteranInformation']&.merge!({ 'regionalOffice' => @office_location })
+    regional_office = check_office_location
+    @office_location = regional_office[0]
+    office_name = regional_office[1]
+
+    updated_form['veteranInformation']&.merge!({ 'regionalOffice' => "#{@office_location} - #{office_name}" })
   end
 
   def send_to_vre(user)
@@ -107,7 +110,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
 
     upload_to_vbms
 
-    @office_location = check_office_location if @office_location.nil?
+    @office_location = check_office_location[0] if @office_location.nil?
 
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
     VeteranReadinessEmploymentMailer.build(user, email_addr).deliver_now if user.present?
@@ -147,10 +150,13 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       vet_info['postalCode'], vet_info['country'], vet_info['state'], 'VRE', parsed_form['veteranInformation']['ssn']
     )
 
-    regional_office_response[:regional_office][:number]
+    [
+      regional_office_response[:regional_office][:number],
+      regional_office_response[:regional_office][:name]
+    ]
   rescue => e
     log_message_to_sentry(e.message, :warn, {}, { team: 'vfs-ebenefits' })
-    '000'
+    ['000', 'Not Found']
   end
 
   def bgs_client

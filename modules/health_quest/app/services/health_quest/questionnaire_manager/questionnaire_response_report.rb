@@ -22,6 +22,8 @@ module HealthQuest
       QR_DATE_FORMAT = '%B %d, %Y.'
       HEADER_DATE_FORMAT = '%m/%d/%Y'
       TIME_FORMAT = '%-I:%M %p'
+      TIME_ZONE_FORMAT = '%Z'
+      DEFAULT_TIME_ZONE = 'Pacific Time (US & Canada)'
       VA_LOGO = 'modules/health_quest/app/assets/images/va_logo.png'
       VA_URL = 'https://va.gov/'
 
@@ -38,6 +40,8 @@ module HealthQuest
       end
 
       def initialize(opts)
+        document.state.store.info.data = info
+
         @questionnaire_response = opts[:questionnaire_response]
         @appointment = opts[:appointment]
         @location = opts[:location]
@@ -59,25 +63,33 @@ module HealthQuest
       end
 
       def set_font
-        font 'Helvetica'
+        font_families.update(
+          'HealthQuestPDF' => {
+            normal: HealthQuest::Engine.root.join('lib', 'fonts', 'sourcesanspro-regular-webfont.ttf'),
+            medium: HealthQuest::Engine.root.join('lib', 'fonts', 'sourcesanspro-bold-webfont.ttf'),
+            bold: HealthQuest::Engine.root.join('lib', 'fonts', 'bitter-bold.ttf')
+          }
+        )
+        font 'HealthQuestPDF'
       end
 
       def set_header
-        bounding_box([0, bounds.top], width: 520) do
+        bounding_box([0, bounds.top], width: bounds.width) do
           table(header_columns, style.header_style)
 
           set_logo
+          move_down(24)
 
           table([[qr_data.dig('questionnaire', 'title')]], style.title_style)
           table([[org_name]], style.normal_text_style)
+          move_down(24)
         end
       end
 
       def set_footer
-        footer_text =
-          "#{user_data['first_name']} #{user_data['last_name']} | Date of birth: #{date_of_birth}"
+        footer_text = "#{full_name} | Date of birth: #{date_of_birth}"
 
-        bounding_box([0, bounds.bottom], width: 550, height: 20) do
+        bounding_box([0, bounds.bottom], width: bounds.width, height: 24) do
           text footer_text, size: 9, align: :center
         end
       end
@@ -87,9 +99,11 @@ module HealthQuest
       end
 
       def set_body
-        bounding_box([0, 585], width: 520, height: 550) do
+        bounding_box([0, bounds.top - 164], width: bounds.width, height: 545) do
           set_basic_appointment_info
+          move_down(24)
           set_basic_demographics
+          move_down(24)
           set_qr_header
           set_questionnaire_items
         end
@@ -103,14 +117,14 @@ module HealthQuest
            ['Time:', appointment_time],
            ['Location:', appointment_destination]], style.default_table_style
         ) do |table|
-          table.column(1).font_style = :bold
+          table.column(1).font_style = :medium
         end
       end
 
       def set_basic_demographics
         table([['Veteran information']], style.heading_one_style)
         table((set_about + set_address + set_phone), style.default_table_style) do |table|
-          table.column(1).font_style = :bold
+          table.column(1).font_style = :medium
         end
       end
 
@@ -145,32 +159,39 @@ module HealthQuest
           answers = q['answer']
 
           table([[q['text'], '']], style.table_question_style)
+          move_down(16)
 
           answers.each do |a|
-            blank_table
             table([['', a['valueString']]], style.table_answer_style)
+            move_down(10)
           end
-
-          blank_table_two
         end
       end
 
       def set_provider_info_text
-        table([["Your questionnaire was sent to your provider on #{qr_submitted_time}"]], style.heading_two_style)
+        table([["Your questionnaire was sent to your provider on #{qr_submitted_time}"]], style.heading_one_style)
         table([['Your provider will discuss the information on your questionnaire during your appointment:']],
-              style.normal_text_style)
+              style.bold_text_style)
       end
 
       def qr_submitted_time
-        questionnaire_response.created_at.in_time_zone.to_date.strftime(QR_DATE_FORMAT)
+        questionnaire_response.created_at.in_time_zone(DEFAULT_TIME_ZONE).to_date.strftime(QR_DATE_FORMAT)
       end
 
       def appointment_date
-        DateTime.strptime(appointment.resource.start).strftime(DATE_FORMAT)
+        appt_utc_time = appointment.resource.start
+        time = DateTime.strptime(appt_utc_time).in_time_zone(DEFAULT_TIME_ZONE)
+
+        time.strftime(DATE_FORMAT)
       end
 
       def appointment_time
-        DateTime.strptime(appointment.resource.start).strftime(TIME_FORMAT)
+        appt_utc_time = appointment.resource.start
+        time = DateTime.strptime(appt_utc_time).in_time_zone(DEFAULT_TIME_ZONE)
+        local_time = time.strftime(TIME_FORMAT)
+        local_time_zone = time.strftime(TIME_ZONE_FORMAT)
+
+        "#{local_time} #{local_time_zone}"
       end
 
       def appointment_destination
@@ -187,15 +208,7 @@ module HealthQuest
 
       def set_qr_header
         table([['Prepare for your visit']], style.heading_one_style)
-        blank_table
-      end
-
-      def blank_table
-        table([['']], style.blank_table)
-      end
-
-      def blank_table_two
-        table([['']], style.blank_table_two)
+        move_down(16)
       end
 
       def org_name
@@ -220,6 +233,19 @@ module HealthQuest
 
       def qr_data
         @qr_data ||= questionnaire_response.questionnaire_response_data
+      end
+
+      def info
+        {
+          Lang: 'en-us',
+          Title: 'Questionnaire Details',
+          Author: 'va.gov',
+          Subject: 'Veteran Questionnaire Responses',
+          Keywords: 'questionnaire answers pre-visit',
+          Creator: 'va.gov',
+          Producer: 'va.gov API',
+          CreationDate: Time.zone.now
+        }
       end
     end
   end

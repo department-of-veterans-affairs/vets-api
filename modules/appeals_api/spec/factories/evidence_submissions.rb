@@ -11,11 +11,16 @@ FactoryBot.define do
     trait :with_detail do
       detail { SecureRandom.alphanumeric(150) }
     end
+
     trait :status_error do
       upload_submission {
         create(:upload_submission, guid: SecureRandom.uuid, status: 'error',
                                    consumer_name: 'appeals_api_nod_evidence_submission')
       }       # set the guid to pass uniqueness check
+    end
+
+    trait :with_code do
+      code { 404 }
     end
   end
 end

@@ -14,7 +14,8 @@ module V0
       send_data(
         service.get_pdf,
         type: 'application/pdf',
-        filename: 'VA Form 5655 - Submitted'
+        filename: 'VA Form 5655 - Submitted',
+        disposition: 'attachment'
       )
     end
 

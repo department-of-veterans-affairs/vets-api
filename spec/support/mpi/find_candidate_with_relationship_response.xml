@@ -123,11 +123,6 @@
                 <id root="2.16.840.1.113883.4.349"/>
               </assignedEntity>
             </custodian>
-            <replacementOf typeCode="RPLC">
-              <priorRegistration classCode="REG" moodCode="EVN">
-                <id extension="1008691087V194812^NI^200M^USVHA^D" root="2.16.840.1.113883.4.349"/>
-              </priorRegistration>
-            </replacementOf>
           </registrationEvent>
         </subject>
         <queryAck>
