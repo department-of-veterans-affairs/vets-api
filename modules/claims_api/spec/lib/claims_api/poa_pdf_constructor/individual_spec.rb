@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'claims_api/poa_pdf_constructor/individual'
+require_relative '../../../support/pdf_matcher'
 
 describe ClaimsApi::PoaPdfConstructor::Individual do
   let(:temp) { create(:power_of_attorney, :with_full_headers) }
@@ -60,6 +61,6 @@ describe ClaimsApi::PoaPdfConstructor::Individual do
     constructor = ClaimsApi::PoaPdfConstructor::Individual.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22A', 'signed_filled_final.pdf')
     generated_pdf = constructor.construct(data, id: power_of_attorney.id)
-    expect(Digest::MD5.file(generated_pdf)).to eq(Digest::MD5.file(expected_pdf.to_s))
+    expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end
 end
