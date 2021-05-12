@@ -20,8 +20,10 @@ module VBADocuments
             result << DeploymentsNotifier.perform_async(l)
           end
         else
-          GitItems.populate(label)
-          result << GitItems.notify(label)
+          VBADocuments::UploadSubmission.with_advisory_lock(label) do
+            GitItems.populate(label)
+            result << GitItems.notify(label)
+          end
         end
       rescue => e
         Rails.logger.error("Failed to notify for #{label} deployments", e)
