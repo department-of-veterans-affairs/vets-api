@@ -19,12 +19,12 @@ module VAOS
         end
       end
 
-      def get_available_slots(slots_params)
+      def get_available_slots(location_id:, clinic_id:, start_dt:, end_dt:)
         with_monitoring do
-          url_path = "/vaos/v1/locations/#{slots_params[:location_id]}/clinics/#{slots_params[:clinic_id]}/slots"
+          url_path = "/vaos/v1/locations/#{location_id}/clinics/#{clinic_id}/slots"
           url_params = {
-            'start' => slots_params[:start],
-            'end' => slots_params[:end]
+            'start' => start_dt,
+            'end' => end_dt
           }
           response = perform(:get, url_path, url_params, headers)
           response.body[:data].map { |slot| OpenStruct.new(slot) }
