@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'webmock'
+require 'lighthouse/charon/response'
 
 RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true do
   include SchemaMatchers
@@ -504,6 +505,31 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
         expect(response).to have_http_status(:internal_server_error)
+      end
+    end
+  end
+
+  context 'with jwt requiring screening from charon in session' do
+    let(:resp) { instance_double('Charon::Response', status: 200, body: {}) }
+    let(:charon_response) { Charon::Response.new(resp) }
+
+    before do
+      allow(JWT).to receive(:decode).and_return(jwt_charon)
+      Session.create(token: token, uuid: user.uuid, charon_response: charon_response)
+    end
+
+    it 'v2 POST returns json response if valid user charon session' do
+      with_ssoi_charon_configured do
+        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
+
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys)
+          .to eq(json_api_response_vista_id['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
       end
     end
   end

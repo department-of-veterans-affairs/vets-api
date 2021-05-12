@@ -133,7 +133,6 @@ module OpenidAuth
 
       def get_charon_response(duz, site)
         response = @session.charon_response
-
         if response.nil?
           begin
             response = Charon::Service.new.call_charon(duz, site)
@@ -152,7 +151,6 @@ module OpenidAuth
 
       def validation_from_charon(duz, site)
         response = get_charon_response(duz, site)
-
         case response.status
         when 200
           true
