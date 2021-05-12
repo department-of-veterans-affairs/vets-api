@@ -120,7 +120,7 @@ module AppealsApi
         internal_only: true,
         status: VERSION_STATUS[:current],
         path: '/services/appeals/docs/v2/decision_reviews',
-        healthcheck: '/services/appeals/v1/healthcheck'
+        healthcheck: '/services/appeals/v2/healthcheck'
       }
     end
   end
