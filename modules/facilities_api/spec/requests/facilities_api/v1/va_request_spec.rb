@@ -236,7 +236,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
           it 'is expected not to populate tmpCovidOnlineScheduling' do
             parsed_body['data']
 
-            expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to true
+            expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to be_truthy
             expect(parsed_body['data'][1..]).to all(
               a_hash_including(
                 attributes: a_hash_including(tmpCovidOnlineScheduling: false)
