@@ -280,7 +280,7 @@ class User < Common::RedisStore
   delegate :veteran?, to: :veteran_status
 
   def edipi
-    loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
+    loa3? && dslogon_edipi.present? ? dslogon_edipi : edipi_mpi
   end
 
   # LOA1 no longer just means ID.me LOA1.
