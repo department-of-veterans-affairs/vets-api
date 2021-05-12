@@ -46,11 +46,11 @@ module ClaimsApi
           end
 
           response 200 do
-            key :description, "Veteran's ICN"
+            key :description, "Veteran's ID"
             content 'application/json' do
               schema do
                 key :type, :object
-                property :icn do
+                property :id do
                   key :type, :string
                   key :example, '1012667145V762142'
                 end

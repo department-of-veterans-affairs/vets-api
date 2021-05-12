@@ -17,9 +17,9 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
     end
 
     describe 'veteran identifier' do
-      it 'returns an ICN' do
+      it 'returns an id' do
         get path, headers: headers
-        icn = JSON.parse(response.body)['icn']
+        icn = JSON.parse(response.body)['id']
         expect(icn).to eq(ClaimsApi::V2::VeteranIdentifierController::ICN_FOR_TEST_USER)
         expect(response.status).to eq(200)
       end

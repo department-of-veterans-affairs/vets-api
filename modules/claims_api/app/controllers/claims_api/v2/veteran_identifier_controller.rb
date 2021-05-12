@@ -12,7 +12,7 @@ module ClaimsApi
         headers_to_validate = %w[Authorization X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
         validate_headers(headers_to_validate)
 
-        render json: { icn: ICN_FOR_TEST_USER }
+        render json: { id: ICN_FOR_TEST_USER }
       end
     end
   end
