@@ -9,24 +9,33 @@ module DecisionReview
 
     sidekiq_options retry: 5
 
+    # Make a request to lighthosue to get the URL where we can upload the file,
+    # then get the file from S3 and send it to lighthouse
     #
-    #
-    # @param user_uuid [String] The user uuid
-    # @param upload_attrs [Hash] {name: "file.pdf", confirmationCode: "uuid" }
+    # @param appeal_submission_upload_id [String] The user uuid
     # @param appeal_submission_id [String] UUID in response from Lighthouse
-    #
-    def perform(user_uuid, appeal_submission_id, upload_attrs)
+
+    def perform(appeal_submission_upload_id)
       Raven.tags_context(source: '10182-board-appeal')
+      appeal_submission_upload = AppealSubmissionUpload.find(appeal_submission_upload_id)
+      appeal_submission = appeal_submission_upload.appeal_submission
       upload_url_response = DecisionReview::Service.new
-                                                   .get_notice_of_disagreement_upload_url(nod_id: appeal_submission_id)
+                                                   .get_notice_of_disagreement_upload_url(
+                                                     nod_id: appeal_submission.submitted_appeal_uuid,
+                                                     ssn: JSON.parse(appeal_submission.upload_metadata)['fileNumber']
+                                                   )
       upload_url = upload_url_response.body.dig('data', 'attributes', 'location')
-      upload_id = upload_url_response.body.dig('data', 'id')
-      Rails.logger.info "DecisionReview::SubmitUpload upload #{upload_id} uploaded for user #{user_uuid}"
-      carrierwave_sanitized_file = DecisionReviewEvidenceAttachment.find_by(guid: upload_attrs['confirmationCode'])
-                                  &.get_file
+
+      carrierwave_sanitized_file = DecisionReviewEvidenceAttachment.find_by(
+        guid: appeal_submission_upload.decision_review_evidence_attachment_guid
+      )&.get_file
+
       DecisionReview::Service.new.put_notice_of_disagreement_upload(upload_url: upload_url,
-                                                                    file_path: carrierwave_sanitized_file.path,
-                                                                    metadata: {})
+                                                                    file_upload: carrierwave_sanitized_file,
+                                                                    metadata: appeal_submission.upload_metadata)
+
+      appeal_submission_upload.lighthouse_upload_id = upload_url_response.body.dig('data', 'id')
+      appeal_submission_upload.save
     end
   end
 end

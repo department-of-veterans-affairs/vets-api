@@ -87,6 +87,8 @@ module ClaimsApi
         #
         # @return [JSON] Last POA change request through Claims API
         def active
+          validate_user_is_accredited! if header_request?
+
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
           render json: {

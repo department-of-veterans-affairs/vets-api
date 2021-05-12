@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'webmock'
 
 RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true do
   include SchemaMatchers
@@ -107,6 +108,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     instance_double(RestClient::Response,
                     code: 503)
   end
+
   let(:json_api_response) do
     {
       'data' => {
@@ -423,18 +425,65 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'v2 POST returns json response if valid user' do
-      charon_response = instance_double(RestClient::Response,
-                                        code: 200)
       with_ssoi_charon_configured do
-        allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response, charon_response)
+        VCR.use_cassette('charon/success') do
+          allow(RestClient).to receive(:get).and_return(launch_with_sta3n_response)
+          post '/internal/auth/v2/validation',
+               params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+               headers: auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['data']['attributes'].keys)
+            .to eq(json_api_response_vista_id['data']['attributes'].keys)
+          expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
+        end
+      end
+    end
+
+    it 'v2 POST returns json response if 400 charon response' do
+      with_ssoi_charon_configured do
+        VCR.use_cassette('charon/400') do
+          stub_request(:get, 'http://example.com/smart/launch').to_return(
+            body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+          )
+          post '/internal/auth/v2/validation',
+               params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+               headers: auth_header
+          expect(response).to have_http_status(:unauthorized)
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Unknown vista site specified: [442]'
+        end
+      end
+    end
+
+    it 'v2 POST returns json response if 401 charon response' do
+      with_ssoi_charon_configured do
+        VCR.use_cassette('charon/401') do
+          stub_request(:get, 'http://example.com/smart/launch').to_return(
+            body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+          )
+          post '/internal/auth/v2/validation',
+               params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+               headers: auth_header
+          expect(response).to have_http_status(:unauthorized)
+          expect(response.body).to be_a(String)
+          expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Charon menu-code: -1'
+        end
+      end
+    end
+
+    it 'v2 POST returns json response if 500 charon response' do
+      with_ssoi_charon_configured do
+        stub_request(:get, 'http://example.com/smart/launch').to_return(
+          body: { launch: 'eyAicGF0aWVudCI6ICIxMjM0NSIsICJzdGEzbiI6ICI0NTYiIH0K' }.to_json, status: 200
+        )
+
         post '/internal/auth/v2/validation',
              params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
              headers: auth_header
-        expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:internal_server_error)
         expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys)
-          .to eq(json_api_response_vista_id['data']['attributes'].keys)
-        expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Failed validation with Charon.'
       end
     end
 
