@@ -72,7 +72,8 @@ module Mobile
                                  # fetch a two year range these are later filtered by start and end date params
                                  # from the request
                                  appointments, errors = appointments_proxy.get_appointments(
-                                   start_date: validated_params[:start_date], end_date: validated_params[:end_date]
+                                   start_date: [validated_params[:start_date], one_year_ago].min,
+                                   end_date: [validated_params[:end_date], one_year_from_now].max
                                  )
                                  Mobile::V0::Appointment.set_cached(@current_user, appointments)
                                  [appointments, errors]
