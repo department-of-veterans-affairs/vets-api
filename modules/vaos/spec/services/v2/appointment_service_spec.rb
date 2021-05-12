@@ -13,6 +13,31 @@ describe VAOS::V2::AppointmentsService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
+  describe '#post_appointment' do
+    let(:request_body) do
+      FactoryBot.build(:appointment_form_v2, :eligible).attributes
+    end
+
+    context 'when request is valid' do
+      it 'returns the created appointment' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments', match_requests_on: %i[method uri]) do
+          response = subject.post_appointments(request_body)
+          expect(response[:id]).to be_a(String)
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_500', match_requests_on: %i[method uri]) do
+          expect { subject.post_appointments(request_body) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
   describe '#get_appointments' do
     context 'with an appointment' do
       it 'returns an appointment' do
@@ -50,6 +75,29 @@ describe VAOS::V2::AppointmentsService do
           expect { subject.get_appointment(appointment_id) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
+        end
+      end
+    end
+  end
+
+  describe '#update_appointments' do
+    context 'when the upstream server returns a 400' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/v2/appointments/put_appointments_400', match_requests_on: %i[method uri]) do
+          expect { subject.update_appointment(appt_id: 1121, status: 'cancelled') }
+            .to raise_error do |error|
+            expect(error).to be_a(Common::Exceptions::BackendServiceException)
+            expect(error.status_code).to eq(400)
+          end
+        end
+      end
+    end
+
+    context 'when the upstream server successfully updates appointment' do
+      it 'returns the updated appointment body' do
+        VCR.use_cassette('vaos/v2/appointments/put_appointments_200', match_requests_on: %i[method uri]) do
+          response = subject.update_appointment(appt_id: 1121, status: 'cancelled')
+          expect(response.status).to eq('cancelled')
         end
       end
     end

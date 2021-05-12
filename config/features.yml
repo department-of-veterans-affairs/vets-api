@@ -162,6 +162,21 @@ features:
     enable_in_development: true
     description: >
       Toggle for unenrolled vaccine scheduling discovery work.
+  va_online_scheduling_vaos_service_requests:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle for new vaos service requests.
+  va_online_scheduling_vaos_service_va_appointments:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle for new vaos service va appointments.
+  va_online_scheduling_vaos_service_cc_appointments:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Toggle for new vaos service cc appointments.
   va_global_downtime_notification:
     actor_type: user
     description: >
@@ -414,6 +429,11 @@ features:
     enable_in_development: true
     description: >
       Feature gates the dependency verification modal for updating the diaries service.
+  coe_access:
+    actor_type: user
+    enable_in_development: true
+    description: >
+      Feature gates the certificate of eligibility application
   form10182_nod:
     actor_type: user
     enable_in_development: true

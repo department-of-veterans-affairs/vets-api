@@ -16,7 +16,7 @@ module PdfFill
           },
           ssn: 'form1[0].#subform[14].TextField3[3]',
           dob: 'form1[0].#subform[14].Date[0]',
-          gender: 'form1[0].#subform[14].RadioButtonList[0]',
+          gender: 'form1[0].#subform[14].RadioButtonList[0]', # "2" | "3" | "Off"
           address: {
             street: 'form1[0].#subform[14].TextField3[4]',
             city: 'form1[0].#subform[14].TextField3[5]',
@@ -29,10 +29,10 @@ module PdfFill
           planned_clinic: 'form1[0].#subform[14].TextField3[10]',
           last_treatment_facility: {
             name: 'form1[0].#subform[14].TextField3[12]',
-            type: 'form1[0].#subform[14].RadioButtonList[1]'
+            type: 'form1[0].#subform[14].RadioButtonList[1]' # "1" | "2" | "Off"
           },
           signature: {
-            name: 'form1[0].#subform[14].TextField4[0]',
+            name: 'form1[0].#subform[14].SignatureTextField1[0]',
             date: 'form1[0].#subform[14].Date[2]'
           }
         },
@@ -44,7 +44,7 @@ module PdfFill
           },
           ssn: 'form1[0].#subform[14].TextField3[16]',
           dob: 'form1[0].#subform[14].Date[1]',
-          gender: 'form1[0].#subform[14].RadioButtonList[3]',
+          gender: 'form1[0].#subform[14].RadioButtonList[3]', # "2" | "3" | "Off"
           address: {
             street: 'form1[0].#subform[14].TextField3[17]',
             city: 'form1[0].#subform[14].TextField3[18]',
@@ -55,10 +55,9 @@ module PdfFill
           alternative_phone: 'form1[0].#subform[14].TextField3[22]',
           email: 'form1[0].#subform[14].TextField3[24]',
           vet_relationship: 'form1[0].#subform[14].TextField3[23]',
-          has_health_insurance: 'form1[0].#subform[14].RadioButtonList[2]',
-          certification: 'form1[0].#subform[15].RadioButtonList[4]',
+          has_health_insurance: 'form1[0].#subform[14].RadioButtonList[2]', # "1" | "2" | "Off"
           signature: {
-            name: 'form1[0].#subform[15].TextField5[0]',
+            name: 'form1[0].#subform[15].SignatureTextField2[0]',
             date: 'form1[0].#subform[15].Date[3]'
           }
         },
@@ -70,7 +69,7 @@ module PdfFill
           },
           ssn: 'form1[0].#subform[15].TextField3[34]',
           dob: 'form1[0].#subform[15].Date[5]',
-          gender: 'form1[0].#subform[15].RadioButtonList[6]',
+          gender: 'form1[0].#subform[15].RadioButtonList[4]', # "2" | "3" | "Off"
           address: {
             street: 'form1[0].#subform[15].TextField3[28]',
             city: 'form1[0].#subform[15].TextField3[29]',
@@ -81,9 +80,8 @@ module PdfFill
           alternative_phone: 'form1[0].#subform[15].TextField3[35]',
           email: 'form1[0].#subform[15].TextField3[33]',
           vet_relationship: 'form1[0].#subform[15].TextField3[32]',
-          certification: 'form1[0].#subform[15].RadioButtonList[5]',
           signature: {
-            name: 'form1[0].#subform[15].TextField6[0]',
+            name: 'form1[0].#subform[15].SignatureTextField3[0]',
             date: 'form1[0].#subform[15].Date[4]'
           }
         },
@@ -95,7 +93,7 @@ module PdfFill
           },
           ssn: 'form1[0].#subform[16].TextField3[46]',
           dob: 'form1[0].#subform[16].Date[7]',
-          gender: 'form1[0].#subform[16].RadioButtonList[8]',
+          gender: 'form1[0].#subform[16].RadioButtonList[5]', # "2" | "3" | "Off"
           address: {
             street: 'form1[0].#subform[16].TextField3[40]',
             city: 'form1[0].#subform[16].TextField3[41]',
@@ -106,9 +104,8 @@ module PdfFill
           alternative_phone: 'form1[0].#subform[16].TextField3[47]',
           email: 'form1[0].#subform[16].TextField3[45]',
           vet_relationship: 'form1[0].#subform[16].TextField3[44]',
-          certification: 'form1[0].#subform[16].RadioButtonList[7]',
           signature: {
-            name: 'form1[0].#subform[16].TextField6[1]',
+            name: 'form1[0].#subform[16].SignatureTextField4[0]',
             date: 'form1[0].#subform[16].Date[6]'
           }
         }
@@ -490,10 +487,10 @@ module PdfFill
         }
 
         merge_address_helpers
-        merge_gender_helpers
+        merge_sex_helpers
         merge_signature_helpers if options[:sign]
 
-        merge_primary_caregiver_insurance_helper
+        merge_primary_caregiver_has_health_insurance_helper
         merge_veteran_last_treatment_facility_helper
         merge_planned_facility_label_helper
 
@@ -510,13 +507,13 @@ module PdfFill
         end
       end
 
-      def merge_gender_helpers
+      def merge_sex_helpers
         subjects.each do |subject|
           @form_data['helpers'][subject]['gender'] = case @form_data.dig(subject, 'gender')
                                                      when 'M'
-                                                       '0'
+                                                       '2'
                                                      when 'F'
-                                                       '1'
+                                                       '3'
                                                      else
                                                        'Off'
                                                      end
@@ -543,13 +540,13 @@ module PdfFill
         %w[veteran primaryCaregiver secondaryCaregiverOne secondaryCaregiverTwo]
       end
 
-      def merge_primary_caregiver_insurance_helper
+      def merge_primary_caregiver_has_health_insurance_helper
         value = @form_data.dig('primaryCaregiver', 'hasHealthInsurance')
         selection = case value
                     when true
                       '2'
                     when false
-                      '0'
+                      '1'
                     else
                       'Off'
                     end
@@ -561,7 +558,7 @@ module PdfFill
         value = @form_data.dig('veteran', 'lastTreatmentFacility', 'type')
         selection = case value
                     when 'hospital'
-                      '0'
+                      '2'
                     when 'clinic'
                       '1'
                     else
