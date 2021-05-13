@@ -461,6 +461,8 @@ claims_api:
   claims_pending_reporting:
     threshold: ~
     environment_name: ~
+  v2_docs:
+    enabled: false
 
 redis:
   host: localhost
