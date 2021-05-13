@@ -50,6 +50,7 @@ module Mobile
         jid = claims_proxy.upload_documents(params, true)
         render json: { data: { job_id: jid } }, status: :accepted
       end
+
       private
 
       def fetch_all_cached_or_service(params, show_completed)
