@@ -54,6 +54,9 @@ development: &defaults
   profile:
     namespace: profile
     each_ttl: 3600
+  charon_response:
+    namespace: charon-response
+    each_ttl: 3600
   okta_response_app:
     namespace: okta-response
     each_ttl: 86400
