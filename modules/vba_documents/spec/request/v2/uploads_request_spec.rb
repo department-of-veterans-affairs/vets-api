@@ -37,15 +37,15 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     let(:missing_first) { { metadata: build_fixture('missing_first_metadata.json', true) } }
     let(:missing_last) { { metadata: build_fixture('missing_last_metadata.json', true) } }
 
-    let(:bad_with_digits_first) {
+    let(:bad_with_digits_first) do
       { metadata: build_fixture('bad_with_digits_first_metadata.json', true) }
-    }
-    let(:bad_with_funky_characters_last) {
+    end
+    let(:bad_with_funky_characters_last) do
       { metadata: build_fixture('bad_with_funky_characters_last_metadata.json', true) }
-    }
-    let(:dashes_slashes_first_last) {
+    end
+    let(:dashes_slashes_first_last) do
       { metadata: build_fixture('dashes_slashes_first_last_metadata.json', true) }
-    }
+    end
 
     let(:valid_content) do
       { content: build_fixture('valid_doc.pdf') }
@@ -132,8 +132,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
     empty = /^Empty value given - The following values must be non-empty:/
     bad_char = /^Invalid character\(s\):/
-    {'missing_first' => empty , 'missing_last' => empty,
-     'bad_with_digits_first' => bad_char, 'bad_with_funky_characters_last' => bad_char }.each_pair do |k,v|
+    { 'missing_first' => empty, 'missing_last' => empty,
+      'bad_with_digits_first' => bad_char, 'bad_with_funky_characters_last' => bad_char }.each_pair do |k, v|
       it "returns an error if the name field #{k} is missing or has bad characters" do
         post SUBMIT_ENDPOINT,
              params: {}.merge(send(k)).merge(valid_content)

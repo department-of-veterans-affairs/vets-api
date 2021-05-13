@@ -72,8 +72,8 @@ module VBADocuments
 
     def validate_names(first, last)
       [first, last].each do |name|
-        regex = /^[a-zA-Z\-\/]+$/
-        msg = "Invalid character(s): veteranFirstName and/or veteranLastName. Names must match the regular expression "
+        regex = %r{^[a-zA-Z\-/]+$}
+        msg = 'Invalid character(s): veteranFirstName and/or veteranLastName. Names must match the regular expression '
         msg += regex.inspect
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg) unless name =~ regex
       end

@@ -213,8 +213,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     empty = /^Empty value given - The following values must be non-empty:/
     bad_char = /^Invalid character\(s\):/
-    {'missing_first' => empty , 'missing_last' => empty,
-     'bad_with_digits_first' => bad_char, 'bad_with_funky_characters_last' => bad_char }.each_pair do |k,v|
+    { 'missing_first' => empty, 'missing_last' => empty,
+      'bad_with_digits_first' => bad_char, 'bad_with_funky_characters_last' => bad_char }.each_pair do |k, v|
       it "sets error status for #{k} name" do
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'metadata' => send(k), 'content' => valid_doc }
