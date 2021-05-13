@@ -8,13 +8,23 @@ module GI
   class SearchClient < GI::Client
     configuration GI::SearchConfiguration
 
-    def get_institution_search_results(params = {})
-      response = perform(:get, 'institutions', params)
+    def get_institution_search_results_v0(params = {})
+      response = perform(:get, 'v0/institutions', params)
       gids_response(response)
     end
 
-    def get_institution_program_search_results(params = {})
-      response = perform(:get, 'institution_programs', params)
+    def get_institution_program_search_results_v0(params = {})
+      response = perform(:get, 'v0/institution_programs', params)
+      gids_response(response)
+    end
+
+    def get_institution_search_results_v1(params = {})
+      response = perform(:get, 'v1/institutions', params)
+      gids_response(response)
+    end
+
+    def get_institution_program_search_results_v1(params = {})
+      response = perform(:get, 'v1/institution_programs', params)
       gids_response(response)
     end
   end

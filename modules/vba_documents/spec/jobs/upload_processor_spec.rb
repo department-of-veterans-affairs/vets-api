@@ -9,6 +9,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+  let(:missing_first) { get_fixture('missing_first_metadata.json').read }
+  let(:missing_last) { get_fixture('missing_last_metadata.json').read }
   let(:invalid_metadata_missing) { get_fixture('invalid_metadata_missing.json').read }
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
 
@@ -110,6 +112,26 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
+    it 'counts concurrent duplicates that our vendor asserts occurred' do
+      upload_model = VBADocuments::UploadSubmission.new
+      upload_model.status = 'uploaded'
+      upload_model.save!
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive(:status).and_return(429)
+      allow(faraday_response).to receive(:body).and_return("UUID already in cache [uuid: #{upload_model.guid}]")
+      allow(faraday_response).to receive(:success?).and_return(false)
+      allow(client_stub).to receive(:upload).and_return(faraday_response)
+      allow(File).to receive(:size).and_return(10)
+      allow_any_instance_of(File).to receive(:rewind).and_return(nil)
+      response = described_class.new.perform(upload_model.guid)
+      expect(response).to be(false)
+      described_class.new.perform(upload_model.guid)
+      described_class.new.perform(upload_model.guid)
+      upload_model.reload
+      expect(upload_model.metadata['uuid_already_in_cache_count']).to eq(3)
+    end
+
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
@@ -184,6 +206,20 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC101')
+    end
+
+    %i[missing_first missing_last].each do |missing|
+      it "sets error status for #{missing} name" do
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'metadata' => send(missing), 'content' => valid_doc }
+        }
+
+        described_class.new.perform(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).to eq('error')
+        expect(updated.code).to eq('DOC102')
+        expect(updated.detail).to match(/^Empty value given - The following values must be non-empty:/)
+      end
     end
 
     it 'sets error status for non-JSON metadata part' do

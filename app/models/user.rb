@@ -15,6 +15,7 @@ require 'va_profile/configuration'
 class User < Common::RedisStore
   include BetaSwitch
   include Authorization
+  extend Gem::Deprecate
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
@@ -179,7 +180,7 @@ class User < Common::RedisStore
   end
 
   def historical_icns
-    mpi_profile&.historical_icns
+    @mpi_historical_icn ||= MPIData.historical_icn_for_user(self)
   end
 
   def home_phone
@@ -236,14 +237,17 @@ class User < Common::RedisStore
   def va_profile
     mpi.profile
   end
+  deprecate :va_profile, :none, 2021, 5
 
   def va_profile_error
     mpi.error
   end
+  deprecate :va_profile_error, :mpi_error, 2021, 5
 
   def va_profile_status
     mpi.status
   end
+  deprecate :va_profile_status, :mpi_status, 2021, 5
 
   # MPI setter methods
 
@@ -276,7 +280,7 @@ class User < Common::RedisStore
   delegate :veteran?, to: :veteran_status
 
   def edipi
-    loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
+    loa3? && dslogon_edipi.present? ? dslogon_edipi : edipi_mpi
   end
 
   # LOA1 no longer just means ID.me LOA1.

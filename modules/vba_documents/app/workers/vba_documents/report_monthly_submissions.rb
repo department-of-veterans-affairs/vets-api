@@ -18,10 +18,12 @@ module VBADocuments
         # execute SQL for monthly counts
         @monthly_counts = run_sql(SQLSupport::MONTHLY_COUNT_SQL, last_month_start, last_month_end)
         still_processing = run_sql(SQLSupport::PROCESSING_SQL, last_month_start)
-        still_success = run_sql(SQLSupport::SUCCESS_SQL, last_month_start)
+        still_success = run_sql(SQLSupport::SUCCESS_SQL,
+                                VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE, last_month_start)
         @avg_processing_time = run_sql(SQLSupport::AVG_TIME_TO_VBMS_SQL, last_month_end)
         @monthly_max_avg = run_sql(SQLSupport::MAX_AVG_SQL, last_month_end)
         @monthly_mode = run_sql(SQLSupport::MODE_SQL, last_month_end)
+        rolling_elapsed_times = rolling_status_times
         get_median_results
         add_max_avg_mb
         final_monthly_results = join_monthly_results
@@ -29,7 +31,7 @@ module VBADocuments
         # build the monthly report and email it
         VBADocuments::MonthlyReportMailer.build(
           @monthly_counts, summary, still_processing, still_success,
-          final_monthly_results, last_month_start, last_month_end
+          final_monthly_results, rolling_elapsed_times, last_month_start, last_month_end
         ).deliver_now
       end
     end
@@ -90,6 +92,67 @@ module VBADocuments
         row['mode_size'] = bytes_to_megabytes(row['mode_size'])
         row['median_size'] = bytes_to_megabytes(median.first['median_size'])
       end
+    end
+
+    def rolling_status_times
+      results_set = []
+      12.times do |ym|
+        from = (ym + 1).months.ago.beginning_of_month
+        to = (ym + 1).month.ago.end_of_month
+        yyyymm = from.year.to_s + ('00' + from.month.to_s).last(2)
+        results = UploadSubmission.status_elapsed_times(from, to)
+        break if results.empty?
+
+        status_hash = reformat_rolling_times(results)
+        month_data = { yyyymm => status_hash }
+        get_elapsed_median(month_data)
+        tbs = get_time_between_statuses(yyyymm)
+        month_data[yyyymm] = month_data[yyyymm].merge!(tbs[yyyymm])
+        fmt_keys = %w[min_secs max_secs avg_secs median_secs min_bt_status max_bt_status avg_bt_status]
+        calc_times(month_data, fmt_keys)
+        results_set << month_data
+      end
+      results_set
+    end
+
+    def reformat_rolling_times(results)
+      results.each_with_object({}) do |k, hash|
+        s = k['status']
+        hash[s] = k.tap do |h|
+          h.delete('status')
+        end
+      end
+    end
+
+    # {"202104"=>{"pending"=>{"min_secs"=>1, "max_secs"=>1282, "avg_secs"=>12, "rowcount"=>49692, "median_secs"=>6},
+    #           "processing"=>{"min_secs"=>3, "max_secs"=>529500, "avg_secs"=>6571, "rowcount"=>41198, ...}
+    # format all of the times in seconds to hh:mm:ss
+    def calc_times(data, keys)
+      data.each_value do |v|
+        v.each_pair do |_key, t|
+          keys.each do |k|
+            t["#{k}_fmt"] = seconds_to_hms(t[k]) if t.key?(k)
+          end
+        end
+      end
+    end
+
+    def get_elapsed_median(month_data)
+      yyyymm = month_data.keys[0]
+      month_data[yyyymm].each_pair do |status, data|
+        median = run_sql(SQLSupport::MEDIAN_ELAPSED_TIME_SQL, yyyymm, status).first
+        data.merge!(median)
+      end
+    end
+
+    def get_time_between_statuses(yyyymm)
+      sql = SQLSupport::MONTHLY_TIME_BETWEEN_STATUSES_SQL
+      ret = { yyyymm => {} }
+      ret[yyyymm].merge!({ 'pending2error' => run_sql(sql, yyyymm, 'pending', 'error').first })
+      ret[yyyymm].merge!({ 'pending2success' => run_sql(sql, yyyymm, 'pending', 'success').first })
+      ret[yyyymm].merge!({ 'pending2vbms' => run_sql(sql, yyyymm, 'pending', 'vbms').first })
+      ret[yyyymm].merge!({ 'success2vbms' => run_sql(sql, yyyymm, 'success', 'vbms').first })
+      ret
     end
 
     def run_sql(sql, *args)

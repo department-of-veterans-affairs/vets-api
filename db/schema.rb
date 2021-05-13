@@ -10,10 +10,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_20_131905) do
+ActiveRecord::Schema.define(version: 2021_05_07_122840) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
+  enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -55,13 +56,23 @@ ActiveRecord::Schema.define(version: 2021_04_20_131905) do
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
+  create_table "appeal_submission_uploads", force: :cascade do |t|
+    t.string "decision_review_evidence_attachment_guid"
+    t.string "appeal_submission_id"
+    t.string "lighthouse_upload_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "appeal_submissions", force: :cascade do |t|
     t.string "user_uuid"
     t.string "submitted_appeal_uuid"
     t.string "type_of_appeal"
-    t.string "board_review_otpion"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "board_review_option"
+    t.string "encrypted_upload_metadata"
+    t.string "encrypted_upload_metadata_iv"
   end
 
   create_table "appeals_api_event_subscriptions", force: :cascade do |t|
@@ -357,6 +368,7 @@ ActiveRecord::Schema.define(version: 2021_04_20_131905) do
     t.boolean "transfer_of_entitlement", default: false, null: false
     t.boolean "chapter1607", default: false, null: false
     t.boolean "vettec", default: false
+    t.boolean "vrrap", default: false, null: false
     t.index ["created_at"], name: "index_education_benefits_submissions_on_created_at"
     t.index ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true
     t.index ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd"
@@ -591,6 +603,17 @@ ActiveRecord::Schema.define(version: 2021_04_20_131905) do
     t.datetime "updated_at", null: false
     t.index ["created_at"], name: "index_personal_information_logs_on_created_at"
     t.index ["error_class"], name: "index_personal_information_logs_on_error_class"
+  end
+
+  create_table "pghero_query_stats", force: :cascade do |t|
+    t.text "database"
+    t.text "user"
+    t.text "query"
+    t.bigint "query_hash"
+    t.float "total_time"
+    t.bigint "calls"
+    t.datetime "captured_at"
+    t.index ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at"
   end
 
   create_table "preference_choices", id: :serial, force: :cascade do |t|

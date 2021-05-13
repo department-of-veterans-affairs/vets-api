@@ -39,7 +39,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'fails when a required header is missing' do
-        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-Veteran-SSN'))
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
@@ -105,6 +105,18 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+    end
+
+    it 'allow for status simulation' do
+      with_settings(Settings, vsp_environment: 'development') do
+        with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
+          uuid = create(:notice_of_disagreement).id
+          status_simulation_headers = { 'Status-Simulation' => 'error' }
+          get("#{path}#{uuid}", headers: status_simulation_headers)
+
+          expect(parsed.dig('data', 'attributes', 'status')).to eq('error')
+        end
+      end
     end
 
     it 'returns an error when given a bad uuid' do

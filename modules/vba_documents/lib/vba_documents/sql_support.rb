@@ -7,7 +7,7 @@ module VBADocuments
       select status,
       min(duration) as min_secs,
       max(duration) as max_secs,
-      round(avg(duration)) as avg_secs,
+      round(avg(duration))::integer as avg_secs,
     	count(*) as rowcount
       from (
         select guid,
@@ -63,9 +63,9 @@ module VBADocuments
       select a.consumer_name, a.guid, a.status, a.created_at, a.updated_at
       from vba_documents_upload_submissions a
       where a.status = 'success'
-      and   a.uploaded_pdf is not null
-      and   a.updated_at < $1
-      order by a.consumer_name asc
+      and   a.created_at >= $1 and a.created_at < $2
+      and   a.metadata -> 'final_success_status' is null
+      order by a.consumer_name, a.created_at asc
     "
 
     MAX_AVG_SQL = "
@@ -141,6 +141,48 @@ module VBADocuments
     ) as mode_results
     group by 1,2
     order by 1 desc, 2 desc
+    "
+
+    MONTHLY_TIME_BETWEEN_STATUSES_SQL = "
+      select count(*) as rowcount, min(duration)::integer as min_bt_status,
+        avg(duration)::integer as avg_bt_status, max(duration)::integer as max_bt_status
+      from (
+        SELECT (metadata -> 'status' -> $3 -> 'start')::bigint -
+                (metadata -> 'status' -> $2 -> 'start')::bigint as duration
+        from vba_documents_upload_submissions
+        where to_char(created_at,'yyyymm') = $1
+        and   (metadata -> 'status' -> $2 -> 'start') is not null
+        and   (metadata -> 'status' -> $3 -> 'start') is not null
+      ) as n1
+	  "
+
+    MEDIAN_ELAPSED_TIME_SQL = "
+    select duration as median_secs
+    from (
+      select status_key as status,
+        (status_json -> status_key -> 'end')::INTEGER - (status_json -> status_key -> 'start')::INTEGER as duration
+      from (
+          SELECT jsonb_object_keys(metadata -> 'status') as status_key, metadata -> 'status' as status_json
+          from vba_documents_upload_submissions
+          where to_char(created_at,'yyyymm') = $1
+        ) as n1
+      where status_json -> status_key -> 'end' is not null
+      and   status_key = $2
+      ) as closed_statuses
+      order by duration asc
+      offset(
+        select count(*)/2
+        from (
+          SELECT guid,
+          jsonb_object_keys(metadata -> 'status') as status_key,
+          metadata -> 'status' as status_json
+          from vba_documents_upload_submissions
+          where to_char(created_at,'yyyymm') = $1
+        ) as n1
+        where status_json -> status_key -> 'end' is not null
+        and   status_key = $2
+      )
+      limit 1
     "
 
     MEDIAN_SQL = "

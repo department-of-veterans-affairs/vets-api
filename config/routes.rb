@@ -342,6 +342,25 @@ Rails.application.routes.draw do
         get 'urgent_care', on: :collection
       end
     end
+
+    namespace :gi, module: 'gids' do
+      resources :institutions, only: :show, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+        get :children, on: :member
+      end
+
+      resources :institution_programs, only: :index, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
+      resources :calculator_constants, only: :index, defaults: { format: :json }
+
+      resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
+
+      resources :zipcode_rates, only: :show, defaults: { format: :json }
+    end
   end
 
   root 'v0/example#index', module: 'v0'
@@ -377,6 +396,8 @@ Rails.application.routes.draw do
     require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  mount PgHero::Engine, at: 'pghero'
 
   mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 

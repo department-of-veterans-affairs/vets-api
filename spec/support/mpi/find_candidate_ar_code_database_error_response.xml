@@ -50,8 +50,10 @@
           <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
           <!-- The status of the query, default is "new" -->
           <statusCode code="new"/>
-          <!-- MVI.COMP1=Add GetCorIds only Correlations MVI.COMP2=Add GetCorIds with Correlations and ICN History -->
-          <modifyCode code="MVI.COMP1"/>
+          <!-- MVI.COMP1=Add GetCorIds only Correlations -->
+          <!-- MVI.COMP1.RMS=Add GetCorIds with Correlations and Relationship Information -->
+          <!-- MVI.COMP2=Add GetCorIds with Correlations and ICN History -->
+          <modifyCode code="MVI.COMP1.RMS"/>
           <!-- Attribute 'responseElementGroupId' indicates if Response should be the Primary View or Correlation, default is 
     Primary View. -->
           <!-- extension="PV" root="2.16.840.1.113883.4.349  = Return Primary View -->
