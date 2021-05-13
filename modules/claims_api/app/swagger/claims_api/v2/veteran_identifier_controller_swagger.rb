@@ -17,7 +17,7 @@ module ClaimsApi
           security { key :bearer_token, [] }
 
           parameter do
-            key :name, 'veteranSSN'
+            key :name, 'ssn'
             key :in, :body
             key :description, 'SSN of Veteran being represented'
             key :required, true
@@ -25,7 +25,7 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'veteranFirstName'
+            key :name, 'firstName'
             key :in, :body
             key :description, 'First Name of Veteran being represented'
             key :required, true
@@ -33,7 +33,7 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'veteranLastName'
+            key :name, 'lastName'
             key :in, :body
             key :description, 'Last Name of Veteran being represented'
             key :required, true
@@ -41,7 +41,7 @@ module ClaimsApi
           end
 
           parameter do
-            key :name, 'veteranBirthDate'
+            key :name, 'birthdate'
             key :in, :body
             key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
@@ -60,24 +60,24 @@ module ClaimsApi
                   key :required, [:attributes]
                   key :example, JSON.parse(File.read(EXAMPLE_PATH))
                   property :attributes do
-                    key :required, %i[veteranSSN veteranFirstName veteranLastName veteranBirthDate]
+                    key :required, %i[ssn firstName lastName birthdate]
                     key :type, :object
-                    property :veteranSSN do
+                    property :ssn do
                       key :type, :string
                       key :example, '796130115'
                       key :description, 'SSN of Veteran being represented'
                     end
-                    property :veteranFirstName do
+                    property :firstName do
                       key :type, :string
                       key :example, 'Tamara'
                       key :description, 'First Name of Veteran being represented'
                     end
-                    property :veteranLastName do
+                    property :lastName do
                       key :type, :string
                       key :example, 'Ellis'
                       key :description, 'Last Name of Veteran being represented'
                     end
-                    property :veteranBirthDate do
+                    property :birthdate do
                       key :type, :string
                       key :example, '1967-06-19'
                       key :description, 'Date of Birth of Veteran being represented, in iso8601 format'

@@ -1,8 +1,8 @@
 {
   "attributes": {
-    "veteranSSN": "796130115",
-    "veteranFirstName": "Tamara",
-    "veteranLastName": "Ellis",
-    "veteranBirthDate": "1967-06-19"
+    "ssn": "796130115",
+    "firstName": "Tamara",
+    "lastName": "Ellis",
+    "birthdate": "1967-06-19"
   }
 }

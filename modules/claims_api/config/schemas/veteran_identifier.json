@@ -3,22 +3,22 @@
   "description": "Veteran Identifier",
   "type": "object",
   "required": [
-    "veteranSSN",
-    "veteranFirstName",
-    "veteranLastName",
-    "veteranBirthDate"
+    "ssn",
+    "firstName",
+    "lastName",
+    "birthdate"
   ],
   "properties": {
-    "veteranSSN": {
+    "ssn": {
       "type": "string"
     },
-    "veteranFirstName": {
+    "firstName": {
       "type": "string"
     },
-    "veteranLastName": {
+    "lastName": {
       "type": "string"
     },
-    "veteranBirthDate": {
+    "birthdate": {
       "type": "string",
       "format": "date"
     }
