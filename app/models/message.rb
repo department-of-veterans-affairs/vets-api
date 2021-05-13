@@ -105,6 +105,7 @@ class Message < Common::Base
   end
 
   def each_upload_size_validation
+    # upload size validation
     uploads.each do |upload|
       next if upload.size <= MAX_SINGLE_FILE_SIZE_MB.megabytes
 
