@@ -18,11 +18,11 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
 
   def build_fixture(fixture, is_metadata = false, is_erb = false)
-    if (is_erb && is_metadata)
-      fixture_path = get_erbed_fixture(fixture).path
-    else
-      fixture_path = get_fixture(fixture).path
-    end
+    fixture_path = if is_erb && is_metadata
+                     get_erbed_fixture(fixture).path
+                   else
+                     get_fixture(fixture).path
+                   end
     content_type = is_metadata ? 'application/json' : 'application/pdf'
     Rack::Test::UploadedFile.new(fixture_path, content_type, !is_metadata)
   end
@@ -137,7 +137,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(response).to have_http_status(:ok)
     end
 
-    %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last name_too_long_metadata].each do |bad|
+    %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
+       name_too_long_metadata].each do |bad|
       it "returns an error if the name field #{bad} is missing or has bad characters" do
         post SUBMIT_ENDPOINT,
              params: {}.merge(send(bad)).merge(valid_content)

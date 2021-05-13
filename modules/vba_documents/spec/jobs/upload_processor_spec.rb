@@ -212,7 +212,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC101')
     end
 
-    %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last name_too_long_metadata] .each do |bad|
+    %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
+       name_too_long_metadata].each do |bad|
       it "sets error status for #{bad} name" do
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'metadata' => send(bad), 'content' => valid_doc }

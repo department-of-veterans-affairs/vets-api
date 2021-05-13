@@ -11,7 +11,7 @@ module VBADocuments
   module UploadValidations
     include CentralMail::Utilities
 
-    VALID_NAME = %r{^[a-zA-Z\-/]{1,50}$}
+    VALID_NAME = %r{^[a-zA-Z\-/]{1,50}$}.freeze
 
     def update_pdf_metadata(model, inspector)
       model.update(uploaded_pdf: inspector.pdf_data)
@@ -63,10 +63,9 @@ module VBADocuments
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
     end
 
-
     def validate_names(first, last)
       [first, last].each do |name|
-        msg = "Invalid Veteran name (e.g. empty, invalid characters, or too long). "
+        msg = 'Invalid Veteran name (e.g. empty, invalid characters, or too long). '
         msg += "Names must match the regular expression #{VALID_NAME}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg) unless name =~ VALID_NAME
       end
