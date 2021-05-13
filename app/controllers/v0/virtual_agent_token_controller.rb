@@ -8,7 +8,7 @@ module V0
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
-      Sentry.capture_message('test message')
+      Raven.capture_message('test message')
 
       return render status: :not_found unless Flipper.enabled?(:virtual_agent_token)
 
