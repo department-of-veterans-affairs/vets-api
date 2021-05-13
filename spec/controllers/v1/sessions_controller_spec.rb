@@ -25,7 +25,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
   let(:request_host)        { '127.0.0.1:3000' }
   let(:callback_url)        { "http://#{request_host}/v1/sessions/callback" }
-  let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/' }
+  let(:logout_redirect_url) { 'http://127.0.0.1:3002/logout/' }
 
   let(:settings_no_context) { build(:settings_no_context_v1, assertion_consumer_service_url: callback_url) }
   let(:rubysaml_settings)   { build(:rubysaml_settings_v1, assertion_consumer_service_url: callback_url) }
@@ -206,7 +206,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=005')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -223,7 +223,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       it 'redirect user to home page when no SAMLRequestTracker exists' do
         allow(SAML::User).to receive(:new).and_return(saml_user)
-        expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback')
+        expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback')
       end
 
       context 'for a user with semantically invalid SAML attributes' do
@@ -242,7 +242,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page' do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=102')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=102')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -432,7 +432,7 @@ RSpec.describe V1::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
-          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
+          expect(response.location).to start_with('http://127.0.0.1:3002/auth/login/callback')
 
           new_user = User.find(uuid)
           expect(new_user.ssn).to eq('796111863')
@@ -593,7 +593,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'handles no loa_highest present on new user_identity' do
           post :saml_callback
-          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(response.location).to start_with('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=004')
           expect(cookies['vagov_session_dev']).to be_nil
         end
       end
@@ -605,7 +605,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(Raven).to receive(:tags_context).once
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:clicked_deny][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
       end
@@ -616,7 +616,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=002')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).not_to be_nil
         end
@@ -628,7 +628,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger)
             .to receive(:error).with(/#{SAML::Responses::Login::ERRORS[:auth_too_early][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=003')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=003')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -659,7 +659,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                 full_message: 'The status code of the Response was not Success, was Requester =>'\
                                   ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
             )
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=007')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -742,7 +742,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                 level: :error,
                                 full_message: 'Other random error' }]
             )
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -783,7 +783,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
+          expect(response.location).to start_with('http://127.0.0.1:3002/auth/login/callback')
           expect(cookies['vagov_session_dev']).not_to be_nil
           MPI::Configuration.instance.breakers_service.end_forced_outage!
         end
@@ -824,7 +824,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                 mvi: 'breakers is open for MVI'
               }
             )
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=004')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -873,7 +873,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'logs a generic user validation error', :aggregate_failures do
           expect(controller).not_to receive(:log_message_to_sentry)
           expect(Rails.logger).to receive(:warn).with(expected_warn_message)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=101')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=101')
 
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -900,7 +900,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'redirects to the auth failed endpoint with a specific code', :aggregate_failures do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=102')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=102')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -927,7 +927,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'logs a generic user validation error', :aggregate_failures do
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=103')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3002/auth/login/callback?auth=fail&code=103')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
