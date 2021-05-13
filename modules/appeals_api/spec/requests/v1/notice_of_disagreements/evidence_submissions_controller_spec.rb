@@ -131,7 +131,6 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           es = evidence_submissions.sample
           status_simulation_headers = { 'Status-Simulation' => 'error' }
           get "#{path}#{es.guid}", headers: status_simulation_headers
-
           submission = JSON.parse(response.body)
           expect(submission.dig('data', 'attributes', 'status')).to eq('error')
         end

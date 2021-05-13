@@ -10,14 +10,16 @@ module AppealsApi
 
     attributes :id, :status, :code, :detail, :appeal_type, :appeal_id, :location, :created_at, :updated_at
 
+    delegate :status, to: :object
+    delegate :code, to: :object
+
     def id
       object.guid
     end
 
-    delegate :status, to: :object
-    delegate :code, to: :object
-
     def detail
+      return unless object.detail
+
       details = object.detail.to_s
       details = "#{details[0..MAX_DETAIL_DISPLAY_LENGTH - 1]}..." if details.length > MAX_DETAIL_DISPLAY_LENGTH
       details
