@@ -11,7 +11,7 @@ module VAForms
             key :apikey, []
           end
           key :summary, 'Returns all VA Forms and their last revision date'
-          key :description, 'Returns an index of all available VA forms. Optionally, pass a ?query parameter to filter forms by form number or title.'
+          key :description, 'Returns an index of all available VA forms. Optionally, pass a query parameter to filter forms by form number or title.'
           key :operationId, 'findForms'
           key :produces, [
             'application/json'
