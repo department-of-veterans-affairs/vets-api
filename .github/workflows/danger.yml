@@ -22,7 +22,7 @@ jobs:
             ${{ runner.os }}-gems-
       
       - name: Run Danger
-        run: ls ./vendor/bundle
+        run: /opt/hostedtoolcache/Ruby/2.6.6/x64/bin/bundle exec danger --verbose
 
       # - name: Run Danger
       #   uses: MeilCli/danger-action@v5
