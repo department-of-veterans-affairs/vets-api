@@ -66,7 +66,7 @@ module VBADocuments
     def validate_names(first, last)
       [first, last].each do |name|
         msg = 'Invalid Veteran name (e.g. empty, invalid characters, or too long). '
-        msg += "Names must match the regular expression #{VALID_NAME}"
+        msg += "Names must match the regular expression #{VALID_NAME.inpsect}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg) unless name =~ VALID_NAME
       end
     end
