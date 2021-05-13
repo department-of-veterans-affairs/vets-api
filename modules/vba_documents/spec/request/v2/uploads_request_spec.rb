@@ -17,8 +17,12 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   Rack::Utils.key_space_limit = 65_536 * 5
   SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
 
-  def build_fixture(fixture, is_metadata = false)
-    fixture_path = get_fixture(fixture).path
+  def build_fixture(fixture, is_metadata = false, is_erb = false)
+    if (is_erb && is_metadata)
+      fixture_path = get_erbed_fixture(fixture).path
+    else
+      fixture_path = get_fixture(fixture).path
+    end
     content_type = is_metadata ? 'application/json' : 'application/pdf'
     Rack::Test::UploadedFile.new(fixture_path, content_type, !is_metadata)
   end
@@ -45,6 +49,9 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     end
     let(:dashes_slashes_first_last) do
       { metadata: build_fixture('dashes_slashes_first_last_metadata.json', true) }
+    end
+    let(:name_too_long_metadata) do
+      { metadata: build_fixture('name_too_long_metadata.json.erb', true, true) }
     end
 
     let(:valid_content) do
@@ -130,19 +137,16 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(response).to have_http_status(:ok)
     end
 
-    empty = /^Empty value given - The following values must be non-empty:/
-    bad_char = /^Invalid character\(s\):/
-    { 'missing_first' => empty, 'missing_last' => empty,
-      'bad_with_digits_first' => bad_char, 'bad_with_funky_characters_last' => bad_char }.each_pair do |k, v|
-      it "returns an error if the name field #{k} is missing or has bad characters" do
+    %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last name_too_long_metadata].each do |bad|
+      it "returns an error if the name field #{bad} is missing or has bad characters" do
         post SUBMIT_ENDPOINT,
-             params: {}.merge(send(k)).merge(valid_content)
+             params: {}.merge(send(bad)).merge(valid_content)
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
         @attributes = json['data']['attributes']
         expect(@attributes['status']).to eq('error')
         expect(@attributes['code']).to eq('DOC102')
-        expect(@attributes['detail']).to match(v)
+        expect(@attributes['detail']).to match(/^Invalid Veteran name/)
       end
     end
 
