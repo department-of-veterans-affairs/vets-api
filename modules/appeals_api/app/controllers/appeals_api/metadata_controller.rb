@@ -94,7 +94,7 @@ module AppealsApi
     def decision_reviews_versions
       if v2_enabled?
         [
-          decision_reviews_v1.merge( { status: VERSION_STATUS[:previous] }),
+          decision_reviews_v1.merge({ status: VERSION_STATUS[:previous] }),
           decision_reviews_v2
         ]
       else
