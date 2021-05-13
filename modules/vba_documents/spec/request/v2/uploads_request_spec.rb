@@ -34,6 +34,9 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   end
 
   describe '#submit /v2/uploads/submit' do
+    let(:missing_first) { { metadata: build_fixture('missing_first_metadata.json', true) } }
+    let(:missing_last) { { metadata: build_fixture('missing_last_metadata.json', true) } }
+
     let(:valid_content) do
       { content: build_fixture('valid_doc.pdf') }
     end
@@ -107,6 +110,19 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
       expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
       expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+    end
+
+    %i[missing_first missing_last].each do |missing|
+      it "returns an error if the name field #{missing} is missing" do
+        post SUBMIT_ENDPOINT,
+             params: {}.merge(send(missing)).merge(valid_content)
+        expect(response).to have_http_status(:bad_request)
+        json = JSON.parse(response.body)
+        @attributes = json['data']['attributes']
+        expect(@attributes['status']).to eq('error')
+        expect(@attributes['code']).to eq('DOC102')
+        expect(@attributes['detail']).to match(/^Empty value given - The following values must be non-empty:/)
+      end
     end
 
     it 'returns an error when a content is missing' do

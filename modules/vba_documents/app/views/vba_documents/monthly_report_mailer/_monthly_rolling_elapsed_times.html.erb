@@ -11,6 +11,10 @@
     <th>RECEIVED</th>
     <th>PROCESSING</th>
     <th>SUCCESS</th>
+    <th>PEND TO ERROR</th>
+    <th>PEND TO SUCCESS</th>
+    <th>PEND TO VBMS</th>
+    <th>SUCCESS TO VBMS</th>
   </tr>
   </thead>
   <tbody>
@@ -24,6 +28,10 @@
         <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times', locals: {row: v['received']} %>
         <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times', locals: {row: v['processing']} %>
         <%= render partial: 'vba_documents/monthly_report_mailer/elapsed_status_times', locals: {row: v['success']} %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/time_btw_statuses', locals: {row: v['pending2error']} %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/time_btw_statuses', locals: {row: v['pending2success']} %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/time_btw_statuses', locals: {row: v['pending2vbms']} %>
+        <%= render partial: 'vba_documents/monthly_report_mailer/time_btw_statuses', locals: {row: v['success2vbms']} %>
       </tr>
     <% end %>
   <% end if collection %>
