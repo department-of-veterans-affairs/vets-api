@@ -17,9 +17,10 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
-      AppealsApi::Engine.root.join('config/schemas/v1/200996_headers.json')
+      AppealsApi::Engine.root.join('config/schemas/v2/200996_headers.json')
     )
   )['definitions']['hlrCreateParameters']['properties'].keys
+  SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
 
   def create
     @higher_level_review.save
@@ -33,7 +34,10 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def schema
     render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
-      AppealsApi::FormSchemas.new.schema(self.class::FORM_NUMBER)
+      AppealsApi::FormSchemas.new(
+        SCHEMA_ERROR_TYPE,
+        schema_version: 'v2'
+      ).schema(self.class::FORM_NUMBER)
     )
   end
 
@@ -52,11 +56,17 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def validate_json_schema_for_headers
-    AppealsApi::FormSchemas.new.validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
+    AppealsApi::FormSchemas.new(
+      SCHEMA_ERROR_TYPE,
+      schema_version: 'v2'
+    ).validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
   end
 
   def validate_json_schema_for_body
-    AppealsApi::FormSchemas.new.validate!(self.class::FORM_NUMBER, @json_body)
+    AppealsApi::FormSchemas.new(
+      SCHEMA_ERROR_TYPE,
+      schema_version: 'v2'
+    ).validate!(self.class::FORM_NUMBER, @json_body)
   end
 
   def validation_success
