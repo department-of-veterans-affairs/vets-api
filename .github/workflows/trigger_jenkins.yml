@@ -19,7 +19,7 @@ jobs:
                 {\"name\":\"notify_slack\",\"value\":true},
                 {\"name\":\"environment\",\"value\":\"vagov-dev\"},
                 {\"name\":\"migration_status",\"value\":true},
-                {\"name\":\"ref",\"value\":\"${{ github.sha }}\"}
+                {\"name\":\"ref\",\"value\":\"${{ github.sha }}\"}
               ]}'
         - name: Deploy vets-api worker in dev
           uses: wei/curl@v1
