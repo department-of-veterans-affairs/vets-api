@@ -39,4 +39,46 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
       end
     end
   end
+
+  context 'when ssn is invalid' do
+    context 'when ssn is too long' do
+      it 'returns a 422 error code' do
+        invalid_data = JSON.parse(data)
+        invalid_data['data']['attributes']['ssn'] = '7961301159'
+
+        post path, params: invalid_data, headers: headers
+        expect(response.status).to eq(422)
+      end
+    end
+
+    context 'when ssn is too short' do
+      it 'returns a 422 error code' do
+        invalid_data = JSON.parse(data)
+        invalid_data['data']['attributes']['ssn'] = '79613011'
+
+        post path, params: invalid_data, headers: headers
+        expect(response.status).to eq(422)
+      end
+    end
+
+    context 'when ssn has non-digit characters' do
+      it 'returns a 422 error code' do
+        invalid_data = JSON.parse(data)
+        invalid_data['data']['attributes']['ssn'] = '796130 .A!'
+
+        post path, params: invalid_data, headers: headers
+        expect(response.status).to eq(422)
+      end
+    end
+
+    context 'when ssn is blank' do
+      it 'returns a 422 error code' do
+        invalid_data = JSON.parse(data)
+        invalid_data['data']['attributes']['ssn'] = ''
+
+        post path, params: invalid_data, headers: headers
+        expect(response.status).to eq(422)
+      end
+    end
+  end
 end

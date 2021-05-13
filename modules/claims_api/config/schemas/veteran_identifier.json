@@ -10,7 +10,8 @@
   ],
   "properties": {
     "ssn": {
-      "type": "string"
+      "type": "string",
+      "pattern": "^\\d{9}$"
     },
     "firstName": {
       "type": "string"
