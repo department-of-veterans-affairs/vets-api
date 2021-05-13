@@ -33,7 +33,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     describe 'GET appointments' do
       let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
       let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
-      let(:params) { { start_date: start_date, end_date: end_date } }
+      let(:params) { { start: start_date, end: end_date } }
 
       context 'returns list of appointments' do
         it 'has access and returns va appointments' do

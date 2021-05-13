@@ -6,16 +6,16 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
-      def get_scheduling_configurations(facility_ids, cc_enabled)
+      def get_scheduling_configurations(facility_ids, cc_enabled, pagination_params = {})
         params = {
           facility_ids: facility_ids,
           cc_enabled: cc_enabled
-        }
+        }.merge(page_params(pagination_params)).compact
 
         with_monitoring do
           response = perform(:get, url, params, headers)
           {
-            data: deserialized_configuration(response.body),
+            data: deserialized_configurations(response.body[:data]),
             meta: pagination(pagination_params)
           }
         end
@@ -40,8 +40,16 @@ module VAOS
         }
       end
 
+      def page_params(pagination_params)
+        if pagination_params[:per_page]&.positive?
+          { pageSize: pagination_params[:per_page], page: pagination_params[:page] }
+        else
+          { pageSize: pagination_params[:per_page] || 0 }
+        end
+      end
+
       def url
-        "/facilities/v2/scheduling/configurations"
+        '/facilities/v2/scheduling/configurations'
       end
     end
   end
