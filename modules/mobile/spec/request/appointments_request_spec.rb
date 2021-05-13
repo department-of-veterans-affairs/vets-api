@@ -395,7 +395,7 @@ RSpec.describe 'appointments', type: :request do
                 'comment' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
-                  'name' => 'CHEYENNE VAMC',
+                  'name' => 'Cheyenne VA Medical Center',
                   'address' => {
                     'street' => '2360 East Pershing Boulevard',
                     'city' => 'Cheyenne',
