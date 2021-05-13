@@ -21,10 +21,25 @@
     }
     /*  Define the background color for all the EVEN background rows  */
     table tr:nth-child(even){
-        background: whitesmoke;
+        background: cornsilk;
     }
 
     table tfoot tr{
         color: white;
+    }
+
+    /* nested table styling */
+    table.nested td{
+        padding:2px; border:none;
+
+    }
+
+    /*  Define the background color for all the ODD background rows  */
+    table.nested tr:nth-child(odd){
+        background: transparent;
+    }
+    /*  Define the background color for all the EVEN background rows  */
+    table.nested tr:nth-child(even){
+        background: transparent;
     }
 </style>
