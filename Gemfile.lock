@@ -214,7 +214,7 @@ GEM
       i18n
     benchmark-ips (2.8.4)
     bindex (0.8.1)
-    bootsnap (1.7.3)
+    bootsnap (1.7.5)
       msgpack (~> 1.0)
     brakeman (5.0.1)
     breakers (0.4.0)
