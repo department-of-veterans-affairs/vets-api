@@ -40,6 +40,7 @@ module ClaimsApi
           end
 
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+          ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id)
 
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
@@ -124,6 +125,10 @@ module ClaimsApi
               }
             }
           }
+        end
+
+        def enable_vmbs_access?
+          form_attributes['recordConsent'] && (form_attributes['consentLimits'].nil? || form_attributes['consentLimits'].empty?)
         end
       end
     end
