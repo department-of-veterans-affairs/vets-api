@@ -438,6 +438,15 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
             .to eq(json_api_response_vista_id['data']['attributes'].keys)
           expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
         end
+        # Checks that the session was instantiated
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys)
+          .to eq(json_api_response_vista_id['data']['attributes'].keys)
+        expect(JSON.parse(response.body)['data']['attributes']['launch']['sta3n']).to eq('456')
       end
     end
 
@@ -454,6 +463,13 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Unknown vista site specified: [442]'
         end
+        # Checks that the session was instantiated
+        post '/internal/auth/v2/validation',
+             params: { aud: %w[https://example.com/xxxxxxservices/xxxxx] },
+             headers: auth_header
+        expect(response).to have_http_status(:unauthorized)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Unknown vista site specified: [442]'
       end
     end
 
