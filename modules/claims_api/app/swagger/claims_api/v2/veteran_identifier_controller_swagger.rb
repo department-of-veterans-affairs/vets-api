@@ -9,7 +9,7 @@ module ClaimsApi
       swagger_path '/veteran-id' do
         operation :post do
           key :summary, 'Retrieve id of Veteran'
-          key :description, "Allows authenticated veteran's and veteran representatives to retrieve a veteran's id."
+          key :description, "Allows authenticated veterans and veteran representatives to retrieve a veteran's id."
           key :operationId, 'getVeteranIdentifier'
           key :tags, ['Veteran Identifier']
           key :consumes, ['application/json']
