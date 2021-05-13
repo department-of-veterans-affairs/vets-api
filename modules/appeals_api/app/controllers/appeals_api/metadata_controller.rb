@@ -11,15 +11,7 @@ module AppealsApi
     def decision_reviews
       render json: {
         meta: {
-          versions: [
-            {
-              version: '1.0.0',
-              internal_only: true,
-              status: VERSION_STATUS[:current],
-              path: '/services/appeals/docs/v1/decision_reviews',
-              healthcheck: '/services/appeals/v1/healthcheck'
-            }
-          ]
+          versions: decision_reviews_versions
         }
       }
     end
@@ -97,6 +89,43 @@ module AppealsApi
           time: time
         }
       }
+    end
+
+    def decision_reviews_versions
+      if v2_enabled?
+        [
+          decision_reviews_v1.merge({ status: VERSION_STATUS[:previous] }),
+          decision_reviews_v2
+        ]
+      else
+        [
+          decision_reviews_v1
+        ]
+      end
+    end
+
+    def decision_reviews_v1
+      {
+        version: '1.0.0',
+        internal_only: true,
+        status: VERSION_STATUS[:current],
+        path: '/services/appeals/docs/v1/decision_reviews',
+        healthcheck: '/services/appeals/v1/healthcheck'
+      }
+    end
+
+    def decision_reviews_v2
+      {
+        version: '2.0.0',
+        internal_only: true,
+        status: VERSION_STATUS[:current],
+        path: '/services/appeals/docs/v2/decision_reviews',
+        healthcheck: '/services/appeals/v2/healthcheck'
+      }
+    end
+
+    def v2_enabled?
+      Settings.modules_appeals_api.documentation.path_enabled_flag
     end
   end
 end
