@@ -11,7 +11,7 @@ jobs:
         - name: Deploy vets-api server in dev
           uses: wei/curl@v1
           with:
-            args: -X POST -L --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }} https://dev.va.gov/jenkins/job/deploys/job/vets-api-server-vagov-dev/build --data-urlencode json='{"parameter": [{"name":"app","value":"vets-api-server"},{"name":"notify_slack","value":true},{"name":"environment","value":"vagov-dev"}]}'
+            args: '-X POST -L --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }} https://dev.va.gov/jenkins/job/deploys/job/vets-api-server-vagov-dev/build --data-urlencode json='{"parameter": [{"name":"app","value":"vets-api-server"},{"name":"notify_slack","value":true},{"name":"environment","value":"vagov-dev"}]}''
         - name: Deploy vets-api worker in dev
           uses: wei/curl@v1
           with:
