@@ -57,6 +57,7 @@ module VBADocuments
 
       # this validate_not_empty check should be after the Non-string value check so we do not catch nulls
       validate_not_empty(veteranFirstName: metadata['veteranFirstName'], veteranLastName: metadata['veteranLastName'])
+      validate_names(metadata['veteranFirstName'], metadata['veteranLastName'])
       validate_line_of_business(metadata['businessLine'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
@@ -66,6 +67,15 @@ module VBADocuments
       unless hash.values.map(&:to_s).select(&:empty?).empty?
         msg = "Empty value given - The following values must be non-empty: #{hash.keys.join(',')}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
+      end
+    end
+
+    def validate_names(first, last)
+      [first, last].each do |name|
+        regex = /^[a-zA-Z\-\/]+$/
+        msg = "Invalid character(s): veteranFirstName and/or veteranLastName. Names must match the regular expression "
+        msg += regex.inspect
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg) unless name =~ regex
       end
     end
 

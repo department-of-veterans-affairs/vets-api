@@ -37,6 +37,16 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     let(:missing_first) { { metadata: build_fixture('missing_first_metadata.json', true) } }
     let(:missing_last) { { metadata: build_fixture('missing_last_metadata.json', true) } }
 
+    let(:bad_with_digits_first) {
+      { metadata: build_fixture('bad_with_digits_first_metadata.json', true) }
+    }
+    let(:bad_with_funky_characters_last) {
+      { metadata: build_fixture('bad_with_funky_characters_last_metadata.json', true) }
+    }
+    let(:dashes_slashes_first_last) {
+      { metadata: build_fixture('dashes_slashes_first_last_metadata.json', true) }
+    }
+
     let(:valid_content) do
       { content: build_fixture('valid_doc.pdf') }
     end
@@ -64,9 +74,11 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     end
 
     after do
-      guid = @attributes['guid']
-      upload = VBADocuments::UploadFile.find_by(guid: guid)
-      expect(upload).to be_uploaded
+      if @attributes
+        guid = @attributes['guid']
+        upload = VBADocuments::UploadFile.find_by(guid: guid)
+        expect(upload).to be_uploaded
+      end
     end
 
     it 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do
@@ -112,16 +124,25 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
     end
 
-    %i[missing_first missing_last].each do |missing|
-      it "returns an error if the name field #{missing} is missing" do
+    it 'allows dashes and forward slashes in names' do
+      post SUBMIT_ENDPOINT,
+           params: {}.merge(dashes_slashes_first_last).merge(valid_content)
+      expect(response).to have_http_status(:ok)
+    end
+
+    empty = /^Empty value given - The following values must be non-empty:/
+    bad_char = /^Invalid character\(s\):/
+    {'missing_first' => empty , 'missing_last' => empty,
+     'bad_with_digits_first' => bad_char, 'bad_with_funky_characters_last' => bad_char }.each_pair do |k,v|
+      it "returns an error if the name field #{k} is missing or has bad characters" do
         post SUBMIT_ENDPOINT,
-             params: {}.merge(send(missing)).merge(valid_content)
+             params: {}.merge(send(k)).merge(valid_content)
         expect(response).to have_http_status(:bad_request)
         json = JSON.parse(response.body)
         @attributes = json['data']['attributes']
         expect(@attributes['status']).to eq('error')
         expect(@attributes['code']).to eq('DOC102')
-        expect(@attributes['detail']).to match(/^Empty value given - The following values must be non-empty:/)
+        expect(@attributes['detail']).to match(v)
       end
     end
 
