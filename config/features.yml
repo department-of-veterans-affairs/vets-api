@@ -108,26 +108,26 @@ features:
     enable_in_development: true
   facilities_ppms_suppress_community_care:
     actor_type: user
-    description: Hide ppms community care searches"
+    description: Hide ppms community care searches
   facilities_ppms_suppress_pharmacies:
     actor_type: user
-    description: Front End Flag to suppress the ability to search for pharmacies"
+    description: Front End Flag to suppress the ability to search for pharmacies
   facility_locator_lighthouse_covid_vaccine_query:
     actor_type: user
-    description: enable covid search/display"
+    description: enable covid search/display
     enable_in_development: true
   facility_locator_ppms_forced_unique_id:
     actor_type: user
-    description: Use an hexdigest for the ID on PPMS Place of Service Calls"
+    description: Use an hexdigest for the ID on PPMS Place of Service Calls
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
-    description: force the legacy urgent care path to use the new POS locator"
+    description: force the legacy urgent care path to use the new POS locator
   facility_locator_predictive_location_search:
     actor_type: user
-    description: Use predictive location search in the Facility Locator UI"
+    description: Use predictive location search in the Facility Locator UI
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
-    description: A fast and dirty way to get the operating status from lighthouse"
+    description: A fast and dirty way to get the operating status from lighthouse
     enable_in_development: true
   facility_locator_show_community_cares:
     actor_type: user
@@ -137,7 +137,7 @@ features:
     enable_in_development: true
   facility_locator_show_operational_hours_special_instructions:
     actor_type: user
-    description: Display new field operationalHoursSpecialInstructions for VA facilities"
+    description: Display new field operationalHoursSpecialInstructions for VA facilities
     enable_in_development: true
   find_forms_mvp_enhancement:
     actor_type: user
