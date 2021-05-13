@@ -24,14 +24,14 @@ The Benefits Intake API accepts a payload consisting of a document in PDF format
 API consumers are encouraged to validate the `zipcode` and `fileNumber` fields before submission according to their description in the DocumentUploadMetadata model.
 
 
-### Attachment & File Size Limits
+### Attachment & file size limits
 There is not a limit on the number of documents that can be submitted at once, but file sizes can impact the number of documents accepted.
 
 The file size limit for each document is 100 MB. The entire package, which is all documents combined into one file, is limited to 5 GB.
 
 The maximum page size for each document is 21 in x 21 in.
 
-### Date of Receipt
+### Date of receipt
 The date and time documents are submitted to the Benefits Intake API is used as the official VA date of receipt. However, note that until a document status of `received`, `processing`, `success`, or `vbms` is returned, a client cannot consider the document received by VA.
 
 A status of `received` means that the document package has been transmitted, but possibly not validated. Any errors with the document package (unreadable PDF, etc) will cause the status to change to `error`.
@@ -43,7 +43,7 @@ If the document status is `error`, VA has not received the submission and cannot
 ### Authorization
 API requests are authorized by means of a symmetric API token, provided in an HTTP header with name `apikey`.
 
-### Upload Operation
+### Upload operation
 Allows a client to upload a document package (form + attachments + metadata).
 
 1. Client Request: POST https://sandbox-api.va.gov/services/vba_documents/v1/
@@ -61,19 +61,19 @@ Allows a client to upload a document package (form + attachments + metadata).
 4. Service Response: The HTTP status indicates whether the upload was successful.
     * Additionally, the response includes an ETag header containing an MD5 hash of the submitted payload. This can be compared to the submitted payload to ensure data integrity of the upload.
 
-### Status Simulation
+### Status simulation
 In the sandbox environment, the final status of a submission is `received`. Test submissions do not progress to Central Mail / VBMS. In sandbox, we allow passing in a `Status-Override` header on the `/uploads/{id}` endpoint so that you can change the status of your submission to simulate the various scenarios. 
 
 The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `vbms`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
 
-### Status Caching
+### Status caching
 Due to current system limitations, data for the `/uploads/report` endpoint is cached for one hour.
 
 A request to the `/uploads/{id}` endpoint will return a real-time status for that GUID, and update its status in `/uploads/report`.
 
 The `updated_at` field indicates the last time the status for a given GUID was updated.
 
-### Optional Base64 Encoding
+### Optional Base64 encoding
 
 Base64 is an encoding scheme that converts binary data into text format, so that encoded textual data can be easily transported over networks uncorrupted and without data loss. 
 
