@@ -1,5 +1,9 @@
 The Benefits Intake API allows authorized third-party systems used by Veteran Service Organizations and agencies to digitally submit claim documents directly to the Veterans Benefits Administration's (VBA) claims intake process.
 
+Visit our VA Lighthouse [Contact Us page](https://developer.va.gov/support) for further assistance.
+
+
+## Background 
 This API provides a secure and efficient alternative to paper or fax document submissions. VBA can begin processing documents submitted through this API immediately, which ultimately allows VA to provide Veterans with claim decisions more quickly. All successfully submitted documents are routed to the correct office(s) for processing, including documents related to the following benefit/claim types :
 
 * Compensation
@@ -14,13 +18,12 @@ It also saves users time by reporting documents' status until they reach Veteran
 
 Visit our VA Lighthouse [support portal](https://developer.va.gov/support) for further assistance.
 
-## Technical Summary
+## Technical summary
 The Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as binary multipart/form-data (not base64). A unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
 
 API consumers are encouraged to validate the `zipcode` and `fileNumber` fields before submission according to their description in the DocumentUploadMetadata model.
 
 
-## Design
 ### Attachment & File Size Limits
 There is not a limit on the number of documents that can be submitted at once, but file sizes can impact the number of documents accepted.
 
@@ -79,6 +82,3 @@ Base64 can be used to encode binary multipart/form-data it in its entirety, in o
 Note that the whole payload must be encoded, not individual parts/attachments.
 
 After encoding your payload, you'll be required to preface your base64 string with `data:multipart/form-data;base64,` in order to allow our system to distinguish the file type. Your final string payload would look something like `data:multipart/form-data;base64,(encryption string)==` and close with the standard == marker.  Note that the multipart boundaries i.e. -----WebKitFormBoundaryVfOwzCyvug0JmWYo and ending ------WebKitFormBoundaryVfOwzCyvug0JmWYo- must also be included.
-
-## Reference
-Raw Open API Spec: https://api.va.gov/services/vba_documents/docs/v1/api
