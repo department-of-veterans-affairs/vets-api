@@ -39,6 +39,12 @@ module Mobile
 
       private
 
+      def use_cache?(validated_params)
+        # use cache if date range is within +/- 1 year and use_cache is true
+        validated_params[:start_date] >= one_year_ago.iso8601 &&
+          validated_params[:end_date] <= one_year_from_now.iso8601 && validated_params[:use_cache]
+      end
+
       def clear_appointments_cache
         Mobile::V0::Appointment.clear_cache(@current_user)
       end
@@ -53,7 +59,7 @@ module Mobile
 
       def fetch_cached_or_service(validated_params)
         appointments = nil
-        appointments = Mobile::V0::Appointment.get_cached(@current_user) if validated_params[:use_cache]
+        appointments = Mobile::V0::Appointment.get_cached(@current_user) if use_cache?(validated_params)
 
         # if appointments has been retrieved from redis, delete the cached version and return recovered appointments
         # otherwise fetch appointments from the upstream service
@@ -66,7 +72,8 @@ module Mobile
                                  # fetch a two year range these are later filtered by start and end date params
                                  # from the request
                                  appointments, errors = appointments_proxy.get_appointments(
-                                   start_date: one_year_ago, end_date: one_year_from_now
+                                   start_date: [validated_params[:start_date], one_year_ago].min,
+                                   end_date: [validated_params[:end_date], one_year_from_now].max
                                  )
                                  Mobile::V0::Appointment.set_cached(@current_user, appointments)
                                  [appointments, errors]
