@@ -214,7 +214,7 @@ GEM
       i18n
     benchmark-ips (2.8.4)
     bindex (0.8.1)
-    bootsnap (1.7.3)
+    bootsnap (1.7.5)
       msgpack (~> 1.0)
     brakeman (5.0.1)
     breakers (0.4.0)
@@ -884,7 +884,7 @@ GEM
     statsd-instrument (2.6.0)
     strong_migrations (0.7.6)
       activerecord (>= 5)
-    super_diff (0.6.1)
+    super_diff (0.7.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
