@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Veteran Identifier Endpoint', type: :request do
-  let(:path) { '/services/benefits/v2/veteran-id' }
+  let(:path) { '/services/benefits/v2/veteran-id:find' }
   let(:headers) { { 'Authorization': 'Bearer somerandomstuff' } }
   let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'veteran_identifier.json')) }
 

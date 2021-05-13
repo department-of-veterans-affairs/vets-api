@@ -6,7 +6,7 @@ module ClaimsApi
       include Swagger::Blocks
       EXAMPLE_PATH = ClaimsApi::Engine.root.join('app', 'swagger', 'claims_api', 'forms', 'veteran_identifier_example.json')
 
-      swagger_path '/veteran-id' do
+      swagger_path '/veteran-id:find' do
         operation :post do
           key :summary, 'Retrieve id of Veteran'
           key :description, "Allows authenticated veterans and veteran representatives to retrieve a veteran's id."
