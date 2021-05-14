@@ -24,7 +24,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def create
     @higher_level_review.save
-    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id, 'V1')
+    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id, 'V2')
     render_higher_level_review
   end
 
