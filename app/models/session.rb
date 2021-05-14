@@ -18,6 +18,7 @@ class Session < Common::RedisStore
   attribute :created_at
   attribute :ssoe_transactionid
   attribute :profile
+  attribute :charon_response
   validates :token, presence: true
   validates :uuid, presence: true
   validates :created_at, presence: true
