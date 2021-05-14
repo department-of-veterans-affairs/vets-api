@@ -86,6 +86,14 @@ pipeline {
       }
     }
 
+    stage('Run Danger Bot') {
+      steps {
+        withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
+          sh 'env=$RAILS_ENV make danger'
+        }
+      }
+    }
+
     stage('Review') {
       when { not { branch 'master' } }
 
