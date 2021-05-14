@@ -27,6 +27,14 @@ module AppealsApi
       @faulty_nod ||= NoticeOfDisagreement.where(created_at: from..to, status: FAULTY_STATUSES)
     end
 
+    def evidence_submission_by_status_and_count
+      group_records(EvidenceSubmission)
+    end
+
+    def faulty_evidence_submission
+      @faulty_evidence_submission ||= EvidenceSubmission.errored.where(created_at: from..to)
+    end
+
     def no_faulty_records?
       faulty_hlr.empty? && faulty_nod.empty?
     end
