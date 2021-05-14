@@ -81,6 +81,12 @@ module BGS
       # search through the "selectable_options" hash and check if any of the "REMOVE_CHILD_OPTIONS" are set to true
       return 'MANUAL_VAGOV' if REMOVE_CHILD_OPTIONS.any? { |child_option| selectable_options[child_option] }
 
+      # if the user is adding a spouse and the marriage type is anything other than CEREMONIAL, set the status to manual
+      if selectable_options['add_spouse']
+        marriage_types = %w[COMMON-LAW TRIBAL PROXY OTHER]
+        return 'MANUAL_VAGOV' if marriage_types.any? { |m| m == dependents_app['current_marriage_information']['type'] }
+      end
+
       # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
       if selectable_options['report_death']
         relationships = %w[CHILD DEPENDENT_PARENT]
