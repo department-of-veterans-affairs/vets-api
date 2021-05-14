@@ -32,13 +32,13 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: d6ceb4cdd2f0b9c5d9bddf3cbda675892945349b
+  revision: d73d334c2c22ddffbec19695ecfa55aa8934a535
   branch: master
   specs:
-    betamocks (0.7.1)
+    betamocks (0.8.0)
       activesupport (>= 4.2)
       adler32
-      faraday (>= 0.7.4, < 0.18)
+      faraday (>= 0.7.4, < 2.0)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
