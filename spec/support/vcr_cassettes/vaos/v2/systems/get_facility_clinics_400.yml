@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570&clinicalService=audiology
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 7d0f2cce-abde-4e2e-aff7-45516d3c8a04
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: Bad Request
+    headers:
+      Date:
+      - Fri, 14 May 2021 03:46:47 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '64'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.4.0
+      B3:
+      - c6fb7b848537d428-0efef31c046028f1-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6cfdbcb
+      X-Vamf-Timestamp:
+      - '2021-05-08T03:21:25+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+    body:
+      encoding: UTF-8
+      string: '{"message":"clinicalService: mutually exclusive with clinicIds"}'
+  recorded_at: Fri, 14 May 2021 03:46:47 GMT
+recorded_with: VCR 6.0.0
