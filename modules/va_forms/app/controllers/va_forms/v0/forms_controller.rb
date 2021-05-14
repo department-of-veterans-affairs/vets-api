@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'va_forms/regex_helper'
+
 module VAForms
   module V0
     class FormsController < ApplicationController
@@ -8,14 +10,11 @@ module VAForms
       def index
         if Flipper.enabled?(:new_va_forms_search)
           if params[:query].present?
-            # The regex below checks to see if a form follows the DD-DDDD format (with optional alpha characters)
-            va_prefix_regex = /^\d{2}(?:[pP])?[- \s]\d+(?:[a-zA-Z])?$/
-            sf_form_regex = /^[sS][fF](?:[- \s])?\d+(?:[a-zA-Z])?$/
-            if params[:query].match(va_prefix_regex).present? || params[:query].match(sf_form_regex).present?
-              return search_by_form_number
-            end
+            # The regex below checks to see if a form follows the DD(p)-DDDD format (with optional alpha characters)
+            va_prefix_regex = /^\d{2}(?:[pP])?[-]\d+(?:[-])?(?:[a-zA-Z])?(?:[a-zA-Z])?(?:[-].)?$/
+            return search_by_form_number if params[:query].match(va_prefix_regex).present?
 
-            return search_by_text
+            return search_by_text(VAForms::RegexHelper.new.scrub_query(params[:query]))
           end
           return_all
         else
@@ -29,8 +28,8 @@ module VAForms
                each_serializer: VAForms::FormListSerializer
       end
 
-      def search_by_text
-        render json: Form.search(params[:query]),
+      def search_by_text(query)
+        render json: Form.search(query),
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: VAForms::FormListSerializer
       end
