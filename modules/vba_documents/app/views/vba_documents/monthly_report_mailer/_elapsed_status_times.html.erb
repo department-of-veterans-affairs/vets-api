@@ -1,12 +1,9 @@
 <td>
-  <div style="float: left">Count:</div>
-  <div style="float: right"><%= row['rowcount'] %></div><br>
-  <div style="float: left">Minimum:</div>
-  <div style="float: right"><%= row['min_secs_fmt'] %></div><br>
-  <div style="float: left">Average:</div>
-  <div style="float: right"><%= row['avg_secs_fmt'] %></div><br>
-  <div style="float: left">Median:</div>
-  <div style="float: right"><%= row['median_secs_fmt'] %></div><br>
-  <div style="float: left">Maximum:</div>
-  <div style="float: right"><%= row['max_secs_fmt'] %></div><br>
+  <table class="nested">
+    <tr><td>Count:</td><td style="text-align: right"><%= row['rowcount'] %></td></tr>
+    <tr><td>Min:</td><td style="text-align: right"><%= row['min_secs_fmt'] %></td></tr>
+    <tr><td>Avg:</td><td style="text-align: right"><%= row['avg_secs_fmt'] %></td></tr>
+    <tr><td>Max:</td><td style="text-align: right"><%= row['max_secs_fmt'] %></td></tr>
+    <tr><td>Median:</td><td style="text-align: right"><%= row['median_secs_fmt'] %></td></tr>
+  </table>
 </td>

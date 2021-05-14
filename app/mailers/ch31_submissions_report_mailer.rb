@@ -14,8 +14,7 @@ class Ch31SubmissionsReportMailer < ApplicationMailer
     kcrawford@governmentcio.com
   ].freeze
 
-  def build(report_file)
-    url = Reports::Uploader.get_s3_link(report_file)
+  def build(submitted_claims)
     opt = {}
 
     opt[:to] =
@@ -25,10 +24,14 @@ class Ch31SubmissionsReportMailer < ApplicationMailer
         VRE_RECIPIENTS
       end
 
+    @submitted_claims = submitted_claims
+    @total = submitted_claims.size
+    template = File.read('app/mailers/views/ch31_submissions_report.html.erb')
+
     mail(
       opt.merge(
         subject: REPORT_TEXT,
-        body: "#{REPORT_TEXT} (link expires in one week)<br>#{url}"
+        body: ERB.new(template).result(binding)
       )
     )
   end
