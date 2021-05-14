@@ -76,6 +76,9 @@ RSpec.describe 'Messages Integration', type: :request do
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
+      # It should decode html entities
+      expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('Quote test: “test”')
+      expect(JSON.parse(response.body)['data']['attributes']['body']).to eq("Einstein once said: “Profound quote contents here”. \n\nThat was supposed to show a regular quote but it didn’t display like it did in the compose form.\n\nLet’s try out more symbols here:\n\nSingle quote: ‘ contents’\nQuestion mark: ?\nColon: :\nDash: -\nLess than: <\nGreat then: >\nEquals: =\nAsterisk: *\nAnd symbol: &\nDollar symbol: $\nDivide symbol: %\nAt symbol: @\nParentheses: ( contents )\nBrackets: [ contents ]\nCurly braces: { contents }\nSemicolon: ;\nSlash: /\nPlus: +\nUp symbol: ^\nPound key: #\nExclamation: !")
       expect(response).to match_response_schema('message')
     end
 
