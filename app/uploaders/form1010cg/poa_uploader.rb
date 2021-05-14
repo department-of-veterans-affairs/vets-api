@@ -4,6 +4,7 @@ module Form1010cg
   class PoaUploader < CarrierWave::Uploader::Base
     include SetAWSConfig
     include LogMetrics
+    include UploaderVirusScan
 
     storage :aws
 
