@@ -913,7 +913,7 @@ GEM
     unf_ext (0.0.7.7)
     unicode-display_width (1.7.0)
     uri_template (0.7.0)
-    utf8-cleaner (0.2.5)
+    utf8-cleaner (1.0.0)
       activesupport
     vcr (6.0.0)
     virtus (1.0.5)
