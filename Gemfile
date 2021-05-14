@@ -44,7 +44,7 @@ gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
-gem 'activerecord-postgis-adapter', '~> 6.0.0'
+gem 'activerecord-postgis-adapter', '~> 6.0.2'
 gem 'addressable'
 gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
