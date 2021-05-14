@@ -62,7 +62,7 @@ ClaimsApi::Engine.routes.draw do
   namespace :v2, defaults: { format: 'json' } do
     mount OkComputer::Engine, at: '/healthcheck'
 
-    post '/veteran-id:find', to: 'veteran_identifier#find'
+    post '/veteran-id:find', to: 'veteran_identifier#find', constraints: { find: /:find/ }
   end
 
   namespace :docs do

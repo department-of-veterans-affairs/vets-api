@@ -5,7 +5,14 @@ require 'rails_helper'
 RSpec.describe 'Veteran Identifier Endpoint', type: :request do
   let(:path) { '/services/benefits/v2/veteran-id:find' }
   let(:headers) { { 'Authorization': 'Bearer somerandomstuff' } }
-  let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'veteran_identifier.json')) }
+  let(:data) do
+    {
+      ssn: '796130115',
+      firstName: 'Tamara',
+      lastName: 'Ellis',
+      birthdate: '1967-06-19'
+    }
+  end
 
   context 'when auth header and body params are present' do
     describe 'veteran identifier' do
@@ -22,9 +29,9 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
     let(:data) { nil }
 
     describe 'veteran identifier' do
-      it 'returns a 422 error code' do
+      it 'returns a 400 error code' do
         post path, params: data, headers: headers
-        expect(response.status).to eq(422)
+        expect(response.status).to eq(400)
       end
     end
   end
@@ -33,51 +40,84 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
     let(:headers) { nil }
 
     describe 'veteran identifier' do
-      it 'returns a 400 error code' do
+      it 'returns a 401 error code' do
         post path, params: data
-        expect(response.status).to eq(400)
+        expect(response.status).to eq(401)
       end
     end
   end
 
   context 'when ssn is invalid' do
     context 'when ssn is too long' do
-      it 'returns a 422 error code' do
-        invalid_data = JSON.parse(data)
-        invalid_data['data']['attributes']['ssn'] = '7961301159'
+      it 'returns a 400 error code' do
+        invalid_data = data
+        invalid_data[:ssn] = '7961301159'
 
         post path, params: invalid_data, headers: headers
-        expect(response.status).to eq(422)
+        expect(response.status).to eq(400)
       end
     end
 
     context 'when ssn is too short' do
-      it 'returns a 422 error code' do
-        invalid_data = JSON.parse(data)
-        invalid_data['data']['attributes']['ssn'] = '79613011'
+      it 'returns a 400 error code' do
+        invalid_data = data
+        invalid_data[:ssn] = '79613011'
 
         post path, params: invalid_data, headers: headers
-        expect(response.status).to eq(422)
+        expect(response.status).to eq(400)
       end
     end
 
     context 'when ssn has non-digit characters' do
-      it 'returns a 422 error code' do
-        invalid_data = JSON.parse(data)
-        invalid_data['data']['attributes']['ssn'] = '796130 .A!'
+      it 'returns a 400 error code' do
+        invalid_data = data
+        invalid_data[:ssn] = '796130 .A!'
 
         post path, params: invalid_data, headers: headers
-        expect(response.status).to eq(422)
+        expect(response.status).to eq(400)
       end
     end
 
     context 'when ssn is blank' do
-      it 'returns a 422 error code' do
-        invalid_data = JSON.parse(data)
-        invalid_data['data']['attributes']['ssn'] = ''
+      it 'returns a 400 error code' do
+        invalid_data = data
+        invalid_data[:ssn] = ''
 
         post path, params: invalid_data, headers: headers
-        expect(response.status).to eq(422)
+        expect(response.status).to eq(400)
+      end
+    end
+  end
+
+  context 'when birthdate is invalid' do
+    context 'when birthdate is an invalid date' do
+      it 'returns a 400 error code' do
+        invalid_data = data
+        invalid_data[:birthdate] = '1234'
+
+        post path, params: invalid_data, headers: headers
+        expect(response.status).to eq(400)
+      end
+    end
+
+    context 'when birthdate is in the future' do
+      it 'returns a 400 error code' do
+        invalid_data = data
+        invalid_data[:birthdate] = (Time.zone.today + 1.year).to_s
+
+        post path, params: invalid_data, headers: headers
+        expect(response.status).to eq(400)
+      end
+    end
+  end
+
+  context 'when custom verb is invalid' do
+    let(:path) { '/services/benefits/v2/veteran-id:search' }
+
+    describe 'veteran identifier' do
+      it 'returns a 404 error code' do
+        post path, params: data, headers: headers
+        expect(response.status).to eq(404)
       end
     end
   end
