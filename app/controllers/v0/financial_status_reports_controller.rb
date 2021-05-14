@@ -15,7 +15,7 @@ module V0
         service.get_pdf,
         type: 'application/pdf',
         filename: 'VA Form 5655 - Submitted',
-        disposition: 'inline'
+        disposition: 'attachment'
       )
     end
 
