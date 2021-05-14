@@ -19,8 +19,8 @@ module ClaimsApi
             external_uid: poa_form.external_uid,
             external_key: poa_form.external_key
           )
-          service.vet_record.update_birls_record(
-            participant_id: form_data.form_data['participant_vet_id'] || target_veteran.participant_id,
+          service.corporate_update.update_poa_access(
+            participant_id: target_veteran.participant_id,
             poa_code: form_data.form_data.dig('serviceOrganization', 'poaCode'),
             allow_poa_access: 'y',
             allow_poa_c_add: 'y'
