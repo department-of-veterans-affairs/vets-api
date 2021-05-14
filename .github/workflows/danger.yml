@@ -22,7 +22,7 @@ jobs:
             ${{ runner.os }}-gems-
 
       - name: Run Danger
-        uses: cbtkc/danger-action@v5
+        uses: cbtkc/danger-action@master
         with:
           plugins_file: 'Gemfile'
           install_path: 'vendor/bundle'
