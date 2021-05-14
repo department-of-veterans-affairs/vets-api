@@ -71,7 +71,7 @@ class Message < Common::Base
 
   alias attachment? attachment
 
-  def initialize(attributes)
+  def initialize(attributes = {})
     super(attributes)
     self.subject = subject ? Nokogiri::HTML.parse(subject) : nil
     self.body = body ? Nokogiri::HTML.parse(body) : nil
