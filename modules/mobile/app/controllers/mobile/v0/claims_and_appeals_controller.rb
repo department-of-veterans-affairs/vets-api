@@ -15,7 +15,7 @@ module Mobile
       include IgnoreNotFound
 
       before_action { authorize :evss, :access? }
-      after_action only: :upload_documents do
+      after_action only: :upload_multi_image_document do
         claims_proxy.cleanup_after_upload
       end
 
@@ -41,8 +41,13 @@ module Mobile
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
-      def upload_documents
-        jid = claims_proxy.upload_documents(params)
+      def upload_document
+        jid = claims_proxy.upload_documents(params, false)
+        render json: { data: { job_id: jid } }, status: :accepted
+      end
+
+      def upload_multi_image_document
+        jid = claims_proxy.upload_documents(params, true)
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
