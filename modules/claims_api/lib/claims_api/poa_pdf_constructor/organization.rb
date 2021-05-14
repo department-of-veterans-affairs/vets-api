@@ -33,7 +33,7 @@ module ClaimsApi
         {
           "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
           "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
-          "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..9],
+          "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..8],
           "#{base_form}.I_Authorize[1]": data['recordConcent'] == true ? 1 : 0,
           "#{base_form}.Drug_Abuse[0]": data['consentLimits'].present? && data['consentLimits'].include?('DRUG ABUSE') ? 1 : 0,
           "#{base_form}.Alcoholism_Or_Alcohol_Abuse[0]": data['consentLimits'].present? && data['consentLimits'].include?('ALCOHOLISM') ? 1 : 0,
@@ -55,7 +55,7 @@ module ClaimsApi
           "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('veteran', 'phone', 'areaCode')} #{data.dig('veteran', 'phone', 'phoneNumber')}",
           "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[0]": data.dig('veteran', 'ssn')[0..2],
           "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[0]": data.dig('veteran', 'ssn')[3..4],
-          "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..9],
+          "#{base_form}.SocialSecurityNumber_LastFourNumbers[0]": data.dig('veteran', 'ssn')[5..8],
           "#{base_form}.DOBmonth[0]": data.dig('veteran', 'birthdate').split('-').second,
           "#{base_form}.DOBday[0]": data.dig('veteran', 'birthdate').split('-').last.first(2),
           "#{base_form}.DOByear[0]": data.dig('veteran', 'birthdate').split('-').first,
