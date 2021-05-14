@@ -33,9 +33,5 @@ module Form1010cg
     def size_range
       1.byte...25.megabytes
     end
-
-    def statsd_key
-      'form1010cg_poa_uploader'
-    end
   end
 end

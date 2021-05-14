@@ -10,7 +10,7 @@ module LogMetrics
   end
 
   def log_metrics(file)
-    class_name = defined?(statsd_key) ? statsd_key : self.class.to_s.underscore
+    class_name = self.class.to_s.gsub('::', '_').underscore
     class_prefix = "#{KEY_PREFIX}#{class_name}"
 
     args = [
