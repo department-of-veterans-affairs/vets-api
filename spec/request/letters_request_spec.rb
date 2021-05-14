@@ -169,8 +169,8 @@ RSpec.describe 'letters', type: :request do
       end
 
       before do
-        user.mpi.profile.edipi = '1005079124'
-        user.mpi.profile.participant_id = '600036159'
+        user.set_mpi_profile('edipi', '1005079124')
+        user.set_mpi_profile('participant_id', '600036159')
       end
 
       it 'returns a 502' do

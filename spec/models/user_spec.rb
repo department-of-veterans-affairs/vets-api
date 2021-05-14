@@ -381,7 +381,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
-          expect(user.edipi).to be(user.mpi.edipi)
+          expect(user.edipi).to be(user.edipi_mpi)
         end
 
         it 'fetches edipi from identity.dslogon_edipi when available' do
@@ -443,6 +443,20 @@ RSpec.describe User, type: :model do
         end
       end
 
+      describe 'set_mpi_profile do' do
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:user) { build(:user, :loa3, mhv_icn: mvi_profile.icn) }
+
+        before do
+          stub_mpi(mvi_profile)
+          user.set_mpi_profile('edipi', '1234567890')
+        end
+
+        it 'sets a new MPI profile value' do
+          expect(user.edipi_mpi).to be('1234567890')
+        end
+      end
+
       describe 'set_mhv_ids do' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
@@ -453,8 +467,8 @@ RSpec.describe User, type: :model do
         end
 
         it 'sets new mhv ids to a users MPI profile' do
-          expect(user.mpi.profile.mhv_ids).to include('1234567890')
-          expect(user.mpi.profile.active_mhv_ids).to include('1234567890')
+          expect(user.mhv_ids).to include('1234567890')
+          expect(user.active_mhv_ids).to include('1234567890')
         end
       end
 
@@ -501,7 +515,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches properly parsed birth_date from MPI' do
-          expect(user.birth_date).to eq(Date.parse(user.mpi_profile_birth_date).iso8601)
+          expect(user.birth_date).to eq(Date.parse(user.birth_date_mpi).iso8601)
         end
 
         it 'fetches address data from MPI and stores it as a hash' do
@@ -827,7 +841,7 @@ RSpec.describe User, type: :model do
 
         context 'and MPI Profile birth date does not exist' do
           before do
-            allow(user.mpi.profile).to receive(:birth_date).and_return nil
+            allow(user.mpi_profile).to receive(:birth_date).and_return nil
           end
 
           it 'returns nil' do
@@ -837,7 +851,7 @@ RSpec.describe User, type: :model do
 
         context 'and MPI Profile birth date does exist' do
           it 'returns iso8601 parsed date from the MPI Profile birth_date attribute' do
-            expect(user.birth_date).to eq Date.parse(user.mpi.profile.birth_date.to_s).iso8601
+            expect(user.birth_date).to eq Date.parse(user.birth_date_mpi.to_s).iso8601
           end
         end
       end
@@ -863,7 +877,7 @@ RSpec.describe User, type: :model do
     let(:user) { described_class.new(build(:user_with_relationship)) }
 
     before do
-      allow(user.mpi.profile).to receive(:relationships).and_return([mpi_relationship])
+      allow(user.mpi_profile).to receive(:relationships).and_return([mpi_relationship])
     end
 
     context 'when there are relationship entities in the MPI response' do
