@@ -2117,9 +2117,9 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-  /v0/claim/{id}/documents/multiimage:
+  /v0/claim/{id}/documents/multi_image:
     post:
-      summary: /v0/claim/{id}/documents/multiimage
+      summary: /v0/claim/{id}/documents/multi_image
       description: Post multiple images to be combined into one pdf for upload, returns jobId for upload process
       operationId: upload_documents
       security:

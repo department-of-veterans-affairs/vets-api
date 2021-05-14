@@ -11,7 +11,7 @@ Mobile::Engine.routes.draw do
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'
-    post '/claim/:id/documents/multiimage', to: 'claims_and_appeals#upload_multiimage_document'
+    post '/claim/:id/documents/multi_image', to: 'claims_and_appeals#upload_multi_image_document'
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'

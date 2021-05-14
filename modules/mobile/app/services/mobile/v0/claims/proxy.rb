@@ -56,7 +56,7 @@ module Mobile
           jid
         end
 
-        def upload_documents(params, is_multiimage)
+        def upload_documents(params, is_multi_image)
           start_timer = Time.zone.now
           params.require :file
           id = params[:id]
@@ -64,7 +64,7 @@ module Mobile
           claim = claims_scope.find_by(evss_id: id)
           raise Common::Exceptions::RecordNotFound, id unless claim
 
-          file_to_upload = is_multiimage ? generate_multi_image_pdf(file) : file
+          file_to_upload = is_multi_image ? generate_multi_image_pdf(file) : file
           document_data = EVSSClaimDocument.new(evss_claim_id: id, file_obj: file_to_upload,
                                                 uuid: SecureRandom.uuid, file_name: file_to_upload.original_filename,
                                                 tracked_item_id: params[:trackedItemId],
