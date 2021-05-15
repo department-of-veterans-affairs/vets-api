@@ -131,15 +131,26 @@ module OpenidAuth
         [*Settings.oidc.charon.audience].include?(aud)
       end
 
-      def validation_from_charon(duz, site)
-        begin
-          response = Charon::Service.new.call_charon(duz, site)
-        rescue => e
-          log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
-          raise Common::Exceptions::TokenValidationError.new(
-            status: 500, code: 500, detail: 'Failed validation with Charon.'
-          )
+      def get_charon_response(duz, site)
+        response = @session.charon_response
+        if response.nil?
+          begin
+            response = Charon::Service.new.call_charon(duz, site)
+            @session.charon_response = response
+            @session.save
+          rescue => e
+            log_message_to_sentry('Error retrieving charon context for OIDC token: ' + e.message, :error)
+            raise Common::Exceptions::TokenValidationError.new(
+              status: 500, code: 500, detail: 'Failed validation with Charon.'
+            )
+          end
         end
+
+        response
+      end
+
+      def validation_from_charon(duz, site)
+        response = get_charon_response(duz, site)
         case response.status
         when 200
           true
