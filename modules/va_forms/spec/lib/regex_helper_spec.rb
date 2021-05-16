@@ -14,13 +14,8 @@ context 'When a form number is passed' do
   end
 
   it 'checked for GSA prefix and insert wildcard' do
-    result = helper.scrub_query('GSA-1010')
+    result = helper.scrub_query('GSA1010')
     expect(result).to eq('GSA%1010')
-  end
-
-  it 'checked for SF prefix and insert wildcard' do
-    result = helper.scrub_query('SF-1010')
-    expect(result).to eq('SF%1010')
   end
 
   it 'adds a wildcard to 21P' do

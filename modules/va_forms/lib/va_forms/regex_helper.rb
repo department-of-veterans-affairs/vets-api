@@ -42,6 +42,7 @@ module VAForms
       if search_term.match(gsa_form_regex).present?
         # Scrub the 'GSA' prefix, since not all forms have that, and keep just the number
         search_term.sub!(/[gG][sS][aA]/, '\0%')
+        search_term.sub!(/-/, '%')
       end
       search_term
     end
