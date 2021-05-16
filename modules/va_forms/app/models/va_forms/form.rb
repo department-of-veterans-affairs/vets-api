@@ -27,7 +27,7 @@ module VAForms
     end
 
     def self.search_by_form_number(search_term)
-      Form.where('upper(form_name) LIKE ?', "#{search_term.upcase}%").order(form_name: :asc, language: :asc)
+      Form.where('upper(form_name) LIKE ?', "%#{search_term.upcase}%").order(form_name: :asc, language: :asc)
     end
 
     def self.old_search(search_term: nil)
