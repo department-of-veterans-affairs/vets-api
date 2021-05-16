@@ -40,13 +40,8 @@ module VAForms
         search_term.sub!(/(?:\s $)?[fF][oO][rR][mM](?:\s $)?/, '')
         search_term.strip!
       end
-      if search_term.match(gsa_form_regex).present?
+      if search_term.match(gsa_form_regex).present? || search_term.match(sf_form_regex).present?
         # Scrub the 'GSA' prefix, since not all forms have that, and keep just the number
-        search_term.gsub!(/\s/, '%')
-        search_term.gsub!(/-/, '%')
-      end
-      if search_term.match(sf_form_regex).present?
-        # Scrub the 'SF' prefix, since not all forms have that, and keep just the number
         search_term.gsub!(/\s/, '%')
         search_term.gsub!(/-/, '%')
       end
