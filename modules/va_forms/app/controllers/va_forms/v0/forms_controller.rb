@@ -10,7 +10,7 @@ module VAForms
       def index
         if Flipper.enabled?(:new_va_forms_search)
           if params[:query].present?
-            # The regex below checks to see if a form follows the SF/VA DD(p)-DDDD format (with optional alpha characters)
+            # Checks to see if a form follows the SF/VA DD(p)-DDDD format
             va_prefix_regex = /^\d{2}(?:[pP])?-\d+(?:-)?(?:[a-zA-Z])?(?:[a-zA-Z])?(?:-.)?$/
             sf_form_regex = /^[sS][fF](?:[-\s\d])?\d+(?:[a-zA-Z])?(?:..)?$/
             if params[:query].match(sf_form_regex).present?
