@@ -5,17 +5,17 @@ module VAForms
     def scrub_query(search_term)
       search_term.strip!
       search_term = check_prefix(search_term)
-      # For 10-10 Forms
+      # Matches 10-10 Forms
       ten_form_regex = /^10(?:[10 \s])?.*$/
 
       # Looks for the common 10 10 and make it 10-10
       if search_term.match(ten_form_regex).present?
         search_term.sub!(/\s/, '-')
-      # Look for 21p and correct it
+      # Look for 21p and correct it with a wildcard
       elsif search_term.match(/21[pP]/).present?
         search_term.sub!(/^21[pP]/, '21P%')
         search_term.sub!(/\s/, '%')
-      # Add a dash to DDD forms
+      # Add a dash to DDD forms to make it DD-D
       elsif search_term.match(/^\d\d\d/).present?
         search_term.sub!(/\d\d/, '\0%')
       end
@@ -25,7 +25,6 @@ module VAForms
     private
 
     def check_prefix(search_term)
-      # The regex below checks to see if a form follows the DD(p)-DDDD format (with optional alpha characters)
       # Matches VA/GSA/SF prefixes with or without a space or dash
       va_prefix_regex = /^(?i)(.*)\bva\b(.*)/
       sf_form_regex = /^[sS][fF](?:[- \s \d])?\d+(?:[a-zA-Z])?(?:..)?$/
@@ -37,7 +36,7 @@ module VAForms
         search_term.gsub!(/-/, '%')
       end
       if search_term.match(form_form_regex).present?
-        # Scrub the 'form' prefix, since not all forms have that, and keep just the number
+        # Scrub the 'form' term, since not all forms have that, and keep just the number
         search_term.sub!(/(?:\s $)?[fF][oO][rR][mM](?:\s $)?/, '')
         search_term.strip!
       end
@@ -45,7 +44,8 @@ module VAForms
         # Scrub the 'GSA' prefix, since not all forms have that, and keep just the number
         search_term.gsub!(/\s/, '%')
         search_term.gsub!(/-/, '%')
-      elsif search_term.match(sf_form_regex).present?
+      end
+      if search_term.match(sf_form_regex).present?
         # Scrub the 'SF' prefix, since not all forms have that, and keep just the number
         search_term.gsub!(/\s/, '%')
         search_term.gsub!(/-/, '%')

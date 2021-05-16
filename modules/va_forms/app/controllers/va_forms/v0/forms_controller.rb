@@ -11,7 +11,7 @@ module VAForms
         if Flipper.enabled?(:new_va_forms_search)
           if params[:query].present?
             # The regex below checks to see if a form follows the DD(p)-DDDD format (with optional alpha characters)
-            va_prefix_regex = /^\d{2}(?:[pP])?[-]\d+(?:[-])?(?:[a-zA-Z])?(?:[a-zA-Z])?(?:[-].)?$/
+            va_prefix_regex = /^\d{2}(?:[pP])?-\d+(?:-)?(?:[a-zA-Z])?(?:[a-zA-Z])?(?:-.)?$/
             return search_by_form_number if params[:query].match(va_prefix_regex).present?
 
             return search_by_text(VAForms::RegexHelper.new.scrub_query(params[:query]))
