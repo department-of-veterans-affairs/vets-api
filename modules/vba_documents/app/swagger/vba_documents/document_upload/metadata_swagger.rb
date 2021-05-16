@@ -24,7 +24,7 @@ module VBADocuments
           end
 
           property :fileNumber do
-            key :description, 'VA file number or SSN, 8 or 9 numeric characters, no hyphens, spaces, or punctuation'
+            key :description, "The Veteran's file number is exactly 9 digits with no alpha characters, hyphens, spaces or punctuation. In most cases, this is the Veteran's SSN but may also be an 8 digit BIRL number. If no file number has been established or if it is unknown, the application should use the Veteran's SSN and the file number will be associated with the submission later in the process. Incorrect file numbers can cause delays."
             key :pattern, '^\d{8,9}$'
             key :example, '999887777'
             key :type, :string
