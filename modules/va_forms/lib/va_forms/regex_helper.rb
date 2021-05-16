@@ -25,9 +25,8 @@ module VAForms
     private
 
     def check_prefix(search_term)
-      # Matches VA/GSA/SF prefixes with or without a space or dash
+      # Matches VA/GSA prefixes with or without a space or dash
       va_prefix_regex = /^(?i)(.*)\bva\b(.*)/
-      sf_form_regex = /^[sS][fF](?:[- \s \d])?\d+(?:[a-zA-Z])?(?:..)?$/
       gsa_form_regex = /^[gG][sS][aA](?:[- \s \d])?\d+(?:[a-zA-Z])?(?:..)?$/
       form_form_regex = /^(?i)(.*)\bform\b(.*)/
       if search_term.match(va_prefix_regex).present?
@@ -40,10 +39,9 @@ module VAForms
         search_term.sub!(/(?:\s $)?[fF][oO][rR][mM](?:\s $)?/, '')
         search_term.strip!
       end
-      if search_term.match(gsa_form_regex).present? || search_term.match(sf_form_regex).present?
+      if search_term.match(gsa_form_regex).present?
         # Scrub the 'GSA' prefix, since not all forms have that, and keep just the number
-        search_term.gsub!(/\s/, '%')
-        search_term.gsub!(/-/, '%')
+        search_term.sub!(/[gG][sS][aA]/, '\0%')
       end
       search_term
     end
