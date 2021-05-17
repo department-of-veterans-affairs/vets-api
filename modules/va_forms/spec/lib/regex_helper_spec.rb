@@ -13,6 +13,11 @@ context 'When a form number is passed' do
     expect(result).to eq('1010')
   end
 
+  it 'checks for 1010 no dash and adds dash' do
+    result = helper.scrub_query('1010')
+    expect(result).to eq('10-10')
+  end
+
   it 'checked for GSA prefix and insert wildcard' do
     result = helper.scrub_query('GSA1010')
     expect(result).to eq('GSA%1010')
