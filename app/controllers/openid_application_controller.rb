@@ -60,27 +60,28 @@ class OpenidApplicationController < ApplicationController
   end
 
   def populate_payload_for_launch_scope
-    @session = Session.find(token)
-    if @session.nil?
-      ttl = token.payload['exp'] - Time.current.utc.to_i
-      launch = fetch_smart_launch_context
-      @session = build_cc_session(ttl, launch)
-      @session.save
-    end
+    analyze_redis_launch_context
     token.payload[:launch] =
       base64_json?(@session.launch) ? JSON.parse(Base64.decode64(@session.launch)) : { patient: @session.launch }
   end
 
   def populate_payload_for_launch_patient_scope
+    analyze_redis_launch_context
+    token.payload[:icn] = @session.launch
+    token.payload[:launch] = { patient: @session.launch } unless @session.launch.nil?
+  end
+
+  def analyze_redis_launch_context
     @session = Session.find(token)
     if @session.nil?
       ttl = token.payload['exp'] - Time.current.utc.to_i
       launch = fetch_smart_launch_context
-      @session = build_cc_session(ttl, launch)
+      @session = build_launch_session(ttl, launch)
+      @session.save
+    elsif @session.launch.nil?
+      @session.launch = fetch_smart_launch_context
       @session.save
     end
-    token.payload[:icn] = @session.launch
-    token.payload[:launch] = { patient: @session.launch } unless @session.launch.nil?
   end
 
   def populate_ssoi_token_payload(profile)
@@ -158,7 +159,7 @@ class OpenidApplicationController < ApplicationController
     session
   end
 
-  def build_cc_session(ttl, launch)
+  def build_launch_session(ttl, launch)
     session = Session.new(token: token.to_s, launch: launch)
     session.expire(ttl)
     session
