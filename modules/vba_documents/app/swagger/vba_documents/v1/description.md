@@ -27,7 +27,7 @@ The Benefits Intake API first provides an upload location and unique submissino 
 
 The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as binary multipart/form-data (not base64). The unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
 
-API Consumers are encouraged to validate the `zipcode`,`fileNumber`, `veteranFirstName`, and 'veteranLastName' fields before submission according to their description in the DocumentUploadMetadata model and provide the use selected 'businessLine' attribute for the most efficient processing.
+API Consumers are encouraged to validate the `zipcode`,`fileNumber`, `veteranFirstName`, and 'veteranLastName' fields before submission according to their description in the DocumentUploadMetadata model and provide the use selected 'businessLine' attribute for the most efficient processing. Additionally, please ensure no PDF user passwords or PDF owner passwords are used in submitted PDFs. 
 
 ### Attachment & file size limits
 There is not a limit on the number of documents that can be submitted at once, but file sizes can impact the number of documents accepted.
