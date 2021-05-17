@@ -5,6 +5,9 @@ require 'common/models/base'
 # Folder model
 class Folder < Common::Base
   include ActiveModel::Validations
+  include RedisCaching
+
+  redis_config REDIS_CONFIG[:secure_messaging_store]
 
   attribute :id, Integer
   attribute :name, String
