@@ -69,6 +69,17 @@ RSpec.describe 'facilities', type: :request do
         end
       end
 
+      context 'on successful query for clinics given an array with a single clinic id when camel-inflected' do
+        it 'returns a single clinic' do
+          VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['data'].size).to eq(1)
+            expect(response).to match_camelized_response_schema('vaos/v2/clinics')
+          end
+        end
+      end
+
       context 'on sending a bad request to the VAOS Service' do
         it 'returns a 400 http status' do
           VCR.use_cassette('vaos/v2/systems/get_facility_clinics_400', match_requests_on: %i[method uri]) do
