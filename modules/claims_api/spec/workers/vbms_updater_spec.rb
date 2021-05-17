@@ -16,7 +16,7 @@ RSpec.describe ClaimsApi::VBMSUpdater, type: :job do
     headers
   end
 
-  it "updates a the BIRLS record for a qualifying POA submittal" do
+  it 'updates a the BIRLS record for a qualifying POA submittal' do
     poa = create_poa
     create_mock_lighthouse_service
     subject.new.perform(poa.id, user.participant_id)
