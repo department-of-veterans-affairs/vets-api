@@ -12,16 +12,17 @@
           "phoneNumber": "8001111"
         },
         "emailAddressText": "josie@example.com",
-        "timezone": "America/Chicago"
+        "timezone": "America/Chicago",
+        "homeless": false
       },
       "ssoSsocOptIn": true,
-      "hlrCreateInformalConferenceContact": [
+      "informalConferenceContact": [
         "veteran"
       ],
       "informalConferenceTime": [
         "800-1200 ET"
       ],
-      "informalConferenceRep": {
+      "representative": {
         "name": {
           "firstName": "Hellen",
           "lastName": "Holly"
