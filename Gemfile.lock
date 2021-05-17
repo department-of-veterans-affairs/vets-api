@@ -225,12 +225,12 @@ GEM
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
     byebug (11.1.3)
-    carrierwave (2.2.0)
+    carrierwave (2.2.1)
       activemodel (>= 5.0.0)
       activesupport (>= 5.0.0)
       addressable (~> 2.6)
       image_processing (~> 1.1)
-      mimemagic (>= 0.3.0)
+      marcel (~> 1.0.0)
       mini_mime (>= 0.1.3)
       ssrf_filter (~> 1.0)
     carrierwave-aws (1.5.0)
@@ -537,7 +537,7 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2021.0225)
-    mimemagic (0.3.10)
+    mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
     mini_magick (4.11.0)
@@ -798,7 +798,7 @@ GEM
       rexml
     ruby-vips (2.0.17)
       ffi (~> 1.9)
-    rubyzip (2.0.0)
+    rubyzip (2.3.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.1.0)
@@ -913,7 +913,7 @@ GEM
     unf_ext (0.0.7.7)
     unicode-display_width (1.7.0)
     uri_template (0.7.0)
-    utf8-cleaner (0.2.5)
+    utf8-cleaner (1.0.0)
       activesupport
     vcr (6.0.0)
     virtus (1.0.5)
@@ -1032,7 +1032,7 @@ DEPENDENCIES
   liquid
   mail (= 2.7.1)
   memoist
-  mimemagic (~> 0.3.10)
+  mimemagic (~> 0.4.3)
   mini_magick (~> 4.11.0)
   mobile!
   net-sftp
