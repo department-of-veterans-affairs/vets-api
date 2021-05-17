@@ -73,11 +73,13 @@ class OpenidApplicationController < ApplicationController
 
   def analyze_redis_launch_context
     @session = Session.find(token)
+    # Sessions are not originally created for client credentials tokens, one will be created here.
     if @session.nil?
       ttl = token.payload['exp'] - Time.current.utc.to_i
       launch = fetch_smart_launch_context
       @session = build_launch_session(ttl, launch)
       @session.save
+    # Launch context is not attached to the session for SSOi tokens, it will be added here.
     elsif @session.launch.nil?
       @session.launch = fetch_smart_launch_context
       @session.save
