@@ -10,7 +10,7 @@ Visit our VA Lighthouse [Contact Us page](https://developer.va.gov/support) for 
 
 
 ## Background 
-This API provides a secure, efficient, and tracked alternative to paper or fax for Veteran benefit claim document submissions. The VBA can begin processing documents submitted through this API immediately, which ultimately provides Veterans with claim decisions more quickly. All successfully submitted documents are routed to the correct office(s) for processing, including documents related to the following benefit claim types:
+This API provides a secure, efficient, and tracked alternative to paper or fax for Veteran benefit claim document submissions. The VBA can begin processing documents submitted through this API immediately, which ultimately provides Veterans with claim decisions more quickly. All successfully submitted documents are routed to the correct office for processing, including documents related to the following benefit claim types:
 
 * Compensation
 * Pension/Survivors Benefits
