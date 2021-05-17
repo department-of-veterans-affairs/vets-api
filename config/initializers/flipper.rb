@@ -10,6 +10,12 @@ require 'flipper/instrumentation/event_subscriber'
 
 FLIPPER_FEATURE_CONFIG = YAML.safe_load(File.read(Rails.root.join('config', 'features.yml')))
 
+# config/initializers/flipper.rb
+Rails.application.configure do
+  # Or completely disable preloading
+  config.flipper.memoize = false
+end
+
 Flipper.configure do |config|
   config.default do
     activerecord_adapter = Flipper::Adapters::ActiveRecord.new
