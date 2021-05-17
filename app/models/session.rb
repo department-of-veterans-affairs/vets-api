@@ -20,6 +20,7 @@ class Session < Common::RedisStore
   attribute :profile
   attribute :charon_response
   attribute :launch
+  # uuid no longer required as session may be for a system rather than a user
   attribute :uuid
   validates :token, presence: true
   validates :created_at, presence: true

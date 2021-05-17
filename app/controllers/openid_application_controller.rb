@@ -60,8 +60,11 @@ class OpenidApplicationController < ApplicationController
   end
 
   def populate_payload_for_launch_scope
-    if @session.launch.nil?
-      @session.launch = fetch_smart_launch_context
+    @session = Session.find(token)
+    if @session.nil?
+      ttl = token.payload['exp'] - Time.current.utc.to_i
+      launch = fetch_smart_launch_context
+      @session = build_cc_session(ttl, launch)
       @session.save
     end
     token.payload[:launch] =
