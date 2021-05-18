@@ -16,6 +16,9 @@ require 'rspec/its'
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']
   require 'simplecov'
+  require 'simplecov-json'
+
+  SimpleCov.formatter = SimpleCov::Formatter::JSONFormatter
 
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
