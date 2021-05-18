@@ -652,7 +652,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.6)
-    puma (4.3.7)
+    puma (4.3.8)
       nio4r (~> 2.0)
     puma-plugin-statsd (0.1.0)
       json
@@ -1061,7 +1061,7 @@ DEPENDENCIES
   prawn
   prawn-table
   pry-byebug
-  puma (~> 4.3.7)
+  puma (~> 4.3.8)
   puma-plugin-statsd (~> 0.1.0)
   pundit
   rack
