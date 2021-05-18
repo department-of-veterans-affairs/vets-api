@@ -113,6 +113,117 @@
                       }
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "description": "Claim with some details for the given Veteran info",
+                        "required": [
+                          "id",
+                          "type",
+                          "attributes"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "description": "Claim ID from EVSS"
+                          },
+                          "type": {
+                            "type": "string",
+                            "description": "Required by JSON API standard"
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "description": "Required by JSON API standard",
+                            "required": [
+                              "date_filed",
+                              "max_est_date",
+                              "open",
+                              "waiver_submitted",
+                              "documents_needed",
+                              "development_letter_sent",
+                              "status",
+                              "requested_decision",
+                              "claim_type"
+                            ],
+                            "properties": {
+                              "date_filed": {
+                                "type": "string",
+                                "format": "date",
+                                "description": "Date in YYYY-MM-DD the claim was first filed"
+                              },
+                              "min_est_date": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "date",
+                                "description": "Minimum Estimated Claim Completion Date"
+                              },
+                              "max_est_date": {
+                                "type": "string",
+                                "nullable": true,
+                                "format": "date",
+                                "description": "Maximum Estimated Claim Completion Date"
+                              },
+                              "open": {
+                                "type": "boolean",
+                                "description": "Has the claim been resolved"
+                              },
+                              "waiver_submitted": {
+                                "type": "boolean",
+                                "description": "Requested Decision or Waiver 5103 Submitted"
+                              },
+                              "documents_needed": {
+                                "type": "boolean",
+                                "description": "Does the claim require additional documents to be submitted"
+                              },
+                              "development_letter_sent": {
+                                "type": "boolean",
+                                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                              },
+                              "decision_letter_sent": {
+                                "type": "boolean",
+                                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                              },
+                              "updated_at": {
+                                "type": "string",
+                                "format": "date-time",
+                                "description": "Time stamp of last change to the claim"
+                              },
+                              "status": {
+                                "type": "string",
+                                "description": "Current status of the claim",
+                                "enum": [
+                                  "Claim received",
+                                  "Initial review",
+                                  "Evidence gathering, review, and decision",
+                                  "Preparation for notification",
+                                  "Complete"
+                                ]
+                              },
+                              "requested_decision": {
+                                "type": "boolean",
+                                "description": "The claim filer has requested a claim decision be made"
+                              },
+                              "claim_type": {
+                                "type": "string",
+                                "description": "The type of claim originally submitted",
+                                "enum": [
+                                  "Compensation",
+                                  "Compensation and Pension",
+                                  "Dependency"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1626,7 +1737,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6abb7d60-04c6-47bd-bb41-c00e13b3a440",
+                    "id": "58b7e286-aedc-4ffa-bc7e-7604335bd2ae",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -1644,13 +1755,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-10T13:44:46.492Z",
+                      "updated_at": "2021-05-18T21:52:11.658Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "6abb7d60-04c6-47bd-bb41-c00e13b3a440",
+                      "token": "58b7e286-aedc-4ffa-bc7e-7604335bd2ae",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3066,7 +3177,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3bb4b156-7df9-4c2b-bc63-b3d619234a70",
+                    "id": "4d89cb13-4480-4659-b5ce-ecb7133bac4b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3084,13 +3195,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-10T13:44:46.721Z",
+                      "updated_at": "2021-05-18T21:52:11.865Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "3bb4b156-7df9-4c2b-bc63-b3d619234a70",
+                      "token": "4d89cb13-4480-4659-b5ce-ecb7133bac4b",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4676,7 +4787,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b22d5330-1341-47d4-8c9e-a87cfe227936",
+                    "id": "b8e7938e-cd97-43c6-bfa3-ca82e5499a4d",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4690,7 +4801,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-10T13:44:47.362Z",
+                      "updated_at": "2021-05-18T21:52:12.477Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -4699,7 +4810,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "753be9bf-9ed2-4774-b4e9-5d217353d284",
+                          "id": "0876440f-d937-4cea-a5e0-5f0e052726b0",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -5791,11 +5902,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2e142c58-6ffa-49cf-88a7-eadc7a186adf",
+                    "id": "d3c32987-900c-4416-ae3e-b0be30a60398",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-05-10",
+                      "date_request_accepted": "2021-05-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074",
@@ -6323,11 +6434,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4a9dcf47-d5b5-491e-806e-13f302b57d46",
+                    "id": "93433a1d-9996-4148-b090-fbc7b475e0cc",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-10",
+                      "date_request_accepted": "2021-05-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074",
@@ -6462,11 +6573,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c89e6cb6-50cc-4781-9824-36057fc2815c",
+                    "id": "757573d2-f49f-4940-a675-1170f0910070",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-10",
+                      "date_request_accepted": "2021-05-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074",

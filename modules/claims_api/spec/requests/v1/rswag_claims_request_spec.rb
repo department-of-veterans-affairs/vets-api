@@ -32,6 +32,8 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 200 response' do
         response '200', 'claim response' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'claims_index.json')))
+
           let(:scopes) { %w[claim.read] }
 
           before do |example|
