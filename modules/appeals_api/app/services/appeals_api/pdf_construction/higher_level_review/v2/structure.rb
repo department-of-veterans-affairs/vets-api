@@ -61,7 +61,10 @@ module AppealsApi
             form_fields.conference_rep_12_to_1630 => form_data.informal_conference_time('representative',
                                                                                         '1200-1630 ET'),
             # Rep name should be filled with autosize text boxes, not pdf fields
-            # TODO: Rep detail fields
+            form_fields.rep_phone_area_code => form_data.rep_phone_area_code,
+            form_fields.rep_phone_prefix => form_data.rep_phone_prefix,
+            form_fields.rep_phone_line_number => form_data.rep_phone_line_number,
+            form_fields.rep_email => form_data.rep_email,
 
             # Section V: SOC/SSOC Opt-In
             form_fields.sso_ssoc_opt_in => form_data.soc_opt_in,
