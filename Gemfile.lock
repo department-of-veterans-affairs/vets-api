@@ -50,15 +50,6 @@ GIT
       savon (~> 2.12)
 
 GIT
-  remote: https://github.com/department-of-veterans-affairs/breakers
-  revision: 657cd3eb1fcac03f5427f6de8a61e62e87f54d27
-  branch: master
-  specs:
-    breakers (0.5.0)
-      faraday (>= 0.7.4, < 2.0)
-      multi_json (~> 1.0)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
   revision: bebad55f8723f091c7d41522178b11999f574499
   branch: master
@@ -235,6 +226,9 @@ GEM
     bootsnap (1.7.5)
       msgpack (~> 1.0)
     brakeman (5.0.1)
+    breakers (0.5.0)
+      faraday (>= 0.7.4, < 2.0)
+      multi_json (~> 1.0)
     builder (3.2.4)
     bundler-audit (0.8.0)
       bundler (>= 1.2.0, < 3)
@@ -986,7 +980,7 @@ DEPENDENCIES
   bgs_ext!
   bootsnap
   brakeman (~> 5.0.0)
-  breakers!
+  breakers
   bundler-audit
   byebug
   carrierwave
