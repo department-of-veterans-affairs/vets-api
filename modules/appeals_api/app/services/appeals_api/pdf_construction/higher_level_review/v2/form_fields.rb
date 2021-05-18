@@ -116,6 +116,22 @@ module AppealsApi
           'form1[0].#subform[3].TIME2TO430PM[0]'
         end
 
+        def rep_phone_area_code
+          'form1[0].#subform[3].Daytime_Phone_Number_Area_Code[2]'
+        end
+
+        def rep_phone_prefix
+          'form1[0].#subform[3].Daytime_Phone_Middle_Three_Numbers[2]'
+        end
+
+        def rep_phone_line_number
+          'form1[0].#subform[3].Daytime_Phone_Last_Four_Numbers[2]'
+        end
+
+        def rep_email
+          'form1[0].#subform[3].CurrentMailingAddress_NumberAndStreet[4]'
+        end
+
         def sso_ssoc_opt_in
           'form1[0].#subform[3].RadioButtonList[0]'
         end
