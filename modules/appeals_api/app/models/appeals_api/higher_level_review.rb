@@ -181,6 +181,14 @@ module AppealsApi
       data_attributes&.dig('informalConferenceTime')
     end
 
+    def rep_phone_data
+      informal_conference_rep&.dig('phone')
+    end
+
+    def rep_email
+      informal_conference_rep&.dig('email')
+    end
+
     def soc_opt_in
       data_attributes&.dig('socOptIn')
     end
