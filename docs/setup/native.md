@@ -63,7 +63,7 @@ On Mac it should be located somewhere similiar to the following:
 
 `/Users/[your username]/Library/Application Support/Postgres/var-12/postgresql.conf`
 ```
-shared_preload_libraries = 'pg_stat_statements
+shared_preload_libraries = 'pg_stat_statements'
 pg_stat_statements.track = all
 pg_stat_statements.max = 10000
 track_activity_query_size = 2048
