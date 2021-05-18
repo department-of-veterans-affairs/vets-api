@@ -64,7 +64,7 @@ ClaimsApi::Engine.routes.draw do
 
     post '/veteran-id:find', to: 'veteran_identifier#find', constraints: { find: /:find/ }
     namespace :veterans do
-      get '/:veteran_id/claims', to: 'claims#index'
+      get '/:veteranId/claims', to: 'claims#index'
     end
   end
 

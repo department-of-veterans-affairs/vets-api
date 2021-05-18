@@ -13,7 +13,7 @@ module ClaimsApi
 
         def index
           raise ::Common::Exceptions::Unauthorized if request.headers['Authorization'].blank?
-          unless params[:veteran_id] == ICN_FOR_TEST_USER
+          unless params[:veteranId] == ICN_FOR_TEST_USER
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
           end
 

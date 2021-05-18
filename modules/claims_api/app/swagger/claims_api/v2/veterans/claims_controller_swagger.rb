@@ -6,7 +6,7 @@ module ClaimsApi
       class ClaimsControllerSwagger
         include Swagger::Blocks
 
-        swagger_path '/veterans/{veteran_id}/claims' do
+        swagger_path '/veterans/{veteranId}/claims' do
           operation :get do
             key :summary, 'Find all claims for a Veteran.'
             key :description, 'Retrieves all claims for Veteran.'
@@ -19,7 +19,7 @@ module ClaimsApi
             end
 
             parameter do
-              key :name, 'veteran_id'
+              key :name, 'veteranId'
               key :in, :path
               key :description, 'ID of Veteran'
               key :required, true
