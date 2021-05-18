@@ -14,6 +14,7 @@ RSpec.describe 'claims document upload', type: :request do
   let!(:claim) do
     FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a')
   end
+  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   it 'uploads a file' do
     params = { file: file, trackedItemId: tracked_item_id, documentType: document_type }
@@ -27,9 +28,9 @@ RSpec.describe 'claims document upload', type: :request do
   it 'uploads multiple jpeg files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
-    params = { file: files, trackedItemId: tracked_item_id, documentType: document_type }
+    params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents/multi-image', params: params, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json, headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -39,9 +40,9 @@ RSpec.describe 'claims document upload', type: :request do
   it 'uploads multiple gif files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
-    params = { file: files, trackedItemId: tracked_item_id, documentType: document_type }
+    params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents/multi-image', params: params, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json, headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -51,9 +52,9 @@ RSpec.describe 'claims document upload', type: :request do
   it 'uploads multiple mixed img files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
-    params = { file: files, trackedItemId: tracked_item_id, documentType: document_type }
+    params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents/multi-image', params: params, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json, headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
