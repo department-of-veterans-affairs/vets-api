@@ -70,7 +70,7 @@ module AppealsApi
             form_fields.sso_ssoc_opt_in => form_data.soc_opt_in,
 
             # Section VI: Issues (allows 13 in fields)
-            # Dates filled via fill_contestable_issues!, below. Issue text is filled out through autosize text boxes.
+            # Dates filled via fill_contestable_issues_dates!, below. Issue text is filled out through autosize text boxes.
 
             # Section VII: Cert & Sig
             form_fields.signature => form_data.signature,
@@ -82,7 +82,7 @@ module AppealsApi
             # NOT YET SUPPORTED
           }
 
-          fill_contestable_issues!(options)
+          fill_contestable_issues_dates!(options)
         end
         # rubocop:enable Metrics/MethodLength
 
@@ -136,7 +136,7 @@ module AppealsApi
           form_data.contestable_issues.count > MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM
         end
 
-        def fill_contestable_issues!(options)
+        def fill_contestable_issues_dates!(options)
           form_issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
           form_issues.each_with_index do |issue, index|
             date_fields = form_fields.issue_decision_date_fields(index)
