@@ -26,7 +26,7 @@
           "attributes": {
             "type": "object",
             "properties": {
-              "vista_site" : {
+              "vistaSite" : {
                 "description" : "The VistA site ID (also known as the sta3n) to which this clinic belongs.",
                 "type" : "integer",
                 "format" : "int32",
@@ -37,55 +37,55 @@
                 "description" : "The VistA clinic IEN. Unique within the context of a specific VistA server.",
                 "type" : "string"
               },
-              "service_name" : {
+              "serviceName" : {
                 "description" : "The clinic name. If the clinic is configured with a patient-friendly name then that will be the value. Otherwise it will be the internal clinic name.",
                 "type" : "string"
               },
-              "physical_location" : {
+              "physicalLocation" : {
                 "description" : "Additional physical location information describing where the clinic is located within the VA facility.",
                 "type" : ["string","null"]
               },
-              "phone_number" : {
+              "phoneNumber" : {
                 "description" : "The phone number for the clinic.",
                 "type" : ["string","null"],
                 "example" : "123-456-7890 ext. 112"
               },
-              "station_id" : {
+              "stationId" : {
                 "description" : "The physical VA facility ID (sta6aid) where the clinic is located.",
                 "type" : "string"
               },
-              "station_name" : {
+              "stationName" : {
                 "description" : "The name of the VA facility where the clinic resides.",
                 "type" : "string"
               },
-              "primary_stop_code" : {
+              "primaryStopCode" : {
                 "description" : "The clinic primary stop code.",
                 "type" : "integer",
                 "format" : "int32",
                 "minLength" : 3,
                 "maxLength" : 3
               },
-              "primary_stop_code_name" : {
+              "primaryStopCodeName" : {
                 "description" : "The clinic primary stop code name.",
                 "example" : "OCCUPATIONAL HEALTH",
                 "type" : "string"
               },
-              "secondary_stop_code" : {
+              "secondaryStopCode" : {
                 "description" : "The clinic secondary stop code.",
                 "type" : ["integer","null"],
                 "format" : "int32",
                 "minLength" : 3,
                 "maxLength" : 3
               },
-              "secondary_stop_code_name" : {
+              "secondaryStopCodeName" : {
                 "description" : "The clinic secondary stop code name.",
                 "type" : ["string","null"]
               },
-              "patient_direct_scheduling" : {
+              "patientDirectScheduling" : {
                 "description" : "Whether direct scheduling by patients is enabled.",
                 "type" : ["boolean","null"]
               },
-              "patient_display" : {
+              "patientDisplay" : {
                 "description" : "Whether appointments at this clinic should be displayed to patients.",
                 "type" : ["boolean","null"]
               },
