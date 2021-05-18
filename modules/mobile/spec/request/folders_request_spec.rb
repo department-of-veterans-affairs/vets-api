@@ -53,6 +53,28 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         expect(response).to match_camelized_response_schema('folders')
       end
 
+      context 'when there are cached folders' do
+        let(:user) { FactoryBot.build(:iam_user) }
+        let(:params) { { useCache: true } }
+
+        before do
+          path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'folders.json')
+          data = Common::Collection.new(Folder, data: JSON.parse(File.read(path)))
+          Folder.set_cached("#{user.uuid}-folders", data)
+        end
+
+        it 'retrieve cached folders rather than hitting the service' do
+          get '/mobile/v0/messaging/health/folders', headers: iam_headers, params: params
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          parsed_response_contents = response.parsed_body.dig('data')
+          folder = parsed_response_contents.select { |entry| entry.dig('id') == '-2' }[0]
+          expect(folder.dig('attributes', 'name')).to eq('Drafts')
+          expect(folder.dig('type')).to eq('folders')
+          expect(response).to match_camelized_response_schema('folders')
+        end
+      end
+
       it 'generates mobile-specific metadata links' do
         VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
           get '/mobile/v0/messaging/health/folders', headers: iam_headers
@@ -119,6 +141,28 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
         expect(response).to be_successful
         expect(response).to have_http_status(:ok)
         expect(response).to match_camelized_response_schema('messages')
+      end
+
+      context 'when there are cached folder messages' do
+        let(:user) { FactoryBot.build(:iam_user) }
+        let(:params) { { useCache: true } }
+
+        before do
+          path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'folder_messages.json')
+          data = Common::Collection.new(Message, data: JSON.parse(File.read(path)))
+          Message.set_cached("#{user.uuid}-folder-messages-#{inbox_id}", data)
+        end
+
+        it 'retrieve cached messages rather than hitting the service' do
+          get "/mobile/v0/messaging/health/folders/#{inbox_id}/messages", headers: iam_headers, params: params
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          parsed_response_contents = response.parsed_body.dig('data')
+          message = parsed_response_contents.select { |entry| entry.dig('id') == '674220' }[0]
+          expect(message.dig('attributes', 'category')).to eq('MEDICATIONS')
+          expect(message.dig('type')).to eq('messages')
+          expect(response).to match_camelized_response_schema('messages')
+        end
       end
     end
   end
