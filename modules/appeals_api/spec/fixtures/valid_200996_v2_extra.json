@@ -1,0 +1,48 @@
+{
+    "data": {
+      "type": "higherLevelReview",
+      "attributes": {
+        "benefitType": "compensation",
+        "veteran": {
+          "homeless": true,
+          "address": {
+            "zipCode5": "30012"
+          },
+          "phone": {
+            "countryCode": "34",
+            "areaCode": "555",
+            "phoneNumber": "8001111",
+            "phoneNumberExt": "2"
+          },
+          "email": "josie@example.com",
+          "timezone": "America/Chicago"
+        },
+        "informalConference": true,
+        "informalConferenceContact": "veteran",
+        "informalConferenceTime": "800-1200 ET",
+        "informalConferenceRep": {
+          "firstName": "Helen",
+          "lastName": "Holly",
+          "email": "hholly@example.com",
+          "phone": {
+            "countryCode": "1",
+            "areaCode": "555",
+            "phoneNumber": "8001111",
+            "phoneNumberExt": "2"
+          }
+        }
+      }
+    },
+    "included": [
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "tinnitus",
+          "decisionDate": "1900-01-01",
+          "decisionIssueId": 1,
+          "ratingIssueReferenceId": "2",
+          "ratingDecisionReferenceId": "3"
+        }
+      }
+    ]
+}
