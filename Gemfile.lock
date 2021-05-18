@@ -32,13 +32,13 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
-  revision: d6ceb4cdd2f0b9c5d9bddf3cbda675892945349b
+  revision: d73d334c2c22ddffbec19695ecfa55aa8934a535
   branch: master
   specs:
-    betamocks (0.7.1)
+    betamocks (0.8.0)
       activesupport (>= 4.2)
       adler32
-      faraday (>= 0.7.4, < 0.18)
+      faraday (>= 0.7.4, < 2.0)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
@@ -159,10 +159,10 @@ GEM
     activerecord (6.0.3.7)
       activemodel (= 6.0.3.7)
       activesupport (= 6.0.3.7)
-    activerecord-import (1.0.8)
+    activerecord-import (1.1.0)
       activerecord (>= 3.2)
-    activerecord-postgis-adapter (6.0.0)
-      activerecord (~> 6.0)
+    activerecord-postgis-adapter (6.0.2)
+      activerecord (~> 6.0.0)
       rgeo-activerecord (~> 6.0)
     activestorage (6.0.3.7)
       actionpack (= 6.0.3.7)
@@ -217,20 +217,20 @@ GEM
     bootsnap (1.7.5)
       msgpack (~> 1.0)
     brakeman (5.0.1)
-    breakers (0.4.0)
-      faraday (>= 0.7.4, < 0.18)
+    breakers (0.5.0)
+      faraday (>= 0.7.4, < 2.0)
       multi_json (~> 1.0)
     builder (3.2.4)
     bundler-audit (0.8.0)
       bundler (>= 1.2.0, < 3)
       thor (~> 1.0)
     byebug (11.1.3)
-    carrierwave (2.2.0)
+    carrierwave (2.2.1)
       activemodel (>= 5.0.0)
       activesupport (>= 5.0.0)
       addressable (~> 2.6)
       image_processing (~> 1.1)
-      mimemagic (>= 0.3.0)
+      marcel (~> 1.0.0)
       mini_mime (>= 0.1.3)
       ssrf_filter (~> 1.0)
     carrierwave-aws (1.5.0)
@@ -537,7 +537,7 @@ GEM
     mime-types (3.3.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2021.0225)
-    mimemagic (0.3.10)
+    mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
     mini_magick (4.11.0)
@@ -556,7 +556,7 @@ GEM
     netrc (0.11.0)
     nio4r (2.5.7)
     no_proxy_fix (0.1.2)
-    nokogiri (1.11.3)
+    nokogiri (1.11.4)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nori (2.6.0)
@@ -582,6 +582,7 @@ GEM
       rails (>= 4.0)
     open4 (1.3.4)
     operating_hours (0.1.0)
+    optimist (3.0.1)
     os (1.1.1)
     overcommit (0.57.0)
       childprocess (>= 0.6.3, < 5)
@@ -618,8 +619,8 @@ GEM
       parallel
     parser (3.0.1.1)
       ast (~> 2.4.1)
-    patience_diff (1.1.0)
-      trollop (~> 1.16)
+    patience_diff (1.2.0)
+      optimist (~> 3.0)
     pdf-core (0.9.0)
     pdf-forms (1.3.0)
       cliver (~> 0.3.2)
@@ -652,7 +653,7 @@ GEM
       byebug (~> 11.0)
       pry (~> 0.13.0)
     public_suffix (4.0.6)
-    puma (4.3.7)
+    puma (4.3.8)
       nio4r (~> 2.0)
     puma-plugin-statsd (0.1.0)
       json
@@ -734,7 +735,7 @@ GEM
     retriable (3.1.2)
     rexml (3.2.5)
     rgeo (2.0.1)
-    rgeo-activerecord (6.2.1)
+    rgeo-activerecord (6.2.2)
       activerecord (>= 5.0)
       rgeo (>= 1.0.0)
     rgeo-geojson (2.1.1)
@@ -786,7 +787,7 @@ GEM
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
-    rubocop-rspec (2.2.0)
+    rubocop-rspec (2.3.0)
       rubocop (~> 1.0)
       rubocop-ast (>= 1.1.0)
     rubocop-thread_safety (0.4.2)
@@ -798,7 +799,7 @@ GEM
       rexml
     ruby-vips (2.0.17)
       ffi (~> 1.9)
-    rubyzip (2.0.0)
+    rubyzip (2.3.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.1.0)
@@ -884,7 +885,7 @@ GEM
     statsd-instrument (2.6.0)
     strong_migrations (0.7.6)
       activerecord (>= 5)
-    super_diff (0.7.0)
+    super_diff (0.8.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -901,7 +902,6 @@ GEM
     timecop (0.9.4)
     tins (1.26.0)
       sync
-    trollop (1.16.2)
     ttfunk (1.7.0)
     typhoeus (1.4.0)
       ethon (>= 0.9.0)
@@ -913,7 +913,7 @@ GEM
     unf_ext (0.0.7.7)
     unicode-display_width (1.7.0)
     uri_template (0.7.0)
-    utf8-cleaner (0.2.5)
+    utf8-cleaner (1.0.0)
       activesupport
     vcr (6.0.0)
     virtus (1.0.5)
@@ -930,7 +930,7 @@ GEM
       activemodel (>= 6.0.0)
       bindex (>= 0.4.0)
       railties (>= 6.0.0)
-    webmock (3.12.2)
+    webmock (3.13.0)
       addressable (>= 2.3.6)
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
@@ -1032,7 +1032,7 @@ DEPENDENCIES
   liquid
   mail (= 2.7.1)
   memoist
-  mimemagic (~> 0.3.10)
+  mimemagic (~> 0.4.3)
   mini_magick (~> 4.11.0)
   mobile!
   net-sftp
@@ -1061,7 +1061,7 @@ DEPENDENCIES
   prawn
   prawn-table
   pry-byebug
-  puma (~> 4.3.7)
+  puma (~> 4.3.8)
   puma-plugin-statsd (~> 0.1.0)
   pundit
   rack

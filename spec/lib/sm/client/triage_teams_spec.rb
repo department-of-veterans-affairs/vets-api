@@ -18,7 +18,7 @@ describe 'sm client' do
     end
 
     it 'gets a collection of triage team recipients', :vcr do
-      folders = client.get_triage_teams
+      folders = client.get_triage_teams('1234', false)
       expect(folders).to be_a(Common::Collection)
       expect(folders.type).to eq(TriageTeam)
     end
