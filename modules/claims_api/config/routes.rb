@@ -63,6 +63,9 @@ ClaimsApi::Engine.routes.draw do
     mount OkComputer::Engine, at: '/healthcheck'
 
     post '/veteran-id:find', to: 'veteran_identifier#find', constraints: { find: /:find/ }
+    namespace :veterans do
+      get '/:veteran_id/claims', to: 'claims#index'
+    end
   end
 
   namespace :docs do
