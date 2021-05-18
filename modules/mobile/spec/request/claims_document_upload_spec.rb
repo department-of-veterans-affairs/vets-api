@@ -30,7 +30,8 @@ RSpec.describe 'claims document upload', type: :request do
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
     params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json, headers: iam_headers(json_body_headers)
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
+                                                               headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -42,7 +43,8 @@ RSpec.describe 'claims document upload', type: :request do
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json, headers: iam_headers(json_body_headers)
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
+                                                               headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -54,7 +56,8 @@ RSpec.describe 'claims document upload', type: :request do
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
     params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json, headers: iam_headers(json_body_headers)
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
+                                                               headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
