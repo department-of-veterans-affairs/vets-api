@@ -80,6 +80,19 @@ describe AppealsApi::PdfConstruction::Generator do
           Timecop.return
         end
       end
+
+      context 'v2' do
+        let(:extra_higher_level_review_v2) { create(:extra_higher_level_review_v2) }
+
+        it 'generates the expected pdf' do
+          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+          generated_pdf = described_class.new(extra_higher_level_review_v2, version: 'V2').generate
+          expected_pdf = fixture_filepath('expected_200996_v2_extra.pdf')
+          expect(generated_pdf).to match_pdf(expected_pdf)
+          File.delete(generated_pdf) if File.exist?(generated_pdf)
+          Timecop.return
+        end
+      end
     end
   end
 end
