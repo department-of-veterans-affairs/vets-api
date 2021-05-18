@@ -56,6 +56,7 @@ Vets API requires:
 
 ### pg_stat_statements
 If you have trouble enabling query stats from the PgHero dashboard, try enabling it manually
+
 Add the lines below to your main postgresql.conf file
 
 On Mac it should be located somewhere similiar to the following:
