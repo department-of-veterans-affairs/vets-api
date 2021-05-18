@@ -54,6 +54,23 @@ Vets API requires:
 
 1. Run `bin/setup` to setup the database and start the server.
 
+### pg_stat_statements
+If you have trouble enabling query stats from the PgHero dashboard, try enabling it manually
+Add the lines below to your main postgresql.conf file
+
+On Mac it should be located somewhere similiar to the following:
+`/Users/[your username]/Library/Application Support/Postgres/var-12/postgresql.conf`
+`shared_preload_libraries = 'pg_stat_statements'`
+`pg_stat_statements.track = all`
+`pg_stat_statements.max = 10000`
+`track_activity_query_size = 2048`
+
+Then from the command line:
+`psql -U postgres`
+
+Next from the psql console:
+`CREATE extension pg_stat_statements;`
+
 ## Settings and configuration
 
 We use the `config` gem to manage settings in the application. Local settings for each developer should be managed in your own local `config/settings.local.yml` file, which by default can override the standard configuration _and_ is excluded from source control so the settings can persist.
