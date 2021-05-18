@@ -188,7 +188,7 @@ GEM
     attr_extras (6.2.4)
     awesome_print (1.9.2)
     aws-eventstream (1.1.1)
-    aws-partitions (1.445.0)
+    aws-partitions (1.457.0)
     aws-sdk-core (3.114.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -197,7 +197,7 @@ GEM
     aws-sdk-kms (1.43.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.94.0)
+    aws-sdk-s3 (1.94.1)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -576,12 +576,12 @@ GEM
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.11.5)
     okcomputer (1.18.4)
-    olive_branch (3.0.0)
+    olive_branch (4.0.0)
       multi_json
-      oj
       rails (>= 4.0)
     open4 (1.3.4)
     operating_hours (0.1.0)
+    optimist (3.0.1)
     os (1.1.1)
     overcommit (0.57.0)
       childprocess (>= 0.6.3, < 5)
@@ -618,8 +618,8 @@ GEM
       parallel
     parser (3.0.1.1)
       ast (~> 2.4.1)
-    patience_diff (1.1.0)
-      trollop (~> 1.16)
+    patience_diff (1.2.0)
+      optimist (~> 3.0)
     pdf-core (0.9.0)
     pdf-forms (1.3.0)
       cliver (~> 0.3.2)
@@ -884,7 +884,7 @@ GEM
     statsd-instrument (2.6.0)
     strong_migrations (0.7.6)
       activerecord (>= 5)
-    super_diff (0.7.0)
+    super_diff (0.8.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -901,7 +901,6 @@ GEM
     timecop (0.9.4)
     tins (1.26.0)
       sync
-    trollop (1.16.2)
     ttfunk (1.7.0)
     typhoeus (1.4.0)
       ethon (>= 0.9.0)
