@@ -132,9 +132,21 @@ module AppealsApi
       veteran_phone.to_s
     end
 
+    def veteran_phone_data
+      veteran&.dig('phone')
+    end
+
+    def veteran_homeless?
+      form_data&.dig('data', 'attributes', 'veteran', 'homeless')
+    end
+
     # 11. E-MAIL ADDRESS
     def email
       veteran&.dig('emailAddressText').to_s.strip
+    end
+
+    def email_v2
+      veteran&.dig('email').to_s.strip
     end
 
     # 12. BENEFIT TYPE
@@ -160,6 +172,19 @@ module AppealsApi
       "#{informal_conference_rep_name} #{informal_conference_rep_phone}"
     end
 
+    def informal_conference_contact
+      data_attributes&.dig('informalConferenceContact')
+    end
+
+    # V2 only allows one choice of conference time
+    def informal_conference_time
+      data_attributes&.dig('informalConferenceTime')
+    end
+
+    def soc_opt_in
+      data_attributes&.dig('socOptIn')
+    end
+
     # 15. YOU MUST INDICATE BELOW EACH ISSUE...
     def contestable_issues
       form_data&.dig('included')
@@ -168,6 +193,18 @@ module AppealsApi
     # 16B. DATE SIGNED
     def date_signed
       veterans_local_time.strftime('%m/%d/%Y')
+    end
+
+    def date_signed_mm
+      veterans_local_time.strftime '%m'
+    end
+
+    def date_signed_dd
+      veterans_local_time.strftime '%d'
+    end
+
+    def date_signed_yyyy
+      veterans_local_time.strftime '%Y'
     end
 
     def consumer_name
