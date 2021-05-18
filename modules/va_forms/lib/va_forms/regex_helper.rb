@@ -6,18 +6,18 @@ module VAForms
       search_term.strip!
       search_term = check_prefix(search_term)
       # Matches 10-10 Forms
-      ten_form_regex = /^10\s*10(\s?[a-zA-Z].*)$/
+      ten_form_regex = /^10\s*10(\s?.*)$/
       # Looks for the common 10 10 and make it 10-10
       if search_term.match(ten_form_regex).present?
-        #search_term.sub!(/\s/, '-')
         search_term = "10-10#{Regexp.last_match(1)}"
+        return search_term
       # Look for 21p and correct it with a wildcard
       elsif search_term.match(/21[pP]/).present?
-        search_term.sub!(/^21[pP]/, '21P%')
-        search_term.sub!(/\s/, '%')
+        search_term = search_term.sub(/^21[pP]/, '21P%')
+        search_term = search_term.sub(/\s/, '%')
       # Add a wildcard to DDD forms to make it DD-D
       elsif search_term.match(/^\d\d\d/).present?
-        search_term.sub!(/\d\d/, '\0%')
+        search_term = search_term.sub(/\d\d/, '\0%')
       end
       search_term
     end
@@ -32,17 +32,19 @@ module VAForms
       if search_term.match(va_prefix_regex).present?
         # Scrub the 'VA' prefix, since not all forms have that, and keep just the number
         search_term = "#{Regexp.last_match(1)}#{Regexp.last_match(2)}"
+        search_term = search_term.strip
         search_term = search_term.gsub(/-/, '%')
       end
       if search_term.match(form_form_regex).present?
         # Scrub the 'form' term, since not all forms have that, and keep just the number
         search_term = "#{Regexp.last_match(1)}#{Regexp.last_match(2)}"
+        search_term = search_term.strip
         search_term = search_term.gsub(/-/, '%')
       end
       if search_term.match(gsa_form_regex).present?
         # Scrub the 'GSA' prefix, since not all forms have that, and keep just the number
-        search_term.sub!(/[gG][sS][aA]/, '\0%')
-        search_term.sub!(/-/, '%')
+        search_term = search_term.sub(/[gG][sS][aA]/, '\0%')
+        search_term = search_term.sub(/-/, '%')
       end
       search_term
     end
