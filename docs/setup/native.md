@@ -71,8 +71,7 @@ track_activity_query_size = 2048
 Then from the command line:
 `psql -U postgres`
 
-Next from the psql console:
-`CREATE extension pg_stat_statements;`
+**Make sure to migrate your database to enable the [pg_stat_statements extension](https://github.com/department-of-veterans-affairs/vets-api/blob/master/db/migrate/20210507122840_add_stats_extension.rb)**
 
 ## Settings and configuration
 
