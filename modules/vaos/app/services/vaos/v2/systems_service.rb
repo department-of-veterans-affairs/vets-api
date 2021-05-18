@@ -3,32 +3,50 @@
 module VAOS
   module V2
     class SystemsService < VAOS::SessionService
-      def get_facility_clinics(clinics_params)
+      def get_facility_clinics(location_id:,
+                               clinical_service: nil,
+                               clinic_ids: nil,
+                               page_size: nil,
+                               page_number: nil)
         with_monitoring do
-          url = "/vaos/v1/locations/#{clinics_params[:location_id]}/clinics"
+          url = "/vaos/v1/locations/#{location_id}/clinics"
           url_params = {
-            'location-id' => clinics_params[:location_id],
-            'patient-icn' => clinics_params[:patient_icn],
-            'clinic-ids' => clinics_params[:clinic_ids],
-            'clinical-service' => clinics_params[:clinical_service],
-            'page-size' => clinics_params[:page_size],
-            'page-number' => clinics_params[:page_number]
-          }
+            'patientIcn' => get_icn(clinical_service),
+            'clinicIds' => get_clinic_ids(clinic_ids),
+            'clinicalService' => clinical_service,
+            'pageSize' => page_size,
+            'pageNumber' => page_number
+          }.compact
           response = perform(:get, url, url_params, headers)
-          response.body.map { |clinic| OpenStruct.new(clinic) }
+          response.body[:data].map { |clinic| OpenStruct.new(clinic) }
         end
       end
 
-      def get_available_slots(slots_params)
+      def get_available_slots(location_id:, clinic_id:, start_dt:, end_dt:)
         with_monitoring do
-          url_path = "/vaos/v1/locations/#{slots_params[:location_id]}/clinics/#{slots_params[:clinic_id]}/slots"
+          url_path = "/vaos/v1/locations/#{location_id}/clinics/#{clinic_id}/slots"
           url_params = {
-            'start' => slots_params[:start],
-            'end' => slots_params[:end]
+            'start' => start_dt,
+            'end' => end_dt
           }
           response = perform(:get, url_path, url_params, headers)
           response.body[:data].map { |slot| OpenStruct.new(slot) }
         end
+      end
+
+      private
+
+      # Patient icn is only valid if the clinical service is of type primary care.
+      def get_icn(clinical_service)
+        clinical_service == 'primaryCare' ? user.icn : nil
+      end
+
+      # Depending on how the clinic ids array query parameter is passed in rails can see it
+      # internally as an array or a comma separated string. VAOS Service will only accept a
+      # CSV string of clinic ids. This method will convert the clinic ids to a csv string if not
+      # one already.
+      def get_clinic_ids(ids)
+        ids.is_a?(Array) ? ids.to_csv(row_sep: nil) : ids
       end
     end
   end

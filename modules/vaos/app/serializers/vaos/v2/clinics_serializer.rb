@@ -5,11 +5,12 @@ module VAOS
     class ClinicsSerializer
       include FastJsonapi::ObjectSerializer
 
-      set_id :vista_site
+      set_id :id
 
       set_type :clinics
 
-      attributes :id,
+      attributes :vista_site,
+                 :id,
                  :service_name,
                  :physical_location,
                  :phone_number,
