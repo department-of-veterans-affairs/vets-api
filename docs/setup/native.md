@@ -61,7 +61,7 @@ Add the lines below to your main postgresql.conf file
 
 On Mac it should be located somewhere similiar to the following:
 
-`/Users/[your username]/Library/Application Support/Postgres/var-12/postgresql.conf`
+`~/Library/Application Support/Postgres/var-12/postgresql.conf`
 ```
 shared_preload_libraries = 'pg_stat_statements'
 pg_stat_statements.track = all
