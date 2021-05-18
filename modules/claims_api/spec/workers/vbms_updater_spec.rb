@@ -33,7 +33,7 @@ RSpec.describe ClaimsApi::VBMSUpdater, type: :job do
 
   def create_mock_lighthouse_service
     corporate_update_stub = BGS::Services.new(external_uid: 'uid', external_key: 'key').corporate_update
-    allow(corporate_update_stub).to receive(:update_poa_access)
+    expect(corporate_update_stub).to receive(:update_poa_access)
     service_double = instance_double('BGS::Services')
     expect(service_double).to receive(:corporate_update).and_return(corporate_update_stub)
     expect(BGS::Services).to receive(:new).and_return(service_double)
