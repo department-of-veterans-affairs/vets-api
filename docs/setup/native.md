@@ -68,8 +68,6 @@ pg_stat_statements.track = all
 pg_stat_statements.max = 10000
 track_activity_query_size = 2048
 ```
-Then from the command line:
-`psql -U postgres`
 
 **Make sure to migrate your database to enable the [pg_stat_statements extension](https://github.com/department-of-veterans-affairs/vets-api/blob/master/db/migrate/20210507122840_add_stats_extension.rb)**
 
