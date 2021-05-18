@@ -3,10 +3,13 @@ on: [push]
 jobs:
   linting_and_security:
     name: Linting and Security
+    runs-on: ubuntu-20.04
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      ImageOS: ubuntu20
+      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
       RAILS_ENV: test
-    runs-on: ubuntu-20.04
+      SSL_CERT_FILE: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem'
 
     steps:
       - uses: actions/checkout@v2
@@ -14,9 +17,6 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Install System Packages (pdftk, poppler, imagemagick)
-        run: sudo apt install imagemagick pdftk poppler-utils
 
       - name: Run bundle-audit (checks gems for CVE issues)
         run:  bundle exec bundle-audit check --update
@@ -31,12 +31,6 @@ jobs:
         with:
           path: rubocop.json
         if: hashFiles('rubocop.json') != ''
-
-      - uses: devmasx/brakeman-linter-action@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          REPORT_PATH: brakeman.json
-        if: hashFiles('brakeman.json') != ''
 
   tests:
     name: Test
