@@ -3,10 +3,11 @@ on: [push]
 jobs:
   linting_and_security:
     name: Linting and Security
+
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-      RAILS_ENV: test
-    runs-on: ubuntu-20.04
+
+    runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
 
     steps:
       - uses: actions/checkout@v2
@@ -14,9 +15,6 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Install System Packages (pdftk, poppler, imagemagick)
-        run: sudo apt install imagemagick pdftk poppler-utils
 
       - name: Run bundle-audit (checks gems for CVE issues)
         run:  bundle exec bundle-audit check --update
@@ -40,41 +38,40 @@ jobs:
 
   tests:
     name: Test
-    runs-on: asg
+
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
       CI: true
       DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
       DISABLE_BOOTSNAP: true
+      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
       RAILS_ENV: test
-      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
+      "Settings.binaries.clamdscan": "clamscan"
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
-      "Settings.binaries.clamdscan": "clamscan"
+      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
       TERM: xterm-256color
-      GIT_COMMIT_SHA: ${{ github.sha }}
-      CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-      ImageOS: ubuntu20
-      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
+
+    runs-on: asg
 
     services:
       postgres:
         image: postgis/postgis:11-2.5
         env:
-          POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api_test
+          POSTGRES_USER: vets-api
           POSTGRES_PASSWORD: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
-
-      redis:
-        image: circleci/redis:5.0-alpine
 
     steps:
       - uses: actions/checkout@v2
 
       - uses: ruby/setup-ruby@v1
+        env:
+          ImageOS: ubuntu20
         with:
           bundler-cache: true
 
@@ -91,6 +88,8 @@ jobs:
         run: bundle exec parallel_rspec spec/ modules -n 14 -o '--color --tty'
 
       - name: Publish Code Climate coverage
+        env:
+          GIT_COMMIT_SHA: ${{ github.sha }}
         run: |
           export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
           ./cc-test-reporter after-build -t simplecov
@@ -100,6 +99,6 @@ jobs:
         if: always()
         with:
           check_name: Test Results
-          comment_on_pr: false
+          comment_mode: off
           files: log/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
