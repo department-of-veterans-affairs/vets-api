@@ -92,9 +92,10 @@ end
 OkComputer::Registry.register 'evss', EvssCheck.new
 OkComputer::Registry.register 'mpi', MpiCheck.new
 OkComputer::Registry.register 'bgs-vet_record', BgsCheck.new('vet_record')
+OkComputer::Registry.register 'bgs-corporate_update', BgsCheck.new('corporate_update')
 OkComputer::Registry.register 'bgs-intent_to_file', BgsCheck.new('intent_to_file')
 OkComputer::Registry.register 'bgs-claimant', BgsCheck.new('claimant')
 OkComputer::Registry.register 'bgs-contention', BgsCheck.new('contention')
 OkComputer::Registry.register 'vbms', VbmsCheck.new
 
-OkComputer.make_optional %w[vbms bgs-vet_record bgs-contention]
+OkComputer.make_optional %w[vbms bgs-vet_record bgs-corporate_update bgs-contention]
