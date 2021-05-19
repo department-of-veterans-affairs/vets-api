@@ -4,6 +4,7 @@
     "data": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["id", "type", "attributes"],
       "properties": {
         "id": {
           "type": "string",
@@ -16,11 +17,11 @@
         "attributes": {
           "type": "object",
           "additionalProperties": false,
-          "description": "Required by JSON API standard",
           "required": ["date_filed", "max_est_date", "open", "waiver_submitted", "documents_needed", "development_letter_sent", "status", "requested_decision", "claim_type", "contention_list", "va_representative", "events_timeline", "supporting_documents"],
           "properties": {
             "evss_id": {
               "type": "integer",
+              "nullable": true,
               "description": "Upstream service identifier"
             },
             "date_filed": {
@@ -91,7 +92,6 @@
             },
             "contention_list": {
               "type": "array",
-              "description": "List of contentions being submitted in Claim",
               "items": {
                 "type": "string"
               }
@@ -102,13 +102,11 @@
             },
             "events_timeline": {
               "type": "array",
-              "description": "List of events during lifetime of Claim",
               "items": {
                 "properties": {
                   "single_event": {
                     "type": "object",
                     "additionalProperties": false,
-                    "description": "Record of different actions taken",
                     "required": ["type", "date"],
                     "properties": {
                       "type": {
@@ -125,7 +123,6 @@
                   "tracked_item": {
                     "type": "object",
                     "additionalProperties": false,
-                    "description": "Record of a tracked item needed or available in VBMS",
                     "required": ["tracked_item_id", "file_type", "document_type", "filename", "upload_date", "type", "date"],
                     "properties": {
                       "tracked_item_id": {
@@ -165,8 +162,6 @@
             },
             "supporting_documents": {
               "type": "array",
-              "additionalProperties": false,
-              "description": "List of supporting documents associated with Claim",
               "items": {
                 "properties": {
                   "id": {

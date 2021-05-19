@@ -3,9 +3,7 @@
   "properties": {
     "data": {
       "type": "array",
-      "additionalProperties": false,
       "items": {
-        "description": "Claim with some details for the given Veteran info",
         "required": ["id", "type", "attributes"],
         "properties": {
           "id": {
@@ -19,8 +17,7 @@
           "attributes": {
             "type": "object",
             "additionalProperties": false,
-            "description": "Required by JSON API standard",
-            "required": ["date_filed", "max_est_date", "open", "waiver_submitted", "documents_needed", "development_letter_sent", "status", "requested_decision", "claim_type"],
+            "required": ["evss_id", "date_filed", "max_est_date", "open", "waiver_submitted", "documents_needed", "development_letter_sent", "status", "requested_decision", "claim_type"],
             "properties": {
               "evss_id": {
                 "type": "integer",
