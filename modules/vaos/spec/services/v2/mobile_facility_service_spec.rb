@@ -31,4 +31,27 @@ describe VAOS::V2::MobileFacilityService do
       end
     end
   end
+
+  # describe '#facilities' do
+  #   context 'with a facility id' do
+  #     it 'returns a configuration' do
+  #       VCR.use_cassette('vaos/v2/mobile_facility/get_facilities_200',
+  #                        match_requests_on: %i[method uri]) do
+  #         response = subject.get_facilities(%w[489])
+  #         # expect(response[:data].size).to eq(1)
+  #       end
+  #     end
+  #   end
+
+  #   context 'when the upstream server returns a 500' do
+  #     it 'raises a backend exception' do
+  #       VCR.use_cassette('vaos/v2/mobile_facility/get_scheduling_configurations_500',
+  #                        match_requests_on: %i[method uri]) do
+  #         expect { subject.get_scheduling_configurations(%w[489], false) }.to raise_error(
+  #           Common::Exceptions::BackendServiceException
+  #         )
+  #       end
+  #     end
+  #   end
+  # end
 end

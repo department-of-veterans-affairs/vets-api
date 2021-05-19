@@ -1,0 +1,53 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://veteran.apps.va.gov/facilities/v2/facilities?children=false&ids%5B%5D=489&pageSize=0
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - ""
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 200
+        message: Success
+      headers:
+        Date:
+          - Wed, 19 May 2021 18:02:50 GMT
+        Content-Type:
+          - application/json
+        Content-Length:
+          - "5267"
+        Connection:
+          - keep-alive
+        Etag:
+          - '"601db677-1493"'
+        Set-Cookie:
+          - TS016f4012=01c16e2d818048eebd650e17e0c1ff78f9811f941afd8824ef6abb9542a85f9b226409ceb0937d23bdef48b0b383229f68aa9d0cb9;
+            Max-Age=900; Path=/
+          - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.e1neTOWcME6719cqeJJJyPJ_spPiWGxODclyHCjGq_BOKjx3kZh2RPZtI6ShLH_zlYc83u0_5kphlz86ekUxDr0opXMVV_e82ciaNpNhxAiFwvG15ypc5of8V8LZhAw2YBJhscGbis4F3IVBvaD7uREJGWrV5v2iseFn5QGr3MMFepov9VCwovQEgOYz1MQ21JjpfwSndXIUuEd8OTe37_mnObeB-mus0emZ5HEJc_xh2GxX-A3oSb6xD-6KMSk7kjnsXf7KYmAtyPg3DVZ0YbIAmT-yPlCvEAV2s8fDrLdiIlp8OgunyoSF0pi4uhItu14XRWxoagR16wPkE2xrzQ.NypCEZbclQf77i4cjIcEgQ.M9CPKS29ZGV_tKjsXSVwBNcf_ws4nmMpcJNmkOzk-2KJCq0J6dsevRaNVvChoMNWFqbp7a982eBQ8f3_bM84r2r_IMA_LF8H3KbWXnefuDONhcRxe8PZGM4rp9Goa8qd0mUneiScbtIYZUtZtQKKrD-oM5A8mtp6X4cjr0fBqnVAZHB8n3DLsmuhqm1-K3h3AC3aJwuVJ76ZBWVghzgPM9-LQs7u5W67mE_E5_HWDaUjiNQzaF9OqecirFNlRaWjJkvb2UYykfFZgtmXI2d2d-4TaU55-cYg-VnXiwuitLZQ2-rQ54Qi8K6kQLamT-4hVzPsA9B3AvIjZuL3i3TiO1nrmbJFst-S6yYrykNo0TlOI0w7Ua1tQJkLxO6pvA6hamvPpTzqKMDrIUuLJGzZTdCXZdnW6C5xqGFMamDvBEwuVp8c7SnSIG_fEZUd3PJFB22L2XfzOnNY0KjuSq0NjPcfwVECtAsiAz67YYImt0PCPsaEBYKPXYoGV_u-ONRbFufFLlg_SJzqrO16ZyeXqe8YFRF3kjND6Q4dkg8-tj4z22OFRfqnlEtGy3x1m8UqYS__Eqp5BIHo0quBYVltsdxOPs7qk06oenX4eS_itx-jLRS78ybtvT93ufy1Ol8gu36D0IfLQ6--2Ji8JScA-Es5-cAInqyPLm3SQBo0dqeuqCMmUDzhigyuPwE1fauFCwgvqc3XubIX8Y_VYTO3kg.7nwOA3lMFiGtXO23rjU96Sz2z8UGDBpWb3bwiy8G5C0;
+            path=/; SameSite=Lax; HttpOnly
+          - vamftimeoutv1=1621448270; SameSite=Lax; path=/
+      body:
+       encoding: UTF-8
+        string: |-
+          {
+
+          }
+        http_version:
+    recorded_at: Wed, 19 May 2021 18:02:50 GMT
+recorded_with: VCR 6.0.0

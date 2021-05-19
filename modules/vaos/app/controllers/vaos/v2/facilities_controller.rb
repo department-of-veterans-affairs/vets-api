@@ -17,9 +17,9 @@ module VAOS
       def clinics_params
         params.require(:ids)
         params.permit(
-          :ids,
           :children,
-          :type
+          :type,
+          ids: []
         )
       end
     end
