@@ -575,9 +575,8 @@ GEM
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.11.5)
     okcomputer (1.18.4)
-    olive_branch (3.0.0)
+    olive_branch (4.0.0)
       multi_json
-      oj
       rails (>= 4.0)
     open4 (1.3.4)
     operating_hours (0.1.0)
