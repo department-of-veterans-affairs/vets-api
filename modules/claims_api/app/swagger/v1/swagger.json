@@ -115,6 +115,8 @@
                   ]
                 },
                 "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
                   "required": [
                     "data"
                   ],
@@ -163,14 +165,18 @@
                                 "description": "Date in YYYY-MM-DD the claim was first filed"
                               },
                               "min_est_date": {
-                                "type": "string",
-                                "nullable": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
                                 "format": "date",
                                 "description": "Minimum Estimated Claim Completion Date"
                               },
                               "max_est_date": {
-                                "type": "string",
-                                "nullable": true,
+                                "type": [
+                                  "string",
+                                  "null"
+                                ],
                                 "format": "date",
                                 "description": "Maximum Estimated Claim Completion Date"
                               },
@@ -194,11 +200,6 @@
                                 "type": "boolean",
                                 "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
                               },
-                              "updated_at": {
-                                "type": "string",
-                                "format": "date-time",
-                                "description": "Time stamp of last change to the claim"
-                              },
                               "status": {
                                 "type": "string",
                                 "description": "Current status of the claim",
@@ -220,7 +221,8 @@
                                 "enum": [
                                   "Compensation",
                                   "Compensation and Pension",
-                                  "Dependency"
+                                  "Dependency",
+                                  "Administrative Review"
                                 ]
                               }
                             }
@@ -413,7 +415,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "abb9c59c-acc8-4867-bcf8-f4eb20984fb6",
+                    "id": "ebcebd9a-1422-44fc-b318-89eec6486300",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -462,17 +464,19 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "c00a50cd-9c38-4855-98b0-4ee0369edb4f",
+                          "id": "c84a9573-eff6-4196-bb8f-35396eb0d1c1",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-05-19T19:55:20.151Z"
+                          "uploaded_at": "2021-05-19T22:07:52.473Z"
                         }
                       ]
                     }
                   }
                 },
                 "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
                   "required": [
                     "data"
                   ],
@@ -524,14 +528,18 @@
                               "description": "Date in YYYY-MM-DD the claim was first filed"
                             },
                             "min_est_date": {
-                              "type": "string",
-                              "nullable": true,
+                              "type": [
+                                "string",
+                                "null"
+                              ],
                               "format": "date",
                               "description": "Minimum Estimated Claim Completion Date"
                             },
                             "max_est_date": {
-                              "type": "string",
-                              "nullable": true,
+                              "type": [
+                                "string",
+                                "null"
+                              ],
                               "format": "date",
                               "description": "Maximum Estimated Claim Completion Date"
                             },
@@ -554,11 +562,6 @@
                             "decision_letter_sent": {
                               "type": "boolean",
                               "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
-                            },
-                            "updated_at": {
-                              "type": "string",
-                              "format": "date-time",
-                              "description": "Time stamp of last change to the claim"
                             },
                             "status": {
                               "type": "string",
@@ -597,8 +600,8 @@
                             "events_timeline": {
                               "type": "array",
                               "items": {
-                                "properties": {
-                                  "single_event": {
+                                "anyOf": [
+                                  {
                                     "type": "object",
                                     "additionalProperties": false,
                                     "required": [
@@ -617,7 +620,7 @@
                                       }
                                     }
                                   },
-                                  "tracked_item": {
+                                  {
                                     "type": "object",
                                     "additionalProperties": false,
                                     "required": [
@@ -631,7 +634,10 @@
                                     ],
                                     "properties": {
                                       "tracked_item_id": {
-                                        "type": "string",
+                                        "type": [
+                                          "string",
+                                          "null"
+                                        ],
                                         "description": "Tracked Item ID given by VBMS"
                                       },
                                       "file_type": {
@@ -662,7 +668,7 @@
                                       }
                                     }
                                   }
-                                }
+                                ]
                               }
                             },
                             "supporting_documents": {
@@ -2123,7 +2129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8ee26ae1-8f9f-47f7-ab61-313cb9d42069",
+                    "id": "0eaef084-92ce-49d6-a086-e51b691560af",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2141,13 +2147,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T19:55:20.454Z",
+                      "updated_at": "2021-05-19T22:07:52.757Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "8ee26ae1-8f9f-47f7-ab61-313cb9d42069",
+                      "token": "0eaef084-92ce-49d6-a086-e51b691560af",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3563,7 +3569,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9b10b42c-63fb-4222-93b9-334f58197e05",
+                    "id": "138b5d62-dc03-48cf-8ae0-d4f700ac18f4",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3581,13 +3587,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T19:55:20.662Z",
+                      "updated_at": "2021-05-19T22:07:52.957Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "9b10b42c-63fb-4222-93b9-334f58197e05",
+                      "token": "138b5d62-dc03-48cf-8ae0-d4f700ac18f4",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5173,7 +5179,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2a533406-1c65-4daf-a5c8-cbbd668432ad",
+                    "id": "ed69def3-15b7-4496-ac91-094ee91cb7d2",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5187,7 +5193,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T19:55:21.257Z",
+                      "updated_at": "2021-05-19T22:07:53.522Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5196,7 +5202,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "b4328ee4-4287-4189-a296-b5ed3bd2ed7a",
+                          "id": "9902fecb-7816-4031-bb3f-6745019d85a3",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6738,7 +6744,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c5bee3b0-e249-4aee-a558-20779ce8a8c5",
+                    "id": "f50f35b2-aa7b-406e-8d45-4823460772e6",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -7270,7 +7276,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4a11e92f-0c94-41e6-a1f7-1fa596030595",
+                    "id": "9f1018ee-1a3b-41de-89c7-084ae115bf9e",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -7409,7 +7415,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "469b2847-745f-4edf-9fa9-516d3f5817d1",
+                    "id": "2f046f17-81ad-4dbf-b011-5ae7a45f3ad2",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",

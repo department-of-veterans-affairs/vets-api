@@ -32,7 +32,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 200 response' do
         response '200', 'claim response' do
-          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'claims.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'claims.json')))
 
           let(:scopes) { %w[claim.read] }
 
@@ -63,7 +63,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
           
           let(:scopes) { %w[claim.read] }
           let(:Authorization) { nil }
@@ -95,7 +95,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 404 response' do
         response '404', 'Resource Not Found' do
-          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
 
           let(:scopes) { %w[claim.read] }
 
@@ -158,7 +158,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 200 response' do
         response '200', 'claims response' do
-          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'claim.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'claim.json')))
 
           let(:scopes) { %w[claim.read] }
           let(:claim) { create(:auto_established_claim_with_supporting_documents, :status_established, source: 'abraham lincoln') }
@@ -191,7 +191,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
 
           let(:scopes) { %w[claim.read] }
           let(:id) { '600118851' }
@@ -224,7 +224,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 404 response' do
         response '404', 'Record Not Found' do
-          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
 
           let(:scopes) { %w[claim.read] }
           let(:id) { '999999999999999' }
