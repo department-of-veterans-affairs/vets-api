@@ -347,7 +347,10 @@ describe DecisionReview::Service do
     end
 
     let(:file_upload) do
-      double(CarrierWave::SanitizedFile, filename: 'upload.txt', read: 'contents of file', content_type: 'text/plain')
+      double(CarrierWave::SanitizedFile,
+             filename: 'upload.pdf',
+             read: File.read('spec/fixtures/files/doctors-note.jpg'),
+             content_type: Mime[:pdf].to_s)
     end
     let(:path) do
       'https://sandbox-api.va.gov/services_user_content/vba_documents/021d2fab-b3ca-4928-b90d-94b4c45529d8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210426/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210426T163153Z&X-Amz-Expires=900&X-Amz-Signature=33e56786dfc1b5d6758abd931d9d50388f6206302708074b1924929c6e33da00&X-Amz-SignedHeaders=host'
