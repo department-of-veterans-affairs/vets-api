@@ -4,7 +4,10 @@ module VAOS
   module V2
     class SlotsController < VAOS::V0::BaseController
       def index
-        response = systems_service.get_available_slots(slots_params)
+        response = systems_service.get_available_slots(location_id: location_id,
+                                                       clinic_id: clinic_id,
+                                                       start_dt: start_dt,
+                                                       end_dt: end_dt)
         render json: VAOS::V2::SlotsSerializer.new(response)
       end
 
@@ -14,9 +17,20 @@ module VAOS
         VAOS::V2::SystemsService.new(current_user)
       end
 
-      def slots_params
-        params.require(%i[location_id clinic_id start end])
-        params.permit(:location_id, :clinic_id, :start, :end)
+      def location_id
+        params.require(:location_id)
+      end
+
+      def clinic_id
+        params.require(:clinic_id)
+      end
+
+      def start_dt
+        params.require(:start)
+      end
+
+      def end_dt
+        params.require(:end)
       end
     end
   end
