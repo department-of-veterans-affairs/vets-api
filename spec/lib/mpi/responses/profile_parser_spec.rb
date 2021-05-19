@@ -146,7 +146,7 @@ describe MPI::Responses::ProfileParser do
           home_phone: '1112223333',
           icn: nil,
           icn_with_aaid: nil,
-          historical_icns: ['1008691087V194812'],
+          historical_icns: [],
           full_mvi_ids: [],
           sec_id: nil,
           vet360_id: nil,

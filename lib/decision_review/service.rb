@@ -143,9 +143,10 @@ module DecisionReview
     # @return [Faraday::Response]
     #
 
-    def get_notice_of_disagreement_upload_url(nod_id:)
+    def get_notice_of_disagreement_upload_url(nod_id:, ssn:)
       with_monitoring_and_error_handling do
-        perform :post, 'notice_of_disagreements/evidence_submissions', nod_id: nod_id
+        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_id: nod_id },
+                { 'X-VA-SSN' => ssn.to_s.strip.presence }
       end
     end
 
@@ -159,12 +160,26 @@ module DecisionReview
     # @return [Faraday::Response]
     #
 
-    def put_notice_of_disagreement_upload(upload_url:, file_path:, metadata:)
-      params = { metadata: metadata }
-      params[:content] = Faraday::UploadIO.new(file_path, Mime[:pdf].to_s)
+    def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata:)
+      # After we start using Faradata >=1.0 we won't need to use tmpfiles
+      metadata_tmpfile = Tempfile.new('metadata.json')
+      metadata_tmpfile.write(metadata.to_json)
+      metadata_tmpfile.rewind
+
+      content_tmpfile = Tempfile.new(file_upload.filename)
+      content_tmpfile.write(file_upload.read)
+      content_tmpfile.rewind
+
+      params = { metadata: Faraday::UploadIO.new(metadata_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
+                 content: Faraday::UploadIO.new(content_tmpfile.path, file_upload.content_type, file_upload.filename) }
       with_monitoring_and_error_handling do
         perform :put, upload_url, params, nil
       end
+    ensure
+      metadata_tmpfile.close
+      metadata_tmpfile.unlink
+      content_tmpfile.close
+      content_tmpfile.unlink
     end
 
     ##
@@ -179,6 +194,17 @@ module DecisionReview
       with_monitoring_and_error_handling do
         perform :get, "notice_of_disagreements/evidence_submissions/#{guid}", nil
       end
+    end
+
+    def self.file_upload_metadata(user)
+      {
+        'veteranFirstName' => user.first_name.to_s.strip,
+        'veteranLastName' => user.last_name.to_s.strip.presence,
+        'zipCode' => user.zip,
+        'fileNumber' => user.ssn.to_s.strip,
+        'source' => 'Vets.gov',
+        'businessLine' => 'BVA'
+      }.to_json
     end
 
     private

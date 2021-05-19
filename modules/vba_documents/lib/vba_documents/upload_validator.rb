@@ -6,9 +6,12 @@ require 'central_mail/utilities'
 require 'central_mail/service'
 require 'pdf_info'
 
+# rubocop:disable Metrics/ModuleLength
 module VBADocuments
   module UploadValidations
     include CentralMail::Utilities
+
+    VALID_NAME = %r{^[a-zA-Z\-\/]{1,50}$}.freeze
 
     def update_pdf_metadata(model, inspector)
       model.update(uploaded_pdf: inspector.pdf_data)
@@ -54,9 +57,18 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
 
+      validate_names(metadata['veteranFirstName'], metadata['veteranLastName'])
       validate_line_of_business(metadata['businessLine'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
+    end
+
+    def validate_names(first, last)
+      [first, last].each do |name|
+        msg = 'Invalid Veteran name (e.g. empty, invalid characters, or too long). '
+        msg += "Names must match the regular expression #{VALID_NAME.inspect}"
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg) unless name =~ VALID_NAME
+      end
     end
 
     def validate_line_of_business(lob)
@@ -124,3 +136,4 @@ module VBADocuments
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength

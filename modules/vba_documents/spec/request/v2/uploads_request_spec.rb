@@ -17,8 +17,12 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   Rack::Utils.key_space_limit = 65_536 * 5
   SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
 
-  def build_fixture(fixture, is_metadata = false)
-    fixture_path = get_fixture(fixture).path
+  def build_fixture(fixture, is_metadata = false, is_erb = false)
+    fixture_path = if is_erb && is_metadata
+                     get_erbed_fixture(fixture).path
+                   else
+                     get_fixture(fixture).path
+                   end
     content_type = is_metadata ? 'application/json' : 'application/pdf'
     Rack::Test::UploadedFile.new(fixture_path, content_type, !is_metadata)
   end
@@ -34,6 +38,22 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   end
 
   describe '#submit /v2/uploads/submit' do
+    let(:missing_first) { { metadata: build_fixture('missing_first_metadata.json', true) } }
+    let(:missing_last) { { metadata: build_fixture('missing_last_metadata.json', true) } }
+
+    let(:bad_with_digits_first) do
+      { metadata: build_fixture('bad_with_digits_first_metadata.json', true) }
+    end
+    let(:bad_with_funky_characters_last) do
+      { metadata: build_fixture('bad_with_funky_characters_last_metadata.json', true) }
+    end
+    let(:dashes_slashes_first_last) do
+      { metadata: build_fixture('dashes_slashes_first_last_metadata.json', true) }
+    end
+    let(:name_too_long_metadata) do
+      { metadata: build_fixture('name_too_long_metadata.json.erb', true, true) }
+    end
+
     let(:valid_content) do
       { content: build_fixture('valid_doc.pdf') }
     end
@@ -61,9 +81,11 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     end
 
     after do
-      guid = @attributes['guid']
-      upload = VBADocuments::UploadFile.find_by(guid: guid)
-      expect(upload).to be_uploaded
+      if @attributes
+        guid = @attributes['guid']
+        upload = VBADocuments::UploadFile.find_by(guid: guid)
+        expect(upload).to be_uploaded
+      end
     end
 
     it 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do
@@ -107,6 +129,26 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
       expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
       expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
+    end
+
+    it 'allows dashes and forward slashes in names' do
+      post SUBMIT_ENDPOINT,
+           params: {}.merge(dashes_slashes_first_last).merge(valid_content)
+      expect(response).to have_http_status(:ok)
+    end
+
+    %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
+       name_too_long_metadata].each do |bad|
+      it "returns an error if the name field #{bad} is missing or has bad characters" do
+        post SUBMIT_ENDPOINT,
+             params: {}.merge(send(bad)).merge(valid_content)
+        expect(response).to have_http_status(:bad_request)
+        json = JSON.parse(response.body)
+        @attributes = json['data']['attributes']
+        expect(@attributes['status']).to eq('error')
+        expect(@attributes['code']).to eq('DOC102')
+        expect(@attributes['detail']).to match(/^Invalid Veteran name/)
+      end
     end
 
     it 'returns an error when a content is missing' do

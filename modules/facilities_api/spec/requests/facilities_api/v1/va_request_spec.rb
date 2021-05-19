@@ -7,7 +7,7 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
 
   context request_params do
     before do
-      get facilities_api.v1_va_index_url, params: params
+      get '/facilities_api/v1/va', params: params
     end
 
     it { expect(response).to be_successful }
@@ -43,15 +43,16 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
       prev_params = params.merge({ page: prev_page, per_page: 10 }).to_query
       next_params = params.merge({ page: next_page, per_page: 10 }).to_query
 
-      prev_link = prev_page ? "#{facilities_api.v1_va_index_url}?#{prev_params}" : nil
-      next_link = next_page ? "#{facilities_api.v1_va_index_url}?#{next_params}" : nil
+      prev_link = prev_page ? "http://www.example.com/facilities_api/v1/va?#{prev_params}" : nil
+      next_link = next_page ? "http://www.example.com/facilities_api/v1/va?#{next_params}" : nil
 
       expect(parsed_body[:links]).to match(
-        self: "#{facilities_api.v1_va_index_url}?#{params.merge({ page: current_page, per_page: 10 }).to_query}",
-        first: "#{facilities_api.v1_va_index_url}?#{params.merge({ per_page: 10 }).to_query}",
+        self: "http://www.example.com/facilities_api/v1/va?#{params.merge({ page: current_page,
+                                                                            per_page: 10 }).to_query}",
+        first: "http://www.example.com/facilities_api/v1/va?#{params.merge({ per_page: 10 }).to_query}",
         prev: prev_link,
         next: next_link,
-        last: "#{facilities_api.v1_va_index_url}?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
+        last: "http://www.example.com/facilities_api/v1/va?#{params.merge({ page: last_page, per_page: 10 }).to_query}"
       )
     end
   end
@@ -69,22 +70,22 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
 
   describe 'GET #index' do
     it 'returns 400 for invalid type parameter' do
-      get facilities_api.v1_va_index_url, params: { type: 'bogus' }
+      get '/facilities_api/v1/va', params: { type: 'bogus' }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for query with services but no type' do
-      get facilities_api.v1_va_index_url, params: { services: 'EyeCare' }
+      get '/facilities_api/v1/va', params: { services: 'EyeCare' }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for health query with unknown service' do
-      get facilities_api.v1_va_index_url, params: { type: 'health', services: ['OilChange'] }
+      get '/facilities_api/v1/va', params: { type: 'health', services: ['OilChange'] }
       expect(response).to have_http_status(:bad_request)
     end
 
     it 'returns 400 for benefits query with unknown service' do
-      get facilities_api.v1_va_index_url, params: { type: 'benefits', services: ['Haircut'] }
+      get '/facilities_api/v1/va', params: { type: 'benefits', services: ['Haircut'] }
       expect(response).to have_http_status(:bad_request)
     end
 
@@ -100,7 +101,7 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
       )
 
       expect do
-        get facilities_api.v1_va_index_url, params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
+        get '/facilities_api/v1/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
       end.to instrument('lighthouse.facilities.request.faraday')
     end
 
@@ -167,21 +168,6 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                     },
                     %w[vha_442 vha_552 vha_552GB vha_442GC vha_442GB vha_552GA vha_552GD]
 
-    context 'params[:exclude_mobile]' do
-      context 'true' do
-        it_behaves_like 'paginated request from params with expected IDs',
-                        {
-                          exclude_mobile: true,
-                          bbox: [-74.730, 40.015, -73.231, 41.515],
-                          page: 1
-                        },
-                        %w[
-                          vba_306h vba_306i vha_630 vba_306 vha_630GA
-                          vc_0133V vha_526GD vc_0106V vc_0105V vha_561GE
-                        ]
-      end
-    end
-
     context 'params[:mobile]' do
       context 'mobile not passed' do
         it_behaves_like 'paginated request from params with expected IDs',
@@ -223,11 +209,64 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                         false
       end
     end
+
+    context 'params[:type] = health' do
+      context 'params[:services] = [\'Covid19Vaccine\']', vcr: vcr_options.merge(
+        cassette_name: 'facilities/mobile/covid'
+      ) do
+        let(:params) do
+          {
+            lat: 42.060906,
+            long: -71.051868,
+            type: 'health',
+            services: ['Covid19Vaccine']
+          }
+        end
+
+        before do
+          Flipper.enable('facilities_locator_mobile_covid_online_scheduling', flipper)
+          get '/facilities_api/v1/va', params: params
+        end
+
+        context 'facilities_locator_mobile_covid_online_scheduling enabled' do
+          let(:flipper) { true }
+
+          it { expect(response).to be_successful }
+
+          it 'is expected not to populate tmpCovidOnlineScheduling' do
+            parsed_body['data']
+
+            expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to be_truthy
+            expect(parsed_body['data'][1..]).to all(
+              a_hash_including(
+                attributes: a_hash_including(tmpCovidOnlineScheduling: false)
+              )
+            )
+          end
+        end
+
+        context 'facilities_locator_mobile_covid_online_scheduling disabled' do
+          let(:flipper) { false }
+
+          it { expect(response).to be_successful }
+
+          it 'is expected not to populate tmpCovidOnlineScheduling' do
+            parsed_body['data']
+
+            expect(parsed_body['data']).to all(
+              a_hash_including(
+                attributes: a_hash_including(tmpCovidOnlineScheduling: nil)
+              )
+            )
+          end
+        end
+      end
+    end
   end
 
   describe 'GET #show' do
     before do
-      get facilities_api.v1_va_url('vha_648A4')
+      get '/facilities_api/v1/va/vha_648A4'
     end
 
     it { expect(response).to be_successful }
@@ -321,7 +360,8 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
               },
               uniqueId: '648A4',
               visn: '20',
-              website: 'https://www.portland.va.gov/locations/vancouver.asp'
+              website: 'https://www.portland.va.gov/locations/vancouver.asp',
+              tmpCovidOnlineScheduling: nil
             }
           }
         }
