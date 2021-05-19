@@ -693,7 +693,7 @@ GEM
       loofah (~> 2.3)
     rails-session_cookie (0.2.2)
       rails (>= 4.0)
-    rails_semantic_logger (4.5.0)
+    rails_semantic_logger (4.5.1)
       rack
       railties (>= 3.2)
       semantic_logger (~> 4.4)
