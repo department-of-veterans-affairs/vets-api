@@ -10,9 +10,14 @@ module FacilitiesApi
       class Client < Common::Client::Base
         configuration V1::MobileCovid::Configuration
 
-        def direct_booking_eligibility_criteria_by_id(id)
+        def direct_booking_eligibility_criteria_by_id(raw_id)
+          id = sanitize_id(raw_id)
           response = perform(:get, "/facilities/v1/direct-booking-eligibility-criteria/#{id}", nil)
           V1::MobileCovid::Response.new(response.body, response.status)
+        end
+
+        def sanitize_id(raw_id)
+          raw_id[/(.*_)?(\d+.*)/, 2]
         end
       end
     end
