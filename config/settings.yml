@@ -223,6 +223,7 @@ modules_appeals_api:
     aws_secret_access_key: "aws_secret_access_key"
     region: "region"
     bucket: "bucket"
+  status_simulation_enabled: false
 
 
 vre_counseling:
