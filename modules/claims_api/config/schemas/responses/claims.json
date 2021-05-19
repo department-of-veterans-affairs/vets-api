@@ -1,0 +1,101 @@
+{
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "additionalProperties": false,
+      "items": {
+        "description": "Claim with some details for the given Veteran info",
+        "required": ["id", "type", "attributes"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Claim ID from EVSS"
+          },
+          "type": {
+            "type": "string",
+            "description": "Required by JSON API standard"
+          },
+          "attributes": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Required by JSON API standard",
+            "required": ["date_filed", "max_est_date", "open", "waiver_submitted", "documents_needed", "development_letter_sent", "status", "requested_decision", "claim_type"],
+            "properties": {
+              "evss_id": {
+                "type": "integer",
+                "description": "Upstream service identifier"
+              },
+              "date_filed": {
+                "type": "string",
+                "format": "date",
+                "description": "Date in YYYY-MM-DD the claim was first filed"
+              },
+              "min_est_date": {
+                "type": "string",
+                "nullable": true,
+                "format": "date",
+                "description": "Minimum Estimated Claim Completion Date"
+              },
+              "max_est_date": {
+                "type": "string",
+                "nullable": true,
+                "format": "date",
+                "description": "Maximum Estimated Claim Completion Date"
+              },
+              "open": {
+                "type": "boolean",
+                "description": "Has the claim been resolved"
+              },
+              "waiver_submitted": {
+                "type": "boolean",
+                "description": "Requested Decision or Waiver 5103 Submitted"
+              },
+              "documents_needed": {
+                "type": "boolean",
+                "description": "Does the claim require additional documents to be submitted"
+              },
+              "development_letter_sent": {
+                "type": "boolean",
+                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+              },
+              "decision_letter_sent": {
+                "type": "boolean",
+                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+              },
+              "updated_at": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Time stamp of last change to the claim"
+              },
+              "status": {
+                "type": "string",
+                "description": "Current status of the claim",
+                "enum": [
+                  "Claim received",
+                  "Initial review",
+                  "Evidence gathering, review, and decision",
+                  "Preparation for notification",
+                  "Complete"
+                ]
+              },
+              "requested_decision": {
+                "type": "boolean",
+                "description": "The claim filer has requested a claim decision be made"
+              },
+              "claim_type": {
+                "type": "string",
+                "description": "The type of claim originally submitted",
+                "enum": [
+                  "Compensation",
+                  "Compensation and Pension",
+                  "Dependency"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
