@@ -48,6 +48,7 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
         expect(triage_team.dig('attributes', 'name')).to eq('Automation Triage')
         expect(triage_team.dig('type')).to eq('triage_teams')
         expect(response).to match_camelized_response_schema('triage_teams')
+        expect(StatsD).to receive(:increment).with('mobile.api.cache.hit', any_args)
       end
     end
   end

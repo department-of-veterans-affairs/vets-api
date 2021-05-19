@@ -17,6 +17,12 @@ module SM
 
     MHV_MAXIMUM_PER_PAGE = 250
     CONTENT_DISPOSITION = 'attachment; filename='
+    STATSD_KEY_PREFIX = if self.class == SM::Client
+      'api.sm'
+    else
+      'mobile.sm'
+    end
+
 
     ##
     # @!group Preferences
@@ -335,8 +341,10 @@ module SM
       if data
         Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
         Common::Collection.new(model, { data: data })
+        statsd_cache_hit()
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
+        statsd_cache_miss()
         yield
       end
     end
@@ -374,5 +382,19 @@ module SM
         raise Common::Exceptions::ValidationErrors, draft
       end
     end
+
+    ##
+    # @!group StatsD
+    ##
+    # Report stats of secure messaging events
+    #
+    def statsd_cache_hit
+      StatsD.increment("mobile.sm.cache.hit")
+    end
+
+    def statsd_cache_miss
+      StatsD.increment("mobile.sm.cache.miss")
+    end
+    # @!endgroup
   end
 end

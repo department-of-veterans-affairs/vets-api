@@ -110,3 +110,9 @@ StatsD.increment('mobile.push.set_pref.failure', 0)
 
 StatsD.increment('mobile.push.send_notification.success', 0)
 StatsD.increment('mobile.push.send_notification.failure', 0)
+
+# Secure messaging #------------------------------------------------------------
+
+# SM cache hit ratio
+StatsD.increment('mobile.sm.cache.hit', 0)
+StatsD.increment('mobile.sm.cache.miss', 0)

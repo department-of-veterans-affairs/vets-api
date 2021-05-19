@@ -72,6 +72,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
           expect(folder.dig('attributes', 'name')).to eq('Drafts')
           expect(folder.dig('type')).to eq('folders')
           expect(response).to match_camelized_response_schema('folders')
+          expect(StatsD).to receive(:increment).with('mobile.api.cache.hit', any_args)
         end
       end
 
@@ -162,6 +163,7 @@ RSpec.describe 'Mobile Folders Integration', type: :request do
           expect(message.dig('attributes', 'category')).to eq('MEDICATIONS')
           expect(message.dig('type')).to eq('messages')
           expect(response).to match_camelized_response_schema('messages')
+          expect(StatsD).to receive(:increment).with('mobile.api.cache.hit', any_args)
         end
       end
     end
