@@ -27,4 +27,4 @@ jobs:
           bundle install --jobs 4 --retry 3
 
       - name: Run Danger
-        run: bundle exec danger --head=\$(git rev-parse HEAD) --base=\$(git rev-parse origin/master) --verbose
+        run: bundle exec danger --head=${{ GITHUB_HEAD_REF }} --base=${{ GITHUB_BASE_REF }} --verbose
