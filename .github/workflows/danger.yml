@@ -27,4 +27,4 @@ jobs:
           bundle install --jobs 4 --retry 3
 
       - name: Run Danger
-        run: bundle exec danger --head=${{ github.sha }} --base=${{ github.event.pull_request.base.sha }} --verbose
+        run: bundle exec danger --depth=1000000000 --head=${{ github.sha }} --base=${{ github.event.pull_request.base.sha }} --verbose
