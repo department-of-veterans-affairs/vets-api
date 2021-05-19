@@ -5,6 +5,7 @@
       "type": "array",
       "items": {
         "required": ["id", "type", "attributes"],
+        "additionalProperties": false,
         "properties": {
           "id": {
             "type": "string",

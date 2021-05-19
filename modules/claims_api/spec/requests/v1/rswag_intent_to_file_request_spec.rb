@@ -64,6 +64,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', '0966 Response' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'forms', 'intent_to_file', 'submission.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'compensation' } } } }
 
@@ -94,6 +96,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'compensation' } } } }
           let(:Authorization) { nil }
@@ -125,6 +129,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 403 response' do
         response '403', 'Forbidden' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'burial' } } } }
 
@@ -155,6 +161,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default_with_source.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'HelloWorld' } } } }
 
@@ -215,6 +223,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 200 response' do
         response '200', '0966 response' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'forms', 'intent_to_file', 'active.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:type) { 'compensation' }
 
@@ -245,6 +255,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:type) { 'compensation' }
           let(:Authorization) { nil }
@@ -276,6 +288,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:type) { 'compensation' }
 
@@ -308,6 +322,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:type) { 'HelloWorld' }
 
@@ -369,6 +385,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', '0966 Response' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'forms', 'intent_to_file', 'validate.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'compensation' } } } }
 
@@ -399,6 +417,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: { type: 'compensation' } } } }
           let(:Authorization) { nil }
@@ -430,6 +450,8 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'errors', 'default_with_source.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: nil } } }
 

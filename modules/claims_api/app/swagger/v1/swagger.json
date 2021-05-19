@@ -127,6 +127,7 @@
                           "type",
                           "attributes"
                         ],
+                        "additionalProperties": false,
                         "properties": {
                           "id": {
                             "type": "string",
@@ -245,6 +246,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -262,6 +300,43 @@
                       "status": "404"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -338,7 +413,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "64c0a76a-9459-4b72-8bb2-2dc2a6884feb",
+                    "id": "abb9c59c-acc8-4867-bcf8-f4eb20984fb6",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -387,11 +462,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "035f1b02-c071-4821-abab-165bc10a26c2",
+                          "id": "c00a50cd-9c38-4855-98b0-4ee0369edb4f",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-05-19T18:39:28.856Z"
+                          "uploaded_at": "2021-05-19T19:55:20.151Z"
                         }
                       ]
                     }
@@ -640,6 +715,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -657,6 +769,43 @@
                       "status": "404"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -1974,7 +2123,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "39c98042-a55d-4a43-84a5-3d11fc817b52",
+                    "id": "8ee26ae1-8f9f-47f7-ab61-313cb9d42069",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -1992,13 +2141,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T18:39:29.140Z",
+                      "updated_at": "2021-05-19T19:55:20.454Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "39c98042-a55d-4a43-84a5-3d11fc817b52",
+                      "token": "8ee26ae1-8f9f-47f7-ab61-313cb9d42069",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3414,7 +3563,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "954ac128-0bb4-4075-a463-7d218d7dae26",
+                    "id": "9b10b42c-63fb-4222-93b9-334f58197e05",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3432,13 +3581,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T18:39:29.345Z",
+                      "updated_at": "2021-05-19T19:55:20.662Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "954ac128-0bb4-4075-a463-7d218d7dae26",
+                      "token": "9b10b42c-63fb-4222-93b9-334f58197e05",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5024,7 +5173,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c7dcb242-eff0-41dd-9ed1-530163776a14",
+                    "id": "2a533406-1c65-4daf-a5c8-cbbd668432ad",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5038,7 +5187,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T18:39:29.915Z",
+                      "updated_at": "2021-05-19T19:55:21.257Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5047,7 +5196,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "46f0db65-15ce-493d-aa72-c73063b1d1e8",
+                          "id": "b4328ee4-4287-4189-a296-b5ed3bd2ed7a",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -5248,6 +5397,70 @@
                       "status": "duplicate"
                     }
                   }
+                },
+                "schema": {
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Intent to File ID from EVSS"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "creation_date",
+                            "expiration_date",
+                            "type",
+                            "status"
+                          ],
+                          "properties": {
+                            "creation_date": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date the Intent to File was received at the VA"
+                            },
+                            "expiration_date": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date the ITF expires, this is 1 year from the created_date"
+                            },
+                            "type": {
+                              "type": "string",
+                              "description": "The type of ITF filed. Compensation, Pension, or Burial",
+                              "enum": [
+                                "compensation",
+                                "burial",
+                                "pension"
+                              ]
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "The status of the Intent to File",
+                              "enum": [
+                                "duplicate"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5265,6 +5478,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5282,6 +5532,43 @@
                       "status": "403"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5298,6 +5585,37 @@
                       "source": "/type"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "detail",
+                          "source"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "HTTP error code"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5446,6 +5764,71 @@
                       "status": "active"
                     }
                   }
+                },
+                "schema": {
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Intent to File ID from EVSS"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "creation_date",
+                            "expiration_date",
+                            "type",
+                            "status"
+                          ],
+                          "properties": {
+                            "creation_date": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date the Intent to File was received at the VA"
+                            },
+                            "expiration_date": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date the ITF expires, this is 1 year from the created_date"
+                            },
+                            "type": {
+                              "type": "string",
+                              "description": "The type of ITF filed. Compensation, Pension, or Burial",
+                              "enum": [
+                                "compensation",
+                                "burial",
+                                "pension"
+                              ]
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "The status of the Intent to File",
+                              "enum": [
+                                "active",
+                                "inactive"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5463,6 +5846,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5480,6 +5900,43 @@
                       "status": "404"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5497,6 +5954,43 @@
                       "status": "422"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5570,6 +6064,43 @@
                       "status": "valid"
                     }
                   }
+                },
+                "schema": {
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "The status of the Intent to File",
+                              "enum": [
+                                "valid"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5587,6 +6118,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5603,6 +6171,37 @@
                       "source": "/"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "detail",
+                          "source"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "HTTP error code"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -6139,7 +6738,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b6019f46-6f6c-499e-90d6-60ebae7f8cd4",
+                    "id": "c5bee3b0-e249-4aee-a558-20779ce8a8c5",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -6671,7 +7270,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6bde108f-0403-40f1-a304-6389687a010a",
+                    "id": "4a11e92f-0c94-41e6-a1f7-1fa596030595",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -6810,7 +7409,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7f5560ed-daf7-4c3e-bfe5-17ce070c510d",
+                    "id": "469b2847-745f-4edf-9fa9-516d3f5817d1",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
