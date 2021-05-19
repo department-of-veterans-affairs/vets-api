@@ -32,7 +32,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 200 response' do
         response '200', 'claim response' do
-          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'claims_index.json')))
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'claims.json')))
 
           let(:scopes) { %w[claim.read] }
 
@@ -154,8 +154,11 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 200 response' do
         response '200', 'claims response' do
+          schema JSON.parse(File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'responses', 'claim.json')))
+
           let(:scopes) { %w[claim.read] }
-          let(:id) { '600118851' }
+          let(:claim) { create(:auto_established_claim_with_supporting_documents, :status_established, source: 'abraham lincoln') }
+          let(:id) { claim.id }
 
           before do |example|
             stub_poa_verification

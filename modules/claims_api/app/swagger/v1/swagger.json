@@ -121,6 +121,7 @@
                   "properties": {
                     "data": {
                       "type": "array",
+                      "additionalProperties": false,
                       "items": {
                         "description": "Claim with some details for the given Veteran info",
                         "required": [
@@ -139,6 +140,7 @@
                           },
                           "attributes": {
                             "type": "object",
+                            "additionalProperties": false,
                             "description": "Required by JSON API standard",
                             "required": [
                               "date_filed",
@@ -152,6 +154,10 @@
                               "claim_type"
                             ],
                             "properties": {
+                              "evss_id": {
+                                "type": "integer",
+                                "description": "Upstream service identifier"
+                              },
                               "date_filed": {
                                 "type": "string",
                                 "format": "date",
@@ -334,7 +340,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "600118851",
+                    "id": "83c69618-412a-4c06-b9d4-22003f0659f9",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -382,8 +388,222 @@
                       ],
                       "status": "Initial review",
                       "supporting_documents": [
-
+                        {
+                          "id": "3ff5b896-d888-421e-8604-98cbabeb3587",
+                          "type": "claim_supporting_document",
+                          "md5": "d927c7e283b3158a54822a493d06181d",
+                          "filename": "extras.pdf",
+                          "uploaded_at": "2021-05-19T17:44:56.354Z"
+                        }
                       ]
+                    }
+                  }
+                },
+                "schema": {
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Claim ID from EVSS"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "description": "Required by JSON API standard",
+                          "required": [
+                            "date_filed",
+                            "max_est_date",
+                            "open",
+                            "waiver_submitted",
+                            "documents_needed",
+                            "development_letter_sent",
+                            "status",
+                            "requested_decision",
+                            "claim_type"
+                          ],
+                          "properties": {
+                            "evss_id": {
+                              "type": "integer",
+                              "description": "Upstream service identifier"
+                            },
+                            "date_filed": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Date in YYYY-MM-DD the claim was first filed"
+                            },
+                            "min_est_date": {
+                              "type": "string",
+                              "nullable": true,
+                              "format": "date",
+                              "description": "Minimum Estimated Claim Completion Date"
+                            },
+                            "max_est_date": {
+                              "type": "string",
+                              "nullable": true,
+                              "format": "date",
+                              "description": "Maximum Estimated Claim Completion Date"
+                            },
+                            "open": {
+                              "type": "boolean",
+                              "description": "Has the claim been resolved"
+                            },
+                            "waiver_submitted": {
+                              "type": "boolean",
+                              "description": "Requested Decision or Waiver 5103 Submitted"
+                            },
+                            "documents_needed": {
+                              "type": "boolean",
+                              "description": "Does the claim require additional documents to be submitted"
+                            },
+                            "development_letter_sent": {
+                              "type": "boolean",
+                              "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                            },
+                            "decision_letter_sent": {
+                              "type": "boolean",
+                              "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date-time",
+                              "description": "Time stamp of last change to the claim"
+                            },
+                            "status": {
+                              "type": "string",
+                              "description": "Current status of the claim",
+                              "enum": [
+                                "Claim received",
+                                "Initial review",
+                                "Evidence gathering, review, and decision",
+                                "Preparation for notification",
+                                "Complete"
+                              ]
+                            },
+                            "requested_decision": {
+                              "type": "boolean",
+                              "description": "The claim filer has requested a claim decision be made"
+                            },
+                            "claim_type": {
+                              "type": "string",
+                              "description": "The type of claim originally submitted",
+                              "enum": [
+                                "Compensation",
+                                "Compensation and Pension",
+                                "Dependency"
+                              ]
+                            },
+                            "contention_list": {
+                              "type": "array",
+                              "description": "List of contentions being submitted in Claim",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "va_representative": {
+                              "type": "string",
+                              "description": "Current VA Representative Organization"
+                            },
+                            "events_timeline": {
+                              "type": "array",
+                              "description": "List of events during lifetime of Claim",
+                              "items": {
+                                "properties": {
+                                  "single_event": {
+                                    "type": "object",
+                                    "description": "Record of different actions taken",
+                                    "properties": {
+                                      "type": {
+                                        "type": "string",
+                                        "description": "Different types of event statuses"
+                                      },
+                                      "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "Date of Event"
+                                      }
+                                    }
+                                  },
+                                  "tracked_item": {
+                                    "type": "object",
+                                    "description": "Record of a tracked item needed or available in VBMS",
+                                    "properties": {
+                                      "tracked_item_id": {
+                                        "type": "string",
+                                        "description": "Tracked Item ID given by VBMS"
+                                      },
+                                      "file_type": {
+                                        "type": "string",
+                                        "description": "Type of File being submitted/requested"
+                                      },
+                                      "document_type": {
+                                        "type": "string",
+                                        "description": "Type of document submitted"
+                                      },
+                                      "filename": {
+                                        "type": "string",
+                                        "description": "Name of file submitted"
+                                      },
+                                      "upload_date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "Date original upload of file occured"
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "description": "Type of Tracked Item submitted"
+                                      },
+                                      "date": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "description": "Date of Event"
+                                      }
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "supporting_documents": {
+                              "type": "array",
+                              "description": "List of supporting documents associated with Claim",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "description": "Unique identifier of document"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "description": "Required by JSON API standard"
+                                  },
+                                  "md5": {
+                                    "type": "string",
+                                    "description": "Hashed representation of document"
+                                  },
+                                  "filename": {
+                                    "type": "string",
+                                    "description": "Name of document"
+                                  },
+                                  "uploaded_at": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "description": "Date and time document was uploaded"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -1737,7 +1957,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "58b7e286-aedc-4ffa-bc7e-7604335bd2ae",
+                    "id": "f65fca9c-d7c2-4dfb-a610-4753221755c2",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -1755,13 +1975,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-18T21:52:11.658Z",
+                      "updated_at": "2021-05-19T17:44:56.655Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "58b7e286-aedc-4ffa-bc7e-7604335bd2ae",
+                      "token": "f65fca9c-d7c2-4dfb-a610-4753221755c2",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3177,7 +3397,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4d89cb13-4480-4659-b5ce-ecb7133bac4b",
+                    "id": "652205a3-8472-411a-87d0-080066da3747",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3195,13 +3415,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-18T21:52:11.865Z",
+                      "updated_at": "2021-05-19T17:44:56.871Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "4d89cb13-4480-4659-b5ce-ecb7133bac4b",
+                      "token": "652205a3-8472-411a-87d0-080066da3747",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4787,7 +5007,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b8e7938e-cd97-43c6-bfa3-ca82e5499a4d",
+                    "id": "03ed27ae-c08f-4450-8e34-5a67c48242cf",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4801,7 +5021,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-18T21:52:12.477Z",
+                      "updated_at": "2021-05-19T17:44:57.480Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -4810,7 +5030,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "0876440f-d937-4cea-a5e0-5f0e052726b0",
+                          "id": "8f3fa323-4e89-4553-ab3f-c80642a1f8a8",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -5902,11 +6122,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d3c32987-900c-4416-ae3e-b0be30a60398",
+                    "id": "2374504f-f067-43e2-bb33-2f8b0448b71e",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-05-18",
+                      "date_request_accepted": "2021-05-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074",
@@ -6434,11 +6654,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "93433a1d-9996-4148-b090-fbc7b475e0cc",
+                    "id": "bc48a89d-7803-4cb1-8e3d-c404f7a2c0ac",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-18",
+                      "date_request_accepted": "2021-05-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074",
@@ -6573,11 +6793,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "757573d2-f49f-4940-a675-1170f0910070",
+                    "id": "d3435871-856e-44a3-90e3-67866bbe54be",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-18",
+                      "date_request_accepted": "2021-05-19",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074",
