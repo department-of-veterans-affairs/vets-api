@@ -201,7 +201,7 @@ paths:
           required: true
           schema:
             type: string
-            enum: 
+            enum:
               - cancelled
               - proposed
               - pending
@@ -211,11 +211,11 @@ paths:
               - fulfilled
       responses:
         "200":
-          description: The appointment status is updated  
+          description: The appointment status is updated
           content:
             application/json:
               schema:
-                required: 
+                required:
                   - id
                   - type
                   - attributes
@@ -226,7 +226,7 @@ paths:
                     type: string
                     example: appointments
                   attributes:
-                    $ref: "#/components/schemas/Appointment"   
+                    $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -246,7 +246,7 @@ paths:
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
-          $ref: "#/components/responses/GatewayTimeout"            
+          $ref: "#/components/responses/GatewayTimeout"
   "/locations/{location_id}/clinics":
     get:
       tags:
@@ -471,7 +471,68 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-
+  "/scheduling/configurations":
+    get:
+      tags:
+        - mobile facility service
+      summary: Returns scheduling configuration data
+      operationId: getSchedulingConfigurations
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: facility_ids
+          description: A comma-separated list of facility IDs.
+          schema:
+            type: string
+        - in: query
+          name: cc_enabled
+          description: If true, then only scheduling configurations for community care-enabled sites will be returned. If false, then only scheduling configurations for community care-disabled sites will be returned. If not provided, then community care status will be ignored.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - type
+                  - attributes
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                  attributes:
+                    type: object
+                    properties:
+                      hasRequiredAppointmentHistory:
+                        type: boolean
+                      isEligibleForNewAppointmentRequest:
+                        type: boolean
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
 components:
   securitySchemes:
     bearerAuth:
@@ -922,4 +983,3 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Errors"
-
