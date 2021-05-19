@@ -120,7 +120,7 @@ FactoryBot.define do
     end
 
     initialize_with do
-      Lighthouse::Facilities::Facility.new(
+      FacilitiesApi::V1::Lighthouse::Facility.new(
         {
           'id' => id,
           'type' => 'va_facilities',
