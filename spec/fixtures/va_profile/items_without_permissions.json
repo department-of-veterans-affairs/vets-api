@@ -1,5 +1,6 @@
 [
   {
+    "id": 1,
     "name": "Health Care",
     "description": "Healthcare Appointment Reminders",
     "communication_items": [
@@ -39,6 +40,7 @@
     ]
   },
   {
+    "id": 2,
     "name": "Education and Training",
     "description": "Education Submission Status",
     "communication_items": [
@@ -61,6 +63,7 @@
     ]
   },
   {
+    "id": 3,
     "name": "Disability",
     "description": "Disability Status and Reminders",
     "communication_items": [
@@ -105,6 +108,7 @@
     ]
   },
   {
+    "id": 4,
     "name": "Pension",
     "description": "Pension Notifications",
     "communication_items": [
@@ -122,6 +126,7 @@
     ]
   },
   {
+    "id": 5,
     "name": "Education and Training",
     "description": "Education Notifications",
     "communication_items": [
@@ -139,6 +144,7 @@
     ]
   },
   {
+    "id": 6,
     "name": "Insurance",
     "description": "Insurance Notifications",
     "communication_items": [
@@ -167,6 +173,7 @@
     ]
   },
   {
+    "id": 7,
     "name": "Home Loan",
     "description": "Home Loan Notifications",
     "communication_items": [
