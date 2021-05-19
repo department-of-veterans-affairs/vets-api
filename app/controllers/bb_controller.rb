@@ -9,7 +9,6 @@ class BBController < ApplicationController
   protected
 
   def client
-    
     @client ||= BB::Client.new(session: { user_id: current_user.mhv_correlation_id })
   end
 
