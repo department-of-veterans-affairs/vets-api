@@ -200,8 +200,6 @@ RSpec/FactoryBot/FactoryClassName:
 # Configuration parameters: AllowSubject.
 RSpec/MultipleMemoizedHelpers:
   Max: 36
-  Exclude:
-    - 'spec/models/form_profile_spec.rb'
 
 # Offense count: 6
 RSpec/RepeatedExampleGroupBody:
