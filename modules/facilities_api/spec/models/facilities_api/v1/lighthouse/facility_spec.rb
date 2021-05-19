@@ -42,7 +42,8 @@ module FacilitiesApi
             type: nil,
             unique_id: '123',
             visn: nil,
-            website: nil
+            website: nil,
+            tmp_covid_online_scheduling: nil
           }
         )
       end
