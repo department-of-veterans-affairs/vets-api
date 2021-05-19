@@ -23,6 +23,7 @@ module VBMS
         end
 
         claim.upload_to_vbms(path: file_path)
+        Common::FileHelpers.delete_file_if_exists(file_path)
       end
 
       generate_pdf(claim, submittable_686, submittable_674)
