@@ -340,7 +340,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "83c69618-412a-4c06-b9d4-22003f0659f9",
+                    "id": "0ac0e4ff-7b89-4198-b7b8-5921a86bb9ae",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -389,11 +389,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "3ff5b896-d888-421e-8604-98cbabeb3587",
+                          "id": "d1952c90-00b9-4149-8d70-c86f185446bf",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-05-19T17:44:56.354Z"
+                          "uploaded_at": "2021-05-19T18:18:10.730Z"
                         }
                       ]
                     }
@@ -429,7 +429,11 @@
                             "development_letter_sent",
                             "status",
                             "requested_decision",
-                            "claim_type"
+                            "claim_type",
+                            "contention_list",
+                            "va_representative",
+                            "events_timeline",
+                            "supporting_documents"
                           ],
                           "properties": {
                             "evss_id": {
@@ -520,7 +524,12 @@
                                 "properties": {
                                   "single_event": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "description": "Record of different actions taken",
+                                    "required": [
+                                      "type",
+                                      "date"
+                                    ],
                                     "properties": {
                                       "type": {
                                         "type": "string",
@@ -535,7 +544,17 @@
                                   },
                                   "tracked_item": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "description": "Record of a tracked item needed or available in VBMS",
+                                    "required": [
+                                      "tracked_item_id",
+                                      "file_type",
+                                      "document_type",
+                                      "filename",
+                                      "upload_date",
+                                      "type",
+                                      "date"
+                                    ],
                                     "properties": {
                                       "tracked_item_id": {
                                         "type": "string",
@@ -574,6 +593,7 @@
                             },
                             "supporting_documents": {
                               "type": "array",
+                              "additionalProperties": false,
                               "description": "List of supporting documents associated with Claim",
                               "items": {
                                 "properties": {
@@ -1957,7 +1977,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f65fca9c-d7c2-4dfb-a610-4753221755c2",
+                    "id": "e59e6676-1128-4b2b-8f29-153fa49491c5",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -1975,13 +1995,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T17:44:56.655Z",
+                      "updated_at": "2021-05-19T18:18:11.086Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "f65fca9c-d7c2-4dfb-a610-4753221755c2",
+                      "token": "e59e6676-1128-4b2b-8f29-153fa49491c5",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3397,7 +3417,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "652205a3-8472-411a-87d0-080066da3747",
+                    "id": "6dde1ff4-8a33-4891-aabb-2a350a7aa7ca",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3415,13 +3435,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T17:44:56.871Z",
+                      "updated_at": "2021-05-19T18:18:11.296Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "652205a3-8472-411a-87d0-080066da3747",
+                      "token": "6dde1ff4-8a33-4891-aabb-2a350a7aa7ca",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5007,7 +5027,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "03ed27ae-c08f-4450-8e34-5a67c48242cf",
+                    "id": "81124274-5d9c-4b16-bb63-683ca0ec0d21",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5021,7 +5041,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T17:44:57.480Z",
+                      "updated_at": "2021-05-19T18:18:11.890Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5030,7 +5050,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "8f3fa323-4e89-4553-ab3f-c80642a1f8a8",
+                          "id": "2cb1437c-6b6a-4c45-b442-78d204198b8c",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6122,7 +6142,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2374504f-f067-43e2-bb33-2f8b0448b71e",
+                    "id": "3cdbe1ad-9eca-4164-98c3-2700c242144d",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -6654,7 +6674,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bc48a89d-7803-4cb1-8e3d-c404f7a2c0ac",
+                    "id": "1d7e92a1-f7bd-4690-9923-da3f9ad6ea90",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -6793,7 +6813,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d3435871-856e-44a3-90e3-67866bbe54be",
+                    "id": "5770e97b-43cf-4e7a-a9a9-cb6969c9f4a5",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
