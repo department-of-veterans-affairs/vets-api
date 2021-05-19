@@ -42,12 +42,12 @@ module Mobile
       end
 
       def upload_document
-        jid = claims_proxy.upload_documents(params, false)
+        jid = claims_proxy.upload_document(params)
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_multi_image_document
-        jid = claims_proxy.upload_documents(params, true)
+        jid = claims_proxy.upload_multi_image(params)
         render json: { data: { job_id: jid } }, status: :accepted
       end
 

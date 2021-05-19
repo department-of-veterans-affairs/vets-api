@@ -375,7 +375,7 @@
         "clinic_id": null,
         "clinic_friendly_name": null,
         "facility_id": "983",
-        "sta6aid": "983",
+        "sta6aid": "983GC",
         "community_care": false,
         "vds_appointments": [],
         "vvs_appointments": [

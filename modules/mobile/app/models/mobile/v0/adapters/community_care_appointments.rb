@@ -48,6 +48,7 @@ module Mobile
             cancel_id: nil,
             comment: appointment_hash[:instructions_to_veteran],
             facility_id: nil,
+            sta6aid: nil,
             healthcare_service: appointment_hash[:provider_practice],
             location: location,
             minutes_duration: 60, # not in raw data, matches va.gov default for cc appointments

@@ -438,10 +438,6 @@ RSpec.describe User, type: :model do
           expect(user.active_mhv_ids).to be(mvi_profile.active_mhv_ids)
         end
 
-        it 'fetches sec_id from MPI' do
-          expect(user.sec_id_mpi).to be(mvi_profile.sec_id)
-        end
-
         it 'fetches suffix from MPI' do
           expect(user.suffix).to be(mvi_profile.suffix)
         end
