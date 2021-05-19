@@ -253,10 +253,6 @@ class User < Common::RedisStore
 
   # MPI setter methods
 
-  def set_mpi_profile(field, value)
-    mpi_profile[field] = value
-  end
-
   def set_mhv_ids(mhv_id)
     mpi_profile.mhv_ids = [mhv_id] + mhv_ids
     mpi_profile.active_mhv_ids = [mhv_id] + active_mhv_ids

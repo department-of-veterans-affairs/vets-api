@@ -7,10 +7,10 @@ RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }
+  let(:mvi_profile) { build(:mvi_profile, suffix: 'Jr.') }
 
   before do
-    user.set_mpi_profile('suffix', 'Jr.')
-    user.address[:country] = 'USA'
+    stub_mpi(mvi_profile)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
   end

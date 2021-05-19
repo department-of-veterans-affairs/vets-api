@@ -443,20 +443,6 @@ RSpec.describe User, type: :model do
         end
       end
 
-      describe 'set_mpi_profile do' do
-        let(:mvi_profile) { build(:mvi_profile) }
-        let(:user) { build(:user, :loa3, mhv_icn: mvi_profile.icn) }
-
-        before do
-          stub_mpi(mvi_profile)
-          user.set_mpi_profile('edipi', '1234567890')
-        end
-
-        it 'sets a new MPI profile value' do
-          expect(user.edipi_mpi).to be('1234567890')
-        end
-      end
-
       describe 'set_mhv_ids do' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }

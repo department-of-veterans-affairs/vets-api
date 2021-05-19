@@ -209,10 +209,13 @@ RSpec.describe Account, type: :model do
     let(:user) { build(:user_with_no_secid) }
     let(:new_secid) { '9999999' }
     let(:user_delta) { build(:user, :loa3) }
+    let(:mvi_profile) { build(:mvi_profile, sec_id: new_secid) }
+    let(:nil_mvi_profile) { build(:mvi_profile, sec_id: nil) }
 
     it 'writes updates to database AND cache' do
+      stub_mpi(nil_mvi_profile)
       original_acct = Account.cache_or_create_by! user
-      user.set_mpi_profile('sec_id', new_secid)
+      stub_mpi(mvi_profile)
       updated_acct = Account.update_if_needed!(original_acct, user_delta)
       expect(updated_acct.sec_id).to eq new_secid
 
