@@ -14,8 +14,14 @@ module VBMS
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim.persistent_attachments.each do |attachment|
-        file_name = File.basename(attachment.file.url)
-        file_path = Common::FileHelpers.generate_temp_file(attachment.file.read, file_name)
+        file_extension = File.extname(URI.parse(attachment.file.url).path)
+        file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
+
+        if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
+          File.rename(file_path, "#{file_path}#{file_extension}")
+          file_path = "#{file_path}#{file_extension}"
+        end
+
         claim.upload_to_vbms(path: file_path)
       end
 
