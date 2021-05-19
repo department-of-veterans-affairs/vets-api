@@ -6,10 +6,7 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-      ImageOS: ubuntu20
-      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
       RAILS_ENV: test
-      SSL_CERT_FILE: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem'
 
     steps:
       - uses: actions/checkout@v2
