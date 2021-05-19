@@ -379,3 +379,7 @@ features:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
     enable_in_development: true
+  language_support:
+    actor_type: user
+    description: Toggles the availability of language support links (spanish et al) in the footer
+    enable_in_development: true
