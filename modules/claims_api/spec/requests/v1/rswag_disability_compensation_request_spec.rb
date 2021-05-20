@@ -68,7 +68,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', '526 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'disability', 'submission.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                                      'disability', 'submission.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
@@ -107,7 +108,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
@@ -147,7 +149,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default_with_source.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default_with_source.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
@@ -227,7 +230,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', '526 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'disability', 'upload.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                                      'disability', 'upload.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
@@ -262,7 +266,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:attachment) do
@@ -296,7 +301,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
@@ -332,7 +338,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
@@ -398,7 +405,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', '526 Response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'disability', 'validate.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                                      'disability', 'validate.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
@@ -439,7 +447,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
@@ -481,7 +490,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default_with_source.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default_with_source.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
@@ -565,7 +575,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', 'upload response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'disability', 'attachments.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms',
+                                                      'disability', 'attachments.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
@@ -603,7 +614,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:auto_claim) { create(:auto_established_claim) }
@@ -642,7 +654,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
 
           let(:scopes) { %w[claim.write] }
           let(:attachment1) do
