@@ -415,7 +415,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ba1a0e5a-f196-4661-abf7-27f74c4f8f1d",
+                    "id": "0f732312-1f58-4f87-8309-e549049753f0",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -464,11 +464,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "82957448-c6e8-4e6e-8c0b-46de51570a9f",
+                          "id": "52c602da-d71e-4748-a1a1-bc37677247ea",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-05-20T15:45:08.510Z"
+                          "uploaded_at": "2021-05-20T17:10:00.689Z"
                         }
                       ]
                     }
@@ -2129,7 +2129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "80895294-e272-43e8-b45e-11402cfb34cc",
+                    "id": "5d7530ee-764a-426a-ab44-4f61140c0456",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2147,18 +2147,147 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-20T15:45:08.828Z",
+                      "updated_at": "2021-05-20T17:10:00.990Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "80895294-e272-43e8-b45e-11402cfb34cc",
+                      "token": "5d7530ee-764a-426a-ab44-4f61140c0456",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
                         "Homeless"
                       ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Internal vets-api Claim ID"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "open",
+                            "updated_at",
+                            "events_timeline",
+                            "token",
+                            "status",
+                            "flashes"
+                          ],
+                          "properties": {
+                            "evss_id": {
+                              "type": "null",
+                              "description": "EVSS Claim ID"
+                            },
+                            "date_filed": {
+                              "type": "null",
+                              "description": "Date in YYYY-MM-DD the claim was first filed"
+                            },
+                            "min_est_date": {
+                              "type": "null",
+                              "description": "Minimum Estimated Claim Completion Date"
+                            },
+                            "max_est_date": {
+                              "type": "null",
+                              "description": "Maximum Estimated Claim Completion Date"
+                            },
+                            "phase_change_date": {
+                              "type": "null",
+                              "description": "Date of last phase change"
+                            },
+                            "open": {
+                              "type": "boolean",
+                              "description": "Has the claim been resolved"
+                            },
+                            "waiver_submitted": {
+                              "type": "null",
+                              "description": "Requested Decision or Waiver 5103 Submitted"
+                            },
+                            "documents_needed": {
+                              "type": "null",
+                              "description": "Does the claim require additional documents to be submitted"
+                            },
+                            "development_letter_sent": {
+                              "type": "null",
+                              "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                            },
+                            "decision_letter_sent": {
+                              "type": "null",
+                              "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                            },
+                            "phase": {
+                              "type": "null"
+                            },
+                            "ever_phase_back": {
+                              "type": "null"
+                            },
+                            "current_phase_back": {
+                              "type": "null"
+                            },
+                            "requested_decision": {
+                              "type": "null",
+                              "description": "The claim filer has requested a claim decision be made"
+                            },
+                            "claim_type": {
+                              "type": "null",
+                              "description": "The type of claim originally submitted"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Time stamp of last change to the claim"
+                            },
+                            "contention_list": {
+                              "type": "null"
+                            },
+                            "va_representative": {
+                              "type": "null"
+                            },
+                            "events_timeline": {
+                              "type": "array"
+                            },
+                            "token": {
+                              "type": "string"
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "pending"
+                              ],
+                              "description": "Current status of the claim"
+                            },
+                            "flashes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -2178,6 +2307,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -2194,6 +2360,40 @@
                       "source": false
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "detail",
+                          "source"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "HTTP error code"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": [
+                              "string",
+                              "boolean"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -3569,7 +3769,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c209eb48-b591-446a-aaab-ca7ca5722ccb",
+                    "id": "76023a1f-ca36-4827-a13e-ec38455f3363",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3587,18 +3787,199 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-20T15:45:09.049Z",
+                      "updated_at": "2021-05-20T17:10:01.252Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c209eb48-b591-446a-aaab-ca7ca5722ccb",
+                      "token": "76023a1f-ca36-4827-a13e-ec38455f3363",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
                         "Homeless"
                       ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Internal vets-api Claim ID"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "open",
+                            "updated_at",
+                            "events_timeline",
+                            "token",
+                            "status",
+                            "flashes"
+                          ],
+                          "properties": {
+                            "evss_id": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "description": "EVSS Claim ID"
+                            },
+                            "date_filed": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date",
+                              "description": "Date in YYYY-MM-DD the claim was first filed"
+                            },
+                            "min_est_date": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date",
+                              "description": "Minimum Estimated Claim Completion Date"
+                            },
+                            "max_est_date": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date",
+                              "description": "Maximum Estimated Claim Completion Date"
+                            },
+                            "phase_change_date": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date",
+                              "description": "Date of last phase change"
+                            },
+                            "open": {
+                              "type": "boolean",
+                              "description": "Has the claim been resolved"
+                            },
+                            "waiver_submitted": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ],
+                              "description": "Requested Decision or Waiver 5103 Submitted"
+                            },
+                            "documents_needed": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ],
+                              "description": "Does the claim require additional documents to be submitted"
+                            },
+                            "development_letter_sent": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ],
+                              "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                            },
+                            "decision_letter_sent": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ],
+                              "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                            },
+                            "phase": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "ever_phase_back": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "current_phase_back": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "requested_decision": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "The claim filer has requested a claim decision be made"
+                            },
+                            "claim_type": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "The type of claim originally submitted"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Time stamp of last change to the claim"
+                            },
+                            "contention_list": {
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "va_representative": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "events_timeline": {
+                              "type": "array"
+                            },
+                            "token": {
+                              "type": "string"
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "pending"
+                              ],
+                              "description": "Current status of the claim"
+                            },
+                            "flashes": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -3618,6 +3999,43 @@
                       "status": "404"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -3635,6 +4053,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -3652,6 +4107,43 @@
                       "status": "422"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -3741,6 +4233,45 @@
                       "status": "valid"
                     }
                   }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "valid"
+                              ],
+                              "description": "Return whether or not whether or not the payload is valid"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -3758,6 +4289,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -3804,6 +4372,40 @@
                       "source": "/"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "detail",
+                          "source"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "HTTP error code"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": [
+                              "string",
+                              "boolean"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5179,7 +5781,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "02f90719-d417-41fa-a652-55c2d32c3953",
+                    "id": "6d0f6b0b-73f3-4aca-a5d0-2c518225022b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5193,7 +5795,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-20T15:45:09.698Z",
+                      "updated_at": "2021-05-20T17:10:01.805Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5202,13 +5804,221 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "9a076f1b-b5c0-4967-8047-b33ba25aadc3",
+                          "id": "28241cf3-cfb8-4c3c-93c9-fddb5001f65c",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
                           "uploaded_at": null
                         }
                       ]
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Internal vets-api Claim ID"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "open",
+                            "updated_at",
+                            "events_timeline",
+                            "status",
+                            "supporting_documents"
+                          ],
+                          "properties": {
+                            "evss_id": {
+                              "type": [
+                                "integer",
+                                "null"
+                              ],
+                              "description": "EVSS Claim ID"
+                            },
+                            "date_filed": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date",
+                              "description": "Date in YYYY-MM-DD the claim was first filed"
+                            },
+                            "min_est_date": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date",
+                              "description": "Minimum Estimated Claim Completion Date"
+                            },
+                            "max_est_date": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date",
+                              "description": "Maximum Estimated Claim Completion Date"
+                            },
+                            "phase_change_date": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "format": "date",
+                              "description": "Date of last phase change"
+                            },
+                            "open": {
+                              "type": "boolean",
+                              "description": "Has the claim been resolved"
+                            },
+                            "waiver_submitted": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ],
+                              "description": "Requested Decision or Waiver 5103 Submitted"
+                            },
+                            "documents_needed": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ],
+                              "description": "Does the claim require additional documents to be submitted"
+                            },
+                            "development_letter_sent": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ],
+                              "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                            },
+                            "decision_letter_sent": {
+                              "type": [
+                                "boolean",
+                                "null"
+                              ],
+                              "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                            },
+                            "phase": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "ever_phase_back": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "current_phase_back": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "requested_decision": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "The claim filer has requested a claim decision be made"
+                            },
+                            "claim_type": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "The type of claim originally submitted"
+                            },
+                            "updated_at": {
+                              "type": "string",
+                              "format": "date",
+                              "description": "Time stamp of last change to the claim"
+                            },
+                            "contention_list": {
+                              "type": [
+                                "array",
+                                "null"
+                              ]
+                            },
+                            "va_representative": {
+                              "type": [
+                                "string",
+                                "null"
+                              ]
+                            },
+                            "events_timeline": {
+                              "type": "array"
+                            },
+                            "status": {
+                              "type": "string",
+                              "enum": [
+                                "pending"
+                              ],
+                              "description": "Current status of the claim"
+                            },
+                            "supporting_documents": {
+                              "type": "array",
+                              "items": {
+                                "properties": {
+                                  "id": {
+                                    "type": "string",
+                                    "description": "Unique identifier of document"
+                                  },
+                                  "type": {
+                                    "type": "string",
+                                    "description": "Required by JSON API standard"
+                                  },
+                                  "md5": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Hashed representation of document"
+                                  },
+                                  "filename": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "description": "Name of document"
+                                  },
+                                  "uploaded_at": {
+                                    "type": [
+                                      "string",
+                                      "null"
+                                    ],
+                                    "format": "date",
+                                    "description": "Date and time document was uploaded"
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -5228,6 +6038,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5245,6 +6092,43 @@
                       "status": "404"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -5616,7 +6500,10 @@
                             "description": "HTTP error detail"
                           },
                           "source": {
-                            "type": "string"
+                            "type": [
+                              "string",
+                              "boolean"
+                            ]
                           }
                         }
                       }
@@ -6202,7 +7089,10 @@
                             "description": "HTTP error detail"
                           },
                           "source": {
-                            "type": "string"
+                            "type": [
+                              "string",
+                              "boolean"
+                            ]
                           }
                         }
                       }
@@ -6744,7 +7634,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e0ef5055-59bc-4009-8e81-af7c0b36cf5e",
+                    "id": "f85569ef-7259-436a-968d-4736002282d6",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -6935,7 +7825,10 @@
                             "description": "HTTP error detail"
                           },
                           "source": {
-                            "type": "string"
+                            "type": [
+                              "string",
+                              "boolean"
+                            ]
                           }
                         }
                       }
@@ -7425,7 +8318,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "26daa8b8-5e50-43cd-9c39-6f7a2d088513",
+                    "id": "b870761d-d7be-4235-a20f-b736f951fdf0",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -7719,7 +8612,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9506eeda-5fec-4bed-ab1d-39fe95aba272",
+                    "id": "a05d0422-5995-4670-9d3c-e0b1eb36ab44",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -8403,7 +9296,10 @@
                             "description": "HTTP error detail"
                           },
                           "source": {
-                            "type": "string"
+                            "type": [
+                              "string",
+                              "boolean"
+                            ]
                           }
                         }
                       }
