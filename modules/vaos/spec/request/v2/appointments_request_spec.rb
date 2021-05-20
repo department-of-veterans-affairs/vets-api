@@ -13,6 +13,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
+  # TODO: record vcr cassettes
   context 'loa3 user' do
     let(:current_user) { build(:user, :vaos) }
 
