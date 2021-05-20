@@ -9,6 +9,10 @@ vcr_options = {
 }
 
 RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr: vcr_options do
+  before(:all) do
+    get facilities_api.v1_ccp_index_url
+  end
+
   let(:sha256) { 'bd2b84cc5c0aa3676090eacde32e99c7d668388e5fc5440e3c582aef419fc398' }
 
   let(:params) do
@@ -323,6 +327,208 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
 
         expect(response).to be_successful
       end
+    end
+  end
+
+  describe '#provider' do
+    context 'Missing specialties param' do
+      let(:params) do
+        {
+          latitude: 40.415217,
+          longitude: -74.057114,
+          radius: 200
+        }
+      end
+
+      it 'requires a specialty code' do
+        get '/facilities_api/v1/ccp/provider', params: params
+
+        bod = JSON.parse(response.body)
+
+        expect(bod).to include(
+          'errors' => [{
+            'title' => 'Missing parameter',
+            'detail' => 'The required parameter "specialties", is missing',
+            'code' => '108',
+            'status' => '400'
+          }]
+        )
+
+        expect(response).not_to be_successful
+      end
+    end
+
+    context 'specialties=261QU0200X' do
+      let(:params) do
+        {
+          latitude: 40.415217,
+          longitude: -74.057114,
+          radius: 200,
+          specialties: ['261QU0200X']
+        }
+      end
+
+      it 'returns a results from the pos_locator' do
+        get '/facilities_api/v1/ccp/provider', params: params
+
+        bod = JSON.parse(response.body)
+
+        sha256 = 'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d'
+
+        expect(bod['data']).to include(
+          {
+            'id' => sha256,
+            'type' => 'provider',
+            'attributes' => {
+              'accNewPatients' => 'false',
+              'address' => {
+                'street' => '5024 5TH AVE',
+                'city' => 'BROOKLYN',
+                'state' => 'NY',
+                'zip' => '11220-1909'
+              },
+              'caresitePhone' => '718-571-9251',
+              'email' => nil,
+              'fax' => nil,
+              'gender' => 'NotSpecified',
+              'lat' => 40.644795,
+              'long' => -74.011055,
+              'name' => 'CITY MD URGENT CARE',
+              'phone' => nil,
+              'posCodes' => '20',
+              'prefContact' => nil,
+              'uniqueId' => '1487993564'
+            }
+          }
+        )
+        expect(response).to be_successful
+      end
+    end
+
+    it 'returns a results from the provider_locator' do
+      get '/facilities_api/v1/ccp/provider', params: params
+
+      bod = JSON.parse(response.body)
+      expect(bod['data']).to include(
+        {
+          'id' => '6d4644e7db7491635849b23e20078f74cfcd2d0aeee6a77aca921f5540d03f33',
+          'type' => 'provider',
+          'attributes' => {
+            'accNewPatients' => 'true',
+            'address' => {
+              'street' => '176 RIVERSIDE AVE',
+              'city' => 'RED BANK',
+              'state' => 'NJ',
+              'zip' => '07701-1063'
+            },
+            'caresitePhone' => '732-219-6625',
+            'email' => nil,
+            'fax' => nil,
+            'gender' => 'Female',
+            'lat' => 40.35396,
+            'long' => -74.07492,
+            'name' => 'GESUALDI, AMY',
+            'phone' => nil,
+            'posCodes' => nil,
+            'prefContact' => nil,
+            'uniqueId' => '1154383230'
+          }
+        }
+      )
+
+      expect(response).to be_successful
+    end
+  end
+
+  describe '#pharmacy' do
+    let(:params) do
+      {
+        latitude: 40.415217,
+        longitude: -74.057114,
+        radius: 200
+      }
+    end
+
+    it 'returns results from the pos_locator' do
+      get '/facilities_api/v1/ccp/pharmacy', params: params
+
+      bod = JSON.parse(response.body)
+
+      expect(bod['data'][0]).to match(
+        {
+          'id' => '1a2ec66b370936eccc980db2fcf4b094fc61a5329aea49744d538f6a9bab2569',
+          'type' => 'provider',
+          'attributes' => {
+            'accNewPatients' => 'false',
+            'address' => {
+              'street' => '2 BAYSHORE PLZ',
+              'city' => 'ATLANTIC HIGHLANDS',
+              'state' => 'NJ',
+              'zip' => '07716'
+            },
+            'caresitePhone' => '732-291-2900',
+            'email' => nil,
+            'fax' => nil,
+            'gender' => 'NotSpecified',
+            'lat' => 40.409114,
+            'long' => -74.041849,
+            'name' => 'BAYSHORE PHARMACY',
+            'phone' => nil,
+            'posCodes' => nil,
+            'prefContact' => nil,
+            'uniqueId' => '1225028293'
+          }
+        }
+      )
+
+      expect(response).to be_successful
+    end
+  end
+
+  describe '#urgent_care' do
+    let(:params) do
+      {
+        latitude: 40.415217,
+        longitude: -74.057114,
+        radius: 200
+      }
+    end
+
+    it 'returns results from the pos_locator' do
+      get '/facilities_api/v1/ccp/urgent_care', params: params
+
+      bod = JSON.parse(response.body)
+
+      sha256 = 'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d'
+
+      expect(bod['data']).to include(
+        {
+          'id' => sha256,
+          'type' => 'provider',
+          'attributes' => {
+            'accNewPatients' => 'false',
+            'address' => {
+              'street' => '5024 5TH AVE',
+              'city' => 'BROOKLYN',
+              'state' => 'NY',
+              'zip' => '11220-1909'
+            },
+            'caresitePhone' => '718-571-9251',
+            'email' => nil,
+            'fax' => nil,
+            'gender' => 'NotSpecified',
+            'lat' => 40.644795,
+            'long' => -74.011055,
+            'name' => 'CITY MD URGENT CARE',
+            'phone' => nil,
+            'posCodes' => '20',
+            'prefContact' => nil,
+            'uniqueId' => '1487993564'
+          }
+        }
+      )
+
+      expect(response).to be_successful
     end
   end
 

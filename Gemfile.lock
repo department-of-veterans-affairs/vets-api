@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 4128d1a62e97add367209dbed619f231274bf7eb
+  revision: ae2902bf06f05ef43c934a7d9cd7f8d207e0a30d
   branch: master
   specs:
-    vets_json_schema (20.3.0)
+    vets_json_schema (20.3.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -555,7 +555,7 @@ GEM
     netrc (0.11.0)
     nio4r (2.5.7)
     no_proxy_fix (0.1.2)
-    nokogiri (1.11.4)
+    nokogiri (1.11.5)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nori (2.6.0)
