@@ -25,6 +25,11 @@ module ClaimsApi
           key :description, "Allows authenticated veterans and veteran representatives to retrieve a veteran's id."
         end
 
+        tag do
+          key :name, 'Claims'
+          key :description, 'Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.'
+        end
+
         server do
           key :url, 'https://sandbox-api.va.gov/services/benefits/{version}'
           key :description, 'VA.gov API sandbox environment'
