@@ -17,12 +17,12 @@ module SM
 
     MHV_MAXIMUM_PER_PAGE = 250
     CONTENT_DISPOSITION = 'attachment; filename='
-    STATSD_KEY_PREFIX = if self.class == SM::Client
+    STATSD_KEY_PREFIX = 
+    if self.instance_of? SM::Client
       'api.sm'
     else
       'mobile.sm'
     end
-
 
     ##
     # @!group Preferences
@@ -340,11 +340,11 @@ module SM
 
       if data
         Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
-        statsd_cache_hit()
+        statsd_cache_hit
         Common::Collection.new(model, { data: data })
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
-        statsd_cache_miss()
+        statsd_cache_miss
         yield
       end
     end
