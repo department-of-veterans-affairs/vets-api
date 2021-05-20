@@ -76,7 +76,7 @@ class User < Common::RedisStore
     if identity.birth_date
       birth_date =  identity.birth_date
     elsif mhv_icn.present?
-      birth_date =  mpi_profile_birth_date
+      birth_date =  birth_date_mpi
     end
     if birth_date.nil?
       Rails.logger.info "[User] Cannot find birth date for User with uuid: #{uuid}"
@@ -99,7 +99,7 @@ class User < Common::RedisStore
   end
 
   def gender
-    identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
+    identity.gender || (mhv_icn.present? ? mpi_profile&.gender : nil)
   end
 
   def icn
@@ -119,11 +119,11 @@ class User < Common::RedisStore
   end
 
   def middle_name
-    identity.middle_name || (mhv_icn.present? ? mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
+    identity.middle_name || (mhv_icn.present? ? mpi_profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
 
   def last_name
-    identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
+    identity.last_name || (mhv_icn.present? ? mpi_profile&.family_name : nil)
   end
 
   def participant_id
@@ -135,7 +135,7 @@ class User < Common::RedisStore
   end
 
   def ssn
-    identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
+    identity.ssn || (mhv_icn.present? ? mpi_profile&.ssn : nil)
   end
 
   def ssn_normalized
@@ -143,10 +143,16 @@ class User < Common::RedisStore
   end
 
   def zip
-    identity.zip || (mhv_icn.present? ? mpi&.profile&.address&.postal_code : nil)
+    identity.zip || (mhv_icn.present? ? mpi_profile&.address&.postal_code : nil)
   end
 
   # MPI getter methods
+
+  def mpi_profile
+    return nil unless mpi
+
+    mpi.profile
+  end
 
   def active_mhv_ids
     mpi_profile&.active_mhv_ids
@@ -161,6 +167,17 @@ class User < Common::RedisStore
       country: address&.country,
       zip: address&.postal_code
     }
+  end
+
+  def birth_date_mpi
+    return nil unless mpi_profile
+
+    if mpi_profile.birth_date.nil?
+      Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
+      return nil
+    end
+
+    mpi_profile.birth_date
   end
 
   def edipi_mpi
@@ -201,17 +218,6 @@ class User < Common::RedisStore
 
   def mhv_ids
     mpi_profile&.mhv_ids
-  end
-
-  def mpi_profile_birth_date
-    return nil unless mpi_profile
-
-    if mpi_profile.birth_date.nil?
-      Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
-      return nil
-    end
-
-    mpi_profile.birth_date
   end
 
   def normalized_suffix
@@ -263,6 +269,7 @@ class User < Common::RedisStore
   delegate :person_types, to: :identity, allow_nil: true
 
   # mpi attributes
+  delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
@@ -270,6 +277,9 @@ class User < Common::RedisStore
   delegate :error, to: :mpi, prefix: true
   delegate :cerner_id, to: :mpi
   delegate :cerner_facility_ids, to: :mpi
+
+  # mpi methods
+  delegate :add_person, to: :mpi, prefix: true
 
   # emis attributes
   delegate :military_person?, to: :veteran_status
@@ -421,10 +431,6 @@ class User < Common::RedisStore
     first_name.present? && last_name.present? && ssn.present? && birth_date.present?
   end
 
-  def mpi
-    @mpi ||= MPIData.for_user(self)
-  end
-
   # A user can have served in the military without being a veteran.  For example,
   # someone can be ex-military by having a discharge status higher than
   # 'Other Than Honorable'.
@@ -447,6 +453,10 @@ class User < Common::RedisStore
     @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
   end
 
+  def mpi
+    @mpi ||= MPIData.for_user(self)
+  end
+
   private
 
   def relationship_hash(mpi_relationship)
@@ -458,12 +468,6 @@ class User < Common::RedisStore
       birth_date: mpi_relationship.birth_date,
       person_type_code: mpi_relationship.person_type_code
     }
-  end
-
-  def mpi_profile
-    return nil unless mpi
-
-    mpi.profile
   end
 
   def mpi_profile_relationships
