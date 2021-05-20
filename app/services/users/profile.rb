@@ -107,7 +107,7 @@ module Users
       if status == RESPONSE_STATUS[:ok]
         {
           status: status,
-          birth_date: user.mpi_profile_birth_date,
+          birth_date: user.birth_date_mpi,
           family_name: user.last_name_mpi,
           gender: user.gender_mpi,
           given_names: user.given_names,
