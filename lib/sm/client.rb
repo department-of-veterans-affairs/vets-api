@@ -387,13 +387,16 @@ module SM
     ##
     # Report stats of secure messaging events
     #
-    private
-    def statsd_cache_hit
-      StatsD.increment("#{STATSD_KEY_PREFIX}.cache.hit")
-    end
+    class << self
+      private
 
-    def statsd_cache_miss
-      StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
+      def statsd_cache_hit
+        StatsD.increment("#{STATSD_KEY_PREFIX}.cache.hit")
+      end
+
+      def statsd_cache_miss
+        StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
+      end
     end
     # @!endgroup
   end
