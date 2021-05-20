@@ -16,11 +16,42 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
 
   describe 'Veteran Identifier' do
     context 'when auth header and body params are present' do
-      it 'returns an id' do
-        post path, params: data, headers: headers
-        icn = JSON.parse(response.body)['id']
-        expect(icn).to eq(ClaimsApi::V2::VeteranIdentifierController::ICN_FOR_TEST_USER)
-        expect(response.status).to eq(200)
+      context 'when body params match exactly' do
+        it 'returns an id' do
+          post path, params: data, headers: headers
+          icn = JSON.parse(response.body)['id']
+
+          expect(icn).to eq(ClaimsApi::V2::VeteranIdentifierController::ICN_FOR_TEST_USER)
+          expect(response.status).to eq(200)
+        end
+      end
+
+      context 'when body params do not match exactly' do
+        context 'when first name is mixed-case' do
+          it 'returns an id' do
+            valid_data = data
+            valid_data[:firstName] = 'TaMAra'
+
+            post path, params: valid_data, headers: headers
+            icn = JSON.parse(response.body)['id']
+
+            expect(icn).to eq(ClaimsApi::V2::VeteranIdentifierController::ICN_FOR_TEST_USER)
+            expect(response.status).to eq(200)
+          end
+        end
+
+        context 'when last name is mixed-case' do
+          it 'returns an id' do
+            valid_data = data
+            valid_data[:lastName] = 'eLLiS'
+
+            post path, params: valid_data, headers: headers
+            icn = JSON.parse(response.body)['id']
+
+            expect(icn).to eq(ClaimsApi::V2::VeteranIdentifierController::ICN_FOR_TEST_USER)
+            expect(response.status).to eq(200)
+          end
+        end
       end
     end
 
@@ -39,6 +70,48 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
       it 'returns a 401 error code' do
         post path, params: data
         expect(response.status).to eq(401)
+      end
+    end
+
+    context 'when veteran cannot be found' do
+      context 'when ssn does not match' do
+        it 'returns a 404' do
+          invalid_data = data
+          invalid_data[:ssn] = '123456789'
+
+          post path, params: invalid_data, headers: headers
+          expect(response.status).to eq(404)
+        end
+      end
+
+      context 'when first name does not match' do
+        it 'returns a 404' do
+          invalid_data = data
+          invalid_data[:firstName] = 'Random'
+
+          post path, params: invalid_data, headers: headers
+          expect(response.status).to eq(404)
+        end
+      end
+
+      context 'when last name does not match' do
+        it 'returns a 404' do
+          invalid_data = data
+          invalid_data[:lastName] = 'Person'
+
+          post path, params: invalid_data, headers: headers
+          expect(response.status).to eq(404)
+        end
+      end
+
+      context 'when birthdate does not match' do
+        it 'returns a 404' do
+          invalid_data = data
+          invalid_data[:birthdate] = '1970-01-01'
+
+          post path, params: invalid_data, headers: headers
+          expect(response.status).to eq(404)
+        end
       end
     end
 

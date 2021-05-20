@@ -6,11 +6,10 @@ require_relative 'communication_channel'
 module VAProfile
   module Models
     class CommunicationItem < CommunicationBase
-      attr_accessor :id, :name
-      attr_reader :communication_channels
+      attr_accessor :id, :name, :communication_channels
+      attr_reader :communication_channel
 
-      validates :id, :communication_channels, presence: true
-      validates :communication_channels, length: { maximum: 1, too_long: 'must have only one communication channel' }
+      validates :id, :communication_channel, presence: true
 
       validate :communication_channel_valid
 
@@ -30,27 +29,20 @@ module VAProfile
         )
       end
 
-      def communication_channels=(arr)
-        @communication_channels = if arr[0].present? && !arr[0].is_a?(CommunicationChannel)
-                                    arr.map do |hash|
-                                      CommunicationChannel.new(hash)
-                                    end
-                                  else
-                                    arr
-                                  end
+      def communication_channel=(communication_channel_data)
+        @communication_channel =
+          if communication_channel_data.present? && !communication_channel_data.is_a?(CommunicationChannel)
+            CommunicationChannel.new(communication_channel_data)
+          else
+            communication_channel_data
+          end
       end
 
       def http_verb
-        first_communication_channel.communication_permission.id.present? ? :put : :post
-      end
-
-      def first_communication_channel
-        communication_channels[0]
+        communication_channel.communication_permission.id.present? ? :put : :post
       end
 
       def in_json(va_profile_id)
-        communication_channel = first_communication_channel
-
         {
           bio: {
             allowed: communication_channel.communication_permission.allowed,
@@ -73,8 +65,8 @@ module VAProfile
       private
 
       def communication_channel_valid
-        if communication_channels.present? && !first_communication_channel.valid?
-          errors.add(:communication_channels, first_communication_channel.errors.full_messages.join(','))
+        if communication_channel.present? && !communication_channel.valid?
+          errors.add(:communication_channel, communication_channel.errors.full_messages.join(','))
         end
       end
     end

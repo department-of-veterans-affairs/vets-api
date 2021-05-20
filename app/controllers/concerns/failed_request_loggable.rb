@@ -37,7 +37,7 @@ module FailedRequestLoggable
                              end
 
     hash[:birth_date] = begin
-                          @current_user.mpi_profile_birth_date.to_date.iso8601
+                          @current_user.birth_date_mpi.to_date.iso8601
                         rescue
                           nil
                         end

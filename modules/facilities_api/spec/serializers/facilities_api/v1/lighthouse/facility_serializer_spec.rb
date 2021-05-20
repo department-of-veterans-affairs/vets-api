@@ -125,5 +125,9 @@ module FacilitiesApi
       }
       expect(data['attributes']['services']).to eq(expected_services)
     end
+
+    it 'includes tmpCovidOnlineScheduling' do
+      expect(data['attributes']['tmpCovidOnlineScheduling']).to be_nil
+    end
   end
 end

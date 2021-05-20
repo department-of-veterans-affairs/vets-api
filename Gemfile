@@ -35,7 +35,7 @@ gem 'sass-rails', '>= 6'
 
 # Anchored versions, do not change
 gem 'puma', '~> 4.3.8'
-gem 'puma-plugin-statsd', '~> 0.1.0'
+gem 'puma-plugin-statsd', '~> 1.2.1'
 gem 'rails', '~> 6.0.3'
 
 # Gems with special version/repo needs
@@ -65,7 +65,7 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
-gem 'fhir_client', '~> 4.0.5'
+gem 'fhir_client', '~> 4.0.6'
 gem 'flipper', '~> 0.20.4'
 gem 'flipper-active_record', '~> 0.20.4'
 gem 'flipper-active_support_cache_store', '~> 0.20.4'

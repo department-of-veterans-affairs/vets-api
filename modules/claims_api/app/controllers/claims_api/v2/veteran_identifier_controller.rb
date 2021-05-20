@@ -14,8 +14,9 @@ module ClaimsApi
         raise ::Common::Exceptions::Unauthorized if request.headers['Authorization'].blank?
 
         validate_request
+        veteran = find_veteran(params)
 
-        render json: { id: ICN_FOR_TEST_USER }
+        render json: { id: veteran[:id] }
       end
 
       private
@@ -43,6 +44,34 @@ module ClaimsApi
         raise ::Common::Exceptions::InvalidFieldValue.new('birthdate', date_str)
       rescue ArgumentError
         raise ::Common::Exceptions::InvalidFieldValue.new('birthdate', date_str)
+      end
+
+      def find_veteran(params)
+        test_veteran_data = {
+          id: ICN_FOR_TEST_USER,
+          ssn: '796130115',
+          firstName: 'Tamara',
+          lastName: 'Ellis',
+          birthdate: '1967-06-19'
+        }
+
+        unless params[:ssn] == test_veteran_data[:ssn]
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+        end
+
+        unless params[:firstName].casecmp?(test_veteran_data[:firstName])
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+        end
+
+        unless params[:lastName].casecmp?(test_veteran_data[:lastName])
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+        end
+
+        unless params[:birthdate] == test_veteran_data[:birthdate]
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+        end
+
+        test_veteran_data
       end
     end
   end

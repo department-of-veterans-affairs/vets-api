@@ -695,10 +695,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
           end
         end
       end
-
-      security do
-        key :apikey, []
-      end
     end
   end
 

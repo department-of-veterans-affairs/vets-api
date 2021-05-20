@@ -3,7 +3,7 @@
 module Flipper
   class AdminUserConstraint
     def current_user_rack(request)
-      if (session_token = request.session[:token]) && (session = Session.find(session_token))
+      if (session_token = request.session[:token]) && (session = Session.find(session_token)) && session&.uuid
         user = User.find(session.uuid)
         # We've set this in a thread because we want to log who has made a change in
         # Flipper::Instrumentation::EventSubscriber but at that point we don't have access to the request or session
