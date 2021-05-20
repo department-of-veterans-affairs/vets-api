@@ -387,6 +387,7 @@ module SM
     ##
     # Report stats of secure messaging events
     #
+    private
     def statsd_cache_hit
       StatsD.increment("#{STATSD_KEY_PREFIX}.cache.hit")
     end
