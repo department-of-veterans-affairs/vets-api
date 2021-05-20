@@ -74,14 +74,14 @@ describe MPIData, skip_mvi: true do
     end
   end
 
-  describe '#mvi_add_person' do
+  describe '#mpi_add_person' do
     context 'with a successful add' do
       it 'returns the successful response' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
         expect_any_instance_of(MPIData).to receive(:add_ids).once.and_call_original
         expect_any_instance_of(MPIData).to receive(:cache).once.and_call_original
-        response = user.mpi.mvi_add_person
+        response = user.mpi_add_person
         expect(response.status).to eq('OK')
       end
     end
@@ -89,7 +89,7 @@ describe MPIData, skip_mvi: true do
     context 'with a failed search' do
       it 'returns the failed search response' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
-        response = user.mpi.mvi_add_person
+        response = user.mpi_add_person
         expect_any_instance_of(MPI::Service).not_to receive(:add_person)
         expect(response.status).to eq('SERVER_ERROR')
       end
@@ -101,7 +101,7 @@ describe MPIData, skip_mvi: true do
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response_error)
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
-        response = user.mpi.mvi_add_person
+        response = user.mpi_add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
     end

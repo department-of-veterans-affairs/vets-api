@@ -168,11 +168,6 @@ RSpec.describe 'letters', type: :request do
         }
       end
 
-      before do
-        user.mpi.profile.edipi = '1005079124'
-        user.mpi.profile.participant_id = '600036159'
-      end
-
       it 'returns a 502' do
         VCR.use_cassette('evss/letters/download_unexpected') do
           post '/v0/letters/benefit_summary', params: options
