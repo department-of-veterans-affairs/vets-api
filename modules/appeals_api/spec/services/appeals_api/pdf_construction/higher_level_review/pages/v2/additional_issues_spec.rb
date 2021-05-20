@@ -16,7 +16,10 @@ module AppealsApi::PdfConstruction::HigherLevelReview
       end
 
       it 'starts a new pdf page' do
-        stub_const('AppealsApi::PdfConstruction::HigherLevelReview::V2::Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM', 5)
+        stub_const(
+          'AppealsApi::PdfConstruction::HigherLevelReview::V2::Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM',
+          5
+        )
 
         pdf = Prawn::Document.new
 
