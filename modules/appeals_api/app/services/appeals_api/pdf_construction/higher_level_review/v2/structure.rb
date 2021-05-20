@@ -95,7 +95,10 @@ module AppealsApi
 
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          # TODO: Create a contestable issues table similar to NOD's extra issues table
+           HigherLevelReview::Pages::V2::AdditionalIssues.new(
+            @additional_pages_pdf,
+            form_data
+          ).build!
 
           @additional_pages_pdf
         end
