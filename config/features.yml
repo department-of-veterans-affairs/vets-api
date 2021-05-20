@@ -180,6 +180,10 @@ features:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
     enable_in_development: true
+  language_support:
+    actor_type: user
+    description: Toggles the availability of language support links (spanish et al) in the footer
+    enable_in_development: true
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -378,8 +382,4 @@ features:
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
-    enable_in_development: true
-  language_support:
-    actor_type: user
-    description: Toggles the availability of language support links (spanish et al) in the footer
     enable_in_development: true
