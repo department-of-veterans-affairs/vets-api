@@ -57,7 +57,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       { metadata: build_fixture('valid_metadata_space_in_name.json', true) }
     end
 
-
     let(:valid_content) do
       { content: build_fixture('valid_doc.pdf') }
     end

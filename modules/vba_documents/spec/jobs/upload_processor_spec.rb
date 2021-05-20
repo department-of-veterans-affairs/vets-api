@@ -229,7 +229,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     %i[dashes_slashes_first_last valid_metadata_space_in_name].each do |allowed|
       it "allows #{allowed} names" do
         allow(VBADocuments::MultipartParser).to receive(:parse) {
-          {'metadata' => send(allowed), 'content' => valid_doc}
+          { 'metadata' => send(allowed), 'content' => valid_doc }
         }
         allow(CentralMail::Service).to receive(:new) { client_stub }
         allow(faraday_response).to receive(:status).and_return(200)
