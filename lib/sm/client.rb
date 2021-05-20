@@ -76,7 +76,6 @@ module SM
     #
     # @return [Folder]
     #
-    #
     def get_folder(id)
       json = perform(:get, "folder/#{id}", nil, token_headers).body
       Folder.new(json)
