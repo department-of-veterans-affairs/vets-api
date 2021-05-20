@@ -373,7 +373,7 @@ GEM
       activesupport (>= 4.2)
     fastimage (2.2.3)
     ffi (1.14.2)
-    fhir_client (4.0.5)
+    fhir_client (4.0.6)
       activesupport (>= 3)
       addressable (>= 2.3)
       fhir_dstu2_models (>= 1.0.10)
@@ -999,7 +999,7 @@ DEPENDENCIES
   faraday_middleware
   fast_jsonapi
   fastimage
-  fhir_client (~> 4.0.5)
+  fhir_client (~> 4.0.6)
   flipper (~> 0.20.4)
   flipper-active_record (~> 0.20.4)
   flipper-active_support_cache_store (~> 0.20.4)
