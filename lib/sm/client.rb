@@ -17,12 +17,11 @@ module SM
 
     MHV_MAXIMUM_PER_PAGE = 250
     CONTENT_DISPOSITION = 'attachment; filename='
-    STATSD_KEY_PREFIX = 
-    if self.instance_of? SM::Client
-      'api.sm'
-    else
-      'mobile.sm'
-    end
+    STATSD_KEY_PREFIX = if instance_of? SM::Client
+                          'api.sm'
+                        else
+                          'mobile.sm'
+                        end
 
     ##
     # @!group Preferences
