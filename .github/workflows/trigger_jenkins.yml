@@ -8,31 +8,31 @@ jobs:
       name: Trigger jenkins deployment
       runs-on: ubuntu-latest
       steps:
-        - name: Create AMI
-          uses: wei/curl@v1
-          with:
-            args: >
-              -X POST -L --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
-              https://dev.va.gov/jenkins/job/builds/job/vets-api/build
-              --data-urlencode json='{\"parameter\": [
-                {\"name\":\"notify_slack\",\"value\":true},
-                {\"name\":\"ref\",\"value\":\"${{ github.sha }}\"},
-                {\"name\":\"force_rebuild\",\"value\":true},
-                {\"name\":\"release\",\"value\":false}
-              ]}'
-        # - name: Deploy vets-api server in dev
+        # - name: Create AMI
         #   uses: wei/curl@v1
         #   with:
         #     args: >
-        #       -X POST -L --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }} 
-        #       https://dev.va.gov/jenkins/job/deploys/job/vets-api-server-vagov-dev/build
+        #       -X POST -L --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }}
+        #       https://dev.va.gov/jenkins/job/builds/job/vets-api/build
         #       --data-urlencode json='{\"parameter\": [
-        #         {\"name\":\"app\",\"value\":\"vets-api-server\"},
         #         {\"name\":\"notify_slack\",\"value\":true},
-        #         {\"name\":\"environment\",\"value\":\"vagov-dev\"},
-        #         {\"name\":\"migration_status\",\"value\":true},
-        #         {\"name\":\"ref\",\"value\":\"${{ github.sha }}\"}
+        #         {\"name\":\"ref\",\"value\":\"${{ github.sha }}\"},
+        #         {\"name\":\"force_rebuild\",\"value\":true},
+        #         {\"name\":\"release\",\"value\":false}
         #       ]}'
+        - name: Deploy vets-api server in dev
+          uses: wei/curl@v1
+          with:
+            args: >
+              -X POST -L --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }} 
+              https://dev.va.gov/jenkins/job/deploys/job/vets-api-server-vagov-dev/build
+              --data-urlencode json='{\"parameter\": [
+                {\"name\":\"app\",\"value\":\"vets-api-server\"},
+                {\"name\":\"notify_slack\",\"value\":true},
+                {\"name\":\"environment\",\"value\":\"vagov-dev\"},
+                {\"name\":\"migration_status\",\"value\":true},
+                {\"name\":\"ref\",\"value\":\"${{ github.sha }}\"}
+              ]}'
         # - name: Deploy vets-api worker in dev
         #   uses: wei/curl@v1
         #   with:
