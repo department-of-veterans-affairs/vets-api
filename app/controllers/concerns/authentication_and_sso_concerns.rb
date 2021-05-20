@@ -43,7 +43,7 @@ module AuthenticationAndSSOConcerns
 
   def load_user
     @session_object = Session.find(session[:token])
-    @current_user = User.find(@session_object.uuid) if @session_object
+    @current_user = User.find(@session_object.uuid) if @session_object&.uuid
   end
 
   # Destroys the user's session in Redis and the MHV SSO Cookie

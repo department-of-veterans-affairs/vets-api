@@ -9,7 +9,7 @@ module AppealsApi
         end
 
         delegate :first_name, :middle_initial, :last_name, :file_number, :insurance_policy_number, :contestable_issues,
-                 :birth_mm, :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy,
+                 :birth_mm, :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :rep_email,
                  to: :higher_level_review
 
         def first_three_ssn
@@ -77,6 +77,18 @@ module AppealsApi
           return 'Off' if time != higher_level_review.informal_conference_time
 
           1
+        end
+
+        def rep_phone_area_code
+          higher_level_review.rep_phone_data&.dig('areaCode')
+        end
+
+        def rep_phone_prefix
+          higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3)
+        end
+
+        def rep_phone_line_number
+          higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4)
         end
 
         def soc_opt_in

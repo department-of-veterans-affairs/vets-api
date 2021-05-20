@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 07d0bca2d60ff5259bb239e8b33dad26aa693ecf
+  revision: 2b6dd9454241cf395af7d42b7f36449522c0a109
   specs:
     bgs_ext (0.21.0)
       httpclient
@@ -51,7 +51,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
-  revision: bebad55f8723f091c7d41522178b11999f574499
+  revision: 049b3c5068fa6c6d1cae0b58654529316b84be57
   branch: master
   specs:
     connect_vbms (1.2.0)
@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 4128d1a62e97add367209dbed619f231274bf7eb
+  revision: ae2902bf06f05ef43c934a7d9cd7f8d207e0a30d
   branch: master
   specs:
-    vets_json_schema (20.3.0)
+    vets_json_schema (20.3.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -188,7 +188,7 @@ GEM
     attr_extras (6.2.4)
     awesome_print (1.9.2)
     aws-eventstream (1.1.1)
-    aws-partitions (1.445.0)
+    aws-partitions (1.457.0)
     aws-sdk-core (3.114.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -197,7 +197,7 @@ GEM
     aws-sdk-kms (1.43.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.94.0)
+    aws-sdk-s3 (1.94.1)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -253,7 +253,7 @@ GEM
     combine_pdf (1.0.21)
       ruby-rc4 (>= 0.1.5)
     concurrent-ruby (1.1.8)
-    config (2.2.1)
+    config (3.1.0)
       deep_merge (~> 1.2, >= 1.2.1)
       dry-validation (~> 1.0, >= 1.0.0)
     connection_pool (2.2.3)
@@ -283,7 +283,7 @@ GEM
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
     date_time_precision (0.8.1)
-    date_validator (0.10.0)
+    date_validator (0.11.0)
       activemodel (>= 3)
       activesupport (>= 3)
     debase (0.2.4.1)
@@ -310,18 +310,17 @@ GEM
       concurrent-ruby (~> 1.0)
     dry-equalizer (0.3.0)
     dry-inflector (0.2.0)
-    dry-initializer (3.0.3)
-    dry-logic (1.1.0)
+    dry-initializer (3.0.4)
+    dry-logic (1.2.0)
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.5, >= 0.5)
-    dry-schema (1.4.3)
+    dry-schema (1.6.2)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 0.8, >= 0.8.3)
-      dry-core (~> 0.4)
-      dry-equalizer (~> 0.2)
+      dry-core (~> 0.5, >= 0.5)
       dry-initializer (~> 3.0)
       dry-logic (~> 1.0)
-      dry-types (~> 1.2)
+      dry-types (~> 1.5)
     dry-struct (1.4.0)
       dry-core (~> 0.5, >= 0.5)
       dry-types (~> 1.5)
@@ -332,16 +331,16 @@ GEM
       dry-core (~> 0.5, >= 0.5)
       dry-inflector (~> 0.1, >= 0.1.2)
       dry-logic (~> 1.0, >= 1.0.2)
-    dry-validation (1.4.1)
+    dry-validation (1.6.0)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.7, >= 0.7.1)
       dry-core (~> 0.4)
       dry-equalizer (~> 0.2)
       dry-initializer (~> 3.0)
-      dry-schema (~> 1.0, >= 1.4.3)
+      dry-schema (~> 1.5, >= 1.5.2)
     e2mmap (0.1.0)
-    ecma-re-validator (0.2.0)
-      regexp_parser (~> 1.2)
+    ecma-re-validator (0.3.0)
+      regexp_parser (~> 2.0)
     einhorn (0.7.4)
     encryptor (3.0.0)
     equalizer (0.0.11)
@@ -355,7 +354,7 @@ GEM
     factory_bot_rails (6.2.0)
       factory_bot (~> 6.2.0)
       railties (>= 5.0.0)
-    faker (2.17.0)
+    faker (2.18.0)
       i18n (>= 1.6, < 2)
     fakeredis (0.8.0)
       redis (~> 4.1)
@@ -449,7 +448,7 @@ GEM
       google-apis-discovery_v1 (~> 0.0)
       thor (>= 0.20, < 2.a)
     google-protobuf (3.15.8)
-    googleauth (0.16.1)
+    googleauth (0.16.2)
       faraday (>= 0.17.3, < 2.0)
       jwt (>= 1.4, < 3.0)
       memoist (~> 0.16)
@@ -480,7 +479,7 @@ GEM
       rubocop (< 2.0)
     gyoku (1.3.1)
       builder (>= 2.1.2)
-    hana (1.3.5)
+    hana (1.3.7)
     hashdiff (1.0.1)
     hashery (2.1.2)
     hashie (3.6.0)
@@ -504,17 +503,17 @@ GEM
     json (2.5.1)
     json-schema (2.8.1)
       addressable (>= 2.4)
-    json_schemer (0.2.16)
-      ecma-re-validator (~> 0.2)
+    json_schemer (0.2.18)
+      ecma-re-validator (~> 0.3)
       hana (~> 1.3)
-      regexp_parser (~> 1.5)
+      regexp_parser (~> 2.0)
       uri_template (~> 0.7)
     jsonapi (0.1.1.beta6)
       jsonapi-parser (= 0.1.1.beta3)
       jsonapi-renderer (= 0.1.1.beta1)
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
-    jwt (2.2.2)
+    jwt (2.2.3)
     kramdown (2.3.1)
       rexml
     kramdown-parser-gfm (1.1.0)
@@ -556,7 +555,7 @@ GEM
     netrc (0.11.0)
     nio4r (2.5.7)
     no_proxy_fix (0.1.2)
-    nokogiri (1.11.4)
+    nokogiri (1.11.5)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nori (2.6.0)
@@ -576,9 +575,8 @@ GEM
       sawyer (~> 0.8.0, >= 0.5.3)
     oj (3.11.5)
     okcomputer (1.18.4)
-    olive_branch (3.0.0)
+    olive_branch (4.0.0)
       multi_json
-      oj
       rails (>= 4.0)
     open4 (1.3.4)
     operating_hours (0.1.0)
@@ -655,9 +653,8 @@ GEM
     public_suffix (4.0.6)
     puma (4.3.8)
       nio4r (~> 2.0)
-    puma-plugin-statsd (0.1.0)
-      json
-      puma (>= 3.12, < 5)
+    puma-plugin-statsd (1.2.1)
+      puma (>= 3.12, < 6)
     pundit (2.1.0)
       activesupport (>= 3.0.0)
     raabro (1.1.6)
@@ -695,7 +692,7 @@ GEM
       loofah (~> 2.3)
     rails-session_cookie (0.2.2)
       rails (>= 4.0)
-    rails_semantic_logger (4.5.0)
+    rails_semantic_logger (4.5.1)
       rack
       railties (>= 3.2)
       semantic_logger (~> 4.4)
@@ -715,7 +712,7 @@ GEM
     redis (4.1.4)
     redis-namespace (1.8.1)
       redis (>= 3.0.4)
-    regexp_parser (1.8.2)
+    regexp_parser (2.1.1)
     representable (3.0.4)
       declarative (< 0.1.0)
       declarative-option (< 0.2.0)
@@ -727,11 +724,11 @@ GEM
       http-cookie (>= 1.0.2, < 2.0)
       mime-types (>= 1.16, < 4.0)
       netrc (~> 0.8)
-    restforce (3.0.0)
-      faraday (>= 0.9.0, <= 1.0)
-      faraday_middleware (>= 0.8.8, <= 1.0)
-      hashie (>= 1.2.0, < 4.0)
-      json (>= 1.7.5)
+    restforce (5.0.5)
+      faraday (>= 0.9.0, <= 2.0)
+      faraday_middleware (>= 0.8.8, <= 2.0)
+      hashie (>= 1.2.0, < 5.0)
+      jwt (>= 1.5.6)
     retriable (3.1.2)
     rexml (3.2.5)
     rgeo (2.0.1)
@@ -1062,7 +1059,7 @@ DEPENDENCIES
   prawn-table
   pry-byebug
   puma (~> 4.3.8)
-  puma-plugin-statsd (~> 0.1.0)
+  puma-plugin-statsd (~> 1.2.1)
   pundit
   rack
   rack-attack

@@ -42,10 +42,6 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
-  ch33_dd_profile:
-    actor_type: user
-    description: Allows user to access chapter 33 benefits (direct deposit for education) in the front end
-    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -116,6 +112,10 @@ features:
     actor_type: user
     description: enable covid search/display
     enable_in_development: true
+  facilities_locator_mobile_covid_online_scheduling:
+    actor_type: user
+    enable_in_development: true
+    description: get covid online scheduling availability from the mobile api
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
@@ -179,6 +179,10 @@ features:
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
+    enable_in_development: true
+  language_support:
+    actor_type: user
+    description: Toggles the availability of language support links (spanish et al) in the footer
     enable_in_development: true
   mobile_api:
     actor_type: user

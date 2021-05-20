@@ -88,7 +88,7 @@ module V1
 
     def set_sentry_context_for_callback
       temp_session_object = Session.find(session[:token])
-      temp_current_user = User.find(temp_session_object.uuid) if temp_session_object
+      temp_current_user = User.find(temp_session_object.uuid) if temp_session_object&.uuid
       Raven.extra_context(
         current_user_uuid: temp_current_user.try(:uuid),
         current_user_icn: temp_current_user.try(:mhv_icn)
@@ -337,7 +337,7 @@ module V1
 
     def log_persisted_session_and_warnings
       obscure_token = Session.obscure_token(@session_object.token)
-      Rails.logger.info("Logged in user with id #{@session_object.uuid}, token #{obscure_token}")
+      Rails.logger.info("Logged in user with id #{@session_object&.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?

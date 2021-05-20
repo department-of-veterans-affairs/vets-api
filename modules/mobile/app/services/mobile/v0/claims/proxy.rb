@@ -56,28 +56,28 @@ module Mobile
           jid
         end
 
-        def upload_documents(params, is_multi_image)
+        def upload_document(params)
           start_timer = Time.zone.now
           params.require :file
           id = params[:id]
-          file = params[:file]
           claim = claims_scope.find_by(evss_id: id)
           raise Common::Exceptions::RecordNotFound, id unless claim
 
-          file_to_upload = is_multi_image ? generate_multi_image_pdf(file) : file
-          document_data = EVSSClaimDocument.new(evss_claim_id: id, file_obj: file_to_upload,
-                                                uuid: SecureRandom.uuid, file_name: file_to_upload.original_filename,
-                                                tracked_item_id: params[:trackedItemId],
-                                                document_type: params[:documentType], password: params[:password])
-          raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+          jid = submit_document(params[:file], id, params[:trackedItemId], params[:documentType], params[:password])
+          StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:false'])
+          jid
+        end
 
-          jid = evss_claim_service.upload_document(document_data)
-          Rails.logger.info('Mobile Request', { claim_id: id, job_id: jid })
-          StatsD.measure(
-            STATSD_UPLOAD_LATENCY,
-            Time.zone.now - start_timer,
-            tags: ["is_multifile:#{params[:multifile]}"]
-          )
+        def upload_multi_image(params)
+          start_timer = Time.zone.now
+          params.require :files
+          id = params[:id]
+          claim = claims_scope.find_by(evss_id: id)
+          raise Common::Exceptions::RecordNotFound, id unless claim
+
+          file_to_upload = generate_multi_image_pdf(params[:files])
+          jid = submit_document(file_to_upload, id, params[:tracked_item_id], params[:document_type], params[:password])
+          StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:true'])
           jid
         end
 
@@ -86,6 +86,17 @@ module Mobile
         end
 
         private
+
+        def submit_document(file, claim_id, tracked_item_id, document_type, password)
+          document_data = EVSSClaimDocument.new(evss_claim_id: claim_id, file_obj: file, uuid: SecureRandom.uuid,
+                                                file_name: file.original_filename, tracked_item_id: tracked_item_id,
+                                                document_type: document_type, password: password)
+          raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+
+          jid = evss_claim_service.upload_document(document_data)
+          Rails.logger.info('Mobile Request', { claim_id: claim_id, job_id: jid })
+          jid
+        end
 
         def auth_headers
           @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h

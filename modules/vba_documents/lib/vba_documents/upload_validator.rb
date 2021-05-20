@@ -57,7 +57,7 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
 
-      validate_names(metadata['veteranFirstName'], metadata['veteranLastName'])
+      # validate_names(metadata['veteranFirstName'], metadata['veteranLastName'])
       validate_line_of_business(metadata['businessLine'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
