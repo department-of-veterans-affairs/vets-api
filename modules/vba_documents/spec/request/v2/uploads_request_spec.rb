@@ -53,6 +53,10 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     let(:name_too_long_metadata) do
       { metadata: build_fixture('name_too_long_metadata.json.erb', true, true) }
     end
+    let(:valid_metadata_space_in_name) do
+      { metadata: build_fixture('valid_metadata_space_in_name.json', true) }
+    end
+
 
     let(:valid_content) do
       { content: build_fixture('valid_doc.pdf') }
@@ -131,15 +135,17 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
     end
 
-    xit 'allows dashes and forward slashes in names' do
-      post SUBMIT_ENDPOINT,
-           params: {}.merge(dashes_slashes_first_last).merge(valid_content)
-      expect(response).to have_http_status(:ok)
+    %i[dashes_slashes_first_last valid_metadata_space_in_name].each do |allowed|
+      it "allows #{allowed} in names" do
+        post SUBMIT_ENDPOINT,
+             params: {}.merge(send(allowed)).merge(valid_content)
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
        name_too_long_metadata].each do |bad|
-      xit "returns an error if the name field #{bad} is missing or has bad characters" do
+      it "returns an error if the name field #{bad} is missing or has bad characters" do
         post SUBMIT_ENDPOINT,
              params: {}.merge(send(bad)).merge(valid_content)
         expect(response).to have_http_status(:bad_request)
