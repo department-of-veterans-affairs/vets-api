@@ -131,7 +131,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
     end
 
-    it 'allows dashes and forward slashes in names' do
+    xit 'allows dashes and forward slashes in names' do
       post SUBMIT_ENDPOINT,
            params: {}.merge(dashes_slashes_first_last).merge(valid_content)
       expect(response).to have_http_status(:ok)
@@ -139,7 +139,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
     %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
        name_too_long_metadata].each do |bad|
-      it "returns an error if the name field #{bad} is missing or has bad characters" do
+      xit "returns an error if the name field #{bad} is missing or has bad characters" do
         post SUBMIT_ENDPOINT,
              params: {}.merge(send(bad)).merge(valid_content)
         expect(response).to have_http_status(:bad_request)
