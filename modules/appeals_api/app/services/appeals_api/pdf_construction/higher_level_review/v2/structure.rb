@@ -86,24 +86,10 @@ module AppealsApi
 
         def insert_overlaid_pages(form_fill_path)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
-          temp_path = "/#{::Common::FileHelpers.random_file_path}.pdf"
+
           output_path = "/tmp/HLRv2-#{higher_level_review.id}-overlaid-form-fill-tmp.pdf"
 
-          Prawn::Document.generate(temp_path) do |pdf|
-            pdf.font 'Courier'
-
-            whiteout_line pdf, :first_name
-            whiteout_line pdf, :last_name
-            whiteout_line pdf, :veteran_email
-            pdf.start_new_page
-
-            # TODO: Rep first name text
-            # TODO: Rep last name text
-            whiteout_line pdf, :rep_email
-            fill_contestable_issues_text pdf
-            pdf.text_box form_data.signature,
-                         default_text_opts.merge(form_fields.boxes[:signature])
-          end
+          temp_path = fill_autosize_fields
           pdftk.multistamp(form_fill_path, temp_path, output_path)
           output_path
         end
@@ -139,6 +125,26 @@ module AppealsApi
         end
 
         private
+
+        def fill_autosize_fields
+          tmp_path = "/#{::Common::FileHelpers.random_file_path}.pdf"
+          Prawn::Document.generate(tmp_path) do |pdf|
+            pdf.font 'Courier'
+
+            whiteout_line pdf, :first_name
+            whiteout_line pdf, :last_name
+            whiteout_line pdf, :veteran_email
+            pdf.start_new_page
+
+            # TODO: Rep first name text
+            # TODO: Rep last name text
+            whiteout_line pdf, :rep_email
+            fill_contestable_issues_text pdf
+            pdf.text_box form_data.signature,
+                         default_text_opts.merge(form_fields.boxes[:signature])
+          end
+          tmp_path
+        end
 
         attr_accessor :higher_level_review
 
