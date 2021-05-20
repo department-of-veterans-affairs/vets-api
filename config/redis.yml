@@ -54,6 +54,9 @@ development: &defaults
   profile:
     namespace: profile
     each_ttl: 3600
+  launch:
+    namespace: launch
+    each_ttl: 3600
   charon_response:
     namespace: charon-response
     each_ttl: 3600
