@@ -284,7 +284,7 @@ RSpec.describe 'appointments', type: :request do
                 'comment' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
-                  'name' => 'CHEYENNE VAMC',
+                  'name' => 'Cheyenne VA Medical Center',
                   'address' => {
                     'street' => '2360 East Pershing Boulevard',
                     'city' => 'Cheyenne',
@@ -395,7 +395,7 @@ RSpec.describe 'appointments', type: :request do
                 'comment' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
-                  'name' => 'CHEYENNE VAMC',
+                  'name' => 'Cheyenne VA Medical Center',
                   'address' => {
                     'street' => '2360 East Pershing Boulevard',
                     'city' => 'Cheyenne',
@@ -543,6 +543,71 @@ RSpec.describe 'appointments', type: :request do
         it 'has the right CC count' do
           expect(response.parsed_body['data'].size).to eq(7)
         end
+      end
+    end
+
+    context 'when a VA appointment should use the clinic rather than facility address' do
+      before do
+        Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+
+        VCR.use_cassette('appointments/get_facilities_address_bug', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_address_bug', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_address_bug', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: nil
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:facility_appointment) { response.parsed_body['data'][5]['attributes'] }
+      let(:clinic_appointment) { response.parsed_body['data'][6]['attributes'] }
+
+      it 'has clinic appointments use the clinic address' do
+        expect(clinic_appointment['location']).to eq(
+          {
+            'name' => 'Fort Collins VA Clinic',
+            'address' => {
+              'street' => '2509 Research Boulevard',
+              'city' => 'Fort Collins',
+              'state' => 'CO',
+              'zipCode' => '80526-8108'
+            },
+            'lat' => 40.553874,
+            'long' => -105.087951,
+            'phone' => {
+              'areaCode' => '970',
+              'number' => '224-1550',
+              'extension' => nil
+            },
+            'url' => nil,
+            'code' => nil
+          }
+        )
+      end
+
+      it 'has facility appointments use the facility address' do
+        expect(facility_appointment['location']).to eq(
+          {
+            'name' => 'Cheyenne VA Medical Center',
+            'address' => {
+              'street' => '2360 East Pershing Boulevard',
+              'city' => 'Cheyenne',
+              'state' => 'WY',
+              'zipCode' => '82001-5356'
+            },
+            'lat' => 41.148027,
+            'long' => -104.7862575,
+            'phone' => {
+              'areaCode' => '307',
+              'number' => '778-7550',
+              'extension' => nil
+            },
+            'url' => nil,
+            'code' => nil
+          }
+        )
       end
     end
   end

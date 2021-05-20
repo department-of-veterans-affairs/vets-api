@@ -41,6 +41,7 @@ module Mobile
       attribute :cancel_id, Types::String.optional
       attribute :comment, Types::String.optional
       attribute :facility_id, Types::String.optional
+      attribute :sta6aid, Types::String.optional
       attribute :healthcare_service, Types::String.optional
       attribute :location, AppointmentLocation
       attribute :minutes_duration, Types::Integer
@@ -51,7 +52,7 @@ module Mobile
       attribute :vetext_id, Types::String.optional
 
       def self.toggle_non_prod_id!(id)
-        return id if Settings.hostname == 'www.va.gov'
+        return id if Settings.hostname == 'www.va.gov' || id.nil?
 
         match = id.match(/\A(983|984|552|442)/)
         return id unless match
@@ -97,6 +98,10 @@ module Mobile
         raise Mobile::V0::Exceptions::ValidationErrors, OpenStruct.new(
           { errors: { cancelId: 'invalid cancel id' } }
         )
+      end
+
+      def id_for_address
+        sta6aid || facility_id
       end
     end
   end

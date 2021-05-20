@@ -46,5 +46,6 @@ module FacilitiesApi
     attribute :unique_id
     attribute :visn
     attribute :website
+    attribute :tmp_covid_online_scheduling
   end
 end
