@@ -6,7 +6,6 @@ module AppealsApi
       module Pages
         module V2
           class AdditionalIssues
-
             def initialize(pdf, form_data)
               @pdf = pdf # Prawn::Document
               @form_data = form_data
