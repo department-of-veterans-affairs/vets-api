@@ -9,14 +9,12 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
     {
       communication_item: {
         id: 2,
-        communication_channels: [
-          {
-            id: 1,
-            communication_permission: {
-              allowed: true
-            }
+        communication_channel: {
+          id: 1,
+          communication_permission: {
+            allowed: true
           }
-        ]
+        }
       }
     }
   end
@@ -101,7 +99,7 @@ RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controlle
 
     it 'creates a communication permission', run_at: '2021-03-24T22:38:21Z' do
       VCR.use_cassette('va_profile/communication/post_communication_permissions', VCR::MATCH_EVERYTHING) do
-        params[:communication_item][:communication_channels][0][:communication_permission][:allowed] = false
+        params[:communication_item][:communication_channel][:communication_permission][:allowed] = false
 
         subject
 

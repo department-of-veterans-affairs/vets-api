@@ -1,0 +1,17 @@
+[
+	{
+		"name": "Automation Triage",
+		"relation_type": "PATIENT",
+		"triage_team_id": 153463
+	},
+	{
+		"name": "Sustainment Team",
+		"relation_type": "PATIENT",
+		"triage_team_id": 333647
+	},
+	{
+		"name": "Vets.gov Testing_DAYT29",
+		"relation_type": "PATIENT",
+		"triage_team_id": 613586
+	}
+]

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/stamp_signature_error'
 require 'json_marshal/marshaller'
 require 'common/file_helpers'
 
@@ -29,61 +28,6 @@ module ClaimsApi
       return nil if poas.blank?
 
       poas.last
-    end
-
-    def sign_pdf
-      signatures = convert_signatures_to_images
-      page_1_path = insert_signatures(1, signatures[:veteran], signatures[:representative])
-      page_2_path = insert_signatures(2, signatures[:veteran], signatures[:representative])
-      { page1: page_1_path, page2: page_2_path }
-    end
-
-    def convert_signatures_to_images
-      {
-        veteran: convert_base64_data_to_image('veteran'),
-        representative: convert_base64_data_to_image('representative')
-      }
-    end
-
-    def convert_base64_data_to_image(signature)
-      path = "tmp/#{signature}_#{id}_signature_b64.png"
-
-      File.open(path, 'wb') do |f|
-        f.write(Base64.decode64(form_data.dig('signatures', signature)))
-      end
-      path
-    end
-
-    def insert_signatures(page, veteran_signature, representative_signature)
-      pdf_path = Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', "21-22A-#{page}.pdf")
-      stamp_path = "#{::Common::FileHelpers.random_file_path}.pdf"
-
-      inserted = []
-      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-        y_representative_coords = page == 1 ? 118 : 216
-        y_veteran_coords = page == 1 ? 90 : 322
-        pdf.image representative_signature, at: [35, y_representative_coords], height: 20
-        inserted << 'representative'
-        pdf.image veteran_signature, at: [35, y_veteran_coords], height: 20
-      end
-      stamp(pdf_path, stamp_path, delete_source: false)
-    rescue Prawn::Errors::UnsupportedImageType
-      signature = inserted.empty? ? 'representative' : 'veteran'
-      update signature_errors: ["#{signature} was not a recognized image format"]
-      raise ClaimsApi::StampSignatureError.new(
-        message: "#{signature} could not be inserted",
-        detail: "#{signature} was not a recognized image format"
-      )
-    end
-
-    def stamp(file_path, stamp_path, delete_source: true)
-      out_path = "#{::Common::FileHelpers.random_file_path}.pdf"
-      PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
-      File.delete(file_path) if delete_source
-      out_path
-    rescue
-      ::Common::FileHelpers.delete_file_if_exists(out_path)
-      raise
     end
 
     def fetch_file_path(uploader)

@@ -29,6 +29,7 @@ module FacilitiesApi
     attribute :unique_id, String
     attribute :visn, String
     attribute :website, String
+    attribute :tmp_covid_online_scheduling, Boolean
 
     def initialize(fac)
       super(fac)

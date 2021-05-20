@@ -38,6 +38,9 @@ class Message < Common::Base
   MAX_SINGLE_FILE_SIZE_MB = 3.0
 
   include ActiveModel::Validations
+  include RedisCaching
+
+  redis_config REDIS_CONFIG[:secure_messaging_store]
 
   # Only validate presence of category, recipient_id if new message or new draft message
   validates :category, :recipient_id, presence: true, unless: proc { reply? }
@@ -67,6 +70,12 @@ class Message < Common::Base
   attribute :uploads, Array[ActionDispatch::Http::UploadedFile]
 
   alias attachment? attachment
+
+  def initialize(attributes = {})
+    super(attributes)
+    self.subject = subject ? Nokogiri::HTML.parse(subject) : nil
+    self.body = body ? Nokogiri::HTML.parse(body) : nil
+  end
 
   ##
   # @note Default sort should be sent date in descending order
