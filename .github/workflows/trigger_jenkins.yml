@@ -17,7 +17,8 @@ jobs:
               --data-urlencode json='{\"parameter\": [
                 {\"name\":\"notify_slack\",\"value\":true},
                 {\"name\":\"ref\",\"value\":\"${{ github.sha }}\"},
-                {\"name\":\"force_rebuild\",\"value\":true}
+                {\"name\":\"force_rebuild\",\"value\":true},
+                {\"name\":\"release\",\"value\":false}
               ]}'
         # - name: Deploy vets-api server in dev
         #   uses: wei/curl@v1
