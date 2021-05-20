@@ -415,7 +415,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ebcebd9a-1422-44fc-b318-89eec6486300",
+                    "id": "ba1a0e5a-f196-4661-abf7-27f74c4f8f1d",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -464,11 +464,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "c84a9573-eff6-4196-bb8f-35396eb0d1c1",
+                          "id": "82957448-c6e8-4e6e-8c0b-46de51570a9f",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-05-19T22:07:52.473Z"
+                          "uploaded_at": "2021-05-20T15:45:08.510Z"
                         }
                       ]
                     }
@@ -2129,7 +2129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0eaef084-92ce-49d6-a086-e51b691560af",
+                    "id": "80895294-e272-43e8-b45e-11402cfb34cc",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2147,13 +2147,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T22:07:52.757Z",
+                      "updated_at": "2021-05-20T15:45:08.828Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "0eaef084-92ce-49d6-a086-e51b691560af",
+                      "token": "80895294-e272-43e8-b45e-11402cfb34cc",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3569,7 +3569,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "138b5d62-dc03-48cf-8ae0-d4f700ac18f4",
+                    "id": "c209eb48-b591-446a-aaab-ca7ca5722ccb",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3587,13 +3587,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T22:07:52.957Z",
+                      "updated_at": "2021-05-20T15:45:09.049Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "138b5d62-dc03-48cf-8ae0-d4f700ac18f4",
+                      "token": "c209eb48-b591-446a-aaab-ca7ca5722ccb",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5179,7 +5179,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ed69def3-15b7-4496-ac91-094ee91cb7d2",
+                    "id": "02f90719-d417-41fa-a652-55c2d32c3953",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5193,7 +5193,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-19T22:07:53.522Z",
+                      "updated_at": "2021-05-20T15:45:09.698Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5202,7 +5202,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "9902fecb-7816-4031-bb3f-6745019d85a3",
+                          "id": "9a076f1b-b5c0-4967-8047-b33ba25aadc3",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6744,19 +6744,100 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f50f35b2-aa7b-406e-8d45-4823460772e6",
+                    "id": "e0ef5055-59bc-4009-8e81-af7c0b36cf5e",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-05-19",
+                      "date_request_accepted": "2021-05-20",
                       "representative": {
                         "service_organization": {
-                          "poa_code": "074",
-                          "first_name": "John",
-                          "last_name": "Doe"
+                          "poa_code": "074"
                         }
                       },
                       "previous_poa": null
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Power of Attorney Submission UUID"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status",
+                            "date_request_accepted",
+                            "representative"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+                              "enum": [
+                                "pending",
+                                "submitted",
+                                "updated",
+                                "errored"
+                              ]
+                            },
+                            "date_request_accepted": {
+                              "type": "string",
+                              "description": "Date request was first accepted",
+                              "format": "date"
+                            },
+                            "representative": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "service_organization"
+                              ],
+                              "properties": {
+                                "service_organization": {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                  "required": [
+                                    "poa_code"
+                                  ],
+                                  "properties": {
+                                    "poa_code": {
+                                      "type": "string",
+                                      "description": "Power of Attorney Code submitted for Veteran"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "previous_poa": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -6776,6 +6857,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -6792,6 +6910,37 @@
                       "source": "/serviceOrganization/poaCode"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "detail",
+                          "source"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "HTTP error code"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7276,19 +7425,100 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9f1018ee-1a3b-41de-89c7-084ae115bf9e",
+                    "id": "26daa8b8-5e50-43cd-9c39-6f7a2d088513",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-19",
+                      "date_request_accepted": "2021-05-20",
                       "representative": {
                         "service_organization": {
-                          "poa_code": "074",
-                          "first_name": "John",
-                          "last_name": "Doe"
+                          "poa_code": "074"
                         }
                       },
                       "previous_poa": null
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Power of Attorney Submission UUID"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status",
+                            "date_request_accepted",
+                            "representative"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+                              "enum": [
+                                "pending",
+                                "submitted",
+                                "updated",
+                                "errored"
+                              ]
+                            },
+                            "date_request_accepted": {
+                              "type": "string",
+                              "description": "Date request was first accepted",
+                              "format": "date"
+                            },
+                            "representative": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "service_organization"
+                              ],
+                              "properties": {
+                                "service_organization": {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                  "required": [
+                                    "poa_code"
+                                  ],
+                                  "properties": {
+                                    "poa_code": {
+                                      "type": "string",
+                                      "description": "Power of Attorney Code submitted for Veteran"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "previous_poa": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -7308,6 +7538,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7325,6 +7592,43 @@
                       "status": "404"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7415,19 +7719,100 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2f046f17-81ad-4dbf-b011-5ae7a45f3ad2",
+                    "id": "9506eeda-5fec-4bed-ab1d-39fe95aba272",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-19",
+                      "date_request_accepted": "2021-05-20",
                       "representative": {
                         "service_organization": {
-                          "poa_code": "074",
-                          "first_name": "John",
-                          "last_name": "Doe"
+                          "poa_code": "074"
                         }
                       },
                       "previous_poa": null
+                    }
+                  }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Power of Attorney Submission UUID"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status",
+                            "date_request_accepted",
+                            "representative"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+                              "enum": [
+                                "pending",
+                                "submitted",
+                                "updated",
+                                "errored"
+                              ]
+                            },
+                            "date_request_accepted": {
+                              "type": "string",
+                              "description": "Date request was first accepted",
+                              "format": "date"
+                            },
+                            "representative": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "service_organization"
+                              ],
+                              "properties": {
+                                "service_organization": {
+                                  "type": "object",
+                                  "additionalProperties": true,
+                                  "required": [
+                                    "poa_code"
+                                  ],
+                                  "properties": {
+                                    "poa_code": {
+                                      "type": "string",
+                                      "description": "Power of Attorney Code submitted for Veteran"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "previous_poa": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
+                            }
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -7447,6 +7832,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7464,6 +7886,43 @@
                       "status": "404"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7544,6 +8003,91 @@
                       "previous_poa": null
                     }
                   }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "id",
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "null"
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status",
+                            "date_request_accepted",
+                            "representative"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+                              "enum": [
+                                "pending",
+                                "submitted",
+                                "updated",
+                                "errored"
+                              ]
+                            },
+                            "date_request_accepted": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Date request was first accepted",
+                              "format": "date"
+                            },
+                            "representative": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "service_organization"
+                              ],
+                              "properties": {
+                                "service_organization": {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "poa_code"
+                                  ],
+                                  "properties": {
+                                    "poa_code": {
+                                      "type": "string",
+                                      "description": "Power of Attorney Code submitted for Veteran"
+                                    }
+                                  }
+                                }
+                              }
+                            },
+                            "previous_poa": {
+                              "type": [
+                                "string",
+                                "null"
+                              ],
+                              "description": "Current or Previous Power of Attorney Code submitted for Veteran"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7561,6 +8105,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7578,6 +8159,43 @@
                       "status": "404"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7651,6 +8269,45 @@
                       "status": "valid"
                     }
                   }
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "type",
+                        "attributes"
+                      ],
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "Required by JSON API standard"
+                        },
+                        "attributes": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "status"
+                          ],
+                          "properties": {
+                            "status": {
+                              "type": "string",
+                              "description": "Says if the power of attorney is pending, submitted, updated or errored",
+                              "enum": [
+                                "valid"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7668,6 +8325,43 @@
                       "status": "401"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -7684,6 +8378,37 @@
                       "source": "/"
                     }
                   ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "status",
+                          "detail",
+                          "source"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "integer",
+                            "description": "HTTP error code"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "source": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }

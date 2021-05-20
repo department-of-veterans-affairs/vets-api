@@ -70,6 +70,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'power_of_attorney', 'submission.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
@@ -107,6 +109,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
@@ -141,6 +145,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default_with_source.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
@@ -221,6 +227,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'power_of_attorney', 'upload.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
@@ -254,6 +262,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
           let(:attachment) do
@@ -288,6 +298,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:attachment) do
             Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf")
@@ -346,6 +358,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 200 response' do
         response '200', '2122 response' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'power_of_attorney', 'get.json')))
+
           let(:headers) do
             { 'X-VA-SSN': '796-04-3735',
               'X-VA-First-Name': 'WESLEY',
@@ -383,6 +397,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+
           let(:headers) do
             { 'X-VA-SSN': '796-04-3735',
               'X-VA-First-Name': 'WESLEY',
@@ -421,6 +437,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+
           let(:headers) do
             { 'X-VA-SSN': '796-04-3735',
               'X-VA-First-Name': 'WESLEY',
@@ -485,6 +503,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 200 response' do
         response '200', '2122 response' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'power_of_attorney', 'active.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
@@ -517,6 +537,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:Authorization) { nil }
 
@@ -545,6 +567,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
@@ -606,6 +630,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'forms', 'power_of_attorney', 'validate.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
@@ -643,6 +669,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) do
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json'))
@@ -677,6 +705,8 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable entity' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default_with_source.json')))
+
           let(:scopes) { %w[claim.write] }
           let(:data) { { data: { attributes: nil } } }
 
