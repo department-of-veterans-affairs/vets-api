@@ -340,8 +340,8 @@ module SM
 
       if data
         Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
-        Common::Collection.new(model, { data: data })
         statsd_cache_hit()
+        Common::Collection.new(model, { data: data })
       else
         Rails.logger.info("secure messaging #{model} service fetch", cache_key)
         statsd_cache_miss()
@@ -389,11 +389,11 @@ module SM
     # Report stats of secure messaging events
     #
     def statsd_cache_hit
-      StatsD.increment("mobile.sm.cache.hit")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.cache.hit")
     end
 
     def statsd_cache_miss
-      StatsD.increment("mobile.sm.cache.miss")
+      StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
     end
     # @!endgroup
   end
