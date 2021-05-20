@@ -269,6 +269,7 @@ class User < Common::RedisStore
   delegate :person_types, to: :identity, allow_nil: true
 
   # mpi attributes
+  delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
