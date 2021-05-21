@@ -353,7 +353,7 @@ describe DecisionReview::Service do
              content_type: Mime[:pdf].to_s)
     end
     let(:path) do
-      'https://sandbox-api.va.gov/services_user_content/vba_documents/1616666a-812b-473a-a2c3-a4b07b28b76f?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210521%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210521T190214Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=5d63469fbe7e52dee1183e06d256c591e8abe26f2babf926a7248a4eda2063bf'
+      'https://sandbox-api.va.gov/services_user_content/vba_documents/84f3e608-437e-46ad-b0b7-fcbfcc3ae6ba?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210521%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210521T192146Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=abd9a44ff5e94818c1f2790827403a990b5a79bf4f71803b85a617972179c032'
     end
     let(:metadata) { DecisionReview::Service.file_upload_metadata(user) }
 
@@ -371,7 +371,7 @@ describe DecisionReview::Service do
       described_class.new.get_notice_of_disagreement_upload(guid: guid)
     end
 
-    let(:guid) { 'b156844f-6129-47f0-b798-53f38753adf4'}
+    let(:guid) { '857dff7b-40b5-43b3-bbe1-8fb7f76037b8'}
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do

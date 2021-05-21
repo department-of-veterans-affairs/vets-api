@@ -25,13 +25,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 21 May 2021 19:02:14 GMT
+      - Fri, 21 May 2021 19:21:46 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
-      - close
+      - keep-alive
       Etag:
-      - W/"bb3fe41ff7602aac696207ef3d95ad0a"
+      - W/"bed1671de3131f935c4d61cada88035e"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Vary:
@@ -49,9 +49,9 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - a692e146-9077-4a1c-abdf-a6aff32a3952
+      - 985ca813-0172-4542-aaa0-697165a0c758
       X-Runtime:
-      - '0.058867'
+      - '0.034061'
       X-Xss-Protection:
       - 1; mode=block
       Access-Control-Allow-Origin:
@@ -61,7 +61,7 @@ http_interactions:
       X-Ratelimit-Remaining-Minute:
       - '59'
       X-Kong-Upstream-Latency:
-      - '64'
+      - '36'
       X-Kong-Proxy-Latency:
       - '1'
       Via:
@@ -73,12 +73,12 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - TS0108eb76=01c16e2d81172540f26591d04bbbef983e49fd1c47c3aefba33c45a65bc242b7d58a1df724823881df7d6859a391bf763ecf499f42;
+      - TS0108eb76=0119a2687f39232e7f00dff91733cd3fba79e9c2f3b7d5fa43bf01170f464fbcbc09c1935ed0e20df5b20a453ffc526bf11b6165ab;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"data":{"id":"b156844f-6129-47f0-b798-53f38753adf4","type":"evidenceSubmission","attributes":{"status":"pending","code":null,"detail":null,"appealType":"NoticeOfDisagreement","appealId":"e076ea91-6b99-4912-bffc-a8318b9b403f","location":"https://sandbox-api.va.gov/services_user_content/vba_documents/1616666a-812b-473a-a2c3-a4b07b28b76f?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210521%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210521T190214Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=5d63469fbe7e52dee1183e06d256c591e8abe26f2babf926a7248a4eda2063bf","createdAt":"2021-05-21T19:02:14.272Z","updatedAt":"2021-05-21T19:02:14.272Z"}}}'
-  recorded_at: Fri, 21 May 2021 19:02:14 GMT
+      string: '{"data":{"id":"857dff7b-40b5-43b3-bbe1-8fb7f76037b8","type":"evidenceSubmission","attributes":{"status":"pending","code":null,"detail":null,"appealType":"NoticeOfDisagreement","appealId":"e076ea91-6b99-4912-bffc-a8318b9b403f","location":"https://sandbox-api.va.gov/services_user_content/vba_documents/84f3e608-437e-46ad-b0b7-fcbfcc3ae6ba?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210521%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210521T192146Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=abd9a44ff5e94818c1f2790827403a990b5a79bf4f71803b85a617972179c032","createdAt":"2021-05-21T19:21:46.164Z","updatedAt":"2021-05-21T19:21:46.164Z"}}}'
+  recorded_at: Fri, 21 May 2021 19:21:46 GMT
 recorded_with: VCR 6.0.0
