@@ -35,6 +35,18 @@ module ClaimsApi
       va_profile[:birth_date]
     end
 
+    def gender_mpi
+      mpi_profile&.gender
+    end
+
+    def edipi_mpi
+      mpi_profile&.edipi
+    end
+
+    def participant_id_mpi
+      mpi_profile&.participant_id
+    end
+
     # Virtus doesnt provide a valid? method, but MPI requires it
     def valid?(*)
       va_profile.present?
@@ -93,6 +105,14 @@ module ClaimsApi
       OpenStruct.new(
         birth_date: birth_date
       )
+    end
+
+    private
+
+    def mpi_profile
+      return nil unless mpi
+
+      mpi.profile
     end
   end
 end
