@@ -33,20 +33,20 @@ module AppealsApi
             end
 
             def extra_issues?
-              form_data.contestable_issues.count > max_issues_on_first_page
+              form_data.contestable_issues.count > max_issues_on_form
             end
 
             def extra_issues_table_data
               header = ['A. Specific Issue(s)', 'B. Date of Decision']
 
-              data = form_data.contestable_issues.drop(max_issues_on_first_page).map do |issue|
+              data = form_data.contestable_issues.drop(max_issues_on_form).map do |issue|
                 [issue['attributes']['issue'], issue['attributes']['decisionDate']]
               end
 
               data.unshift(header)
             end
 
-            def max_issues_on_first_page
+            def max_issues_on_form
               AppealsApi::PdfConstruction::HigherLevelReview::V2::Structure::MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM
             end
           end
