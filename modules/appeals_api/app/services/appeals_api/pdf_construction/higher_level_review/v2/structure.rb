@@ -136,8 +136,8 @@ module AppealsApi
             whiteout_line pdf, :veteran_email
             pdf.start_new_page
 
-            # TODO: Rep first name text
-            # TODO: Rep last name text
+            whiteout_line pdf, :rep_first_name
+            whiteout_line pdf, :rep_last_name
             whiteout_line pdf, :rep_email
             fill_contestable_issues_text pdf
             pdf.text_box form_data.signature,
