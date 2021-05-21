@@ -176,7 +176,7 @@ module DecisionReview
       # params = { metadata: Faraday::FilePart.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
       #            content: Faraday::FilePart.new(content_tmpfile, Mime[:pdf].to_s, file_upload.filename) }
       with_monitoring_and_error_handling do
-        perform :put, upload_url, params, {'Content-Type' => 'multipart/form-data'}
+        perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
       end
     ensure
       content_tmpfile.close
