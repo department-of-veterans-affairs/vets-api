@@ -38,13 +38,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 19 May 2021 13:38:36 GMT
+      - Fri, 21 May 2021 18:09:23 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
       Etag:
-      - W/"189c5c51c72a29ff77204f0bbe36b0b8"
+      - W/"e384cecec50e02aee9640170cba3cbf9"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Vary:
@@ -58,9 +58,9 @@ http_interactions:
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - 2430bd5e-9b65-4743-b76c-de61e42e7a36
+      - 404f35cc-4729-4add-ba88-6014e88f97d8
       X-Runtime:
-      - '0.022462'
+      - '0.046330'
       X-Xss-Protection:
       - 1; mode=block
       Access-Control-Allow-Origin:
@@ -70,9 +70,9 @@ http_interactions:
       X-Ratelimit-Remaining-Minute:
       - '59'
       X-Kong-Upstream-Latency:
-      - '25'
+      - '49'
       X-Kong-Proxy-Latency:
-      - '0'
+      - '1'
       Via:
       - kong/1.2.2
       Strict-Transport-Security:
@@ -82,13 +82,13 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - TS0108eb76=01c16e2d81005115e65035cffa8b7261c3ae2bbdbecbf0a005ddbdd81182a02331070f490f9b14eb3ee837bdf67d1d7140439e78f4;
+      - TS0108eb76=01c8917e48450c126a23af17dae59dde598aeaa894b43631b56ab2bdd1d59eae2113c1f134c081d65a2ef6706238fb126ef099facb;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"data":{"id":"a134c32f-4cc8-49cb-9c84-c316a3291fe2","type":"noticeOfDisagreement","attributes":{"status":"pending","updatedAt":"2021-05-19T13:38:36.370Z","createdAt":"2021-05-19T13:38:36.370Z","formData":{"data":{"type":"noticeOfDisagreement","attributes":{"veteran":{"homeless":false,"address":{"addressLine1":"123
+      string: '{"data":{"id":"e076ea91-6b99-4912-bffc-a8318b9b403f","type":"noticeOfDisagreement","attributes":{"status":"pending","updatedAt":"2021-05-21T18:09:23.460Z","createdAt":"2021-05-21T18:09:23.460Z","formData":{"data":{"type":"noticeOfDisagreement","attributes":{"veteran":{"homeless":false,"address":{"addressLine1":"123
         Main St","addressLine2":"Suite #1200","addressLine3":"Box 4","city":"New York","countryName":"United
         States","stateCode":"NY","zipCode5":"30012","internationalPostalCode":"1"},"phone":{"countryCode":"6","areaCode":"555","phoneNumber":"8001111","phoneNumberExt":"2"},"emailAddressText":"user@example.com","representativesName":"Tony
         Danza"},"boardReviewOption":"evidence_submission","timezone":"America/Chicago","socOptIn":false}},"included":[{"type":"contestableIssue","attributes":{"issue":"tinnitus","decisionDate":"1900-01-01","decisionIssueId":1,"ratingIssueReferenceId":"2","ratingDecisionReferenceId":"3"}},{"type":"contestableIssue","attributes":{"issue":"left
@@ -96,5 +96,5 @@ http_interactions:
         knee","decisionDate":"1900-01-03","ratingIssueReferenceId":"6","ratingDecisionReferenceId":"7"}},{"type":"contestableIssue","attributes":{"issue":"PTSD","decisionDate":"1900-01-04","decisionIssueId":8,"ratingDecisionReferenceId":"9"}},{"type":"contestableIssue","attributes":{"issue":"Traumatic
         Brain Injury","decisionDate":"1900-01-05","decisionIssueId":10}},{"type":"contestableIssue","attributes":{"issue":"right
         shoulder","decisionDate":"1900-01-06"}}]}}}}'
-  recorded_at: Wed, 19 May 2021 13:38:36 GMT
+  recorded_at: Fri, 21 May 2021 18:09:23 GMT
 recorded_with: VCR 6.0.0

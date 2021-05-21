@@ -316,7 +316,7 @@ describe DecisionReview::Service do
     end
 
     context '200 response' do
-      let(:uuid) { '6d0c3dba-8a1f-41be-bd16-59bf22d273e7' }
+      let(:uuid) { 'e076ea91-6b99-4912-bffc-a8318b9b403f' }
 
       it 'returns a properly formatted 200 response' do
         VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-200') do
@@ -343,19 +343,19 @@ describe DecisionReview::Service do
   describe '#put_notice_of_disagreement_upload' do
     subject do
       described_class.new.put_notice_of_disagreement_upload(upload_url: path, file_upload: file_upload,
-                                                            metadata: metadata)
+                                                            metadata_string: metadata)
     end
 
     let(:file_upload) do
       double(CarrierWave::SanitizedFile,
              filename: 'upload.pdf',
-             read: File.read('spec/fixtures/files/doctors-note.jpg'),
+             read: File.read('spec/fixtures/files/doctors-note.pdf'),
              content_type: Mime[:pdf].to_s)
     end
     let(:path) do
-      'https://sandbox-api.va.gov/services_user_content/vba_documents/021d2fab-b3ca-4928-b90d-94b4c45529d8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210426/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210426T163153Z&X-Amz-Expires=900&X-Amz-Signature=33e56786dfc1b5d6758abd931d9d50388f6206302708074b1924929c6e33da00&X-Amz-SignedHeaders=host'
+      'https://sandbox-api.va.gov/services_user_content/vba_documents/1616666a-812b-473a-a2c3-a4b07b28b76f?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210521%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210521T190214Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=5d63469fbe7e52dee1183e06d256c591e8abe26f2babf926a7248a4eda2063bf'
     end
-    let(:metadata) { { foo: 'bar' } }
+    let(:metadata) { DecisionReview::Service.file_upload_metadata(user) }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
@@ -371,12 +371,13 @@ describe DecisionReview::Service do
       described_class.new.get_notice_of_disagreement_upload(guid: guid)
     end
 
-    let(:guid) { '848134d0-1842-488a-b8bb-5e94d717b2c6' }
+    let(:guid) { 'b156844f-6129-47f0-b798-53f38753adf4'}
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
         VCR.use_cassette('decision_review/NOD-GET-UPLOAD-200') do
           expect(subject.status).to be 200
+          #expect(subject.body.dig('data', 'attributes', 'status')).to be ''
         end
       end
     end

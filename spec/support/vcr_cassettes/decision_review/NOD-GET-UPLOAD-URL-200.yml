@@ -5,7 +5,7 @@ http_interactions:
     uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions
     body:
       encoding: UTF-8
-      string: '{"nod_id":"a134c32f-4cc8-49cb-9c84-c316a3291fe2"}'
+      string: '{"nod_id":"e076ea91-6b99-4912-bffc-a8318b9b403f"}'
     headers:
       Accept:
       - application/json
@@ -25,13 +25,13 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 19 May 2021 13:48:09 GMT
+      - Fri, 21 May 2021 19:02:14 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
-      - keep-alive
+      - close
       Etag:
-      - W/"3e085ed1d3649808a3583842bf5dbb8d"
+      - W/"bb3fe41ff7602aac696207ef3d95ad0a"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Vary:
@@ -43,15 +43,15 @@ http_interactions:
       X-Frame-Options:
       - SAMEORIGIN
       X-Git-Sha:
-      - 010f824be96e64e2e9fcf0fdc48b2318b2e60308
+      - 8afbc85990a1e90d279a33c9b6d3aaadd88c9ec0
       X-Github-Repository:
       - https://github.com/department-of-veterans-affairs/vets-api
       X-Permitted-Cross-Domain-Policies:
       - none
       X-Request-Id:
-      - 9c6673e8-9dad-42b2-9aa4-8cc41a352459
+      - a692e146-9077-4a1c-abdf-a6aff32a3952
       X-Runtime:
-      - '0.039785'
+      - '0.058867'
       X-Xss-Protection:
       - 1; mode=block
       Access-Control-Allow-Origin:
@@ -61,7 +61,7 @@ http_interactions:
       X-Ratelimit-Remaining-Minute:
       - '59'
       X-Kong-Upstream-Latency:
-      - '42'
+      - '64'
       X-Kong-Proxy-Latency:
       - '1'
       Via:
@@ -73,11 +73,12 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - TS0108eb76=01c16e2d815b9357117bdc63087046ca65ddea5dcbde09c346cc0bf5085579272e73f2ef7228a052f61714ffa51277e9031beb3fd2;
+      - TS0108eb76=01c16e2d81172540f26591d04bbbef983e49fd1c47c3aefba33c45a65bc242b7d58a1df724823881df7d6859a391bf763ecf499f42;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"data":{"id":"bffbeac7-b128-4a01-a5aa-09f80698709d","type":"evidenceSubmission","attributes":{"status":"pending","code":null,"detail":null,"appealType":"NoticeOfDisagreement","appealId":"a134c32f-4cc8-49cb-9c84-c316a3291fe2","location":"https://sandbox-api.va.gov/services_user_content/vba_documents/5fad1519-381a-4b8a-ba5e-8ccb507711e0?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210519%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210519T134809Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=79d01cd189ac980ef4586c0d53125aa2e7488f7d216a82d6456b4eab8848eed4","createdAt":"2021-05-19T13:48:09.491Z","updatedAt":"2021-05-19T13:48:09.491Z"}}}'
-  recorded_at: Wed, 19 May 2021 13:48:09 GMT
+      string: '{"data":{"id":"b156844f-6129-47f0-b798-53f38753adf4","type":"evidenceSubmission","attributes":{"status":"pending","code":null,"detail":null,"appealType":"NoticeOfDisagreement","appealId":"e076ea91-6b99-4912-bffc-a8318b9b403f","location":"https://sandbox-api.va.gov/services_user_content/vba_documents/1616666a-812b-473a-a2c3-a4b07b28b76f?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210521%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210521T190214Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=5d63469fbe7e52dee1183e06d256c591e8abe26f2babf926a7248a4eda2063bf","createdAt":"2021-05-21T19:02:14.272Z","updatedAt":"2021-05-21T19:02:14.272Z"}}}'
+  recorded_at: Fri, 21 May 2021 19:02:14 GMT
+recorded_with: VCR 6.0.0
