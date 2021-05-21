@@ -308,6 +308,13 @@ RSpec.describe User, type: :model do
       end
     end
 
+    describe 'invalidate_mpi_cache' do
+      it 'clears the user mpi cache' do
+        expect_any_instance_of(MPIData).to receive(:destroy)
+        subject.invalidate_mpi_cache
+      end
+    end
+
     describe '#mpi_profile?' do
       context 'when user has mpi profile' do
         let(:mvi_profile) { build(:mvi_profile) }
