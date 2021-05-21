@@ -50,7 +50,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
         )
 
         expect do
-          FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
+          Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
         end.to instrument('facilities.ppms.request.faraday')
       end
     end
@@ -89,7 +89,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
         )
 
         expect do
-          FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
+          Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
         end.to raise_error(
           Common::Exceptions::BackendServiceException
         ).and instrument('facilities.ppms.request.faraday')
