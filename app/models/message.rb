@@ -102,6 +102,7 @@ class Message < Common::Base
   private
 
   def total_upload_size
+    puts uploads
     return 0 if uploads.blank?
 
     uploads.sum(&:size)
