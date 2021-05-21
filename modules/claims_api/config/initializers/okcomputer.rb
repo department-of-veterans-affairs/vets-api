@@ -78,7 +78,7 @@ class VbmsCheck < BaseCheck
   def check
     connection = Faraday::Connection.new
     connection.options.timeout = 10
-    response = connection.get(Settings.vbms.url)
+    response = connection.get("#{Settings.vbms.url}/vbms-efolder-svc/upload-v1/eFolderUploadService?wsdl")
     response.status == 200 ? process_success : process_failure
   rescue
     process_failure
