@@ -396,6 +396,5 @@ module SM
       StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
     end
     # @!endgroup
-
   end
 end
