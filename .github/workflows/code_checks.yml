@@ -3,12 +3,9 @@ on: [push]
 jobs:
   linting_and_security:
     name: Linting and Security
-
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-
     runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
-
     steps:
       - uses: actions/checkout@v2
 
@@ -25,20 +22,17 @@ jobs:
       - name: Run Brakeman
         run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.json
 
-      - uses: duderman/rubocop-annotate-action@v0.1.0
+      - uses: actions/upload-artifact@v2
+        if: always()
         with:
-          path: rubocop.json
-        if: hashFiles('rubocop.json') != ''
-
-      - uses: devmasx/brakeman-linter-action@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          REPORT_PATH: brakeman.json
-        if: hashFiles('brakeman.json') != ''
+          name: Linting and Security Results
+          path: |
+            rubocop.json
+            brakeman.json
+          if-no-files-found: ignore
 
   tests:
     name: Test
-
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
@@ -52,7 +46,6 @@ jobs:
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
       "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
       TERM: xterm-256color
-
     runs-on: asg
 
     services:
@@ -94,11 +87,38 @@ jobs:
           export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
           ./cc-test-reporter after-build -t simplecov
 
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Test Results
+          path: log/*.xml
+          if-no-files-found: ignore
+
+  publish_results:
+    name: Publish Results
+    if: always()
+    needs: [linting_and_security, tests]
+    runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
+
+    steps:
+      - uses: actions/download-artifact@v2
+
+      - uses: duderman/rubocop-annotate-action@v0.1.0
+        with:
+          path: Linting and Security Results/rubocop.json
+        if: hashFiles('Linting and Security Results/rubocop.json') != ''
+
+      - uses: devmasx/brakeman-linter-action@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          REPORT_PATH: Linting and Security Results/brakeman.json
+        if: hashFiles('Linting and Security/brakeman.json') != ''
+
       - name: Publish Test Results
         uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
         if: always()
         with:
           check_name: Test Results
           comment_mode: off
-          files: log/*.xml
+          files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
