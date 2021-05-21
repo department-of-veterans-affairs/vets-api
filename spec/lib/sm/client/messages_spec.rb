@@ -40,7 +40,7 @@ describe 'sm client' do
     it 'gets a message with id', :vcr do
       message = client.get_message(existing_message_id)
       expect(message.attributes[:id]).to eq(existing_message_id)
-      expect(message.attributes[:subject].strip).to eq('Release 16.2- SM last login')
+      expect(message.attributes[:subject].strip).to eq('Quote test: “test”')
     end
 
     it 'gets a message thread', :vcr do

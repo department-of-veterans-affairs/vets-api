@@ -36,14 +36,52 @@ describe MPIData, skip_mvi: true do
     end
   end
 
-  describe '#mvi_add_person' do
+  describe '.historical_icn_for_user' do
+    subject { MPIData.historical_icn_for_user(user) }
+
+    let(:mpi_profile) { build(:mpi_profile_response, :with_historical_icns) }
+
+    before do
+      stub_mpi_historical_icns(mpi_profile)
+    end
+
+    context 'when user is not loa3' do
+      let(:user) { build(:user) }
+
+      it 'returns nil' do
+        expect(subject).to eq(nil)
+      end
+    end
+
+    context 'when user is loa3' do
+      it 'returns historical icns from an mpi call for that user' do
+        expect(subject).to eq(mpi_profile.historical_icns)
+      end
+    end
+  end
+
+  describe '#mvi_get_person_historical_icns' do
+    subject { MPIData.new(user).mvi_get_person_historical_icns }
+
+    let(:mpi_profile) { build(:mpi_profile_response, :with_historical_icns) }
+
+    before do
+      stub_mpi_historical_icns(mpi_profile)
+    end
+
+    it 'returns historical icn data from MPI call for given user' do
+      expect(subject).to eq(mpi_profile.historical_icns)
+    end
+  end
+
+  describe '#mpi_add_person' do
     context 'with a successful add' do
       it 'returns the successful response' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
         expect_any_instance_of(MPIData).to receive(:add_ids).once.and_call_original
         expect_any_instance_of(MPIData).to receive(:cache).once.and_call_original
-        response = user.mpi.mvi_add_person
+        response = user.mpi_add_person
         expect(response.status).to eq('OK')
       end
     end
@@ -51,7 +89,7 @@ describe MPIData, skip_mvi: true do
     context 'with a failed search' do
       it 'returns the failed search response' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
-        response = user.mpi.mvi_add_person
+        response = user.mpi_add_person
         expect_any_instance_of(MPI::Service).not_to receive(:add_person)
         expect(response.status).to eq('SERVER_ERROR')
       end
@@ -63,7 +101,7 @@ describe MPIData, skip_mvi: true do
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response_error)
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
-        response = user.mpi.mvi_add_person
+        response = user.mpi_add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
     end
@@ -155,12 +193,6 @@ describe MPIData, skip_mvi: true do
       describe '#participant_id' do
         it 'matches the response' do
           expect(mvi.participant_id).to eq(profile_response.profile.participant_id)
-        end
-      end
-
-      describe '#historical_icns' do
-        it 'matches the response' do
-          expect(mvi.historical_icns).to eq(profile_response.profile.historical_icns)
         end
       end
 

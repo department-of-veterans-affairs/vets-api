@@ -13,7 +13,7 @@ FactoryBot.define do
           'midDay' => true,
           'afternoon' => false
         },
-        'yearsOfEducation' => '2',
+        'yearsOfEducation' => '17',
         'isMoving' => true,
         'newAddress' => {
           'country' => 'USA',
@@ -43,7 +43,7 @@ FactoryBot.define do
           'pid' => '600036503',
           'edipi' => '1005354478',
           'vet360ID' => nil,
-          'regionalOffice' => '317'
+          'regionalOffice' => '317 - St. Petersburg'
         }
       }.to_json
     }

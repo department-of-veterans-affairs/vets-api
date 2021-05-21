@@ -28,6 +28,30 @@ RSpec.describe 'Mobile Triage Teams Integration', type: :request do
       expect(response.body).to be_a(String)
       expect(response).to match_camelized_response_schema('triage_teams')
     end
+
+    context 'when there are cached triage teams' do
+      let(:user) { FactoryBot.build(:iam_user) }
+      let(:params) { { useCache: true } }
+
+      before do
+        path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'triage_teams.json')
+        data = Common::Collection.new(TriageTeam, data: JSON.parse(File.read(path)))
+        TriageTeam.set_cached("#{user.uuid}-triage-teams", data)
+      end
+
+      it 'retrieve cached triage teams rather than hitting the service' do
+        expect do
+          get '/mobile/v0/messaging/health/recipients', headers: iam_headers, params: params
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          parsed_response_contents = response.parsed_body.dig('data')
+          triage_team = parsed_response_contents.select { |entry| entry.dig('id') == '153463' }[0]
+          expect(triage_team.dig('attributes', 'name')).to eq('Automation Triage')
+          expect(triage_team.dig('type')).to eq('triage_teams')
+          expect(response).to match_camelized_response_schema('triage_teams')
+        end.to trigger_statsd_increment('mobile.sm.cache.hit', times: 1)
+      end
+    end
   end
 
   context 'Advanced User' do

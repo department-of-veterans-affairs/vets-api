@@ -178,6 +178,11 @@ decision_review:
   url: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews
   api_key: abcd1234abcd1234abcd1234abcd1234abcd1234
   mock: false
+  s3:
+    aws_access_key_id: ~
+    aws_secret_access_key: ~
+    region: region
+    bucket: bucket
 
 # Settings for modules/appeals_api
 modules_appeals_api:
@@ -218,6 +223,7 @@ modules_appeals_api:
     aws_secret_access_key: "aws_secret_access_key"
     region: "region"
     bucket: "bucket"
+  status_simulation_enabled: false
 
 
 vre_counseling:
@@ -456,6 +462,8 @@ claims_api:
   claims_pending_reporting:
     threshold: ~
     environment_name: ~
+  v2_docs:
+    enabled: false
 
 redis:
   host: localhost
@@ -821,12 +829,6 @@ lighthouse:
   facilities:
     url: https://sandbox-api.va.gov
     api_key: fake_key
-  decision_reviews:
-    s3:
-      aws_access_key_id: "aws_access_key_id"
-      aws_secret_access_key: "aws_secret_access_key"
-      region: "region"
-      bucket: "bucket"
 
 forms:
   url: https://sandbox-api.va.gov/services/va_forms/v0/

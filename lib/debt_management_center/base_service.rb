@@ -15,7 +15,7 @@ module DebtManagementCenter
 
     def init_file_number
       BGS::PeopleService.new(@user).find_person_by_participant_id[:file_nbr].presence || @user.ssn
-    rescue Savon::SOAPFault
+    rescue
       @user.ssn
     end
 

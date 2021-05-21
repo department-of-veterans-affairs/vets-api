@@ -8,10 +8,11 @@ module Mobile
           facilities_by_id = facilities.index_by(&:id)
 
           appointments.map do |appointment|
-            facility = facilities_by_id["vha_#{appointment.facility_id}"]
+            facility = facilities_by_id["vha_#{appointment.id_for_address}"]
             # resources are immutable and are updated with new copies
             appointment.new(
               location: appointment.location.new(
+                name: facility['name'],
                 address: address_from_facility(facility),
                 phone: phone_from_facility(facility),
                 lat: facility.lat,

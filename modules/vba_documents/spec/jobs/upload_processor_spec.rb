@@ -9,6 +9,12 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+  let(:missing_first) { get_fixture('missing_first_metadata.json').read }
+  let(:missing_last) { get_fixture('missing_last_metadata.json').read }
+  let(:bad_with_digits_first) { get_fixture('bad_with_digits_first_metadata.json').read }
+  let(:bad_with_funky_characters_last) { get_fixture('bad_with_funky_characters_last_metadata.json').read }
+  let(:dashes_slashes_first_last) { get_fixture('dashes_slashes_first_last_metadata.json').read }
+  let(:name_too_long_metadata) { get_erbed_fixture('name_too_long_metadata.json.erb').read }
   let(:invalid_metadata_missing) { get_fixture('invalid_metadata_missing.json').read }
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
 
@@ -204,6 +210,34 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC101')
+    end
+
+    %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
+       name_too_long_metadata].each do |bad|
+      xit "sets error status for #{bad} name" do
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'metadata' => send(bad), 'content' => valid_doc }
+        }
+        described_class.new.perform(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).to eq('error')
+        expect(updated.code).to eq('DOC102')
+        expect(updated.detail).to match(/^Invalid Veteran name/)
+      end
+    end
+
+    xit 'allows dashes and forward slashes in names' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => dashes_slashes_first_last, 'content' => valid_doc }
+      }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive(:status).and_return(200)
+      allow(faraday_response).to receive(:body).and_return('')
+      allow(faraday_response).to receive(:success?).and_return(true)
+      expect(client_stub).to receive(:upload) { faraday_response }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('received')
     end
 
     it 'sets error status for non-JSON metadata part' do

@@ -14,9 +14,10 @@ RSpec.describe 'claims document upload', type: :request do
   let!(:claim) do
     FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: '3097e489-ad75-5746-ab1a-e0aabc1b426a')
   end
+  let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   it 'uploads a file' do
-    params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
+    params = { file: file, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
@@ -27,9 +28,10 @@ RSpec.describe 'claims document upload', type: :request do
   it 'uploads multiple jpeg files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.jpg'))]
-    params = { file: files, tracked_item_id: tracked_item_id, document_type: document_type, multifile: true }
+    params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
+                                                               headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -39,9 +41,10 @@ RSpec.describe 'claims document upload', type: :request do
   it 'uploads multiple gif files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.gif')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
-    params = { file: files, tracked_item_id: tracked_item_id, document_type: document_type, multifile: true }
+    params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
+                                                               headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -51,9 +54,10 @@ RSpec.describe 'claims document upload', type: :request do
   it 'uploads multiple mixed img files' do
     files = [Base64.encode64(File.read('spec/fixtures/files/doctors-note.jpg')),
              Base64.encode64(File.read('spec/fixtures/files/marriage-cert.gif'))]
-    params = { file: files, tracked_item_id: tracked_item_id, document_type: document_type, multifile: true }
+    params = { files: files, trackedItemId: tracked_item_id, documentType: document_type }
     expect do
-      post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
+      post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
+                                                               headers: iam_headers(json_body_headers)
     end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     expect(response.status).to eq(202)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
@@ -61,7 +65,7 @@ RSpec.describe 'claims document upload', type: :request do
   end
 
   it 'rejects files with invalid document_types' do
-    params = { file: file, tracked_item_id: tracked_item_id, document_type: 'invalid type' }
+    params = { file: file, trackedItemId: tracked_item_id, documentType: 'invalid type' }
     post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
     expect(response.status).to eq(422)
     expect(
@@ -70,7 +74,7 @@ RSpec.describe 'claims document upload', type: :request do
   end
 
   it 'normalizes requests with a null tracked_item_id' do
-    params = { file: file, tracked_item_id: 'null', document_type: document_type }
+    params = { file: file, tracked_item_id: 'null', documentType: document_type }
     post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
     args = EVSS::DocumentUpload.jobs.first['args'][2]
     expect(response.status).to eq(202)
@@ -83,7 +87,7 @@ RSpec.describe 'claims document upload', type: :request do
     let(:file) { fixture_file_upload('files/invalid_idme_cert.crt', 'application/x-x509-ca-cert') }
 
     it 'rejects files with invalid document_types' do
-      params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
+      params = { file: file, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(response.parsed_body.dig('errors').first.dig('title')).to eq('Unprocessable Entity')
@@ -94,21 +98,21 @@ RSpec.describe 'claims document upload', type: :request do
     let(:locked_file) { fixture_file_upload('files/locked_pdf_password_is_test.pdf', 'application/pdf') }
 
     it 'rejects locked PDFs if no password is provided' do
-      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
+      params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(response.parsed_body.dig('errors').first.dig('title')).to eq(I18n.t('errors.messages.uploads.pdf.locked'))
     end
 
     it 'accepts locked PDFs with the correct password' do
-      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type, password: 'test' }
+      params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type, password: 'test' }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(202)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
     end
 
     it 'rejects locked PDFs with the incocorrect password' do
-      params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type, password: 'bad' }
+      params = { file: locked_file, trackedItemId: tracked_item_id, documentType: document_type, password: 'bad' }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
@@ -126,7 +130,7 @@ RSpec.describe 'claims document upload', type: :request do
     end
 
     it 'rejects a file that is not really a PDF' do
-      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
+      params = { file: tempfile, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
@@ -139,7 +143,7 @@ RSpec.describe 'claims document upload', type: :request do
     let(:file) { fixture_file_upload('/files/empty_file.txt', 'text/plain') }
 
     it 'rejects a text file with no body' do
-      params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
+      params = { file: file, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
@@ -157,7 +161,7 @@ RSpec.describe 'claims document upload', type: :request do
     end
 
     it 'rejects a text file containing untranslatable characters' do
-      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
+      params = { file: tempfile, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(422)
       expect(
@@ -175,7 +179,7 @@ RSpec.describe 'claims document upload', type: :request do
     end
 
     it 'accepts a text file containing translatable characters' do
-      params = { file: tempfile, tracked_item_id: tracked_item_id, document_type: document_type }
+      params = { file: tempfile, trackedItemId: tracked_item_id, documentType: document_type }
       post '/mobile/v0/claim/600117255/documents', params: params, headers: iam_headers
       expect(response.status).to eq(202)
       expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])

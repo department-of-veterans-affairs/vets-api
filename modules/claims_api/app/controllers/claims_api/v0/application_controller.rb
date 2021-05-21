@@ -75,9 +75,9 @@ module ClaimsApi
                     { current: header('X-VA-LOA').try(:to_i), highest: header('X-VA-LOA').try(:to_i) }
                   end
         vet.mpi_record?
-        vet.gender = header('X-VA-Gender') || vet.mpi.profile&.gender if with_gender
-        vet.edipi = vet.mpi.profile&.edipi
-        vet.participant_id = vet.mpi.profile&.participant_id
+        vet.gender = header('X-VA-Gender') || vet.gender_mpi if with_gender
+        vet.edipi = vet.edipi_mpi
+        vet.participant_id = vet.participant_id_mpi
         vet
       end
     end

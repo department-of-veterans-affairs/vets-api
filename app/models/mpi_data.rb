@@ -5,6 +5,7 @@ require 'mpi/service'
 require 'mpi/orch_search_service'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
+require 'mpi/constants'
 
 # Facade for MVI. User model delegates MVI correlation id and VA profile (golden record) methods to this class.
 # When a profile is requested from one of the delegates it is returned from either a cached response in Redis
@@ -23,9 +24,18 @@ class MPIData < Common::RedisStore
   # @param user [User] the user to query MVI for
   # @return [MPIData] an instance of this class
   def self.for_user(user)
-    mvi = MPIData.new
-    mvi.user = user
-    mvi
+    MPIData.new(user: user)
+  end
+
+  # Queries MPI specifically to retrieve historical icn data.
+  #
+  # @param user [User] the user to query MVI for
+  # @return [MPIData] an instance of this class
+  def self.historical_icn_for_user(user)
+    return nil unless user.loa3?
+
+    mpi_data_instance = MPIData.new(user: user)
+    mpi_data_instance.mvi_get_person_historical_icns
   end
 
   # A DOD EDIPI (Electronic Data Interchange Personal Identifier) MVI correlation ID
@@ -68,11 +78,6 @@ class MPIData < Common::RedisStore
   #
   # @return [String] the Vet360 id
   delegate :vet360_id, to: :profile, allow_nil: true
-
-  # A list of ICN's that the user has been identitfied by historically
-  #
-  # @return [Array[String]] the list of historical icns
-  delegate :historical_icns, to: :profile, allow_nil: true
 
   # The search token given in the original MVI 1306 response message
   #
@@ -121,11 +126,17 @@ class MPIData < Common::RedisStore
     @mvi_response ||= response_from_redis_or_service
   end
 
-  # The status of the MVI Add Person call. An Orchestrated MVI Search needs to be made before an MVI add person
+  # @return [String] Array representing the historical icn data for the user
+  def mvi_get_person_historical_icns
+    mpi_profile = mpi_service.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
+    mpi_profile&.profile&.historical_icns
+  end
+
+  # The status of the MPI Add Person call. An Orchestrated MVI Search needs to be made before an MPI add person
   # call is made. The response is recached afterwards so the new ids can be accessed on the next call.
   #
-  # @return [MPI::Responses::AddPersonResponse] the response returned from MVI Add Person call
-  def mvi_add_person
+  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person call
+  def add_person
     search_response = MPI::OrchSearchService.new.find_profile(user)
     if search_response.ok?
       @mvi_response = search_response

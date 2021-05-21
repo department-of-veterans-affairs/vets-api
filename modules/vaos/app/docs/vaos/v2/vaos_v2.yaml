@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 info:
-  version: 2.0.0
+  version: 1.0.0
   title: VAOS
   description: |
     ## The API for managing Veterans Affairs Online Scheduling
@@ -32,7 +32,7 @@ paths:
     get:
       tags:
         - appointments
-      summary: Returns a list of appointments for a given patient's ICN
+      summary: Returns a list of appointments for a given patient
       operationId: getAppointments
       security:
         - bearerAuth: []
@@ -73,6 +73,160 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/AppointmentsResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+    post:
+      tags:
+        - appointments
+      summary: Creates a new appointment
+      operationId: postAppointments
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAppointmentRequest"
+      responses:
+        "201":
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AppointmentResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+  "/appointments/{appointment-id}":
+    get:
+      tags:
+        - appointments
+      summary: Retrieve appointment by id
+      operationId: fetchAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          required: true
+          name: "appointment-id"
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Appointment retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AppointmentResponse"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+    put:
+      tags:
+        - appointments
+      summary: Updates the appointment status
+      operationId: updateAppointment
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: appointment-id
+          in: path
+          description: The id of the appointment to update.
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: The new status to update the appointment. Currently only the cancelled update is supported.
+          required: true
+          schema:
+            type: string
+            enum:
+              - cancelled
+              - proposed
+              - pending
+              - booked
+              - arrived
+              - noshow
+              - fulfilled
+      responses:
+        "200":
+          description: The appointment status is updated
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - type
+                  - attributes
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                    example: appointments
+                  attributes:
+                    $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -317,7 +471,68 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-
+  "/scheduling/configurations":
+    get:
+      tags:
+        - mobile facility service
+      summary: Returns scheduling configuration data
+      operationId: getSchedulingConfigurations
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          required: true
+          name: facility_ids
+          description: A comma-separated list of facility IDs.
+          schema:
+            type: string
+        - in: query
+          name: cc_enabled
+          description: If true, then only scheduling configurations for community care-enabled sites will be returned. If false, then only scheduling configurations for community care-disabled sites will be returned. If not provided, then community care status will be ignored.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Retrives a list of clincs for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - id
+                  - type
+                  - attributes
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                  attributes:
+                    type: object
+                    properties:
+                      hasRequiredAppointmentHistory:
+                        type: boolean
+                      isEligibleForNewAppointmentRequest:
+                        type: boolean
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
 components:
   securitySchemes:
     bearerAuth:
@@ -530,6 +745,41 @@ components:
         - "cpap"
         - "outpatientMentalHealth"
         - "covid"
+    CreateAppointmentRequest:
+      description: A request to create a new appointment.
+      type: object
+      properties:
+        kind:
+          "$ref": "#/components/schemas/AppointmentKind"
+        status:
+          "$ref": "#/components/schemas/AppointmentStatus"
+        patientIcn:
+          description: The patient ICN
+          type: string
+          nullable: false
+        locationId:
+          description: The sta6aid for the VAfacility where the appointment is registered.
+          type: string
+        clinic:
+          description: The clinic ID for the Appointment
+          type: string
+        reason:
+          description:
+            The reason for an Express Care request, or the purpose for
+            a a non-Express Care request.
+          type: string
+        slot:
+          "$ref": "#/components/schemas/Slot"
+        contact:
+          "$ref": "#/components/schemas/PatientContact"
+        serviceType:
+          type: string
+          description: the care type for the appointment
+        requestedPeriods:
+          type: array
+          description: a list of requested periods for appointment
+          items:
+            "$ref": "#/components/schemas/Period"
     Slot:
       type: object
       required:

@@ -330,6 +330,19 @@ RSpec.describe User, type: :model do
       end
     end
 
+    describe '#historical_icns' do
+      let(:mvi_profile) { build(:mpi_profile_response, :with_historical_icns) }
+      let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
+
+      before do
+        stub_mpi_historical_icns(mvi_profile)
+      end
+
+      it 'fetches historical_icns from MPI response' do
+        expect(user.historical_icns).to be(mvi_profile.historical_icns)
+      end
+    end
+
     describe 'getter methods' do
       context 'when saml user attributes available, icn is available, and user LOA3' do
         let(:mvi_profile) { build(:mvi_profile) }
@@ -368,7 +381,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
-          expect(user.edipi).to be(user.mpi.edipi)
+          expect(user.edipi).to be(user.edipi_mpi)
         end
 
         it 'fetches edipi from identity.dslogon_edipi when available' do
@@ -425,14 +438,6 @@ RSpec.describe User, type: :model do
           expect(user.active_mhv_ids).to be(mvi_profile.active_mhv_ids)
         end
 
-        it 'fetches sec_id from MPI' do
-          expect(user.sec_id_mpi).to be(mvi_profile.sec_id)
-        end
-
-        it 'fetches historical_icns from MPI' do
-          expect(user.historical_icns).to be(mvi_profile.historical_icns)
-        end
-
         it 'fetches suffix from MPI' do
           expect(user.suffix).to be(mvi_profile.suffix)
         end
@@ -448,8 +453,8 @@ RSpec.describe User, type: :model do
         end
 
         it 'sets new mhv ids to a users MPI profile' do
-          expect(user.mpi.profile.mhv_ids).to include('1234567890')
-          expect(user.mpi.profile.active_mhv_ids).to include('1234567890')
+          expect(user.mhv_ids).to include('1234567890')
+          expect(user.active_mhv_ids).to include('1234567890')
         end
       end
 
@@ -496,7 +501,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches properly parsed birth_date from MPI' do
-          expect(user.birth_date).to eq(Date.parse(user.mpi_profile_birth_date).iso8601)
+          expect(user.birth_date).to eq(Date.parse(user.birth_date_mpi).iso8601)
         end
 
         it 'fetches address data from MPI and stores it as a hash' do
@@ -822,7 +827,7 @@ RSpec.describe User, type: :model do
 
         context 'and MPI Profile birth date does not exist' do
           before do
-            allow(user.mpi.profile).to receive(:birth_date).and_return nil
+            allow_any_instance_of(MPI::Models::MviProfile).to receive(:birth_date).and_return nil
           end
 
           it 'returns nil' do
@@ -832,7 +837,7 @@ RSpec.describe User, type: :model do
 
         context 'and MPI Profile birth date does exist' do
           it 'returns iso8601 parsed date from the MPI Profile birth_date attribute' do
-            expect(user.birth_date).to eq Date.parse(user.mpi.profile.birth_date.to_s).iso8601
+            expect(user.birth_date).to eq Date.parse(user.birth_date_mpi.to_s).iso8601
           end
         end
       end
@@ -858,41 +863,80 @@ RSpec.describe User, type: :model do
     let(:user) { described_class.new(build(:user_with_relationship)) }
 
     before do
-      allow(user.mpi.profile).to receive(:relationships).and_return([mpi_relationship])
+      allow_any_instance_of(MPI::Models::MviProfile).to receive(:relationships).and_return(mpi_relationship_array)
     end
 
     context 'when there are relationship entities in the MPI response' do
-      let(:mpi_relationship) do
-        build(:mpi_profile_relationship,
-              given_names: relationship_first_name,
-              family_name: relationship_last_name,
-              birth_date: relationship_birth_date,
-              person_type_code: relationship_person_type_code)
+      let(:mpi_relationship_array) { [mpi_relationship] }
+      let(:mpi_relationship) { build(:mpi_profile_relationship) }
+      let(:user_relationship_double) { double }
+      let(:expected_user_relationship_array) { [user_relationship_double] }
+
+      before do
+        allow(UserRelationship).to receive(:from_mpi_relationship)
+          .with(mpi_relationship).and_return(user_relationship_double)
       end
 
-      let(:relationship_first_name) { 'some-first-name' }
-      let(:relationship_last_name) { 'some-last-name' }
-      let(:relationship_birth_date) { '20100101' }
-      let(:relationship_person_type_code) { 'some-person-type-code' }
-      let(:expected_relationship_hash) do
-        {
-          first_name: relationship_first_name,
-          last_name: relationship_last_name,
-          birth_date: relationship_birth_date,
-          person_type_code: relationship_person_type_code
-        }
-      end
-
-      it 'returns a parsed array of hashes representing the different relationship entities' do
-        expect(user.relationships).to eq [expected_relationship_hash]
+      it 'returns an array of UserRelationship objects representing the relationship entities' do
+        expect(user.relationships).to eq expected_user_relationship_array
       end
     end
 
     context 'when there are not relationship entities in the MPI response' do
-      let(:mpi_relationship) { nil }
+      let(:mpi_relationship_array) { nil }
+      let(:bgs_dependent_response) { nil }
 
-      it 'returns an empty array' do
-        expect(user.relationships).to eq [nil]
+      before do
+        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_return(bgs_dependent_response)
+      end
+
+      it 'makes a call to the BGS for relationship information' do
+        expect_any_instance_of(BGS::DependentService).to receive(:get_dependents)
+        user.relationships
+      end
+
+      context 'when BGS relationship response contains information' do
+        let(:bgs_relationship_array) { [bgs_dependent] }
+        let(:bgs_dependent) do
+          {
+            'award_indicator' => 'N',
+            'city_of_birth' => 'WASHINGTON',
+            'current_relate_status' => '',
+            'date_of_birth' => '01/01/2000',
+            'date_of_death' => '',
+            'death_reason' => '',
+            'email_address' => 'Curt@email.com',
+            'first_name' => 'CURT',
+            'gender' => '',
+            'last_name' => 'WEBB-STER',
+            'middle_name' => '',
+            'proof_of_dependency' => 'Y',
+            'ptcpnt_id' => '32354974',
+            'related_to_vet' => 'N',
+            'relationship' => 'Child',
+            'ssn' => '500223351',
+            'ssn_verify_status' => '1',
+            'state_of_birth' => 'DC'
+          }
+        end
+        let(:bgs_dependent_response) { { 'persons' => [bgs_dependent] } }
+        let(:user_relationship_double) { double }
+        let(:expected_user_relationship_array) { [user_relationship_double] }
+
+        before do
+          allow(UserRelationship).to receive(:from_bgs_dependent)
+            .with(bgs_dependent).and_return(user_relationship_double)
+        end
+
+        it 'returns an array of UserRelationship objects representing the relationship entities' do
+          expect(user.relationships).to eq expected_user_relationship_array
+        end
+      end
+
+      context 'when BGS relationship response does not contain information' do
+        it 'returns an empty array' do
+          expect(user.relationships).to eq nil
+        end
       end
     end
   end
