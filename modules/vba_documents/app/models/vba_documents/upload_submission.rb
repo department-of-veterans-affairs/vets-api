@@ -34,6 +34,32 @@ module VBADocuments
       # lambda above stops security scan from finding false positive sql injection!
     }
 
+    scope :has_web_hook_url, -> { where("metadata -> 'web_hook' -> 'url' is not null") }
+    scope :web_hook_status_notified, -> (status, bool) {
+      where("(metadata -> 'web_hook' -> ? -> 'success')::BOOLEAN = ?", status, bool) }
+
+    # load './modules/vba_documents/app/models/vba_documents/upload_submission.rb'
+    # metadata: {web_hook: {url: 'http...', uploaded: {success: false, attempts: {1 => 11254254}}}
+    #
+    # 	"web_hook": {
+    # 		"url": "https://gregger.com",
+    # 		"uploaded": {"success": true, "attempts": {"1": 11254254}},
+    # 		"received": {"success": false, "attempts": {}},
+    # 		"error": {"success": false, "attempts": {}},
+    # 		"processing": {"success": false, "attempts": {}},
+    # 		"success": {"success": false, "attempts": {}},
+    # 		"vbms": {"success": false, "attempts": {}}
+    # 	}
+    #
+    def self.get_web_hook_notifications
+      statuses = %w(uploaded received error processing success vbms)
+      guids = []
+      statuses.each do |status|
+        guids << where(status: status).has_web_hook_url.web_hook_status_notified(status, false).pluck(:guid)
+      end
+      guids.flatten
+    end
+
     after_save :report_errors
 
     def initialize(attributes = nil)
@@ -185,3 +211,5 @@ module VBADocuments
     end
   end
 end
+
+# load './modules/vba_documents/app/models/vba_documents/upload_submission.rb'
