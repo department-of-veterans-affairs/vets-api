@@ -71,15 +71,19 @@ jobs:
         run: bundle exec parallel_test -n 14 -e 'bundle exec rake db:reset'
 
       - name: Run Specs
-        run: bundle exec parallel_rspec spec/ modules -n 14 -o '--color --tty'
+        run: |
+          bundle exec parallel_rspec spec/ modules -n 14 -o '--color --tty'
+          sed -i 's/"line"/"covered_percent"/g' coverage/.last_run.json
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: Coverage Report
           path: coverage
 
-      - uses: actions/upload-artifact@v2
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
         if: always()
         with:
           name: Test Results
@@ -114,3 +118,12 @@ jobs:
           comment_mode: off
           files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Coverage Report
+        uses: devmasx/coverage-check-action@v1.2.0
+        if: hashFiles('Coverage Report/.last_run.json') != ''
+        with:
+          type: simplecov
+          result_path: Coverage Report/.last_run.json
+          min_coverage: 90
+          token: ${{ secrets.GITHUB_TOKEN }}
