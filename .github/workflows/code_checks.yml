@@ -71,9 +71,7 @@ jobs:
         run: bundle exec parallel_test -n 14 -e 'bundle exec rake db:reset'
 
       - name: Run Specs
-        run: |
-          bundle exec parallel_rspec spec/ modules -n 14 -o '--color --tty'
-          sed -i 's/"line"/"covered_percent"/g' coverage/.last_run.json
+        run: bundle exec parallel_rspec spec/ modules -n 14 -o '--color --tty'
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v2
@@ -118,6 +116,9 @@ jobs:
           comment_mode: off
           files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fix up coverage report to work with coverage-check-action
+        run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
 
       - name: Publish Coverage Report
         uses: devmasx/coverage-check-action@v1.2.0
