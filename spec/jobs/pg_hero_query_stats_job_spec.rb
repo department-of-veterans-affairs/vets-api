@@ -12,7 +12,7 @@ RSpec.describe PgHeroQueryStatsJob, type: :worker do
       before do
         # This is temporary until we can figure out how to
         # specify the postgres.conf for GH Actions test run
-        allow(PgHero).to receive(:capture_query_stats).and_return(true) if ENV['GITHUB_ACTIONS'].present?
+        allow(PgHero).to receive(:capture_query_stats).and_return(true)
       end
 
       it 'records new query stats' do
