@@ -450,7 +450,7 @@ class User < Common::RedisStore
   end
 
   def relationships
-    @relationships ||= mpi_profile_relationships.map { |relationship| relationship_hash(relationship) }
+    @relationships ||= get_relationships_array
   end
 
   def mpi
@@ -459,21 +459,21 @@ class User < Common::RedisStore
 
   private
 
-  def relationship_hash(mpi_relationship)
-    return unless mpi_relationship
-
-    {
-      first_name: mpi_relationship.given_names&.first,
-      last_name: mpi_relationship.family_name,
-      birth_date: mpi_relationship.birth_date,
-      person_type_code: mpi_relationship.person_type_code
-    }
+  def get_relationships_array
+    mpi_profile_relationships || bgs_relationships
   end
 
   def mpi_profile_relationships
-    return [] unless mpi_profile
+    return unless mpi_profile && mpi_profile.relationships.presence
 
-    mpi_profile.relationships
+    mpi_profile.relationships.map { |relationship| UserRelationship.from_mpi_relationship(relationship) }
+  end
+
+  def bgs_relationships
+    bgs_dependents = BGS::DependentService.new(self).get_dependents
+    return unless bgs_dependents.presence
+
+    bgs_dependents['persons'].map { |dependent| UserRelationship.from_bgs_dependent(dependent) }
   end
 
   def pciu
