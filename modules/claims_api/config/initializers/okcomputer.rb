@@ -76,7 +76,9 @@ end
 
 class VbmsCheck < BaseCheck
   def check
-    response = Faraday::Connection.new.get(Settings.vbms.url) { |request| request.options.timeout = 20 }
+    connection = Faraday::Connection.new
+    connection.options.timeout = 10
+    response = connection.get(Settings.vbms.url)
     response.status == 200 ? process_success : process_failure
   rescue
     process_failure
