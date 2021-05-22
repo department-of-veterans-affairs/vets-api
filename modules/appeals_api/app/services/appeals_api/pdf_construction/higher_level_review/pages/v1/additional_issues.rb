@@ -3,7 +3,7 @@
 module AppealsApi
   module PdfConstruction
     module HigherLevelReview
-      module Pages
+      module Pages::V1
         class AdditionalIssues
           MAX_ISSUES_ON_FIRST_PAGE = 6
 
