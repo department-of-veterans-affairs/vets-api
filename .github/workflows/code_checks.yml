@@ -37,8 +37,7 @@ jobs:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CI: true
       DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-      DISABLE_BOOTSNAP: true
-      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
+      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners (setup-ruby)
       RAILS_ENV: test
       "Settings.binaries.clamdscan": "clamscan"
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
