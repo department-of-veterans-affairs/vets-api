@@ -15,10 +15,10 @@ describe DebtManagementCenter::PaymentsService do
         payment: [
           # rubocop:disable Layout/SpaceBeforeComma
           { payment_date: now              , payment_type: 'Compensation & Pension - Retroactive'    },
-          # { payment_date: nil              , payment_type: 'Compensation & Pension - Recurring'      },
+          { payment_date: nil              , payment_type: 'Compensation & Pension - Recurring'      },
           { payment_date: now - 2.months   , payment_type: 'Compensation & Pension - Retroactive'    },
           { payment_date: now - 0.months   , payment_type: 'Post-9/11 GI Bill'                       },
-          # { payment_date: nil               , payment_type: 'Post-9/11 GI Bill'                       },
+          { payment_date: nil              , payment_type: 'Post-9/11 GI Bill'                       },
           { payment_date: now - 2.months   , payment_type: 'Compensation & Pension - Recurring'      },
           { payment_date: now - 2.months   , payment_type: 'Post-9/11 GI Bill'                       },
           { payment_date: now - 3.months   , payment_type: 'Compensation & Pension - Recurring'      },
@@ -29,15 +29,6 @@ describe DebtManagementCenter::PaymentsService do
       }
     }
   end
-
-  # def subject_vrc
-  #   VCR.use_cassette('bgs/people_service/person_data') do
-  #     VCR.use_cassette('bgs/payment_service/payment_history') do
-  #     # VCR.use_cassette('bgs/payment_service/payment_histroy_with_pending') do
-  #       described_class.new(user)
-  #     end
-  #   end
-  # end
 
   def subject
     expect(BGS::PeopleService).to receive(:new).with(user).and_return(bgs_people_service_instance)
@@ -151,16 +142,31 @@ describe DebtManagementCenter::PaymentsService do
     it 'returns @payments filtered by :payment_type and sorted by [:payment_date, ASC]' do
       result = subject.compensation_and_pension
 
-      # TODO: once we add extra item (with nil :payment_date), these should be results:
-      # bgs_payments[:payments][:payment][6]
-      # bgs_payments[:payments][:payment][4]
-      # bgs_payments[:payments][:payment][8]
-
       expect(result.size).to eq(3)
 
-      expect(result[0]).to be(bgs_payments[:payments][:payment][5])
-      expect(result[1]).to be(bgs_payments[:payments][:payment][3])
-      expect(result[2]).to be(bgs_payments[:payments][:payment][7])
+      expect(result[0]).to be(bgs_payments[:payments][:payment][7])
+      expect(result[1]).to be(bgs_payments[:payments][:payment][5])
+      expect(result[2]).to be(bgs_payments[:payments][:payment][9])
+    end
+
+    context 'when @payments is empty' do
+      before { bgs_payments[:payments][:payment] = [] }
+
+      it 'returns nil' do
+        expect(subject.compensation_and_pension).to eq(nil)
+      end
+    end
+
+    context 'when @payments doen\'t contain matching items' do
+      before do
+        bgs_payments[:payments][:payment].delete_if do |payment|
+          payment[:payment_type] == 'Compensation & Pension - Recurring' && payment[:payment_date].present?
+        end
+      end
+
+      it 'returns nil' do
+        expect(subject.compensation_and_pension).to eq(nil)
+      end
     end
   end
 
@@ -168,16 +174,31 @@ describe DebtManagementCenter::PaymentsService do
     it 'returns @payments filtered by :payment_type and sorted by [:payment_date, ASC]' do
       result = subject.education
 
-      # TODO: once we add extra item (with nil :payment_date), these should be results:
-      # bgs_payments[:payments][:payment][5]
-      # bgs_payments[:payments][:payment][7]
-      # bgs_payments[:payments][:payment][2]
-
       expect(result.size).to eq(3)
 
-      expect(result[0]).to be(bgs_payments[:payments][:payment][4])
-      expect(result[1]).to be(bgs_payments[:payments][:payment][6])
-      expect(result[2]).to be(bgs_payments[:payments][:payment][2])
+      expect(result[0]).to be(bgs_payments[:payments][:payment][6])
+      expect(result[1]).to be(bgs_payments[:payments][:payment][8])
+      expect(result[2]).to be(bgs_payments[:payments][:payment][3])
+    end
+
+    context 'when @payments is empty' do
+      before { bgs_payments[:payments][:payment] = [] }
+
+      it 'returns nil' do
+        expect(subject.education).to eq(nil)
+      end
+    end
+
+    context 'when @payments doen\'t contain matching items' do
+      before do
+        bgs_payments[:payments][:payment].delete_if do |payment|
+          payment[:payment_type] == 'Post-9/11 GI Bill' && payment[:payment_date].present?
+        end
+      end
+
+      it 'returns nil' do
+        expect(subject.education).to eq(nil)
+      end
     end
   end
 end
