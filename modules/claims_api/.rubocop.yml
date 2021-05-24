@@ -22,3 +22,6 @@ Metrics/ClassLength:
 Layout/LineLength:
   Exclude:
     - app/swagger/**/*.rb
+
+RSpec/VariableName:
+  IgnoredPatterns: ['^X-', 'Authorization']
