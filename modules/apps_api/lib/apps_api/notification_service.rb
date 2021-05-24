@@ -20,7 +20,7 @@ module AppsApi
     end
 
     def handle_event(event_type, template)
-      return 'not enabled for this environment' if @should_perform == false
+      return 'not enabled for this environment' unless @should_perform
 
       logs = get_events(event_type)
       logs.body.each do |event|
