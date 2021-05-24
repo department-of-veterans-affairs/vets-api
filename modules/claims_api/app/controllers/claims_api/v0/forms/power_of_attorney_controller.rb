@@ -79,6 +79,8 @@ module ClaimsApi
         def active
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
+          representative_info = build_representative_info(current_poa_code)
+
           render json: {
             data: {
               id: nil,
@@ -88,6 +90,8 @@ module ClaimsApi
                 date_request_accepted: current_poa_begin_date,
                 representative: {
                   service_organization: {
+                    name: representative_info[:name],
+                    phone_number: representative_info[:phone_number],
                     poa_code: current_poa_code
                   }
                 },
@@ -155,6 +159,34 @@ module ClaimsApi
 
         def previous_poa_code
           @previous_poa_code ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).previous_poa_code
+        end
+
+        def build_representative_info(poa_code)
+          if poa_code_in_organization?(poa_code)
+            veteran_service_organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
+            raise 'Veteran Service Organization not found' if veteran_service_organization.blank?
+
+            {
+              name: veteran_service_organization.name,
+              phone_number: veteran_service_organization.phone
+            }
+          else
+            representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).first
+            raise 'Power of Attorney not found' if representative.blank?
+
+            {
+              name: "#{representative.first_name} #{representative.last_name}",
+              phone_number: representative.phone
+            }
+          end
+        end
+
+        def poa_code_in_organization?(poa_code)
+          representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).first
+          raise 'Power of Attorney not found' if representative.blank?
+          return false if representative.user_types.blank?
+
+          representative.user_types.include?('veteran_service_officer')
         end
       end
     end
