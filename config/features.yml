@@ -129,6 +129,10 @@ features:
     actor_type: user
     description: A fast and dirty way to get the operating status from lighthouse
     enable_in_development: true
+  facility_locator_rails_engine:
+    actor_type: user
+    description: Use rails engine routes for all Facility Locator API calls
+    enable_in_development: true
   facility_locator_show_community_cares:
     actor_type: user
     description: >
