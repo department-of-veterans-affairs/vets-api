@@ -13,7 +13,7 @@ module V0
           'address',
           address_params
         )
-        Rails.logger.info('[AddressesCreate]:requestcompleted',sso_logging_info)
+        Rails.logger.info('[AddressesCreate]:requestcompleted', sso_logging_info)
       end
 
       def update
@@ -22,7 +22,7 @@ module V0
           address_params,
           http_verb: 'put'
         )
-        Rails.logger.info('[AddressesUpdate]:requestcompleted',sso_logging_info)
+        Rails.logger.info('[AddressesUpdate]:requestcompleted', sso_logging_info)
       end
 
       def destroy
@@ -31,7 +31,7 @@ module V0
           add_effective_end_date(address_params),
           http_verb: 'put'
         )
-        Rails.logger.info('[AddressesDestroy]:requestcompleted',sso_logging_info)
+        Rails.logger.info('[AddressesDestroy]:requestcompleted', sso_logging_info)
       end
 
       private
