@@ -223,6 +223,7 @@ modules_appeals_api:
     aws_secret_access_key: "aws_secret_access_key"
     region: "region"
     bucket: "bucket"
+  status_simulation_enabled: false
 
 
 vre_counseling:
@@ -446,6 +447,8 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
+  rswag_docs:
+    enabled: false
   report_enabled: false
   audit_enabled: false
   s3:
@@ -461,6 +464,8 @@ claims_api:
   claims_pending_reporting:
     threshold: ~
     environment_name: ~
+  v2_docs:
+    enabled: false
 
 redis:
   host: localhost

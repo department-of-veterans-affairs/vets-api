@@ -42,22 +42,28 @@ module Mobile
       end
 
       def upload_document
-        jid = claims_proxy.upload_documents(params, false)
+        jid = claims_proxy.upload_document(params)
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       def upload_multi_image_document
-        jid = claims_proxy.upload_documents(params, true)
+        jid = claims_proxy.upload_multi_image(params)
         render json: { data: { job_id: jid } }, status: :accepted
       end
 
       private
 
       def fetch_all_cached_or_service(params, show_completed)
-        list, errors = if params[:use_cache]
-                         [Mobile::V0::ClaimOverview.get_cached(@current_user), []]
+        list = nil
+        list = Mobile::V0::ClaimOverview.get_cached(@current_user) if params[:use_cache]
+        list, errors = if list.blank?
+                         Rails.logger.info('mobile claims and appeals service fetch', user_uuid: @current_user.uuid)
+                         service_list, service_errors = claims_proxy.get_claims_and_appeals
+                         Mobile::V0::ClaimOverview.set_cached(@current_user, list)
+                         [service_list, service_errors]
                        else
-                         claims_proxy.get_claims_and_appeals
+                         Rails.logger.info('mobile claims and appeals cache fetch', user_uuid: @current_user.uuid)
+                         [list, []]
                        end
 
         status = get_response_status(errors)

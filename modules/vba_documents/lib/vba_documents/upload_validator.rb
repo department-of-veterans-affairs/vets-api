@@ -11,6 +11,8 @@ module VBADocuments
   module UploadValidations
     include CentralMail::Utilities
 
+    VALID_NAME = %r{^[a-zA-Z\-\/\s]{1,50}$}.freeze
+
     def update_pdf_metadata(model, inspector)
       model.update(uploaded_pdf: inspector.pdf_data)
     end
@@ -55,17 +57,17 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Non-numeric or invalid-length fileNumber')
       end
 
-      # this validate_not_empty check should be after the Non-string value check so we do not catch nulls
-      validate_not_empty(veteranFirstName: metadata['veteranFirstName'], veteranLastName: metadata['veteranLastName'])
+      validate_names(metadata['veteranFirstName'].strip, metadata['veteranLastName'].strip)
       validate_line_of_business(metadata['businessLine'])
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
     end
 
-    def validate_not_empty(hash)
-      unless hash.values.map(&:to_s).select(&:empty?).empty?
-        msg = "Empty value given - The following values must be non-empty: #{hash.keys.join(',')}"
-        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
+    def validate_names(first, last)
+      [first, last].each do |name|
+        msg = 'Invalid Veteran name (e.g. empty, invalid characters, or too long). '
+        msg += "Names must match the regular expression #{VALID_NAME.inspect}"
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg) unless name =~ VALID_NAME
       end
     end
 

@@ -5,6 +5,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
 
   OBJ = :object
   HLR_TAG = ['Higher-Level Reviews'].freeze
+  DOC_VISIBILITY_SETTING = Settings.modules_appeals_api.documentation.path_enabled_flag
 
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
@@ -68,6 +69,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
 
   swagger_path '/higher_level_reviews' do
     operation :post, tags: HLR_TAG do
+      key :deprecated, DOC_VISIBILITY_SETTING
       key :operationId, 'postHigherLevelReviews'
       key :summary, 'Creates a new Higher-Level Review.'
       desc = 'Submits a Decision Review request of type *Higher-Level Review*. This endpoint is the same as ' \
@@ -84,6 +86,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
 
   swagger_path '/higher_level_reviews/{uuid}' do
     operation :get, tags: HLR_TAG do
+      key :deprecated, DOC_VISIBILITY_SETTING
       key :operationId, 'getHigherLevelReview'
       key :summary, 'Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)'
       key :description, 'Returns all of the data associated with a specific Higher-Level Review.'
@@ -141,6 +144,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
 
   swagger_path '/higher_level_reviews/schema' do
     operation :get, tags: HLR_TAG do
+      key :deprecated, DOC_VISIBILITY_SETTING
       key :operationId, 'getHigherLevelReviewSchema'
       key :summary, 'Gets the Higher-Level Review JSON Schema.'
       desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
@@ -158,6 +162,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
 
   swagger_path '/higher_level_reviews/validate' do
     operation :post, tags: HLR_TAG do
+      key :deprecated, DOC_VISIBILITY_SETTING
       key :operationId, 'postValidateHigherLevelReview'
       key :summary, 'Validates a POST request body against the JSON schema.'
       desc = 'Like the `POST /higher_level_reviews`, but *only* does the validations **—does not submit anything.**'

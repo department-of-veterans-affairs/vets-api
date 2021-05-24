@@ -36,7 +36,7 @@ module BGS
       ).create
 
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-      bgs_service.update_proc(proc_id)
+      bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
     end
 
     private
@@ -65,7 +65,7 @@ module BGS
     end
 
     def create_proc_id_and_form
-      vnp_response = bgs_service.create_proc
+      vnp_response = bgs_service.create_proc(proc_state: 'MANUAL_VAGOV')
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
         '21-674'
