@@ -65,7 +65,7 @@
           "inactiveDutyTrainingPay": {
             "waiveVABenefitsToRetainTrainingPay": false
           }
-        }
+        },
         "alternateNames": [
           {
             "firstName": "string",
