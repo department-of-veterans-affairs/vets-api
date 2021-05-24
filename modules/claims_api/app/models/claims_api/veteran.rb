@@ -107,6 +107,12 @@ module ClaimsApi
       )
     end
 
+    def mpi_icn
+      return nil unless mpi
+
+      mpi.icn
+    end
+
     private
 
     def mpi_profile
