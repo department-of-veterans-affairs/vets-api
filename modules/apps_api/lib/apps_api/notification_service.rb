@@ -16,7 +16,7 @@ module AppsApi
       @notify_client = VaNotify::Service.new(Settings.vanotify.services.lighthouse.api_key)
       @connection_event = 'app.oauth2.as.consent.grant'
       @disconnection_event = 'app.oauth2.as.consent.revoke'
-      @should_perform ||= Flipper.enabled?(:connected_applications_notif_service)
+      @should_perform = Flipper.enabled?(:connected_applications_notif_service)
     end
 
     def handle_event(event_type, template)
