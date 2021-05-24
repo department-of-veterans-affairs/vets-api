@@ -9,6 +9,7 @@ module V0
       def create
         address = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
+        
         Rails.logger.info('[AddressValidationCreate]:requestcompleted', sso_logging_info)
 
         render(json: service.address_suggestions(address))
