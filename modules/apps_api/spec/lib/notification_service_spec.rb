@@ -129,7 +129,7 @@ describe AppsApi::NotificationService do
     # @notify_client ||= Notifications::Client.new(api_key, client_url)
     allow(Notifications::Client).to receive(:new).and_return(notification_client)
     allow(notification_client).to receive(:send_email).and_return(true)
-    allow(Flipper).to receive(:enabled?).with(:connected_applications_notif_service).and_return(true)
+    subject.instance_variable_set(:@should_perform, true)
   end
 
   describe '#initialize' do
