@@ -21,6 +21,7 @@ module AppsApi
 
     def handle_event(event_type, template)
       return 'not enabled for this environment' if @should_perform == false
+
       logs = get_events(event_type)
       logs.body.each do |event|
         parsed_hash = parse_event(event)
