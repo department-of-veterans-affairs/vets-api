@@ -109,7 +109,7 @@ module MPI
       end
 
       def parse_id_theft_flag(patient)
-        code = patient.locate_element(patient, CONFIDENTIALITY_CODE_XPATH)
+        code = locate_element(patient, CONFIDENTIALITY_CODE_XPATH)
         code == ID_THEFT_INDICATOR
       end
 

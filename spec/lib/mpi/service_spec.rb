@@ -39,7 +39,8 @@ describe MPI::Service do
         '1008714701^PN^200PROV^USDVA^A',
         '32383600^PI^200CORP^USVBA^L'
       ],
-      search_token: nil
+      search_token: nil,
+      id_theft_flag: false
     )
   end
 
