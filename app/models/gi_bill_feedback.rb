@@ -31,7 +31,7 @@ class GIBillFeedback < Common::RedisStore
       profile_data = {
         'active_ICN' => user.icn,
         'historical_ICN' => user.historical_icns,
-        'sec_ID' => user.sec_id_mpi
+        'sec_ID' => user.sec_id
       }
     end
 

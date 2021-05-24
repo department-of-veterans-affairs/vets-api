@@ -129,6 +129,10 @@ features:
     actor_type: user
     description: A fast and dirty way to get the operating status from lighthouse
     enable_in_development: true
+  facility_locator_rails_engine:
+    actor_type: user
+    description: Use rails engine routes for all Facility Locator API calls
+    enable_in_development: true
   facility_locator_show_community_cares:
     actor_type: user
     description: >
@@ -179,6 +183,10 @@ features:
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
+    enable_in_development: true
+  language_support:
+    actor_type: user
+    description: Toggles the availability of language support links (spanish et al) in the footer
     enable_in_development: true
   mobile_api:
     actor_type: user

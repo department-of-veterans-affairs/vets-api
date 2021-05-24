@@ -236,6 +236,10 @@ module AppealsApi
       handler.handle!
     end
 
+    def informal_conference_rep
+      data_attributes&.dig('informalConferenceRep')
+    end
+
     private
 
     def data_attributes
@@ -260,10 +264,6 @@ module AppealsApi
 
     def veteran_phone
       AppealsApi::HigherLevelReview::Phone.new veteran&.dig('phone')
-    end
-
-    def informal_conference_rep
-      data_attributes&.dig('informalConferenceRep')
     end
 
     def informal_conference_rep_name
