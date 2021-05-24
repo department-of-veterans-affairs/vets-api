@@ -377,8 +377,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                   'serviceBranch' => 'Air Force'
                 }
               ]
-            },
-            'servedInCombatZonePost911' => true
+            }
           }
         }
       end
@@ -391,8 +390,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               'activeDutyBeginDate' => '1980-02-05',
               'activeDutyEndDate' => '1990-01-02'
             }
-          ],
-          'servedInCombatZone' => true
+          ]
         }
       end
     end
