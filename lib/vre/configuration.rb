@@ -5,7 +5,12 @@ require 'common/client/configuration/rest'
 module VRE
   class Configuration < Common::Client::Configuration::REST
     def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
+      @conn ||= Faraday.new(
+        base_path,
+        headers: base_request_headers,
+        request: request_options,
+        ssl: ssl_options
+      ) do |faraday|
         faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
         faraday.response :betamocks if mock_enabled?
@@ -17,6 +22,13 @@ module VRE
 
     def mock_enabled?
       Settings.veteran_readiness_and_employment.mock_ch_31 || false
+    end
+
+    def ssl_options
+      {
+        client_cert: Settings.veteran_readiness_and_employment.cert,
+        client_key: Settings.veteran_readiness_and_employment.key
+      }
     end
 
     def base_path
