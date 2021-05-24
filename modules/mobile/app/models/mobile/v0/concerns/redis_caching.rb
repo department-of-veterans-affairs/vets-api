@@ -22,8 +22,12 @@ module Mobile
           end
 
           def set_cached(user, data)
-            @redis.set(user.uuid, data.to_json)
-            @redis.expire(user.uuid, @redis_ttl)
+            if data
+              @redis.set(user.uuid, data.to_json)
+              @redis.expire(user.uuid, @redis_ttl)
+            else
+              Rails.logger.debug('Mobile: nil data for redis caching')
+            end
           end
 
           def clear_cache(user)
