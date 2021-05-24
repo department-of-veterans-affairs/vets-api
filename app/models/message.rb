@@ -103,7 +103,6 @@ class Message < Common::Base
 
   def total_upload_size
     Rails.logger.debug uploads
-    Rails.logger.debug 'Uploads blank?: ' + uploads.blank?
     return 0 if uploads.blank?
 
     uploads.sum(&:size)
