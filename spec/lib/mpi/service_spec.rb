@@ -260,6 +260,16 @@ describe MPI::Service do
         end
       end
 
+      it 'fetches id_theft flag' do
+        allow(user).to receive(:mhv_icn).and_return('1012870264V741864')
+
+        VCR.use_cassette('mpi/find_candidate/valid_id_theft_flag') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['id_theft_flag']).to eq(true)
+        end
+      end
+
       it 'returns no errors' do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
 
