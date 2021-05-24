@@ -79,6 +79,14 @@ module AppealsApi
           1
         end
 
+        def rep_first_name
+          higher_level_review.informal_conference_rep&.dig('firstName')
+        end
+
+        def rep_last_name
+          higher_level_review.informal_conference_rep&.dig('lastName')
+        end
+
         def rep_phone_area_code
           higher_level_review.rep_phone_data&.dig('areaCode')
         end

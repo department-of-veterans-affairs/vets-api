@@ -18,25 +18,21 @@ module Swagger
 
               property :communication_item do
                 key :type, :object
-                key :required, %i[id communication_channels]
+                key :required, %i[id communication_channel]
 
                 property :id, type: :integer
 
-                property :communication_channels do
-                  key :type, :array
+                property :communication_channel do
+                  key :type, :object
+                  key :required, %i[id communication_permission]
 
-                  items do
+                  property :id, type: :integer
+
+                  property :communication_permission do
                     key :type, :object
-                    key :required, %i[id communication_permission]
+                    key :required, %i[allowed]
 
-                    property :id, type: :integer
-
-                    property :communication_permission do
-                      key :type, :object
-                      key :required, %i[allowed]
-
-                      property :allowed, type: :boolean
-                    end
+                    property :allowed, type: :boolean
                   end
                 end
               end

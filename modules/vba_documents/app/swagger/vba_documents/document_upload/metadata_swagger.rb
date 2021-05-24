@@ -13,15 +13,15 @@ module VBADocuments
 
           property :veteranFirstName do
             key :type, :string
-            key :description, 'Veteran first name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), and forward-slash(/) allowed.'
-            key :pattern, '^[a-zA-Z\-\/]{1,50}$'
+            key :description, 'Veteran first name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.'
+            key :pattern, '^[a-zA-Z\-\/\s]{1,50}$'
             key :example, 'Jane'
           end
 
           property :veteranLastName do
             key :type, :string
-            key :description, 'Veteran last name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), and forward-slash(/) allowed.'
-            key :pattern, '^[a-zA-Z\-\/]{1,50}$'
+            key :description, 'Veteran last name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.'
+            key :pattern, '^[a-zA-Z\-\/\s]{1,50}$'
             key :example, 'Doe-Smith'
           end
 

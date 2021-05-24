@@ -10,7 +10,7 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
   end
 
   describe 'perform' do
-    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
+    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.pdf', 'application/pdf') }
     let(:appeal_submission) { create(:appeal_submission, :with_one_upload) }
     let(:appeal_submission_upload) { appeal_submission.appeal_submission_uploads.first }
 
