@@ -23,7 +23,7 @@ module RedisCaching
         @redis.set(key, data.to_json)
         @redis.expire(key, @redis_ttl)
       else
-        Rails.logger.debug('Nil data for redis caching')
+        Rails.logger.info('Attempted to set nil data in redis cache')
       end
     end
 

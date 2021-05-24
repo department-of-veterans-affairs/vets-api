@@ -26,7 +26,7 @@ module Mobile
               @redis.set(user.uuid, data.to_json)
               @redis.expire(user.uuid, @redis_ttl)
             else
-              Rails.logger.debug('Mobile: nil data for redis caching')
+              Rails.logger.info('Mobile: Attempted to set nil data in redis cache')
             end
           end
 
