@@ -24,9 +24,15 @@ module ClaimsApi
           ClaimsApi::V1::SecuritySchemeSwagger,
           ClaimsApi::V1::SwaggerRoot
         ].freeze
+        RWSAG_DOCS_ENABLED = Settings.claims_api.rswag_docs.enabled
 
         def index
-          render json: Swagger::Blocks.build_root_json(SWAGGERED_CLASSES)
+          if RWSAG_DOCS_ENABLED
+            swagger = JSON.parse(File.read(ClaimsApi::Engine.root.join('app/swagger/v1/swagger.json')))
+            render json: swagger
+          else
+            render json: Swagger::Blocks.build_root_json(SWAGGERED_CLASSES)
+          end
         end
       end
     end

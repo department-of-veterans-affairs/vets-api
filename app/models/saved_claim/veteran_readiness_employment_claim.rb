@@ -69,7 +69,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '459' => 'VRC.VBAHON@va.gov',
     '460' => 'VAVBA/WIM/RO/VR&E@vba.va.gov',
     '463' => 'VRE.VBAANC@va.gov',
-    '000' => 'VRE.VBACO@va.gov'
+    '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
   validate :veteran_information, on: :prepare_form_data
