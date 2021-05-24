@@ -212,7 +212,6 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     bcp47 (0.3.3)
       i18n
-    benchmark-ips (2.8.4)
     bindex (0.8.1)
     bootsnap (1.7.5)
       msgpack (~> 1.0)
@@ -979,7 +978,6 @@ DEPENDENCIES
   awesome_print (~> 1.9)
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
-  benchmark-ips
   betamocks!
   bgs_ext!
   bootsnap
