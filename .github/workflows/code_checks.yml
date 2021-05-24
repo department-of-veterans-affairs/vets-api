@@ -50,7 +50,6 @@ jobs:
       postgres:
         image: postgis/postgis:11-2.5
         env:
-          POSTGRES_DB: vets-api_test
           POSTGRES_USER: vets-api
           POSTGRES_PASSWORD: postgres
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
