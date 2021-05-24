@@ -194,11 +194,21 @@ RSpec.describe 'Power of Attorney ', type: :request do
           Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
         end
 
+        let(:representative_info) do
+          {
+            name: 'Abraham Lincoln',
+            phone_number: '555-555-5555'
+          }
+        end
+
         it 'returns a 200' do
           with_okta_user(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
             expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
             expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
+            expect_any_instance_of(
+              ClaimsApi::V1::Forms::PowerOfAttorneyController
+            ).to receive(:build_representative_info).and_return(representative_info)
             get('/services/claims/v1/forms/2122/active',
                 params: nil, headers: headers.merge(auth_header))
 
