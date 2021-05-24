@@ -983,7 +983,7 @@ veteran_readiness_and_employment:
       - VRC.VBAHON@va.gov
       - VAVBA/WIM/RO/VR&E@vba.va.gov
       - VRE.VBAANC@va.gov
-      - VRE.VBAPIT@va.govapp/models/saved_claim/veteran_readiness_employment_claim.rb
+      - VRE.VBAPIT@va.gov
       - VRE-CMS.VBAVACO@va.gov
       - Jason.Wolf@va.gov
     staging_emails:
