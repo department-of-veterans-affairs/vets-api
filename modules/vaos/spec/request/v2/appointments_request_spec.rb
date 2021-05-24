@@ -49,6 +49,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       end
     end
 
+    # record VCR cassette against NEW VAOS Service
     describe 'GET appointment' do
       let(:appointment_id) { 123 }
 
