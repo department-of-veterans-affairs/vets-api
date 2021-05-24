@@ -140,7 +140,6 @@ gem 'will_paginate'
 gem 'with_advisory_lock'
 
 group :development do
-  gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
