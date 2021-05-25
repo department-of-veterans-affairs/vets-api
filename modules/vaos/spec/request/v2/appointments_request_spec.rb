@@ -8,7 +8,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
-    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    #allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -38,7 +38,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       context 'returns list of appointments' do
         it 'has access and returns va appointments' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments', record: :new_episodes) do #match_requests_on: %i[method uri]
             get '/vaos/v2/appointments', params: params
 
             expect(response).to have_http_status(:ok)
