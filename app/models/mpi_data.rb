@@ -163,6 +163,8 @@ class MPIData < Common::RedisStore
   def response_from_redis_or_service
     do_cached_with(key: user.uuid) do
       mpi_service.find_profile(user)
+    rescue ArgumentError
+      return nil
     end
   end
 
