@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 module AppealsApi::PdfConstruction::HigherLevelReview
-  describe Pages::AdditionalIssues do
+  describe Pages::V1::AdditionalIssues do
     describe '#build!' do
       let(:higher_level_review) { create(:higher_level_review) }
 

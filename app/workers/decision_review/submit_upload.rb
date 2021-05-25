@@ -32,7 +32,7 @@ module DecisionReview
 
       DecisionReview::Service.new.put_notice_of_disagreement_upload(upload_url: upload_url,
                                                                     file_upload: carrierwave_sanitized_file,
-                                                                    metadata: appeal_submission.upload_metadata)
+                                                                    metadata_string: appeal_submission.upload_metadata)
 
       appeal_submission_upload.lighthouse_upload_id = upload_url_response.body.dig('data', 'id')
       appeal_submission_upload.save
