@@ -3,10 +3,11 @@ on: [pull_request]
 jobs:
   danger:
     name: Danger
+
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-      RAILS_ENV: test
       DANGER_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     runs-on: ubuntu-20.04
 
     steps:
@@ -22,8 +23,8 @@ jobs:
           key: ${{ runner.os }}-gems-${{ hashFiles('Gemfile') }}
           restore-keys: |
             ${{ runner.os }}-gems-
-      
-      - name: Bundle install
+
+      - name: Bundle Install
         run: |
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
