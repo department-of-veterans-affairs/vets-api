@@ -9,7 +9,7 @@ module EVSS
     #   @return [Hash] response body
     #
     class RetrieveInfoResponse < EVSS::Response
-      attribute :body, Hash
+      attribute :response_body, Hash
     end
   end
 end
