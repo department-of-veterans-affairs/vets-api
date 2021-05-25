@@ -78,6 +78,11 @@ class UserSessionForm
     errors.empty?
   end
 
+  def get_session_errors
+    @session.errors.add(:uuid, "can't be blank") if @session.uuid.nil?
+    @session.errors&.full_messages
+  end
+
   def save
     valid? && session.save && user.save && @user_identity.save
   end
@@ -106,8 +111,8 @@ class UserSessionForm
         errors: @user&.errors&.full_messages
       },
       session: {
-        valid: @session.valid?,
-        errors: @session.errors&.full_messages
+        valid: (@session.valid? && !@session.uuid.nil?),
+        errors: get_session_errors
       },
       identity: {
         valid: @user_identity&.valid?,

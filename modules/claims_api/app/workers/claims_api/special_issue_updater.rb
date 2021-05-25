@@ -24,7 +24,7 @@ module ClaimsApi
       validate_contention_id_structure(contention_id)
       service = bgs_service(user).contention
 
-      claims = service.find_contentions_by_ptcpnt_id(user['participant_id'])[:benefit_claims]
+      claims = service.find_contentions_by_ptcpnt_id(user['participant_id'])[:benefit_claims] || []
       claim = claim_from_contention_id(claims, contention_id)
       raise "Claim not found with contention: #{contention_id}" if claim.blank?
 

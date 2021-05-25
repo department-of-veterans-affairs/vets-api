@@ -71,7 +71,7 @@ module VAOS
       end
 
       def date_params(start_date, end_date)
-        { startDate: date_format(start_date), endDate: date_format(end_date) }
+        { start: date_format(start_date), end: date_format(end_date) }
       end
 
       def page_params(pagination_params)

@@ -98,7 +98,7 @@ Rails.application.routes.draw do
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
 
     namespace :form1010cg do
-      resources :attachments, only: :create unless Settings.vsp_environment == 'production'
+      resources :attachments, only: :create
     end
 
     resources :dependents_applications, only: %i[create show] do
@@ -373,7 +373,8 @@ Rails.application.routes.draw do
     mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
-    mount ClaimsApi::Engine, at: '/claims'
+    mount ClaimsApi::Engine, at: '/claims', as: 'legacy_claims'
+    mount ClaimsApi::Engine, at: '/benefits'
     mount Veteran::Engine, at: '/veteran'
     mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'

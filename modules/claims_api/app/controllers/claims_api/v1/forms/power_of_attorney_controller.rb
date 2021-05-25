@@ -47,6 +47,10 @@ module ClaimsApi
 
           # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless header_request?
+          if enable_vmbs_access?
+            ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id,
+                                                 target_veteran.participant_id)
+          end
           data = power_of_attorney.form_data
           ClaimsApi::PoaFormBuilderJob.perform_async(power_of_attorney.id) if data['signatures'].present?
 
@@ -119,6 +123,10 @@ module ClaimsApi
         end
 
         private
+
+        def enable_vmbs_access?
+          form_attributes['recordConsent'] && form_attributes['consentLimits'].blank?
+        end
 
         def current_poa_begin_date
           return nil if current_poa.try(:begin_date).blank?

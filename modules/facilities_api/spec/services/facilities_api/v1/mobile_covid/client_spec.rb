@@ -23,13 +23,28 @@ RSpec.describe FacilitiesApi::V1::MobileCovid::Client, team: :facilities, vcr: v
 
   describe '#direct_booking_eligibility_criteria_by_id' do
     it 'finds a facility by ID' do
-      response = mobile_client.direct_booking_eligibility_criteria_by_id('523A5')
+      response = mobile_client.direct_booking_eligibility_criteria_by_id('vha_523A5')
       expect(response.id).to eql('523A5')
     end
     context 'Covid online scheduling is available' do
       it 'checks covid_online_scheduling_available?' do
-        response = mobile_client.direct_booking_eligibility_criteria_by_id('523A5')
+        response = mobile_client.direct_booking_eligibility_criteria_by_id('vha_523A5')
         expect(response).to be_covid_online_scheduling_available
+      end
+    end
+  end
+
+  describe '#sanitize_id' do
+    {
+      'vha_523A5' => '523A5',
+      'vha_689A4' => '689A4',
+      'vha_631' => '631',
+      '523A5' => '523A5'
+    }.each_pair do |raw_id, expected_id|
+      context raw_id do
+        subject { mobile_client.sanitize_id(raw_id) }
+
+        it { is_expected.to eql expected_id }
       end
     end
   end

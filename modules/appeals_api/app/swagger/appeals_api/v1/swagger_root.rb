@@ -31,11 +31,5 @@ module AppealsApi::V1::SwaggerRoot
     key :basePath, '/services/appeals/v1'
     key :consumes, ['application/json']
     key :produces, ['application/json']
-
-    security do
-      key :type, :apiKey
-      key :name, :apiKey
-      key :in, :header
-    end
   end
 end

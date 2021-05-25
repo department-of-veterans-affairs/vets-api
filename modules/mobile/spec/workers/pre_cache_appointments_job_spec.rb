@@ -42,6 +42,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
                         cancel_id: nil,
                         comment: '',
                         facility_id: nil,
+                        sta6aid: nil,
                         healthcare_service: 'RR',
                         location: { name: 'RR',
                                     address: { street: 'clarksburg', city: 'md', state: 'MD',

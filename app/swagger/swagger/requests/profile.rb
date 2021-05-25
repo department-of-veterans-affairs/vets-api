@@ -79,6 +79,7 @@ module Swagger
                     items do
                       key :type, :object
 
+                      property :id, type: :integer
                       property :name, type: :string
                       property :description, type: :string
 

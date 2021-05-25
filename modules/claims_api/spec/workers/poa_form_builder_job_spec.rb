@@ -10,6 +10,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
   before do
     Sidekiq::Worker.clear_all
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
+    power_of_attorney.current_poa = 'ABC'
     power_of_attorney.form_data = {
       recordConcent: true,
       consentAddressChange: true,
@@ -29,7 +30,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
         },
         phone: {
           areaCode: '555',
-          ohoneNumber: '5551337'
+          phoneNumber: '5551337'
         }
       },
       claimant: {
@@ -47,7 +48,7 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
         },
         phone: {
           areaCode: '555',
-          ohoneNumber: '5551337'
+          phoneNumber: '5551337'
         }
       },
       serviceOrganization: {
@@ -65,10 +66,28 @@ RSpec.describe ClaimsApi::PoaFormBuilderJob, type: :job do
   end
 
   describe 'generating the filled and signed pdf' do
-    it 'generates the pdf to match example' do
-      expect(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:new).with(power_of_attorney.id).and_call_original
-      expect_any_instance_of(ClaimsApi::PowerOfAttorneyPdfConstructor).to receive(:fill_pdf).twice.and_call_original
-      subject.new.perform(power_of_attorney.id)
+    context 'when representative is an individual' do
+      before do
+        Veteran::Service::Representative.new(poa_codes: ['ABC'], user_types: ['attorney']).save!
+      end
+
+      it 'generates the pdf to match example' do
+        expect(ClaimsApi::PoaPdfConstructor::Individual).to receive(:new).and_call_original
+        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Individual).to receive(:construct).and_call_original
+        subject.new.perform(power_of_attorney.id)
+      end
+    end
+
+    context 'when representative is part of an organization' do
+      before do
+        Veteran::Service::Representative.new(poa_codes: ['ABC'], user_types: ['veteran_service_officer']).save!
+      end
+
+      it 'generates the pdf to match example' do
+        expect(ClaimsApi::PoaPdfConstructor::Organization).to receive(:new).and_call_original
+        expect_any_instance_of(ClaimsApi::PoaPdfConstructor::Organization).to receive(:construct).and_call_original
+        subject.new.perform(power_of_attorney.id)
+      end
     end
   end
 end
