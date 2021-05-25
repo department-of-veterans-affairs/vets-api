@@ -31,12 +31,12 @@ RSpec.describe 'push register', type: :request do
     context 'with a valid put body and debug flag' do
       it 'matches the register schema' do
         params = {
-            appName: 'va_mobile_app',
-            deviceToken: '09d5a13a03b64b669f5ac0c32a0db6ad',
-            osName: 'ios',
-            osVersion: '13.1',
-            deviceName: 'My Iphone',
-            debug: true
+          appName: 'va_mobile_app',
+          deviceToken: '09d5a13a03b64b669f5ac0c32a0db6ad',
+          osName: 'ios',
+          osVersion: '13.1',
+          deviceName: 'My Iphone',
+          debug: true
         }
         VCR.use_cassette('vetext/register_success') do
           put '/mobile/v0/push/register', headers: iam_headers(json_body_headers), params: params.to_json

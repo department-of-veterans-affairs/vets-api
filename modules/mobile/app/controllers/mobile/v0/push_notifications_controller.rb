@@ -7,11 +7,11 @@ module Mobile
     class PushNotificationsController < ApplicationController
       def register
         result = service.register(
-            get_app_name(params),
-            params[:device_token],
-            @current_user.icn,
-            params[:os_name],
-            params[:device_name] || params[:osName]
+          get_app_name(params),
+          params[:device_token],
+          @current_user.icn,
+          params[:os_name],
+          params[:device_name] || params[:osName]
         )
 
         render json: Mobile::V0::PushRegisterSerializer.new(params[:app_name], result.body[:sid])
@@ -30,7 +30,8 @@ module Mobile
 
       def send_notification
         service.send_notification(
-            get_app_name(params), @current_user.icn, params[:template_id], params[:personalization])
+          get_app_name(params), @current_user.icn, params[:template_id], params[:personalization]
+        )
 
         render json: {}, status: :ok
       end
