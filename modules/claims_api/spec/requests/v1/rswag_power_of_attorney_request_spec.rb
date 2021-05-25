@@ -517,6 +517,12 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
 
           let(:scopes) { %w[claim.write] }
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
+          let(:representative_info) do
+            {
+              name: 'Abraham Lincoln',
+              phone_number: '555-555-5555'
+            }
+          end
 
           before do |example|
             stub_poa_verification
@@ -527,6 +533,9 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
               allow(::Veteran::Service::Representative).to receive(:for_user).and_return(true)
               expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
               expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
+              expect_any_instance_of(
+                ClaimsApi::V1::Forms::PowerOfAttorneyController
+              ).to receive(:build_representative_info).and_return(representative_info)
               submit_request(example.metadata)
             end
           end
