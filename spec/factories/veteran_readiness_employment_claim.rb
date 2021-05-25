@@ -13,7 +13,7 @@ FactoryBot.define do
           'midDay' => true,
           'afternoon' => false
         },
-        'yearsOfEducation' => '2',
+        'yearsOfEducation' => '17',
         'isMoving' => true,
         'newAddress' => {
           'country' => 'USA',

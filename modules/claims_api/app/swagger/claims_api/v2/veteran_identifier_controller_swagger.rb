@@ -131,6 +131,42 @@ module ClaimsApi
               end
             end
           end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    property :title do
+                      key :type, :string
+                      key :example, 'Resource not found'
+                    end
+
+                    property :detail do
+                      key :type, :string
+                      key :example, 'Resource not found'
+                      key :description, 'HTTP error detail'
+                    end
+
+                    property :code do
+                      key :type, :string
+                      key :example, '404'
+                    end
+
+                    property :status do
+                      key :type, :string
+                      key :example, '404'
+                      key :description, 'HTTP error code'
+                    end
+                  end
+                end
+              end
+            end
+          end
         end
       end
     end

@@ -132,11 +132,11 @@ class MPIData < Common::RedisStore
     mpi_profile&.profile&.historical_icns
   end
 
-  # The status of the MVI Add Person call. An Orchestrated MVI Search needs to be made before an MVI add person
+  # The status of the MPI Add Person call. An Orchestrated MVI Search needs to be made before an MPI add person
   # call is made. The response is recached afterwards so the new ids can be accessed on the next call.
   #
-  # @return [MPI::Responses::AddPersonResponse] the response returned from MVI Add Person call
-  def mvi_add_person
+  # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person call
+  def add_person
     search_response = MPI::OrchSearchService.new.find_profile(user)
     if search_response.ok?
       @mvi_response = search_response
@@ -163,6 +163,8 @@ class MPIData < Common::RedisStore
   def response_from_redis_or_service
     do_cached_with(key: user.uuid) do
       mpi_service.find_profile(user)
+    rescue ArgumentError
+      return nil
     end
   end
 

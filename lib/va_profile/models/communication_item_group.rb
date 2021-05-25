@@ -6,7 +6,7 @@ require_relative 'communication_item'
 module VAProfile
   module Models
     class CommunicationItemGroup < CommunicationBase
-      attr_accessor :name, :description, :communication_items
+      attr_accessor :name, :description, :communication_items, :id
 
       def self.create_groups(items_res, permission_res)
         groups = {}
@@ -16,6 +16,7 @@ module VAProfile
           communication_group_id = communication_item_group['communication_group_id']
 
           groups[communication_group_id] ||= new(
+            id: communication_group_id,
             name: communication_item_group['communication_group']['name'],
             description: communication_item_group['communication_group']['description'],
             communication_items: []

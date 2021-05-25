@@ -168,21 +168,6 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                     },
                     %w[vha_442 vha_552 vha_552GB vha_442GC vha_442GB vha_552GA vha_552GD]
 
-    context 'params[:exclude_mobile]' do
-      context 'true' do
-        it_behaves_like 'paginated request from params with expected IDs',
-                        {
-                          exclude_mobile: true,
-                          bbox: [-74.730, 40.015, -73.231, 41.515],
-                          page: 1
-                        },
-                        %w[
-                          vba_306h vba_306i vha_630 vba_306 vha_630GA
-                          vc_0133V vha_526GD vc_0106V vc_0105V vha_561GE
-                        ]
-      end
-    end
-
     context 'params[:mobile]' do
       context 'mobile not passed' do
         it_behaves_like 'paginated request from params with expected IDs',
@@ -222,6 +207,59 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
                           vc_0105V vha_561GE vc_0102V vc_0110V vha_526
                         ],
                         false
+      end
+    end
+
+    context 'params[:type] = health' do
+      context 'params[:services] = [\'Covid19Vaccine\']', vcr: vcr_options.merge(
+        cassette_name: 'facilities/mobile/covid'
+      ) do
+        let(:params) do
+          {
+            lat: 42.060906,
+            long: -71.051868,
+            type: 'health',
+            services: ['Covid19Vaccine']
+          }
+        end
+
+        before do
+          Flipper.enable('facilities_locator_mobile_covid_online_scheduling', flipper)
+          get '/facilities_api/v1/va', params: params
+        end
+
+        context 'facilities_locator_mobile_covid_online_scheduling enabled' do
+          let(:flipper) { true }
+
+          it { expect(response).to be_successful }
+
+          it 'is expected not to populate tmpCovidOnlineScheduling' do
+            parsed_body['data']
+
+            expect(parsed_body['data'][0]['attributes']['tmpCovidOnlineScheduling']).to be_truthy
+            expect(parsed_body['data'][1..]).to all(
+              a_hash_including(
+                attributes: a_hash_including(tmpCovidOnlineScheduling: false)
+              )
+            )
+          end
+        end
+
+        context 'facilities_locator_mobile_covid_online_scheduling disabled' do
+          let(:flipper) { false }
+
+          it { expect(response).to be_successful }
+
+          it 'is expected not to populate tmpCovidOnlineScheduling' do
+            parsed_body['data']
+
+            expect(parsed_body['data']).to all(
+              a_hash_including(
+                attributes: a_hash_including(tmpCovidOnlineScheduling: nil)
+              )
+            )
+          end
+        end
       end
     end
   end
@@ -322,7 +360,8 @@ RSpec.describe 'FacilitiesApi::V1::Va', type: :request, team: :facilities, vcr: 
               },
               uniqueId: '648A4',
               visn: '20',
-              website: 'https://www.portland.va.gov/locations/vancouver.asp'
+              website: 'https://www.portland.va.gov/locations/vancouver.asp',
+              tmpCovidOnlineScheduling: nil
             }
           }
         }
