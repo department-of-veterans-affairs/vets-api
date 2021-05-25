@@ -44,10 +44,6 @@ module AppealsApi
           'form1[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]'
         end
 
-        def mailing_address_unit_number
-          'form1[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
-        end
-
         def mailing_address_city
           'form1[0].#subform[2].CurrentMailingAddress_City[0]'
         end
@@ -62,10 +58,6 @@ module AppealsApi
 
         def mailing_address_zip_first_5
           'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
-        end
-
-        def mailing_address_zip_last_4
-          'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
         end
 
         def veteran_homeless
