@@ -130,7 +130,7 @@ server:  ## Starts the server (natively)
 .PHONY: spec
 spec:  ## Runs spec tests
 ifeq ($(ENV_ARG), dev)
-	@$(BASH_DEV) "bin/rspec ./spec/lib/common/client/base_spec.rb"
+	@$(BASH_DEV) "bin/rspec ${SPEC_PATH}"
 else
 	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
 endif

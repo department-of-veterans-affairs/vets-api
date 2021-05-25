@@ -4,9 +4,7 @@ module Common
   module Client
     # The error class defines the various error types that the client can encounter
     module Errors
-      class Error < StandardError; end
-
-      class ClientError < Error
+      class Error < StandardError
         attr_accessor :status
         attr_accessor :body
 
@@ -16,7 +14,11 @@ module Common
           @body = body
         end
       end
+      class ConnectionFailed < Error; end
 
+      class ServerError < Error; end
+
+      class ClientError < Error; end
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
       class ParsingError < ClientError; end
