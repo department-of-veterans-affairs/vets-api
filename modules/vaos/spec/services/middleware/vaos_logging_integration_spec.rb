@@ -154,7 +154,7 @@ describe VAOS::Middleware::VAOSLogging do
   'appointments #method:get'
           )
           expect(Rails.logger).to receive(:info).with(
-            '[StatsD] increment api.vaos.get_appointments.fail:1 #error:CommonClientErrorsConnectionFailed'
+            '[StatsD] increment api.vaos.get_appointments.fail:1 #error:CommonClientErrorsClientError'
           )
 
           expect(Rails.logger).to receive(:warn).with(
@@ -175,7 +175,7 @@ describe VAOS::Middleware::VAOSLogging do
             error: 'Faraday::ConnectionFailed - Connection refused'
           ).once
           expect { service.get_appointments(type, start_date, end_date) }
-            .to raise_error(Common::Client::Errors::ConnectionFailed)
+            .to raise_error(Common::Client::Errors::ClientError)
         end
       end
     end
