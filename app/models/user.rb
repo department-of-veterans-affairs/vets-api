@@ -460,6 +460,8 @@ class User < Common::RedisStore
   private
 
   def get_relationships_array
+    return unless loa3?
+
     mpi_profile_relationships || bgs_relationships
   end
 

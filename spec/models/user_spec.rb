@@ -866,66 +866,25 @@ RSpec.describe User, type: :model do
       allow_any_instance_of(MPI::Models::MviProfile).to receive(:relationships).and_return(mpi_relationship_array)
     end
 
-    context 'when there are relationship entities in the MPI response' do
-      let(:mpi_relationship_array) { [mpi_relationship] }
-      let(:mpi_relationship) { build(:mpi_profile_relationship) }
-      let(:user_relationship_double) { double }
-      let(:expected_user_relationship_array) { [user_relationship_double] }
+    context 'when user is not loa3' do
+      let(:user) { described_class.new(build(:user, :loa1)) }
+      let(:mpi_relationship_array) { [] }
 
-      before do
-        allow(UserRelationship).to receive(:from_mpi_relationship)
-          .with(mpi_relationship).and_return(user_relationship_double)
-      end
-
-      it 'returns an array of UserRelationship objects representing the relationship entities' do
-        expect(user.relationships).to eq expected_user_relationship_array
+      it 'returns nil' do
+        expect(user.relationships).to eq nil
       end
     end
 
-    context 'when there are not relationship entities in the MPI response' do
-      let(:mpi_relationship_array) { nil }
-      let(:bgs_dependent_response) { nil }
-
-      before do
-        allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_return(bgs_dependent_response)
-      end
-
-      it 'makes a call to the BGS for relationship information' do
-        expect_any_instance_of(BGS::DependentService).to receive(:get_dependents)
-        user.relationships
-      end
-
-      context 'when BGS relationship response contains information' do
-        let(:bgs_relationship_array) { [bgs_dependent] }
-        let(:bgs_dependent) do
-          {
-            'award_indicator' => 'N',
-            'city_of_birth' => 'WASHINGTON',
-            'current_relate_status' => '',
-            'date_of_birth' => '01/01/2000',
-            'date_of_death' => '',
-            'death_reason' => '',
-            'email_address' => 'Curt@email.com',
-            'first_name' => 'CURT',
-            'gender' => '',
-            'last_name' => 'WEBB-STER',
-            'middle_name' => '',
-            'proof_of_dependency' => 'Y',
-            'ptcpnt_id' => '32354974',
-            'related_to_vet' => 'N',
-            'relationship' => 'Child',
-            'ssn' => '500223351',
-            'ssn_verify_status' => '1',
-            'state_of_birth' => 'DC'
-          }
-        end
-        let(:bgs_dependent_response) { { 'persons' => [bgs_dependent] } }
+    context 'when user is loa3' do
+      context 'when there are relationship entities in the MPI response' do
+        let(:mpi_relationship_array) { [mpi_relationship] }
+        let(:mpi_relationship) { build(:mpi_profile_relationship) }
         let(:user_relationship_double) { double }
         let(:expected_user_relationship_array) { [user_relationship_double] }
 
         before do
-          allow(UserRelationship).to receive(:from_bgs_dependent)
-            .with(bgs_dependent).and_return(user_relationship_double)
+          allow(UserRelationship).to receive(:from_mpi_relationship)
+            .with(mpi_relationship).and_return(user_relationship_double)
         end
 
         it 'returns an array of UserRelationship objects representing the relationship entities' do
@@ -933,9 +892,61 @@ RSpec.describe User, type: :model do
         end
       end
 
-      context 'when BGS relationship response does not contain information' do
-        it 'returns an empty array' do
-          expect(user.relationships).to eq nil
+      context 'when there are not relationship entities in the MPI response' do
+        let(:mpi_relationship_array) { nil }
+        let(:bgs_dependent_response) { nil }
+
+        before do
+          allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_return(bgs_dependent_response)
+        end
+
+        it 'makes a call to the BGS for relationship information' do
+          expect_any_instance_of(BGS::DependentService).to receive(:get_dependents)
+          user.relationships
+        end
+
+        context 'when BGS relationship response contains information' do
+          let(:bgs_relationship_array) { [bgs_dependent] }
+          let(:bgs_dependent) do
+            {
+              'award_indicator' => 'N',
+              'city_of_birth' => 'WASHINGTON',
+              'current_relate_status' => '',
+              'date_of_birth' => '01/01/2000',
+              'date_of_death' => '',
+              'death_reason' => '',
+              'email_address' => 'Curt@email.com',
+              'first_name' => 'CURT',
+              'gender' => '',
+              'last_name' => 'WEBB-STER',
+              'middle_name' => '',
+              'proof_of_dependency' => 'Y',
+              'ptcpnt_id' => '32354974',
+              'related_to_vet' => 'N',
+              'relationship' => 'Child',
+              'ssn' => '500223351',
+              'ssn_verify_status' => '1',
+              'state_of_birth' => 'DC'
+            }
+          end
+          let(:bgs_dependent_response) { { 'persons' => [bgs_dependent] } }
+          let(:user_relationship_double) { double }
+          let(:expected_user_relationship_array) { [user_relationship_double] }
+
+          before do
+            allow(UserRelationship).to receive(:from_bgs_dependent)
+              .with(bgs_dependent).and_return(user_relationship_double)
+          end
+
+          it 'returns an array of UserRelationship objects representing the relationship entities' do
+            expect(user.relationships).to eq expected_user_relationship_array
+          end
+        end
+
+        context 'when BGS relationship response does not contain information' do
+          it 'returns an empty array' do
+            expect(user.relationships).to eq nil
+          end
         end
       end
     end
