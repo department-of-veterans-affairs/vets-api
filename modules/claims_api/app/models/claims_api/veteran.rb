@@ -29,8 +29,6 @@ module ClaimsApi
     delegate :birls_id, to: :mpi, allow_nil: true
     delegate :participant_id, to: :mpi, allow_nil: true
 
-    alias dslogon_edipi edipi
-
     def birth_date
       va_profile[:birth_date]
     end

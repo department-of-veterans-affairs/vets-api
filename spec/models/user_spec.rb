@@ -152,7 +152,8 @@ RSpec.describe User, type: :model do
 
   describe '#ssn_mismatch?', :skip_mvi do
     let(:user) { build(:user, :loa3) }
-    let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }
+    let(:mvi_profile) { build(:mvi_profile, ssn: mismatched_ssn) }
+    let(:mismatched_ssn) { '918273384' }
 
     before do
       stub_mpi(mvi_profile)
@@ -163,7 +164,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'returns false if user is not loa3?' do
-      allow(user).to receive(:loa3?).and_return(false)
+      allow(user.identity).to receive(:loa3?).and_return(false)
       expect(user).not_to be_loa3
       expect(user.ssn).to eq(user.ssn)
       expect(user.ssn_mpi).to be_falsey
@@ -175,7 +176,7 @@ RSpec.describe User, type: :model do
 
       it 'returns false' do
         expect(user).to be_loa3
-        expect(user.ssn).to be_falsey
+        expect(user.ssn).to eq(mismatched_ssn)
         expect(user.ssn_mpi).to be_truthy
         expect(user).not_to be_ssn_mismatch
       end
@@ -259,7 +260,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'has nil edipi locally and from IDENTITY' do
-      expect(subject.identity.dslogon_edipi).to be_nil
+      expect(subject.identity.edipi).to be_nil
       expect(subject.edipi).to be_nil
     end
   end
@@ -380,13 +381,13 @@ RSpec.describe User, type: :model do
           expect(user.ssn).to be(user.identity.ssn)
         end
 
-        it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
-          expect(user.edipi).to be(user.edipi_mpi)
+        it 'fetches edipi from mvi when identity.edipi is empty' do
+          expect(user.edipi).to be(mvi_profile.edipi)
         end
 
-        it 'fetches edipi from identity.dslogon_edipi when available' do
-          user.identity.dslogon_edipi = '001001999'
-          expect(user.edipi).to be(user.identity.dslogon_edipi)
+        it 'fetches edipi from identity.edipi when available' do
+          user.identity.edipi = '001001999'
+          expect(user.edipi).to be(user.identity.edipi)
         end
 
         it 'has a vet360 id if one exists' do

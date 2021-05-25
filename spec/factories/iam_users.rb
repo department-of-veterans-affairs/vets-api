@@ -70,6 +70,27 @@ FactoryBot.define do
       end
     end
 
+    trait :no_birth_date do
+      callback(:after_build, :after_stub, :after_create) do |user, _t|
+        user_identity = create(:iam_user_identity, birth_date: nil)
+        user.instance_variable_set(:@identity, user_identity)
+      end
+
+      after(:build) do
+        stub_mpi(
+          build(
+            :mvi_profile,
+            icn: '24811694708759028',
+            edipi: nil,
+            birls_id: '796121200',
+            participant_id: '796121200',
+            birth_date: nil,
+            vet360_id: '1'
+          )
+        )
+      end
+    end
+
     trait :no_vet360_id do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
         user_identity = create(:iam_user_identity)
