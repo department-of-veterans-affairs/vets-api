@@ -1,7 +1,9 @@
 {
-  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data"],
+  "required": [
+    "data"
+  ],
   "properties": {
     "data": {
       "type": "array",
@@ -19,7 +21,7 @@
             "type": "string"
           },
           "type": {
-            "type": "string"    
+            "type": "string"
           },
           "attributes": {
             "type": "object",
@@ -40,7 +42,10 @@
                 "description": "The kind of appointment:\n * clinic - A clinic (in-person) appointment\n * cc - A community-care appointment\n * telehealth - A virtual appointment\n * phone - A phone appointment\n"
               },
               "status": {
-                "type": "string",
+                "type": [
+                  "string",
+                  "null"
+                ],
                 "enum": [
                   "proposed",
                   "pending",
@@ -270,4 +275,3 @@
     }
   }
 }
-
