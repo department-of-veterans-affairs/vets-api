@@ -52,7 +52,7 @@
                     "name": {
                       "description": "Name of representative.  Can be organization or individual name.",
                       "type": "string",
-                      "example": "Abraham Lincoln"
+                      "example": "Some Great Organization"
                     },
                     "phone_number": {
                       "description": "Phone number of representative. Can be organization or individual phone number.",
