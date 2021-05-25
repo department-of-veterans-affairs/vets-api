@@ -48,6 +48,21 @@ module ClaimsApi
       auto_claim.save
     end
 
+    # Passthru to allow calling from sidekiq_retries_exhausted section above
+    #
+    # @param auto_claim_id [Integer] Applied to that particular claim id if provided
+    # @param message [any] Anything in any format that explains the error
+    def self.log_exception_to_claim_record(auto_claim_id, message)
+      ClaimsApi::SpecialIssueUpdater.new.log_exception_to_claim_record(auto_claim_id, message)
+    end
+
+    # Passthru to allow calling from sidekiq_retries_exhausted section above
+    #
+    # @param e [StandardError] Error to be logged
+    def self.log_exception_to_sentry(e)
+      ClaimsApi::SpecialIssueUpdater.new.log_exception_to_sentry(e)
+    end
+
     # Service object to interface with BGS
     #
     # @param user [OpenStruct] Veteran to attach special issues to
