@@ -45,7 +45,10 @@ module CARMA
         return @client if @client.present?
 
         @client = get_client
-        @client.builder.handlers(Faraday::Adapter::NetHttp, Betamocks::Middleware) if Settings['salesforce-carma'].mock
+        if Settings['salesforce-carma'].mock
+          @client.builder.handlers([Faraday::Adapter::NetHttp,
+                                    Betamocks::Middleware])
+        end
 
         @client
       end
