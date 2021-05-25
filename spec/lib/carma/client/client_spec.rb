@@ -70,7 +70,7 @@ RSpec.describe CARMA::Client::Client, type: :model do
 
       builder = double
       expect(restforce_client).to receive(:builder).and_return(builder)
-      expect(builder).to receive(:adapter).with(Faraday::Adapter::NetHttp, Betamocks::Middleware)
+      expect(builder).to receive(:handlers).with(Faraday::Adapter::NetHttp, Betamocks::Middleware)
     end
 
     test_carma_submission
