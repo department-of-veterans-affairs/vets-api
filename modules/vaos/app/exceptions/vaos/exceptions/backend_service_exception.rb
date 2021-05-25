@@ -29,13 +29,13 @@ module VAOS
       def initialize(env)
         @env = env
         key = VAOS_ERRORS[env.status]
-        super(key, response_values, env.status, env.body)
+        super(key, response_values, env.status, env.request_body)
       end
 
       def response_values
         {
-          detail: detail(@env.body),
-          source: { vamf_url: @env.url, vamf_body: @env.body, vamf_status: @env.status }
+          detail: detail(@env.request_body),
+          source: { vamf_url: @env.url, vamf_body: @env.request_body, vamf_status: @env.status }
         }
       end
 
