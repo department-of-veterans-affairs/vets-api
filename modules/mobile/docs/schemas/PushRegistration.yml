@@ -20,4 +20,5 @@ properties:
     example: "va_mobile_app"
   debug:
     type: boolean
+    description: Flag to switch between sandbox and non-sandbox app sid. *Lower envs only*
 

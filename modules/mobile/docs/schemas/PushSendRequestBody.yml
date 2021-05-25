@@ -21,4 +21,5 @@ properties:
         example: "10:00"
   debug:
     type: boolean
+    description: Flag to switch between sandbox and non-sandbox app sid. *Lower envs only*
 
