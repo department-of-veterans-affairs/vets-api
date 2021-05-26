@@ -22,7 +22,7 @@ RSpec.describe 'vaos scheduling/configurations', type: :request, skip_mvi: true 
 
       context 'returns a set of configurations' do
         it 'has access and returns configurations' do
-          VCR.use_cassette('vaos/v2/mobile_facility/get_scheduling_configurations_200',
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_200',
                            match_requests_on: %i[method uri]) do
             get '/vaos/v2/scheduling/configurations', params: { facility_ids: %w[489], cc_enabled: false }
 
