@@ -203,7 +203,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       let(:req_body) do
         {
           'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2',
-          'dslogon_edipi' => '7961223060',
+          'edipi' => '7961223060',
           'ssn' => '796122306',
           'level_of_assurance' => 3,
           'user_email' => 'test@123.com',

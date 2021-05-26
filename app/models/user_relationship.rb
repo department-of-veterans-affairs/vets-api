@@ -43,4 +43,28 @@ class UserRelationship
       birth_date: birth_date
     }
   end
+
+  # Full MPI Profile object
+  def get_full_attributes
+    user_identity = build_user_identity
+    MPIData.for_user(user_identity)
+  end
+
+  private
+
+  def build_user_identity
+    UserIdentity.new(
+      first_name: first_name,
+      last_name: last_name,
+      birth_date: birth_date,
+      gender: gender,
+      ssn: ssn,
+      icn: icn,
+      mhv_icn: icn,
+      loa: {
+        current: LOA::THREE,
+        highest: LOA::THREE
+      }
+    )
+  end
 end

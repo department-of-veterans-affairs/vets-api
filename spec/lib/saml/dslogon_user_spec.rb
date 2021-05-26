@@ -27,7 +27,7 @@ RSpec.describe SAML::User do
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
-          dslogon_edipi: '1606997570',
+          edipi: '1606997570',
           birth_date: nil,
           first_name: nil,
           last_name: nil,
@@ -74,7 +74,7 @@ RSpec.describe SAML::User do
             ssn: nil,
             multifactor: true,
             authn_context: 'dslogon_multifactor',
-            dslogon_edipi: '1606997570'
+            edipi: '1606997570'
           )
         end
 
@@ -100,7 +100,7 @@ RSpec.describe SAML::User do
             birth_date: '1735-10-30',
             ssn: '111223333',
             zip: nil,
-            dslogon_edipi: '1606997570',
+            edipi: '1606997570',
             loa: { current: 3, highest: 3 },
             sign_in: { service_name: 'dslogon', account_type: '1' },
             sec_id: nil,
@@ -122,7 +122,7 @@ RSpec.describe SAML::User do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
           birth_date: '1735-10-30',
-          dslogon_edipi: '1606997570',
+          edipi: '1606997570',
           first_name: 'Tristan',
           last_name: 'MHV',
           middle_name: '',
@@ -164,7 +164,7 @@ RSpec.describe SAML::User do
             ssn: '111223333',
             multifactor: true,
             authn_context: 'dslogon_multifactor',
-            dslogon_edipi: '1606997570'
+            edipi: '1606997570'
           )
         end
 

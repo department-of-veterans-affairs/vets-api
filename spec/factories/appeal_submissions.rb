@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :appeal_submission do
     user_uuid do
-      user = create(:user, :loa3)
+      user = create(:user, :loa3, ssn: '212222112')
       user.uuid
     end
     submitted_appeal_uuid { SecureRandom.uuid }

@@ -415,7 +415,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c6fffa9a-53d1-473d-b515-e1a7f3fab2a4",
+                    "id": "6c65adb6-362e-490a-8075-46008ddbb42c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -464,11 +464,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "026c18bc-ca57-4ce1-b1c0-3512f6bb94a2",
+                          "id": "de1456c1-54f9-4fd8-9de8-e112bcbe8d48",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-05-20T17:14:21.350Z"
+                          "uploaded_at": "2021-05-25T19:27:18.063Z"
                         }
                       ]
                     }
@@ -2083,7 +2083,7 @@
             ]
           }
         ],
-        "description": "Establishes a [Disability Compensation Claim](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) in VBMS. Submits any PDF attachments as a multi-part payload and returns an ID. For claims that are not original claims, this endpoint generates a filled 526 PDF along with the submission.\n<br/><br/>\nA 200 response indicates the submission was successful, but the claim has not reached VBMS until it has a “claim established” status. Check claim status using the GET /claims/{id}   endpoint.\n<br/><br/>\n**Original claims**<br/>\nAn original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have the Veteran’s wet signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s wet signature. Uploading a PDF for subsequent claims is not required or recommended.\n<br/><br/>\nPOST the original claim with the autoCestPDFGenerationDisabled boolean   as true. After a 200 response, use the PUT /forms/526/{id} endpoint to upload a scanned PDF of your form, signed in ink, by the Veteran.\n<br/><br/>\nThe claim data submitted through the POST endpoint must match the wet-signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.\n<br/><br/>\n**Standard and fully developed claims (FDCs)**<br/>\n[Fully developed claims (FDCs)](https://www.va.gov/  disability/how-to-file-claim/evidence-needed/fully-developed-claims/) are claims certified by the submitter to include all information needed for processing. These claims process faster than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, it will route through the standard claim process.\n<br/><br/>\nTo certify a claim for the FDC process, set the standardClaim indicator to false.\n<br/><br/>\n**Flashes and   special issues**<br/>\nIncluding flashes and special issues in your 526 claim submission helps VA properly route and prioritize current and future claims for the Veteran and reduces claims processing time.\n\n - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness. See a full list of [supported flashes](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/  claims_api/config/schemas/526.json#L35).\n - Special Issues are attributes that describe special circumstances which apply to a particular claim, such as PTSD. See a full list of [supported special Issues](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L28).\n\n",
+        "description": "Establishes a [Disability Compensation Claim](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) in VBMS. Submits any PDF attachments as a multi-part payload and returns an ID. For claims that are not original claims, this endpoint generates a filled 526 PDF along with the submission.\n<br/><br/>\nA 200 response indicates the submission was successful, but the claim has not reached VBMS until it has a “claim established” status. Check claim status using the GET /claims/{id}   endpoint.\n<br/><br/>\n**Original claims**<br/>\nAn original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have the Veteran’s wet signature or e-signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s wet signature. Uploading a PDF for subsequent claims is not required or recommended.\n<br/><br/>\nPOST the original claim with the autoCestPDFGenerationDisabled boolean   as true. After a 200 response, use the PUT /forms/526/{id} endpoint to upload a scanned PDF of your form, signed in ink or e-signature, by the Veteran.\n<br/><br/>\nThe claim data submitted through the POST endpoint must match the wet-signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.\n<br/><br/>\n**Standard and fully developed claims (FDCs)**<br/>\n[Fully developed claims (FDCs)](https://www.va.gov/  disability/how-to-file-claim/evidence-needed/fully-developed-claims/) are claims certified by the submitter to include all information needed for processing. These claims process faster than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, it will route through the standard claim process.\n<br/><br/>\nTo certify a claim for the FDC process, set the standardClaim indicator to false.\n<br/><br/>\n**Flashes and   special issues**<br/>\nIncluding flashes and special issues in your 526 claim submission helps VA properly route and prioritize current and future claims for the Veteran and reduces claims processing time.\n\n - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness. See a full list of [supported flashes](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/  claims_api/config/schemas/526.json#L35).\n - Special Issues are attributes that describe special circumstances which apply to a particular claim, such as PTSD. See a full list of [supported special Issues](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L28).\n\n",
         "parameters": [
           {
             "in": "header",
@@ -2129,7 +2129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4d6713ff-9288-4af0-a105-32a475eb0b46",
+                    "id": "a0811964-0a96-4e59-be19-acbf2f1199cf",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2147,13 +2147,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-20T17:14:21.653Z",
+                      "updated_at": "2021-05-25T19:27:18.497Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "4d6713ff-9288-4af0-a105-32a475eb0b46",
+                      "token": "a0811964-0a96-4e59-be19-acbf2f1199cf",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3769,7 +3769,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5c5c0d5e-dc07-405c-a8d5-b1842ad35775",
+                    "id": "5823f6bd-c4d4-4218-a2df-cbb67318c242",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3787,13 +3787,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-20T17:14:21.919Z",
+                      "updated_at": "2021-05-25T19:27:18.829Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "5c5c0d5e-dc07-405c-a8d5-b1842ad35775",
+                      "token": "5823f6bd-c4d4-4218-a2df-cbb67318c242",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5781,7 +5781,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4a6781c9-af7b-4f00-bd37-3ec6b4eab7bc",
+                    "id": "5c3b5362-b22e-4598-9ee1-d3dc6a675125",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5795,7 +5795,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-20T17:14:22.476Z",
+                      "updated_at": "2021-05-25T19:27:19.812Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5804,7 +5804,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "53494d50-c36f-439f-9b9e-ad46a31f8d4d",
+                          "id": "2b265663-2ef2-42bc-9785-536f0914c7ed",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -7634,11 +7634,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f377dac6-2856-4bbb-83c9-b51e7e2066cb",
+                    "id": "5fef8da4-43ce-4aa6-a50b-b4c15c2bd70b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-05-20",
+                      "date_request_accepted": "2021-05-25",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8318,11 +8318,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a8895862-9aeb-4e46-afc7-bdf8d4728852",
+                    "id": "05c9386a-43cd-48cd-b63f-ab90b5257586",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-20",
+                      "date_request_accepted": "2021-05-25",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8612,11 +8612,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a9876375-10de-4c78-af91-80d89702c44c",
+                    "id": "5e523103-eb56-4ddf-b7f4-00a1462e6dfb",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-20",
+                      "date_request_accepted": "2021-05-25",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"

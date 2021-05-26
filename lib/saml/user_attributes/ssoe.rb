@@ -11,7 +11,7 @@ module SAML
       include Identity::Parsers::GCIds
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
-                                   dslogon_edipi loa sign_in multifactor participant_id birls_id icn
+                                   edipi loa sign_in multifactor participant_id birls_id icn
                                    person_types].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
@@ -129,7 +129,7 @@ module SAML
         safe_attr('va_eauth_dslogonassurance')
       end
 
-      def dslogon_edipi
+      def edipi
         safe_attr('va_eauth_dodedipnid')&.split(',')&.first
       end
 

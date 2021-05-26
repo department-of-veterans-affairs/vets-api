@@ -13,6 +13,7 @@ module V0
           'email',
           email_address_params
         )
+        Rails.logger.info('EmailAddressesController#create request completed', sso_logging_info)
       end
 
       def update
@@ -21,6 +22,7 @@ module V0
           email_address_params,
           http_verb: 'put'
         )
+        Rails.logger.info('EmailAddressesController#update request completed', sso_logging_info)
       end
 
       def destroy
@@ -29,6 +31,7 @@ module V0
           add_effective_end_date(email_address_params),
           http_verb: 'put'
         )
+        Rails.logger.info('EmailAddressesController#destroy request completed', sso_logging_info)
       end
 
       private
