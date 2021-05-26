@@ -38,22 +38,6 @@ module ClaimsApi
           end
         end
 
-        server do
-          key :url, 'https://sandbox-api.va.gov/services/benefits/{version}'
-          key :description, 'VA.gov API sandbox environment'
-          variable :version do
-            key :default, 'v2'
-          end
-        end
-
-        server do
-          key :url, 'https://api.va.gov/services/benefits/{version}'
-          key :description, 'VA.gov API production environment'
-          variable :version do
-            key :default, 'v2'
-          end
-        end
-
         key :basePath, '/services/benefits/v2'
         key :consumes, ['application/json']
         key :produces, ['application/json']
