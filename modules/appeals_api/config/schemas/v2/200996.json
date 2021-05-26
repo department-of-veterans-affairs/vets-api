@@ -118,7 +118,7 @@
         "emailAddressText": {
           "type": "string",
           "format": "email",
-          "maxLength": 44
+          "maxLength": 100
         },
         "timezone": {
           "type": "string",

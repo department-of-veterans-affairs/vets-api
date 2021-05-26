@@ -2,12 +2,21 @@
 
 class DependentsApplicationFailureMailer < ApplicationMailer
   def build(user)
+    opt = {}
+
+    opt[:to] = [
+      user.email,
+      'Jason.Wolf@va.gov',
+      'Kathleen.Crawford@va.gov'
+    ]
+
     template = File.read('app/mailers/views/dependents_application_failure.erb')
 
     mail(
-      to: user.email,
-      subject: t('dependency_claim_failure_mailer.subject'),
-      body: ERB.new(template).result(binding)
+      opt.merge(
+        subject: t('dependency_claim_failure_mailer.subject'),
+        body: ERB.new(template).result(binding)
+      )
     )
   end
 end

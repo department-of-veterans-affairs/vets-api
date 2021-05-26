@@ -24,7 +24,7 @@ module ClaimsApi
       validate_contention_id_structure(contention_id)
       service = bgs_service(user).contention
 
-      claims = service.find_contentions_by_ptcpnt_id(user['participant_id'])[:benefit_claims]
+      claims = service.find_contentions_by_ptcpnt_id(user['participant_id'])[:benefit_claims] || []
       claim = claim_from_contention_id(claims, contention_id)
       raise "Claim not found with contention: #{contention_id}" if claim.blank?
 
@@ -46,6 +46,21 @@ module ClaimsApi
       auto_claim.bgs_special_issue_responses = [] if auto_claim.bgs_special_issue_responses.blank?
       auto_claim.bgs_special_issue_responses = auto_claim.bgs_special_issue_responses + [message]
       auto_claim.save
+    end
+
+    # Passthru to allow calling from sidekiq_retries_exhausted section above
+    #
+    # @param auto_claim_id [Integer] Applied to that particular claim id if provided
+    # @param message [any] Anything in any format that explains the error
+    def self.log_exception_to_claim_record(auto_claim_id, message)
+      ClaimsApi::SpecialIssueUpdater.new.log_exception_to_claim_record(auto_claim_id, message)
+    end
+
+    # Passthru to allow calling from sidekiq_retries_exhausted section above
+    #
+    # @param e [StandardError] Error to be logged
+    def self.log_exception_to_sentry(e)
+      ClaimsApi::SpecialIssueUpdater.new.log_exception_to_sentry(e)
     end
 
     # Service object to interface with BGS

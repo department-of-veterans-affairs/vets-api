@@ -18,12 +18,16 @@ module V0
         communication_item = build_communication_item
         raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
 
+        Rails.logger.info('CommunicationPreferencesController#create request completed', sso_logging_info)
+
         render(json: service.update_communication_permission(communication_item))
       end
 
       def update
         communication_item = build_communication_item
         raise Common::Exceptions::ValidationErrors, communication_item unless communication_item.valid?
+
+        Rails.logger.info('CommunicationPreferencesController#update request completed', sso_logging_info)
 
         communication_item.communication_channel.communication_permission.id = params[:id]
 
