@@ -15,15 +15,16 @@ module VBMS
 
       claim.persistent_attachments.each do |attachment|
         file_extension = File.extname(URI.parse(attachment.file.url).path)
-        file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
 
         if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
+          file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
+
           File.rename(file_path, "#{file_path}#{file_extension}")
           file_path = "#{file_path}#{file_extension}"
-        end
 
-        claim.upload_to_vbms(path: file_path)
-        Common::FileHelpers.delete_file_if_exists(file_path)
+          claim.upload_to_vbms(path: file_path)
+          Common::FileHelpers.delete_file_if_exists(file_path)
+        end
       end
 
       generate_pdf(claim, submittable_686, submittable_674)
