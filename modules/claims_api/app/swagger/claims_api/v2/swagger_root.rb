@@ -31,6 +31,14 @@ module ClaimsApi
         end
 
         server do
+          key :url, 'https://dev-api.va.gov/services/benefits/{version}'
+          key :description, 'VA.gov API development environment'
+          variable :version do
+            key :default, 'v2'
+          end
+        end
+
+        server do
           key :url, 'https://sandbox-api.va.gov/services/benefits/{version}'
           key :description, 'VA.gov API sandbox environment'
           variable :version do
