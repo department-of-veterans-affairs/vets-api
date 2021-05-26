@@ -308,8 +308,8 @@ describe MPI::Service do
     end
 
     context 'valid requests' do
-      it 'fetches profile when no mhv_icn exists but dslogon_edipi is present' do
-        allow(user).to receive(:dslogon_edipi).and_return('1025062341')
+      it 'fetches profile when no mhv_icn exists but edipi is present' do
+        allow(user).to receive(:edipi).and_return('1025062341')
 
         VCR.use_cassette('mpi/find_candidate/edipi_present') do
           expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'edipi')

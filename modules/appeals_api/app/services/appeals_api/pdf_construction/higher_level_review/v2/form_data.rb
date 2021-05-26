@@ -107,6 +107,10 @@ module AppealsApi
           higher_level_review.full_name
         end
 
+        def stamp_text
+          "#{last_name.truncate(35)} - #{ssn.last(4)}"
+        end
+
         private
 
         attr_reader :higher_level_review
