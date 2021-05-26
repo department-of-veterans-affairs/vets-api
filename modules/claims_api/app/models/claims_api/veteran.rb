@@ -29,8 +29,6 @@ module ClaimsApi
     delegate :birls_id, to: :mpi, allow_nil: true
     delegate :participant_id, to: :mpi, allow_nil: true
 
-    alias dslogon_edipi edipi
-
     def birth_date
       va_profile[:birth_date]
     end
@@ -105,6 +103,12 @@ module ClaimsApi
       OpenStruct.new(
         birth_date: birth_date
       )
+    end
+
+    def mpi_icn
+      return nil unless mpi
+
+      mpi.icn
     end
 
     private

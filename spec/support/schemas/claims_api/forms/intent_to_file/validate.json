@@ -1,0 +1,30 @@
+{
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "attributes"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Required by JSON API standard"
+        },
+        "attributes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status"],
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "The status of the Intent to File",
+              "enum": [
+                "valid"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

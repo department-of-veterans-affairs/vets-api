@@ -6,8 +6,7 @@ module SAML
   module UserAttributes
     class DSLogon < Base
       PREMIUM_LOAS = %w[2 3].freeze
-      DSLOGON_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name gender ssn birth_date
-                                           dslogon_edipi].freeze
+      DSLOGON_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name gender ssn birth_date edipi].freeze
 
       def first_name
         attributes['dslogon_fname']
@@ -35,7 +34,7 @@ module SAML
         attributes['dslogon_birth_date']
       end
 
-      def dslogon_edipi
+      def edipi
         attributes['dslogon_uuid']
       end
 

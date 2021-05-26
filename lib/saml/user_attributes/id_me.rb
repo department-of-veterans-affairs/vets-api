@@ -49,8 +49,8 @@ module SAML
         existing_user_identity.mhv_account_type if existing_user_identity? && authn_context == 'myhealthevet_loa3'
       end
 
-      def dslogon_edipi
-        existing_user_identity.dslogon_edipi if existing_user_identity? && authn_context == 'dslogon_loa3'
+      def edipi
+        existing_user_identity.edipi if existing_user_identity? && authn_context == 'dslogon_loa3'
       end
 
       def sign_in
@@ -72,7 +72,7 @@ module SAML
         when 'myhealthevet_loa3'
           %i[mhv_icn mhv_account_type mhv_correlation_id sign_in]
         when 'dslogon_loa3'
-          %i[dslogon_edipi sign_in]
+          %i[edipi sign_in]
         else
           %i[sign_in]
         end

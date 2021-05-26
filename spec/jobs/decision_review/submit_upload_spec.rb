@@ -10,8 +10,10 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
   end
 
   describe 'perform' do
-    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
-    let(:appeal_submission) { create(:appeal_submission, :with_one_upload) }
+    let(:appeal_submission) do
+      create(:appeal_submission, :with_one_upload, submitted_appeal_uuid: 'e076ea91-6b99-4912-bffc-a8318b9b403f')
+    end
+    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.pdf', Mime[:pdf].to_s) }
     let(:appeal_submission_upload) { appeal_submission.appeal_submission_uploads.first }
 
     context 'when file_data exists' do
@@ -29,7 +31,7 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
             subject.perform_async(appeal_submission_upload.id)
             expect_any_instance_of(DecisionReview::Service).to receive(:put_notice_of_disagreement_upload)
             described_class.drain
-            expect(AppealSubmissionUpload.first.lighthouse_upload_id).to eq('73af3378-e5c6-401c-ba38-a557e0f82d50')
+            expect(AppealSubmissionUpload.first.lighthouse_upload_id).to eq('59cdb98f-f94b-4aaa-8952-4d1e59b6e40a')
           end
         end
       end

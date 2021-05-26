@@ -188,7 +188,7 @@ GEM
     attr_extras (6.2.4)
     awesome_print (1.9.2)
     aws-eventstream (1.1.1)
-    aws-partitions (1.457.0)
+    aws-partitions (1.462.0)
     aws-sdk-core (3.114.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -197,7 +197,7 @@ GEM
     aws-sdk-kms (1.43.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.94.1)
+    aws-sdk-s3 (1.95.1)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -212,7 +212,6 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     bcp47 (0.3.3)
       i18n
-    benchmark-ips (2.8.4)
     bindex (0.8.1)
     bootsnap (1.7.5)
       msgpack (~> 1.0)
@@ -768,6 +767,19 @@ GEM
     rspec-support (3.10.2)
     rspec_junit_formatter (0.4.1)
       rspec-core (>= 2, < 4, != 2.12.0)
+    rswag (2.4.0)
+      rswag-api (= 2.4.0)
+      rswag-specs (= 2.4.0)
+      rswag-ui (= 2.4.0)
+    rswag-api (2.4.0)
+      railties (>= 3.1, < 7.0)
+    rswag-specs (2.4.0)
+      activesupport (>= 3.1, < 7.0)
+      json-schema (~> 2.2)
+      railties (>= 3.1, < 7.0)
+    rswag-ui (2.4.0)
+      actionpack (>= 3.1, < 7.0)
+      railties (>= 3.1, < 7.0)
     rubocop (1.15.0)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
@@ -966,7 +978,6 @@ DEPENDENCIES
   awesome_print (~> 1.9)
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
-  benchmark-ips
   betamocks!
   bgs_ext!
   bootsnap
@@ -1080,6 +1091,7 @@ DEPENDENCIES
   rspec-rails
   rspec-retry
   rspec_junit_formatter
+  rswag
   rubocop
   rubocop-junit-formatter
   rubocop-rails
