@@ -36,9 +36,9 @@ describe VAOS::V2::SystemsService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/systems/get_available_slots_500', match_requests_on: %i[method uri]) do
           expect do
-            subject.get_available_slots(location_id: '534gd', clinic_id: '333',
-                                        start_dt: '2020-01-01T00:00:00Z',
-                                        end_dt: '2020-12-31T23:59:59Z')
+            subject.get_available_slots(location_id: '983', clinic_id: '570',
+                                        start_dt: '2021-06-01T00:00:00Z',
+                                        end_dt: '2021-12-31T23:59:59Z')
           end.to raise_error(Common::Exceptions::BackendServiceException, /VAOS_502/)
         end
       end
