@@ -22,6 +22,24 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     pending_record
   end
 
+  describe 'validate_service_dates' do
+    before do
+      auto_form['form_data'] = { 'serviceInformation' => {} }
+      auto_form['form_data']['serviceInformation']['servicePeriods'] = [
+        {
+          activeDutyEndDate: "1990-05-02",
+          activeDutyBeginDate: "1990-04-05"
+        }
+      ]
+    end
+    context 'with invalid duty dates for serviceInformation' do
+      it 'throws an error' do
+        expect(auto_form.save).to eq(false)
+        expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
+      end
+    end
+  end
+
   describe 'pending?' do
     context 'no pending records' do
       it 'is false' do

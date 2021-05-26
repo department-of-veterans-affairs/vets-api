@@ -17,7 +17,7 @@ module ClaimsApi
                                                  marshal: true,
                                                  marshaler: JsonMarshal::Marshaller)
 
-    validate :service_dates_are_valid, on: :create 
+    validate :validate_service_dates
     after_create :log_special_issues
     after_create :log_flashes
 
@@ -133,13 +133,14 @@ module ClaimsApi
       Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following special issues - #{special_issues}")
     end
 
-    def service_dates_are_valid
-      start_date = form_data['servicePeriods']['activeDutyBeginDate']
-      end_date = form_data['servicePeriods']['activeDutyEndDate']
+    def validate_service_dates
+      service_periods = form_data.dig('serviceInformation', 'servicePeriods')
 
-      return true if start_date < end_date
-
-      errors[:active_duty_begin_date] << "activeDutyBeginDate must be before activeDutyEndDate"
+      service_periods.each do |service_period|
+        start_date = service_period['activeDutyBeginDate']
+        end_date = service_period['activeDutyEndDate']
+        errors.add :activeDutyBeginDate, "must be before activeDutyEndDate" if start_date > end_date
+      end
     end
 
     def remove_encrypted_fields
