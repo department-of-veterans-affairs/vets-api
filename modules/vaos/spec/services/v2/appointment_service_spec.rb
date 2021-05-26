@@ -41,7 +41,8 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointments' do
     context 'when requesting a list of appointments' do
       it 'returns a 200 status with list of appointments' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri], tag: :force_utf8) do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
+                                                                      tag: :force_utf8) do
           response = subject.get_appointments(start_date, end_date)
 
           expect(response[:data].size).to eq(31)
