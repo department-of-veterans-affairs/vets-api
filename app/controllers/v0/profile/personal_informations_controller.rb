@@ -21,7 +21,7 @@ module V0
       #   }
       #
       def show
-        response = MPIData.for_user(@current_user).profile
+        response = @current_user.mpi.profile
 
         handle_errors!(response)
 
