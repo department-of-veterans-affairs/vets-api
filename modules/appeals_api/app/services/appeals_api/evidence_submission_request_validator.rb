@@ -4,8 +4,8 @@ module AppealsApi
   class EvidenceSubmissionRequestValidator
     EVIDENCE_SUBMISSION_DAYS_WINDOW = 91
 
-    def initialize(nod_id, request_ssn)
-      @nod_id = nod_id
+    def initialize(nod_uuid, request_ssn)
+      @nod_uuid = nod_uuid
       @request_ssn = request_ssn
     end
 
@@ -21,7 +21,7 @@ module AppealsApi
     private
 
     def notice_of_disagreement
-      @notice_of_disagreement ||= AppealsApi::NoticeOfDisagreement.find_by(id: @nod_id)
+      @notice_of_disagreement ||= AppealsApi::NoticeOfDisagreement.find_by(id: @nod_uuid)
     end
 
     def evidence_accepted?
@@ -49,7 +49,7 @@ module AppealsApi
     end
 
     def record_not_found_error
-      { title: 'not_found', detail: I18n.t('appeals_api.errors.nod_not_found', id: @nod_id) }
+      { title: 'not_found', detail: I18n.t('appeals_api.errors.nod_not_found', id: @nod_uuid) }
     end
 
     def invalid_review_option_error
