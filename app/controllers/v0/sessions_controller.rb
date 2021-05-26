@@ -181,7 +181,7 @@ module V0
     end
 
     def saml_response_stats(saml_response)
-      type = JSON.parse(params[:RelayState] || '{}')['type']
+      type = html_escaped_relay_state['type']
       values = {
         'id' => saml_response.in_response_to,
         'authn' => saml_response.authn_context,
@@ -265,8 +265,12 @@ module V0
       end
     end
 
+    def html_escaped_relay_state
+      JSON.parse(CGI.unescapeHTML(params[:RelayState] || '{}'))
+    end
+
     def originating_request_id
-      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+      html_escaped_relay_state['originating_request_id']
     rescue
       'UNKNOWN'
     end
