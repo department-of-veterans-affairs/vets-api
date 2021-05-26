@@ -41,7 +41,7 @@ module VBADocuments
         counts = UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
         lobs = UploadSubmission.where(created_at: @from..@to, consumer_name: name)
                                .where("uploaded_pdf->'line_of_business' is not null")
-                               .pluck("uploaded_pdf->'line_of_business'").uniq
+                               .pluck(Arel.sql("uploaded_pdf->'line_of_business'")).uniq
         # put ticks around all lobs
         lobs.map! { |e| "'#{e}'" }
 

@@ -16,25 +16,28 @@ class MPIData < Common::RedisStore
   REDIS_CONFIG_KEY = :mpi_profile_response
   redis_config_key REDIS_CONFIG_KEY
 
-  # @return [User] the user to query MVI for.
-  attr_accessor :user
+  # @return [UserIdentity] the user identity object to query MVI for.
+  attr_accessor :user_identity
 
-  # Creates a new MPIData instance for a user.
+  # Creates a new MPIData instance for a user identity.
   #
-  # @param user [User] the user to query MVI for
+  # @param user [UserIdentity] the user identity to query MVI for
   # @return [MPIData] an instance of this class
-  def self.for_user(user)
-    MPIData.new(user: user)
+  def self.for_user(user_identity)
+    mvi = MPIData.new
+    mvi.user_identity = user_identity
+    mvi
   end
 
   # Queries MPI specifically to retrieve historical icn data.
   #
   # @param user [User] the user to query MVI for
   # @return [MPIData] an instance of this class
-  def self.historical_icn_for_user(user)
-    return nil unless user.loa3?
+  def self.historical_icn_for_user(user_identity)
+    return nil unless user_identity.loa3?
 
-    mpi_data_instance = MPIData.new(user: user)
+    mpi_data_instance = MPIData.new
+    mpi_data_instance.user_identity = user_identity
     mpi_data_instance.mvi_get_person_historical_icns
   end
 
@@ -98,7 +101,7 @@ class MPIData < Common::RedisStore
   #
   # @return [MPI::Models::MviProfile] patient 'golden record' data from MVI
   def profile
-    return nil unless user.loa3?
+    return nil unless user_identity.loa3?
 
     mvi_response&.profile
   end
@@ -107,7 +110,7 @@ class MPIData < Common::RedisStore
   #
   # @return [String] the status of the last MVI response
   def status
-    return MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_authorized] unless user.loa3?
+    return MPI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_authorized] unless user_identity.loa3?
 
     mvi_response.status
   end
@@ -116,7 +119,7 @@ class MPIData < Common::RedisStore
   #
   # @return [Common::Exceptions::BackendServiceException]
   def error
-    return Common::Exceptions::Unauthorized.new(source: self.class) unless user.loa3?
+    return Common::Exceptions::Unauthorized.new(source: self.class) unless user_identity.loa3?
 
     mvi_response.try(:error)
   end
@@ -128,7 +131,7 @@ class MPIData < Common::RedisStore
 
   # @return [String] Array representing the historical icn data for the user
   def mvi_get_person_historical_icns
-    mpi_profile = mpi_service.find_profile(user, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
+    mpi_profile = mpi_service.find_profile(user_identity, search_type: MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
     mpi_profile&.profile&.historical_icns
   end
 
@@ -136,11 +139,11 @@ class MPIData < Common::RedisStore
   # call is made. The response is recached afterwards so the new ids can be accessed on the next call.
   #
   # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person call
-  def add_person
-    search_response = MPI::OrchSearchService.new.find_profile(user)
+  def add_person(user_identity)
+    search_response = MPI::OrchSearchService.new.find_profile(user_identity)
     if search_response.ok?
       @mvi_response = search_response
-      add_response = mpi_service.add_person(user)
+      add_response = mpi_service.add_person(user_identity)
       add_ids(add_response) if add_response.ok?
     else
       add_response = MPI::Responses::AddPersonResponse.with_failed_orch_search(
@@ -157,12 +160,14 @@ class MPIData < Common::RedisStore
     profile.birls_id = response.mvi_codes[:birls_id].presence
     profile.participant_id = response.mvi_codes[:participant_id].presence
 
-    cache(user.uuid, mvi_response) if mvi_response.cache?
+    cache(user_identity.uuid, mvi_response) if mvi_response.cache?
   end
 
   def response_from_redis_or_service
-    do_cached_with(key: user.uuid) do
-      mpi_service.find_profile(user)
+    do_cached_with(key: user_identity.uuid) do
+      mpi_service.find_profile(user_identity)
+    rescue ArgumentError
+      return nil
     end
   end
 
