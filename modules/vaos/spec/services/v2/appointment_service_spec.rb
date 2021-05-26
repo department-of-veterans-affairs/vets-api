@@ -51,7 +51,7 @@ describe VAOS::V2::AppointmentsService do
 
     context '400' do
       it 'raises a 400 error' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_400', record: :new_episodes) do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_400', match_requests_on: %i[method uri]) do
           expect { subject.get_appointments(start_date, end_date) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
