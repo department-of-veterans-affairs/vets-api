@@ -179,7 +179,7 @@ RSpec.describe 'user', type: :request do
 
       context 'when user object birth_date is nil' do
         before do
-          allow_any_instance_of(IAMUserIdentity).to receive(:birth_date).and_return(nil)
+          iam_sign_in(FactoryBot.build(:iam_user, :no_birth_date))
           get '/mobile/v0/user', headers: iam_headers
         end
 

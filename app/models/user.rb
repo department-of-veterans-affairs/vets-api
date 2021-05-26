@@ -38,6 +38,7 @@ class User < Common::RedisStore
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
 
   delegate :email, to: :identity, allow_nil: true
+  delegate :loa3?, to: :identity, allow_nil: true
 
   # This delegated method is called with #account_uuid
   delegate :uuid, to: :account, prefix: true, allow_nil: true
@@ -71,22 +72,15 @@ class User < Common::RedisStore
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
   def birth_date
-    birth_date = nil
+    birth_date = identity.birth_date || birth_date_mpi
 
-    if identity.birth_date
-      birth_date =  identity.birth_date
-    elsif mhv_icn.present?
-      birth_date =  birth_date_mpi
-    end
-    if birth_date.nil?
-      Rails.logger.info "[User] Cannot find birth date for User with uuid: #{uuid}"
-      return nil
-    end
+    Rails.logger.info "[User] Cannot find birth date for User with uuid: #{uuid}" if birth_date.nil?
+
     Formatters::DateFormatter.format_date(birth_date)
   end
 
   def first_name
-    identity.first_name || (mhv_icn.present? ? first_name_mpi : nil)
+    identity.first_name || first_name_mpi
   end
 
   def full_name_normalized
@@ -99,7 +93,7 @@ class User < Common::RedisStore
   end
 
   def gender
-    identity.gender || (mhv_icn.present? ? mpi_profile&.gender : nil)
+    identity.gender || gender_mpi
   end
 
   def icn
@@ -119,11 +113,11 @@ class User < Common::RedisStore
   end
 
   def middle_name
-    identity.middle_name || (mhv_icn.present? ? mpi_profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
+    identity.middle_name || mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence
   end
 
   def last_name
-    identity.last_name || (mhv_icn.present? ? mpi_profile&.family_name : nil)
+    identity.last_name || last_name_mpi
   end
 
   def participant_id
@@ -135,7 +129,7 @@ class User < Common::RedisStore
   end
 
   def ssn
-    identity.ssn || (mhv_icn.present? ? mpi_profile&.ssn : nil)
+    identity.ssn || ssn_mpi
   end
 
   def ssn_normalized
@@ -143,7 +137,7 @@ class User < Common::RedisStore
   end
 
   def zip
-    identity.zip || (mhv_icn.present? ? mpi_profile&.address&.postal_code : nil)
+    identity.zip || mpi&.profile&.address&.postal_code
   end
 
   # MPI getter methods
@@ -264,7 +258,6 @@ class User < Common::RedisStore
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
   delegate :idme_uuid, to: :identity, allow_nil: true
-  delegate :dslogon_edipi, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
   delegate :person_types, to: :identity, allow_nil: true
 
@@ -278,37 +271,12 @@ class User < Common::RedisStore
   delegate :cerner_id, to: :mpi
   delegate :cerner_facility_ids, to: :mpi
 
-  # mpi methods
-  delegate :add_person, to: :mpi, prefix: true
-
   # emis attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
   def edipi
-    loa3? && dslogon_edipi.present? ? dslogon_edipi : edipi_mpi
-  end
-
-  # LOA1 no longer just means ID.me LOA1.
-  # It could also be DSLogon or MHV NON PREMIUM users who have not yet done ID.me FICAM LOA3.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
-  def loa1?
-    loa[:current] == LOA::ONE
-  end
-
-  def loa2?
-    loa[:current] == LOA::TWO
-  end
-
-  # LOA3 no longer just means ID.me FICAM LOA3.
-  # It could also be DSLogon or MHV Premium users.
-  # It could also be DSLogon or MHV NON PREMIUM users who have done ID.me FICAM LOA3.
-  # Additionally, LOA3 does not automatically mean user has opted to have MFA.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
-  def loa3?
-    loa[:current].try(:to_i) == LOA::THREE
+    loa3? && identity.edipi.present? ? identity.edipi : edipi_mpi
   end
 
   def ssn_mismatch?
@@ -318,7 +286,7 @@ class User < Common::RedisStore
   end
 
   def can_access_user_profile?
-    loa1? || loa2? || loa3?
+    loa[:current].present?
   end
 
   # True if the user has 1 or more treatment facilities, false otherwise
@@ -421,14 +389,8 @@ class User < Common::RedisStore
     false
   end
 
-  def can_mvi_proxy_add?
-    personal_info? && edipi.present? && icn_with_aaid.present? && search_token.present?
-  rescue # Default to false for any error
-    false
-  end
-
-  def personal_info?
-    first_name.present? && last_name.present? && ssn.present? && birth_date.present?
+  def mpi
+    @mpi ||= MPIData.for_user(identity)
   end
 
   # A user can have served in the military without being a veteran.  For example,
@@ -453,13 +415,20 @@ class User < Common::RedisStore
     @relationships ||= get_relationships_array
   end
 
-  def mpi
-    @mpi ||= MPIData.for_user(self)
+  def mpi_add_person
+    add_person_identity = identity
+    add_person_identity.edipi = edipi
+    add_person_identity.ssn = ssn
+    add_person_identity.icn_with_aaid = icn_with_aaid
+    add_person_identity.search_token = search_token
+    mpi.add_person(add_person_identity)
   end
 
   private
 
   def get_relationships_array
+    return unless loa3?
+
     mpi_profile_relationships || bgs_relationships
   end
 
