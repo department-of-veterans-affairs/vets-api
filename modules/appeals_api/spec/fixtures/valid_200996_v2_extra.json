@@ -24,6 +24,7 @@
           "email": "josie@example.com",
           "timezone": "America/Chicago"
         },
+        "ssoSsocOptIn": true,
         "informalConference": true,
         "informalConferenceContact": "veteran",
         "informalConferenceTime": "800-1200 ET",
