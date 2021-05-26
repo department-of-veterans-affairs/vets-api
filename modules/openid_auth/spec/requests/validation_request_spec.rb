@@ -100,7 +100,9 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     }
   end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
-  let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
+  let(:some_ttl) { 86_400 }
+  let(:identity) { OpenidUserIdentity.create(build(:user_identity_attrs, :loa3)) }
+  let(:user) { OpenidUser.build_from_identity(identity: identity, ttl: some_ttl) }
 
   context 'with valid responses' do
     before do
