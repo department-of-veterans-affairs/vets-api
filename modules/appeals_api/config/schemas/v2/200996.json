@@ -67,7 +67,7 @@
     },
 
     "hlrCreateInformalConferenceContact": {
-      "type": "array",
+      "type": "string",
       "enum": [ "veteran", "representative"]
     },
 
@@ -87,7 +87,7 @@
     },
 
     "hlrCreateRepresentativeName": {
-      "type": "string",
+      "type": "object",
       "properties": {
         "firstName": { "type": "string"},
         "lastName":  { "type": "string"}

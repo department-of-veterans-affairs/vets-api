@@ -15,13 +15,9 @@
         "timezone": "America/Chicago",
         "homeless": false
       },
-      "ssoSsocOptIn": true,
-      "informalConferenceContact": [
-        "veteran"
-      ],
-      "informalConferenceTime": [
-        "800-1200 ET"
-      ],
+      "socOptIn": true,
+      "informalConferenceContact": "veteran",
+      "informalConferenceTime": "800-1200 ET",
       "representative": {
         "name": {
           "firstName": "Hellen",
