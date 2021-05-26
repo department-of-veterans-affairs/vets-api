@@ -27,8 +27,8 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       auto_form['form_data'] = { 'serviceInformation' => {} }
       auto_form['form_data']['serviceInformation']['servicePeriods'] = [
         {
-          activeDutyEndDate: "1990-05-02",
-          activeDutyBeginDate: "1990-04-05"
+          activeDutyBeginDate: "1991-05-02",
+          activeDutyEndDate: "1990-04-05"
         }
       ]
     end
