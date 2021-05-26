@@ -531,7 +531,7 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :$ref, :Form2122NoPreviousPOAOutput
+                  key :$ref, :Form2122Output
                 end
               end
             end
