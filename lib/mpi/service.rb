@@ -159,42 +159,41 @@ module MPI
       }
     end
 
-    def create_add_message(user)
-      raise Common::Exceptions::ValidationErrors, user unless user.valid?
+    def create_add_message(user_identity)
+      raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
 
-      MPI::Messages::AddPersonMessage.new(user).to_xml if user.icn_with_aaid.present?
+      MPI::Messages::AddPersonMessage.new(user_identity).to_xml if user_identity.icn_with_aaid.present?
     end
 
-    # rubocop:disable Layout/LineLength
     def create_profile_message(user_identity, search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
       return message_icn(user_identity, search_type) if user_identity.mhv_icn.present?
-      return message_edipi(user_identity, search_type) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
+      return message_edipi(user_identity, search_type) if user_identity.edipi.present? && Settings.mvi.edipi_search
       raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
 
       message_user_attributes(user_identity, search_type)
     end
-    # rubocop:enable Layout/LineLength
 
-    def message_icn(user, search_type)
+    def message_icn(user_identity, search_type)
       Raven.tags_context(mvi_find_profile: 'icn')
-      MPI::Messages::FindProfileMessageIcn.new(user.mhv_icn, search_type: search_type).to_xml
+      MPI::Messages::FindProfileMessageIcn.new(user_identity.mhv_icn, search_type: search_type).to_xml
     end
 
-    def message_edipi(user, search_type)
+    def message_edipi(user_identity, search_type)
       Raven.tags_context(mvi_find_profile: 'edipi')
-      MPI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi, search_type: search_type).to_xml
+      MPI::Messages::FindProfileMessageEdipi.new(user_identity.edipi, search_type: search_type).to_xml
     end
 
-    def message_user_attributes(user, search_type)
+    def message_user_attributes(user_identity, search_type)
       Raven.tags_context(mvi_find_profile: 'user_attributes')
-      given_names = [user.first_name]
-      given_names.push user.middle_name unless user.middle_name.nil?
+
+      given_names = [user_identity.first_name]
+      given_names.push user_identity.middle_name unless user_identity.middle_name.nil?
       profile = {
         given_names: given_names,
-        last_name: user.last_name,
-        birth_date: user.birth_date,
-        ssn: user.ssn,
-        gender: user.gender
+        last_name: user_identity.last_name,
+        birth_date: user_identity.birth_date,
+        ssn: user_identity.ssn,
+        gender: user_identity.gender
       }
       MPI::Messages::FindProfileMessage.new(profile, search_type: search_type).to_xml
     end

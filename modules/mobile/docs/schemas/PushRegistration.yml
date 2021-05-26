@@ -2,7 +2,6 @@ type: object
 required:
   - deviceToken
   - osName
-  - deviceName
   - appName
 properties:
   deviceToken:
@@ -15,8 +14,11 @@ properties:
       - android
   deviceName:
     type: string
-    example: "Jeff's"
+    example: "Galaxy 8"
   appName:
     type: string
     example: "va_mobile_app"
+  debug:
+    type: boolean
+    description: Flag to switch between sandbox and non-sandbox app sid. *Lower envs only*
 

@@ -7,7 +7,7 @@ module Mobile
     class PushNotificationsController < ApplicationController
       def register
         result = service.register(
-          params[:app_name],
+          get_app_name(params),
           params[:device_token],
           @current_user.icn,
           params[:os_name],
@@ -29,7 +29,9 @@ module Mobile
       end
 
       def send_notification
-        service.send_notification(params[:app_name], @current_user.icn, params[:template_id], params[:personalization])
+        service.send_notification(
+          get_app_name(params), @current_user.icn, params[:template_id], params[:personalization]
+        )
 
         render json: {}, status: :ok
       end
@@ -38,6 +40,10 @@ module Mobile
 
       def service
         @service ||= VEText::Service.new
+      end
+
+      def get_app_name(params)
+        "#{params[:app_name]}#{params[:debug] ? '_debug' : ''}"
       end
     end
   end
