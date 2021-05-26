@@ -12,6 +12,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
     let(:default_auth_headers) { fixture_as_json 'valid_200996_headers.json' }
     let(:form_data) { default_form_data }
     let(:default_form_data) { fixture_as_json 'valid_200996.json' }
+    let(:form_data_attributes) { form_data.dig('data', 'attributes') }
 
     describe '#first_name' do
       subject { higher_level_review.first_name }
@@ -117,7 +118,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
     describe '#zip_code_5' do
       subject { higher_level_review.zip_code_5 }
 
-      it('matches json') { is_expected.to eq form_data.dig('data', 'attributes', 'veteran', 'address', 'zipCode5').to_s }
+      it('matches json') { is_expected.to eq form_data_attributes.dig('veteran', 'address', 'zipCode5').to_s }
     end
 
     describe '#veteran_phone_number' do
@@ -129,31 +130,31 @@ describe AppealsApi::HigherLevelReview, type: :model do
     describe '#email' do
       subject { higher_level_review.email }
 
-      it('matches json') { is_expected.to eq form_data['data']['attributes']['veteran']['emailAddressText'] }
+      it('matches json') { is_expected.to eq form_data_attributes['veteran']['emailAddressText'] }
     end
 
     describe '#benefit_type' do
       subject { higher_level_review.benefit_type }
 
-      it('matches json') { is_expected.to eq form_data['data']['attributes']['benefitType'] }
+      it('matches json') { is_expected.to eq form_data_attributes['benefitType'] }
     end
 
     describe '#same_office' do
       subject { higher_level_review.same_office }
 
-      it('matches json') { is_expected.to eq form_data['data']['attributes']['sameOffice'] }
+      it('matches json') { is_expected.to eq form_data_attributes['sameOffice'] }
     end
 
     describe '#informal_conference' do
       subject { higher_level_review.informal_conference }
 
-      it('matches json') { is_expected.to eq form_data['data']['attributes']['informalConference'] }
+      it('matches json') { is_expected.to eq form_data_attributes['informalConference'] }
     end
 
     describe '#informal_conference_times' do
       subject { higher_level_review.informal_conference_times }
 
-      it('matches json') { is_expected.to eq form_data['data']['attributes']['informalConferenceTimes'] }
+      it('matches json') { is_expected.to eq form_data_attributes['informalConferenceTimes'] }
     end
 
     describe '#informal_conference_rep_name_and_phone_number' do
@@ -161,17 +162,17 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
       it('matches json') do
         expect(subject).to eq(
-          form_data['data']['attributes']['informalConferenceRep']['name'] +
+          form_data_attributes['informalConferenceRep']['name'] +
           ' +' +
-          form_data['data']['attributes']['informalConferenceRep']['phone']['countryCode'] +
+          form_data_attributes['informalConferenceRep']['phone']['countryCode'] +
           '-' +
-          form_data['data']['attributes']['informalConferenceRep']['phone']['areaCode'] +
+          form_data_attributes['informalConferenceRep']['phone']['areaCode'] +
           '-' +
-          form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumber'][0..2] +
+          form_data_attributes['informalConferenceRep']['phone']['phoneNumber'][0..2] +
           '-' +
-          form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumber'][3..] +
+          form_data_attributes['informalConferenceRep']['phone']['phoneNumber'][3..] +
           ' ext' +
-          form_data['data']['attributes']['informalConferenceRep']['phone']['phoneNumberExt']
+          form_data_attributes['informalConferenceRep']['phone']['phoneNumberExt']
         )
       end
     end
@@ -187,7 +188,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
       it('matches json') do
         expect(subject).to eq(
-          Time.now.in_time_zone(form_data['data']['attributes']['veteran']['timezone']).strftime('%m/%d/%Y')
+          Time.now.in_time_zone(form_data_attributes['veteran']['timezone']).strftime('%m/%d/%Y')
         )
       end
     end
@@ -341,43 +342,43 @@ describe AppealsApi::HigherLevelReview, type: :model do
     end
   end
 
-  describe 'V2' do
-    let(:higher_level_review) { create :extra_higher_level_review_v2 }
-    let(:auth_headers) { fixture_as_json 'valid_200996_headers.json' }
-    let(:form_data) { fixture_as_json 'valid_200996_v2_extra.json' }
-
-    context 'when zipcode is missing' do
-
-    end
-
-    context 'when zipcode only provided' do
-
-    end
-
-    context 'when entire address provided' do
-      describe '#number_and_street' do
-        subject { higher_level_review.number_and_street }
-
-        it { expect(subject).to eq('123 Main St Suite #1200 Box 4') }
-      end
-
-      describe '#city' do
-        subject { higher_level_review.city }
-
-        it { expect(subject).to eq('New York') }
-      end
-
-      describe '#state_code' do
-        subject { higher_level_review.state_code }
-
-        it { expect(subject).to eq('NY') }
-      end
-
-      describe '#country_code' do
-        subject { higher_level_review.country_code }
-
-        it { expect(subject).to eq('US') }
-      end
-    end
-  end
+  # describe 'V2' do
+  #   let(:higher_level_review) { create :extra_higher_level_review_v2 }
+  #   let(:auth_headers) { fixture_as_json 'valid_200996_headers.json' }
+  #   let(:form_data) { fixture_as_json 'valid_200996_v2_extra.json' }
+  #
+  #   context 'when zipcode is missing' do
+  #
+  #   end
+  #
+  #   context 'when zipcode only provided' do
+  #
+  #   end
+  #
+  #   context 'when entire address provided' do
+  #     describe '#number_and_street' do
+  #       subject { higher_level_review.number_and_street }
+  #
+  #       it { expect(subject).to eq('123 Main St Suite #1200 Box 4') }
+  #     end
+  #
+  #     describe '#city' do
+  #       subject { higher_level_review.city }
+  #
+  #       it { expect(subject).to eq('New York') }
+  #     end
+  #
+  #     describe '#state_code' do
+  #       subject { higher_level_review.state_code }
+  #
+  #       it { expect(subject).to eq('NY') }
+  #     end
+  #
+  #     describe '#country_code' do
+  #       subject { higher_level_review.country_code }
+  #
+  #       it { expect(subject).to eq('US') }
+  #     end
+  #   end
+  # end
 end

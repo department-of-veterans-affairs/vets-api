@@ -116,7 +116,7 @@ module AppealsApi
     end
 
     def country_code
-      veteran.dig('address', 'countryCodeISO2')  || 'US'
+      veteran.dig('address', 'countryCodeISO2') || 'US'
     end
 
     def zip_code_5

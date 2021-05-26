@@ -8,9 +8,9 @@ module AppealsApi
           @higher_level_review = higher_level_review
         end
 
-        delegate :first_name, :middle_initial, :last_name, :city, :state_code, :country_code, :file_number, :zip_code_5, :insurance_policy_number, :contestable_issues,
-                 :birth_mm, :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :rep_email,
-                 to: :higher_level_review
+        delegate :first_name, :middle_initial, :last_name, :city, :state_code, :country_code, :file_number,
+                 :zip_code_5, :insurance_policy_number, :contestable_issues, :birth_mm, :birth_dd, :birth_yyyy,
+                 :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :rep_email, to: :higher_level_review
 
         def first_three_ssn
           ssn.first(3)
