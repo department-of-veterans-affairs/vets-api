@@ -109,7 +109,7 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
     t.string "code"
     t.string "detail"
     t.string "source"
-    t.string "pdf_fill_version"
+    t.string "pdf_version"
     t.string "api_version"
   end
 
