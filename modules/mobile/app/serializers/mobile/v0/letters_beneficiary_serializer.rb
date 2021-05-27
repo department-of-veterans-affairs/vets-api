@@ -11,6 +11,7 @@ module Mobile
       attributes :benefit_information, :military_service
 
       def initialize(id, resource, options = {})
+        resource.military_service.each{|service_episode| service_episode[:branch] = service_episode[:branch].titleize}
         resource = LettersBeneficiaryStruct.new(id, resource.benefit_information, resource.military_service)
         super(resource, options)
       end
