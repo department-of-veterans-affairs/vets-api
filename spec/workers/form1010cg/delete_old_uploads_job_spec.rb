@@ -42,29 +42,20 @@ RSpec.describe Form1010cg::DeleteOldUploadsJob do
         expect(query_results[0]).to receive(:destroy!).and_return(true)
         expect(query_results[1]).to receive(:destroy!).and_return(true)
 
-        ar_query_scope_1 = double('where query 1')
-        ar_query_scope_2 = double('where query 2')
-        ar_query_scope_3 = double('where query 3')
-
-        expect(subject).to receive(:uuids_to_keep).and_return([]) # rubocop:disable RSpec/SubjectStub
+        ar_query_scope_1 = double('AR scope 1')
+        ar_query_scope_2 = double('AR scope 2')
+        ar_query_scope_3 = double('AR scope 3')
+        ar_query_scope_4 = double('AR scope 4')
 
         expect(FormAttachment).to receive(:where).with(
-          'created_at < ?',
-          described_class::EXPIRATION_TIME.ago
+          'created_at < ?', described_class::EXPIRATION_TIME.ago
         ).and_return(ar_query_scope_1)
-
         expect(ar_query_scope_1).to receive(:where).with(
           type: described_class::ATTACHMENT_CLASSES
         ).and_return(ar_query_scope_2)
         expect(ar_query_scope_2).to receive(:where).and_return(ar_query_scope_3)
-        expect(ar_query_scope_3).to receive(:not).with(
-          guid: []
-        ).and_return(ar_query_scope_3)
-        expect(ar_query_scope_3).to receive(:find_each).and_yield(
-          query_results[0]
-        ).and_yield(
-          query_results[1]
-        )
+        expect(ar_query_scope_3).to receive(:not).with(guid: []).and_return(ar_query_scope_4)
+        expect(ar_query_scope_4).to receive(:find_each).and_yield(query_results[0]).and_yield(query_results[1])
       end
 
       it 'calls #delete! on matching attachments', run_at: '2021-05-27 13:52:34' do
