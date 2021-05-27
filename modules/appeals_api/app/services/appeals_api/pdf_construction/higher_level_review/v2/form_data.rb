@@ -104,7 +104,7 @@ module AppealsApi
         end
 
         def signature
-          higher_level_review.full_name
+          "#{higher_level_review.full_name[0...180]}\n- Signed by digital authentication to api.va.gov"
         end
 
         def stamp_text
