@@ -17,7 +17,6 @@ class IAMUserIdentity < ::UserIdentity
   redis_key :uuid
 
   attribute :expiration_timestamp, Integer
-  attribute :iam_icn, String
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
   attribute :iam_mhv_id, String
@@ -36,7 +35,7 @@ class IAMUserIdentity < ::UserIdentity
       email: iam_profile[:email],
       expiration_timestamp: iam_profile[:exp],
       first_name: iam_profile[:given_name],
-      iam_icn: iam_profile[:fediam_mviicn],
+      icn: iam_profile[:fediam_mviicn],
       iam_edipi: iam_profile[:fediam_do_dedipn_id],
       iam_sec_id: iam_profile[:fediamsecid],
       iam_mhv_id: valid_mhv_id(iam_profile[:fediam_mhv_ien]),
@@ -63,7 +62,7 @@ class IAMUserIdentity < ::UserIdentity
   # @return [String] UUID that is unique to this user
   #
   def uuid
-    Digest::UUID.uuid_v5(@iam_sec_id, @iam_icn)
+    Digest::UUID.uuid_v5(@iam_sec_id, @icn)
   end
 
   # Return a single mhv id from a possible comma-separated list value attribute

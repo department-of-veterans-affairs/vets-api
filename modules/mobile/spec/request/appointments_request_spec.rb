@@ -8,7 +8,7 @@ RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
 
   before do
-    iam_sign_in
+    iam_sign_in(build(:iam_user, icn: '24811694708759028'))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
@@ -656,7 +656,6 @@ RSpec.describe 'appointments', type: :request do
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('appointments/get_cancel_reasons_500', match_requests_on: %i[method uri]) do
             put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
-
             expect(response).to have_http_status(:bad_gateway)
             expect(response.parsed_body['errors'].first['detail'])
               .to eq('Received an an invalid response from the upstream server')

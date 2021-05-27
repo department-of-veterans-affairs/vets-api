@@ -13,13 +13,13 @@ class IAMUser < ::User
   redis_key :uuid
 
   attribute :expiration_timestamp, Integer
-  attribute :iam_icn, String
+  attribute :icn, String
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
   attribute :iam_mhv_id, String
 
   # MPI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
-  alias mhv_icn iam_icn
+  alias mhv_icn icn
   alias mhv_correlation_id iam_mhv_id
 
   # Builds an user instance from a IAMUserIdentity
