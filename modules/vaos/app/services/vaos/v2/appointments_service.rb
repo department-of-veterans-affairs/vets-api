@@ -27,9 +27,10 @@ module VAOS
         end
       end
 
-      def post_appointments(params)
+      def post_appointment(request_object_body)
+        # params = params = VAOS::V2::AppointmentForm.new(request_object_body).params.with_indifferent_access
         with_monitoring do
-          response = perform(:post, appointments_base_url, params, headers)
+          response = perform(:post, appointments_base_url, request_object_body, headers)
           OpenStruct.new(response.body)
         end
       end

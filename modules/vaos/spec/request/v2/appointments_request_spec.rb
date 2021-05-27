@@ -16,19 +16,19 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   context 'loa3 user' do
     let(:current_user) { build(:user, :vaos) }
 
-    describe 'CREATE appointment' do
-      let(:request_body) do
-        FactoryBot.build(:appointment_form_v2, :eligible).attributes
-      end
+    # describe 'CREATE appointment' do
+    #   let(:request_body) do
+    #     FactoryBot.build(:appointment_form_v2, :eligible).attributes
+    #   end
 
-      it 'creates the appointment' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments', match_requests_on: %i[method uri]) do
-          post '/vaos/v2/appointments', params: request_body
-          expect(response).to have_http_status(:created)
-          expect(json_body_for(response)).to match_schema('vaos/v2/appointment', { strict: false })
-        end
-      end
-    end
+    #   it 'creates the appointment' do
+    #     VCR.use_cassette('vaos/v2/appointments/post_appointments', match_requests_on: %i[method uri]) do
+    #       post '/vaos/v2/appointments', params: request_body
+    #       expect(response).to have_http_status(:created)
+    #       expect(json_body_for(response)).to match_schema('vaos/v2/appointment', { strict: false })
+    #     end
+    #   end
+    # end
 
     describe 'GET appointments' do
       let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }

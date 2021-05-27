@@ -21,7 +21,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when request is valid' do
       it 'returns the created appointment' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments', match_requests_on: %i[method uri]) do
-          response = subject.post_appointments(request_body)
+          response = subject.post_appointment(request_body)
           expect(response[:id]).to be_a(String)
         end
       end
@@ -30,7 +30,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_500', match_requests_on: %i[method uri]) do
-          expect { subject.post_appointments(request_body) }.to raise_error(
+          expect { subject.post_appointment(request_body) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
