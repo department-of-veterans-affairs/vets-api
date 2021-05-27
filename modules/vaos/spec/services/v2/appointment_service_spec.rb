@@ -45,7 +45,7 @@ describe VAOS::V2::AppointmentsService do
                                                                       tag: :force_utf8) do
           response = subject.get_appointments(start_date, end_date)
 
-          expect(response[:data].size).to eq(31)
+          expect(response[:data].size).to eq(9)
         end
       end
     end
