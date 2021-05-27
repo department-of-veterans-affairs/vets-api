@@ -54,18 +54,36 @@ class OpenidApplicationController < ApplicationController
       return true
     end
 
+    return false if @session.uuid.nil?
+
     @current_user = OpenidUser.find(@session.uuid)
   end
 
   def populate_payload_for_launch_scope
-    launch = fetch_smart_launch_context
-    token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { patient: launch }
+    analyze_redis_launch_context
+    token.payload[:launch] =
+      base64_json?(@session.launch) ? JSON.parse(Base64.decode64(@session.launch)) : { patient: @session.launch }
   end
 
   def populate_payload_for_launch_patient_scope
-    launch = fetch_smart_launch_context
-    token.payload[:icn] = launch
-    token.payload[:launch] = { patient: launch } unless launch.nil?
+    analyze_redis_launch_context
+    token.payload[:icn] = @session.launch
+    token.payload[:launch] = { patient: @session.launch } unless @session.launch.nil?
+  end
+
+  def analyze_redis_launch_context
+    @session = Session.find(token)
+    # Sessions are not originally created for client credentials tokens, one will be created here.
+    if @session.nil?
+      ttl = token.payload['exp'] - Time.current.utc.to_i
+      launch = fetch_smart_launch_context
+      @session = build_launch_session(ttl, launch)
+      @session.save
+    # Launch context is not attached to the session for SSOi tokens, it will be added here.
+    elsif @session.launch.nil?
+      @session.launch = fetch_smart_launch_context
+      @session.save
+    end
   end
 
   def populate_ssoi_token_payload(profile)
@@ -139,6 +157,12 @@ class OpenidApplicationController < ApplicationController
 
   def build_session(ttl, profile)
     session = Session.new(token: token.to_s, uuid: token.identifiers.uuid, profile: profile)
+    session.expire(ttl)
+    session
+  end
+
+  def build_launch_session(ttl, launch)
+    session = Session.new(token: token.to_s, launch: launch)
     session.expire(ttl)
     session
   end

@@ -15,7 +15,7 @@ describe MPI::OrchSearchService do
           middle_name: '',
           birth_date: '1950-10-04',
           ssn: '796104437',
-          dslogon_edipi: '1013590059'
+          edipi: '1013590059'
         }
       end
 

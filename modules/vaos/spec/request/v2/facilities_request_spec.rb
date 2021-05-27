@@ -16,30 +16,37 @@ RSpec.describe 'facilities', type: :request do
   context 'with a loa3 user' do
     let(:user) { build(:user, :mhv) }
 
-    describe 'GET facility clinics' do
-      let(:location_id) { 442 }
-      let(:patient_icn) { 321 }
-      let(:clinic_ids) { %w[111 222 333] }
-      let(:clinical_service) { 'primaryCare' }
-      let(:page_size) { 0 }
-      let(:page_number) { 0 }
-      let(:params) do
-        {
-          location_id: location_id,
-          patient_icn: patient_icn,
-          clinic_ids: clinic_ids,
-          clinical_service: clinical_service,
-          page_size: page_size,
-          page_number: page_number
-        }
+    describe 'GET facilities' do
+      context 'on successful query for a facility' do
+        it 'returns facility details' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/facilities?ids=688', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
+          end
+        end
       end
 
-      it 'returns list of clinics' do
-        VCR.use_cassette('vaos/v2/systems/get_facility_clinics', match_requests_on: %i[method uri]) do
-          get "/vaos/v2/locations/#{params[:location_id]}/clinics", params: params
+      context 'on successful query for a facility and children' do
+        it 'returns facility details' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_200',
+                           match_requests_on: %i[method uri]) do
+            get '/vaos/v2/facilities?ids=688&children=true', headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
+          end
+        end
+      end
 
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
+      context 'on sending a bad request to the VAOS Service' do
+        it 'returns a 400 http status' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_400', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/facilities?ids=688'
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_400')
+          end
         end
       end
     end
