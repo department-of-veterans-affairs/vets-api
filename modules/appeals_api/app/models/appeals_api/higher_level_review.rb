@@ -166,6 +166,10 @@ module AppealsApi
       "#{informal_conference_rep_name} #{informal_conference_rep_phone}"
     end
 
+    def informal_conference_rep_phone_number
+      informal_conference_rep_phone.to_s
+    end
+
     def informal_conference_contact
       data_attributes&.dig('informalConferenceContact')
     end
