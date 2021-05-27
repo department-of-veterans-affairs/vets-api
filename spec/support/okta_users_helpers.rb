@@ -47,7 +47,7 @@ def with_okta_profile_with_uuid_configured(&block)
     audience: 'api://default',
     base_api_url: 'https://example.com/',
     base_api_token: 'token'
-    ) do
+  ) do
     with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
       VCR.use_cassette('okta/metadata-ssoe') do
         yield block
