@@ -33,7 +33,7 @@
           "lastName": "Holly",
           "email": "hholly@example.com",
           "phone": {
-            "countryCode": "1",
+            "countryCode": "6",
             "areaCode": "555",
             "phoneNumber": "8001111",
             "phoneNumberExt": "2"

@@ -170,6 +170,7 @@ module AppealsApi
             rep_first_name: { at: [11, 586], width: 195 },
             rep_last_name: { at: [225, 586], width: 293 },
             rep_email: { at: [11, 525], width: 513 },
+            rep_international_number: { at: [250, 555], width: 195 },
             issues_pg1: [].tap do |n|
               7.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
             end,
