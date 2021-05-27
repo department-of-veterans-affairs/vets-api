@@ -98,7 +98,7 @@
     "hlrCreatePhone": {
       "type": "object",
       "properties": {
-        "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
+        "countryCodeISO2":     { "type": "string", "pattern": "^[0-9]+$" },
         "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$" },
         "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
         "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }

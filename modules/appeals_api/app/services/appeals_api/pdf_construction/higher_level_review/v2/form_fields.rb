@@ -44,6 +44,10 @@ module AppealsApi
           'form1[0].#subform[2].CurrentMailingAddress_NumberAndStreet[0]'
         end
 
+        def mailing_address_unit_number
+          'form1[0].#subform[2].CurrentMailingAddress_ApartmentOrUnitNumber[0]'
+        end
+
         def mailing_address_city
           'form1[0].#subform[2].CurrentMailingAddress_City[0]'
         end
@@ -58,6 +62,10 @@ module AppealsApi
 
         def mailing_address_zip_first_5
           'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
+        end
+
+        def mailing_address_zip_last_4
+          'form1[0].#subform[2].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
         end
 
         def veteran_homeless
@@ -156,7 +164,8 @@ module AppealsApi
         def boxes
           { first_name: { at: [3, 560], width: 195 },
             last_name: { at: [230, 560], width: 293 },
-            number_and_street: { at: [29, 462], width: 500 },
+            number_and_street: { at: [29, 462], width: 512 },
+            city: { at: [200, 441], width: 307 },
             veteran_email: { at: [8, 335], width: 513 },
             rep_first_name: { at: [11, 586], width: 195 },
             rep_last_name: { at: [225, 586], width: 293 },
