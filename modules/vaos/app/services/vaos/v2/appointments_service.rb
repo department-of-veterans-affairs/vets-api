@@ -23,7 +23,7 @@ module VAOS
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
-          OpenStruct.new(response.body)
+          OpenStruct.new(response.body[:data])
         end
       end
 
