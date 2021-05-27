@@ -100,19 +100,15 @@ module AppealsApi
 
     # 9. CURRENT MAILING ADDRESS
     def number_and_street
-      [
-        veteran.dig('address', 'addressLine1'),
-        veteran.dig('address', 'addressLine2'),
-        veteran.dig('address', 'addressLine3')
-      ].compact.map(&:strip).join(' ')
+      address_combined || 'USE ADDRESS ON FILE'
     end
 
     def city
-      veteran.dig('address', 'city')
+      veteran.dig('address', 'city') || ''
     end
 
     def state_code
-      veteran.dig('address', 'stateCode')
+      veteran.dig('address', 'stateCode') || ''
     end
 
     def country_code
@@ -343,6 +339,14 @@ module AppealsApi
 
     def add_error(message)
       errors.add(:base, message)
+    end
+
+    def address_combined
+      [
+        veteran.dig('address', 'addressLine1'),
+        veteran.dig('address', 'addressLine2'),
+        veteran.dig('address', 'addressLine3')
+      ].compact.map(&:strip).join(' ')
     end
   end
 end

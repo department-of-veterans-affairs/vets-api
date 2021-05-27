@@ -8,7 +8,7 @@ module AppealsApi
           @higher_level_review = higher_level_review
         end
 
-        delegate :first_name, :middle_initial, :last_name, :city, :state_code, :country_code, :file_number,
+        delegate :first_name, :middle_initial, :last_name, :number_and_street, :city, :state_code, :country_code, :file_number,
                  :zip_code_5, :insurance_policy_number, :contestable_issues, :birth_mm, :birth_dd, :birth_yyyy,
                  :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :rep_email, to: :higher_level_review
 
@@ -30,10 +30,6 @@ module AppealsApi
 
         def veteran_homeless
           higher_level_review.veteran_homeless? ? 1 : 'Off'
-        end
-
-        def number_and_street
-          higher_level_review.number_and_street || 'USE ADDRESS ON FILE'
         end
 
         def veteran_phone_area_code
