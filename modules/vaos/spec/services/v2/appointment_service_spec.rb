@@ -94,9 +94,11 @@ describe VAOS::V2::AppointmentsService do
   describe '#get_appointment' do
     context 'with an appointment' do
       it 'returns an appointment' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointment', match_requests_on: %i[method uri]) do
-          response = subject.get_appointment(appointment_id)
-          expect(response[:id]).to eq(id)
+        VCR.use_cassette('vaos/v2/appointments/get_appointment_200', match_requests_on: %i[method uri]) do
+          response = subject.get_appointment('20029')
+          expect(response[:id]).to eq('20029')
+          expect(response[:kind]).to eq('telehealth')
+          expect(response[:status]).to eq('booked')
         end
       end
     end
@@ -104,7 +106,7 @@ describe VAOS::V2::AppointmentsService do
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/appointments/get_appointment_500', match_requests_on: %i[method uri]) do
-          expect { subject.get_appointment(appointment_id) }.to raise_error(
+          expect { subject.get_appointment('no_such_appointment') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
