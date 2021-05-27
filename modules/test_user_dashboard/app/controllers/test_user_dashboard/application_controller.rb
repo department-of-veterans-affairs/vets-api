@@ -6,7 +6,7 @@ module TestUserDashboard
   class ApplicationController < ActionController::API
     include SentryLogging
     before_action :require_jwt
-    SECRET = 'password123'
+    # SECRET = 'password123'
 
     def require_jwt
       # payload from example
