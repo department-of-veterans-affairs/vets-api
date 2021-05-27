@@ -11,7 +11,7 @@ module Mobile
           params[:device_token],
           @current_user.icn,
           params[:os_name],
-          params[:device_name] || params[:osName]
+          params[:device_name] || params[:os_name]
         )
 
         render json: Mobile::V0::PushRegisterSerializer.new(params[:app_name], result.body[:sid])

@@ -4,7 +4,8 @@
   "required": [
     "triageTeamId",
     "name",
-    "relationType"
+    "relationType",
+    "preferredTeam"
   ],
   "properties": {
     "triageTeamId": {
@@ -15,6 +16,9 @@
     },
     "relationType": {
       "type": "string"
+    },
+    "preferredTeam": {
+      "type": "boolean"
     }
   }
 }

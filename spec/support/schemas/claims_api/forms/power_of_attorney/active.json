@@ -48,6 +48,16 @@
                     "poa_code": {
                       "type": "string",
                       "description": "Power of Attorney Code submitted for Veteran"
+                    },
+                    "name": {
+                      "description": "Name of representative.  Can be organization or individual name.",
+                      "type": "string",
+                      "example": "Some Great Organization"
+                    },
+                    "phone_number": {
+                      "description": "Phone number of representative. Can be organization or individual phone number.",
+                      "type": "string",
+                      "example": "555-555-5555"
                     }
                   }
                 }
