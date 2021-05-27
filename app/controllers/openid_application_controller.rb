@@ -138,7 +138,7 @@ class OpenidApplicationController < ApplicationController
                              Okta::UserProfile.new({ 'last_login_type' => profile['last_login_type'],
                                                      'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'],
                                                      'npi' => profile['npi'], 'icn' => profile['icn'],
-                                                     'uuid' => profile['uuid']}))
+                                                     'uuid' => uuid(profile) }))
     @session.save && user_identity.save && @current_user.save
   end
 
