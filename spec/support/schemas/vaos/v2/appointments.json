@@ -24,7 +24,10 @@
             "type": "string"
           },
           "attributes": {
-            "type": "object",
+            "type": [
+              "object",
+              "null"
+            ],
             "properties": {
               "id": {
                 "description": "A unique identifier for this appointment.",
