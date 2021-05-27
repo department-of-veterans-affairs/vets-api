@@ -137,9 +137,18 @@ module ClaimsApi
       service_periods = form_data.dig('serviceInformation', 'servicePeriods')
 
       service_periods.each do |service_period|
-        start_date = Date.parse(service_period['activeDutyBeginDate'])
-        end_date = Date.parse(service_period['activeDutyEndDate'])
-        errors.add :activeDutyBeginDate, "must be before activeDutyEndDate" if start_date > end_date
+        start_date = if service_period['activeDutyBeginDate'].present?
+                       Date.parse(service_period['activeDutyBeginDate'])
+                     end
+        end_date = (Date.parse(service_period['activeDutyEndDate']) if service_period['activeDutyEndDate'].present?)
+
+        if start_date.present? && end_date.blank?
+          next
+        elsif start_date.blank?
+          errors.add :activeDutyBeginDate, 'must be present'
+        elsif (start_date.blank? && end_date.present?) || start_date > end_date
+          errors.add :activeDutyBeginDate, 'must be before activeDutyEndDate'
+        end
       end
     end
 
