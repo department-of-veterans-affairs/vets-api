@@ -40,14 +40,14 @@ end
 
 def with_okta_profile_with_uuid_configured(&block)
   with_settings(
-      Settings.oidc,
-      auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
-      issuer: 'https://example.com/oauth2/default',
-      issuer_prefix: 'https://example.com/oauth2',
-      audience: 'api://default',
-      base_api_url: 'https://example.com/',
-      base_api_token: 'token'
-  ) do
+    Settings.oidc,
+    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
+    issuer: 'https://example.com/oauth2/default',
+    issuer_prefix: 'https://example.com/oauth2',
+    audience: 'api://default',
+    base_api_url: 'https://example.com/',
+    base_api_token: 'token'
+    ) do
     with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
       VCR.use_cassette('okta/metadata-ssoe') do
         yield block
