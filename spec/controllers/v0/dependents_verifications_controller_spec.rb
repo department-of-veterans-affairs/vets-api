@@ -4,6 +4,9 @@ require 'rails_helper'
 
 RSpec.describe V0::DependentsVerificationsController do
   let(:user) { create(:evss_user) }
+  let(:test_form) do
+    build(:dependency_verification_claim)
+  end
 
   before do
     sign_in_as(user)
@@ -23,13 +26,27 @@ RSpec.describe V0::DependentsVerificationsController do
   end
 
   describe 'POST create' do
-    it 'fires the #update_diaries call' do
-      depenency_verification_service = double('dep_verification')
+    context 'logged in loa3 user' do
+      it 'validates successfully' do
+        form_params = { dependency_verification_claim: { form: { update_diaries: true } } }
 
-      expect(depenency_verification_service).to receive(:update_diaries)
-      expect(BGS::DependencyVerificationService).to receive(:new) { depenency_verification_service }
+        post(:create, params: form_params)
+        expect(response.code).to eq('200')
+      end
+    end
 
-      post(:create, params: { update_diaries: true })
+    context 'with invalid params' do
+      it 'shows the validation errors' do
+        post(:create, params: { dependency_verification_claim: { form: { not_valid: 'not valid' } } })
+
+        expect(response.code).to eq('422')
+
+        expect(
+          JSON.parse(response.body)['errors'][0]['detail'].include?(
+            'form - can\'t be blank'
+          )
+        ).to eq(true)
+      end
     end
   end
 end

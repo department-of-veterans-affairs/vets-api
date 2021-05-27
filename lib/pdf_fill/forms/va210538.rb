@@ -152,7 +152,7 @@ module PdfFill
       end
 
       def extract_email
-        email_address = @form_data['emailAddress']
+        email_address = @form_data['veteranInformation']['email']
         return if email_address.blank?
 
         if email_address.length > 17 && email_address.length < 37
