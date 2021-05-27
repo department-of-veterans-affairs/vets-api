@@ -81,23 +81,27 @@ module AppealsApi
         end
 
         def rep_first_name
-          higher_level_review.informal_conference_rep&.dig('firstName')
+          higher_level_review.informal_conference_rep&.dig('firstName') || ''
         end
 
         def rep_last_name
-          higher_level_review.informal_conference_rep&.dig('lastName')
+          higher_level_review.informal_conference_rep&.dig('lastName') || ''
         end
 
         def rep_phone_area_code
-          higher_level_review.rep_phone_data&.dig('areaCode')
+          higher_level_review.rep_phone_data&.dig('areaCode') || ''
         end
 
         def rep_phone_prefix
-          higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3)
+          higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3) || ''
         end
 
         def rep_phone_line_number
-          higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4)
+          higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4) || ''
+        end
+
+        def rep_email
+          higher_level_review.informal_conference_rep&.dig('email') || ''
         end
 
         def soc_opt_in

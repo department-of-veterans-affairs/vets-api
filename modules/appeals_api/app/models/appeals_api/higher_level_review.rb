@@ -112,7 +112,7 @@ module AppealsApi
     end
 
     def country_code
-      veteran.dig('address', 'countryCodeISO2') || 'US'
+      veteran.dig('address', 'countryName')|| 'US'
     end
 
     def zip_code_5
@@ -175,10 +175,6 @@ module AppealsApi
 
     def rep_phone_data
       informal_conference_rep&.dig('phone')
-    end
-
-    def rep_email
-      informal_conference_rep&.dig('email')
     end
 
     def soc_opt_in
@@ -342,6 +338,8 @@ module AppealsApi
     end
 
     def address_combined
+      return unless veteran.dig('address', 'addressLine1')
+
       [
         veteran.dig('address', 'addressLine1'),
         veteran.dig('address', 'addressLine2'),

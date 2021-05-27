@@ -93,32 +93,18 @@ describe AppealsApi::PdfConstruction::Generator do
           Timecop.return
         end
 
-        # context 'when zip code only' do
-        #   let(:minimal_higher_level_review_v2) { create(:minimal_higher_level_review_v2) }
-        #
-        #   it "generates a pdf printed with 'USE ADDRESS ON FILE'" do
-        #     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-        #     generated_pdf = described_class.new(minimal_higher_level_review_v2, version: 'V2').generate
-        #     expected_pdf = fixture_filepath('expected_200996_v2.pdf')
-        #     `open #{generated_pdf}`; sleep 1
-        #     expect(generated_pdf).to match_pdf(expected_pdf)
-        #     File.delete(generated_pdf) if File.exist?(generated_pdf)
-        #     Timecop.return
-        #   end
-        # end
+        context 'when zip code only' do
+          let(:minimal_higher_level_review_v2) { create(:minimal_higher_level_review_v2) }
 
-        # context 'when no address or zip code' do
-        #   let(:minimal_higher_level_review_v2) { create(:minimal_higher_level_review_v2) }
-        #
-        #   it "generates a pdf printed with 'USE ADDRESS ON FILE'" do
-        #     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-        #     generated_pdf = described_class.new(minimal_higher_level_review_v2, version: 'V2').generate
-        #     expected_pdf = fixture_filepath('expected_200996_v2.pdf')
-        #     expect(generated_pdf).to match_pdf(expected_pdf)
-        #     File.delete(generated_pdf) if File.exist?(generated_pdf)
-        #     Timecop.return
-        #   end
-        # end
+          it "generates a pdf printed with 'USE ADDRESS ON FILE'" do
+            Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+            generated_pdf = described_class.new(minimal_higher_level_review_v2, version: 'V2').generate
+            expected_pdf = fixture_filepath('expected_200996_minimum_v2.pdf')
+            expect(generated_pdf).to match_pdf(expected_pdf)
+            File.delete(generated_pdf) if File.exist?(generated_pdf)
+            Timecop.return
+          end
+        end
       end
     end
   end
