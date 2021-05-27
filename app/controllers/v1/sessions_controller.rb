@@ -50,7 +50,7 @@ module V1
     end
 
     def saml_callback
-      set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
+      set_sentry_context_for_callback if html_escaped_relay_state['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       saml_response_stats(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
@@ -350,8 +350,12 @@ module V1
       end
     end
 
+    def html_escaped_relay_state
+      JSON.parse(CGI.unescapeHTML(params[:RelayState] || '{}'))
+    end
+
     def originating_request_id
-      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+      html_escaped_relay_state['originating_request_id']
     rescue
       'UNKNOWN'
     end
