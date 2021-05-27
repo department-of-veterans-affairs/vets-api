@@ -6,6 +6,22 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
+      def get_facilities(query_params, pagination_params = {})
+        params = {
+          ids: query_params[:ids],
+          children: query_params[:children],
+          types: query_params[:types]
+        }.merge(page_params(pagination_params)).compact
+        with_monitoring do
+          options = { params_encoder: Faraday::FlatParamsEncoder }
+          response = perform(:get, facilities_url, params, headers, options)
+          {
+            data: deserialized_facilities(response.body[:data]),
+            meta: pagination(pagination_params)
+          }
+        end
+      end
+
       def get_scheduling_configurations(facility_ids, cc_enabled, pagination_params = {})
         params = {
           facility_ids: facility_ids,
@@ -13,7 +29,7 @@ module VAOS
         }.merge(page_params(pagination_params)).compact
 
         with_monitoring do
-          response = perform(:get, url, params, headers)
+          response = perform(:get, scheduling_url, params, headers)
           {
             data: deserialized_configurations(response.body[:data]),
             meta: pagination(pagination_params)
@@ -27,6 +43,12 @@ module VAOS
         return [] unless configuration_list
 
         configuration_list.map { |configuration| OpenStruct.new(configuration) }
+      end
+
+      def deserialized_facilities(facility_list)
+        return [] unless facility_list
+
+        facility_list.map { |facility| OpenStruct.new(facility) }
       end
 
       def pagination(pagination_params)
@@ -48,8 +70,12 @@ module VAOS
         end
       end
 
-      def url
+      def scheduling_url
         '/facilities/v2/scheduling/configurations'
+      end
+
+      def facilities_url
+        '/facilities/v2/facilities'
       end
     end
   end

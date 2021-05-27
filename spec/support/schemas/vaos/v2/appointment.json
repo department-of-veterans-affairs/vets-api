@@ -45,7 +45,7 @@
         },
         "serviceType": {
           "description": "the care type for the appointment",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "locationId": {
           "description": "The sta6aid for the VAfacility where the appointment is registered.",
@@ -53,7 +53,7 @@
         },
         "clinic": {
           "description": "The clinic ID for the Appointment",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "telehealth": {
           "description": "Details about a telehealth (virtual) meeting.",
@@ -113,7 +113,7 @@
         },
         "practitioners": {
           "description": "The practitioners participating in this appointment.",
-          "type": "array",
+          "type": ["array","null"],
           "items": {
             "type": "object",
             "properties": {
@@ -146,7 +146,7 @@
         },
         "reason": {
           "description": "The reason for an Express Care request, or the purpose for a a non-Express Care request.",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "start": {
           "description": "The start time of the appointment.",
@@ -163,7 +163,7 @@
           "description": "The duration of the meeting, in minutes."
         },
         "slot": {
-          "type": "object",
+          "type": ["object", "null"],
           "properties": {
             "id": {
               "description": "The slot ID",
@@ -183,7 +183,7 @@
           }
         },
         "requestedPeriods": {
-          "type": "array",
+          "type": ["array", "null"],
           "description": "a list of requested periods for appointment",
           "items": {
             "type": "object",
@@ -203,7 +203,7 @@
         },
         "contact": {
           "description": "Patient contact information",
-          "type": "object",
+          "type": ["object", "null"],
           "properties": {
             "telecom": {
               "type": "array",
@@ -228,7 +228,7 @@
           }
         },
         "preferredTimesForPhoneCall": {
-          "type": "array",
+          "type": ["array", "null"],
           "description": "a list of times the patient prefers to be contacted by phone",
           "items": {
             "type": "string",
@@ -241,19 +241,19 @@
         },
         "priority": {
           "description": "an unsigned integer",
-          "type": "integer",
+          "type": ["integer", "null"],
           "minimum": 0
         },
         "cancellationReason": {
           "description": "The reason the appointment was cancelled.",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "description": {
           "description": "Not used.",
-          "type": "string"
+          "type": ["string", "null"]
         },
         "comment": {
-          "type": "string"
+          "type": ["string", "null"]
         }
       }
     }
