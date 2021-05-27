@@ -8,4 +8,5 @@ class TriageTeamSerializer < ActiveModel::Serializer
   attribute :triage_team_id
   attribute :name
   attribute :relation_type
+  attribute :preferred_team
 end
