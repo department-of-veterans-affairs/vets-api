@@ -92,6 +92,19 @@ describe AppealsApi::PdfConstruction::Generator do
           File.delete(generated_pdf) if File.exist?(generated_pdf)
           Timecop.return
         end
+
+        # context 'when zip code only address' do
+        #   let(:minimal_higher_level_review_v2) { create(:minimal_higher_level_review_v2) }
+        #
+        #   it "generates a pdf printed with 'USE ADDRESS ON FILE'" do
+        #     Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+        #     generated_pdf = described_class.new(minimal_higher_level_review_v2, version: 'V2').generate
+        #     expected_pdf = fixture_filepath('expected_200996_v2.pdf')
+        #     expect(generated_pdf).to match_pdf(expected_pdf)
+        #     File.delete(generated_pdf) if File.exist?(generated_pdf)
+        #     Timecop.return
+        #   end
+        # end
       end
     end
   end

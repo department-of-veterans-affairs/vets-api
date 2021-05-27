@@ -25,7 +25,6 @@ module AppealsApi
             form_fields.birth_day => form_data.birth_dd,
             form_fields.birth_year => form_data.birth_yyyy,
             form_fields.insurance_policy_number => form_data.insurance_policy_number,
-            form_fields.mailing_address_street => form_data.number_and_street,
             form_fields.mailing_address_city => form_data.city,
             form_fields.mailing_address_state => form_data.state_code,
             form_fields.mailing_address_country => form_data.country_code,
@@ -147,6 +146,7 @@ module AppealsApi
 
             whiteout_line pdf, :first_name
             whiteout_line pdf, :last_name
+            whiteout_line pdf, :number_and_street
             whiteout_line pdf, :veteran_email
             pdf.start_new_page
 

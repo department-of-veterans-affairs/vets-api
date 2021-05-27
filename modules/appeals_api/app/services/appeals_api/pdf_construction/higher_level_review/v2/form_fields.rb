@@ -156,6 +156,7 @@ module AppealsApi
         def boxes
           { first_name: { at: [3, 560], width: 195 },
             last_name: { at: [230, 560], width: 293 },
+            number_and_street: { at: [29, 462], width: 500 },
             veteran_email: { at: [8, 335], width: 513 },
             rep_first_name: { at: [11, 586], width: 195 },
             rep_last_name: { at: [225, 586], width: 293 },
