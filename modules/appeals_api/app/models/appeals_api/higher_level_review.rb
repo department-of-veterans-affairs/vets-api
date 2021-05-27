@@ -170,6 +170,10 @@ module AppealsApi
       informal_conference_rep_phone.to_s
     end
 
+    def informal_conference_rep_ext
+      informal_conference_rep&.dig('phone', 'phoneNumberExt')
+    end
+
     def informal_conference_contact
       data_attributes&.dig('informalConferenceContact')
     end

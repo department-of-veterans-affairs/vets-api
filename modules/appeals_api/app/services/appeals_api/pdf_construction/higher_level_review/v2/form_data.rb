@@ -110,9 +110,17 @@ module AppealsApi
           higher_level_review.informal_conference_rep&.dig('email') || ''
         end
 
+        def rep_domestic_ext
+          ext = higher_level_review.informal_conference_rep_ext
+
+          # if the number is international, it gets added to that output
+          return '' if rep_country_code != '1' || ext.blank?
+
+          "x#{ext}"
+        end
 
         def rep_international_number
-          return if rep_country_code == '1'
+          return '' if rep_country_code == '1'
 
           higher_level_review.informal_conference_rep_phone_number
         end
