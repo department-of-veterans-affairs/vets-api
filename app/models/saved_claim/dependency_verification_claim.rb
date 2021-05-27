@@ -12,7 +12,7 @@ class SavedClaim::DependencyVerificationClaim < CentralMailClaim
     form_copy = parsed_form
 
     if form_copy['veteranSocialSecurityNumber'].blank?
-      form_copy['veteranSocialSecurityNumber'] = parsed_form['veteranInformation']['ssn']
+      form_copy['veteranSocialSecurityNumber'] = parsed_form['dependencyVerification']['veteranInformation']['ssn']
 
       update(form: form_copy.to_json)
     end
@@ -26,16 +26,18 @@ class SavedClaim::DependencyVerificationClaim < CentralMailClaim
 
     updated_form.merge!(
       {
-        'updateDiaries' => true,
-        'veteranInformation' => {
-          'fullName' => {
-            'first' => user.first_name,
-            'middleInitial' => user.middle_name,
-            'last' => user.last_name
-          },
-          'ssn' => user.ssn,
-          'dateOfBirth' => user.birth_date,
-          'email' => user.email
+        'dependencyVerification' => {
+          'updateDiaries' => true,
+          'veteranInformation' => {
+            'fullName' => {
+              'first' => user.first_name,
+              'middleInitial' => user.middle_name,
+              'last' => user.last_name
+            },
+            'ssn' => user.ssn,
+            'dateOfBirth' => user.birth_date,
+            'email' => user.email
+          }
         }
       }
     ).except!('update_diaries')

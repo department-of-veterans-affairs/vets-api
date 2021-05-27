@@ -9,7 +9,7 @@ module V0
     end
 
     def create
-      return if filtered_params[:update_diaries] == 'false'
+      return if filtered_params[:form][:update_diaries] == 'false'
 
       load_user
       claim = SavedClaim::DependencyVerificationClaim.new(form: filtered_params[:form].to_json)
