@@ -39,7 +39,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         it 'has access and returns va appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments', params: params
-            
+
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data'].size).to eq(9)
