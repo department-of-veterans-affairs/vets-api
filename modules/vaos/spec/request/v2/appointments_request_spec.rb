@@ -44,7 +44,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data'].size).to eq(31)
-            # expect(response).to match_response_schema('vaos/v2/appointments', { strict: false })
+            expect(response).to match_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
 

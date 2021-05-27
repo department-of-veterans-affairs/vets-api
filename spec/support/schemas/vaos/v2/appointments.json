@@ -10,7 +10,10 @@
       "minItems": 0,
       "uniqueItems": true,
       "items": {
-        "type": "object",
+        "type": [
+          "object",
+          null
+        ],
         "required": [
           "id",
           "type",
@@ -26,7 +29,7 @@
           "attributes": {
             "type": [
               "object",
-              "null"
+              null
             ],
             "properties": {
               "id": {
@@ -47,7 +50,7 @@
               "status": {
                 "type": [
                   "string",
-                  "null"
+                  null
                 ],
                 "enum": [
                   "proposed",
@@ -56,7 +59,8 @@
                   "arrived",
                   "noshow",
                   "fulfilled",
-                  "cancelled"
+                  "cancelled",
+                  null
                 ]
               },
               "serviceType": {
@@ -69,11 +73,17 @@
               },
               "clinic": {
                 "description": "The clinic ID for the Appointment",
-                "type": "string"
+                "type": [
+                  "string",
+                  null
+                ]
               },
               "telehealth": {
                 "description": "Details about a telehealth (virtual) meeting.",
-                "type": "object",
+                "type": [
+                  "object",
+                  null
+                ],
                 "properties": {
                   "url": {
                     "description": "The meeting URL.",
@@ -129,7 +139,10 @@
               },
               "practitioners": {
                 "description": "The practitioners participating in this appointment.",
-                "type": "array",
+                "type": [
+                  "array",
+                  null
+                ],
                 "items": {
                   "type": "object",
                   "properties": {
@@ -162,16 +175,25 @@
               },
               "reason": {
                 "description": "The reason for an Express Care request, or the purpose for a a non-Express Care request.",
-                "type": "string"
+                "type": [
+                  "string",
+                  null
+                ]
               },
               "start": {
                 "description": "The start time of the appointment.",
-                "type": "string",
+                "type": [
+                  "string",
+                  null
+                ],
                 "format": "date-time"
               },
               "end": {
                 "description": "The end time of the appointment.",
-                "type": "string",
+                "type": [
+                  "string",
+                  null
+                ],
                 "format": "date-time"
               },
               "minutesDuration": {
@@ -179,7 +201,10 @@
                 "description": "The duration of the meeting, in minutes."
               },
               "slot": {
-                "type": "object",
+                "type": [
+                  "object",
+                  null
+                ],
                 "properties": {
                   "id": {
                     "description": "The slot ID",
@@ -219,7 +244,10 @@
               },
               "contact": {
                 "description": "Patient contact information",
-                "type": "object",
+                "type": [
+                  "object",
+                  null
+                ],
                 "properties": {
                   "telecom": {
                     "type": "array",
@@ -257,7 +285,10 @@
               },
               "priority": {
                 "description": "an unsigned integer",
-                "type": "integer",
+                "type": [
+                  "integer",
+                  null
+                ],
                 "minimum": 0
               },
               "cancellationReason": {
@@ -266,10 +297,16 @@
               },
               "description": {
                 "description": "Not used.",
-                "type": "string"
+                "type": [
+                  "string",
+                  null
+                ]
               },
               "comment": {
-                "type": "string"
+                "type": [
+                  "string",
+                  null
+                ]
               }
             }
           }
