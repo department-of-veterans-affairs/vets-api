@@ -132,7 +132,7 @@ class OpenidApplicationController < ApplicationController
   def establish_session(profile)
     ttl = token.payload['exp'] - Time.current.utc.to_i
 
-    user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: uuid(profile), profile: profile, ttl: ttl)
+    user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
     @session = build_session(ttl,
                              Okta::UserProfile.new({ 'last_login_type' => profile['last_login_type'],
