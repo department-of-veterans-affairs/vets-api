@@ -112,7 +112,9 @@ module AppealsApi
     end
 
     def country_code
-      veteran.dig('address', 'countryName')|| 'US'
+      return '' unless address_combined
+
+      veteran.dig('address', 'countryCodeISO2') || 'US'
     end
 
     def zip_code_5
@@ -340,11 +342,10 @@ module AppealsApi
     def address_combined
       return unless veteran.dig('address', 'addressLine1')
 
-      [
-        veteran.dig('address', 'addressLine1'),
-        veteran.dig('address', 'addressLine2'),
-        veteran.dig('address', 'addressLine3')
-      ].compact.map(&:strip).join(' ')
+      @address_combined ||=
+        [veteran.dig('address', 'addressLine1'),
+         veteran.dig('address', 'addressLine2'),
+         veteran.dig('address', 'addressLine3')].compact.map(&:strip).join(' ')
     end
   end
 end

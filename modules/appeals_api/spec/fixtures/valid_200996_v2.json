@@ -7,7 +7,7 @@
       "veteran": {
         "address": { "zipCode5": "66002" },
         "phone": {
-          "countryCode": "34",
+          "countryCode": "1",
           "areaCode": "555",
           "phoneNumber": "8001111"
         },

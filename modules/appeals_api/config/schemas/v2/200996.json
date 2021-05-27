@@ -98,7 +98,7 @@
     "hlrCreatePhone": {
       "type": "object",
       "properties": {
-        "countryCodeISO2":     { "type": "string", "pattern": "^[0-9]+$" },
+        "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
         "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$" },
         "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
         "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
@@ -139,7 +139,7 @@
         "addressLine3":            { "type": "string" },
         "city":                    { "type": "string" },
         "stateCode":               { "$ref": "#/definitions/hlrCreateStateCode" },
-        "countryName":             { "type": "string" },
+        "countryCodeISO2":         { "type": "string" },
         "zipCode5": {
           "type": "string",
           "description": "5-digit zipcode. Use \"00000\" if Veteran is outside the United States",
