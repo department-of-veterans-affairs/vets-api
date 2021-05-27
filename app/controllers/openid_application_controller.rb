@@ -142,7 +142,8 @@ class OpenidApplicationController < ApplicationController
     @session.save && user_identity.save && @current_user.save
   end
 
-  # Helper method that uses the profile uuid set by SSOe but falls back to the token identifier uuid if unset
+  # Helper method that uses the profile uuid set by SSOe since the sub == ICN in that scenario
+  # but falls back to the token.identifiers.uuid
   def uuid(profile)
     profile['uuid'] || token.identifiers.uuid
   end
