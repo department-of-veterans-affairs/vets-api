@@ -1,0 +1,25 @@
+{
+  "required": ["errors"],
+  "properties": {
+    "errors": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "required": ["status", "detail", "source"],
+        "properties": {
+          "status": {
+            "type": "integer",
+            "description": "HTTP error code"
+          },
+          "detail": {
+            "type": "string",
+            "description": "HTTP error detail"
+          },
+          "source": {
+            "type": ["string", "boolean"]
+          }
+        }
+      }
+    }
+  }
+}

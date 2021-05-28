@@ -1,0 +1,40 @@
+{
+    "data": [
+        {
+            "id": "600098193",
+            "type": "evss_claims",
+            "attributes": {
+                "evssId": 600098193,
+                "dateFiled": "2017-05-02",
+                "minEstDate": null,
+                "maxEstDate": null,
+                "open": false,
+                "waiverSubmitted": false,
+                "documentsNeeded": false,
+                "developmentLetterSent": false,
+                "decisionLetterSent": false,
+                "requestedDecision": false,
+                "claimType": "Compensation",
+                "status": "Complete"
+            }
+        },
+        {
+            "id": "600098200",
+            "type": "evss_claims",
+            "attributes": {
+                "evssId": 600098200,
+                "dateFiled": "2017-05-02",
+                "minEstDate": null,
+                "maxEstDate": null,
+                "open": false,
+                "waiverSubmitted": false,
+                "documentsNeeded": false,
+                "developmentLetterSent": false,
+                "decisionLetterSent": false,
+                "requestedDecision": false,
+                "claimType": "Compensation",
+                "status": "Complete"
+            }
+        }
+    ]
+}

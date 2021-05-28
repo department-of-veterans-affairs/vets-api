@@ -2332,14 +2332,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           {
             communication_item: {
               id: 2,
-              communication_channels: [
-                {
-                  id: 1,
-                  communication_permission: {
-                    allowed: true
-                  }
+              communication_channel: {
+                id: 1,
+                communication_permission: {
+                  allowed: true
                 }
-              ]
+              }
             }
           }
         end
@@ -2362,7 +2360,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports the communication preferences create response', run_at: '2021-03-24T22:38:21Z' do
-          valid_params[:communication_item][:communication_channels][0][:communication_permission][:allowed] = false
+          valid_params[:communication_item][:communication_channel][:communication_permission][:allowed] = false
           path = '/v0/profile/communication_preferences'
           expect(subject).to validate(:post, path, 401)
 

@@ -160,6 +160,26 @@ module AppealsApi
             day: "form1[0].#subform[#{subform}].DOBday[#{offset}]",
             year: "form1[0].#subform[#{subform}].DOByear[#{offset}]" }
         end
+
+        def boxes
+          { first_name: { at: [3, 560], width: 195 },
+            last_name: { at: [230, 560], width: 293 },
+            veteran_email: { at: [8, 335], width: 513 },
+            rep_first_name: { at: [11, 586], width: 195 },
+            rep_last_name: { at: [225, 586], width: 293 },
+            rep_email: { at: [11, 525], width: 513 },
+            issues_pg1: [].tap do |n|
+              7.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
+            end,
+            issues_pg2: [].tap do |n|
+              6.times { |i| n << { at: [-3, 675 - (46.5 * i)], width: 369, height: 43 } }
+            end,
+            signature: { at: [-3, 329], width: 369, height: 18 },
+            # The rest aren't currently used, but kept for if/when we need them
+            rep_signature_first_name: { at: [12, 229], width: 195 },
+            rep_signature_last_name: { at: [226, 229], width: 293 },
+            rep_signature: { at: [-4, 201], width: 369, height: 18 } }
+        end
       end
     end
   end

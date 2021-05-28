@@ -5,23 +5,14 @@ require 'reports/uploader'
 class Ch31SubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Chapter 31 Submissions Report'
 
-  VRE_RECIPIENTS = %w[
-    VRE-CMS.VBAVACO@va.gov
-    Jason.Wolf@va.gov
-  ].freeze
-
-  STAGING_RECIPIENTS = %w[
-    kcrawford@governmentcio.com
-  ].freeze
-
   def build(submitted_claims)
     opt = {}
 
     opt[:to] =
       if FeatureFlipper.staging_email?
-        STAGING_RECIPIENTS
+        Settings.veteran_readiness_and_employment.daily_report.staging_emails.dup
       else
-        VRE_RECIPIENTS
+        Settings.veteran_readiness_and_employment.daily_report.emails.dup
       end
 
     @submitted_claims = submitted_claims

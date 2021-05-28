@@ -160,26 +160,29 @@ module DecisionReview
     # @return [Faraday::Response]
     #
 
-    def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata:)
-      # After we start using Faradata >=1.0 we won't need to use tmpfiles
-      metadata_tmpfile = Tempfile.new('metadata.json')
-      metadata_tmpfile.write(metadata.to_json)
-      metadata_tmpfile.rewind
-
-      content_tmpfile = Tempfile.new(file_upload.filename)
+    def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata_string:)
+      content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
       content_tmpfile.write(file_upload.read)
       content_tmpfile.rewind
 
-      params = { metadata: Faraday::UploadIO.new(metadata_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
-                 content: Faraday::UploadIO.new(content_tmpfile.path, file_upload.content_type, file_upload.filename) }
+      json_tmpfile = Tempfile.new('metadata.json', encoding: 'utf-8')
+      json_tmpfile.write(metadata_string)
+      json_tmpfile.rewind
+
+      params = { metadata: Faraday::UploadIO.new(json_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
+                 content: Faraday::UploadIO.new(content_tmpfile.path, Mime[:pdf].to_s, file_upload.filename) }
+
+      # when we upgrade to Faraday >1.0
+      # params = { metadata: Faraday::FilePart.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
+      #            content: Faraday::FilePart.new(content_tmpfile, Mime[:pdf].to_s, file_upload.filename) }
       with_monitoring_and_error_handling do
-        perform :put, upload_url, params, nil
+        perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
       end
     ensure
-      metadata_tmpfile.close
-      metadata_tmpfile.unlink
       content_tmpfile.close
       content_tmpfile.unlink
+      json_tmpfile.close
+      json_tmpfile.unlink
     end
 
     ##
