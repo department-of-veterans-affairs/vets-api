@@ -134,12 +134,12 @@
     "hlrCreateAddress": {
       "type": "object",
       "properties": {
-        "addressLine1":            { "type": "string" },
-        "addressLine2":            { "type": "string" },
-        "addressLine3":            { "type": "string" },
-        "city":                    { "type": "string" },
+        "addressLine1":            { "type": "string", "maxLength": 60 },
+        "addressLine2":            { "type": "string", "maxLength": 30 },
+        "addressLine3":            { "type": "string", "maxLength": 10 },
+        "city":                    { "type": "string", "maxLength": 60 },
         "stateCode":               { "$ref": "#/definitions/hlrCreateStateCode" },
-        "countryCodeISO2":         { "type": "string" },
+        "countryCodeISO2":         { "type": "string", "pattern": "^[A-Z]{2}$" },
         "zipCode5": {
           "type": "string",
           "description": "5-digit zipcode. Use \"00000\" if Veteran is outside the United States",
