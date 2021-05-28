@@ -5,9 +5,7 @@ require_relative '../support/iam_session_helper'
 
 describe Mobile::V0::Appointments::Service do
   let(:user) { FactoryBot.build(:iam_user) }
-  let(:service) do
-    Mobile::V0::Appointments::Service.new(user)
-  end
+  let(:service) { Mobile::V0::Appointments::Service.new(user) }
 
   before(:all) do
     @original_cassette_dir = VCR.configure(&:cassette_library_dir)
