@@ -15,7 +15,7 @@ module V0
       claim.add_claimant_info(current_user) if current_user&.loa3?
 
       unless claim.save
-        StatsD.increment("#{stats_key}.failure")
+        StatsD.increment("api.dependency_verification_claim.failure")
         Raven.tags_context(team: 'vfs-ebenefits') # tag sentry logs with team name
         raise Common::Exceptions::ValidationErrors, claim
       end
