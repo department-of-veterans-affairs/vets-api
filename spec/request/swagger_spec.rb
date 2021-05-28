@@ -3274,7 +3274,11 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           '/v0/dependents_verifications',
           200,
           headers.merge(
-            '_data' => { 'update_diaries' => 'true' }
+            '_data' => {
+              'dependency_verification_claim' => {
+                'form' => { 'update_diaries' => 'true' }
+              }
+            }
           )
         )
       end
