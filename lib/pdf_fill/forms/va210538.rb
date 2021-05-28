@@ -132,7 +132,6 @@ module PdfFill
       end
 
       def merge_veteran_helpers
-        binding.pry
         veteran_information = @form_data['dependencyVerification']['veteranInformation']
         # extract middle initial
         veteran_information['fullName'] = extract_middle_i(veteran_information, 'fullName')
