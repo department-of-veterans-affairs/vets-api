@@ -4,9 +4,6 @@ require 'rails_helper'
 
 RSpec.describe V0::DependentsVerificationsController do
   let(:user) { create(:evss_user) }
-  let(:test_form) do
-    build(:dependency_verification_claim)
-  end
 
   before do
     sign_in_as(user)
