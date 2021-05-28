@@ -35,12 +35,11 @@ RSpec.describe V0::DependentsVerificationsController do
     context 'with invalid params' do
       it 'shows the validation errors' do
         post(:create, params: { dependency_verification_claim: { form: { not_valid: 'not valid' } } })
-
         expect(response.code).to eq('422')
 
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
-            'form - can\'t be blank'
+            'form - The property \'#/\' contains additional properties ["not_valid"] outside of the schema'
           )
         ).to eq(true)
       end
