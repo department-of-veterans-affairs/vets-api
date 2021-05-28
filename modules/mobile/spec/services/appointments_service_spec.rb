@@ -17,6 +17,7 @@ describe Mobile::V0::Appointments::Service do
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   before do
+    allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
     iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
@@ -90,7 +91,7 @@ describe Mobile::V0::Appointments::Service do
           VCR.use_cassette('appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
             expect(Rails.logger).to receive(:error).with(
               'mobile appointments backend service exception',
-              hash_including(url: '/appointments/v1/patients/1008596379V859838/appointments')
+              hash_including(url: '/appointments/v1/patients/24811694708759028/appointments')
             ).once
 
             service.get_appointments(start_date, end_date)
@@ -107,7 +108,7 @@ describe Mobile::V0::Appointments::Service do
               'mobile appointments backend service exception',
               hash_including(
                 url: '/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling' \
-                  '/patient/ICN/1008596379V859838/booked-cc-appointments'
+                  '/patient/ICN/24811694708759028/booked-cc-appointments'
               )
             ).once
 
