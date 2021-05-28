@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 module V0
-  class DependentsVerificationsController < ClaimsBaseController
+  class DependentsVerificationsController < ApplicationController
     def index
-      load_user
       dependents = dependency_verification_service.read_diaries
 
       render json: dependents, serializer: DependentsVerificationsSerializer
@@ -12,7 +11,6 @@ module V0
     def create
       return if filtered_params[:form][:update_diaries] == 'false'
 
-      load_user
       claim = SavedClaim::DependencyVerificationClaim.new(form: filtered_params[:form].to_json)
       claim.add_claimant_info(current_user) if current_user&.loa3?
 
