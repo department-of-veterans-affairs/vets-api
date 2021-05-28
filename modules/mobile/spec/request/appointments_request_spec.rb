@@ -8,7 +8,7 @@ RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
 
   before do
-    iam_sign_in(build(:iam_user, icn: '24811694708759028'))
+    iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
@@ -92,7 +92,7 @@ RSpec.describe 'appointments', type: :request do
       let(:start_date) { Time.now.utc.iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
       let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
-      let(:user) { FactoryBot.build(:iam_user) }
+      let(:user) { build(:iam_user) }
 
       before do
         va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json')
@@ -692,7 +692,6 @@ RSpec.describe 'appointments', type: :request do
         VCR.use_cassette('appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
             put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
-
             expect(response).to have_http_status(:success)
             expect(response.body).to be_an_instance_of(String).and be_empty
           end

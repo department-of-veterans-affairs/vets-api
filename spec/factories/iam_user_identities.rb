@@ -28,5 +28,9 @@ FactoryBot.define do
         highest: LOA::THREE
       }
     end
+
+    trait :appointments do
+      icn { '24811694708759028' }
+    end
   end
 end

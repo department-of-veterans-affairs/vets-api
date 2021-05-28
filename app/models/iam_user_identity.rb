@@ -21,6 +21,9 @@ class IAMUserIdentity < ::UserIdentity
   attribute :iam_sec_id, String
   attribute :iam_mhv_id, String
 
+  # MPI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
+  alias mhv_icn icn
+
   # Builds an identity instance from the profile returned in the IAM introspect response
   #
   # @param iam_profile [Hash] the profile of the user, as they are known to the IAM SSOe service.
