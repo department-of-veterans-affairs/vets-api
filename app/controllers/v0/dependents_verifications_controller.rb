@@ -5,6 +5,7 @@ module V0
     def index
       load_user
       dependents = dependency_verification_service.read_diaries
+
       render json: dependents, serializer: DependentsVerificationsSerializer
     end
 
