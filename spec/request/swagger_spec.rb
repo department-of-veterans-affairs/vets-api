@@ -3269,10 +3269,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports updating diaries' do
-        depenency_verification_service = double('dep_verification')
-        expect(depenency_verification_service).to receive(:update_diaries)
-        expect(BGS::DependencyVerificationService).to receive(:new) { depenency_verification_service }
-
         expect(subject).to validate(
           :post,
           '/v0/dependents_verifications',
