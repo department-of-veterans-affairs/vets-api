@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/scheduling/configurations?cc_enabled=false&facility_ids%5B%5D=489&pageSize=0
+    uri: https://veteran.apps.va.gov/facilities/v2/facilities?ids=688&pageSize=0
     body:
       encoding: US-ASCII
       string: ''
@@ -18,7 +18,7 @@ http_interactions:
       X-Vamf-Jwt:
       - stubbed_token
       X-Request-Id:
-      - be334bb1-af9f-494c-8a45-919bca3c96ec
+      - ''
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -27,7 +27,7 @@ http_interactions:
       message: Not Found
     headers:
       Date:
-      - Mon, 24 May 2021 22:35:25 GMT
+      - Mon, 24 May 2021 22:35:18 GMT
       Content-Type:
       - text/html
       Content-Length:
@@ -37,11 +37,11 @@ http_interactions:
       Etag:
       - '"601db677-1493"'
       Set-Cookie:
-      - TS016f4012=01c8917e481eb5556ebb876c901b1f0f6b0d1de69d13bb94b491a8d990c1c7837823f0a282614e712c5ce0c415dd4ac407c90ba63d;
+      - TS016f4012=01c8917e487bf0add1e4de119f610ae56f30636277f1de32d5b030e6811393e43364c0624fe1eb5b884d6ca62c10e482e4d7477441;
         Max-Age=900; Path=/
-      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.kKNT1xshMQocKRrnZggmehj8Ioo6vYnBbFnbML6K6jboe1fGnbdQZnHD6LGbIaOTevosdwQ5g97WGZeYW9ZIOwjzj3DD8--6lBqBLvNhHvCW3Gv0snsDyIqsfyFkFCe23xInmM5jnl79aLLmD2AZKGoV8XcfV8_J5Ql5IzNgBtM74EqOEhFXYbXLhRO_3eZIFxyOPk9HYi7KZHUsMnN2sJzwQMoPB5KB_SQdgxSo537B19X9JRqy46UNkhXb7xB6InTYox_kCBqIJkgjMNycYTZWGtuvqOrtFCRaaTGh0FeNJj979bJfzRyTAc1Vn4LX_jbJyP7fBP_Nu8CLA0DBdA.qIB1Rxb1BCpvVT71N-7rnw.LOOsUUmAhBuE1UAsC4d4MzksqwqMNZyFEFkVUzw_XaCoI9GL9ddWrt26tx1jw7XqBKzExlx91NUF21oSwUjFAZq88sgFfoqJDRZIfo1JFoRy9VL4QstvBWmPpikanuZJrrmIdNknGYCLF5QwFvjbdUNrpv2vAaQ6qaeMKH_ttxkdxy-ZWRoQNTFul02_VrdMqwiH00WWMSiwuQn0U9uqWB1TtPIsV40e32UKZ3Qsxhf8JGhBoD5rfxYJ_Ej53CD6o22XW-DUoIEM2jtK3TNZID6FJ-7ejG2SZzYXUJGU0IjFCiC97jo3zbSPfLjZGtP64MhiBUy_7992Xiv1kQgFyPbPslmxxez_7EOCzsaqP1hIuBFXKLU3FwWUfYUqdgbnjSa1TEpSQR51f2Qk-Dh8OttVA22y2k0qc1mWDkncCxkt8VI18t-blTmpgBNp4nE_EGzOfqzGh1OItEOQDtZpZYyMwltnezCQ3pJWxam-82yHORM556LAfSy_INL_e8_-BUzmRq7Ws3PXi_IqcLZiRtwUAQDiUvKQJmbl8ZxQ-CtzT63F_XgncuBJqVP_6gvQGMJ5ZcRkJcPlqS_kaSfxyRozURSGI9oSCcT4Gn78W7EBFTsC8Z7bUKqt2YUwMMS26EHiLt6a97WH3yXrZUb5X07EbAoUrk7BtXRg-iErM_bY6CN80U2VU9CJZgvoUG7Z.qxLFUPTGjdIIviaglPqUdXAj_XSXmBwAdiakpNKl6G4;
+      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.Cu9L-tNbV5fCqpGN-0mm0CxkYZ2ctt3OFCs3SEYLCF-AZ6PzfmlSQsc8nWIRTCr0_9RE3R059CLYMAYOYTxlDaLtgIre4laHmw9ELO8Bg6oKXMExwogfvR3n7_HVZFod0VOcs4Ma0rbFNX79xgp1kVd5th8-mGpcuAAAH60AjL8wG2Ueoio8Pz4GGJl4BpdIRbRSmtNF7qWy0bSV98uUsicsigtJxZsvOzrTwoYdtOKeMAKWh1ojp3bKQ6HxIMFN9YtYWKSKxf8qUof-nqrIRJKGBs7e7qgLQrqRK-S8wsechRm7KRh2CBI_IOe_k1qJm5l_jRUX61ySoPPVQKyX9Q.5mSkp63nZoBzpsnSw8P4mQ.RNmkr2hoQLrYS0Vcp-3ezhxDF-zIdZlre04GptQ0-7VCxS47U1Wfk9LU84ZRzpgjBBKeY5swXtL5a4Lkb-4yBnucOt43XkclisQXjnUS88ekOPwP8FOIkHGBRreIyi-RPJHEEkSrouc5zOhD6QTlpJXeRBNFhU1cEsBSqomuGmdw1XiNuOq8HE-Hy6UjPzD2fiSHWzkLzjSwwGAlzJzvLzy2u0KQJ5RXRBX5zFuDl9zbFE-hFWYCQPrp4nfDfu0ic99k1roetokSkElMrZTIs9uAUXkEULQxVBmVv5zRbZRFhaXU084joO6B7DAkrqREx3d-7mF2Cks4kTNosiyHr-uekIPBleHOuvpkT_MvoaYixTEoxd7xYgBG0u3zqJEr-WW8FvL5xhh8RkeNBsn6wF34bWiKPYMnHmljUy4PwQoVpBt5qXl0mz247KcNfHWn3WGToCAca-SsL0_xmnn4SIJ7IJSmlzDhteHZjywJF45lRMmPUVaVfPCn1UfLyA3wUbQCBmuBJhqift7SrSPPc4hlG54BNM3i8rS2ZpNx7pIna38FLQTl5PPkPVjwsAsacIBIArxTngzSoCouGl0mI_-7lr9vbOqFA4J9Wsmjb3PYphnePqFyUwsJ9IvhjT6_O-6U_fJulOQ2H1-z05woyyfrsKYvLEy2ean3AKyZa8pc1iaV2M__Bi1xKeQdk7HlR4qxWhrX3mmlo4lzOh_nOA.7DpGeEluhJn7jrkra5-68pwTN6oq172JD4Yc9OZLdsc;
         path=/; SameSite=Lax; HttpOnly
-      - vamftimeoutv1=1621896625; SameSite=Lax; path=/
+      - vamftimeoutv1=1621896618; SameSite=Lax; path=/
     body:
       encoding: UTF-8
       string: "<!DOCTYPE html>\n<html>\n<head>\n    <meta charset=\"utf-8\">\n    <meta
@@ -111,5 +111,5 @@ http_interactions:
         no-external-icon\" rel=\"noopener \">Contact the Veterans Crisis Line</a></li>\n
         \             </ul>\n            </div>\n          </div>\n        </div>\n
         \   </main>\n</div>\n</body>\n</html>\n"
-  recorded_at: Mon, 24 May 2021 22:35:25 GMT
+  recorded_at: Mon, 24 May 2021 22:35:19 GMT
 recorded_with: VCR 6.0.0
