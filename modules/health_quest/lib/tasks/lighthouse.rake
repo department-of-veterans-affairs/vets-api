@@ -3,42 +3,42 @@
 # Rake tasks to create and update questionnaires in PGD
 
 # rubocop:disable all
-puts "IN THE #{Rails.env} ENVIRONMENT"
-puts "SETTINGS FILE: #{Settings.vsp_environment}\n\n"
-
-# we're not going to run these rake tasks in the vets-api development environment
-# since the dev-api.va.gov actually runs in production mode and we don't want to
-# unintentionally communicate with the Lighthouse production environment
-abort('Please do not run this rake task in dev.va.gov as the vets-api runs in production mode!') if Settings.vsp_environment == 'development'
-
-# pre-pending constants with HQ_RAKE so that we're not accidentally re-initializing
-# constants that may have been set elsewhere in the engine
-# HQ_RAKE_USER_ICN = '1008882029V85179'
-HQ_RAKE_API = 'pgd_api'
-HQ_RAKE_QUESTIONNAIRE_URI = '/services/pgd/v0/r4/Questionnaire'
-HQ_RAKE_GITHUB_PAGES_URL = 'https://dillo.github.io'
-
-def new_faraday_lighthouse_conn(token)
-  Faraday.new(url: Settings.hqva_mobile.lighthouse.url, headers: { 'Content-Type' => 'application/fhir+json', 'Authorization' => "Bearer #{token}" }) do |f|
-    f.request :retry
-    f.response :json, content_type: /\bjson/
-    f.adapter Faraday.default_adapter
-  end
-end
-
-def new_faraday_github_conn
-  Faraday.new(url: HQ_RAKE_GITHUB_PAGES_URL, headers: { 'Accept' => 'application/json' }) do |f|
-    f.request :retry
-    f.response :json, content_type: /\bjson/
-    f.adapter Faraday.default_adapter
-  end
-end
-
 namespace :lighthouse do
   namespace :pgd do
     namespace :questionnaires do
       desc 'Create new Questionnaire'
       task :create, [:github_questionnaire, :icn] => [:environment, :confirm] do |task, args|
+        puts "IN THE #{Rails.env} ENVIRONMENT"
+        puts "SETTINGS FILE: #{Settings.vsp_environment}\n\n"
+
+        # we're not going to run these rake tasks in the vets-api development environment
+        # since the dev-api.va.gov actually runs in production mode and we don't want to
+        # unintentionally communicate with the Lighthouse production environment
+        abort('Please do not run this rake task in dev.va.gov as the vets-api runs in production mode!') if Settings.vsp_environment == 'development'
+
+        # pre-pending constants with HQ_RAKE so that we're not accidentally re-initializing
+        # constants that may have been set elsewhere in the engine
+        # HQ_RAKE_USER_ICN = '1008882029V85179'
+        HQ_RAKE_API = 'pgd_api'
+        HQ_RAKE_QUESTIONNAIRE_URI = '/services/pgd/v0/r4/Questionnaire'
+        HQ_RAKE_GITHUB_PAGES_URL = 'https://dillo.github.io'
+
+        def new_faraday_lighthouse_conn(token)
+          Faraday.new(url: Settings.hqva_mobile.lighthouse.url, headers: { 'Content-Type' => 'application/fhir+json', 'Authorization' => "Bearer #{token}" }) do |f|
+            f.request :retry
+            f.response :json, content_type: /\bjson/
+            f.adapter Faraday.default_adapter
+          end
+        end
+
+        def new_faraday_github_conn
+          Faraday.new(url: HQ_RAKE_GITHUB_PAGES_URL, headers: { 'Accept' => 'application/json' }) do |f|
+            f.request :retry
+            f.response :json, content_type: /\bjson/
+            f.adapter Faraday.default_adapter
+          end
+        end
+
         abort("PLEASE PASS A VALID .json FILE! #{args[:github_questionnaire]} is not a valid file format!") unless args[:github_questionnaire] =~ /^\S+.json/
 
         # spoof logged in user and their ICN
@@ -112,6 +112,37 @@ namespace :lighthouse do
 
       desc 'Update Questionnaire'
       task :update, [:github_questionnaire, :icn] => [:environment, :confirm] do |task, args|
+        puts "IN THE #{Rails.env} ENVIRONMENT"
+        puts "SETTINGS FILE: #{Settings.vsp_environment}\n\n"
+
+        # we're not going to run these rake tasks in the vets-api development environment
+        # since the dev-api.va.gov actually runs in production mode and we don't want to
+        # unintentionally communicate with the Lighthouse production environment
+        abort('Please do not run this rake task in dev.va.gov as the vets-api runs in production mode!') if Settings.vsp_environment == 'development'
+
+        # pre-pending constants with HQ_RAKE so that we're not accidentally re-initializing
+        # constants that may have been set elsewhere in the engine
+        # HQ_RAKE_USER_ICN = '1008882029V85179'
+        HQ_RAKE_API = 'pgd_api'
+        HQ_RAKE_QUESTIONNAIRE_URI = '/services/pgd/v0/r4/Questionnaire'
+        HQ_RAKE_GITHUB_PAGES_URL = 'https://dillo.github.io'
+
+        def new_faraday_lighthouse_conn(token)
+          Faraday.new(url: Settings.hqva_mobile.lighthouse.url, headers: { 'Content-Type' => 'application/fhir+json', 'Authorization' => "Bearer #{token}" }) do |f|
+            f.request :retry
+            f.response :json, content_type: /\bjson/
+            f.adapter Faraday.default_adapter
+          end
+        end
+
+        def new_faraday_github_conn
+          Faraday.new(url: HQ_RAKE_GITHUB_PAGES_URL, headers: { 'Accept' => 'application/json' }) do |f|
+            f.request :retry
+            f.response :json, content_type: /\bjson/
+            f.adapter Faraday.default_adapter
+          end
+        end
+
         abort("PLEASE PASS A VALID .json FILE! #{args[:github_questionnaire]} is not a valid file format!") unless args[:github_questionnaire] =~ /^\S+.json/
 
         # spoof logged in user and their ICN

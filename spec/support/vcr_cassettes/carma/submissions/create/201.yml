@@ -8,7 +8,7 @@ http_interactions:
       string: "<CARMA_submission_with_metadata>"
     headers:
       User-Agent:
-      - Faraday v1.4.2
+      - Faraday v0.17.4
       Content-Type:
       - application/json
       Sforce-auto-assign:
