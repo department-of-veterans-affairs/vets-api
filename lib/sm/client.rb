@@ -144,6 +144,7 @@ module SM
     # @!group Message Drafts
     ##
     # Create and update a new message draft
+    # test
     #
     # @param args [Hash] arguments for the message draft
     # @raise [Common::Exceptions::ValidationErrors] if the draft is not valid
