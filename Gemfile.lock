@@ -72,6 +72,15 @@ GIT
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
+GIT
+  remote: https://github.com/rileyanderson/faraday_adapter_socks
+  revision: 1f16faf85fad997c51448d6e78b1e1b4ed438324
+  branch: update-faraday-dependency
+  specs:
+    faraday_adapter_socks (0.2.0)
+      faraday (>= 0.7.4, < 2.0)
+      socksify (~> 1.7)
+
 PATH
   remote: modules
   specs:
@@ -357,17 +366,25 @@ GEM
       i18n (>= 1.6, < 2)
     fakeredis (0.8.0)
       redis (~> 4.1)
-    faraday (0.17.4)
+    faraday (1.4.2)
+      faraday-em_http (~> 1.0)
+      faraday-em_synchrony (~> 1.0)
+      faraday-excon (~> 1.1)
+      faraday-net_http (~> 1.0)
+      faraday-net_http_persistent (~> 1.1)
       multipart-post (>= 1.2, < 3)
+      ruby2_keywords (>= 0.0.4)
+    faraday-em_http (1.0.0)
+    faraday-em_synchrony (1.0.0)
+    faraday-excon (1.1.0)
     faraday-http-cache (2.2.0)
       faraday (>= 0.8)
-    faraday_adapter_socks (0.1.1)
-      faraday (~> 0.9)
-      socksify (~> 1.7)
+    faraday-net_http (1.0.1)
+    faraday-net_http_persistent (1.1.0)
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
-    faraday_middleware (0.14.0)
-      faraday (>= 0.7.4, < 1.0)
+    faraday_middleware (1.0.0)
+      faraday (~> 1.0)
     fast_jsonapi (1.5)
       activesupport (>= 4.2)
     fastimage (2.2.3)
@@ -808,6 +825,7 @@ GEM
       rexml
     ruby-vips (2.0.17)
       ffi (~> 1.9)
+    ruby2_keywords (0.0.4)
     rubyzip (2.3.0)
     rufus-scheduler (3.6.0)
       fugit (~> 1.1, >= 1.1.6)
@@ -839,8 +857,8 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.7.4)
       concurrent-ruby (~> 1.0)
-    sentry-raven (2.13.0)
-      faraday (>= 0.7.6, < 1.0)
+    sentry-raven (3.1.2)
+      faraday (>= 1.0)
     shellany (0.0.1)
     shrine (3.3.0)
       content_disposition (~> 1.0)
@@ -1005,7 +1023,7 @@ DEPENDENCIES
   faker
   fakeredis
   faraday
-  faraday_adapter_socks
+  faraday_adapter_socks!
   faraday_curl
   faraday_middleware
   fast_jsonapi
