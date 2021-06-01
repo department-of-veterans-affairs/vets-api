@@ -73,8 +73,8 @@ module Common
         @connection ||= lambda do
           connection = config.connection
           handlers = connection.builder.handlers
-
-          if handlers.include?(Faraday::Adapter::HTTPClient) &&
+          adapter = connection.builder.adapter
+          if (handlers.include?(Faraday::Adapter::HTTPClient) || adapter == Faraday::Adapter::HTTPClient) &&
              !handlers.include?(Common::Client::Middleware::Request::RemoveCookies)
             raise SecurityError, 'http client needs cookies stripped'
           end
@@ -112,7 +112,7 @@ module Common
       rescue Timeout::Error, Faraday::TimeoutError => e
         Raven.extra_context(service_name: config.service_name, url: path)
         raise Common::Exceptions::GatewayTimeout, e.class.name
-      rescue Faraday::ClientError, Faraday::Error => e
+      rescue Faraday::ClientError, Faraday::ServerError, Faraday::ConnectionFailed => e
         error_class = case e
                       when Faraday::ParsingError
                         Common::Client::Errors::ParsingError
