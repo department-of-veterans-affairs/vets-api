@@ -89,19 +89,44 @@ module AppealsApi
         end
 
         def rep_phone_area_code
+          return if rep_country_code != '1'
+
           higher_level_review.rep_phone_data&.dig('areaCode') || ''
         end
 
         def rep_phone_prefix
+          return if rep_country_code != '1'
+
           higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3) || ''
         end
 
         def rep_phone_line_number
+          return if rep_country_code != '1'
+
           higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4) || ''
         end
 
         def rep_email
           higher_level_review.informal_conference_rep&.dig('email') || ''
+        end
+
+        def rep_domestic_ext
+          ext = higher_level_review.informal_conference_rep_ext
+
+          # if the number is international, it gets added to that output
+          return '' if rep_country_code != '1' || ext.blank?
+
+          "x#{ext}"
+        end
+
+        def rep_international_number
+          return '' if rep_country_code == '1'
+
+          higher_level_review.informal_conference_rep_phone_number
+        end
+
+        def rep_country_code
+          higher_level_review.rep_phone_data&.dig('countryCode')
         end
 
         def soc_opt_in
