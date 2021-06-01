@@ -80,7 +80,12 @@
       "type": "object",
       "properties": {
         "name":  { "$ref": "#/definitions/hlrCreateRepresentativeName" },
-        "phone": { "$ref": "#/definitions/hlrCreatePhone" }
+        "phone": { "$ref": "#/definitions/hlrCreatePhone" },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 100
+        }
       },
       "additionalProperties": false,
       "required": [ "name", "phone" ]
@@ -89,8 +94,8 @@
     "hlrCreateRepresentativeName": {
       "type": "object",
       "properties": {
-        "firstName": { "type": "string"},
-        "lastName":  { "type": "string"}
+        "firstName": { "type": "string", "maxLength": 30 },
+        "lastName":  { "type": "string", "maxLength": 40 }
       },
       "required": [ "firstName", "lastName" ]
     },
