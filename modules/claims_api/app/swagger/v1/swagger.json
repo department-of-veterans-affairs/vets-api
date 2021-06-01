@@ -352,7 +352,7 @@
     },
     "/claims/{id}": {
       "get": {
-        "summary": "Find Claim id",
+        "summary": "Find Claim by ID",
         "tags": [
           "Claims"
         ],
@@ -419,7 +419,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "77fb630b-c656-4cc2-a17d-165707e9f850",
+                    "id": "7bd27203-25cf-4e25-a28c-8a5d625078fd",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -468,11 +468,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "72e29369-5128-4c6b-bf2b-88a38930631b",
+                          "id": "8f2fb517-e5e6-498d-9cb9-a6a4cd4a7579",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-01T20:42:52.349Z"
+                          "uploaded_at": "2021-06-01T20:56:50.503Z"
                         }
                       ]
                     }
@@ -2133,7 +2133,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3967c68d-a1c3-41c5-9df3-f3ad97eeacff",
+                    "id": "689f99af-b58b-44aa-b46f-0b93a9512f73",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2151,13 +2151,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-01T20:42:52.861Z",
+                      "updated_at": "2021-06-01T20:56:50.875Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "3967c68d-a1c3-41c5-9df3-f3ad97eeacff",
+                      "token": "689f99af-b58b-44aa-b46f-0b93a9512f73",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3773,7 +3773,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a9c23544-d30e-4ba9-8a77-36c75c02ed87",
+                    "id": "219c3fc4-6365-4846-9698-14c79d32fabe",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3791,13 +3791,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-01T20:42:53.107Z",
+                      "updated_at": "2021-06-01T20:56:51.130Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "a9c23544-d30e-4ba9-8a77-36c75c02ed87",
+                      "token": "219c3fc4-6365-4846-9698-14c79d32fabe",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5785,7 +5785,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cb4fb8ea-58af-46cd-9a49-ee8cb008be23",
+                    "id": "79d2edd0-d206-44fe-9737-7bd613b808eb",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5799,7 +5799,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-01T20:42:53.906Z",
+                      "updated_at": "2021-06-01T20:56:51.930Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5808,7 +5808,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "5c86481e-4520-442d-a5ae-10c249ff0e3c",
+                          "id": "c0c65623-2f0b-4770-b1d7-25d5db26b9d9",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -7638,7 +7638,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "70122d8a-c2a7-4352-ad19-230f186903f8",
+                    "id": "4fb0b6c4-1cba-4111-ae2b-989c645e78ef",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -8322,7 +8322,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1bc46eb6-5b59-4199-b79a-6bcc057f0a04",
+                    "id": "2e7b95cf-2c1a-488f-8f4f-09508c2adb01",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -8616,7 +8616,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1ded78d0-1c4b-4036-9cd8-2d0488f3ac06",
+                    "id": "a3781905-bbfc-4568-860a-4501242fd4d1",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",

@@ -133,7 +133,7 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
   end
 
   path '/claims/{id}' do
-    get 'Find Claim id' do
+    get 'Find Claim by ID' do
       tags 'Claims'
       operationId 'findClaimById'
       security [bearer_token: []]
