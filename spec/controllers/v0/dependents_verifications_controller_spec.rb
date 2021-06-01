@@ -32,8 +32,8 @@ RSpec.describe V0::DependentsVerificationsController do
       end
     end
 
-    context 'with invalid params' do
-      it 'shows the validation errors' do
+    context 'with update set to false' do
+      it 'returns no content' do
         post(:create, params: { dependency_verification_claim: { form: { update_diaries: false } } })
         expect(response.code).to eq('204')
       end
