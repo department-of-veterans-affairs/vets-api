@@ -153,6 +153,8 @@ module AppealsApi
             whiteout_line pdf, :rep_first_name
             whiteout_line pdf, :rep_last_name
             whiteout_line pdf, :rep_email
+            whiteout_line pdf, :rep_international_number
+            whiteout_line pdf, :rep_domestic_ext
             fill_contestable_issues_text pdf
             pdf.text_box form_data.signature,
                          default_text_opts.merge(form_fields.boxes[:signature])
