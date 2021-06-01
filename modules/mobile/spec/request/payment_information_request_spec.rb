@@ -116,6 +116,17 @@ RSpec.describe 'payment_information', type: :request do
         end
       end
     end
+
+    context 'with a user without multifactor' do
+      before do
+        iam_sign_in(FactoryBot.build(:iam_user, :no_multifactor))
+      end
+
+      it 'returns forbidden' do
+        get '/mobile/v0/payment-information/benefits', headers: iam_headers
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
   end
 
   describe 'PUT /mobile/v0/payment-information' do
