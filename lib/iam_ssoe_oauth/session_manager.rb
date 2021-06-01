@@ -67,7 +67,6 @@ module IAMSSOeOAuth
 
     def build_session(access_token, user_identity)
       @session = IAMSession.new(token: access_token, uuid: user_identity.uuid)
-      @session
     rescue => e
       Rails.logger.error('IAMUser create user session: build session failed', error: e.message)
       raise e
