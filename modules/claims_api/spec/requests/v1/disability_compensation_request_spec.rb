@@ -476,5 +476,18 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(response.status).to eq(404)
       end
     end
+
+    context 'when a claim is already established' do
+      let(:auto_claim) { create(:auto_established_claim, :status_established) }
+
+      it 'returns a 404 error because only pending claims are allowed' do
+        with_okta_user(scopes) do |auth_header|
+          allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+          put("/services/claims/v1/forms/526/#{auto_claim.id}",
+              params: binary_params, headers: headers.merge(auth_header))
+          expect(response.status).to eq(404)
+        end
+      end
+    end
   end
 end

@@ -25,13 +25,9 @@ module AppealsApi
             form_fields.birth_day => form_data.birth_dd,
             form_fields.birth_year => form_data.birth_yyyy,
             form_fields.insurance_policy_number => form_data.insurance_policy_number,
-            form_fields.mailing_address_street => 'USE ADDRESS ON FILE',
-            form_fields.mailing_address_unit_number => '',
-            form_fields.mailing_address_city => '',
-            form_fields.mailing_address_state => '',
-            form_fields.mailing_address_country => '',
-            form_fields.mailing_address_zip_first_5 => '',
-            form_fields.mailing_address_zip_last_4 => '',
+            form_fields.mailing_address_state => form_data.state_code,
+            form_fields.mailing_address_country => form_data.country_code,
+            form_fields.mailing_address_zip_first_5 => form_data.zip_code_5,
             form_fields.veteran_homeless => form_data.veteran_homeless,
             form_fields.veteran_phone_area_code => form_data.veteran_phone_area_code,
             form_fields.veteran_phone_prefix => form_data.veteran_phone_prefix,
@@ -149,6 +145,8 @@ module AppealsApi
 
             whiteout_line pdf, :first_name
             whiteout_line pdf, :last_name
+            whiteout_line pdf, :number_and_street
+            whiteout_line pdf, :city
             whiteout_line pdf, :veteran_email
             pdf.start_new_page
 

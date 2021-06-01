@@ -182,7 +182,7 @@ group :development, :test do
   gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
   # assist with debugging production issues (https://github.com/department-of-veterans-affairs/vets.gov-team/pull/6262)
-  gem 'faraday_adapter_socks'
+  gem 'faraday_adapter_socks', git: 'https://github.com/rileyanderson/faraday_adapter_socks', branch: 'update-faraday-dependency'
   gem 'faraday_curl'
   gem 'fuubar'
   gem 'guard-rspec', '~> 4.7'
