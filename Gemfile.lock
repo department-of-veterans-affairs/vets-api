@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: ae2902bf06f05ef43c934a7d9cd7f8d207e0a30d
+  revision: c8f15fd9a0999a76cabdaf93e90e55b2e18a481d
   branch: master
   specs:
-    vets_json_schema (20.3.4)
+    vets_json_schema (20.4.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -197,7 +197,7 @@ GEM
     attr_extras (6.2.4)
     awesome_print (1.9.2)
     aws-eventstream (1.1.1)
-    aws-partitions (1.461.0)
+    aws-partitions (1.462.0)
     aws-sdk-core (3.114.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
@@ -206,7 +206,7 @@ GEM
     aws-sdk-kms (1.43.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.95.0)
+    aws-sdk-s3 (1.95.1)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -571,7 +571,7 @@ GEM
     netrc (0.11.0)
     nio4r (2.5.7)
     no_proxy_fix (0.1.2)
-    nokogiri (1.11.5)
+    nokogiri (1.11.6)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
     nori (2.6.0)

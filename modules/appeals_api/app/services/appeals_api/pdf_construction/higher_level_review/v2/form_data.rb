@@ -8,8 +8,9 @@ module AppealsApi
           @higher_level_review = higher_level_review
         end
 
-        delegate :first_name, :middle_initial, :last_name, :file_number, :insurance_policy_number, :contestable_issues,
-                 :birth_mm, :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :rep_email,
+        delegate :first_name, :middle_initial, :last_name, :number_and_street, :city, :state_code,
+                 :country_code, :file_number, :zip_code_5, :insurance_policy_number, :contestable_issues, :birth_mm,
+                 :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :rep_email,
                  to: :higher_level_review
 
         def first_three_ssn
@@ -80,23 +81,27 @@ module AppealsApi
         end
 
         def rep_first_name
-          higher_level_review.informal_conference_rep&.dig('firstName')
+          higher_level_review.informal_conference_rep&.dig('firstName') || ''
         end
 
         def rep_last_name
-          higher_level_review.informal_conference_rep&.dig('lastName')
+          higher_level_review.informal_conference_rep&.dig('lastName') || ''
         end
 
         def rep_phone_area_code
-          higher_level_review.rep_phone_data&.dig('areaCode')
+          higher_level_review.rep_phone_data&.dig('areaCode') || ''
         end
 
         def rep_phone_prefix
-          higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3)
+          higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3) || ''
         end
 
         def rep_phone_line_number
-          higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4)
+          higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4) || ''
+        end
+
+        def rep_email
+          higher_level_review.informal_conference_rep&.dig('email') || ''
         end
 
         def soc_opt_in
@@ -104,7 +109,7 @@ module AppealsApi
         end
 
         def signature
-          higher_level_review.full_name
+          "#{higher_level_review.full_name[0...180]}\n- Signed by digital authentication to api.va.gov"
         end
 
         def stamp_text
