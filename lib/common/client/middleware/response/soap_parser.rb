@@ -8,7 +8,7 @@ module Common
           def on_complete(env)
             case env.status
             when 200
-              doc = parse_doc(env.body)
+              doc = parse_doc(env.request_body)
               if doc_includes_error?(doc)
                 log_error_details(env)
                 raise Common::Client::Errors::HTTPError.new('SOAP service returned internal server error', 500)
