@@ -12,6 +12,9 @@ module Form1010cg
       find_submission(claim_guid)
 
       claim_pdf_path, poa_attachment_path = Form1010cg::Service.collect_attachments(submission.claim)
+
+      # ::submit_attachment! does an "upsert" of the document in CARMA,
+      # so this job can safely be executed multiple times.
       carma_attachments = Form1010cg::Service.submit_attachments!(
         submission.carma_case_id,
         veteran_name,

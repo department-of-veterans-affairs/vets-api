@@ -39,7 +39,8 @@ describe MPI::Service do
         '1008714701^PN^200PROV^USDVA^A',
         '32383600^PI^200CORP^USVBA^L'
       ],
-      search_token: nil
+      search_token: nil,
+      id_theft_flag: false
     )
   end
 
@@ -257,6 +258,16 @@ describe MPI::Service do
           response = subject.find_profile(user, MPI::Constants::CORRELATION_WITH_ICN_HISTORY)
           expect(response.status).to eq('OK')
           expect(response.profile['historical_icns']).to eq([])
+        end
+      end
+
+      it 'fetches id_theft flag' do
+        allow(user).to receive(:mhv_icn).and_return('1012870264V741864')
+
+        VCR.use_cassette('mpi/find_candidate/valid_id_theft_flag') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['id_theft_flag']).to eq(true)
         end
       end
 
