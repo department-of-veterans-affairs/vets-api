@@ -20,7 +20,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim
       end
 
-      claim.send_to_central_mail!
+      claim.send_to_central_mail! if current_user&.loa3?
 
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
       clear_saved_form(claim.form_id)
