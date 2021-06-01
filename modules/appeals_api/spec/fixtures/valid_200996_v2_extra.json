@@ -6,7 +6,14 @@
         "veteran": {
           "homeless": true,
           "address": {
-            "zipCode5": "30012"
+            "addressLine1": "123 Main St",
+            "addressLine2": "Suite #1200",
+            "addressLine3": "Box 4",
+            "city": "New York",
+            "countryCodeISO2": "US",
+            "stateCode": "NY",
+            "zipCode5": "30012",
+            "internationalPostalCode": "1"
           },
           "phone": {
             "countryCode": "34",
@@ -17,6 +24,7 @@
           "email": "josie@example.com",
           "timezone": "America/Chicago"
         },
+        "socOptIn": true,
         "informalConference": true,
         "informalConferenceContact": "veteran",
         "informalConferenceTime": "800-1200 ET",

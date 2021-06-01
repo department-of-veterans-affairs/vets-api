@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_25_183405) do
+ActiveRecord::Schema.define(version: 2021_05_28_151724) do
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "pg_stat_statements"
@@ -733,10 +734,10 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
+    t.text "services"
     t.uuid "idme_uuid"
   end
 
@@ -773,6 +774,8 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
     t.string "form_details_url"
     t.jsonb "va_form_administration"
     t.integer "row_id"
+    t.float "ranking"
+    t.string "tags"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
@@ -811,7 +814,6 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
     t.string "whodunnit"
     t.text "object"
     t.datetime "created_at"
-    t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
