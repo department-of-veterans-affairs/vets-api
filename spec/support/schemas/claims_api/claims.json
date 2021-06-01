@@ -8,6 +8,7 @@
       "items": {
         "required": ["id", "type", "attributes"],
         "additionalProperties": false,
+        "description": "Claim with some details for the given Veteran info",
         "properties": {
           "id": {
             "type": "string",
