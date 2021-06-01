@@ -65,8 +65,8 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 89a2382d1f1622ac103284960f822003a17375dd
-  branch: 5490-updates
+  revision: a814773c22920674823cf3052d82fbaaf9d4dbad
+  branch: master
   specs:
     vets_json_schema (20.5.0)
       multi_json (~> 1.0)
