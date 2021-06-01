@@ -115,7 +115,7 @@
         "homeless": { "type": "boolean"},
         "address":  { "$ref": "#/definitions/hlrCreateAddress" },
         "phone":    { "$ref": "#/definitions/hlrCreatePhone" },
-        "emailAddressText": {
+        "email": {
           "type": "string",
           "format": "email",
           "maxLength": 100

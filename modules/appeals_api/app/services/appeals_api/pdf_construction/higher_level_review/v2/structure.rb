@@ -17,6 +17,7 @@ module AppealsApi
           options = {
             # Section I: Vet's ID
             # Veteran name is filled out through autosize text box, not pdf fields
+            form_fields.middle_initial => form_data.middle_initial,
             form_fields.first_three_ssn => form_data.first_three_ssn,
             form_fields.second_two_ssn => form_data.second_two_ssn,
             form_fields.last_four_ssn => form_data.last_four_ssn,
