@@ -15,7 +15,6 @@ FactoryBot.define do
       zip { '78665' }
       ssn { '796121200' }
       iam_edipi { '1005079124' }
-      iam_icn { '1008596379V859838' }
       iam_sec_id { '0000028114' }
       multifactor { false }
 
