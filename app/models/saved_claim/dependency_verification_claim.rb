@@ -11,11 +11,11 @@ class SavedClaim::DependencyVerificationClaim < CentralMailClaim
   def send_to_central_mail!
     form_copy = parsed_form
 
-    if form_copy['veteranSocialSecurityNumber'].blank?
-      form_copy['veteranSocialSecurityNumber'] = parsed_form['dependencyVerification']['veteranInformation']['ssn']
+    form_copy['veteranSocialSecurityNumber'] = parsed_form['dependencyVerification']['veteranInformation']['ssn']
+    form_copy['veteranFullName'] = parsed_form['dependencyVerification']['veteranInformation']['fullName']
+    form_copy['veteranAddress'] = ''
 
-      update(form: form_copy.to_json)
-    end
+    update(form: form_copy.to_json)
 
     log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
     process_attachments!
