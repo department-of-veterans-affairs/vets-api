@@ -266,6 +266,7 @@ class User < Common::RedisStore
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
+  delegate :id_theft_flag, to: :mpi
   delegate :status, to: :mpi, prefix: true
   delegate :error, to: :mpi, prefix: true
   delegate :cerner_id, to: :mpi

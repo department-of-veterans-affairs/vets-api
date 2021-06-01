@@ -67,7 +67,7 @@
     },
 
     "hlrCreateInformalConferenceContact": {
-      "type": "array",
+      "type": "string",
       "enum": [ "veteran", "representative"]
     },
 
@@ -87,7 +87,7 @@
     },
 
     "hlrCreateRepresentativeName": {
-      "type": "string",
+      "type": "object",
       "properties": {
         "firstName": { "type": "string"},
         "lastName":  { "type": "string"}
@@ -134,6 +134,12 @@
     "hlrCreateAddress": {
       "type": "object",
       "properties": {
+        "addressLine1":            { "type": "string", "maxLength": 60 },
+        "addressLine2":            { "type": "string", "maxLength": 30 },
+        "addressLine3":            { "type": "string", "maxLength": 10 },
+        "city":                    { "type": "string", "maxLength": 60 },
+        "stateCode":               { "$ref": "#/definitions/hlrCreateStateCode" },
+        "countryCodeISO2":         { "type": "string", "pattern": "^[A-Z]{2}$" },
         "zipCode5": {
           "type": "string",
           "description": "5-digit zipcode. Use \"00000\" if Veteran is outside the United States",
@@ -172,6 +178,19 @@
       },
       "additionalProperties": false,
       "required": [ "issue", "decisionDate" ]
+    },
+
+    "hlrCreateStateCode": {
+      "type": "string",
+      "enum": [
+        "AL", "AK", "AS", "AZ", "AR", "AA", "AE", "AP", "CA", "CO",
+        "CT", "DE", "DC", "FM", "FL", "GA", "GU", "HI", "ID", "IL",
+        "IN", "IA", "KS", "KY", "LA", "ME", "MH", "MD", "MA", "MI",
+        "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY",
+        "NC", "ND", "MP", "OH", "OK", "OR", "PW", "PA", "PR", "RI",
+        "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV",
+        "WI", "WY"
+      ]
     }
   }
 }
