@@ -118,26 +118,40 @@ module SM
     #
     # @return [Common::Collection]
     #
+    # rubocop:disable Metrics/MethodLength
     def get_folder_messages(user_uuid, folder_id, use_cache)
       cache_key = "#{user_uuid}-folder-messages-#{folder_id}"
+
+      # Get folders and count so we can determine max page size
+      folders = get_folders(user_uuid, true)
+      current_folder = folders.find_first_by('id' => { 'eq' => folder_id })
+      folder_count = current_folder[:count]
+
       get_cached_or_fetch_data(use_cache, cache_key, Message) do
-        page = 1
-        json = { data: [], errors: {}, metadata: {} }
+        if folder_count > MHV_MAXIMUM_PER_PAGE
+          # If folder_count is greater than the MHV max allowed, loop at increments of the max
+          page = 1
+          json = { data: [], errors: {}, metadata: {} }
+          loop do
+            path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
+            page_data = perform(:get, path, nil, token_headers).body
+            json[:data].concat(page_data[:data])
+            json[:metadata].merge(page_data[:metadata])
+            break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
 
-        loop do
-          path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-          page_data = perform(:get, path, nil, token_headers).body
-          json[:data].concat(page_data[:data])
-          json[:metadata].merge(page_data[:metadata])
-          break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
-
-          page += 1
+            page += 1
+          end
+        else
+          # Otherwise, get all the messages in one shot and cache
+          json = perform(:get, "folder/#{folder_id}/message/page/1/pageSize/#{folder_count}", nil, token_headers).body
         end
+
         messages = Common::Collection.new(Message, json)
         Message.set_cached(cache_key, messages)
         messages
       end
     end
+    # rubocop:enable Metrics/MethodLength
     # @!endgroup
 
     ##
