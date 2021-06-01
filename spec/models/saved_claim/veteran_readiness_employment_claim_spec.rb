@@ -74,7 +74,10 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
 
-          expect(response['error_occurred']).to eq(false)
+          # the business has asked us to put a pause on submissions
+          # so this is just a temporary change but will be put back
+          # expect(response['error_occurred']).to eq(false)
+          expect(response).to eq(nil)
         end
       end
 
@@ -91,7 +94,10 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
 
-          expect(response['error_occurred']).to eq(true)
+          # the business has asked us to put a pause on submissions
+          # so this is just a temporary change but will be put back
+          # expect(response['error_occurred']).to eq(true)
+          expect(response).to eq(nil)
         end
       end
     end
