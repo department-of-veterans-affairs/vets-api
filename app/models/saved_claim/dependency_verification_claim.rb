@@ -11,8 +11,8 @@ class SavedClaim::DependencyVerificationClaim < CentralMailClaim
   def send_to_central_mail!
     form_copy = parsed_form
 
-    form_copy['veteranSocialSecurityNumber'] = parsed_form['dependencyVerification']['veteranInformation']['ssn']
-    form_copy['veteranFullName'] = parsed_form['dependencyVerification']['veteranInformation']['fullName']
+    form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('dependencyVerification', 'veteranInformation', 'ssn')
+    form_copy['veteranFullName'] = parsed_form.dig('dependencyVerification', 'veteranInformation', 'fullName')
     form_copy['veteranAddress'] = ''
 
     update(form: form_copy.to_json)
