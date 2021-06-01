@@ -81,7 +81,7 @@
       "properties": {
         "name":  { "$ref": "#/definitions/hlrCreateRepresentativeName" },
         "phone": { "$ref": "#/definitions/hlrCreatePhone" },
-        "emailAddressText": {
+        "email": {
           "type": "string",
           "format": "email",
           "maxLength": 100
