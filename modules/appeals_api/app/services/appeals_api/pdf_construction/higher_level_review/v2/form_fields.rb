@@ -4,6 +4,10 @@ module AppealsApi
   module PdfConstruction
     module HigherLevelReview::V2
       class FormFields
+        def middle_initial
+          'form1[0].#subform[2].Veteran_Middle_Initial1[0]'
+        end
+
         def first_three_ssn
           'form1[0].#subform[2].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]'
         end

@@ -11,7 +11,7 @@
           "areaCode": "555",
           "phoneNumber": "8001111"
         },
-        "emailAddressText": "josie@example.com",
+        "email": "josie@example.com",
         "timezone": "America/Chicago",
         "homeless": false
       },
