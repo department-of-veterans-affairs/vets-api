@@ -81,7 +81,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -401,7 +401,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -415,7 +415,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "196bb896-8d75-42d8-9049-cc4a708c0109",
+                    "id": "011c0b25-68c7-4331-8abf-c044a0f8e4ee",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -464,11 +464,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "be3be8d7-5404-4503-9d48-b321730e039b",
+                          "id": "c300f6c7-b574-4844-9bd7-574f63b79a87",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-05-25T13:44:05.081Z"
+                          "uploaded_at": "2021-06-01T16:06:39.095Z"
                         }
                       ]
                     }
@@ -2116,7 +2116,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -2129,7 +2129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e756f355-667e-465d-a953-c7411242a3c1",
+                    "id": "351451bf-4b63-4383-9f59-f1adfe64b9d3",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2147,13 +2147,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-25T13:44:05.440Z",
+                      "updated_at": "2021-06-01T16:06:39.487Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "e756f355-667e-465d-a953-c7411242a3c1",
+                      "token": "351451bf-4b63-4383-9f59-f1adfe64b9d3",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3756,7 +3756,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -3769,7 +3769,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9e7401e7-cc2a-4e39-8d32-ac059da0acf3",
+                    "id": "6336dbd6-b048-4e71-ae47-006b0722bd43",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3787,13 +3787,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-25T13:44:05.771Z",
+                      "updated_at": "2021-06-01T16:06:39.857Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "9e7401e7-cc2a-4e39-8d32-ac059da0acf3",
+                      "token": "6336dbd6-b048-4e71-ae47-006b0722bd43",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4215,7 +4215,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -5768,7 +5768,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -5781,7 +5781,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c1283277-60fd-4f70-8725-3dcf13b97d07",
+                    "id": "21405ac4-1c37-4107-951d-e540b8c41134",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5795,7 +5795,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-05-25T13:44:06.424Z",
+                      "updated_at": "2021-06-01T16:06:40.633Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5804,7 +5804,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "11b4717b-fdb4-4823-90e9-519c1e6fe46c",
+                          "id": "696dcc25-ef72-4a9e-b61e-b7a1f10c8c2c",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6265,7 +6265,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -6626,7 +6626,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -6939,7 +6939,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -7621,7 +7621,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -7634,11 +7634,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "265d7d6a-dd51-4cb7-94ff-d3a9f42b9a67",
+                    "id": "af4b5334-4e2b-4f74-91c8-8f253cd0b30e",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-05-25",
+                      "date_request_accepted": "2021-06-01",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8305,7 +8305,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -8318,11 +8318,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0007c72b-bd0a-443c-b571-0683c468435f",
+                    "id": "f7a00c9c-f91a-4bed-a727-9ed4e881a0cc",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-25",
+                      "date_request_accepted": "2021-06-01",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8599,7 +8599,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -8612,11 +8612,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1c186bbf-d5ef-4fa4-993f-4929234da2da",
+                    "id": "54b9e8d2-722e-489d-ac3a-6852660a0915",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-05-25",
+                      "date_request_accepted": "2021-06-01",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8870,7 +8870,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
@@ -9156,7 +9156,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative",
+            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
             "schema": {
               "type": "string"
             }
