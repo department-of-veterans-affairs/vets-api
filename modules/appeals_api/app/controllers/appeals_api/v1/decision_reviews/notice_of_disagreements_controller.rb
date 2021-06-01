@@ -82,7 +82,8 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
       auth_headers: headers,
       form_data: @json_body,
       source: headers['X-Consumer-Username'],
-      board_review_option: @json_body['data']['attributes']['boardReviewOption']
+      board_review_option: @json_body['data']['attributes']['boardReviewOption'],
+      api_version: 'V1'
     )
     render_model_errors unless @notice_of_disagreement.validate
   end
