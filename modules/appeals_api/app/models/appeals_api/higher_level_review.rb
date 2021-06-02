@@ -118,7 +118,7 @@ module AppealsApi
     end
 
     def zip_code_5
-      veteran.dig('address', 'zipCode5')
+      veteran.dig('address', 'zipCode5') || '00000'
     end
 
     # 10. TELEPHONE NUMBER

@@ -79,11 +79,35 @@ describe HealthQuest::Shared::OptionsBuilder do
     end
   end
 
+  describe '#org_id' do
+    let(:filters) { loc_filter.merge!(organization: '456def').with_indifferent_access }
+
+    it 'has an org_id' do
+      expect(options_builder.org_id).to eq('456def')
+    end
+  end
+
   describe '#organization_ids' do
     let(:filters) { org_filter.merge!(_id: '123abc,456def').with_indifferent_access }
 
     it 'has a organization_ids' do
       expect(options_builder.organization_ids).to eq('123abc,456def')
+    end
+  end
+
+  describe '#organization_identifier' do
+    let(:filters) { org_filter.merge!(identifier: '123abc').with_indifferent_access }
+
+    it 'has an organization_identifier' do
+      expect(options_builder.organization_identifier).to eq('123abc')
+    end
+  end
+
+  describe '#resource_count' do
+    let(:filters) { org_filter.merge!(_count: '30').with_indifferent_access }
+
+    it 'has a resource_count' do
+      expect(options_builder.resource_count).to eq('30')
     end
   end
 
@@ -102,7 +126,7 @@ describe HealthQuest::Shared::OptionsBuilder do
 
       it 'has relevant keys' do
         expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys)
-          .to eq(%i[patient date location])
+          .to eq(%i[patient date location _count])
       end
     end
 
@@ -111,7 +135,7 @@ describe HealthQuest::Shared::OptionsBuilder do
 
       it 'has relevant keys' do
         expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys)
-          .to eq(%i[subject source authored])
+          .to eq(%i[subject source authored _count])
       end
     end
 
@@ -119,7 +143,8 @@ describe HealthQuest::Shared::OptionsBuilder do
       let(:filters) { q_filter.merge!('context-type-value': '123').with_indifferent_access }
 
       it 'has relevant keys' do
-        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[context-type-value])
+        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys)
+          .to eq(%i[context-type-value _count])
       end
     end
 
@@ -127,7 +152,7 @@ describe HealthQuest::Shared::OptionsBuilder do
       let(:filters) { loc_filter.merge!(_id: '123abc,456def').with_indifferent_access }
 
       it 'has relevant keys' do
-        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[_id])
+        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[_id organization _count])
       end
     end
 
@@ -135,7 +160,7 @@ describe HealthQuest::Shared::OptionsBuilder do
       let(:filters) { org_filter.merge!(_id: '123abc,456def').with_indifferent_access }
 
       it 'has relevant keys' do
-        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[_id])
+        expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys).to eq(%i[_id identifier _count])
       end
     end
   end
