@@ -36,7 +36,7 @@
   "paths": {
     "/claims": {
       "get": {
-        "summary": "Find all benefits claims for a Veteran",
+        "summary": "Retrieves all claims for a Veteran",
         "tags": [
           "Claims"
         ],
@@ -81,7 +81,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -130,14 +130,14 @@
                           "attributes"
                         ],
                         "additionalProperties": false,
-                        "description": "Claim with some details for the given Veteran info",
                         "properties": {
                           "id": {
                             "type": "string",
                             "description": "Claim ID from EVSS"
                           },
                           "type": {
-                            "type": "string"
+                            "type": "string",
+                            "description": "Required by JSON API standard"
                           },
                           "attributes": {
                             "type": "object",
@@ -162,8 +162,7 @@
                               "date_filed": {
                                 "type": "string",
                                 "format": "date",
-                                "description": "Date in YYYY-MM-DD the claim was first filed",
-                                "example": "2018-06-04"
+                                "description": "Date in YYYY-MM-DD the claim was first filed"
                               },
                               "min_est_date": {
                                 "type": [
@@ -171,8 +170,7 @@
                                   "null"
                                 ],
                                 "format": "date",
-                                "description": "Minimum Estimated Claim Completion Date",
-                                "example": "2019-06-04"
+                                "description": "Minimum Estimated Claim Completion Date"
                               },
                               "max_est_date": {
                                 "type": [
@@ -180,8 +178,7 @@
                                   "null"
                                 ],
                                 "format": "date",
-                                "description": "Maximum Estimated Claim Completion Date",
-                                "example": "2019-09-04"
+                                "description": "Maximum Estimated Claim Completion Date"
                               },
                               "open": {
                                 "type": "boolean",
@@ -351,7 +348,7 @@
     },
     "/claims/{id}": {
       "get": {
-        "summary": "Find Claim by ID",
+        "summary": "Find Claim id",
         "tags": [
           "Claims"
         ],
@@ -404,7 +401,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -418,7 +415,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "518b9b58-084b-4b77-ba47-dcad8ae9a7d2",
+                    "id": "7222c6ac-d6bd-4673-a74d-5e89b5a8b11a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -467,11 +464,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "82b7f61f-13ce-435a-b238-eebaff9b7c14",
+                          "id": "78ce7c02-faa4-4293-abf1-3e0a6a706ea0",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-02T19:29:57.389Z"
+                          "uploaded_at": "2021-06-02T21:08:14.977Z"
                         }
                       ]
                     }
@@ -498,7 +495,8 @@
                           "description": "Claim ID from EVSS"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -527,8 +525,7 @@
                             "date_filed": {
                               "type": "string",
                               "format": "date",
-                              "description": "Date in YYYY-MM-DD the claim was first filed",
-                              "example": "2018-06-04"
+                              "description": "Date in YYYY-MM-DD the claim was first filed"
                             },
                             "min_est_date": {
                               "type": [
@@ -536,8 +533,7 @@
                                 "null"
                               ],
                               "format": "date",
-                              "description": "Minimum Estimated Claim Completion Date",
-                              "example": "2019-06-04"
+                              "description": "Minimum Estimated Claim Completion Date"
                             },
                             "max_est_date": {
                               "type": [
@@ -545,8 +541,7 @@
                                 "null"
                               ],
                               "format": "date",
-                              "description": "Maximum Estimated Claim Completion Date",
-                              "example": "2019-09-04"
+                              "description": "Maximum Estimated Claim Completion Date"
                             },
                             "open": {
                               "type": "boolean",
@@ -685,7 +680,8 @@
                                     "description": "Unique identifier of document"
                                   },
                                   "type": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "Required by JSON API standard"
                                   },
                                   "md5": {
                                     "type": "string",
@@ -2087,7 +2083,7 @@
             ]
           }
         ],
-        "description": "Establishes a [Disability Compensation Claim](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) in VBMS. Submits any PDF attachments as a multi-part payload and returns an ID. For claims that are not original claims, this endpoint generates a filled 526 PDF along with the submission.\n<br/><br/>\nA 200 response indicates the submission was successful, but the claim has not reached VBMS until it has a “claim established” status. Check claim status using the GET /claims/{id} endpoint.\n<br/><br/>\n**Original claims**<br/>\nAn original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have either the Veteran’s wet signature or e-signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s signature. Uploading a PDF for subsequent claims is not required or recommended.\n<br/><br/>\nPOST the original claim with the autoCestPDFGenerationDisabled boolean as true. After a 200 response, use the PUT /forms/526/{id} endpoint to upload a scanned PDF of your form, signed in ink or e-signature, by the Veteran.\n<br/><br/>\nThe claim data submitted through the POST endpoint must match the signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.\n<br/><br/>\n**Standard and fully developed claims (FDCs)**<br/>\n[Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/) are claims certified by the submitter to include all information needed for processing. These claims process faster than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, it will route through the standard claim process.\n<br/><br/>\nTo certify a claim for the FDC process, set the standardClaim indicator to false.\n<br/><br/>\n**Flashes and special issues**<br/>\nIncluding flashes and special issues in your 526 claim submission helps VA properly route and prioritize current and future claims for the Veteran and reduces claims processing time.\n\n - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness. See a full list of [supported flashes](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L35).\n - Special Issues are attributes that describe special circumstances which apply to a particular claim, such as PTSD. See a full list of [supported special Issues](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L28).\n\n",
+        "description": "Establishes a [Disability Compensation Claim](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) in VBMS. Submits any PDF attachments as a multi-part payload and returns an ID. For claims that are not original claims, this endpoint generates a filled 526 PDF along with the submission.\n<br/><br/>\nA 200 response indicates the submission was successful, but the claim has not reached VBMS until it has a “claim established” status. Check claim status using the GET /claims/{id}   endpoint.\n<br/><br/>\n**Original claims**<br/>\nAn original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have the Veteran’s wet signature or e-signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s wet signature. Uploading a PDF for subsequent claims is not required or recommended.\n<br/><br/>\nPOST the original claim with the autoCestPDFGenerationDisabled boolean   as true. After a 200 response, use the PUT /forms/526/{id} endpoint to upload a scanned PDF of your form, signed in ink or e-signature, by the Veteran.\n<br/><br/>\nThe claim data submitted through the POST endpoint must match the wet-signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.\n<br/><br/>\n**Standard and fully developed claims (FDCs)**<br/>\n[Fully developed claims (FDCs)](https://www.va.gov/  disability/how-to-file-claim/evidence-needed/fully-developed-claims/) are claims certified by the submitter to include all information needed for processing. These claims process faster than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, it will route through the standard claim process.\n<br/><br/>\nTo certify a claim for the FDC process, set the standardClaim indicator to false.\n<br/><br/>\n**Flashes and   special issues**<br/>\nIncluding flashes and special issues in your 526 claim submission helps VA properly route and prioritize current and future claims for the Veteran and reduces claims processing time.\n\n - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness. See a full list of [supported flashes](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/  claims_api/config/schemas/526.json#L35).\n - Special Issues are attributes that describe special circumstances which apply to a particular claim, such as PTSD. See a full list of [supported special Issues](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L28).\n\n",
         "parameters": [
           {
             "in": "header",
@@ -2120,7 +2116,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -2133,7 +2129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "23b0bf42-f7d2-45f4-b045-09f3052608f0",
+                    "id": "e06629d6-9ba9-411d-be1f-31df1ba3be05",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2151,13 +2147,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T19:29:57.851Z",
+                      "updated_at": "2021-06-02T21:08:15.685Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "23b0bf42-f7d2-45f4-b045-09f3052608f0",
+                      "token": "e06629d6-9ba9-411d-be1f-31df1ba3be05",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -2187,7 +2183,8 @@
                           "description": "Internal vets-api Claim ID"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -3717,7 +3714,7 @@
             ]
           }
         ],
-        "description": "Used to upload a completed, signed 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.\n<br/><br/>\nThis endpoint works by accepting a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3). Each attachment should be encoded separately rather than encoding the whole payload together as with the Benefits Intake API.\n<br/><br/>\nFor other attachments, such as medical records, use the /forms/526/{id}/attachments endpoint.\n\n",
+        "description": "Used to upload a completed, wet-signed 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.\n<br/><br/>\nThis endpoint works by accepting a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3). Each attachment should be encoded separately rather than encoding the whole payload together as with the Benefits Intake API.\n<br/><br/>\nFor other attachments, such as medical records, use the /forms/526/{id}/attachments endpoint.\n\n",
         "parameters": [
           {
             "name": "id",
@@ -3759,7 +3756,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -3772,7 +3769,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9b38e939-571a-4bf4-ac40-6ef5c95d973e",
+                    "id": "b5af43ec-0222-44f8-b8e0-140874c743af",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3790,13 +3787,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T19:29:58.089Z",
+                      "updated_at": "2021-06-02T21:08:16.163Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "9b38e939-571a-4bf4-ac40-6ef5c95d973e",
+                      "token": "b5af43ec-0222-44f8-b8e0-140874c743af",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3826,7 +3823,8 @@
                           "description": "Internal vets-api Claim ID"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -4217,7 +4215,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -4252,7 +4250,8 @@
                       ],
                       "properties": {
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -5769,7 +5768,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -5782,7 +5781,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "97569857-5d6c-4662-b9bb-f77df9713b80",
+                    "id": "722dd200-2e3a-4976-8e24-53babc15a1d0",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5796,7 +5795,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T19:29:58.869Z",
+                      "updated_at": "2021-06-02T21:08:17.059Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5805,7 +5804,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "4d3163f7-7018-4452-821f-1ac7b0ef5507",
+                          "id": "5f458e8e-7e29-4398-a8a4-64e36faa66e6",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -5836,7 +5835,8 @@
                           "description": "Internal vets-api Claim ID"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -5988,7 +5988,8 @@
                                     "description": "Unique identifier of document"
                                   },
                                   "type": {
-                                    "type": "string"
+                                    "type": "string",
+                                    "description": "Required by JSON API standard"
                                   },
                                   "md5": {
                                     "type": [
@@ -6264,7 +6265,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -6306,7 +6307,8 @@
                           "description": "Intent to File ID from EVSS"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -6624,7 +6626,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -6675,7 +6677,8 @@
                           "description": "Intent to File ID from EVSS"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -6936,7 +6939,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -6969,7 +6972,8 @@
                       ],
                       "properties": {
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -7584,7 +7588,7 @@
             ]
           }
         ],
-        "description": "The endpoint establishes POA for a representative.\nOnce ID.me authorizes the Veteran or VSO via OpenID, this endpoint requests the:\n\n - poaCode\n - Signature, which can be a:\n\n   - Base64-encoded image or signature block, allowing the API to auto-populate\nand attach the VA 21-22 form to the request without requiring a PDF upload, or\n\n   - PDF documentation of VA 21-22 form with an ink signature, attached using the PUT /forms/2122/{id} endpoint\n\n\nA 200 response means the submission was successful, but does not mean the POA is effective.\nCheck the status of a POA submission by using the GET /forms/2122/{id} endpoint.\n\n",
+        "description": "The endpoint establishes POA for a representative.\nOnce ID.me authorizes the Veteran or VSO via OpenID, this endpoint requests the:\n\n - poaCode\n - POA first name\n - POA last name\n - Signature, which can be a:\n\n   - Base64-encoded image or signature block, allowing the API to auto-populate\nand attach the VA 21-22 form to the request without requiring a PDF upload, or\n\n   - PDF documentation of VA 21-22 form with an ink signature, attached using the PUT /forms/2122/{id} endpoint\n\n\nA 200 response means the submission was successful, but does not mean the POA is effective.\nCheck the status of a POA submission by using the GET /forms/2122/{id} endpoint.\n\n",
         "parameters": [
           {
             "in": "header",
@@ -7617,7 +7621,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -7630,7 +7634,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d5b34b7b-d00b-43a4-9d88-7d6f734251bc",
+                    "id": "4e7ea59f-137e-4b21-bfc3-4bc7436e1fd4",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -7665,7 +7669,8 @@
                           "description": "Power of Attorney Submission UUID"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -8300,7 +8305,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -8313,7 +8318,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0b444df7-7735-4600-a7f1-f7a01c105c60",
+                    "id": "fd2adfcd-cc08-44c5-a2f5-939c192cc045",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -8348,7 +8353,8 @@
                           "description": "Power of Attorney Submission UUID"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -8593,7 +8599,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -8606,7 +8612,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4ae3b36c-8c1a-49dc-972e-079065c2dc89",
+                    "id": "791dd79d-d523-42ff-b15e-9afcf4c20d0a",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -8641,7 +8647,8 @@
                           "description": "Power of Attorney Submission UUID"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -8863,7 +8870,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -8883,7 +8890,9 @@
                       "date_request_accepted": null,
                       "representative": {
                         "service_organization": {
-                          "name": "Some Great Organization",
+                          "first_name": null,
+                          "last_name": null,
+                          "organization_name": null,
                           "phone_number": "555-555-5555",
                           "poa_code": "HelloWorld"
                         }
@@ -8912,7 +8921,8 @@
                           "type": "null"
                         },
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
@@ -8959,9 +8969,28 @@
                                       "type": "string",
                                       "description": "Power of Attorney Code submitted for Veteran"
                                     },
-                                    "name": {
-                                      "description": "Name of representative.  Can be organization or individual name.",
-                                      "type": "string",
+                                    "first_name": {
+                                      "description": "First name of representative, null if representative is an organization",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "example": "Jane"
+                                    },
+                                    "last_name": {
+                                      "description": "Last name of representative, null if representative is an organization",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "example": "Doe"
+                                    },
+                                    "organization_name": {
+                                      "description": "Name of representing organization, null if representative is an individual",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
                                       "example": "Some Great Organization"
                                     },
                                     "phone_number": {
@@ -9148,7 +9177,7 @@
             "in": "header",
             "name": "X-VA-Birth-Date",
             "required": false,
-            "description": "Veteran birthdate if consumer is representative, in iso8601 format",
+            "description": "Veteran birthdate if consumer is representative",
             "schema": {
               "type": "string"
             }
@@ -9183,7 +9212,8 @@
                       ],
                       "properties": {
                         "type": {
-                          "type": "string"
+                          "type": "string",
+                          "description": "Required by JSON API standard"
                         },
                         "attributes": {
                           "type": "object",
