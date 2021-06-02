@@ -52,8 +52,8 @@ module HealthQuest
             date: appointment_dates,
             location: clinic_id
           },
-          location: { _id: location_ids },
-          organization: { _id: organization_ids },
+          location: { _id: location_ids, organization: org_id },
+          organization: { _id: organization_ids, identifier: organization_identifier },
           questionnaire_response: {
             subject: appointment_reference,
             source: user.icn,
@@ -79,6 +79,24 @@ module HealthQuest
       #
       def organization_ids
         @organization_ids ||= filters&.fetch(:_id, nil)
+      end
+
+      ##
+      # Get the list of locations for an organization from the filters.
+      #
+      # @return [String]
+      #
+      def org_id
+        @org_id ||= filters&.fetch(:organization, nil)
+      end
+
+      ##
+      # Get the organization identifier from the filters.
+      #
+      # @return [String]
+      #
+      def organization_identifier
+        @organization_identifier ||= filters&.fetch(:identifier, nil)
       end
 
       ##
