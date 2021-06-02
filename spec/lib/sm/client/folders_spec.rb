@@ -41,20 +41,24 @@ describe 'sm client' do
 
     context 'nested resources' do
       it 'gets a collection of messages (mhv max)', :vcr do
-        # set the max pages to 1 for testing purposes
-        stub_const('SM::Client::MHV_MAXIMUM_PER_PAGE', 2)
-        # There are 10 records, 2 per page, so it should loop 6 times making requests
-        expect(client).to receive(:perform).and_call_original.exactly(6).times
-        messages = client.get_folder_messages('1234', folder_id, false)
-        expect(messages).to be_a(Common::Collection)
-        expect(messages.data.size).to eq(10)
+        VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
+          # set the max pages to 1 for testing purposes
+          stub_const('SM::Client::MHV_MAXIMUM_PER_PAGE', 2)
+          # There are 10 records, 2 per page, so it should loop 6 times making requests
+          expect(client).to receive(:perform).and_call_original.exactly(6).times
+          messages = client.get_folder_messages('1234', folder_id)
+          expect(messages).to be_a(Common::Collection)
+          expect(messages.data.size).to eq(10)
+        end
       end
 
       it 'gets a collection of messages', :vcr do
-        expect(client).to receive(:perform).and_call_original.once
-        messages = client.get_folder_messages('1234', folder_id, false)
-        expect(messages).to be_a(Common::Collection)
-        expect(messages.data.size).to eq(10)
+        VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
+          expect(client).to receive(:perform).and_call_original.twice
+          messages = client.get_folder_messages('1234', folder_id)
+          expect(messages).to be_a(Common::Collection)
+          expect(messages.data.size).to eq(10)
+        end
       end
     end
   end

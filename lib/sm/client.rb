@@ -119,31 +119,36 @@ module SM
     # @return [Common::Collection]
     #
     # rubocop:disable Metrics/MethodLength
-    def get_folder_messages(user_uuid, folder_id, use_cache)
+    def get_folder_messages(user_uuid, folder_id)
       cache_key = "#{user_uuid}-folder-messages-#{folder_id}"
 
-      # Get folders and count so we can determine max page size
-      folders = get_folders(user_uuid, true)
-      current_folder = folders.find_first_by('id' => { 'eq' => folder_id })
-      folder_count = current_folder[:count]
+      # MHV API doesn't allow for a page_size > total number of messages in folder, so
+      # we get the folder's message count here
+      current_folder = get_folder(folder_id)
+      total_count = current_folder[:count]
+
+      # If we have cached messages and the length is the same as the total_count above, use cache
+      cached_messages = Message.get_cached(cache_key) || []
+      use_cache = cached_messages.length == total_count
+
+      # Determine page size and total pages.  MHV has a max page size of 250. Use whichever is lesser for page_size
+      page_size = total_count < MHV_MAXIMUM_PER_PAGE ? total_count : MHV_MAXIMUM_PER_PAGE
+      total_pages = (total_count / page_size.to_f).ceil
 
       get_cached_or_fetch_data(use_cache, cache_key, Message) do
-        if folder_count > MHV_MAXIMUM_PER_PAGE
-          # If folder_count is greater than the MHV max allowed, loop at increments of the max
-          page = 1
-          json = { data: [], errors: {}, metadata: {} }
-          loop do
-            path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-            page_data = perform(:get, path, nil, token_headers).body
-            json[:data].concat(page_data[:data])
-            json[:metadata].merge(page_data[:metadata])
-            break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
+        page = 1
+        json = { data: [], errors: {}, metadata: {} }
 
-            page += 1
-          end
-        else
-          # Otherwise, get all the messages in one shot and cache
-          json = perform(:get, "folder/#{folder_id}/message/page/1/pageSize/#{folder_count}", nil, token_headers).body
+        # If total count > 250, we'll have to loop multiple times using the MHV_MAXIMUM_PER_PAGE
+        # In mose cases, there'll be less than 250 messages in a given folder, so this will only run once
+        loop do
+          path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{page_size}"
+          page_data = perform(:get, path, nil, token_headers).body
+          json[:data].concat(page_data[:data])
+          json[:metadata].merge(page_data[:metadata])
+          break unless page < total_pages
+
+          page += 1
         end
 
         messages = Common::Collection.new(Message, json)

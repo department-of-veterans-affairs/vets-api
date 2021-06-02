@@ -139,7 +139,7 @@ RSpec.describe 'Folders Integration', type: :request do
     describe 'nested resources' do
       it 'gets messages#index' do
         VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-          VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
+          VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
             get "/v0/messaging/health/folders/#{inbox_id}/messages"
           end
         end
@@ -149,54 +149,55 @@ RSpec.describe 'Folders Integration', type: :request do
         expect(response).to match_response_schema('messages')
       end
 
-      # it 'gets messages#index with camel-inflection' do
-      #   VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-      #     get "/v0/messaging/health/folders/#{inbox_id}/messages", headers: inflection_header
-      #   end
+      it 'gets messages#index with camel-inflection' do
+        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+          VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
+            get "/v0/messaging/health/folders/#{inbox_id}/messages", headers: inflection_header
+          end
+        end
 
-      #   expect(response).to be_successful
-      #   expect(response).to have_http_status(:ok)
-      #   expect(response).to match_camelized_response_schema('messages')
-      # end
+        expect(response).to be_successful
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_camelized_response_schema('messages')
+      end
     end
 
-    # describe 'pagination' do
-      # it 'provides pagination indicators' do
+    describe 'pagination' do
+      it 'provides pagination indicators' do
+        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+          VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
+            get "/v0/messaging/health/folders/#{inbox_id}/messages"
+          end
+        end
 
-      #   VCR.use_cassette('sm_client/folders/gets_a_collection_of_folders') do
-      #     get '/v0/messaging/health/folders'
+        payload = JSON.parse(response.body)
+        pagination = payload['meta']['pagination']
+        expect(pagination['total_entries']).to eq(10)
+      end
 
-      #     VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-      #       get "/v0/messaging/health/folders/#{inbox_id}/messages"
-      #     end
-  
-      #     payload = JSON.parse(response.body)
-      #     pagination = payload['meta']['pagination']
-      #     expect(pagination['total_entries']).to eq(10)
-      #   end
+      it 'respects pagination parameters' do
+        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+          VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
+            get "/v0/messaging/health/folders/#{inbox_id}/messages", params: { page: 2, per_page: 3 }
+          end
+        end
 
-        
-      # end
+        payload = JSON.parse(response.body)
+        pagination = payload['meta']['pagination']
+        expect(pagination['current_page']).to eq(2)
+        expect(pagination['per_page']).to eq(3)
+        expect(pagination['total_pages']).to eq(4)
+        expect(pagination['total_entries']).to eq(10)
+      end
 
-      # it 'respects pagination parameters' do
-      #   VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-      #     get "/v0/messaging/health/folders/#{inbox_id}/messages", params: { page: 2, per_page: 3 }
-      #   end
-
-      #   payload = JSON.parse(response.body)
-      #   pagination = payload['meta']['pagination']
-      #   expect(pagination['current_page']).to eq(2)
-      #   expect(pagination['per_page']).to eq(3)
-      #   expect(pagination['total_pages']).to eq(4)
-      #   expect(pagination['total_entries']).to eq(10)
-      # end
-
-      # it 'generates a 4xx error for out of bounds pagination' do
-      #   VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-      #     get "/v0/messaging/health/folders/#{inbox_id}/messages", params: { page: 3, per_page: 10 }
-      #   end
-      #   expect(response).to have_http_status(:bad_request)
-      # end
-    # end
+      it 'generates a 4xx error for out of bounds pagination' do
+        VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
+          VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
+            get "/v0/messaging/health/folders/#{inbox_id}/messages", params: { page: 3, per_page: 10 }
+          end
+        end
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
   end
 end
