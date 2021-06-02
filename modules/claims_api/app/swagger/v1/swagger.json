@@ -419,7 +419,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ee30a4fd-8c62-4411-aa42-cd6b29e07ba1",
+                    "id": "3d38690c-5119-475c-a877-3aa0ab3e742c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -468,11 +468,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "e1bb2e1c-28f1-4a06-a9fc-d82c2f94cbc6",
+                          "id": "317e8ed5-cdf1-4eef-85e7-a9cf7f74b3b0",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-02T13:47:55.965Z"
+                          "uploaded_at": "2021-06-02T18:32:43.656Z"
                         }
                       ]
                     }
@@ -2090,7 +2090,7 @@
             ]
           }
         ],
-        "description": "Establishes a [Disability Compensation Claim](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) in VBMS. Submits any PDF attachments as a multi-part payload and returns an ID. For claims that are not original claims, this endpoint generates a filled 526 PDF along with the submission.\n<br/><br/>\nA 200 response indicates the submission was successful, but the claim has not reached VBMS until it has a “claim established” status. Check claim status using the GET /claims/{id}   endpoint.\n<br/><br/>\n**Original claims**<br/>\nAn original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have the Veteran’s wet signature or e-signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s wet signature. Uploading a PDF for subsequent claims is not required or recommended.\n<br/><br/>\nPOST the original claim with the autoCestPDFGenerationDisabled boolean   as true. After a 200 response, use the PUT /forms/526/{id} endpoint to upload a scanned PDF of your form, signed in ink or e-signature, by the Veteran.\n<br/><br/>\nThe claim data submitted through the POST endpoint must match the wet-signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.\n<br/><br/>\n**Standard and fully developed claims (FDCs)**<br/>\n[Fully developed claims (FDCs)](https://www.va.gov/  disability/how-to-file-claim/evidence-needed/fully-developed-claims/) are claims certified by the submitter to include all information needed for processing. These claims process faster than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, it will route through the standard claim process.\n<br/><br/>\nTo certify a claim for the FDC process, set the standardClaim indicator to false.\n<br/><br/>\n**Flashes and   special issues**<br/>\nIncluding flashes and special issues in your 526 claim submission helps VA properly route and prioritize current and future claims for the Veteran and reduces claims processing time.\n\n - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness. See a full list of [supported flashes](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/  claims_api/config/schemas/526.json#L35).\n - Special Issues are attributes that describe special circumstances which apply to a particular claim, such as PTSD. See a full list of [supported special Issues](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L28).\n\n",
+        "description": "Establishes a [Disability Compensation Claim](https://www.vba.va.gov/pubs/forms/VBA-21-526EZ-ARE.pdf) in VBMS. Submits any PDF attachments as a multi-part payload and returns an ID. For claims that are not original claims, this endpoint generates a filled 526 PDF along with the submission.\n<br/><br/>\nA 200 response indicates the submission was successful, but the claim has not reached VBMS until it has a “claim established” status. Check claim status using the GET /claims/{id} endpoint.\n<br/><br/>\n**Original claims**<br/>\nAn original claim is the Veteran’s first claim filed with VA, regardless of the claim type or status. The original claim must have either the Veteran’s wet signature or e-signature. Once there is an original claim on file, future claims may be submitted by a representative without the Veteran’s signature. Uploading a PDF for subsequent claims is not required or recommended.\n<br/><br/>\nPOST the original claim with the autoCestPDFGenerationDisabled boolean as true. After a 200 response, use the PUT /forms/526/{id} endpoint to upload a scanned PDF of your form, signed in ink or e-signature, by the Veteran.\n<br/><br/>\nThe claim data submitted through the POST endpoint must match the signed PDF uploaded through the PUT endpoint. If it does not, VA will manually update the data to match the PDF, and your claim may not process correctly.\n<br/><br/>\n**Standard and fully developed claims (FDCs)**<br/>\n[Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/) are claims certified by the submitter to include all information needed for processing. These claims process faster than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information, it will route through the standard claim process.\n<br/><br/>\nTo certify a claim for the FDC process, set the standardClaim indicator to false.\n<br/><br/>\n**Flashes and special issues**<br/>\nIncluding flashes and special issues in your 526 claim submission helps VA properly route and prioritize current and future claims for the Veteran and reduces claims processing time.\n\n - Flashes are attributes that describe special circumstances which apply to a Veteran, such as homelessness or terminal illness. See a full list of [supported flashes](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L35).\n - Special Issues are attributes that describe special circumstances which apply to a particular claim, such as PTSD. See a full list of [supported special Issues](https://github.com/department-of-veterans-affairs/vets-api/blob/30659c8e5b2dd254d3e6b5d18849ff0d5f2e2356/modules/claims_api/config/schemas/526.json#L28).\n\n",
         "parameters": [
           {
             "in": "header",
@@ -2136,7 +2136,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "04284bfc-73eb-4870-9718-c399c8c68a70",
+                    "id": "8a3122ef-9149-4a7c-b87d-5d01c9f5cf3b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2154,13 +2154,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T13:47:56.339Z",
+                      "updated_at": "2021-06-02T18:32:44.084Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "04284bfc-73eb-4870-9718-c399c8c68a70",
+                      "token": "8a3122ef-9149-4a7c-b87d-5d01c9f5cf3b",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3721,7 +3721,7 @@
             ]
           }
         ],
-        "description": "Used to upload a completed, wet-signed 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.\n<br/><br/>\nThis endpoint works by accepting a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3). Each attachment should be encoded separately rather than encoding the whole payload together as with the Benefits Intake API.\n<br/><br/>\nFor other attachments, such as medical records, use the /forms/526/{id}/attachments endpoint.\n\n",
+        "description": "Used to upload a completed, signed 526 PDF to establish an original claim. Use this endpoint only after following the instructions in the POST /forms/526 endpoint to begin the claim submission.\n<br/><br/>\nThis endpoint works by accepting a document binary PDF as part of a multi-part payload (for example, attachment1, attachment2, attachment3). Each attachment should be encoded separately rather than encoding the whole payload together as with the Benefits Intake API.\n<br/><br/>\nFor other attachments, such as medical records, use the /forms/526/{id}/attachments endpoint.\n\n",
         "parameters": [
           {
             "name": "id",
@@ -3776,7 +3776,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bf036ef1-1389-4b76-bb45-3ec60ef923f0",
+                    "id": "a77a631b-79ea-4aca-9eaf-0b3b05434e2b",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3794,13 +3794,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T13:47:56.601Z",
+                      "updated_at": "2021-06-02T18:32:44.439Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "bf036ef1-1389-4b76-bb45-3ec60ef923f0",
+                      "token": "a77a631b-79ea-4aca-9eaf-0b3b05434e2b",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5788,7 +5788,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "6a869847-ad72-402c-8a04-244e911e9998",
+                    "id": "5f180134-f58d-4b57-b35d-3f37b02dd757",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5802,7 +5802,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T13:47:57.468Z",
+                      "updated_at": "2021-06-02T18:32:45.210Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5811,7 +5811,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "fac9b348-0748-4a65-abb2-21d435049aad",
+                          "id": "f4099301-a1fd-4f86-ad41-7eeab7638ee5",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -7641,7 +7641,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "adca38af-9224-4d76-8750-10a5173fbc78",
+                    "id": "99dc3ebc-d90e-402a-9399-51b00f20dbe8",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -8325,7 +8325,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b714487c-c2d1-4c21-960d-14d174689fa6",
+                    "id": "71c297bc-5105-470a-9054-af8423fbd449",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -8619,7 +8619,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1c3c1c2a-c13e-4402-ae87-9b8ad0718c15",
+                    "id": "07212550-9f2b-408e-b87c-41094b2fed47",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
