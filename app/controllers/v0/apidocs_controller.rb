@@ -137,6 +137,7 @@ module V0
       Swagger::Requests::Efolder,
       Swagger::Requests::FeatureToggles,
       Swagger::Requests::FinancialStatusReports,
+      Swagger::Requests::Form1010cg::Attachments,
       Swagger::Requests::Forms,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,

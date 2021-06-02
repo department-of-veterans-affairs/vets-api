@@ -35,7 +35,7 @@
         { "description": "veteran's first name" },
         {
           "type": "string",
-          "maxLength": 12,
+          "maxLength": 30,
           "$comment": "can be whitespace, to accommodate those with 1 legal name"
         }
       ]
@@ -49,7 +49,10 @@
     "X-VA-Last-Name": {
       "allOf": [
         { "description": "veteran's last name" },
-        { "$ref": "#/definitions/nonBlankStringMaxLength18" }
+        {
+          "type": "string",
+          "maxLength": 40
+        }
       ]
     },
     "X-VA-Birth-Date": {

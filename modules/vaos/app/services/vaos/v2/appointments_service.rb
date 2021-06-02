@@ -12,6 +12,7 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
+
           {
             data: deserialized_appointments(response.body),
             meta: pagination(pagination_params)
@@ -23,7 +24,7 @@ module VAOS
         params = {}
         with_monitoring do
           response = perform(:get, get_appointment_base_url(appointment_id), params, headers)
-          OpenStruct.new(response.body)
+          OpenStruct.new(response.body[:data])
         end
       end
 
