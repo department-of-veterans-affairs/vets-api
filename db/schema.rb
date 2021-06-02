@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_28_151724) do
+ActiveRecord::Schema.define(version: 2021_06_02_154022) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -774,6 +774,8 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.string "form_details_url"
     t.jsonb "va_form_administration"
     t.integer "row_id"
+    t.tsvector "textsearch_tsv"
+    t.float "weight"
     t.float "ranking"
     t.string "tags"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
