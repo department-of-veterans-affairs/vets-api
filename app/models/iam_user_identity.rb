@@ -44,7 +44,8 @@ class IAMUserIdentity < ::UserIdentity
       iam_mhv_id: valid_mhv_id(iam_profile[:fediam_mhv_ien]),
       last_name: iam_profile[:family_name],
       loa: { current: loa_level, highest: loa_level },
-      middle_name: iam_profile[:middle_name]
+      middle_name: iam_profile[:middle_name],
+      sign_in: { service_name: "oauth_#{iam_auth_n_type}", account_type: iam_profile[:fediamassur_level] }
     )
 
     StatsD.increment('iam_ssoe_oauth.auth_type', tags: ["type:#{iam_auth_n_type}"])
