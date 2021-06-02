@@ -1192,7 +1192,6 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    # rubocop:disable RSpec/MultipleMemoizedHelpers
     context 'with a higher level review form' do
       let(:schema_name) { '20-0996' }
       let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
@@ -1294,7 +1293,6 @@ RSpec.describe FormProfile, type: :model do
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
     end
-    # rubocop:enable RSpec/MultipleMemoizedHelpers
 
     context 'with a pension application form' do
       it 'returns the va profile mapped to the pension form' do
