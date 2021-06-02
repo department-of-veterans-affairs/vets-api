@@ -82,7 +82,7 @@ module Mobile
         }
       end
 
-      def self.authorized_for_service(policies, user)
+      def authorized_for_service(policies, user)
         [*policies].all? { |policy| user.authorize(policy, :access?) }
       end
 

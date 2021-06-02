@@ -210,7 +210,9 @@ RSpec.describe 'user', type: :request do
       
       context 'with a user who has access to evss but not ppiu (not multifactor)' do
         before do
-          iam_sign_in(FactoryBot.build(:iam_user, :no_multifactor))
+          user = FactoryBot.build(:iam_user, :no_multifactor)
+          binding.pry
+          iam_sign_in(user)
           get '/mobile/v0/user', headers: iam_headers
         end
         

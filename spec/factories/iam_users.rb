@@ -92,7 +92,7 @@ FactoryBot.define do
 
     trait :no_multifactor do
       callback(:after_build, :after_stub, :after_create) do |user, _t|
-        user_identity = create(:iam_user_identity, loa: { current: 2, highest: 2 })
+        user_identity = create(:iam_user_identity, loa: {current: 2, highest: 2})
         user.instance_variable_set(:@identity, user_identity)
       end
   
