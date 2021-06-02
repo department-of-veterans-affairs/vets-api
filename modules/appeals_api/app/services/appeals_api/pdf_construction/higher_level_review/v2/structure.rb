@@ -7,6 +7,7 @@ module AppealsApi
     module HigherLevelReview::V2
       class Structure
         MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM = 13
+        NUMBER_OF_ISSUES_PER_PAGE = 7
 
         def initialize(higher_level_review)
           @higher_level_review = higher_level_review
@@ -197,14 +198,14 @@ module AppealsApi
 
         def fill_contestable_issues_text(pdf)
           issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
-          issues.first(7).each_with_index do |issue, i|
+          issues.first(NUMBER_OF_ISSUES_PER_PAGE).each_with_index do |issue, i|
             if (text = issue.dig('attributes', 'issue')&.presence)
               pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg1][i])
             end
           end
           pdf.start_new_page # Always start a new page even if there are no issues so other text can insert properly
 
-          issues.last(6).each_with_index do |issue, i|
+          issues.drop(NUMBER_OF_ISSUES_PER_PAGE).each_with_index do |issue, i|
             if (text = issue.dig('attributes', 'issue')&.presence)
               pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg2][i])
             end
