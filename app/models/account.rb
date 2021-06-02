@@ -3,8 +3,6 @@
 require 'common/models/concerns/active_record_cache_aside'
 require 'sentry_logging'
 
-# Testing
-
 # Account's purpose is to correlate unique identifiers, and to
 # remove our dependency on third party services for a user's
 # unique identifier.

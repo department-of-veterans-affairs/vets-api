@@ -8,4 +8,4 @@ vaos:
 
 # Add be-review label to any change not within the modules directory
 be-review:
-  - any: ['./**/*', '!modules/**/*']
+  - any: ['**/*', '!modules/**/*']
