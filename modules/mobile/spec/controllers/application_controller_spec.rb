@@ -144,6 +144,18 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           get :index
         end
       end
+
+      context 'with a user with id theft flag set' do
+        before { FactoryBot.create(:iam_user, :id_theft_flag) }
+
+        it 'returns unauthorized' do
+          VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
+            get :index
+          end
+          expect(response).to have_http_status(:unauthorized)
+          expect(error_detail).to eq('User record global deny flag')
+        end
+      end
     end
   end
 end

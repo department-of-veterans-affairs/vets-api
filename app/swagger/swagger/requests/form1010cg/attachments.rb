@@ -9,6 +9,7 @@ module Swagger
         swagger_path '/v0/form1010cg/attachments' do
           operation :post do
             extend Swagger::Responses::ValidationError
+            extend Swagger::Responses::BadRequestError
 
             key :description, 'Upload Power of Attorney attachment for a caregivers assistance claim.'
 
@@ -32,12 +33,12 @@ module Swagger
                 key :required, [:data]
 
                 property :data, type: :object do
-                  key :required, [:attributes]
+                  key :required, %i[id type attributes]
 
                   property :id do
-                    key :description, '"id" is never returned (use attributes.guid)'
+                    key :description, 'The record\'s identifier'
                     key :type, :string
-                    key :example, ''
+                    key :example, '"67"'
                   end
 
                   property :type do
@@ -47,13 +48,13 @@ module Swagger
                   end
 
                   property :attributes, type: :object do
-                    key :required, %i[guid created_at]
+                    key :required, [:guid]
 
                     property :guid do
                       key :description, 'The document\'s GUID. To attach this document to a claim,\\
                                          include this id the claim\'s submission payload.'
                       key :type, :string
-                      key :example, '90cd36bb-4bb0-49b3-a957-2ce7ad241dd7'
+                      key :example, '834d9f51-d0c7-4dc2-9f2e-9b722db98069'
                     end
                   end
                 end

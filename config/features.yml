@@ -42,10 +42,6 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
-  ch33_dd_profile:
-    actor_type: user
-    description: Allows user to access chapter 33 benefits (direct deposit for education) in the front end
-    enable_in_development: true
   coe_access:
     actor_type: user
     description: Feature gates the certificate of eligibility application
@@ -116,6 +112,10 @@ features:
     actor_type: user
     description: enable covid search/display
     enable_in_development: true
+  facilities_locator_mobile_covid_online_scheduling:
+    actor_type: user
+    enable_in_development: true
+    description: get covid online scheduling availability from the mobile api
   facility_locator_ppms_forced_unique_id:
     actor_type: user
     description: Use an hexdigest for the ID on PPMS Place of Service Calls
@@ -128,6 +128,10 @@ features:
   facility_locator_pull_operating_status_from_lighthouse:
     actor_type: user
     description: A fast and dirty way to get the operating status from lighthouse
+    enable_in_development: true
+  facility_locator_rails_engine:
+    actor_type: user
+    description: Use rails engine routes for all Facility Locator API calls
     enable_in_development: true
   facility_locator_show_community_cares:
     actor_type: user
@@ -180,6 +184,10 @@ features:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
     enable_in_development: true
+  language_support:
+    actor_type: user
+    description: Toggles the availability of language support links (spanish et al) in the footer
+    enable_in_development: true
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
@@ -226,9 +234,6 @@ features:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
     enable_in_development: true
-  show_chapter_31:
-    actor_type: user
-    description: This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
   show_edu_benefits_0994_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 0994 introduction page
@@ -379,3 +384,15 @@ features:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
     enable_in_development: true
+  edu_form5490_updates:
+    actor_type: user
+    description: Form 5490 updates in support of Isakson and Roe legislation
+    enable_in_development: true
+  edu_form10203_updates:
+    actor_type: user
+    description: Form 10203 updates in support of Isakson and Roe legislation
+    enable_in_development: true
+  enable_check_in_experience:
+      actor_type: user
+      description: Enables the health care check-in experiences
+      enable_in_development: true

@@ -8,7 +8,8 @@ RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
 
   before do
-    iam_sign_in
+    allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
+    iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
@@ -92,7 +93,7 @@ RSpec.describe 'appointments', type: :request do
       let(:start_date) { Time.now.utc.iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
       let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
-      let(:user) { FactoryBot.build(:iam_user) }
+      let(:user) { build(:iam_user) }
 
       before do
         va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json')
@@ -284,7 +285,7 @@ RSpec.describe 'appointments', type: :request do
                 'comment' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
-                  'name' => 'CHEYENNE VAMC',
+                  'name' => 'Cheyenne VA Medical Center',
                   'address' => {
                     'street' => '2360 East Pershing Boulevard',
                     'city' => 'Cheyenne',
@@ -395,7 +396,7 @@ RSpec.describe 'appointments', type: :request do
                 'comment' => nil,
                 'healthcareService' => 'Green Team Clinic1',
                 'location' => {
-                  'name' => 'CHEYENNE VAMC',
+                  'name' => 'Cheyenne VA Medical Center',
                   'address' => {
                     'street' => '2360 East Pershing Boulevard',
                     'city' => 'Cheyenne',
@@ -545,6 +546,71 @@ RSpec.describe 'appointments', type: :request do
         end
       end
     end
+
+    context 'when a VA appointment should use the clinic rather than facility address' do
+      before do
+        Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+
+        VCR.use_cassette('appointments/get_facilities_address_bug', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_address_bug', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_address_bug', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: nil
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:facility_appointment) { response.parsed_body['data'][5]['attributes'] }
+      let(:clinic_appointment) { response.parsed_body['data'][6]['attributes'] }
+
+      it 'has clinic appointments use the clinic address' do
+        expect(clinic_appointment['location']).to eq(
+          {
+            'name' => 'Fort Collins VA Clinic',
+            'address' => {
+              'street' => '2509 Research Boulevard',
+              'city' => 'Fort Collins',
+              'state' => 'CO',
+              'zipCode' => '80526-8108'
+            },
+            'lat' => 40.553874,
+            'long' => -105.087951,
+            'phone' => {
+              'areaCode' => '970',
+              'number' => '224-1550',
+              'extension' => nil
+            },
+            'url' => nil,
+            'code' => nil
+          }
+        )
+      end
+
+      it 'has facility appointments use the facility address' do
+        expect(facility_appointment['location']).to eq(
+          {
+            'name' => 'Cheyenne VA Medical Center',
+            'address' => {
+              'street' => '2360 East Pershing Boulevard',
+              'city' => 'Cheyenne',
+              'state' => 'WY',
+              'zipCode' => '82001-5356'
+            },
+            'lat' => 41.148027,
+            'long' => -104.7862575,
+            'phone' => {
+              'areaCode' => '307',
+              'number' => '778-7550',
+              'extension' => nil
+            },
+            'url' => nil,
+            'code' => nil
+          }
+        )
+      end
+    end
   end
 
   describe 'PUT /mobile/v0/appointments/cancel' do
@@ -591,7 +657,6 @@ RSpec.describe 'appointments', type: :request do
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('appointments/get_cancel_reasons_500', match_requests_on: %i[method uri]) do
             put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
-
             expect(response).to have_http_status(:bad_gateway)
             expect(response.parsed_body['errors'].first['detail'])
               .to eq('Received an an invalid response from the upstream server')
@@ -628,7 +693,6 @@ RSpec.describe 'appointments', type: :request do
         VCR.use_cassette('appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
             put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
-
             expect(response).to have_http_status(:success)
             expect(response.body).to be_an_instance_of(String).and be_empty
           end

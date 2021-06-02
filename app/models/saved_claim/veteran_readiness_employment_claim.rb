@@ -8,7 +8,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   FORM = '28-1900'
   # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
   # to all vets
-  PERMITTED_OFFICE_LOCATIONS = %w[325].freeze
+  PERMITTED_OFFICE_LOCATIONS = %w[].freeze
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -69,7 +69,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     '459' => 'VRC.VBAHON@va.gov',
     '460' => 'VAVBA/WIM/RO/VR&E@vba.va.gov',
     '463' => 'VRE.VBAANC@va.gov',
-    '000' => 'VRE.VBACO@va.gov'
+    '000' => 'VRE.VBAPIT@va.gov'
   }.freeze
 
   validate :veteran_information, on: :prepare_form_data

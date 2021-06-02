@@ -8,6 +8,10 @@ class DecisionReviewEvidenceAttachmentUploader < CarrierWave::Uploader::Base
     1.byte...100.megabytes
   end
 
+  def extension_allowlist
+    %w[pdf]
+  end
+
   def initialize(decision_review_guid)
     super
     @decision_review_guid = decision_review_guid

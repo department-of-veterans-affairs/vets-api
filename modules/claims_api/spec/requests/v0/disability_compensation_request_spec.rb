@@ -293,5 +293,15 @@ RSpec.describe 'Disability Claims ', type: :request do
       auto_claim.reload
       expect(auto_claim.supporting_documents.count).to eq(count + 2)
     end
+
+    context 'when a claim is already established' do
+      let(:auto_claim) { create(:auto_established_claim, :status_established) }
+
+      it 'returns a 404 error because only pending claims are allowed' do
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        put "/services/claims/v0/forms/526/#{auto_claim.id}", params: binary_params, headers: headers
+        expect(response.status).to eq(404)
+      end
+    end
   end
 end

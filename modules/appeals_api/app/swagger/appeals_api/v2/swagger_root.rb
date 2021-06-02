@@ -3,12 +3,15 @@
 module AppealsApi::V2::SwaggerRoot
   include Swagger::Blocks
 
+  read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
+  read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
+
   swagger_root do
     key :openapi, '3.0.0'
     info do
       key :title, 'Decision Reviews'
       key :version, '2.0.0'
-      key :description, ''
+      key :description, read_file_from_same_dir['api_description.md']
       key :termsOfService, 'https://developer.va.gov/terms-of-service'
       contact do
         key :name, 'VA API Benefits Team'
@@ -28,11 +31,5 @@ module AppealsApi::V2::SwaggerRoot
     key :basePath, '/services/appeals/v2'
     key :consumes, ['application/json']
     key :produces, ['application/json']
-
-    security do
-      key :type, :apikey
-      key :name, :apikey
-      key :in, :header
-    end
   end
 end

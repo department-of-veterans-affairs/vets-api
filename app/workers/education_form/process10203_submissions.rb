@@ -99,7 +99,9 @@ module EducationForm
       service = EVSS::VSOSearch::Service.new(nil, auth_headers)
       service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
-      log_exception_to_sentry(Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}"))
+      log_exception_to_sentry(
+        Process10203EVSSError.new("Failed to retrieve VSOSearch data: #{e.message}")
+      )
       nil
     end
 
