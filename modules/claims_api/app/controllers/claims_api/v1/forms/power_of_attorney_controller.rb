@@ -106,9 +106,9 @@ module ClaimsApi
                 date_request_accepted: current_poa_begin_date,
                 representative: {
                   service_organization: {
-                    first_name: poa_code_in_organization?(current_poa_code) ? nil : representative_info[:first_name],
-                    last_name: poa_code_in_organization?(current_poa_code) ? nil : representative_info[:last_name],
-                    organization_name: poa_code_in_organization?(current_poa_code) ? representative_info[:name] : nil,
+                    first_name: representative_info[:first_name],
+                    last_name: representative_info[:last_name],
+                    organization_name: representative_info[:organization_name],
                     phone_number: representative_info[:phone_number],
                     poa_code: current_poa_code
                   }
@@ -199,7 +199,9 @@ module ClaimsApi
             raise 'Veteran Service Organization not found' if veteran_service_organization.blank?
 
             {
-              name: veteran_service_organization.name,
+              first_name: nil,
+              last_name: nil,
+              organization_name: veteran_service_organization.name,
               phone_number: veteran_service_organization.phone
             }
           else
@@ -207,7 +209,9 @@ module ClaimsApi
             raise 'Power of Attorney not found' if representative.blank?
 
             {
-              name: "#{representative.first_name} #{representative.last_name}",
+              first_name: representative.first_name,
+              last_name: representative.last_name,
+              organization_name: nil,
               phone_number: representative.phone
             }
           end
