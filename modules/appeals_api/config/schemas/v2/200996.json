@@ -151,8 +151,7 @@
           "pattern": "^[0-9]{5}$"
         }
       },
-      "additionalProperties": false,
-      "required": [ "zipCode5" ]
+      "additionalProperties": false
     },
 
     "hlrCreateIncluded": {
