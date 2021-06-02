@@ -234,9 +234,6 @@ features:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
     enable_in_development: true
-  show_chapter_31:
-    actor_type: user
-    description: This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
   show_edu_benefits_0994_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 0994 introduction page
@@ -395,3 +392,7 @@ features:
     actor_type: user
     description: Form 10203 updates in support of Isakson and Roe legislation
     enable_in_development: true
+  enable_check_in_experience:
+      actor_type: user
+      description: Enables the health care check-in experiences
+      enable_in_development: true

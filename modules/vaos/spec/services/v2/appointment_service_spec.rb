@@ -39,11 +39,43 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_appointments' do
-    context 'with an appointment' do
-      it 'returns an appointment' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments', match_requests_on: %i[method uri]) do
+    context 'when requesting a list of appointments' do
+      it 'returns a 200 status with list of appointments' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
+                                                                      tag: :force_utf8) do
           response = subject.get_appointments(start_date, end_date)
-          expect(response[:data].size).to eq(1)
+
+          expect(response[:data].size).to eq(9)
+        end
+      end
+    end
+
+    context '400' do
+      it 'raises a 400 error' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_400', match_requests_on: %i[method uri]) do
+          expect { subject.get_appointments(start_date, end_date) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+
+    context '401' do
+      it 'raises a 401 error' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_401', match_requests_on: %i[method uri]) do
+          expect { subject.get_appointments(start_date, end_date) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+
+    context '403' do
+      it 'raises a 403' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_403', match_requests_on: %i[method uri]) do
+          expect { subject.get_appointments(start_date, end_date) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
         end
       end
     end

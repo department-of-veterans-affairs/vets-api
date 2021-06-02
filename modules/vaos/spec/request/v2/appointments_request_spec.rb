@@ -35,15 +35,24 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
       let(:params) { { start: start_date, end: end_date } }
 
-      context 'returns list of appointments' do
+      context 'requests a list of appointments' do
         it 'has access and returns va appointments' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments', params: params
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
-            expect(JSON.parse(response.body)['data'].size).to eq(1)
+            expect(JSON.parse(response.body)['data'].size).to eq(9)
             expect(response).to match_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'returns a 400 error' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_400', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments', params: { start: start_date }
+
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
           end
         end
       end
