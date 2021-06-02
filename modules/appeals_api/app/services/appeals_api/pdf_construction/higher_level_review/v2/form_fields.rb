@@ -4,6 +4,10 @@ module AppealsApi
   module PdfConstruction
     module HigherLevelReview::V2
       class FormFields
+        def middle_initial
+          'form1[0].#subform[2].Veteran_Middle_Initial1[0]'
+        end
+
         def first_three_ssn
           'form1[0].#subform[2].ClaimantsSocialSecurityNumber_FirstThreeNumbers[0]'
         end
@@ -164,10 +168,14 @@ module AppealsApi
         def boxes
           { first_name: { at: [3, 560], width: 195 },
             last_name: { at: [230, 560], width: 293 },
+            number_and_street: { at: [29, 462], width: 512 },
+            city: { at: [200, 441], width: 307 },
             veteran_email: { at: [8, 335], width: 513 },
             rep_first_name: { at: [11, 586], width: 195 },
             rep_last_name: { at: [225, 586], width: 293 },
             rep_email: { at: [11, 525], width: 513 },
+            rep_international_number: { at: [275, 555], width: 195 },
+            rep_domestic_ext: { at: [225, 555], width: 50 },
             issues_pg1: [].tap do |n|
               7.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
             end,

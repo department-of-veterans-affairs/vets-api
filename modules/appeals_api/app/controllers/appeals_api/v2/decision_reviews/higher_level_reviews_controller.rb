@@ -92,7 +92,8 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     @higher_level_review = AppealsApi::HigherLevelReview.new(
       auth_headers: headers,
       form_data: @json_body,
-      source: headers['X-Consumer-Username']
+      source: headers['X-Consumer-Username'],
+      api_version: 'V2'
     )
 
     render_model_errors unless @higher_level_review.validate

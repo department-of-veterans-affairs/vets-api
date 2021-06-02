@@ -83,7 +83,8 @@ module ClaimsApi
       claims.each do |claim|
         next if claim[:contentions].blank?
 
-        contention = claim[:contentions].find { |c| matches_contention?(contention_id, c) }
+        contentions = claim[:contentions].is_a?(Hash) ? [claim[:contentions]] : claim[:contentions]
+        contention = contentions.find { |c| matches_contention?(contention_id, c) }
         return claim if contention.present?
       end
     end
@@ -123,7 +124,8 @@ module ClaimsApi
     def existing_contentions(claim, contention_id, special_issues)
       return [] if claim[:contentions].blank?
 
-      claim[:contentions].map do |contention|
+      contentions = claim[:contentions].is_a?(Hash) ? [claim[:contentions]] : claim[:contentions]
+      contentions.map do |contention|
         si = matches_contention?(contention_id, contention) ? special_issues : []
         {
           clm_id: claim[:clm_id],
