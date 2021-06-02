@@ -29,17 +29,20 @@
             "date_filed": {
               "type": "string",
               "format": "date",
-              "description": "Date in YYYY-MM-DD the claim was first filed"
+              "description": "Date in YYYY-MM-DD the claim was first filed",
+              "example": "2018-06-04"
             },
             "min_est_date": {
               "type": ["string", "null"],
               "format": "date",
-              "description": "Minimum Estimated Claim Completion Date"
+              "description": "Minimum Estimated Claim Completion Date",
+              "example": "2019-06-04"
             },
             "max_est_date": {
               "type": ["string", "null"],
               "format": "date",
-              "description": "Maximum Estimated Claim Completion Date"
+              "description": "Maximum Estimated Claim Completion Date",
+              "example": "2019-09-04"
             },
             "open": {
               "type": "boolean",
