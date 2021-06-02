@@ -47,19 +47,72 @@ module HealthQuest
       #
       def registry
         {
-          appointment: {
-            patient: user.icn,
-            date: appointment_dates,
-            location: clinic_id
-          },
-          location: { _id: location_ids, organization: org_id },
-          organization: { _id: organization_ids, identifier: organization_identifier },
-          questionnaire_response: {
-            subject: appointment_reference,
-            source: user.icn,
-            authored: resource_created_date
-          },
-          questionnaire: { 'context-type-value': context_type_value }
+          appointment: appointment_registry,
+          location: location_registry,
+          organization: organization_registry,
+          questionnaire_response: questionnaire_response_registry,
+          questionnaire: questionnaire_registry
+        }
+      end
+
+      ##
+      # The configuration for the appointment registry.
+      #
+      # @return [Hash]
+      #
+      def appointment_registry
+        {
+          patient: user.icn,
+          date: appointment_dates,
+          location: clinic_id
+        }
+      end
+
+      ##
+      # The configuration for the location registry.
+      #
+      # @return [Hash]
+      #
+      def location_registry
+        {
+          _id: location_ids,
+          organization: org_id
+        }
+      end
+
+      ##
+      # The configuration for the organization registry.
+      #
+      # @return [Hash]
+      #
+      def organization_registry
+        {
+          _id: organization_ids,
+          identifier: organization_identifier
+        }
+      end
+
+      ##
+      # The configuration for the questionnaire response registry.
+      #
+      # @return [Hash]
+      #
+      def questionnaire_response_registry
+        {
+          subject: appointment_reference,
+          source: user.icn,
+          authored: resource_created_date
+        }
+      end
+
+      ##
+      # The configuration for the questionnaire registry.
+      #
+      # @return [Hash]
+      #
+      def questionnaire_registry
+        {
+          'context-type-value': context_type_value
         }
       end
 
