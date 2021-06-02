@@ -64,7 +64,8 @@ module HealthQuest
         {
           patient: user.icn,
           date: appointment_dates,
-          location: clinic_id
+          location: clinic_id,
+          _count: resource_count
         }
       end
 
@@ -76,7 +77,8 @@ module HealthQuest
       def location_registry
         {
           _id: location_ids,
-          organization: org_id
+          organization: org_id,
+          _count: resource_count
         }
       end
 
@@ -88,7 +90,8 @@ module HealthQuest
       def organization_registry
         {
           _id: organization_ids,
-          identifier: organization_identifier
+          identifier: organization_identifier,
+          _count: resource_count
         }
       end
 
@@ -101,7 +104,8 @@ module HealthQuest
         {
           subject: appointment_reference,
           source: user.icn,
-          authored: resource_created_date
+          authored: resource_created_date,
+          _count: resource_count
         }
       end
 
@@ -112,7 +116,8 @@ module HealthQuest
       #
       def questionnaire_registry
         {
-          'context-type-value': context_type_value
+          'context-type-value': context_type_value,
+          _count: resource_count
         }
       end
 
@@ -205,6 +210,15 @@ module HealthQuest
       #
       def context_type_value
         @context_type_value ||= filters&.fetch(:'context-type-value', nil)
+      end
+
+      ##
+      # Get the resource count from the filters.
+      #
+      # @return [String]
+      #
+      def resource_count
+        @resource_count ||= filters&.fetch(:_count, nil)
       end
 
       private
