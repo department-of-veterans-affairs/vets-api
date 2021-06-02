@@ -1,6 +1,8 @@
 = Vaos
 Rails engine module for the VAOS (VAMF) integration.
 
+= TESTING
+
 == Installation
 Ensure the following line is in the root project's Gemfile:
 
