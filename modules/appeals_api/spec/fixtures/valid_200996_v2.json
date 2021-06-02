@@ -18,11 +18,9 @@
       "socOptIn": true,
       "informalConferenceContact": "veteran",
       "informalConferenceTime": "800-1200 ET",
-      "representative": {
-        "name": {
-          "firstName": "Hellen",
-          "lastName": "Holly"
-        },
+      "informalConferenceRep": {
+        "firstName": "Helen",
+        "lastName": "Holly",
         "phone": {
           "countryCode": "6",
           "areaCode": "555",
