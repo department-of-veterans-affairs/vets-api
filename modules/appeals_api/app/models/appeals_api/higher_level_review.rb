@@ -118,7 +118,7 @@ module AppealsApi
     end
 
     def zip_code_5
-      veteran.dig('address', 'zipCode5')
+      veteran.dig('address', 'zipCode5') || '00000'
     end
 
     # 10. TELEPHONE NUMBER
@@ -164,6 +164,14 @@ module AppealsApi
 
     def informal_conference_rep_name_and_phone_number
       "#{informal_conference_rep_name} #{informal_conference_rep_phone}"
+    end
+
+    def informal_conference_rep_phone_number
+      informal_conference_rep_phone.to_s
+    end
+
+    def informal_conference_rep_ext
+      informal_conference_rep&.dig('phone', 'phoneNumberExt')
     end
 
     def informal_conference_contact
