@@ -9,7 +9,7 @@ class DeleteAttachmentJob
 
   def perform
     FormAttachment.where(
-      'created_at < ?', EXPIRATION_TIME.ago
+      'created_at < ?', self.class::EXPIRATION_TIME.ago
     ).where(
       type: self.class::ATTACHMENT_CLASSES
     ).where.not(guid: uuids_to_keep).find_each(&:destroy!)

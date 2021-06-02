@@ -8,7 +8,7 @@ http_interactions:
       string: grant_type
     headers:
       User-Agent:
-      - Faraday v1.4.2
+      - Faraday v0.17.4
       Content-Type:
       - application/x-www-form-urlencoded
       Accept-Encoding:
