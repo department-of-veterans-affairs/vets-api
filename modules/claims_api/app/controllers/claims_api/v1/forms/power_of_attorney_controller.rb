@@ -106,7 +106,9 @@ module ClaimsApi
                 date_request_accepted: current_poa_begin_date,
                 representative: {
                   service_organization: {
-                    name: representative_info[:name],
+                    first_name: poa_code_in_organization?(current_poa_code) ? nil : representative_info[:first_name],
+                    last_name: poa_code_in_organization?(current_poa_code) ? nil : representative_info[:last_name],
+                    organization_name: poa_code_in_organization?(current_poa_code) ? representative_info[:name] : nil,
                     phone_number: representative_info[:phone_number],
                     poa_code: current_poa_code
                   }
