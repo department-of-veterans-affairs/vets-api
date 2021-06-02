@@ -127,7 +127,7 @@ module SM
       current_folder = get_folder(folder_id)
       total_count = current_folder[:count]
 
-      # If we have cached messages and the length is the same as the total_count above, use cache
+      # If twe have cached messages and the length is the same as the total_count above, use cache
       cached_messages = Message.get_cached(cache_key) || []
       use_cache = cached_messages.length == total_count
 
