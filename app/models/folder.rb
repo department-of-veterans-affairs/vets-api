@@ -9,7 +9,7 @@ class Folder < Common::Base
 
   redis_config REDIS_CONFIG[:secure_messaging_store]
 
-  attribute :id, Integer, filterable: %w[eq not_eq]
+  attribute :id, Integer
   attribute :name, String
   attribute :count, Integer
   attribute :unread_count, Integer
