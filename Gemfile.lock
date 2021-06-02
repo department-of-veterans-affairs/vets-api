@@ -440,7 +440,7 @@ GEM
       webrick
     google-apis-discovery_v1 (0.2.0)
       google-apis-core (~> 0.1)
-    google-apis-generator (0.2.0)
+    google-apis-generator (0.3.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
       google-apis-core (~> 0.1)
