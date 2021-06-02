@@ -5,7 +5,6 @@
       "informalConference": false,
       "benefitType": "compensation",
       "veteran": {
-        "address": { "zipCode5": "66002" },
         "homeless": false
       },
       "socOptIn": true
