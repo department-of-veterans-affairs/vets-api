@@ -1095,10 +1095,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           it 'supports getting a list of all messages in a folder' do
             VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages') do
-              expect(subject).to validate(
-                :get,
-                '/v0/messaging/health/folders/{folder_id}/messages', 200, headers.merge('folder_id' => '0')
-              )
+              VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
+                expect(subject).to validate(
+                  :get,
+                  '/v0/messaging/health/folders/{folder_id}/messages', 200, headers.merge('folder_id' => '0')
+                )
+              end
             end
           end
 
@@ -1134,7 +1136,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             end
           end
 
-          it 'supports deletea folder id folder error messages' do
+          it 'supports delete a folder id folder error messages' do
             VCR.use_cassette('sm_client/folders/deletes_a_folder_id_error') do
               expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 404,
                                           headers.merge('id' => '1000'))
@@ -1143,10 +1145,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
           it 'supports folder messages index error in a folder' do
             VCR.use_cassette('sm_client/folders/nested_resources/gets_a_collection_of_messages_id_error') do
-              expect(subject).to validate(
-                :get,
-                '/v0/messaging/health/folders/{folder_id}/messages', 404, headers.merge('folder_id' => '1000')
-              )
+              VCR.use_cassette('sm_client/folders/gets_a_single_folder_id_error') do
+                expect(subject).to validate(
+                  :get,
+                  '/v0/messaging/health/folders/{folder_id}/messages', 404, headers.merge('folder_id' => '1000')
+                )
+              end
             end
           end
         end
