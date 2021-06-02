@@ -39,7 +39,8 @@ describe MPI::Service do
         '1008714701^PN^200PROV^USDVA^A',
         '32383600^PI^200CORP^USVBA^L'
       ],
-      search_token: nil
+      search_token: nil,
+      id_theft_flag: false
     )
   end
 
@@ -260,6 +261,16 @@ describe MPI::Service do
         end
       end
 
+      it 'fetches id_theft flag' do
+        allow(user).to receive(:mhv_icn).and_return('1012870264V741864')
+
+        VCR.use_cassette('mpi/find_candidate/valid_id_theft_flag') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['id_theft_flag']).to eq(true)
+        end
+      end
+
       it 'returns no errors' do
         allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
 
@@ -308,8 +319,8 @@ describe MPI::Service do
     end
 
     context 'valid requests' do
-      it 'fetches profile when no mhv_icn exists but dslogon_edipi is present' do
-        allow(user).to receive(:dslogon_edipi).and_return('1025062341')
+      it 'fetches profile when no mhv_icn exists but edipi is present' do
+        allow(user).to receive(:edipi).and_return('1025062341')
 
         VCR.use_cassette('mpi/find_candidate/edipi_present') do
           expect(Raven).to receive(:tags_context).once.with(mvi_find_profile: 'edipi')

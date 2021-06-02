@@ -47,15 +47,15 @@ module AppealsApi
 
     # 1. VETERAN'S NAME
     def first_name
-      header_field_as_string 'X-VA-First-Name'
+      auth_headers.dig('X-VA-First-Name')
     end
 
     def middle_initial
-      header_field_as_string 'X-VA-Middle-Initial'
+      auth_headers.dig('X-VA-Middle-Initial')
     end
 
     def last_name
-      header_field_as_string 'X-VA-Last-Name'
+      auth_headers.dig('X-VA-Last-Name')
     end
 
     def full_name
@@ -64,12 +64,12 @@ module AppealsApi
 
     # 2. VETERAN'S SOCIAL SECURITY NUMBER
     def ssn
-      header_field_as_string 'X-VA-SSN'
+      auth_headers.dig('X-VA-SSN')
     end
 
     # 3. VA FILE NUMBER
     def file_number
-      header_field_as_string 'X-VA-File-Number'
+      auth_headers.dig('X-VA-File-Number')
     end
 
     # 4. VETERAN'S DATE OF BIRTH
@@ -87,12 +87,12 @@ module AppealsApi
 
     # 5. VETERAN'S SERVICE NUMBER
     def service_number
-      header_field_as_string 'X-VA-Service-Number'
+      auth_headers.dig('X-VA-Service-Number')
     end
 
     # 6. INSURANCE POLICY NUMBER
     def insurance_policy_number
-      header_field_as_string 'X-VA-Insurance-Policy-Number'
+      auth_headers.dig('X-VA-Insurance-Policy-Number')
     end
 
     # 7. CLAIMANT'S NAME
@@ -100,31 +100,25 @@ module AppealsApi
 
     # 9. CURRENT MAILING ADDRESS
     def number_and_street
-      address_field_as_string 'addressLine1'
-    end
-
-    def apt_unit_number
-      address_field_as_string 'addressLine2'
+      address_combined || 'USE ADDRESS ON FILE'
     end
 
     def city
-      address_field_as_string 'cityName'
+      veteran.dig('address', 'city') || ''
     end
 
     def state_code
-      address_field_as_string 'stateCode'
+      veteran.dig('address', 'stateCode') || ''
     end
 
     def country_code
-      address_field_as_string 'countryCodeISO2' || 'US'
+      return '' unless address_combined
+
+      veteran.dig('address', 'countryCodeISO2') || 'US'
     end
 
     def zip_code_5
-      address_field_as_string 'zipCode5'
-    end
-
-    def zip_code_4
-      address_field_as_string 'zipCode4'
+      veteran.dig('address', 'zipCode5')
     end
 
     # 10. TELEPHONE NUMBER
@@ -172,6 +166,14 @@ module AppealsApi
       "#{informal_conference_rep_name} #{informal_conference_rep_phone}"
     end
 
+    def informal_conference_rep_phone_number
+      informal_conference_rep_phone.to_s
+    end
+
+    def informal_conference_rep_ext
+      informal_conference_rep&.dig('phone', 'phoneNumberExt')
+    end
+
     def informal_conference_contact
       data_attributes&.dig('informalConferenceContact')
     end
@@ -183,10 +185,6 @@ module AppealsApi
 
     def rep_phone_data
       informal_conference_rep&.dig('phone')
-    end
-
-    def rep_email
-      informal_conference_rep&.dig('email')
     end
 
     def soc_opt_in
@@ -236,6 +234,10 @@ module AppealsApi
       handler.handle!
     end
 
+    def informal_conference_rep
+      data_attributes&.dig('informalConferenceRep')
+    end
+
     private
 
     def data_attributes
@@ -246,12 +248,8 @@ module AppealsApi
       data_attributes&.dig('veteran')
     end
 
-    def address_field_as_string(key)
-      veteran&.dig('address', key).to_s.strip
-    end
-
     def birth_date_string
-      header_field_as_string 'X-VA-Birth-Date'
+      auth_headers.dig('X-VA-Birth-Date')
     end
 
     def birth_date
@@ -260,10 +258,6 @@ module AppealsApi
 
     def veteran_phone
       AppealsApi::HigherLevelReview::Phone.new veteran&.dig('phone')
-    end
-
-    def informal_conference_rep
-      data_attributes&.dig('informalConferenceRep')
     end
 
     def informal_conference_rep_name
@@ -280,10 +274,6 @@ module AppealsApi
 
     def veterans_timezone
       veteran&.dig('timezone').presence&.strip
-    end
-
-    def header_field_as_string(key)
-      auth_headers&.dig(key).to_s.strip
     end
 
     # validation
@@ -355,6 +345,15 @@ module AppealsApi
 
     def add_error(message)
       errors.add(:base, message)
+    end
+
+    def address_combined
+      return unless veteran.dig('address', 'addressLine1')
+
+      @address_combined ||=
+        [veteran.dig('address', 'addressLine1'),
+         veteran.dig('address', 'addressLine2'),
+         veteran.dig('address', 'addressLine3')].compact.map(&:strip).join(' ')
     end
   end
 end

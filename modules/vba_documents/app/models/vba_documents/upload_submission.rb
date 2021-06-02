@@ -30,7 +30,7 @@ module VBADocuments
       where(status: status)
         .where("(metadata -> 'status' -> ? -> 'start')::bigint < ?", status,
                look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
-        .order(-> { "(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc" }.call)
+        .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
       # lambda above stops security scan from finding false positive sql injection!
     }
 

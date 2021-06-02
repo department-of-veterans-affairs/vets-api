@@ -8,8 +8,9 @@ module AppealsApi
           @higher_level_review = higher_level_review
         end
 
-        delegate :first_name, :middle_initial, :last_name, :file_number, :insurance_policy_number, :contestable_issues,
-                 :birth_mm, :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy, :rep_email,
+        delegate :first_name, :middle_initial, :last_name, :number_and_street, :city, :state_code,
+                 :country_code, :file_number, :zip_code_5, :insurance_policy_number, :contestable_issues, :birth_mm,
+                 :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy,
                  to: :higher_level_review
 
         def first_three_ssn
@@ -79,16 +80,53 @@ module AppealsApi
           1
         end
 
+        def rep_first_name
+          higher_level_review.informal_conference_rep&.dig('firstName') || ''
+        end
+
+        def rep_last_name
+          higher_level_review.informal_conference_rep&.dig('lastName') || ''
+        end
+
         def rep_phone_area_code
-          higher_level_review.rep_phone_data&.dig('areaCode')
+          return if rep_country_code != '1'
+
+          higher_level_review.rep_phone_data&.dig('areaCode') || ''
         end
 
         def rep_phone_prefix
-          higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3)
+          return if rep_country_code != '1'
+
+          higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3) || ''
         end
 
         def rep_phone_line_number
-          higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4)
+          return if rep_country_code != '1'
+
+          higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4) || ''
+        end
+
+        def rep_email
+          higher_level_review.informal_conference_rep&.dig('email') || ''
+        end
+
+        def rep_domestic_ext
+          ext = higher_level_review.informal_conference_rep_ext
+
+          # if the number is international, it gets added to that output
+          return '' if rep_country_code != '1' || ext.blank?
+
+          "x#{ext}"
+        end
+
+        def rep_international_number
+          return '' if rep_country_code == '1'
+
+          higher_level_review.informal_conference_rep_phone_number
+        end
+
+        def rep_country_code
+          higher_level_review.rep_phone_data&.dig('countryCode')
         end
 
         def soc_opt_in
@@ -96,7 +134,11 @@ module AppealsApi
         end
 
         def signature
-          higher_level_review.full_name
+          "#{higher_level_review.full_name[0...180]}\n- Signed by digital authentication to api.va.gov"
+        end
+
+        def stamp_text
+          "#{last_name.truncate(35)} - #{ssn.last(4)}"
         end
 
         private

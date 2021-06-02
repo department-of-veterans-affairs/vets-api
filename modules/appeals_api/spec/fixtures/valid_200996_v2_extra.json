@@ -6,7 +6,14 @@
         "veteran": {
           "homeless": true,
           "address": {
-            "zipCode5": "30012"
+            "addressLine1": "123 Main St",
+            "addressLine2": "Suite #1200",
+            "addressLine3": "Box 4",
+            "city": "New York",
+            "countryCodeISO2": "US",
+            "stateCode": "NY",
+            "zipCode5": "30012",
+            "internationalPostalCode": "1"
           },
           "phone": {
             "countryCode": "34",
@@ -17,6 +24,7 @@
           "email": "josie@example.com",
           "timezone": "America/Chicago"
         },
+        "socOptIn": true,
         "informalConference": true,
         "informalConferenceContact": "veteran",
         "informalConferenceTime": "800-1200 ET",
@@ -42,6 +50,104 @@
           "decisionIssueId": 1,
           "ratingIssueReferenceId": "2",
           "ratingDecisionReferenceId": "3"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "left eye",
+          "decisionDate": "1900-01-02"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "right eye",
+          "decisionDate": "1900-01-03"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "left ear",
+          "decisionDate": "1900-01-04"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "right ear",
+          "decisionDate": "1900-01-05"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "migraines",
+          "decisionDate": "1900-01-06"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "left knee",
+          "decisionDate": "1900-01-07"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "right knee",
+          "decisionDate": "1900-01-08"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "left foot",
+          "decisionDate": "1900-01-09"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "right foot",
+          "decisionDate": "1900-01-10"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "left hand",
+          "decisionDate": "1900-01-11"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "right hand",
+          "decisionDate": "1900-01-12"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "fever",
+          "decisionDate": "1900-01-13"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "lupus",
+          "decisionDate": "1900-01-14"
+        }
+      },
+      {
+        "type": "contestableIssue",
+        "attributes": {
+          "issue": "cooties",
+          "decisionDate": "1900-01-15"
         }
       }
     ]

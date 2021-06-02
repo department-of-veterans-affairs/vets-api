@@ -152,7 +152,8 @@ RSpec.describe User, type: :model do
 
   describe '#ssn_mismatch?', :skip_mvi do
     let(:user) { build(:user, :loa3) }
-    let(:mvi_profile) { build(:mvi_profile, ssn: 'unmatched-ssn') }
+    let(:mvi_profile) { build(:mvi_profile, ssn: mismatched_ssn) }
+    let(:mismatched_ssn) { '918273384' }
 
     before do
       stub_mpi(mvi_profile)
@@ -163,7 +164,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'returns false if user is not loa3?' do
-      allow(user).to receive(:loa3?).and_return(false)
+      allow(user.identity).to receive(:loa3?).and_return(false)
       expect(user).not_to be_loa3
       expect(user.ssn).to eq(user.ssn)
       expect(user.ssn_mpi).to be_falsey
@@ -175,7 +176,7 @@ RSpec.describe User, type: :model do
 
       it 'returns false' do
         expect(user).to be_loa3
-        expect(user.ssn).to be_falsey
+        expect(user.ssn).to eq(mismatched_ssn)
         expect(user.ssn_mpi).to be_truthy
         expect(user).not_to be_ssn_mismatch
       end
@@ -259,7 +260,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'has nil edipi locally and from IDENTITY' do
-      expect(subject.identity.dslogon_edipi).to be_nil
+      expect(subject.identity.edipi).to be_nil
       expect(subject.edipi).to be_nil
     end
   end
@@ -380,13 +381,13 @@ RSpec.describe User, type: :model do
           expect(user.ssn).to be(user.identity.ssn)
         end
 
-        it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
-          expect(user.edipi).to be(user.mpi.edipi)
+        it 'fetches edipi from mvi when identity.edipi is empty' do
+          expect(user.edipi).to be(mvi_profile.edipi)
         end
 
-        it 'fetches edipi from identity.dslogon_edipi when available' do
-          user.identity.dslogon_edipi = '001001999'
-          expect(user.edipi).to be(user.identity.dslogon_edipi)
+        it 'fetches edipi from identity.edipi when available' do
+          user.identity.edipi = '001001999'
+          expect(user.edipi).to be(user.identity.edipi)
         end
 
         it 'has a vet360 id if one exists' do
@@ -453,8 +454,8 @@ RSpec.describe User, type: :model do
         end
 
         it 'sets new mhv ids to a users MPI profile' do
-          expect(user.mpi.profile.mhv_ids).to include('1234567890')
-          expect(user.mpi.profile.active_mhv_ids).to include('1234567890')
+          expect(user.mhv_ids).to include('1234567890')
+          expect(user.active_mhv_ids).to include('1234567890')
         end
       end
 
@@ -501,7 +502,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'fetches properly parsed birth_date from MPI' do
-          expect(user.birth_date).to eq(Date.parse(user.mpi_profile_birth_date).iso8601)
+          expect(user.birth_date).to eq(Date.parse(user.birth_date_mpi).iso8601)
         end
 
         it 'fetches address data from MPI and stores it as a hash' do
@@ -827,7 +828,7 @@ RSpec.describe User, type: :model do
 
         context 'and MPI Profile birth date does not exist' do
           before do
-            allow(user.mpi.profile).to receive(:birth_date).and_return nil
+            allow_any_instance_of(MPI::Models::MviProfile).to receive(:birth_date).and_return nil
           end
 
           it 'returns nil' do
@@ -837,7 +838,7 @@ RSpec.describe User, type: :model do
 
         context 'and MPI Profile birth date does exist' do
           it 'returns iso8601 parsed date from the MPI Profile birth_date attribute' do
-            expect(user.birth_date).to eq Date.parse(user.mpi.profile.birth_date.to_s).iso8601
+            expect(user.birth_date).to eq Date.parse(user.birth_date_mpi.to_s).iso8601
           end
         end
       end
@@ -863,41 +864,91 @@ RSpec.describe User, type: :model do
     let(:user) { described_class.new(build(:user_with_relationship)) }
 
     before do
-      allow(user.mpi.profile).to receive(:relationships).and_return([mpi_relationship])
+      allow_any_instance_of(MPI::Models::MviProfile).to receive(:relationships).and_return(mpi_relationship_array)
     end
 
-    context 'when there are relationship entities in the MPI response' do
-      let(:mpi_relationship) do
-        build(:mpi_profile_relationship,
-              given_names: relationship_first_name,
-              family_name: relationship_last_name,
-              birth_date: relationship_birth_date,
-              person_type_code: relationship_person_type_code)
-      end
+    context 'when user is not loa3' do
+      let(:user) { described_class.new(build(:user, :loa1)) }
+      let(:mpi_relationship_array) { [] }
 
-      let(:relationship_first_name) { 'some-first-name' }
-      let(:relationship_last_name) { 'some-last-name' }
-      let(:relationship_birth_date) { '20100101' }
-      let(:relationship_person_type_code) { 'some-person-type-code' }
-      let(:expected_relationship_hash) do
-        {
-          first_name: relationship_first_name,
-          last_name: relationship_last_name,
-          birth_date: relationship_birth_date,
-          person_type_code: relationship_person_type_code
-        }
-      end
-
-      it 'returns a parsed array of hashes representing the different relationship entities' do
-        expect(user.relationships).to eq [expected_relationship_hash]
+      it 'returns nil' do
+        expect(user.relationships).to eq nil
       end
     end
 
-    context 'when there are not relationship entities in the MPI response' do
-      let(:mpi_relationship) { nil }
+    context 'when user is loa3' do
+      context 'when there are relationship entities in the MPI response' do
+        let(:mpi_relationship_array) { [mpi_relationship] }
+        let(:mpi_relationship) { build(:mpi_profile_relationship) }
+        let(:user_relationship_double) { double }
+        let(:expected_user_relationship_array) { [user_relationship_double] }
 
-      it 'returns an empty array' do
-        expect(user.relationships).to eq [nil]
+        before do
+          allow(UserRelationship).to receive(:from_mpi_relationship)
+            .with(mpi_relationship).and_return(user_relationship_double)
+        end
+
+        it 'returns an array of UserRelationship objects representing the relationship entities' do
+          expect(user.relationships).to eq expected_user_relationship_array
+        end
+      end
+
+      context 'when there are not relationship entities in the MPI response' do
+        let(:mpi_relationship_array) { nil }
+        let(:bgs_dependent_response) { nil }
+
+        before do
+          allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_return(bgs_dependent_response)
+        end
+
+        it 'makes a call to the BGS for relationship information' do
+          expect_any_instance_of(BGS::DependentService).to receive(:get_dependents)
+          user.relationships
+        end
+
+        context 'when BGS relationship response contains information' do
+          let(:bgs_relationship_array) { [bgs_dependent] }
+          let(:bgs_dependent) do
+            {
+              'award_indicator' => 'N',
+              'city_of_birth' => 'WASHINGTON',
+              'current_relate_status' => '',
+              'date_of_birth' => '01/01/2000',
+              'date_of_death' => '',
+              'death_reason' => '',
+              'email_address' => 'Curt@email.com',
+              'first_name' => 'CURT',
+              'gender' => '',
+              'last_name' => 'WEBB-STER',
+              'middle_name' => '',
+              'proof_of_dependency' => 'Y',
+              'ptcpnt_id' => '32354974',
+              'related_to_vet' => 'N',
+              'relationship' => 'Child',
+              'ssn' => '500223351',
+              'ssn_verify_status' => '1',
+              'state_of_birth' => 'DC'
+            }
+          end
+          let(:bgs_dependent_response) { { 'persons' => [bgs_dependent] } }
+          let(:user_relationship_double) { double }
+          let(:expected_user_relationship_array) { [user_relationship_double] }
+
+          before do
+            allow(UserRelationship).to receive(:from_bgs_dependent)
+              .with(bgs_dependent).and_return(user_relationship_double)
+          end
+
+          it 'returns an array of UserRelationship objects representing the relationship entities' do
+            expect(user.relationships).to eq expected_user_relationship_array
+          end
+        end
+
+        context 'when BGS relationship response does not contain information' do
+          it 'returns an empty array' do
+            expect(user.relationships).to eq nil
+          end
+        end
       end
     end
   end

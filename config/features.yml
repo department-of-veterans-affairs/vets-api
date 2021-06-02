@@ -129,6 +129,10 @@ features:
     actor_type: user
     description: A fast and dirty way to get the operating status from lighthouse
     enable_in_development: true
+  facility_locator_rails_engine:
+    actor_type: user
+    description: Use rails engine routes for all Facility Locator API calls
+    enable_in_development: true
   facility_locator_show_community_cares:
     actor_type: user
     description: >
@@ -230,9 +234,6 @@ features:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
     enable_in_development: true
-  show_chapter_31:
-    actor_type: user
-    description: This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
   show_edu_benefits_0994_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 0994 introduction page
@@ -382,4 +383,12 @@ features:
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
+    enable_in_development: true
+  edu_form5490_updates:
+    actor_type: user
+    description: Form 5490 updates in support of Isakson and Roe legislation
+    enable_in_development: true
+  edu_form10203_updates:
+    actor_type: user
+    description: Form 10203 updates in support of Isakson and Roe legislation
     enable_in_development: true

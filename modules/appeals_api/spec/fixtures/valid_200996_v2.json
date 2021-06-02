@@ -7,21 +7,17 @@
       "veteran": {
         "address": { "zipCode5": "66002" },
         "phone": {
-          "countryCode": "34",
+          "countryCode": "1",
           "areaCode": "555",
           "phoneNumber": "8001111"
         },
-        "emailAddressText": "josie@example.com",
+        "email": "josie@example.com",
         "timezone": "America/Chicago",
         "homeless": false
       },
-      "ssoSsocOptIn": true,
-      "informalConferenceContact": [
-        "veteran"
-      ],
-      "informalConferenceTime": [
-        "800-1200 ET"
-      ],
+      "socOptIn": true,
+      "informalConferenceContact": "veteran",
+      "informalConferenceTime": "800-1200 ET",
       "representative": {
         "name": {
           "firstName": "Hellen",
