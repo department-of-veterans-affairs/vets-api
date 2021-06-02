@@ -181,6 +181,8 @@ describe VAOS::AppointmentService do
 
   describe '#show_appointment of type va' do
     context 'returns single appointment' do
+      let(:id) { '202006031600983000030800000000000000.aaaaaa' }
+
       it 'with a 200 success' do
         VCR.use_cassette('vaos/appointments/show_appointment', match_requests_on: %i[method uri]) do
           response = subject.get_appointment(id)
