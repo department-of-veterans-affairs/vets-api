@@ -15,8 +15,7 @@
             "description": "Claim ID from EVSS"
           },
           "type": {
-            "type": "string",
-            "description": "Required by JSON API standard"
+            "type": "string"
           },
           "attributes": {
             "type": "object",

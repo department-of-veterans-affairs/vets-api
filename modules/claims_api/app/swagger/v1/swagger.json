@@ -137,8 +137,7 @@
                             "description": "Claim ID from EVSS"
                           },
                           "type": {
-                            "type": "string",
-                            "description": "Required by JSON API standard"
+                            "type": "string"
                           },
                           "attributes": {
                             "type": "object",
@@ -419,7 +418,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3d38690c-5119-475c-a877-3aa0ab3e742c",
+                    "id": "83ed0184-7086-4d75-80ef-b259f75dfee3",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -468,11 +467,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "317e8ed5-cdf1-4eef-85e7-a9cf7f74b3b0",
+                          "id": "cc4f4a5f-c37f-40de-9b70-14ebb1d8968a",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-02T18:32:43.656Z"
+                          "uploaded_at": "2021-06-02T18:48:08.325Z"
                         }
                       ]
                     }
@@ -499,8 +498,7 @@
                           "description": "Claim ID from EVSS"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -687,8 +685,7 @@
                                     "description": "Unique identifier of document"
                                   },
                                   "type": {
-                                    "type": "string",
-                                    "description": "Required by JSON API standard"
+                                    "type": "string"
                                   },
                                   "md5": {
                                     "type": "string",
@@ -2136,7 +2133,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8a3122ef-9149-4a7c-b87d-5d01c9f5cf3b",
+                    "id": "8cde19a3-da3a-4682-975b-d471dc288b86",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2154,13 +2151,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T18:32:44.084Z",
+                      "updated_at": "2021-06-02T18:48:08.729Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "8a3122ef-9149-4a7c-b87d-5d01c9f5cf3b",
+                      "token": "8cde19a3-da3a-4682-975b-d471dc288b86",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -2190,8 +2187,7 @@
                           "description": "Internal vets-api Claim ID"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -3776,7 +3772,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a77a631b-79ea-4aca-9eaf-0b3b05434e2b",
+                    "id": "43ad3da8-4330-440a-b39e-c92dd148598a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3794,13 +3790,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T18:32:44.439Z",
+                      "updated_at": "2021-06-02T18:48:09.099Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "a77a631b-79ea-4aca-9eaf-0b3b05434e2b",
+                      "token": "43ad3da8-4330-440a-b39e-c92dd148598a",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3830,8 +3826,7 @@
                           "description": "Internal vets-api Claim ID"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -4257,8 +4252,7 @@
                       ],
                       "properties": {
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -5788,7 +5782,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5f180134-f58d-4b57-b35d-3f37b02dd757",
+                    "id": "f63ab134-09cb-4189-bb57-08bc81a00e5c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5802,7 +5796,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T18:32:45.210Z",
+                      "updated_at": "2021-06-02T18:48:09.875Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5811,7 +5805,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "f4099301-a1fd-4f86-ad41-7eeab7638ee5",
+                          "id": "3f49a64f-2e18-4f38-b63b-ff7463ca0b3b",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -5842,8 +5836,7 @@
                           "description": "Internal vets-api Claim ID"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -5995,8 +5988,7 @@
                                     "description": "Unique identifier of document"
                                   },
                                   "type": {
-                                    "type": "string",
-                                    "description": "Required by JSON API standard"
+                                    "type": "string"
                                   },
                                   "md5": {
                                     "type": [
@@ -6314,8 +6306,7 @@
                           "description": "Intent to File ID from EVSS"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -6684,8 +6675,7 @@
                           "description": "Intent to File ID from EVSS"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -6979,8 +6969,7 @@
                       ],
                       "properties": {
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -7641,7 +7630,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "99dc3ebc-d90e-402a-9399-51b00f20dbe8",
+                    "id": "f3f4d621-b02c-443e-9e4b-3c0655dc8339",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -7676,8 +7665,7 @@
                           "description": "Power of Attorney Submission UUID"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -8325,7 +8313,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "71c297bc-5105-470a-9054-af8423fbd449",
+                    "id": "bff709cf-88c5-4db5-8ca7-e2e77b833dcf",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -8360,8 +8348,7 @@
                           "description": "Power of Attorney Submission UUID"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -8619,7 +8606,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "07212550-9f2b-408e-b87c-41094b2fed47",
+                    "id": "a7ee30fb-aa9a-4c29-aef2-2f32b8ea9017",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -8654,8 +8641,7 @@
                           "description": "Power of Attorney Submission UUID"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -8926,8 +8912,7 @@
                           "type": "null"
                         },
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
@@ -9198,8 +9183,7 @@
                       ],
                       "properties": {
                         "type": {
-                          "type": "string",
-                          "description": "Required by JSON API standard"
+                          "type": "string"
                         },
                         "attributes": {
                           "type": "object",
