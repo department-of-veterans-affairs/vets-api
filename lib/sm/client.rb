@@ -136,7 +136,7 @@ module SM
           path = "folder/#{folder_id}/message/page/1/pageSize/#{total_count}"
           json = perform(:get, path, nil, token_headers).body
         else
-          # If total count > 250, we'll have to loop multiple times using the MHV_MAXIMUM_PER_PAGE
+          # If total count > 250, we'll have to loop multiple times using the MHV_MAXIMUM_PER_PAGE.
           page = 1
           total_pages = (total_count / MHV_MAXIMUM_PER_PAGE.to_f).ceil
           json = { data: [], errors: {}, metadata: {} }
