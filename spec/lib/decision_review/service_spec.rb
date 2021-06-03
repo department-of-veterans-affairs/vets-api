@@ -382,4 +382,14 @@ describe DecisionReview::Service do
       end
     end
   end
+
+  describe '#transliterate_name' do
+    subject do
+      described_class.transliterate_name(' Andrés 安倍 Guðni Th. Jóhannesson Löfven aaaaaaaaaaaaaabb')
+    end
+
+    it 'returns a properly transiterated response' do
+      expect(subject).to eq 'Andres  Gudni Th Johannesson Lofven aaaaaaaaaaaaaa'
+    end
+  end
 end

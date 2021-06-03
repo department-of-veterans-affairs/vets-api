@@ -6,8 +6,8 @@ describe VAOS::V2::AppointmentsService do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :vaos) }
-  let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
-  let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
+  let(:start_date) { Time.zone.parse('2021-05-04T04:00:00.000Z') }
+  let(:end_date) { Time.zone.parse('2022-07-03T04:00:00.000Z') }
   let(:id) { '202006031600983000030800000000000000' }
   let(:appointment_id) { 123 }
 
@@ -59,7 +59,7 @@ describe VAOS::V2::AppointmentsService do
                                                                       tag: :force_utf8) do
           response = subject.get_appointments(start_date, end_date)
 
-          expect(response[:data].size).to eq(9)
+          expect(response[:data].size).to eq(81)
         end
       end
     end

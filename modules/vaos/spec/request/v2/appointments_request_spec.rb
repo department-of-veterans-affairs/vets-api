@@ -46,8 +46,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     end
 
     describe 'GET appointments' do
-      let(:start_date) { Time.zone.parse('2020-06-02T07:00:00Z') }
-      let(:end_date) { Time.zone.parse('2020-07-02T08:00:00Z') }
+      let(:start_date) { Time.zone.parse('2021-05-04T04:00:00.000Z') }
+      let(:end_date) { Time.zone.parse('2022-07-03T04:00:00.000Z') }
       let(:params) { { start: start_date, end: end_date } }
 
       context 'requests a list of appointments' do
@@ -57,7 +57,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
-            expect(JSON.parse(response.body)['data'].size).to eq(9)
+            expect(JSON.parse(response.body)['data'].size).to eq(81)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
