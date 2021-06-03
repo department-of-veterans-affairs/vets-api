@@ -137,7 +137,6 @@ module SM
           json = perform(:get, path, nil, token_headers).body
         else
           # If total count > 250, we'll have to loop multiple times using the MHV_MAXIMUM_PER_PAGE
-          # In mose cases, there'll be less than 250 messages in a given folder, so this will only run once
           page = 1
           total_pages = (total_count / MHV_MAXIMUM_PER_PAGE.to_f).ceil
           json = { data: [], errors: {}, metadata: {} }
