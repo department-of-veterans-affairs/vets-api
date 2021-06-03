@@ -418,7 +418,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "518b9b58-084b-4b77-ba47-dcad8ae9a7d2",
+                    "id": "6bd4b375-f97e-4e89-9dde-373606704806",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -467,11 +467,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "82b7f61f-13ce-435a-b238-eebaff9b7c14",
+                          "id": "c488939c-6934-4631-99f6-565e78d6088e",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-02T19:29:57.389Z"
+                          "uploaded_at": "2021-06-03T15:13:58.161Z"
                         }
                       ]
                     }
@@ -2133,7 +2133,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "23b0bf42-f7d2-45f4-b045-09f3052608f0",
+                    "id": "c6031cda-1e63-4511-8937-b2b756acd69a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2151,13 +2151,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T19:29:57.851Z",
+                      "updated_at": "2021-06-03T15:13:58.506Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "23b0bf42-f7d2-45f4-b045-09f3052608f0",
+                      "token": "c6031cda-1e63-4511-8937-b2b756acd69a",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3772,7 +3772,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9b38e939-571a-4bf4-ac40-6ef5c95d973e",
+                    "id": "df1a305b-f426-4b8b-b077-4f753f036f56",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3790,13 +3790,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T19:29:58.089Z",
+                      "updated_at": "2021-06-03T15:13:58.731Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "9b38e939-571a-4bf4-ac40-6ef5c95d973e",
+                      "token": "df1a305b-f426-4b8b-b077-4f753f036f56",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5782,7 +5782,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "97569857-5d6c-4662-b9bb-f77df9713b80",
+                    "id": "84d78cc7-4875-45f9-9522-f75eab1b4b88",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5796,7 +5796,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-02T19:29:58.869Z",
+                      "updated_at": "2021-06-03T15:13:59.268Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5805,7 +5805,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "4d3163f7-7018-4452-821f-1ac7b0ef5507",
+                          "id": "05fa6cba-9439-4707-b17a-e23e9ae60382",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -7630,11 +7630,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d5b34b7b-d00b-43a4-9d88-7d6f734251bc",
+                    "id": "4303653e-7053-409b-a927-12f986e25a3b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-06-02",
+                      "date_request_accepted": "2021-06-03",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8313,11 +8313,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0b444df7-7735-4600-a7f1-f7a01c105c60",
+                    "id": "5fe1644c-6273-4486-9b8a-8ab572eaeeec",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-02",
+                      "date_request_accepted": "2021-06-03",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8606,11 +8606,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4ae3b36c-8c1a-49dc-972e-079065c2dc89",
+                    "id": "5926e69e-e561-44c5-8915-80865f097066",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-02",
+                      "date_request_accepted": "2021-06-03",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8883,7 +8883,9 @@
                       "date_request_accepted": null,
                       "representative": {
                         "service_organization": {
-                          "name": "Some Great Organization",
+                          "first_name": "Jane",
+                          "last_name": "Doe",
+                          "organization_name": null,
                           "phone_number": "555-555-5555",
                           "poa_code": "HelloWorld"
                         }
@@ -8959,9 +8961,28 @@
                                       "type": "string",
                                       "description": "Power of Attorney Code submitted for Veteran"
                                     },
-                                    "name": {
-                                      "description": "Name of representative.  Can be organization or individual name.",
-                                      "type": "string",
+                                    "first_name": {
+                                      "description": "First name of representative, null if representative is an organization",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "example": "Jane"
+                                    },
+                                    "last_name": {
+                                      "description": "Last name of representative, null if representative is an organization",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
+                                      "example": "Doe"
+                                    },
+                                    "organization_name": {
+                                      "description": "Name of representing organization, null if representative is an individual",
+                                      "type": [
+                                        "string",
+                                        "null"
+                                      ],
                                       "example": "Some Great Organization"
                                     },
                                     "phone_number": {
