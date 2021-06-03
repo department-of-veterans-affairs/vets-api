@@ -131,23 +131,19 @@ module SM
       cached_messages = Message.get_cached(cache_key) || []
       use_cache = cached_messages.length == total_count
 
-      # Determine page size and total pages.  MHV has a max page size of 250. Use whichever is lesser for page_size
-      page_size = total_count < MHV_MAXIMUM_PER_PAGE ? total_count : MHV_MAXIMUM_PER_PAGE
-
       get_cached_or_fetch_data(use_cache, cache_key, Message) do
-        page = 1
-        path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{page_size}"
-
-        if page_size <= MHV_MAXIMUM_PER_PAGE
+        if total_count <= MHV_MAXIMUM_PER_PAGE
+          path = "folder/#{folder_id}/message/page/1/pageSize/#{total_count}"
           json = perform(:get, path, nil, token_headers).body
         else
           # If total count > 250, we'll have to loop multiple times using the MHV_MAXIMUM_PER_PAGE
           # In mose cases, there'll be less than 250 messages in a given folder, so this will only run once
+          page = 1
+          total_pages = (total_count / MHV_MAXIMUM_PER_PAGE.to_f).ceil
           json = { data: [], errors: {}, metadata: {} }
-          total_pages = (total_count / page_size.to_f).ceil
 
           loop do
-            path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{page_size}"
+            path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
             page_data = perform(:get, path, nil, token_headers).body
             json[:data].concat(page_data[:data])
             json[:metadata].merge(page_data[:metadata])
