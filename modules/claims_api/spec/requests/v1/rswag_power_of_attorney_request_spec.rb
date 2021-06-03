@@ -44,7 +44,7 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
       post_description = <<~VERBIAGE
         The endpoint establishes POA for a representative.
         Once ID.me authorizes the Veteran or VSO via OpenID, this endpoint requests the:
-        \n - poaCode\n - POA first name\n - POA last name\n - Signature, which can be a:
+        \n - poaCode\n - Signature, which can be a:
         \n   - Base64-encoded image or signature block, allowing the API to auto-populate
         and attach the VA 21-22 form to the request without requiring a PDF upload, or
         \n   - PDF documentation of VA 21-22 form with an ink signature, attached using the PUT /forms/2122/{id} endpoint
