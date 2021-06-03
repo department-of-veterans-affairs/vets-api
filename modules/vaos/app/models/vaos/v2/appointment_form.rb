@@ -2,6 +2,7 @@
 
 require 'active_model'
 require 'common/models/form'
+require 'common/exceptions'
 
 module VAOS
   module V2
@@ -20,6 +21,12 @@ module VAOS
       def initialize(user, json_hash)
         @user = user
         super(json_hash)
+      end
+
+      def params
+        raise Common::Exceptions::ValidationErrors, self unless valid?
+
+        attributes.compact
       end
     end
   end
