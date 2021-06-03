@@ -201,13 +201,21 @@ module DecisionReview
 
     def self.file_upload_metadata(user)
       {
-        'veteranFirstName' => user.first_name.to_s.strip,
-        'veteranLastName' => user.last_name.to_s.strip.presence,
+        'veteranFirstName' => transliterate_name(user.first_name),
+        'veteranLastName' => transliterate_name(user.last_name),
         'zipCode' => user.zip,
         'fileNumber' => user.ssn.to_s.strip,
         'source' => 'Vets.gov',
         'businessLine' => 'BVA'
       }.to_json
+    end
+
+    # upstream requirements
+    # ^[a-zA-Z\-\/\s]{1,50}$
+    # Cannot be missing or empty or longer than 50 characters.
+    # Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed
+    def self.transliterate_name(str)
+      I18n.transliterate(str.to_s).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
     end
 
     private
