@@ -48,7 +48,7 @@
         "veteran":                            { "$ref": "#/definitions/hlrCreateVeteran" },
         "informalConferenceContact":          { "$ref": "#/definitions/hlrCreateInformalConferenceContact" },
         "informalConferenceTime":             { "$ref": "#/definitions/hlrCreateInformalConferenceTime" },
-        "representative":                     { "$ref": "#/definitions/hlrCreateRepresentative" },
+        "informalConferenceRep":              { "$ref": "#/definitions/hlrCreateInformalConferenceRep" },
         "socOptIn":                           { "type": "boolean" }
       },
       "required": [
@@ -76,10 +76,11 @@
       "enum": [ "800-1200 ET", "1200-1630 ET" ]
     },
 
-    "hlrCreateRepresentative": {
+    "hlrCreateInformalConferenceRep": {
       "type": "object",
       "properties": {
-        "name":  { "$ref": "#/definitions/hlrCreateRepresentativeName" },
+        "firstName": { "type": "string", "maxLength": 30 },
+        "lastName":  { "type": "string", "maxLength": 40 },
         "phone": { "$ref": "#/definitions/hlrCreatePhone" },
         "email": {
           "type": "string",
@@ -88,16 +89,7 @@
         }
       },
       "additionalProperties": false,
-      "required": [ "name", "phone" ]
-    },
-
-    "hlrCreateRepresentativeName": {
-      "type": "object",
-      "properties": {
-        "firstName": { "type": "string", "maxLength": 30 },
-        "lastName":  { "type": "string", "maxLength": 40 }
-      },
-      "required": [ "firstName", "lastName" ]
+      "required": [ "firstName", "lastName", "phone" ]
     },
 
     "hlrCreatePhone": {
@@ -133,7 +125,7 @@
         }
       },
       "additionalProperties": false,
-      "required": [ "homeless", "address" ]
+      "required": [ "homeless" ]
     },
 
     "hlrCreateAddress": {

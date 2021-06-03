@@ -3,7 +3,6 @@
 module VAForms
   class RegexHelper
     def scrub_query(search_term)
-      search_term.strip!
       search_term = check_prefix(search_term)
       # Matches 10-10 Forms
       ten_form_regex = /^10\s*10(\s?.*)$/
