@@ -3,18 +3,18 @@
 module VBADocuments
   module V1
     module Responses
-      module UnauthorizedError
+      module TooManyRequestsError
         def self.extended(base)
-          base.response 401 do
-            key :description, 'Unauthorized request'
+          base.response 429 do
+            key :description, 'Too many requests'
             content 'application/json' do
               schema do
                 key :type, :object
                 key :required, [:data]
                 property :Message do
                   key :type, :string
-                  key :description, 'Error detail'
-                  key :example, 'Unauthorized Request'
+                  key :description, 'message'
+                  key :example, 'API rate limit exceeded'
                 end
               end
             end
