@@ -103,6 +103,14 @@ describe HealthQuest::Shared::OptionsBuilder do
     end
   end
 
+  describe '#location_identifier' do
+    let(:filters) { loc_filter.merge!(identifier: 'vha_123abc').with_indifferent_access }
+
+    it 'has an location_identifier' do
+      expect(options_builder.location_identifier).to eq('vha_123abc')
+    end
+  end
+
   describe '#resource_count' do
     let(:filters) { org_filter.merge!(_count: '30').with_indifferent_access }
 
@@ -161,7 +169,7 @@ describe HealthQuest::Shared::OptionsBuilder do
 
       it 'has relevant keys' do
         expect(options_builder.registry[filters.delete(:resource_name).to_sym].keys)
-          .to eq(%i[_id organization _count page])
+          .to eq(%i[_id organization identifier _count page])
       end
     end
 
