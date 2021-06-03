@@ -10,9 +10,10 @@ module VAOS
       def get_appointments(start_date, end_date, pagination_params = {})
         params = date_params(start_date, end_date).merge(page_params(pagination_params)).compact
 
+        #TODO: investigate 500 error
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
-
+          binding.pry
           {
             data: deserialized_appointments(response.body),
             meta: pagination(pagination_params)
