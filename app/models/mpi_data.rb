@@ -144,10 +144,11 @@ class MPIData < Common::RedisStore
   # call is made. The response is recached afterwards so the new ids can be accessed on the next call.
   #
   # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person call
-  def add_person(user_identity)
+  def add_person
     search_response = MPI::OrchSearchService.new.find_profile(user_identity)
     if search_response.ok?
       @mvi_response = search_response
+      update_user_identity_with_orch_search(search_response.profile)
       add_response = mpi_service.add_person(user_identity)
       add_ids(add_response) if add_response.ok?
     else
@@ -159,6 +160,20 @@ class MPIData < Common::RedisStore
   end
 
   private
+
+  def update_user_identity_with_orch_search(search_response_profile)
+    user_identity.icn_with_aaid = search_response_profile.icn_with_aaid
+    user_identity.edipi = search_response_profile.edipi
+    user_identity.search_token = search_response_profile.search_token
+
+    first_name, *middle_name = search_response_profile.given_names
+    user_identity.first_name = first_name
+    user_identity.middle_name = middle_name&.join(' ').presence
+    user_identity.last_name = search_response_profile.family_name
+    user_identity.gender = search_response_profile.gender
+    user_identity.ssn = search_response_profile.ssn
+    user_identity.birth_date = search_response_profile.birth_date
+  end
 
   def add_ids(response)
     # set new ids in the profile and recache the response
