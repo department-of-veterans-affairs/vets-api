@@ -88,7 +88,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'when the appointment status is updated' do
         it 'returns a status code of 200 and the updated appointment in the body' do
           VCR.use_cassette('vaos/v2/appointments/put_appointments_200', match_requests_on: %i[method uri]) do
-
             put '/vaos/v2/appointments/1121?status=cancelled'
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('cancelled')
