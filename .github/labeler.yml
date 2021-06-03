@@ -6,6 +6,6 @@ mobile:
 vaos:
   - any: ['modules/vaos/**/*']
 
-# Add be-review label to any change not within the modules directory
-be-review:
+# Add tools-be-review label to any change not within the modules directory
+tools-be-review:
   - any: ['!modules/**/*']
