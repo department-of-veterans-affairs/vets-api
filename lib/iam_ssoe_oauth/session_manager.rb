@@ -46,8 +46,10 @@ module IAMSSOeOAuth
       Rails.logger.info('IAMUser create_user_session: introspect succeeded')
 
       user_identity = build_identity(iam_profile)
-      build_session(@access_token, user_identity)
-      build_user(user_identity)
+      session = build_session(@access_token, user_identity)
+      user = build_user(user_identity)
+      validate_user(user)
+      persist(session, user)
     rescue Common::Exceptions::Unauthorized => e
       Rails.logger.error('IAMUser create user session: unauthorized', error: e.message)
       StatsD.increment('iam_ssoe_oauth.inactive_session')
@@ -65,7 +67,6 @@ module IAMSSOeOAuth
 
     def build_session(access_token, user_identity)
       @session = IAMSession.new(token: access_token, uuid: user_identity.uuid)
-      @session.save
     rescue => e
       Rails.logger.error('IAMUser create user session: build session failed', error: e.message)
       raise e
@@ -74,7 +75,6 @@ module IAMSSOeOAuth
     def build_user(user_identity)
       user = IAMUser.build_from_user_identity(user_identity)
       user.last_signed_in = Time.now.utc
-      user.save
 
       StatsD.set('iam_ssoe_oauth.users', user.uuid, sample_rate: 1.0)
       Rails.logger.info('IAMUser create user session: success', uuid: user.uuid)
@@ -83,6 +83,15 @@ module IAMSSOeOAuth
     rescue => e
       Rails.logger.error('IAMUser create user session: build user failed', error: e.message)
       raise e
+    end
+
+    def persist(session, user)
+      session.save && user.save
+      user
+    end
+
+    def validate_user(user)
+      raise Common::Exceptions::Unauthorized, detail: 'User record global deny flag' if user.id_theft_flag
     end
 
     def iam_ssoe_service

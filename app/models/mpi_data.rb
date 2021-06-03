@@ -97,6 +97,11 @@ class MPIData < Common::RedisStore
   # @return [Array[String]] the the list of Cerner facility ids
   delegate :cerner_facility_ids, to: :profile
 
+  # Identity theft flag
+  #
+  # @return [Boolean] presence or absence of identity theft flag
+  delegate :id_theft_flag, to: :profile
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MPI::Models::MviProfile] patient 'golden record' data from MVI
