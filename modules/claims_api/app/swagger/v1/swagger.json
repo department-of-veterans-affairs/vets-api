@@ -36,7 +36,7 @@
   "paths": {
     "/claims": {
       "get": {
-        "summary": "Retrieves all claims for a Veteran",
+        "summary": "Find all benefits claims for a Veteran",
         "tags": [
           "Claims"
         ],
