@@ -393,6 +393,6 @@ features:
     description: Form 10203 updates in support of Isakson and Roe legislation
     enable_in_development: true
   check_in_experience_enabled:
-      actor_type: user
-      description: Enables the health care check-in experiences
-      enable_in_development: true
+    actor_type: user
+    description: Enables the health care check-in experiences
+    enable_in_development: true
