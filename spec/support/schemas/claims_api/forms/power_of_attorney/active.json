@@ -12,8 +12,7 @@
           "type": "null"
         },
         "type": {
-          "type": "string",
-          "description": "Required by JSON API standard"
+          "type": "string"
         },
         "attributes": {
           "type": "object",
@@ -49,9 +48,19 @@
                       "type": "string",
                       "description": "Power of Attorney Code submitted for Veteran"
                     },
-                    "name": {
-                      "description": "Name of representative.  Can be organization or individual name.",
-                      "type": "string",
+                    "first_name": {
+                      "description": "First name of representative, null if representative is an organization",
+                      "type": ["string", "null"],
+                      "example": "Jane"
+                    },
+                    "last_name": {
+                      "description": "Last name of representative, null if representative is an organization",
+                      "type": ["string", "null"],
+                      "example": "Doe"
+                    },
+                    "organization_name": {
+                      "description": "Name of representing organization, null if representative is an individual",
+                      "type": ["string", "null"],
                       "example": "Some Great Organization"
                     },
                     "phone_number": {
