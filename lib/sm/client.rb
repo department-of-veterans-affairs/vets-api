@@ -152,7 +152,7 @@ module SM
             json[:data].concat(page_data[:data])
             json[:metadata].merge(page_data[:metadata])
             break unless page < total_pages
-  
+
             page += 1
           end
         end
