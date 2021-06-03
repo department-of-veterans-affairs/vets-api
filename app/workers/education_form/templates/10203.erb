@@ -50,10 +50,12 @@ Type of Education Program that you are currently enrolled in:
       Programs' and I am now enrolled in a program leading to a 'Teaching
       Certification'
 <% end -%>
+<% if(Flipper.enabled?(:edu_form10203_updates, @current_user)) %>
 <% if @applicant.isPursuingClinicalTraining -%>
    -  Do you have a 'STEM bachelor's' or 'graduate degree' and 
       are now pursuing a covered 'clinical training program' for 
       health care professionals? <%= yesno(@applicant.isPursuingClinicalTraining) %>
+<% end -%>
 <% end -%>
 
 Program Name: <%= @applicant.degreeName %>
