@@ -54,7 +54,7 @@ module VAForms
         UPDATE va_forms_forms SET tags ='534ez' 	, ranking=46	 WHERE lower(va_forms_forms.form_name)='21p-534ez';
         UPDATE va_forms_forms SET tags ='21p-8416' 	, ranking=47	 WHERE lower(va_forms_forms.form_name)='21p-8416';
         UPDATE va_forms_forms SET tags ='10-10d' 	, ranking=49	 WHERE lower(va_forms_forms.form_name)='10-10d';
-        UPDATE va_forms_forms SET tags ='996' 	, ranking=50	 WHERE lower(va_forms_forms.form_name)='20-0996';
+        UPDATE va_forms_forms SET tags ='996'	, ranking=50	 WHERE lower(va_forms_forms.form_name)='20-0996';
         UPDATE va_forms_forms SET tags ='21-4192' 	, ranking=51	 WHERE lower(va_forms_forms.form_name)='21-4192';
         UPDATE va_forms_forms SET tags ='686' 	, ranking=52	 WHERE lower(va_forms_forms.form_name)='21-686c';
         UPDATE va_forms_forms SET tags ='781' 	, ranking=53	 WHERE lower(va_forms_forms.form_name)='21-0781';
@@ -75,7 +75,7 @@ module VAForms
         UPDATE va_forms_forms SET tags ='sf 180' 	, ranking=68	 WHERE lower(va_forms_forms.form_name)='sf180';
         UPDATE va_forms_forms SET tags ='10-8678' 	, ranking=69	 WHERE lower(va_forms_forms.form_name)='10-8678';
       ")
-      # rubocop:enable Layout/LineLength
+        # rubocop:enable Layout/LineLength
       end
       # rubocop:enable Metrics/MethodLength
     end
