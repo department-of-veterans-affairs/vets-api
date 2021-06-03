@@ -258,8 +258,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
               parsed = JSON.parse(response.body)
 
               expect(response.status).to eq(200)
-              expect(parsed['data']['attributes']['representative']['service_organization']['name'])
+              expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
                 .to eq('Some Great Organization')
+              expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
+                .to eq(nil)
+              expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
+                .to eq(nil)
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end
@@ -293,8 +297,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
               parsed = JSON.parse(response.body)
 
               expect(response.status).to eq(200)
-              expect(parsed['data']['attributes']['representative']['service_organization']['name'])
-                .to eq('Tommy Testerson')
+              expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
+                .to eq('Tommy')
+              expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
+                .to eq('Testerson')
+              expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
+                .to eq(nil)
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end

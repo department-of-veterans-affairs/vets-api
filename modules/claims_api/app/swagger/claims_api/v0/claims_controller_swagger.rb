@@ -149,7 +149,7 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-          key :summary, 'Find all claims for a Veteran.'
+          key :summary, 'Find all benefits claims for a Veteran.'
           key(
             :description,
             <<~X
