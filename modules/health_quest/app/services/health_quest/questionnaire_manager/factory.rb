@@ -236,7 +236,8 @@ module HealthQuest
         @get_lighthouse_appointments ||=
           lighthouse_appointment_service.search(
             patient: user.icn,
-            date: [date_ge_one_year_ago, date_le_one_year_from_now]
+            date: [date_ge_one_year_ago, date_le_one_year_from_now],
+            _count: '100'
           )
       end
 
@@ -319,7 +320,8 @@ module HealthQuest
         @get_questionnaire_responses ||=
           questionnaire_response_service.search(
             source: user.icn,
-            authored: [date_ge_one_year_ago, date_le_one_year_from_now]
+            authored: [date_ge_one_year_ago, date_le_one_year_from_now],
+            _count: '100'
           )
       end
 
