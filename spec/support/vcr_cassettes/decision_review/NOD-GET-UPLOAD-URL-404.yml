@@ -5,7 +5,7 @@ http_interactions:
     uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/notice_of_disagreements/evidence_submissions
     body:
       encoding: UTF-8
-      string: '{"nod_id":"this-id-not-found"}'
+      string: '{"nod_uuid":"this-id-not-found"}'
     headers:
       Accept:
       - application/json

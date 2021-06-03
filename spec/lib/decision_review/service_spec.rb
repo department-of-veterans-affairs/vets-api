@@ -312,7 +312,7 @@ describe DecisionReview::Service do
 
   describe '#get_notice_of_disagreement_upload_url' do
     subject do
-      described_class.new.get_notice_of_disagreement_upload_url(nod_id: uuid, ssn: ssn_with_mockdata)
+      described_class.new.get_notice_of_disagreement_upload_url(nod_uuid: uuid, ssn: ssn_with_mockdata)
     end
 
     context '200 response' do
