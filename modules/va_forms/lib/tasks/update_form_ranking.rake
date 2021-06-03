@@ -8,6 +8,7 @@ module VAForms
     # rubocop:disable Metrics/MethodLength
     def run
       ActiveRecord::Base.transaction do
+        # rubocop:disable Layout/LineLength
         ActiveRecord::Base.connection.execute("
         UPDATE va_forms_forms SET tags ='21-4138F 4138 claim' 	, ranking=1	 WHERE lower(va_forms_forms.form_name)='21-4138';
         UPDATE va_forms_forms SET tags ='21-526ez' 	, ranking=2	 WHERE lower(va_forms_forms.form_name)='21-526ez';
@@ -73,7 +74,7 @@ module VAForms
         UPDATE va_forms_forms SET tags ='969' 	, ranking=67	 WHERE lower(va_forms_forms.form_name)='21p-0969';
         UPDATE va_forms_forms SET tags ='sf 180' 	, ranking=68	 WHERE lower(va_forms_forms.form_name)='sf180';
         UPDATE va_forms_forms SET tags ='10-8678' 	, ranking=69	 WHERE lower(va_forms_forms.form_name)='10-8678';
-      ")
+      ") # rubocop:enable Layout/LineLength
       end
       # rubocop:enable Metrics/MethodLength
     end
