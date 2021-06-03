@@ -13,6 +13,11 @@ FactoryBot.define do
     ssn { '796111863' }
     mhv_icn { nil }
     mhv_account_type { nil }
+    icn_with_aaid { nil }
+    edipi { nil }
+    search_token { nil }
+    multifactor { false }
+    idme_uuid { nil }
 
     sign_in do
       {
