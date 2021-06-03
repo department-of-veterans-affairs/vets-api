@@ -71,8 +71,6 @@ module EducationForm::Forms
         return 'Date of death or MIA/POW:'
       end
 
-      label = ''
-
       case @applicant.sponsorStatus
 
       when 'diedOnDuty'
