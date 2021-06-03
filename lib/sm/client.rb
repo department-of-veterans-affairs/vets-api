@@ -133,22 +133,28 @@ module SM
 
       # Determine page size and total pages.  MHV has a max page size of 250. Use whichever is lesser for page_size
       page_size = total_count < MHV_MAXIMUM_PER_PAGE ? total_count : MHV_MAXIMUM_PER_PAGE
-      total_pages = (total_count / page_size.to_f).ceil
 
       get_cached_or_fetch_data(use_cache, cache_key, Message) do
         page = 1
-        json = { data: [], errors: {}, metadata: {} }
+        path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{page_size}"
 
-        # If total count > 250, we'll have to loop multiple times using the MHV_MAXIMUM_PER_PAGE
-        # In mose cases, there'll be less than 250 messages in a given folder, so this will only run once
-        loop do
-          path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{page_size}"
-          page_data = perform(:get, path, nil, token_headers).body
-          json[:data].concat(page_data[:data])
-          json[:metadata].merge(page_data[:metadata])
-          break unless page < total_pages
+        if page_size <= MHV_MAXIMUM_PER_PAGE
+          json = perform(:get, path, nil, token_headers).body
+        else
+          # If total count > 250, we'll have to loop multiple times using the MHV_MAXIMUM_PER_PAGE
+          # In mose cases, there'll be less than 250 messages in a given folder, so this will only run once
+          json = { data: [], errors: {}, metadata: {} }
+          total_pages = (total_count / page_size.to_f).ceil
 
-          page += 1
+          loop do
+            path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{page_size}"
+            page_data = perform(:get, path, nil, token_headers).body
+            json[:data].concat(page_data[:data])
+            json[:metadata].merge(page_data[:metadata])
+            break unless page < total_pages
+  
+            page += 1
+          end
         end
 
         messages = Common::Collection.new(Message, json)
