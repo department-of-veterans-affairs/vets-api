@@ -6,7 +6,7 @@ require_relative '../../support/swagger_shared_components'
 
 describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
   path '/claims' do
-    get 'Retrieves all claims for a Veteran' do
+    get 'Find all benefits claims for a Veteran' do
       tags 'Claims'
       operationId 'findClaims'
       security [bearer_token: []]
