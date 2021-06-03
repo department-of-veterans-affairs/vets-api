@@ -11,6 +11,7 @@ module VAOS
       attribute :location_id, String
       attribute :clinic, String
       attribute :reason, String
+      attribute :patient_icn, String
       attribute :slot, Hash
       attribute :contact, Hash
       attribute :service_type, String
