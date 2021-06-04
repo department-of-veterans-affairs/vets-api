@@ -57,6 +57,17 @@ class OpenidApplicationController < ApplicationController
     return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
+
+    # Ensure the Okta profile ICN continues to match the MPI ICN
+    # If mismatched, invalidate above @session and revoke in Okta
+    # TODO Also consider revoking openid_user_identities by key (uuid)
+    if @current_user.icn == profile["icn"]
+      return true
+    else
+      Okta::Service.new.clear_user_session(@session.uuid)
+      @session.destroy
+      return false
+    end
   end
 
   def populate_payload_for_launch_scope
