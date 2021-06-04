@@ -93,15 +93,6 @@ StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.update_address.fail", 0)
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.policy.success", 0)
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.policy.failure", 0)
 
-# disability compenstation submissions
-StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.total", 0)
-StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.fail", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.try", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.success", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.retryable_error", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.non_retryable_error", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.exhausted", 0)
-
 # init caseflow
 StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
 StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
@@ -147,8 +138,12 @@ StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.data, 0)
 StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
 StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 
-# init form 526
+# init form 526 - disability compenstation
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.total", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.fail", 0)
+
 %w[try success non_retryable_error retryable_error exhausted].each do |str|
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.#{str}", 0)
   StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitUploads::STATSD_KEY_PREFIX}.#{str}", 0)
   StatsD.increment("#{CentralMail::SubmitForm4142Job::STATSD_KEY_PREFIX}.#{str}", 0)
   StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm0781::STATSD_KEY_PREFIX}.#{str}", 0)
@@ -157,6 +152,12 @@ StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 end
 StatsD.increment(Form526ConfirmationEmailJob::STATSD_ERROR_NAME, 0)
 StatsD.increment(Form526ConfirmationEmailJob::STATSD_SUCCESS_NAME, 0)
+
+# init Higher Level Review
+
+# Notice of Disagreement
+StatsD.increment("#{DecisionReview::SubmitUpload::STATSD_KEY_PREFIX}.success", 0)
+StatsD.increment("#{DecisionReview::SubmitUpload::STATSD_KEY_PREFIX}.error", 0)
 
 # init VaNotify
 StatsD.increment("#{VaNotify::Service::STATSD_KEY_PREFIX}.send_email.total", 0)
