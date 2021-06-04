@@ -6,7 +6,6 @@ module V0
     AUDITOR = ::Form1010cg::Auditor.new
 
     skip_before_action :authenticate
-    skip_before_action :verify_authenticity_token
 
     before_action :record_submission_attempt, only: :create
     before_action :initialize_claim
