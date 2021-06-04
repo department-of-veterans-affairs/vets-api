@@ -22,7 +22,7 @@ module Mobile
               date_filed: Date.strptime(entry['list_data']['date'], '%m/%d/%Y').iso8601,
               updated_at: Date.strptime(
                 entry['list_data']['claim_phase_dates']['phase_change_date'], '%m/%d/%Y'
-              ).to_time.iso8601
+              ).iso8601
             }
           )
         end
@@ -37,7 +37,7 @@ module Mobile
               subtype: subtype,
               completed: !entry['attributes']['active'],
               date_filed: entry['attributes']['events'][filed_index]['date'],
-              updated_at: DateTime.parse(entry['attributes']['events'].last['date']).iso8601
+              updated_at: entry['attributes']['events'].last['date']
             }
           )
         end
