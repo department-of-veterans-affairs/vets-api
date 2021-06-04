@@ -131,5 +131,12 @@ FactoryBot.define do
         )
       end
     end
+
+    trait :no_multifactor do
+      callback(:after_build, :after_stub, :after_create) do |user, _t|
+        user_identity = create(:iam_user_identity, multifactor: false)
+        user.instance_variable_set(:@identity, user_identity)
+      end
+    end
   end
 end

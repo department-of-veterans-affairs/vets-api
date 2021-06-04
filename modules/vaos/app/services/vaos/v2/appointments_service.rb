@@ -12,9 +12,8 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
-
           {
-            data: deserialized_appointments(response.body),
+            data: deserialized_appointments(response.body[:data]),
             meta: pagination(pagination_params)
           }
         end

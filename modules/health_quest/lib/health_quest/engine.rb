@@ -6,7 +6,6 @@ module HealthQuest
   class Engine < ::Rails::Engine
     isolate_namespace HealthQuest
     config.generators.api_only = true
-    config.autoload_paths << File.expand_path('../../app/policies', __dir__) if Rails.env.development?
 
     ::FHIR.logger.level =
       if Rails.env.production?
