@@ -42,7 +42,7 @@ module Mobile
         appeals: :appeals,
         appointments: :vaos,
         claims: :evss,
-        directDepositBenefits: [:evss, :ppiu],
+        directDepositBenefits: %i[evss ppiu],
         lettersAndDocuments: :evss,
         militaryServiceHistory: :emis,
         userProfileUpdate: :vet360,
@@ -82,7 +82,7 @@ module Mobile
         }
       end
 
-      def authorized_for_service(policies, user)
+      def self.authorized_for_service(policies, user)
         [*policies].all? { |policy| user.authorize(policy, :access?) }
       end
 

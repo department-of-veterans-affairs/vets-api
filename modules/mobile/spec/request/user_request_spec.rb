@@ -207,15 +207,14 @@ RSpec.describe 'user', type: :request do
           )
         end
       end
-      
+
       context 'with a user who has access to evss but not ppiu (not multifactor)' do
         before do
           user = FactoryBot.build(:iam_user, :no_multifactor)
-          binding.pry
           iam_sign_in(user)
           get '/mobile/v0/user', headers: iam_headers
         end
-        
+
         it 'does not include directDepositBenefits in the authorized services list' do
           expect(attributes['authorizedServices']).to eq(
             %w[
