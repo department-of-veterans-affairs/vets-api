@@ -65,11 +65,17 @@
               },
               "serviceType": {
                 "description": "the care type for the appointment",
-                "type": "string"
+                "type": [
+                  "string",
+                  null
+                ]
               },
               "locationId": {
                 "description": "The sta6aid for the VAfacility where the appointment is registered.",
-                "type": "string"
+                "type": [
+                  "string",
+                  null
+                ]
               },
               "clinic": {
                 "description": "The clinic ID for the Appointment",
@@ -197,7 +203,10 @@
                 "format": "date-time"
               },
               "minutesDuration": {
-                "type": "integer",
+                "type": [
+                  "integer",
+                  null
+                ],
                 "description": "The duration of the meeting, in minutes."
               },
               "slot": {
@@ -224,7 +233,10 @@
                 }
               },
               "requestedPeriods": {
-                "type": "array",
+                "type": [
+                  "array",
+                  null
+                ],
                 "description": "a list of requested periods for appointment",
                 "items": {
                   "type": "object",
@@ -272,14 +284,20 @@
                 }
               },
               "preferredTimesForPhoneCall": {
-                "type": "array",
+                "type": [
+                  "array",
+                  null
+                ],
                 "description": "a list of times the patient prefers to be contacted by phone",
                 "items": {
-                  "type": "string",
+                  "type": [
+                    "object"
+                  ],
                   "enum": [
                     "Morning",
                     "Afternoon",
-                    "Evening"
+                    "Evening",
+                    null
                   ]
                 }
               },
@@ -293,7 +311,10 @@
               },
               "cancellationReason": {
                 "description": "The reason the appointment was cancelled.",
-                "type": "string"
+                "type": [
+                  "string",
+                  null
+                ]
               },
               "description": {
                 "description": "Not used.",
