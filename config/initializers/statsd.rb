@@ -153,7 +153,6 @@ end
 StatsD.increment(Form526ConfirmationEmailJob::STATSD_ERROR_NAME, 0)
 StatsD.increment(Form526ConfirmationEmailJob::STATSD_SUCCESS_NAME, 0)
 
-
 # init Higher Level Review
 
 # Notice of Disagreement

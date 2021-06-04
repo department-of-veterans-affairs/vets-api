@@ -38,6 +38,10 @@ module DecisionReview
       appeal_submission_upload.save
       StatsD.increment("#{STATSD_KEY_PREFIX}.success")
     rescue => e
+      handle_error(e)
+    end
+
+    def handle_error(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}.error")
       raise e
     end
