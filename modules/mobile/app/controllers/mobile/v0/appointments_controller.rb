@@ -14,13 +14,15 @@ module Mobile
         start_date = params[:startDate] || one_year_ago.iso8601
         end_date = params[:endDate] || one_year_from_now.iso8601
         page = params[:page] || { number: 1, size: 10 }
+        reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
         validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
           start_date: start_date,
           end_date: end_date,
           page_number: page[:number],
           page_size: page[:size],
-          use_cache: use_cache
+          use_cache: use_cache,
+          reverse_sort: reverse_sort
         )
 
         raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
@@ -78,6 +80,8 @@ module Mobile
                                  Mobile::V0::Appointment.set_cached(@current_user, appointments)
                                  [appointments, errors]
                                end
+
+        appointments.reverse! if validated_params[:reverse_sort]
 
         # filter by request start and end date params here
         appointments = appointments.filter do |appointment|
