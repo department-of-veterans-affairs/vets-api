@@ -312,7 +312,7 @@ describe DecisionReview::Service do
 
   describe '#get_notice_of_disagreement_upload_url' do
     subject do
-      described_class.new.get_notice_of_disagreement_upload_url(nod_id: uuid, ssn: ssn_with_mockdata)
+      described_class.new.get_notice_of_disagreement_upload_url(nod_uuid: uuid, ssn: ssn_with_mockdata)
     end
 
     context '200 response' do
@@ -380,6 +380,16 @@ describe DecisionReview::Service do
           expect(subject.body.dig('data', 'attributes', 'status')).to eq 'received'
         end
       end
+    end
+  end
+
+  describe '#transliterate_name' do
+    subject do
+      described_class.transliterate_name(' Andrés 安倍 Guðni Th. Jóhannesson Löfven aaaaaaaaaaaaaabb')
+    end
+
+    it 'returns a properly transiterated response' do
+      expect(subject).to eq 'Andres  Gudni Th Johannesson Lofven aaaaaaaaaaaaaa'
     end
   end
 end
