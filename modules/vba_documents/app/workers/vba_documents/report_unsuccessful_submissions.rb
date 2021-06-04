@@ -40,16 +40,24 @@ module VBADocuments
       @consumers.each do |name|
         counts = UploadSubmission.where(created_at: @from..@to, consumer_name: name).group(:status).count
         lobs = UploadSubmission.where(created_at: @from..@to, consumer_name: name)
-                               .where("uploaded_pdf->'line_of_business' is not null")
-                               .pluck(Arel.sql("uploaded_pdf->'line_of_business'")).uniq
-        # put ticks around all lobs
-        lobs.map! { |e| "'#{e}'" }
+                   .where("uploaded_pdf->'line_of_business' is not null")
+                   .group(Arel.sql("uploaded_pdf->>'line_of_business'")).count
+
+        lobs = lobs.each_with_object([]) do |elem, result|
+          # report an error if the lob value passed is null or an empty string and the consumer is appeals
+          if name.eql?(APPEALS_CONSUMER_NAME) && elem[0].to_s.empty?
+            result << "EMPTY (#{elem[1]})"
+          else
+            result << "'#{elem[0]}' (#{elem[1]})"
+          end
+          result
+        end
 
         # ensure that all appeals submissions have lob passed in
         if name.eql?(APPEALS_CONSUMER_NAME)
           appeals_null_lob_count = UploadSubmission.where(created_at: @from..@to, consumer_name: name)
                                                    .where("uploaded_pdf->'line_of_business' is null").count
-          lobs << "#{appeals_null_lob_count} NULL" if appeals_null_lob_count.positive?
+          lobs << "NULL (#{appeals_null_lob_count})" if appeals_null_lob_count.positive?
         end
 
         totals = counts.sum { |_k, v| v }

@@ -33,12 +33,10 @@
           red = 'color: red; font: italic small-caps bold 12px/30px Georgia, serif;'
           if consumer.eql?(VBADocuments::ReportUnsuccessfulSubmissions::APPEALS_CONSUMER_NAME)
             lobs = @consumer_totals[consumer][:lobs]
-            count = lobs.split(", ").count
-            count += 1 if lobs =~ /NULL/
-            style += count > 1 ? red : ''
+            style += red if lobs =~ /EMPTY|NULL/
           end
         %>
-        <td style="text-align: center; <%= style %>"><%= @consumer_totals[consumer][:lobs]%></td>
+        <td style="<%= style %>"><%= @consumer_totals[consumer][:lobs]%></td>
       </tr>
     <% end %>
   <% end if @consumer_totals %>
