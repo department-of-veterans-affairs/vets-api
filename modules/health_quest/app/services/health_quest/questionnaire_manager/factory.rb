@@ -265,6 +265,7 @@ module HealthQuest
 
       ##
       # Returns an array of Organizations from the Health API for the `locations` array
+      # with a single request using the `_id` param
       #
       # @return [Array] a list of Organizations
       #
@@ -278,11 +279,10 @@ module HealthQuest
             acc[org_id] << loc
           end
 
-        org_references.each_with_object([]) do |(k, _v), accumulator|
-          org = organization_service.get(k)
+        facility_identifiers = org_references&.keys&.join(',')
+        org_response = organization_service.search(_id: facility_identifiers, _count: '100')
 
-          accumulator << org
-        end
+        org_response&.resource&.entry
       end
 
       ##
