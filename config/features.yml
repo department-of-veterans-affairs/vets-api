@@ -369,6 +369,10 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
+  va_online_scheduling_variant_testing:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for VAOS variant testing.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
