@@ -182,6 +182,10 @@ end
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
 
 ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_name, start_time, end_time, _id, payload|
+  payload_statuses = ["http_status:#{payload.status}"]
+  StatsD.increment('facilities.ppms.response.failures', tags: payload_statuses) unless payload.success?
+  StatsD.increment('facilities.ppms.response.total', tags: payload_statuses)
+
   duration = end_time - start_time
   measurement = case payload[:url].path
                 when /ProviderLocator/
@@ -200,16 +204,19 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_n
 
     if params['radius']
       tags << "facilities.ppms.radius:#{params['radius']}"
-      tags << "facilities.ppms.results:#{payload[:body]&.count || 0}"
+      tags << "facilities.ppms.results:#{payload[:body].is_a?(Array) ? payload[:body]&.count : 0}"
     end
 
     StatsD.measure(measurement, duration, tags: tags)
   end
 end
 
-ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, _|
-  duration = end_time - start_time
+ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, payload|
+  payload_statuses = ["http_status:#{payload.status}"]
+  StatsD.increment('facilities.lighthouse.response.failures', tags: payload_statuses) unless payload.success?
+  StatsD.increment('facilities.lighthouse.response.total', tags: payload_statuses)
 
+  duration = end_time - start_time
   StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
 end
 
