@@ -139,13 +139,13 @@ module DecisionReview
     ##
     # Get the url to upload supporting evidence for a Notice of Disagreement
     #
-    # @param nod_id [uuid] The uuid of the submited Notice of Disagreement
+    # @param nod_uuid [uuid] The uuid of the submited Notice of Disagreement
     # @return [Faraday::Response]
     #
 
-    def get_notice_of_disagreement_upload_url(nod_id:, ssn:)
+    def get_notice_of_disagreement_upload_url(nod_uuid:, ssn:)
       with_monitoring_and_error_handling do
-        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_id: nod_id },
+        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: nod_uuid },
                 { 'X-VA-SSN' => ssn.to_s.strip.presence }
       end
     end
