@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: a814773c22920674823cf3052d82fbaaf9d4dbad
+  revision: 358f9e41f2fb1be893d213ce7820e936563c0909
   branch: master
   specs:
-    vets_json_schema (20.5.0)
+    vets_json_schema (20.5.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -201,7 +201,7 @@ GEM
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
-    aws-sdk-sns (1.40.0)
+    aws-sdk-sns (1.41.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
     aws-sigv4 (1.2.3)
@@ -440,7 +440,7 @@ GEM
       webrick
     google-apis-discovery_v1 (0.2.0)
       google-apis-core (~> 0.1)
-    google-apis-generator (0.2.0)
+    google-apis-generator (0.3.0)
       activesupport (>= 5.0)
       gems (~> 1.2)
       google-apis-core (~> 0.1)

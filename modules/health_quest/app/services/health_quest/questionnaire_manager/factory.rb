@@ -236,12 +236,14 @@ module HealthQuest
         @get_lighthouse_appointments ||=
           lighthouse_appointment_service.search(
             patient: user.icn,
-            date: [date_ge_one_year_ago, date_le_one_year_from_now]
+            date: [date_ge_one_year_ago, date_le_one_year_from_now],
+            _count: '100'
           )
       end
 
       ##
-      # Gets a list of Locations from the `lighthouse_appointments` array.
+      # Gets a list of Locations from the `lighthouse_appointments` array
+      # with a single request using the `_id` param
       #
       # @return [Array] a list of Locations
       #
@@ -255,11 +257,10 @@ module HealthQuest
             acc[location_id] << appt
           end
 
-        location_references.each_with_object([]) do |(k, _v), accumulator|
-          loc = location_service.get(k)
+        clinic_identifiers = location_references&.keys&.join(',')
+        location_response = location_service.search(_id: clinic_identifiers, _count: '100')
 
-          accumulator << loc
-        end
+        location_response&.resource&.entry
       end
 
       ##
@@ -319,7 +320,8 @@ module HealthQuest
         @get_questionnaire_responses ||=
           questionnaire_response_service.search(
             source: user.icn,
-            authored: [date_ge_one_year_ago, date_le_one_year_from_now]
+            authored: [date_ge_one_year_ago, date_le_one_year_from_now],
+            _count: '100'
           )
       end
 
