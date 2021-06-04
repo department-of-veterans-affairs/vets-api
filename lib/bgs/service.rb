@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 
 require_relative 'exceptions/bgs_errors'
+require 'common/client/concerns/monitoring'
 
 module BGS
   class Service
+    STATSD_KEY_PREFIX = 'api.bgs'
+
     include BGS::Exceptions::BGSErrors
     include SentryLogging
+    include Common::Client::Concerns::Monitoring
+
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
     # (I = Input, U = Update, D = Delete)
@@ -192,7 +197,9 @@ module BGS
     end
 
     def find_ch33_dd_eft
-      service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
+      with_monitoring do
+        service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
+      end
     end
 
     def update_ch33_dd_eft(routing_number, acct_number, checking_acct)
