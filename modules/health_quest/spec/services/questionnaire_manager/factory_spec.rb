@@ -217,15 +217,15 @@ describe HealthQuest::QuestionnaireManager::Factory do
                                 ]))
       ]
     end
-    let(:location) { double('FHIR::Location', resource: OpenStruct.new) }
+    let(:location) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: ['my_location'])) }
 
     before do
       allow_any_instance_of(subject).to receive(:lighthouse_appointments).and_return(appointments)
-      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:get).with(anything).and_return(location)
+      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:search).with(anything).and_return(location)
     end
 
     it 'returns an array of locations' do
-      expect(described_class.manufacture(user).get_locations).to eq([location])
+      expect(described_class.manufacture(user).get_locations).to eq(['my_location'])
     end
   end
 
