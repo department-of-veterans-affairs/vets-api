@@ -126,7 +126,7 @@ module AppealsApi
         end
 
         def rep_country_code
-          higher_level_review.rep_phone_data&.dig('countryCode')
+          higher_level_review.rep_phone_data&.dig('countryCode') || '1'
         end
 
         def soc_opt_in
