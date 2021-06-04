@@ -8,6 +8,7 @@ module VBADocuments
       swagger_path '/uploads' do
         operation :post do
           extend VBADocuments::V1::Responses::ForbiddenError
+          extend VBADocuments::V1::Responses::TooManyRequestsError
           extend VBADocuments::V1::Responses::InternalServerError
           extend VBADocuments::V1::Responses::UnexpectedError
           extend VBADocuments::V1::Responses::UnauthorizedError
@@ -50,7 +51,7 @@ module VBADocuments
           parameter do
             key :name, 'Content-MD5'
             key :in, 'header'
-            key :description, 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control.'
+            key :description, 'Base64-encoded 128-bit MD5 digest of the message. Use for integrity control'
             key :required, false
             schema do
               key :type, :string
@@ -76,6 +77,7 @@ module VBADocuments
       swagger_path '/uploads/{id}' do
         operation :get do
           extend VBADocuments::V1::Responses::NotFoundError
+          extend VBADocuments::V1::Responses::TooManyRequestsError
           extend VBADocuments::V1::Responses::UnexpectedError
           extend VBADocuments::V1::Responses::InternalServerError
           extend VBADocuments::V1::Responses::UnauthorizedError
@@ -120,6 +122,7 @@ module VBADocuments
       swagger_path '/uploads/{id}/download' do
         operation :get do
           extend VBADocuments::V1::Responses::UnauthorizedError
+          extend VBADocuments::V1::Responses::TooManyRequestsError
           extend VBADocuments::V1::Responses::ForbiddenError
           extend VBADocuments::V1::Responses::NotFoundError
           extend VBADocuments::V1::Responses::InternalServerError
@@ -161,6 +164,7 @@ module VBADocuments
       swagger_path '/uploads/report' do
         operation :post do
           extend VBADocuments::V1::Responses::UnauthorizedError
+          extend VBADocuments::V1::Responses::TooManyRequestsError
           extend VBADocuments::V1::Responses::ForbiddenError
           extend VBADocuments::V1::Responses::UnexpectedError
           extend VBADocuments::V1::Responses::InternalServerError
@@ -174,7 +178,7 @@ module VBADocuments
           end
 
           request_body do
-            key :description, 'List of GUIDs for which to retrieve current status.'
+            key :description, 'List of GUIDs for which to retrieve current status'
             key :required, true
 
             content 'application/json' do
