@@ -92,6 +92,7 @@ module VBADocuments
       ret_hash
     end
     # rubocop:enable Metrics/MethodLength
+
     private
 
     def format_lobs(lobs, name)
@@ -108,7 +109,7 @@ module VBADocuments
       # ensure that all appeals submissions have lob passed in
       if name.eql?(APPEALS_CONSUMER_NAME)
         appeals_null_lob_count = UploadSubmission.where(created_at: @from..@to, consumer_name: name)
-                                     .where("uploaded_pdf->'line_of_business' is null").count
+                                                 .where("uploaded_pdf->'line_of_business' is null").count
         ret << "NULL (#{appeals_null_lob_count})" if appeals_null_lob_count.positive?
       end
       ret
