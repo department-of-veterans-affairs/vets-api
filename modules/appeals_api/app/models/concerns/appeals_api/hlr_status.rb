@@ -15,7 +15,7 @@ module AppealsApi
     STATUSES = [*V1_STATUSES, *V2_STATUSES].uniq.freeze
 
     RECEIVED_OR_PROCESSING = %w[received processing].freeze
-    COMPLETE_STATUSES = %w[success error].freeze
+    COMPLETE_STATUSES = %w[success caseflow error].freeze
 
     included do
       scope :received_or_processing, -> { where status: RECEIVED_OR_PROCESSING }
