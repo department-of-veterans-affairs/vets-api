@@ -17,7 +17,7 @@ FactoryBot.define do
     end
     trait :completed_a_week_ago do
       updated_at { 8.days.ago }
-      status { AppealsApi::HigherLevelReview::COMPLETE_STATUSES.sample }
+      status { 'success' }
     end
   end
 
