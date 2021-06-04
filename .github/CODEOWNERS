@@ -6,14 +6,14 @@
 *       @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 
 # Experiment for isolating VFS teams
-modules/vaos/                        @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
-spec/support/*/vaos/                 @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/backend-review-group
+modules/vaos/                        @department-of-veterans-affairs/vfs-vaos
+spec/support/*/vaos/                 @department-of-veterans-affairs/vfs-vaos
 
 lib/bgs @department-of-veterans-affairs/vfs-ebenefits @department-of-veterans-affairs/backend-review-group
 spec/bgs @department-of-veterans-affairs/vfs-ebenefits @department-of-veterans-affairs/backend-review-group
 
-modules/mobile/                      @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
-spec/support/*/mobile/               @department-of-veterans-affairs/mobile-api-team @department-of-veterans-affairs/backend-review-group
+modules/mobile/                      @department-of-veterans-affairs/mobile-api-team
+spec/support/*/mobile/               @department-of-veterans-affairs/mobile-api-team
 
 rakelib/form526.rake @department-of-veterans-affairs/vsa-bam-1-backend @department-of-veterans-affairs/backend-review-group
 spec/rakelib/form526_spec.rb @department-of-veterans-affairs/vsa-bam-1-backend @department-of-veterans-affairs/backend-review-group
@@ -29,15 +29,15 @@ lib/saml @department-of-veterans-affairs/vsp-identity
 lib/mpi @department-of-veterans-affairs/vsp-identity
 
 # covid_vaccine product
-modules/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
-spec/support/*/covid_vaccine @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
-rakelib/covid_vaccine.rake @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
+modules/covid_vaccine @department-of-veterans-affairs/va-cto-health-products
+spec/support/*/covid_vaccine @department-of-veterans-affairs/va-cto-health-products
+rakelib/covid_vaccine.rake @department-of-veterans-affairs/va-cto-health-products
 
 # health_quest product
-modules/health_quest  @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
-spec/support/*/health_quest/ @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
+modules/health_quest  @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend
+spec/support/*/health_quest/ @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend
 
 # facilities product
-modules/facilities_api @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
-spec/support/*/facilities @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
-spec/support/*/lighthouse @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
+modules/facilities_api @department-of-veterans-affairs/vsa-facilities-backend
+spec/support/*/facilities @department-of-veterans-affairs/vsa-facilities-backend
+spec/support/*/lighthouse @department-of-veterans-affairs/vsa-facilities-backend
