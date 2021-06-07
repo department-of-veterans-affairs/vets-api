@@ -7,6 +7,10 @@ module AppealsApi
   class HigherLevelReview < ApplicationRecord
     include HlrStatus
 
+    def formatter
+      AppealsApi::HigherLevelReview::Formatter.new(self)
+    end
+
     def self.past?(date)
       date < Time.zone.today
     end
@@ -39,9 +43,9 @@ module AppealsApi
     has_many :evidence_submissions, as: :supportable, dependent: :destroy
     has_many :status_updates, as: :statusable, dependent: :destroy
 
-    def pdf_structure(version)
+    def pdf_structure
       Object.const_get(
-        "AppealsApi::PdfConstruction::HigherLevelReview::#{version.upcase}::Structure"
+        "AppealsApi::PdfConstruction::HigherLevelReview::#{self.pdf_version.upcase}::Structure"
       ).new(self)
     end
 
