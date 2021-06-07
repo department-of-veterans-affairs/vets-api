@@ -33,7 +33,7 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
                 completed: false,
                 date_filed: '2020-09-23',
                 updated_at: '2020-09-23',
-                display_title: "supplemental claim for disability compensation"
+                display_title: 'supplemental claim for disability compensation'
               }
             )
           end
