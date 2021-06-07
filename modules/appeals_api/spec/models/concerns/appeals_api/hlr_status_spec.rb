@@ -12,9 +12,16 @@ describe AppealsApi::HlrStatus, type: :concern do
       expect(local_statuses).to include(*additional_statuses)
     end
 
-    it 'includes the expected statuses' do
-      statuses = %w[pending submitting submitted processing error uploaded received success expired]
-      expect(described_class::STATUSES).to eq(statuses)
+    context 'statuses' do
+      it 'includes the V1 expected statuses' do
+        statuses = %w[pending submitting submitted processing error uploaded received success expired]
+        expect(described_class::V1_STATUSES).to eq(statuses)
+      end
+
+      it 'includes the V2 expected statuses' do
+        statuses = %w[pending submitting submitted success processing error caseflow]
+        expect(described_class::V2_STATUSES).to eq(statuses)
+      end
     end
   end
 end
