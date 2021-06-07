@@ -422,7 +422,8 @@ class User < Common::RedisStore
     add_person_identity.ssn = ssn
     add_person_identity.icn_with_aaid = icn_with_aaid
     add_person_identity.search_token = search_token
-    mpi.add_person(add_person_identity)
+    mpi.user_identity = add_person_identity
+    mpi.add_person
   end
 
   private

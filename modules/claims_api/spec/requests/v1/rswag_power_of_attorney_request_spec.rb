@@ -519,7 +519,9 @@ describe 'Power of Attorney' do  # rubocop:disable RSpec/DescribeClass
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
           let(:representative_info) do
             {
-              name: 'Some Great Organization',
+              first_name: 'Jane',
+              last_name: 'Doe',
+              organization_name: nil,
               phone_number: '555-555-5555'
             }
           end

@@ -12,9 +12,8 @@ module VAOS
 
         with_monitoring do
           response = perform(:get, appointments_base_url, params, headers)
-
           {
-            data: deserialized_appointments(response.body),
+            data: deserialized_appointments(response.body[:data]),
             meta: pagination(pagination_params)
           }
         end
@@ -28,7 +27,8 @@ module VAOS
         end
       end
 
-      def post_appointments(params)
+      def post_appointment(request_object_body)
+        params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         with_monitoring do
           response = perform(:post, appointments_base_url, params, headers)
           OpenStruct.new(response.body)
