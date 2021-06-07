@@ -73,12 +73,16 @@ class Token
   end
 
   def identifiers
-    # Here the `sub` field is the same value as the `uuid` field from the original upstream ID.me
-    # SAML response. We use this as the primary identifier of the user because, despite openid user
+    # Here the `sub` field is the same value as the `login` field from the okta profile.
+    # In cases of direct saml-proxy integration with the IDP, the `sub` is
+    # the same value as the `uuid` field from the original upstream ID.me
+    # However in cases of SSOe, the `sub` is actually the `ICN` for the user
+    # We use this as the primary identifier of the user because, despite openid user
     # records being controlled by okta, we want to remain consistent with the va.gov SSO process
     # that consumes the SAML response directly, outside the openid flow.
     # Example of an upstream uuid for the user: cfa32244569841a090ad9d2f0524cf38
     # Example of an okta uid for the user: 00u2p9far4ihDAEX82p7
+    # Example of sub for SSOe: 1013062086V794840
     @identifiers ||= OpenStruct.new(
       uuid: payload['sub'],
       okta_uid: payload['uid']

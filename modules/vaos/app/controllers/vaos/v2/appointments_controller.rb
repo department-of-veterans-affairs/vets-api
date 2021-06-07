@@ -48,13 +48,13 @@ module VAOS
 
       def new_appointment
         @new_appointment ||=
-          appointments_service.post_appointments(create_params)
+          appointments_service.post_appointment(create_params)
       end
 
       def appointment_params
-        params.require(:start_date)
-        params.require(:end_date)
-        params
+        params.require(:start)
+        params.require(:end)
+        params.permit(:start, :end)
       end
 
       def create_params
@@ -63,15 +63,15 @@ module VAOS
       end
 
       def start_date
-        DateTime.parse(appointment_params[:start_date]).in_time_zone
+        DateTime.parse(appointment_params[:start]).in_time_zone
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('start_date', params[:start_date])
+        raise Common::Exceptions::InvalidFieldValue.new('start', params[:start])
       end
 
       def end_date
-        DateTime.parse(appointment_params[:end_date]).in_time_zone
+        DateTime.parse(appointment_params[:end]).in_time_zone
       rescue ArgumentError
-        raise Common::Exceptions::InvalidFieldValue.new('end_date', params[:end_date])
+        raise Common::Exceptions::InvalidFieldValue.new('end', params[:end])
       end
 
       def appointment_id

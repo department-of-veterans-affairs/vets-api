@@ -54,18 +54,36 @@ class OpenidApplicationController < ApplicationController
       return true
     end
 
+    return false if @session.uuid.nil?
+
     @current_user = OpenidUser.find(@session.uuid)
   end
 
   def populate_payload_for_launch_scope
-    launch = fetch_smart_launch_context
-    token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { patient: launch }
+    analyze_redis_launch_context
+    token.payload[:launch] =
+      base64_json?(@session.launch) ? JSON.parse(Base64.decode64(@session.launch)) : { patient: @session.launch }
   end
 
   def populate_payload_for_launch_patient_scope
-    launch = fetch_smart_launch_context
-    token.payload[:icn] = launch
-    token.payload[:launch] = { patient: launch } unless launch.nil?
+    analyze_redis_launch_context
+    token.payload[:icn] = @session.launch
+    token.payload[:launch] = { patient: @session.launch } unless @session.launch.nil?
+  end
+
+  def analyze_redis_launch_context
+    @session = Session.find(token)
+    # Sessions are not originally created for client credentials tokens, one will be created here.
+    if @session.nil?
+      ttl = token.payload['exp'] - Time.current.utc.to_i
+      launch = fetch_smart_launch_context
+      @session = build_launch_session(ttl, launch)
+      @session.save
+    # Launch context is not attached to the session for SSOi tokens, it will be added here.
+    elsif @session.launch.nil?
+      @session.launch = fetch_smart_launch_context
+      @session.save
+    end
   end
 
   def populate_ssoi_token_payload(profile)
@@ -113,13 +131,21 @@ class OpenidApplicationController < ApplicationController
 
   def establish_session(profile)
     ttl = token.payload['exp'] - Time.current.utc.to_i
+
     user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
     @session = build_session(ttl,
                              Okta::UserProfile.new({ 'last_login_type' => profile['last_login_type'],
                                                      'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'],
-                                                     'npi' => profile['npi'], 'icn' => profile['icn'] }))
+                                                     'npi' => profile['npi'], 'icn' => profile['icn'],
+                                                     'uuid' => uuid(profile) }))
     @session.save && user_identity.save && @current_user.save
+  end
+
+  # Helper method that uses the profile uuid set by SSOe since the sub == ICN in that scenario
+  # but falls back to the token.identifiers.uuid
+  def uuid(profile)
+    profile['uuid'] || token.identifiers.uuid
   end
 
   def token
@@ -138,7 +164,13 @@ class OpenidApplicationController < ApplicationController
   end
 
   def build_session(ttl, profile)
-    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid, profile: profile)
+    session = Session.new(token: token.to_s, uuid: uuid(profile), profile: profile)
+    session.expire(ttl)
+    session
+  end
+
+  def build_launch_session(ttl, launch)
+    session = Session.new(token: token.to_s, launch: launch)
     session.expire(ttl)
     session
   end

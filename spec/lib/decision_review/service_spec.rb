@@ -312,11 +312,11 @@ describe DecisionReview::Service do
 
   describe '#get_notice_of_disagreement_upload_url' do
     subject do
-      described_class.new.get_notice_of_disagreement_upload_url(nod_id: uuid, ssn: ssn_with_mockdata)
+      described_class.new.get_notice_of_disagreement_upload_url(nod_uuid: uuid, ssn: ssn_with_mockdata)
     end
 
     context '200 response' do
-      let(:uuid) { '6d0c3dba-8a1f-41be-bd16-59bf22d273e7' }
+      let(:uuid) { 'e076ea91-6b99-4912-bffc-a8318b9b403f' }
 
       it 'returns a properly formatted 200 response' do
         VCR.use_cassette('decision_review/NOD-GET-UPLOAD-URL-200') do
@@ -343,16 +343,19 @@ describe DecisionReview::Service do
   describe '#put_notice_of_disagreement_upload' do
     subject do
       described_class.new.put_notice_of_disagreement_upload(upload_url: path, file_upload: file_upload,
-                                                            metadata: metadata)
+                                                            metadata_string: metadata)
     end
 
     let(:file_upload) do
-      double(CarrierWave::SanitizedFile, filename: 'upload.txt', read: 'contents of file', content_type: 'text/plain')
+      double(CarrierWave::SanitizedFile,
+             filename: 'upload.pdf',
+             read: File.read('spec/fixtures/files/doctors-note.pdf'),
+             content_type: Mime[:pdf].to_s)
     end
     let(:path) do
-      'https://sandbox-api.va.gov/services_user_content/vba_documents/021d2fab-b3ca-4928-b90d-94b4c45529d8?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ/20210426/us-gov-west-1/s3/aws4_request&X-Amz-Date=20210426T163153Z&X-Amz-Expires=900&X-Amz-Signature=33e56786dfc1b5d6758abd931d9d50388f6206302708074b1924929c6e33da00&X-Amz-SignedHeaders=host'
+      'https://sandbox-api.va.gov/services_user_content/vba_documents/832a96ca-4dbd-4138-b7a4-6a991ff76faf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAQD72FDTFWPUWR5OZ%2F20210521%2Fus-gov-west-1%2Fs3%2Faws4_request&X-Amz-Date=20210521T193313Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=5d64a8a7fd749b1fb301a43226d45cc865fb68e6397026bdf047737c05fa4927'
     end
-    let(:metadata) { { foo: 'bar' } }
+    let(:metadata) { DecisionReview::Service.file_upload_metadata(user) }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
@@ -368,14 +371,25 @@ describe DecisionReview::Service do
       described_class.new.get_notice_of_disagreement_upload(guid: guid)
     end
 
-    let(:guid) { '848134d0-1842-488a-b8bb-5e94d717b2c6' }
+    let(:guid) { '59cdb98f-f94b-4aaa-8952-4d1e59b6e40a' }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do
         VCR.use_cassette('decision_review/NOD-GET-UPLOAD-200') do
           expect(subject.status).to be 200
+          expect(subject.body.dig('data', 'attributes', 'status')).to eq 'received'
         end
       end
+    end
+  end
+
+  describe '#transliterate_name' do
+    subject do
+      described_class.transliterate_name(' Andrés 安倍 Guðni Th. Jóhannesson Löfven aaaaaaaaaaaaaabb')
+    end
+
+    it 'returns a properly transiterated response' do
+      expect(subject).to eq 'Andres  Gudni Th Johannesson Lofven aaaaaaaaaaaaaa'
     end
   end
 end

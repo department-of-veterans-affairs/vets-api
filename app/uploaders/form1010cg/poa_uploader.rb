@@ -3,6 +3,8 @@
 module Form1010cg
   class PoaUploader < CarrierWave::Uploader::Base
     include SetAWSConfig
+    include LogMetrics
+    include UploaderVirusScan
 
     storage :aws
 
@@ -27,6 +29,10 @@ module Form1010cg
 
     def content_type_allowlist
       %w[image/jpg image/jpeg image/png application/pdf]
+    end
+
+    def size_range
+      1.byte...10.megabytes
     end
   end
 end

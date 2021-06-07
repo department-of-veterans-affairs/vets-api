@@ -129,6 +129,7 @@ describe AppsApi::NotificationService do
     # @notify_client ||= Notifications::Client.new(api_key, client_url)
     allow(Notifications::Client).to receive(:new).and_return(notification_client)
     allow(notification_client).to receive(:send_email).and_return(true)
+    subject.instance_variable_set(:@should_perform, true)
   end
 
   describe '#initialize' do
@@ -141,6 +142,15 @@ describe AppsApi::NotificationService do
   end
 
   describe 'handle_event' do
+    it 'returns early if in testing or development' do
+      subject.instance_variable_set(:@should_perform, false)
+      response = subject.handle_event(
+        subject.instance_variable_get(:@connection_event),
+        subject.instance_variable_get(:@connection_template)
+      )
+      expect(response).to eql 'not enabled for this environment'
+    end
+
     it 'properly calls the okta service' do
       response = OpenStruct.new(
         {

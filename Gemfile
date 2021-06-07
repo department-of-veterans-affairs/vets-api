@@ -34,13 +34,13 @@ end
 gem 'sass-rails', '>= 6'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.7'
-gem 'puma-plugin-statsd', '~> 0.1.0'
+gem 'puma', '~> 4.3.8'
+gem 'puma-plugin-statsd', '~> 1.2.1'
 gem 'rails', '~> 6.0.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
-gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
+gem 'sidekiq-scheduler', '~> 3.1' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
@@ -65,7 +65,7 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
-gem 'fhir_client', '~> 4.0.5'
+gem 'fhir_client', '~> 4.0.6'
 gem 'flipper', '~> 0.20.4'
 gem 'flipper-active_record', '~> 0.20.4'
 gem 'flipper-active_support_cache_store', '~> 0.20.4'
@@ -90,7 +90,7 @@ gem 'levenshtein-ffi'
 gem 'liquid'
 gem 'mail', '2.7.1'
 gem 'memoist'
-gem 'mimemagic', '~> 0.3.10'
+gem 'mimemagic', '~> 0.4.3'
 gem 'mini_magick', '~> 4.11.0'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.11'
@@ -140,7 +140,6 @@ gem 'will_paginate'
 gem 'with_advisory_lock'
 
 group :development do
-  gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
@@ -196,6 +195,7 @@ group :development, :test do
   gem 'rspec-instrumentation-matcher'
   gem 'rspec-its'
   gem 'rspec-rails'
+  gem 'rswag'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'

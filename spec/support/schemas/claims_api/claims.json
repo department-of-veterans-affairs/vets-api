@@ -5,42 +5,90 @@
   "properties": {
     "data": {
       "type": "array",
-      "uniqueItems": true,
       "items": {
-        "type": "object",
         "required": ["id", "type", "attributes"],
+        "additionalProperties": false,
+        "description": "Claim with some details for the given Veteran info",
         "properties": {
-          "id": { "type": "string"},
-          "type": { "enum": ["evss_claims"] },
+          "id": {
+            "type": "string",
+            "description": "Claim ID from EVSS"
+          },
+          "type": {
+            "type": "string"
+          },
           "attributes": {
             "type": "object",
-            "required": [
-              "evss_id",
-              "date_filed",
-              "min_est_date",
-              "max_est_date",
-              "open",
-              "waiver_submitted",
-              "requested_decision",
-              "documents_needed",
-              "development_letter_sent",
-              "decision_letter_sent",
-              "status",
-              "claim_type"
-            ],
+            "additionalProperties": false,
+            "required": ["evss_id", "date_filed", "max_est_date", "open", "waiver_submitted", "documents_needed", "development_letter_sent", "status", "requested_decision", "claim_type"],
             "properties": {
-              "evss_id": { "type": "integer" },
-              "date_filed": { "type": "string" },
-              "min_est_date": { "type": ["string", "null"] },
-              "max_est_date": { "type": ["string", "null"] },
-              "open": { "type": "boolean" },
-              "waiver_submitted": { "type": "boolean" },
-              "requested_decision": { "type": "boolean" },
-              "documents_needed": { "type": "boolean" },
-              "development_letter_sent": { "type": "boolean" },
-              "decision_letter_sent" : { "type": "boolean" },
-              "status": { "type": ["string", "null"] },
-              "claim_type": { "type": ["string", "null"] }
+              "evss_id": {
+                "type": "integer",
+                "description": "Upstream service identifier"
+              },
+              "date_filed": {
+                "type": "string",
+                "format": "date",
+                "description": "Date in YYYY-MM-DD the claim was first filed",
+                "example": "2018-06-04"
+              },
+              "min_est_date": {
+                "type": ["string", "null"],
+                "format": "date",
+                "description": "Minimum Estimated Claim Completion Date",
+                "example": "2019-06-04"
+              },
+              "max_est_date": {
+                "type": ["string", "null"],
+                "format": "date",
+                "description": "Maximum Estimated Claim Completion Date",
+                "example": "2019-09-04"
+              },
+              "open": {
+                "type": "boolean",
+                "description": "Has the claim been resolved"
+              },
+              "waiver_submitted": {
+                "type": "boolean",
+                "description": "Requested Decision or Waiver 5103 Submitted"
+              },
+              "documents_needed": {
+                "type": "boolean",
+                "description": "Does the claim require additional documents to be submitted"
+              },
+              "development_letter_sent": {
+                "type": "boolean",
+                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+              },
+              "decision_letter_sent": {
+                "type": "boolean",
+                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+              },
+              "status": {
+                "type": "string",
+                "description": "Current status of the claim",
+                "enum": [
+                  "Claim received",
+                  "Initial review",
+                  "Evidence gathering, review, and decision",
+                  "Preparation for notification",
+                  "Complete"
+                ]
+              },
+              "requested_decision": {
+                "type": "boolean",
+                "description": "The claim filer has requested a claim decision be made"
+              },
+              "claim_type": {
+                "type": "string",
+                "description": "The type of claim originally submitted",
+                "enum": [
+                  "Compensation",
+                  "Compensation and Pension",
+                  "Dependency",
+                  "Administrative Review"
+                ]
+              }
             }
           }
         }

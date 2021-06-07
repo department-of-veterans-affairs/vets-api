@@ -50,7 +50,7 @@ module V1
     end
 
     def saml_callback
-      set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
+      set_sentry_context_for_callback if html_escaped_relay_state['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       saml_response_stats(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
@@ -88,7 +88,7 @@ module V1
 
     def set_sentry_context_for_callback
       temp_session_object = Session.find(session[:token])
-      temp_current_user = User.find(temp_session_object.uuid) if temp_session_object
+      temp_current_user = User.find(temp_session_object.uuid) if temp_session_object&.uuid
       Raven.extra_context(
         current_user_uuid: temp_current_user.try(:uuid),
         current_user_icn: temp_current_user.try(:mhv_icn)
@@ -337,7 +337,7 @@ module V1
 
     def log_persisted_session_and_warnings
       obscure_token = Session.obscure_token(@session_object.token)
-      Rails.logger.info("Logged in user with id #{@session_object.uuid}, token #{obscure_token}")
+      Rails.logger.info("Logged in user with id #{@session_object&.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
@@ -350,8 +350,12 @@ module V1
       end
     end
 
+    def html_escaped_relay_state
+      JSON.parse(CGI.unescapeHTML(params[:RelayState] || '{}'))
+    end
+
     def originating_request_id
-      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+      html_escaped_relay_state['originating_request_id']
     rescue
       'UNKNOWN'
     end

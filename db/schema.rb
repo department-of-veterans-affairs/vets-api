@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_07_122840) do
+ActiveRecord::Schema.define(version: 2021_05_28_151724) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -91,8 +91,6 @@ ActiveRecord::Schema.define(version: 2021_05_07_122840) do
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
     t.string "source"
-    t.string "code"
-    t.string "detail"
     t.uuid "guid", null: false
     t.integer "upload_submission_id", null: false
     t.index ["guid"], name: "index_appeals_api_evidence_submissions_on_guid"
@@ -111,6 +109,8 @@ ActiveRecord::Schema.define(version: 2021_05_07_122840) do
     t.string "code"
     t.string "detail"
     t.string "source"
+    t.string "pdf_version"
+    t.string "api_version"
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -125,6 +125,8 @@ ActiveRecord::Schema.define(version: 2021_05_07_122840) do
     t.string "detail"
     t.string "source"
     t.string "board_review_option"
+    t.string "pdf_version"
+    t.string "api_version"
   end
 
   create_table "appeals_api_status_updates", force: :cascade do |t|
@@ -732,10 +734,10 @@ ActiveRecord::Schema.define(version: 2021_05_07_122840) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
+    t.text "services"
     t.uuid "idme_uuid"
   end
 
@@ -772,6 +774,8 @@ ActiveRecord::Schema.define(version: 2021_05_07_122840) do
     t.string "form_details_url"
     t.jsonb "va_form_administration"
     t.integer "row_id"
+    t.float "ranking"
+    t.string "tags"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
@@ -810,7 +814,6 @@ ActiveRecord::Schema.define(version: 2021_05_07_122840) do
     t.string "whodunnit"
     t.text "object"
     t.datetime "created_at"
-    t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 

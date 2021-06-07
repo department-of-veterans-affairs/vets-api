@@ -29,8 +29,17 @@ module EVSS
       private
 
       def request_headers(additional_headers)
-        ssn = additional_headers.key?('va_eauth_pnid') ? additional_headers['va_eauth_pnid'] : @user.ssn
-        edipi = additional_headers.key?('va_eauth_dodedipnid') ? additional_headers['va_eauth_dodedipnid'] : @user.edipi
+        ssn = additional_headers['va_eauth_pnid'].presence || @user.ssn
+        edipi = additional_headers['va_eauth_dodedipnid'].presence || @user.edipi
+        if edipi.nil?
+          user_info = {
+            loa3: @user.loa3?,
+            mhv_icn: !@user.mhv_icn.nil?,
+            edipi_type: additional_headers['va_eauth_dodedipnid'].class,
+            edipi_length: additional_headers['va_eauth_dodedipnid']&.length
+          }
+          log_message_to_sentry('Failed to find EDIPI, EVSS service call will not succeed', :warn, user_info)
+        end
 
         {
           'ssn' => ssn,

@@ -104,6 +104,12 @@ paths:
             type: boolean
           description: Whether or not to use this API's cache or fetch records from the upstream service
           example: true
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Field to sort the appointments list by. Currently only supports `startDateUtc`. Prefixing `-` reverses the sort.
+          example: -startDateUtc
       responses:
         '200':
           description: OK
@@ -2037,6 +2043,90 @@ paths:
     post:
       summary: /v0/claim/{id}/documents
       description: Post tracked item document for upload, returns jobId for upload process
+      operationId: upload_document
+      security:
+        - Bearer: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: Claim Id
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                trackedItemId:
+                  type: string
+                documentType:
+                  type: string
+                password:
+                  oneOf:
+                    - type: string
+                    - type: 'null'
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                contentType: image/png, image/jpeg, image/gif, image/jpg, image/bmp, text/plain, application/pdf
+      responses:
+        '202':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/ClaimDocUpload.yml"
+        '401':
+          description: Authentication is possible but has failed or not yet been provided.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '404':
+          description: The requested resource could not be found.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '408':
+          description: The response from this API timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '422':
+          description: Failure in processing entity
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '500':
+          description: An internal API error occured.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '503':
+          description: An upstream service is unavailable, or its circuit breaker may have been tripped.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '504':
+          description: A response from an upstream service timed out.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/claim/{id}/documents/multi-image:
+    post:
+      summary: /v0/claim/{id}/documents/multi-image
+      description: Post multiple images to be combined into one pdf for upload, returns jobId for upload process
       operationId: upload_documents
       security:
         - Bearer: []
@@ -2221,11 +2311,11 @@ paths:
     get:
       summary: /v0/messaging/health/folders/{id}/messages
       description: |
-        List messages in a secure messaging folder. 
-        
-        When listing messages, the response for each message will include most but not all of the message attributes. 
-        Specifically, the message body and attachment information is not included. Those attributes can be obtained by 
-        getting the specific message resource. 
+        List messages in a secure messaging folder.
+
+        When listing messages, the response for each message will include most but not all of the message attributes.
+        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
+        getting the specific message resource.
       operationId: get_folder_messages
       security:
         - Bearer: []
@@ -2286,9 +2376,9 @@ paths:
                 uploads[]:
                   type: array
                   description: |
-                    One or more message attachments. 
-                    
-                    <strong>NOTES:</strong> 
+                    One or more message attachments.
+
+                    <strong>NOTES:</strong>
                     <ul>
                     <li>A single message may have a maximum of 4 attachments.</li>
                     <li>A single attachment cannot exceed 3 MB</li>
@@ -2324,7 +2414,7 @@ paths:
     get:
       summary: /v0/messaging/health/messages/{id}
       description: |
-        Get a secure message <strong>and mark the message as read</strong>. 
+        Get a secure message <strong>and mark the message as read</strong>.
 
         <strong>NOTES:</strong>
         <ul>
@@ -2513,9 +2603,9 @@ paths:
                 uploads[]:
                   type: array
                   description: |
-                    One or more message attachments. 
-                    
-                    <strong>NOTES:</strong> 
+                    One or more message attachments.
+
+                    <strong>NOTES:</strong>
                     <ul>
                     <li>A single message may have a maximum of 4 attachments.</li>
                     <li>A single attachment cannot exceed 3 MB</li>

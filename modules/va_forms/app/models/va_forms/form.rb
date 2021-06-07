@@ -4,11 +4,14 @@ module VAForms
   class Form < ApplicationRecord
     include PgSearch::Model
     pg_search_scope :search,
-                    against: %i[title form_name],
+                    against: { tags: 'A',
+                               title: 'B',
+                               form_name: 'C' },
                     using: { tsearch: { normalization: 4, any_word: true, prefix: true, dictionary: 'english' },
                              trigram: {
                                word_similarity: true
-                             } }
+                             } },
+                    order_within_rank: 'va_forms_forms.ranking ASC, va_forms_forms.language ASC'
 
     has_paper_trail only: ['sha256']
 
@@ -26,9 +29,7 @@ module VAForms
     end
 
     def self.search_by_form_number(search_term)
-      search_term.sub! '-', '%'
-      query = search_term.split.join('%').upcase
-      Form.where('upper(form_name) LIKE ?', "%#{query}%")
+      Form.where('upper(form_name) LIKE ?', "%#{search_term.upcase}%").order(form_name: :asc, language: :asc)
     end
 
     def self.old_search(search_term: nil)
