@@ -18,10 +18,6 @@ module VBADocuments
         tag do
           key :name, 'document_uploads'
           key :description, 'VA Benefits document upload functionality'
-          externalDocs do
-            key :description, 'Find more info here'
-            key :url, 'https://developer.va.gov'
-          end
         end
 
         server do

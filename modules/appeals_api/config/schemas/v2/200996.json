@@ -48,7 +48,7 @@
         "veteran":                            { "$ref": "#/definitions/hlrCreateVeteran" },
         "informalConferenceContact":          { "$ref": "#/definitions/hlrCreateInformalConferenceContact" },
         "informalConferenceTime":             { "$ref": "#/definitions/hlrCreateInformalConferenceTime" },
-        "representative":                     { "$ref": "#/definitions/hlrCreateRepresentative" },
+        "informalConferenceRep":              { "$ref": "#/definitions/hlrCreateInformalConferenceRep" },
         "socOptIn":                           { "type": "boolean" }
       },
       "required": [
@@ -67,7 +67,7 @@
     },
 
     "hlrCreateInformalConferenceContact": {
-      "type": "array",
+      "type": "string",
       "enum": [ "veteran", "representative"]
     },
 
@@ -76,23 +76,20 @@
       "enum": [ "800-1200 ET", "1200-1630 ET" ]
     },
 
-    "hlrCreateRepresentative": {
+    "hlrCreateInformalConferenceRep": {
       "type": "object",
       "properties": {
-        "name":  { "$ref": "#/definitions/hlrCreateRepresentativeName" },
-        "phone": { "$ref": "#/definitions/hlrCreatePhone" }
+        "firstName": { "type": "string", "maxLength": 30 },
+        "lastName":  { "type": "string", "maxLength": 40 },
+        "phone": { "$ref": "#/definitions/hlrCreatePhone" },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 100
+        }
       },
       "additionalProperties": false,
-      "required": [ "name", "phone" ]
-    },
-
-    "hlrCreateRepresentativeName": {
-      "type": "string",
-      "properties": {
-        "firstName": { "type": "string"},
-        "lastName":  { "type": "string"}
-      },
-      "required": [ "firstName", "lastName" ]
+      "required": [ "firstName", "lastName", "phone" ]
     },
 
     "hlrCreatePhone": {
@@ -115,7 +112,7 @@
         "homeless": { "type": "boolean"},
         "address":  { "$ref": "#/definitions/hlrCreateAddress" },
         "phone":    { "$ref": "#/definitions/hlrCreatePhone" },
-        "emailAddressText": {
+        "email": {
           "type": "string",
           "format": "email",
           "maxLength": 100
@@ -128,20 +125,25 @@
         }
       },
       "additionalProperties": false,
-      "required": [ "homeless", "address" ]
+      "required": [ "homeless" ]
     },
 
     "hlrCreateAddress": {
       "type": "object",
       "properties": {
+        "addressLine1":            { "type": "string", "maxLength": 60 },
+        "addressLine2":            { "type": "string", "maxLength": 30 },
+        "addressLine3":            { "type": "string", "maxLength": 10 },
+        "city":                    { "type": "string", "maxLength": 60 },
+        "stateCode":               { "$ref": "#/definitions/hlrCreateStateCode" },
+        "countryCodeISO2":         { "type": "string", "pattern": "^[A-Z]{2}$" },
         "zipCode5": {
           "type": "string",
           "description": "5-digit zipcode. Use \"00000\" if Veteran is outside the United States",
           "pattern": "^[0-9]{5}$"
         }
       },
-      "additionalProperties": false,
-      "required": [ "zipCode5" ]
+      "additionalProperties": false
     },
 
     "hlrCreateIncluded": {
@@ -172,6 +174,19 @@
       },
       "additionalProperties": false,
       "required": [ "issue", "decisionDate" ]
+    },
+
+    "hlrCreateStateCode": {
+      "type": "string",
+      "enum": [
+        "AL", "AK", "AS", "AZ", "AR", "AA", "AE", "AP", "CA", "CO",
+        "CT", "DE", "DC", "FM", "FL", "GA", "GU", "HI", "ID", "IL",
+        "IN", "IA", "KS", "KY", "LA", "ME", "MH", "MD", "MA", "MI",
+        "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY",
+        "NC", "ND", "MP", "OH", "OK", "OR", "PW", "PA", "PR", "RI",
+        "SC", "SD", "TN", "TX", "UT", "VT", "VI", "VA", "WA", "WV",
+        "WI", "WY"
+      ]
     }
   }
 }

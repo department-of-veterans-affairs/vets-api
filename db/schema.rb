@@ -10,9 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-
-ActiveRecord::Schema.define(version: 2021_05_25_183405) do
-
+ActiveRecord::Schema.define(version: 2021_05_28_151724) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -55,14 +53,7 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
     t.bigint "byte_size", null: false
     t.string "checksum", null: false
     t.datetime "created_at", null: false
-    t.string "service_name"
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
-  end
-
-  create_table "active_storage_variant_records", force: :cascade do |t|
-    t.bigint "blob_id", null: false
-    t.string "variation_digest", null: false
-    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "appeal_submission_uploads", force: :cascade do |t|
@@ -743,10 +734,10 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
+    t.text "services"
     t.uuid "idme_uuid"
   end
 
@@ -783,6 +774,8 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
     t.string "form_details_url"
     t.jsonb "va_form_administration"
     t.integer "row_id"
+    t.float "ranking"
+    t.string "tags"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
@@ -821,7 +814,6 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
     t.string "whodunnit"
     t.text "object"
     t.datetime "created_at"
-    t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
@@ -862,5 +854,4 @@ ActiveRecord::Schema.define(version: 2021_05_25_183405) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
 end

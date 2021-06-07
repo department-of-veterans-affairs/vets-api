@@ -266,6 +266,7 @@ class User < Common::RedisStore
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
+  delegate :id_theft_flag, to: :mpi
   delegate :status, to: :mpi, prefix: true
   delegate :error, to: :mpi, prefix: true
   delegate :cerner_id, to: :mpi
@@ -421,7 +422,8 @@ class User < Common::RedisStore
     add_person_identity.ssn = ssn
     add_person_identity.icn_with_aaid = icn_with_aaid
     add_person_identity.search_token = search_token
-    mpi.add_person(add_person_identity)
+    mpi.user_identity = add_person_identity
+    mpi.add_person
   end
 
   private

@@ -38,7 +38,7 @@ module SAML
       @loa3_context = loa3_context
 
       if (params[:action] == 'saml_callback') && params[:RelayState].present?
-        @type = JSON.parse(params[:RelayState])['type']
+        @type = JSON.parse(CGI.unescapeHTML(params[:RelayState]))['type']
       end
       @query_params = {}
       @tracker = initialize_tracker(params)

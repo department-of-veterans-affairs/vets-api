@@ -6,12 +6,14 @@ require 'mpi/orch_search_service'
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 require 'mpi/constants'
+require 'sentry_logging'
 
 # Facade for MVI. User model delegates MVI correlation id and VA profile (golden record) methods to this class.
 # When a profile is requested from one of the delegates it is returned from either a cached response in Redis
 # or from the MVI SOAP service.
 class MPIData < Common::RedisStore
   include Common::CacheAside
+  include SentryLogging
 
   REDIS_CONFIG_KEY = :mpi_profile_response
   redis_config_key REDIS_CONFIG_KEY
@@ -97,6 +99,11 @@ class MPIData < Common::RedisStore
   # @return [Array[String]] the the list of Cerner facility ids
   delegate :cerner_facility_ids, to: :profile
 
+  # Identity theft flag
+  #
+  # @return [Boolean] presence or absence of identity theft flag
+  delegate :id_theft_flag, to: :profile
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MPI::Models::MviProfile] patient 'golden record' data from MVI
@@ -139,10 +146,11 @@ class MPIData < Common::RedisStore
   # call is made. The response is recached afterwards so the new ids can be accessed on the next call.
   #
   # @return [MPI::Responses::AddPersonResponse] the response returned from MPI Add Person call
-  def add_person(user_identity)
+  def add_person
     search_response = MPI::OrchSearchService.new.find_profile(user_identity)
     if search_response.ok?
       @mvi_response = search_response
+      update_user_identity_with_orch_search(search_response.profile)
       add_response = mpi_service.add_person(user_identity)
       add_ids(add_response) if add_response.ok?
     else
@@ -155,6 +163,20 @@ class MPIData < Common::RedisStore
 
   private
 
+  def update_user_identity_with_orch_search(search_response_profile)
+    user_identity.icn_with_aaid = search_response_profile.icn_with_aaid
+    user_identity.edipi = search_response_profile.edipi
+    user_identity.search_token = search_response_profile.search_token
+
+    first_name, *middle_name = search_response_profile.given_names
+    user_identity.first_name = first_name
+    user_identity.middle_name = middle_name&.join(' ').presence
+    user_identity.last_name = search_response_profile.family_name
+    user_identity.gender = search_response_profile.gender
+    user_identity.ssn = search_response_profile.ssn
+    user_identity.birth_date = search_response_profile.birth_date
+  end
+
   def add_ids(response)
     # set new ids in the profile and recache the response
     profile.birls_id = response.mvi_codes[:birls_id].presence
@@ -166,7 +188,8 @@ class MPIData < Common::RedisStore
   def response_from_redis_or_service
     do_cached_with(key: user_identity.uuid) do
       mpi_service.find_profile(user_identity)
-    rescue ArgumentError
+    rescue ArgumentError => e
+      log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
       return nil
     end
   end

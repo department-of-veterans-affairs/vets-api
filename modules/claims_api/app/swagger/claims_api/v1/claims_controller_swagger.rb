@@ -128,7 +128,7 @@ module ClaimsApi
 
       swagger_path '/claims' do
         operation :get do
-          key :summary, 'Find all claims for a Veteran.'
+          key :summary, 'Find all benefits claims for a Veteran.'
           key(
             :description,
             <<~X

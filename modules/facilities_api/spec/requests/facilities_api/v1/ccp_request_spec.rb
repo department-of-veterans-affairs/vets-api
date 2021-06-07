@@ -145,26 +145,6 @@ RSpec.describe 'FacilitiesApi::V1::Ccp', type: :request, team: :facilities, vcr:
         end
       end
 
-      it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
-        allow(StatsD).to receive(:measure)
-
-        expect(StatsD).to receive(:measure).with(
-          'facilities.ppms.provider_locator',
-          kind_of(Numeric),
-          hash_including(
-            tags: [
-              'facilities.ppms',
-              'facilities.ppms.radius:200',
-              'facilities.ppms.results:11'
-            ]
-          )
-        )
-
-        expect do
-          get '/facilities_api/v1/ccp', params: params
-        end.to instrument('facilities.ppms.request.faraday')
-      end
-
       [
         [1, 5, 6],
         [2, 5, 11],
