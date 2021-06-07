@@ -14,6 +14,10 @@ module GithubAuthentication
             halt [401, {}, ["You don't have access to organization #{name}"]]
           end
         end
+
+        def github_team_authenticate!(id)
+          halt [401, {}, ["You don't have access to team #{id}"]] unless warden.user.team_member?(id)
+        end
       end
 
       app.before do
@@ -21,6 +25,7 @@ module GithubAuthentication
 
         warden.authenticate!
         github_organization_authenticate! Settings.sidekiq_github_organization
+        github_team_authenticate! Settings.sidekiq_github_team
       end
 
       app.get('/unauthenticated') { [403, {}, [warden.message || '']] }
