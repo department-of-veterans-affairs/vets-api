@@ -48,7 +48,7 @@ module VAOS
 
       def new_appointment
         @new_appointment ||=
-          appointments_service.post_appointments(create_params)
+          appointments_service.post_appointment(create_params)
       end
 
       def appointment_params

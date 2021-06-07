@@ -137,6 +137,7 @@ RSpec.describe 'Mobile Messages Integration', type: :request do
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
+          expect(JSON.parse(response.body)['included'][0]['attributes']['attachment_size']).to be_positive.or be_nil
           expect(response).to match_camelized_response_schema('message_with_attachment')
         end
       end
