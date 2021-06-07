@@ -585,7 +585,7 @@ GEM
       childprocess (>= 0.6.3, < 5)
       iniparse (~> 1.4)
       rexml (~> 3.2)
-    ox (2.14.4)
+    ox (2.14.5)
     pact (1.57.0)
       pact-mock_service (~> 3.0, >= 3.3.1)
       pact-support (~> 1.15)
