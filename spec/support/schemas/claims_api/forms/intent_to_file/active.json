@@ -16,10 +16,10 @@
         "attributes": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["creation_date", "expiration_date", "type", "status"],
+          "required": ["expiration_date", "type", "status"],
           "properties": {
             "creation_date": {
-              "type": "string",
+              "type": ["string", "null"],
               "format": "date",
               "description": "Date the Intent to File was received at the VA"
             },

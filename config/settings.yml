@@ -447,8 +447,6 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
-  rswag_docs:
-    enabled: false
   report_enabled: false
   audit_enabled: false
   s3:
@@ -557,6 +555,7 @@ reports:
       - Brandon.Scott2@va.gov
       - Brian.Grubb@va.gov
       - Christina.DiTucci@va.gov
+      - Darla.vanNieukerk@va.gov
       - EDU.VBAMUS@va.gov
       - John.McNeal@va.gov
       - Joseph.Preisser@va.gov
