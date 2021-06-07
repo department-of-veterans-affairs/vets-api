@@ -20,7 +20,7 @@ module GithubAuthentication
         next if current_path == 'unauthenticated'
 
         warden.authenticate!
-        github_organization_authenticate! 'department-of-veterans-affairs'
+        github_organization_authenticate! Settings.sidekiq_github_organization
       end
 
       app.get('/unauthenticated') { [403, {}, [warden.message || '']] }
