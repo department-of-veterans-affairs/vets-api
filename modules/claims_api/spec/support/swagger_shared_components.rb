@@ -54,7 +54,7 @@ class SwaggerSharedComponents
         type: :string,
         name: 'X-VA-Birth-Date',
         required: false,
-        description: 'Veteran birthdate if consumer is representative'
+        description: 'Veteran birthdate if consumer is representative, in iso8601 format'
       },
       key_inflection_header: {
         in: :header,

@@ -76,12 +76,53 @@ describe MPIData, skip_mvi: true do
 
   describe '#add_person' do
     context 'with a successful add' do
+      let(:given_names) { %w[kitty puppy] }
+      let(:family_name) { 'banana' }
+      let(:birth_date) { '19801010' }
+      let(:icn_with_aaid) { 'some-icn-with-aaid' }
+      let(:edipi) { 'some-edipi' }
+      let(:search_token) { 'some-search_token' }
+      let(:gender) { 'M' }
+      let(:ssn) { '987654321' }
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              given_names: given_names,
+              family_name: family_name,
+              birth_date: birth_date,
+              icn_with_aaid: icn_with_aaid,
+              edipi: edipi,
+              search_token: search_token,
+              ssn: ssn,
+              gender: gender)
+      end
+      let(:expected_user_identity) do
+        build(:user_identity,
+              :loa3,
+              first_name: given_names.first,
+              middle_name: given_names.last,
+              last_name: family_name,
+              birth_date: birth_date,
+              icn_with_aaid: icn_with_aaid,
+              edipi: edipi,
+              search_token: search_token,
+              gender: gender,
+              ssn: ssn,
+              idme_uuid: user.idme_uuid)
+      end
+
+      it 'copies relevant results from orchestration search to fields for add person call' do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
+        allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
+        mvi.add_person
+        expect(mvi.user_identity.to_h).to include(expected_user_identity.to_h)
+      end
+
       it 'returns the successful response' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
         expect_any_instance_of(MPIData).to receive(:add_ids).once.and_call_original
         expect_any_instance_of(MPIData).to receive(:cache).once.and_call_original
-        response = mvi.add_person(user.identity)
+        response = mvi.add_person
         expect(response.status).to eq('OK')
       end
     end
@@ -89,7 +130,7 @@ describe MPIData, skip_mvi: true do
     context 'with a failed search' do
       it 'returns the failed search response' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
-        response = mvi.add_person(user.identity)
+        response = mvi.add_person
         expect_any_instance_of(MPI::Service).not_to receive(:add_person)
         expect(response.status).to eq('SERVER_ERROR')
       end
@@ -101,7 +142,7 @@ describe MPIData, skip_mvi: true do
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response_error)
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
-        response = mvi.add_person(user.identity)
+        response = mvi.add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
     end

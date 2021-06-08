@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: a814773c22920674823cf3052d82fbaaf9d4dbad
+  revision: 358f9e41f2fb1be893d213ce7820e936563c0909
   branch: master
   specs:
-    vets_json_schema (20.5.0)
+    vets_json_schema (20.5.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -80,6 +80,7 @@ PATH
     apps_api (0.0.1)
       faraday
       sidekiq
+    check_in (0.1.0)
     claims_api (0.0.1)
     covid_research (0.1.0)
       rails (~> 6.0.3, >= 6.0.3.2)
@@ -215,7 +216,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.7.5)
       msgpack (~> 1.0)
-    brakeman (5.0.1)
+    brakeman (5.0.4)
     breakers (0.5.0)
       faraday (>= 0.7.4, < 2.0)
       multi_json (~> 1.0)
@@ -370,7 +371,7 @@ GEM
       faraday (>= 0.7.4, < 1.0)
     fast_jsonapi (1.5)
       activesupport (>= 4.2)
-    fastimage (2.2.3)
+    fastimage (2.2.4)
     ffi (1.15.1)
     fhir_client (4.0.6)
       activesupport (>= 3)
@@ -983,12 +984,13 @@ DEPENDENCIES
   betamocks!
   bgs_ext!
   bootsnap
-  brakeman (~> 5.0.0)
+  brakeman (~> 5.0)
   breakers
   bundler-audit
   byebug
   carrierwave
   carrierwave-aws
+  check_in!
   claims_api!
   clam_scan
   combine_pdf

@@ -33,29 +33,41 @@ module AppealsApi
           higher_level_review.veteran_homeless? ? 1 : 'Off'
         end
 
+        def veteran_phone_extension
+          ext = higher_level_review.veteran_phone_data&.dig('phoneNumberExt')
+
+          return '' if veteran_country_code != '1' || ext.blank?
+
+          "x#{ext}"
+        end
+
         def veteran_phone_area_code
-          return if higher_level_review.veteran_phone_data&.dig('countryCode') != '1'
+          return if veteran_country_code != '1'
 
           higher_level_review.veteran_phone_data&.dig('areaCode')
         end
 
         def veteran_phone_prefix
-          return if higher_level_review.veteran_phone_data&.dig('countryCode') != '1'
+          return if veteran_country_code != '1'
 
           higher_level_review.veteran_phone_data&.dig('phoneNumber')&.first(3)
         end
 
         def veteran_phone_line_number
-          return if higher_level_review.veteran_phone_data&.dig('countryCode') != '1'
+          return if veteran_country_code != '1'
 
           higher_level_review.veteran_phone_data.dig('phoneNumber')&.last(4)
         end
 
         def veteran_phone_international_number
-          return if higher_level_review.veteran_phone_data&.dig('countryCode') == '1'
+          return if veteran_country_code == '1'
 
           higher_level_review.veteran_phone_number.presence ||
             'USE PHONE ON FILE'
+        end
+
+        def veteran_country_code
+          higher_level_review.veteran_phone_data&.dig('countryCode')
         end
 
         def veteran_email
@@ -126,7 +138,7 @@ module AppealsApi
         end
 
         def rep_country_code
-          higher_level_review.rep_phone_data&.dig('countryCode')
+          higher_level_review.rep_phone_data&.dig('countryCode') || '1'
         end
 
         def soc_opt_in

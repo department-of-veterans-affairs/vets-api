@@ -611,6 +611,49 @@ RSpec.describe 'appointments', type: :request do
         )
       end
     end
+
+    describe 'sorting' do
+      before do
+        Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+
+        VCR.use_cassette('appointments/get_facilities_address_bug', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_address_bug', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_address_bug', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: params
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:first_appointment_date) { DateTime.parse(response.parsed_body['data'].first['attributes']['startDateUtc']) }
+      let(:last_appointment_date) { DateTime.parse(response.parsed_body['data'].last['attributes']['startDateUtc']) }
+
+      context 'when ascending sorting is requested in params' do
+        let(:params) { { sort: 'startDateUtc' } }
+
+        it 'has the most recent appointments come first' do
+          expect(first_appointment_date).to be < last_appointment_date
+        end
+      end
+
+      context 'when reverse sorting is requested in params' do
+        let(:params) { { sort: '-startDateUtc' } }
+
+        it 'has the earlier appointments come first' do
+          expect(first_appointment_date).to be > last_appointment_date
+        end
+      end
+
+      context 'when no sorting is requested in params' do
+        let(:params) { nil }
+
+        it 'defaults to having the most recent appointments come first' do
+          expect(first_appointment_date).to be < last_appointment_date
+        end
+      end
+    end
   end
 
   describe 'PUT /mobile/v0/appointments/cancel' do

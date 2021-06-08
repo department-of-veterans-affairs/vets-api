@@ -8,7 +8,7 @@ module ClaimsApi
 
         swagger_path '/veterans/{veteranId}/claims' do
           operation :get do
-            key :summary, 'Find all claims for a Veteran.'
+            key :summary, 'Find all benefits claims for a Veteran.'
             key :description, 'Retrieves all claims for Veteran.'
             key :operationId, 'findClaims'
             key :produces, ['application/json']
