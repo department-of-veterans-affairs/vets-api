@@ -165,12 +165,14 @@ module AppealsApi
             year: "form1[0].#subform[#{subform}].DOByear[#{offset}]" }
         end
 
+        # rubocop:disable Metrics/MethodLength
         def boxes
           { first_name: { at: [3, 560], width: 195 },
             last_name: { at: [230, 560], width: 293 },
             number_and_street: { at: [29, 462], width: 512 },
             city: { at: [200, 441], width: 307 },
             veteran_email: { at: [8, 335], width: 513 },
+            veteran_phone_extension: { at: [220, 378], width: 50, height: 10 },
             rep_first_name: { at: [11, 586], width: 195 },
             rep_last_name: { at: [225, 586], width: 293 },
             rep_email: { at: [11, 525], width: 513 },
@@ -188,6 +190,7 @@ module AppealsApi
             rep_signature_last_name: { at: [226, 229], width: 293 },
             rep_signature: { at: [-4, 201], width: 369, height: 18 } }
         end
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end
