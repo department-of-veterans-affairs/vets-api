@@ -8,13 +8,8 @@ module TestUserDashboard
     before_action :require_jwt
 
     def require_jwt
-      # payload from example
-      payload = { data: 'test' }
-      rsa_private = OpenSSL::PKey::RSA.generate 2048
-      rsa_public = rsa_private.public_key
-      token = JWT.encode payload, rsa_private, 'RS256'
-      # token = JWT.encode payload, nil, 'none'
-
+      token = request.headers['JWT']
+      rsa_public = request.headers['PK']
       head :forbidden unless valid_token(token, rsa_public)
     end
 
@@ -26,7 +21,6 @@ module TestUserDashboard
       token.gsub!('Bearer ', '')
       begin
         JWT.decode token, rsa_public, true, { algorithm: 'RS256' }
-        # JWT.decode token, nil, false
         return true
       rescue JWT::DecodeError => e
         log_message_to_sentry('Error decoding TUD JWT: ', :error, body: e.message)
