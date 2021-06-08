@@ -58,11 +58,11 @@ module Mobile
     end
 
     def link_user_with_vets360
-      account_uuid = @current_user.account_uuid
+      uuid = @current_user.uuid
 
-      unless vet360_linking_locked?(account_uuid)
-        lock_vets360_linking(account_uuid)
-        jid = Mobile::V0::Vet360LinkingJob.perform_async(@current_user)
+      unless vet360_linking_locked?(uuid)
+        lock_vets360_linking(uuid)
+        jid = Mobile::V0::Vet360LinkingJob.perform_async(uuid)
         Rails.logger.info('Mobile Vet360 account link job id', { job_id: jid })
       end
     end
