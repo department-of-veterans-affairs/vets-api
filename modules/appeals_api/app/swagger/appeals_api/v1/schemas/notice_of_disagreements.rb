@@ -400,6 +400,61 @@ module AppealsApi::V1
           key :enum, %w[processing s3_failed s3_error vbms_error vbms_failed submitted]
           key :example, 'submitted'
         end
+
+        schema :documentUploadMetadata do
+          key :type, :object
+          key :description, 'Identifying properties about the document payload being submitted'
+          key :required, %i[veteranFirstName veteranLastName fileNumber zipCode source]
+
+          property :veteranFirstName do
+            key :type, :string
+            key :description, 'Veteran first name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.'
+            key :pattern, '^[a-zA-Z\-\/\s]{1,50}$'
+            key :example, 'Jane'
+          end
+
+          property :veteranLastName do
+            key :type, :string
+            key :description, 'Veteran last name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.'
+            key :pattern, '^[a-zA-Z\-\/\s]{1,50}$'
+            key :example, 'Doe-Smith'
+          end
+
+          property :fileNumber do
+            key :description, 'The Veteran\'s file number is exactly 9 digits with no alpha characters, hyphens, spaces or punctuation. In most cases, this is the Veteran\'s SSN but may also be an 8 digit BIRL number. If no file number has been established or if it is unknown, the application should use the Veteran\'s SSN and the file number will be associated with the submission later in the process. Incorrect file numbers can cause delays.'
+            key :pattern, '^\d{8,9}$'
+            key :example, '999887777'
+            key :type, :string
+          end
+
+          property :zipCode do
+            key :type, :string
+            key :example, '94402'
+            key :description, "Veteran zip code. Either five digits (XXXXX) or five digits then four digits separated by a hyphen (XXXXX-XXXX). Use '00000' for Veterans with non-US addresses."
+          end
+
+          property :source do
+            key :type, :string
+            key :example, 'Vets.gov'
+            key :description, 'System, installation, or entity submitting the document'
+          end
+
+          property :docType do
+            key :type, :string
+            key :example, '316'
+            key :description, 'VBA form number of the document'
+          end
+
+          property :businessLine do
+            key :type, :string
+            key :example, 'BVA'
+            key :enum, %i[BVA]
+            key :description,
+                <<~DESCRIPTION
+                  BVA - Board of Veteran Appeals<br><br>
+                DESCRIPTION
+          end
+        end
       end
     end
   end
