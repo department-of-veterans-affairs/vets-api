@@ -363,40 +363,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   end
 
   describe '#translate_service_info' do
-    context 'when provided combat zone data' do
-      let(:form_content) do
-        {
-          'form526' => {
-            'serviceInformation' => {
-              'servicePeriods' => [
-                {
-                  'dateRange' => {
-                    'from' => '1980-02-05',
-                    'to' => '1990-01-02'
-                  },
-                  'serviceBranch' => 'Air Force'
-                }
-              ]
-            },
-            'servedInCombatZonePost911' => true
-          }
-        }
-      end
-
-      it 'translates the data correctly' do
-        expect(subject.send(:translate_service_info)).to eq 'serviceInformation' => {
-          'servicePeriods' => [
-            {
-              'serviceBranch' => 'Air Force',
-              'activeDutyBeginDate' => '1980-02-05',
-              'activeDutyEndDate' => '1990-01-02'
-            }
-          ],
-          'servedInCombatZone' => true
-        }
-      end
-    end
-
     context 'when provided service period data' do
       let(:form_content) do
         {
