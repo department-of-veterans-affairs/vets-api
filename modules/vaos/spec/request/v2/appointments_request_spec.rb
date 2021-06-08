@@ -62,6 +62,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
 
+        # add test to pass in status query param
+
         it 'returns a 400 error' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_400', match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments', params: { start: start_date }
