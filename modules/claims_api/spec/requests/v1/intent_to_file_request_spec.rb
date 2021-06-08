@@ -166,7 +166,7 @@ RSpec.describe 'Intent to file', type: :request do
       with_okta_user(scopes) do |auth_header|
         params = data
         params[:data][:attributes]['someBadField'] = 'someValue'
-        
+
         post "#{path}/validate", params: params.to_json, headers: headers.merge(auth_header)
 
         expect(response.status).to eq(422)

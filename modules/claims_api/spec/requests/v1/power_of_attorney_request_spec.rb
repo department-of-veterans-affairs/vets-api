@@ -103,7 +103,7 @@ RSpec.describe 'Power of Attorney ', type: :request do
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
           expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
             'The property /someBadField is not defined on the schema. Additional properties are not allowed'
-          )  
+          )
         end
       end
     end
