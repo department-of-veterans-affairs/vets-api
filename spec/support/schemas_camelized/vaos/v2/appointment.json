@@ -57,7 +57,7 @@
         },
         "telehealth": {
           "description": "Details about a telehealth (virtual) meeting.",
-          "type": "object",
+          "type": ["object", null],
           "properties": {
             "url": {
               "description": "The meeting URL.",
@@ -91,7 +91,7 @@
                     "country": {
                       "type": "string"
                     },
-                    "latitutde": {
+                    "latitude": {
                       "description": "Latitude of the site",
                       "type": "number",
                       "format": "double"
@@ -150,16 +150,16 @@
         },
         "start": {
           "description": "The start time of the appointment.",
-          "type": "string",
+          "type": ["object", null],
           "format": "date-time"
         },
         "end": {
           "description": "The end time of the appointment.",
-          "type": "string",
+          "type": ["object", null],
           "format": "date-time"
         },
         "minutesDuration": {
-          "type": "integer",
+          "type": ["object", null],
           "description": "The duration of the meeting, in minutes."
         },
         "slot": {

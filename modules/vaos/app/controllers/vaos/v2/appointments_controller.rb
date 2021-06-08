@@ -48,7 +48,7 @@ module VAOS
 
       def new_appointment
         @new_appointment ||=
-          appointments_service.post_appointments(create_params)
+          appointments_service.post_appointment(create_params)
       end
 
       def appointment_params
@@ -59,7 +59,7 @@ module VAOS
 
       def create_params
         params.permit(:kind, :status, :location_id, :clinic, :reason, :slot, :contact,
-                      :service_type, :requested_periods)
+                      :service_type, :requested_periods, :patient_icn)
       end
 
       def start_date

@@ -18,7 +18,7 @@ module AppealsApi::V2
 
         schema :hlrStatus do
           key :type, :string
-          key :enum, AppealsApi::HlrStatus::STATUSES
+          key :enum, AppealsApi::HlrStatus::V2_STATUSES
         end
 
         schema :errorWithTitleAndDetail do
