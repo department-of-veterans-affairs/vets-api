@@ -59,7 +59,7 @@
               "type": "string",
               "pattern": "^\\d{4}?$",
               "example": "6789"
-            },
+            }
           }
         },
         "phone": {
