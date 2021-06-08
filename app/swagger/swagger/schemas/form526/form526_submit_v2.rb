@@ -166,7 +166,6 @@ module Swagger
                 'Buddy/Lay Statement'
               ]
             property :separationPayDate, type: :string
-            property :servedInCombatZonePost911, type: :boolean
             property :serviceInformation, type: :object do
               items do
                 key :$ref, :ServiceInformation
