@@ -37,7 +37,8 @@
         "decisionDate": "1900-01-01",
         "decisionIssueId": 1,
         "ratingIssueReferenceId": "2",
-        "ratingDecisionReferenceId": "3"
+        "ratingDecisionReferenceId": "3",
+        "socDate": "2020-08-01"
       }
     },
     {

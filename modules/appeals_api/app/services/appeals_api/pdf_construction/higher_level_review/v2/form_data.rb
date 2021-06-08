@@ -145,6 +145,24 @@ module AppealsApi
           higher_level_review.soc_opt_in ? 1 : 'Off'
         end
 
+        def soc_date(issue)
+          issue['attributes']&.dig('socDate')
+        end
+
+        def soc_date_formatted(issue)
+          date = soc_date(issue)
+          return '' unless date
+
+          Date.parse(date).strftime('%m-%d-%Y')
+        end
+
+        def soc_date_text(issue)
+          date = soc_date(issue)
+          return '' unless date
+
+          "SOC/SSOC Date: #{soc_date_formatted(issue)}"
+        end
+
         def signature
           "#{higher_level_review.full_name[0...180]}\n- Signed by digital authentication to api.va.gov"
         end
