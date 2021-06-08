@@ -70,7 +70,7 @@ module VSPDanger
         smaller ones.
 
         If you have reason to believe that this PR should be granted an exception, please see the
-        [Code Review Guidelines FAQ](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/code_review_guidelines.md#faq).
+        [Submitting pull requests for approval - FAQ](https://depo-platform-documentation.scrollhelp.site/developer-docs/Submitting-pull-requests-for-approval.655032351.html#Submittingpullrequestsforapproval-FAQ).
 
         #{file_summary}
 
@@ -171,8 +171,8 @@ module VSPDanger
         Database migrations do not run automatically with vets-api deployments. Application code must always be
         backwards compatible with the DB, both before and after migrations have been run. For more info:
 
-        - [Guidance on Safe DB Migrations](https://github.com/ankane/strong_migrations#checks)
-        - [`vets-api` Deployment Process](https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/platform/engineering/deployment.md)
+        - [`vets-api` Database Migrations](https://depo-platform-documentation.scrollhelp.site/developer-docs/Vets-API-Database-Migrations.689832034.html)
+        - [`vets-api` Deployment Process](https://depo-platform-documentation.scrollhelp.site/infrastructure/Deployment-process.590970953.html)
       EMSG
     end
 

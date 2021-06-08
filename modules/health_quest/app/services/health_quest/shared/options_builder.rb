@@ -79,6 +79,7 @@ module HealthQuest
         {
           _id: location_ids,
           organization: org_id,
+          identifier: location_identifier,
           _count: resource_count,
           page: resource_page
         }
@@ -160,6 +161,15 @@ module HealthQuest
       #
       def organization_identifier
         @organization_identifier ||= filters&.fetch(:identifier, nil)
+      end
+
+      ##
+      # Get the organization identifier from the filters.
+      #
+      # @return [String]
+      #
+      def location_identifier
+        @location_identifier ||= filters&.fetch(:identifier, nil)
       end
 
       ##
