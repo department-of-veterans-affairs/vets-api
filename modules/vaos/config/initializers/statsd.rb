@@ -6,9 +6,11 @@ vaos_endpoints = %w[get_appointments get_cancel_reasons get_clinic_institutions 
                     get_supported_sites get_system_facilities post_appointment post_message post_request
                     put_cancel_appointment put_preferences put_request]
 
-vaos_endpoints.each do |endpoint|
-  StatsD.increment("api.vaos.#{endpoint}.total", 0)
-  StatsD.increment("api.vaos.#{endpoint}.fail", 0)
+Rails.application.reloader.to_prepare do
+  vaos_endpoints.each do |endpoint|
+    StatsD.increment("api.vaos.#{endpoint}.total", 0)
+    StatsD.increment("api.vaos.#{endpoint}.fail", 0)
+  end
 end
 
 StatsD.increment('api.vaos.va_mobile.response.total', 0)
