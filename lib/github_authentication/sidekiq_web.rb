@@ -3,6 +3,7 @@
 module GithubAuthentication
   class SidekiqWeb
     # rubocop:disable Lint/NestedMethodDefinition
+    # rubocop:disable Metrics/MethodLength
     def self.registered(app)
       app.helpers do
         def warden
@@ -25,7 +26,7 @@ module GithubAuthentication
 
         warden.authenticate!
         github_organization_authenticate! Settings.sidekiq_github_organization
-        github_team_authenticate! Settings.sidekiq_github_team
+        github_team_authenticate! Settings.sidekiq_github_team if Settings.sidekiq_github_team.present?
       end
 
       app.get('/unauthenticated') { [403, {}, [warden.message || '']] }
@@ -42,4 +43,5 @@ module GithubAuthentication
     end
   end
   # rubocop:enable Lint/NestedMethodDefinition
+  # rubocop:enable Metrics/MethodLength
 end
