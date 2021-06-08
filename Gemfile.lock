@@ -80,6 +80,7 @@ PATH
     apps_api (0.0.1)
       faraday
       sidekiq
+    check_in (0.1.0)
     claims_api (0.0.1)
     covid_research (0.1.0)
       rails (~> 6.0.3, >= 6.0.3.2)
@@ -983,12 +984,13 @@ DEPENDENCIES
   betamocks!
   bgs_ext!
   bootsnap
-  brakeman (~> 5.0.0)
+  brakeman (~> 5.0.2)
   breakers
   bundler-audit
   byebug
   carrierwave
   carrierwave-aws
+  check_in!
   claims_api!
   clam_scan
   combine_pdf
