@@ -449,10 +449,7 @@ module AppealsApi::V1
             key :type, :string
             key :example, 'BVA'
             key :enum, %i[BVA]
-            key :description,
-                <<~DESCRIPTION
-                  BVA - Board of Veteran Appeals<br><br>
-                DESCRIPTION
+            key :description, 'BVA - Board of Veteran Appeals'
           end
         end
       end
