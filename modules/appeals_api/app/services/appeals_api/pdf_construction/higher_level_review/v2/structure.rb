@@ -150,6 +150,7 @@ module AppealsApi
             whiteout_line pdf, :number_and_street
             whiteout_line pdf, :city
             whiteout_line pdf, :veteran_email
+            whiteout_line pdf, :veteran_phone_extension
             pdf.start_new_page
 
             whiteout_line pdf, :rep_first_name
