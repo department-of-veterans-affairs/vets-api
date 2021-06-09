@@ -38,6 +38,10 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(open_claim.dig('type')).to eq('claim')
             expect(closed_claim.dig('type')).to eq('claim')
             expect(open_appeal.dig('type')).to eq('appeal')
+            expect(open_claim.dig('attributes', 'updatedAt')).to eq('2017-09-28')
+            expect(closed_claim.dig('attributes', 'updatedAt')).to eq('2017-09-20')
+            expect(open_appeal.dig('attributes', 'updatedAt')).to eq('2018-01-16')
+            expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
@@ -149,6 +153,8 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(closed_appeal.dig('attributes', 'completed')).to eq(true)
             expect(open_appeal.dig('type')).to eq('appeal')
             expect(closed_appeal.dig('type')).to eq('appeal')
+            expect(open_appeal.dig('attributes', 'displayTitle')).to eq('disability compensation appeal')
+            expect(closed_appeal.dig('attributes', 'displayTitle')).to eq('appeal')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
           end
         end
