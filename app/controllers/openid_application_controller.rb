@@ -57,9 +57,12 @@ class OpenidApplicationController < ApplicationController
     return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
+    check_icn(profile)
+  end
 
-    # Ensure the Okta profile ICN continues to match the MPI ICN
-    # If mismatched, invalidate above @session and revoke in Okta
+  # Ensure the Okta profile ICN continues to match the MPI ICN
+  # If mismatched, invalidate above @session and revoke in Okta
+  def check_icn(profile)
     if @current_user.icn == profile['icn']
       true
     else
