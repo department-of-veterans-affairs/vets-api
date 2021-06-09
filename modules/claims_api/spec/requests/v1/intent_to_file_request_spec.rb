@@ -97,6 +97,20 @@ RSpec.describe 'Intent to file', type: :request do
         expect(response.status).to eq(422)
       end
     end
+
+    it 'fails if any additional fields are passed in' do
+      with_okta_user(scopes) do |auth_header|
+        data[:data][:attributes]['someBadField'] = 'someValue'
+
+        post path, params: data.to_json, headers: headers.merge(auth_header)
+
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].size).to eq(1)
+        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+          'The property /someBadField is not defined on the schema. Additional properties are not allowed'
+        )
+      end
+    end
   end
 
   describe '#active' do
@@ -159,21 +173,6 @@ RSpec.describe 'Intent to file', type: :request do
         parsed = JSON.parse(response.body)
         expect(parsed['data']['attributes']['status']).to eq('valid')
         expect(parsed['data']['type']).to eq('intentToFileValidation')
-      end
-    end
-
-    it 'doesn\'t allow additional fields' do
-      with_okta_user(scopes) do |auth_header|
-        params = data
-        params[:data][:attributes]['someBadField'] = 'someValue'
-
-        post "#{path}/validate", params: params.to_json, headers: headers.merge(auth_header)
-
-        expect(response.status).to eq(422)
-        expect(JSON.parse(response.body)['errors'].size).to eq(1)
-        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
-          'The property /someBadField is not defined on the schema. Additional properties are not allowed'
-        )
       end
     end
 
