@@ -148,15 +148,8 @@ class OpenidApplicationController < ApplicationController
     @session = build_session(ttl,
                              Okta::UserProfile.new({ 'last_login_type' => profile['last_login_type'],
                                                      'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'],
-                                                     'npi' => profile['npi'], 'icn' => profile['icn'],
-                                                     'uuid' => uuid(profile) }))
+                                                     'npi' => profile['npi'], 'icn' => profile['icn'] }))
     @session.save && user_identity.save && @current_user.save
-  end
-
-  # Helper method that uses the profile uuid set by SSOe since the sub == ICN in that scenario
-  # but falls back to the token.identifiers.uuid
-  def uuid(profile)
-    profile['uuid'] || token.identifiers.uuid
   end
 
   def token
@@ -175,7 +168,7 @@ class OpenidApplicationController < ApplicationController
   end
 
   def build_session(ttl, profile)
-    session = Session.new(token: token.to_s, uuid: uuid(profile), profile: profile)
+    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid, profile: profile)
     session.expire(ttl)
     session
   end

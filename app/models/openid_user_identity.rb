@@ -16,7 +16,7 @@ class OpenidUserIdentity < ::UserIdentity
   # @return [OpenidUserIdentity]
   def self.build_from_okta_profile(uuid:, profile:, ttl:)
     identity = new(
-      uuid: profile['uuid'] || uuid,
+      uuid: uuid,
       email: profile['email'],
       first_name: profile['firstName'],
       middle_name: profile['middleName'],
