@@ -86,6 +86,8 @@ module VBADocuments
           else
             map_upstream_status(response_object)
           end
+          # add to metadata status refreshed count and last time (do count by status)
+          # call add_shit
           save!
         else
           log_message_to_sentry('Error getting status from Central Mail API',

@@ -72,7 +72,7 @@ module VBADocuments
 
           Rails.logger.info('VBADocuments: Processing: ' + upload.inspect)
           upload.update(status: 'uploaded')
-          VBADocuments::UploadProcessor.perform_async(upload_id)
+          VBADocuments::UploadProcessor.perform_async(upload_id, caller: self.class.name.to_sym)
         end
       end
     end

@@ -23,7 +23,7 @@ module VBADocuments
       return false unless object.exists?
 
       upload.update(status: 'uploaded')
-      VBADocuments::UploadProcessor.perform_async(upload.guid)
+      VBADocuments::UploadProcessor.perform_async(upload.guid, caller: self.class.name.to_sym)
       true
     end
 

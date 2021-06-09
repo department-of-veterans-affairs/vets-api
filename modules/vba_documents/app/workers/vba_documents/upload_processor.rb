@@ -14,8 +14,11 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
-    def perform(guid, retries = 0)
+    def perform(guid, retries = 0, **caller_data)
       @retries = retries
+      @cause = caller_data[:caller].nil? ? :unknown : caller_data[:caller]
+      # @retries variable used via the CentralMail::Utilities which is included via
+      # VBADocuments::UploadValidations
       response = nil
       VBADocuments::UploadSubmission.with_advisory_lock(guid) do
         @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
@@ -83,17 +86,31 @@ module VBADocuments
       CentralMail::Service.new.upload(body)
     end
 
+=begin
+irb(main):043:0> vbms.metadata
+=> {"size"=>5904696, "status"=>{"vbms"=>{"start"=>1623255490}, "pending"=>{"end"=>1623247433, "start"=>1623247426}, "success"=>{"end"=>1623255490, "start"=>1623251879}, "received"=>{"end"=>1623248292, "start"=>1623247440}, "uploaded"=>{"end"=>1623247440, "start"=>1623247433}, "processing"=>{"end"=>1623251879, "start"=>1623248292}}}
+=end
+
     def process_response(response)
+      # record submission attempt, record time and success status to an array\
+      # record response.body
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
+        add_shit(:received)
       elsif response.status == 429 && response.body =~ /UUID already in cache/
+        add_shit(:uploaded)
         process_concurrent_duplicate
       else
         map_error(response.status, response.body, VBADocuments::UploadError)
       end
     end
 
+    def add_shit(cause)
+
+    end
+
     def process_concurrent_duplicate
+
       # This should never occur now that we are using with_advisory_lock in perform, but if it does we will record it
       # and otherwise leave this model alone as another instance of this job is currently also processing this guid
       @upload.metadata['uuid_already_in_cache_count'] ||= 0
