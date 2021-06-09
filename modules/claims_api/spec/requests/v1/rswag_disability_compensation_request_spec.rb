@@ -155,7 +155,7 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
 
-          def make_stubbed_request(example, _data)
+          def make_stubbed_request(example)
             stub_poa_verification
             stub_mpi
 
@@ -188,7 +188,7 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
             end
 
             before do |example|
-              make_stubbed_request(example, data)
+              make_stubbed_request(example)
             end
 
             after do |example|
@@ -206,7 +206,7 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
             end
 
             before do |example|
-              make_stubbed_request(example, data)
+              make_stubbed_request(example)
             end
 
             after do |example|
