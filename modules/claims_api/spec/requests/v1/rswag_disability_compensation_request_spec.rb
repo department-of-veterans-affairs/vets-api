@@ -154,31 +154,75 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
-          let(:data) do
-            'This is not valid JSON'
-          end
 
-          before do |example|
-            stub_poa_verification
-            stub_mpi
+          context "Violates JSON Schema" do
+            let(:data) do
+              temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+              temp = JSON.parse(temp)
+              temp['data']['attributes']['someBadKey'] = 'someValue'
+        
+              temp
+            end
 
-            with_okta_user(scopes) do
-              VCR.use_cassette('evss/claims/claims') do
-                submit_request(example.metadata)
+            before do |example|
+              stub_poa_verification
+              stub_mpi
+  
+              with_okta_user(scopes) do
+                VCR.use_cassette('evss/claims/claims') do
+                  submit_request(example.metadata)
+                end
               end
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end  
+            
+            after do |example|
+              example.metadata[:response][:content] = {
+                'application/json' => {
+                  examples: {
+                    example.metadata[:example_group][:description] => {
+                      value: JSON.parse(response.body, symbolize_names: true)
+                    }
+                  }
+                }
+              }
             end
           end
 
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
+          context "Not a JSON Object" do
+            let(:data) do
+              'This is not valid JSON'
+            end
 
-          it 'returns a 422 response' do |example|
-            assert_response_matches_metadata(example.metadata)
+            before do |example|
+              stub_poa_verification
+              stub_mpi
+  
+              with_okta_user(scopes) do
+                VCR.use_cassette('evss/claims/claims') do
+                  submit_request(example.metadata)
+                end
+              end
+            end
+            
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+  
+            after do |example|
+              example.metadata[:response][:content] = {
+                'application/json' => {
+                  examples: {
+                    example.metadata[:example_group][:description] => {
+                      value: JSON.parse(response.body, symbolize_names: true)
+                    }
+                  }
+                }
+              }
+            end
           end
         end
       end
