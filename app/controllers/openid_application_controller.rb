@@ -57,19 +57,6 @@ class OpenidApplicationController < ApplicationController
     return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
-    check_icn(profile)
-  end
-
-  # Ensure the Okta profile ICN continues to match the MPI ICN
-  # If mismatched, invalidate above @session and revoke in Okta
-  def check_icn(profile)
-    if @current_user.icn == profile['icn']
-      true
-    else
-      Okta::Service.new.clear_user_session(@session.uuid)
-      @session.destroy
-      false
-    end
   end
 
   def populate_payload_for_launch_scope
@@ -152,6 +139,18 @@ class OpenidApplicationController < ApplicationController
                                                      'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'],
                                                      'npi' => profile['npi'], 'icn' => profile['icn'] }))
     @session.save && user_identity.save && @current_user.save
+  end
+
+  # Ensure the Okta profile ICN continues to match the MPI ICN
+  # If mismatched, invalidate above @session and revoke in Okta
+  # return false if icn_mismatch?(profile)
+  def icn_mismatch?(profile)
+    if @current_user.icn != profile['icn']
+      Okta::Service.new.clear_user_session(@session.uuid)
+      true
+    else
+      false
+    end
   end
 
   def token
