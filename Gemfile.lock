@@ -343,7 +343,6 @@ GEM
       regexp_parser (~> 2.0)
     einhorn (0.7.4)
     encryptor (3.0.0)
-    equalizer (0.0.11)
     erubi (1.10.0)
     et-orbi (1.2.4)
       tzinfo
@@ -928,11 +927,10 @@ GEM
     utf8-cleaner (1.0.0)
       activesupport
     vcr (6.0.0)
-    virtus (1.0.5)
+    virtus (2.0.0)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
-      equalizer (~> 0.0, >= 0.0.9)
     wasabi (3.6.1)
       addressable
       httpi (~> 2.0)
