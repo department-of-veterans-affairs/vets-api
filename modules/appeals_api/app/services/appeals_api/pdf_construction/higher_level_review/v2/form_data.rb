@@ -24,7 +24,7 @@ module AppealsApi
         def last_four_ssn
           ssn.last(4)
         end
-        
+
         def veteran_homeless
           higher_level_review.veteran_homeless? ? 1 : 'Off'
         end
