@@ -60,6 +60,8 @@ module VAForms
       va_form = VAForms::Form.find_or_initialize_by row_id: form['fieldVaFormRowId']
       attrs = init_attributes(form)
       url = form['fieldVaFormUrl']['uri']
+      current_url = VAForms::Form.where(row_id: form['fieldVaFormRowId']).select("url")
+      notify_slack(url, current_url, form['fieldVaFormNumber']) if current_url.first.url != url
       va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
@@ -130,6 +132,13 @@ module VAForms
       raise ArgumentError, 'url must start with ./va or ./medical' unless url.starts_with?('./va', './medical')
 
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
+    end
+
+    def notify_slack(old_form_url, new_form_url, form_name)
+      return unless Settings.va_forms.slack.enabled
+      @slack_url = Settings.va_forms.slack.notification_url
+      Faraday.post(@slack_url, "{\"text\": \"#{form_name} has changed from #{old_form_url} to #{new_form_url}\" }",
+                   'Content-Type' => 'application/json')
     end
   end
 end
