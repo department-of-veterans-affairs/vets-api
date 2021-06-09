@@ -16,7 +16,6 @@ RSpec.describe 'Available Slots Request', type: :request do
   context 'with a loa3 user', :skip_mvi do
     let(:user) { build(:user, :vaos) }
 
-    # need to record vcr from service
     describe 'GET available appointment slots' do
       context 'on a successful request' do
         it 'returns list of available slots' do

@@ -232,6 +232,51 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports uploading a Form 10-10cg attachment' do
+      expect(subject).to validate(
+        :post,
+        '/v0/form1010cg/attachments',
+        400,
+        '_data' => {
+          'attachment' => {}
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/form1010cg/attachments',
+        422,
+        '_data' => {
+          'attachment' => {
+            file_data: fixture_file_upload('spec/fixtures/files/doctors-note.gif')
+          }
+        }
+      )
+
+      VCR.use_cassette 's3/object/put/834d9f51-d0c7-4dc2-9f2e-9b722db98069/doctors-note.pdf', {
+        record: :none,
+        allow_unused_http_interactions: false,
+        match_requests_on: %i[method host]
+      } do
+        expect(SecureRandom).to receive(:uuid).and_return(
+          '834d9f51-d0c7-4dc2-9f2e-9b722db98069'
+        )
+
+        allow(SecureRandom).to receive(:uuid).and_call_original
+
+        expect(subject).to validate(
+          :post,
+          '/v0/form1010cg/attachments',
+          200,
+          '_data' => {
+            'attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/doctors-note.pdf', 'application/pdf')
+            }
+          }
+        )
+      end
+    end
+
     it 'supports adding a pension' do
       expect(subject).to validate(
         :post,

@@ -48,7 +48,7 @@
         "veteran":                            { "$ref": "#/definitions/hlrCreateVeteran" },
         "informalConferenceContact":          { "$ref": "#/definitions/hlrCreateInformalConferenceContact" },
         "informalConferenceTime":             { "$ref": "#/definitions/hlrCreateInformalConferenceTime" },
-        "representative":                     { "$ref": "#/definitions/hlrCreateRepresentative" },
+        "informalConferenceRep":              { "$ref": "#/definitions/hlrCreateInformalConferenceRep" },
         "socOptIn":                           { "type": "boolean" }
       },
       "required": [
@@ -76,23 +76,20 @@
       "enum": [ "800-1200 ET", "1200-1630 ET" ]
     },
 
-    "hlrCreateRepresentative": {
+    "hlrCreateInformalConferenceRep": {
       "type": "object",
       "properties": {
-        "name":  { "$ref": "#/definitions/hlrCreateRepresentativeName" },
-        "phone": { "$ref": "#/definitions/hlrCreatePhone" }
+        "firstName": { "type": "string", "maxLength": 30 },
+        "lastName":  { "type": "string", "maxLength": 40 },
+        "phone": { "$ref": "#/definitions/hlrCreatePhone" },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "maxLength": 100
+        }
       },
       "additionalProperties": false,
-      "required": [ "name", "phone" ]
-    },
-
-    "hlrCreateRepresentativeName": {
-      "type": "object",
-      "properties": {
-        "firstName": { "type": "string"},
-        "lastName":  { "type": "string"}
-      },
-      "required": [ "firstName", "lastName" ]
+      "required": [ "firstName", "lastName", "phone" ]
     },
 
     "hlrCreatePhone": {
@@ -101,7 +98,7 @@
         "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
         "areaCode":        { "type": "string", "pattern": "^[2-9][0-9]{2}$" },
         "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$" },
-        "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
+        "phoneNumberExt":  { "type": "string", "pattern": "^[0-9]{1,10}$" }
       },
       "required": [
         "areaCode",
@@ -115,7 +112,7 @@
         "homeless": { "type": "boolean"},
         "address":  { "$ref": "#/definitions/hlrCreateAddress" },
         "phone":    { "$ref": "#/definitions/hlrCreatePhone" },
-        "emailAddressText": {
+        "email": {
           "type": "string",
           "format": "email",
           "maxLength": 100
@@ -128,7 +125,7 @@
         }
       },
       "additionalProperties": false,
-      "required": [ "homeless", "address" ]
+      "required": [ "homeless" ]
     },
 
     "hlrCreateAddress": {
@@ -146,8 +143,7 @@
           "pattern": "^[0-9]{5}$"
         }
       },
-      "additionalProperties": false,
-      "required": [ "zipCode5" ]
+      "additionalProperties": false
     },
 
     "hlrCreateIncluded": {

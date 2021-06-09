@@ -104,6 +104,12 @@ paths:
             type: boolean
           description: Whether or not to use this API's cache or fetch records from the upstream service
           example: true
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Field to sort the appointments list by. Currently only supports `startDateUtc`. Prefixing `-` reverses the sort.
+          example: -startDateUtc
       responses:
         '200':
           description: OK
@@ -2305,11 +2311,11 @@ paths:
     get:
       summary: /v0/messaging/health/folders/{id}/messages
       description: |
-        List messages in a secure messaging folder. 
-        
-        When listing messages, the response for each message will include most but not all of the message attributes. 
-        Specifically, the message body and attachment information is not included. Those attributes can be obtained by 
-        getting the specific message resource. 
+        List messages in a secure messaging folder.
+
+        When listing messages, the response for each message will include most but not all of the message attributes.
+        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
+        getting the specific message resource.
       operationId: get_folder_messages
       security:
         - Bearer: []
@@ -2370,9 +2376,9 @@ paths:
                 uploads[]:
                   type: array
                   description: |
-                    One or more message attachments. 
-                    
-                    <strong>NOTES:</strong> 
+                    One or more message attachments.
+
+                    <strong>NOTES:</strong>
                     <ul>
                     <li>A single message may have a maximum of 4 attachments.</li>
                     <li>A single attachment cannot exceed 3 MB</li>
@@ -2408,7 +2414,7 @@ paths:
     get:
       summary: /v0/messaging/health/messages/{id}
       description: |
-        Get a secure message <strong>and mark the message as read</strong>. 
+        Get a secure message <strong>and mark the message as read</strong>.
 
         <strong>NOTES:</strong>
         <ul>
@@ -2597,9 +2603,9 @@ paths:
                 uploads[]:
                   type: array
                   description: |
-                    One or more message attachments. 
-                    
-                    <strong>NOTES:</strong> 
+                    One or more message attachments.
+
+                    <strong>NOTES:</strong>
                     <ul>
                     <li>A single message may have a maximum of 4 attachments.</li>
                     <li>A single attachment cannot exceed 3 MB</li>

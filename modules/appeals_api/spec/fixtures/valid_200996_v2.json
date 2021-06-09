@@ -11,18 +11,16 @@
           "areaCode": "555",
           "phoneNumber": "8001111"
         },
-        "emailAddressText": "josie@example.com",
+        "email": "josie@example.com",
         "timezone": "America/Chicago",
         "homeless": false
       },
       "socOptIn": true,
       "informalConferenceContact": "veteran",
       "informalConferenceTime": "800-1200 ET",
-      "representative": {
-        "name": {
-          "firstName": "Hellen",
-          "lastName": "Holly"
-        },
+      "informalConferenceRep": {
+        "firstName": "Helen",
+        "lastName": "Holly",
         "phone": {
           "countryCode": "6",
           "areaCode": "555",
