@@ -343,7 +343,6 @@ GEM
       regexp_parser (~> 2.0)
     einhorn (0.7.4)
     encryptor (3.0.0)
-    equalizer (0.0.11)
     erubi (1.10.0)
     et-orbi (1.2.4)
       tzinfo
@@ -586,7 +585,7 @@ GEM
       childprocess (>= 0.6.3, < 5)
       iniparse (~> 1.4)
       rexml (~> 3.2)
-    ox (2.14.4)
+    ox (2.14.5)
     pact (1.57.0)
       pact-mock_service (~> 3.0, >= 3.3.1)
       pact-support (~> 1.15)
@@ -782,7 +781,7 @@ GEM
     rswag-ui (2.4.0)
       actionpack (>= 3.1, < 7.0)
       railties (>= 3.1, < 7.0)
-    rubocop (1.16.0)
+    rubocop (1.16.1)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)
@@ -928,11 +927,10 @@ GEM
     utf8-cleaner (1.0.0)
       activesupport
     vcr (6.0.0)
-    virtus (1.0.5)
+    virtus (2.0.0)
       axiom-types (~> 0.1)
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
-      equalizer (~> 0.0, >= 0.0.9)
     wasabi (3.6.1)
       addressable
       httpi (~> 2.0)
