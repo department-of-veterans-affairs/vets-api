@@ -208,7 +208,9 @@ RSpec.configure do |config|
         },
         {
           name: 'Claims',
-          description: "Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized."
+          description: <<~VERBIAGE
+            Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.
+          VERBIAGE
         }
       ],
       components: {
