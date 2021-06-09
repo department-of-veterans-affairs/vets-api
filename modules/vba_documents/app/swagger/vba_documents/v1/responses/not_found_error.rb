@@ -7,7 +7,7 @@ module VBADocuments
         # rubocop:disable Metrics/MethodLength
         def self.extended(base)
           base.response 404 do
-            key :description, 'Not Found'
+            key :description, 'Not found'
             content 'application/json' do
               schema do
                 key :type, :object
