@@ -62,7 +62,46 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
 
-        # add test to pass in status query param
+        it 'has access and returns va appointments given a date range and single status' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses=proposed',
+                headers: inflection_header
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            data = JSON.parse(response.body)['data']
+            expect(data.size).to eq(7)
+            expect(data[0]['attributes']['status']).to eq('proposed')
+            expect(data[1]['attributes']['status']).to eq('proposed')
+          end
+        end
+
+        it 'has access and returns va appointments given date a range and single status (as array)' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses[]=proposed',
+                headers: inflection_header
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            data = JSON.parse(response.body)['data']
+            expect(data.size).to eq(7)
+            expect(data[0]['attributes']['status']).to eq('proposed')
+            expect(data[1]['attributes']['status']).to eq('proposed')
+          end
+        end
+
+        # TODO: currently VAOS Service errors on sending multiple statuses (VAOSR-2005). When fixed, implement rspec.
+        xit 'has access and returns va appointments given a date range and multiple statuses' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes) do
+            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses=proposed,booked',
+                headers: inflection_header
+          end
+        end
+
+        # TODO: currently VAOS Service errors on sending multiple statuses (VAOSR-2005). When fixed, implement rspec.
+        xit 'has access and returns va appointments given a date range and multiple statuses (as Array)' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes) do
+            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses[]=proposed' \
+                '&statuses[]=booked',
+                headers: inflection_header
+          end
+        end
 
         it 'returns a 400 error' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_400', match_requests_on: %i[method uri]) do

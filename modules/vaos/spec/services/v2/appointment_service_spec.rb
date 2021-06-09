@@ -53,13 +53,36 @@ describe VAOS::V2::AppointmentsService do
   end
 
   describe '#get_appointments' do
-    context 'when requesting a list of appointments' do
+    context 'when requesting a list of appointments given a date range' do
       it 'returns a 200 status with list of appointments' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
           response = subject.get_appointments(start_date, end_date)
 
           expect(response[:data].size).to eq(81)
+        end
+      end
+    end
+
+    context 'when requesting a list of appointments given a date range and single status' do
+      it 'returns a 200 status with list of appointments' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
+                                                                      tag: :force_utf8) do
+          response = subject.get_appointments(start_date, end_date, 'proposed')
+          expect(response[:data].size).to eq(7)
+          expect(response[:data][0][:status]).to eq('proposed')
+        end
+      end
+    end
+
+    # TODO: currently VAOS Service returns vamf status 400, statuses invalid value error,
+    # should be able to handle multiple statuses in a csv list (VAOSR-2005). Implement rspec
+    # when VAOS Service can handle multiple statuses.
+    context 'when requesting a list of appointments given a date range and multiple statuses' do
+      xit 'returns a 200 status with list of appointments' do
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes,
+                                                                      tag: :force_utf8) do
+          # response = subject.get_appointments(start_date, end_date, 'proposed,booked')
         end
       end
     end
