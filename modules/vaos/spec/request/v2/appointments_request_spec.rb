@@ -21,11 +21,26 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         FactoryBot.build(:appointment_form_v2, :eligible).attributes
       end
 
+      let(:request_body_bad_request_no_icn) do
+        FactoryBot.build(:appointment_form_v2, :bad_request_no_icn).attributes
+      end
+
       it 'creates the appointment' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments', match_requests_on: %i[method uri]) do
-          post '/vaos/v2/appointments', params: request_body
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_200', match_requests_on: %i[method uri]) do
+          post '/vaos/v2/appointments', params: request_body, headers: inflection_header
           expect(response).to have_http_status(:created)
-          expect(json_body_for(response)).to match_schema('vaos/v2/appointment', { strict: false })
+          expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+        end
+      end
+
+      it 'returns a 400 error' do
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method uri]) do
+          post '/vaos/v2/appointments', params: request_body_bad_request_no_icn
+          expect(response).to have_http_status(:bad_request)
+          expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'the patientIcn must match the ICN in the request URI'
+          )
         end
       end
     end
@@ -38,12 +53,53 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'requests a list of appointments' do
         it 'has access and returns va appointments' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/appointments', params: params
+            get '/vaos/v2/appointments', params: params, headers: inflection_header
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data'].size).to eq(81)
-            expect(response).to match_response_schema('vaos/v2/appointments', { strict: false })
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+          end
+        end
+
+        it 'has access and returns va appointments given a date range and single status' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses=proposed',
+                headers: inflection_header
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            data = JSON.parse(response.body)['data']
+            expect(data.size).to eq(7)
+            expect(data[0]['attributes']['status']).to eq('proposed')
+            expect(data[1]['attributes']['status']).to eq('proposed')
+          end
+        end
+
+        it 'has access and returns va appointments given date a range and single status (as array)' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses[]=proposed',
+                headers: inflection_header
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            data = JSON.parse(response.body)['data']
+            expect(data.size).to eq(7)
+            expect(data[0]['attributes']['status']).to eq('proposed')
+            expect(data[1]['attributes']['status']).to eq('proposed')
+          end
+        end
+
+        # TODO: currently VAOS Service errors on sending multiple statuses (VAOSR-2005). When fixed, implement rspec.
+        xit 'has access and returns va appointments given a date range and multiple statuses' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes) do
+            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses=proposed,booked',
+                headers: inflection_header
+          end
+        end
+
+        # TODO: currently VAOS Service errors on sending multiple statuses (VAOSR-2005). When fixed, implement rspec.
+        xit 'has access and returns va appointments given a date range and multiple statuses (as Array)' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes) do
+            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses[]=proposed' \
+                '&statuses[]=booked',
+                headers: inflection_header
           end
         end
 
@@ -62,13 +118,13 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'when the VAOS service returns a single appointment' do
         it 'has access and returns appointment' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/appointments/20029'
+            get '/vaos/v2/appointments/20029', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(json_body_for(response)).to match_schema('vaos/v2/appointment', { strict: false })
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
             data = JSON.parse(response.body)['data']
             expect(data['id']).to eq('20029')
             expect(data['attributes']['status']).to eq('booked')
-            expect(data['attributes']['minutes_duration']).to eq(20)
+            expect(data['attributes']['minutesDuration']).to eq(20)
           end
         end
       end
@@ -88,10 +144,10 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'when the appointment status is updated' do
         it 'returns a status code of 200 and the updated appointment in the body' do
           VCR.use_cassette('vaos/v2/appointments/put_appointments_200', match_requests_on: %i[method uri]) do
-            put '/vaos/v2/appointments/1121?status=cancelled'
+            put '/vaos/v2/appointments/1121?status=cancelled', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('cancelled')
-            expect(json_body_for(response)).to match_schema('vaos/v2/appointment', { strict: false })
+            expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
           end
         end
       end
