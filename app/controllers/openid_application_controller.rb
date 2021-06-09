@@ -145,11 +145,11 @@ class OpenidApplicationController < ApplicationController
   # If mismatched, invalidate above @session and revoke in Okta
   # return false if icn_mismatch?(profile)
   def icn_mismatch?(profile)
-    if @current_user.icn != profile['icn']
+    if @current_user.icn == profile['icn']
+      false
+    else
       Okta::Service.new.clear_user_session(@session.uuid)
       true
-    else
-      false
     end
   end
 
