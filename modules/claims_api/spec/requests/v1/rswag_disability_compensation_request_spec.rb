@@ -155,7 +155,7 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
 
-          def make_stubbed_request(example, data)
+          def make_stubbed_request(example, _data)
             stub_poa_verification
             stub_mpi
 
@@ -178,19 +178,19 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
             }
           end
 
-          context "Violates JSON Schema" do
+          context 'Violates JSON Schema' do
             let(:data) do
               temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
               temp = JSON.parse(temp)
               temp['data']['attributes']['someBadKey'] = 'someValue'
-        
+
               temp
             end
 
             before do |example|
               make_stubbed_request(example, data)
             end
-            
+
             after do |example|
               append_example_metadata(example, response)
             end
@@ -200,7 +200,7 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
             end
           end
 
-          context "Not a JSON Object" do
+          context 'Not a JSON Object' do
             let(:data) do
               'This is not valid JSON'
             end
@@ -208,7 +208,7 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
             before do |example|
               make_stubbed_request(example, data)
             end
-            
+
             after do |example|
               append_example_metadata(example, response)
             end
