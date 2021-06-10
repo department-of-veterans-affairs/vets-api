@@ -34,7 +34,6 @@ class OpenidApplicationController < ApplicationController
 
   def authenticate_token
     return false if token.blank?
-
     # Only want to fetch the Okta profile if the session isn't already established and not a CC token
     @session = Session.find(token) unless token.client_credentials_token?
     profile = @session.profile unless @session.nil? || @session.profile.nil?
@@ -146,7 +145,7 @@ class OpenidApplicationController < ApplicationController
   # POA support (profile['icn'].nil?)
   # Incomplete test case support (@current_user.identity.nil?)
   def confirm_icn_match(profile)
-    if profile['icn'].nil? || @current_user.identity.nil? || @current_user.icn == profile['icn']
+    if profile['icn'].nil? || @current_user.icn == profile['icn']
       true
     else
       Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
