@@ -172,10 +172,12 @@ components:
       properties:
         id:
           description: JSON API identifier
+          nullable: false
           type: string
           example: 12303
         type:
           description: JSON API type specification
+          nullable: false
           type: string
           example: 'disability-rating'
         attributes:
@@ -191,14 +193,17 @@ components:
       properties:
         combined_disability_rating:
           description: Overall severity rating determined by VA calculation of each service related conditions. Used to help determine disability compensation (pay) and related benefits.
+          nullable: true
           type: integer
           example: 100
         combined_effective_date:
           description: The effective date of the latest combined disability rating for the Veteran
+          nullable: true
           type: datetime
           example: "2018-03-27T21:00:41.000+0000"
         legal_effective_date:
           description: When the Veteran could begin claiming benefits for combined disability rating
+          nullable: true
           type: datetime
           example: "2018-03-27T21:00:41.000+0000"
         individual_ratings:
@@ -215,15 +220,18 @@ components:
       properties:
         decision:
           description: Whether the disability is service connected or not.
+          nullable: true
           type: string
           example: 'Service Connected'
         effective_date:
           description: When the Veteran could begin claiming benefits related to this disability
+          nullable: true
           type: string
           format: datetime
           example: "2018-03-27T21:00:41.000+0000"
         rating_percentage:
           description: Severity rating determined by VA that indicates how disabling an illness or injury is for the Veteran. Used to help determine disability compensation (pay) and related benefits.
+          nullable: true
           type: number
           example: 50
     DisabilityRatingToken:
