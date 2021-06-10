@@ -180,8 +180,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
   describe '#contestable_issues' do
     subject { higher_level_review.contestable_issues.to_json }
 
-    # ISSUE HAS AN EXTRA KEY
-
     it 'matches json' do
       issues = form_data['included'].map { |issue| AppealsApi::HigherLevelReview::ContestableIssue.new(issue) }.to_json
 
