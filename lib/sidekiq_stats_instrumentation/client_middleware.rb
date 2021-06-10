@@ -5,7 +5,7 @@
 module SidekiqStatsInstrumentation
   class ClientMiddleware
     def call(worker_class, _job, _queue, _redis_pool)
-      klass = Object.const_get(worker_class) # this is receiving classes when it wasn't before 6
+      klass = worker_class
       queue_name = klass.get_sidekiq_options['queue']
       worker_name = klass.name.gsub('::', '_')
       StatsD.increment "shared.sidekiq.#{queue_name}.#{worker_name}.enqueue"
