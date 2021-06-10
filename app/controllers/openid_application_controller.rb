@@ -146,6 +146,8 @@ class OpenidApplicationController < ApplicationController
   def confirm_icn_match(profile)
     if profile['icn'].nil?
       true #POA support
+    elsif @current_user.identity.nil?
+      true #incomplete test case support
     elsif @current_user.icn == profile['icn']
       true
     else
@@ -153,10 +155,6 @@ class OpenidApplicationController < ApplicationController
       @session = nil
       false
     end
-  rescue => e
-    # Only temporary
-    log_message_to_sentry('Error retrieving current_user for OIDC token', :error, body: e)
-    false
   end
 
   def token
