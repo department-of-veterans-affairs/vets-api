@@ -50,13 +50,13 @@ class OpenidApplicationController < ApplicationController
     if token.client_credentials_token? || token.ssoi_token?
       populate_payload_for_launch_patient_scope if token.payload['scp'].include?('launch/patient')
       populate_payload_for_launch_scope if token.payload['scp'].include?('launch')
-
       return true
     end
 
     return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
+    confirm_icn_match(profile)
   end
 
   def populate_payload_for_launch_scope
@@ -144,12 +144,12 @@ class OpenidApplicationController < ApplicationController
   # Ensure the Okta profile ICN continues to match the MPI ICN
   # If mismatched, invalidate above @session and revoke in Okta
   # return false if icn_mismatch?(profile)
-  def icn_mismatch?(profile)
+  def confirm_icn_match(profile)
     if @current_user.icn == profile['icn']
-      false
+      true
     else
       Okta::Service.new.clear_user_session(@session.uuid)
-      true
+      false
     end
   end
 
