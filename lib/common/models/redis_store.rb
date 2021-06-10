@@ -67,6 +67,7 @@ module Common
     end
 
     def self.exists?(redis_key = nil)
+      byebug
       redis_namespace.exists(redis_key)
     end
 
