@@ -271,9 +271,12 @@ components:
           example: service-history-episodes
         attributes:
           type: object
+          required:
+            - first_name
           properties:
             first_name:
               type: string
+              nullable: true
               description: Veteran first name
               example: "Abraham"
             last_name:
