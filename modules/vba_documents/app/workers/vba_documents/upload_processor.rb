@@ -14,10 +14,11 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
-    def perform(guid, retries = 0, **caller_data)
+    def perform(guid, retries = 0, caller_data)
       @retries = retries
-      @cause = caller_data[:caller].nil? ? :unknown : caller_data[:caller]
-      Rails.logger.info("Hi Guys processing #{guid}!!!!!!!!!!!!! my cause is #{@cause}")
+      @cause = caller_data['caller'].nil? ? :unknown : caller_data['caller']
+      Rails.logger.info("Hi Guys processing 6 #{guid}!!!!!!!!!!!!! my cause is #{@cause}")
+      Rails.logger.info("Hi Guys processing retries #{retries}!!!!!!!!!!!!! ")
       Rails.logger.info("Hi Guys processing a guid!!!!!!!!!!!!! my caller_data is #{caller_data}")
       # @retries variable used via the CentralMail::Utilities which is included via
       # VBADocuments::UploadValidations
@@ -33,6 +34,8 @@ module VBADocuments
         end
       end
       response&.success? ? true : false
+    rescue => ex
+      Rails.logger.info("Hi Guys UploadProcessor bad #{ex}", ex)
     end
 
     private
@@ -88,32 +91,40 @@ module VBADocuments
       CentralMail::Service.new.upload(body)
     end
 
+    FakeResponse = Struct.new(:status, :body) do
+      def success?
+        false
+      end
+    end
+
     def process_response(response)
-      Rails.logger.info("Hi Guys in process_response!!!!!!!!!!!! my cause is #{@cause}")
+      sad_response = FakeResponse.new(429, "UUID already in cache")
+      Rails.logger.info("Hi Guys in process_response!!!!!!!!!!!!")
       # record submission attempt, record time and success status to an array\
       # record response.body
+      response = sad_response
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
-        record_attempts(:received)
+        record_attempts(:cause)
       elsif response.status == 429 && response.body =~ /UUID already in cache/
-        record_attempts(:uploaded)
+        record_attempts(:uuid_already_in_cache_cause)
         process_concurrent_duplicate
       else
         map_error(response.status, response.body, VBADocuments::UploadError)
       end
     end
 
-    def record_attempts(status)
-      Rails.logger.info("Hi Guys in record_attempts!!!!!!!!!!!! my cause is #{@cause}")
-      if (status.eql? :uploaded)
-        Rails.logger.info("Hi Guys in record_attempts uploaded!!!!!!!!!!!! my cause is #{@cause}")
-        @upload.metadata['status']['uploaded']['attempts'] ||= {}
-        @upload.metadata['status']['uploaded']['attempts'][@cause] ||= []
-        @upload.metadata['status']['uploaded']['attempts'][@cause] << Time.now.to_i
-      elsif(status.eql? :received)
-        Rails.logger.info("Hi Guys in record_attempts received!!!!!!!!!!!! my cause is #{@cause}")
-        @upload.metadata['status']['uploaded']['cause'] ||= []
-        @upload.metadata['status']['uploaded']['cause'] << @cause #should *never* have an array greater than 1 in length
+    def record_attempts(cause_key)
+      Rails.logger.info("Hi Guys in record_attempts!!!!!!!!!!!! ")
+      if (cause_key.eql? :uuid_already_in_cache_cause)
+        Rails.logger.info("Hi Guys in record_attempts uploaded!!!!!!!!!!!!")
+        @upload.metadata['status']['uploaded'][cause_key.to_s] ||= {}
+        @upload.metadata['status']['uploaded'][cause_key.to_s][@cause] ||= []
+        @upload.metadata['status']['uploaded'][cause_key.to_s][@cause] << Time.now.to_i
+      elsif(cause_key.eql? :received)
+        Rails.logger.info("Hi Guys in record_attempts received!!!!!!!!!!!! ")
+        @upload.metadata['status']['received'][cause_key.to_s] ||= []
+        @upload.metadata['status']['received'][cause_key.to_s] << @cause #should *never* have an array greater than 1 in length
       end
       saved = @upload.save
     rescue => ex

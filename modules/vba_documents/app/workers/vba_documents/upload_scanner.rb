@@ -23,8 +23,9 @@ module VBADocuments
       return false unless object.exists?
 
       upload.update(status: 'uploaded')
-      Rails.logger.info("Hi Guys upload scanner kicking off job with #{self.class.name.to_sym}!!!!!!!!!!!!!")
+      Rails.logger.info("Hi Guys upload scanner kicking off job with 9 #{self.class.name.to_sym}!!!!!!!!!!!!!")
       VBADocuments::UploadProcessor.perform_async(upload.guid, caller: self.class.name.to_sym)
+      Rails.logger.info("Hi Guys upload scanner kicked off job!!!!!!!!!!!!!")
       true
     rescue => ex
       Rails.logger.info("Hi Guys upload scanner error #{ex}!!!!!!!!!!!!!", ex)
@@ -44,3 +45,14 @@ module VBADocuments
     end
   end
 end
+=begin
+def again
+load('./modules/vba_documents/app/workers/vba_documents/upload_processor.rb')
+load('./modules/vba_documents/app/workers/vba_documents/upload_scanner.rb')
+g = "0f35783e-4b33-4e22-b64f-9a50eb391b49"
+u = UploadSubmission.find_by_guid(g)
+u.status = 'pending'
+u.save
+UploadScanner.new.perform
+end
+=end
