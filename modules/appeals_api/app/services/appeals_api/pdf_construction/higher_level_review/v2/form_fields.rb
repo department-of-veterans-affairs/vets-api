@@ -4,6 +4,9 @@ module AppealsApi
   module PdfConstruction
     module HigherLevelReview::V2
       class FormFields
+        FIRST_PAGE_ISSUES_ROW_COUNT = 7
+        SECOND_PAGE_ISSUES_ROW_COUNT = 6
+
         def middle_initial
           'form1[0].#subform[2].Veteran_Middle_Initial1[0]'
         end
@@ -179,10 +182,16 @@ module AppealsApi
             rep_international_number: { at: [275, 555], width: 195 },
             rep_domestic_ext: { at: [225, 555], width: 50 },
             issues_pg1: [].tap do |n|
-              7.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
+              FIRST_PAGE_ISSUES_ROW_COUNT.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
             end,
             issues_pg2: [].tap do |n|
-              6.times { |i| n << { at: [-3, 675 - (46.5 * i)], width: 369, height: 43 } }
+              SECOND_PAGE_ISSUES_ROW_COUNT.times { |i| n << { at: [-3, 675 - (46.5 * i)], width: 369, height: 43 } }
+            end,
+            soc_date_pg1: [].tap do |n|
+              FIRST_PAGE_ISSUES_ROW_COUNT.times { |i| n << { at: [375, 315 - (46.5 * i)], width: 160, height: 15 } }
+            end,
+            soc_date_pg2: [].tap do |n|
+              SECOND_PAGE_ISSUES_ROW_COUNT.times { |i| n << { at: [380, 670 - (46.5 * i)], width: 160, height: 15 } }
             end,
             signature: { at: [-3, 329], width: 369, height: 18 },
             # The rest aren't currently used, but kept for if/when we need them

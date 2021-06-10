@@ -154,11 +154,8 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
-          let(:data) do
-            'This is not valid JSON'
-          end
 
-          before do |example|
+          def make_stubbed_request(example)
             stub_poa_verification
             stub_mpi
 
@@ -169,16 +166,56 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
             end
           end
 
-          after do |example|
+          def append_example_metadata(example, response)
             example.metadata[:response][:content] = {
               'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
+                examples: {
+                  example.metadata[:example_group][:description] => {
+                    value: JSON.parse(response.body, symbolize_names: true)
+                  }
+                }
               }
             }
           end
 
-          it 'returns a 422 response' do |example|
-            assert_response_matches_metadata(example.metadata)
+          context 'Violates JSON Schema' do
+            let(:data) do
+              temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+              temp = JSON.parse(temp)
+              temp['data']['attributes']['someBadKey'] = 'someValue'
+
+              temp
+            end
+
+            before do |example|
+              make_stubbed_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+
+          context 'Not a JSON Object' do
+            let(:data) do
+              'This is not valid JSON'
+            end
+
+            before do |example|
+              make_stubbed_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
           end
         end
       end

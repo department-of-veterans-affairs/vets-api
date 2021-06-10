@@ -860,6 +860,7 @@
                       "$schema": "http://json-schema.org/draft-07/schema#",
                       "description": "Claims API 526 Schema",
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "veteran",
                         "serviceInformation",
@@ -873,6 +874,7 @@
                         "veteran": {
                           "description": "Veteran Object being submitted in Claim",
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "currentMailingAddress",
                             "currentlyVAEmployee"
@@ -911,6 +913,7 @@
                             "currentMailingAddress": {
                               "description": "Current Mailing Address Object being submitted.",
                               "type": "object",
+                              "additionalProperties": false,
                               "properties": {
                                 "addressLine1": {
                                   "description": "Address Veteran resides in.",
@@ -1032,6 +1035,7 @@
                             "changeOfAddress": {
                               "description": "A Change of Address Object being submitted.",
                               "type": "object",
+                              "additionalProperties": false,
                               "properties": {
                                 "beginningDate": {
                                   "description": "Date in YYYY-MM-DD the Veteran changed address.",
@@ -1175,6 +1179,7 @@
                             "homelessness": {
                               "description": "Object describing Veteran Homelessness if applicable.",
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "pointOfContact"
                               ],
@@ -1182,6 +1187,7 @@
                                 "pointOfContact": {
                                   "description": "Object describing Homeless Veteran Point of Contact.",
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "pointOfContactName",
                                     "primaryPhone"
@@ -1198,6 +1204,7 @@
                                     "primaryPhone": {
                                       "description": "Phone Number Object for Point of Contact.",
                                       "type": "object",
+                                      "additionalProperties": false,
                                       "required": [
                                         "areaCode",
                                         "phoneNumber"
@@ -1219,6 +1226,7 @@
                                 },
                                 "currentlyHomeless": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "homelessSituationType",
                                     "otherLivingSituation"
@@ -1247,6 +1255,7 @@
                                 },
                                 "homelessnessRisk": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "homelessnessRiskSituationType",
                                     "otherLivingSituation"
@@ -1277,6 +1286,7 @@
                         "serviceInformation": {
                           "description": "Overview of Veteran's service history.",
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "servicePeriods"
                           ],
@@ -1288,6 +1298,7 @@
                               "uniqueItems": true,
                               "items": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "serviceBranch",
                                   "activeDutyBeginDate",
@@ -1345,6 +1356,7 @@
                               "uniqueItems": true,
                               "items": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "confinementBeginDate",
                                   "confinementEndDate"
@@ -1363,6 +1375,7 @@
                             },
                             "reservesNationalGuardService": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "title10Activation",
                                 "obligationTermOfServiceFromDate",
@@ -1374,6 +1387,7 @@
                               "properties": {
                                 "title10Activation": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "anticipatedSeparationDate",
                                     "title10ActivationDate"
@@ -1402,6 +1416,7 @@
                                 },
                                 "unitPhone": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "areaCode",
                                     "phoneNumber"
@@ -1427,6 +1442,7 @@
                               "uniqueItems": true,
                               "items": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "firstName",
                                   "lastName"
@@ -1462,6 +1478,7 @@
                           "uniqueItems": true,
                           "items": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "disabilityActionType",
                               "name"
@@ -1669,6 +1686,7 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "name",
                                     "disabilityActionType",
@@ -1878,6 +1896,7 @@
                           "uniqueItems": true,
                           "items": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "startDate",
                               "endDate",
@@ -1912,6 +1931,7 @@
                               "center": {
                                 "description": "Location of Veteran Treatment.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "name",
                                   "country"
@@ -1935,6 +1955,7 @@
                         "servicePay": {
                           "description": "Details about Veteran receiving Service Pay from DoD.",
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "waiveVABenefitsToRetainTrainingPay",
                             "waiveVABenefitsToRetainRetiredPay",
@@ -1954,6 +1975,7 @@
                             "militaryRetiredPay": {
                               "description": "Retirement Pay information from Military Service.",
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "receiving",
                                 "payment"
@@ -1967,6 +1989,7 @@
                                 "payment": {
                                   "description": "Part of DoD paying Retirement Benefits.",
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "serviceBranch"
                                   ],
@@ -2013,6 +2036,7 @@
                         "directDeposit": {
                           "description": "Financial Direct Deposit information for Veteran.",
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "accountType",
                             "accountNumber",
@@ -2365,14 +2389,29 @@
             "description": "Unprocessable entity",
             "content": {
               "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "status": 422,
-                      "detail": "The request body isn't a JSON object: \"This is not valid JSON\"",
-                      "source": false
+                "examples": {
+                  "Violates JSON Schema": {
+                    "value": {
+                      "errors": [
+                        {
+                          "status": 422,
+                          "detail": "The property /someBadKey is not defined on the schema. Additional properties are not allowed",
+                          "source": "/someBadKey"
+                        }
+                      ]
                     }
-                  ]
+                  },
+                  "Not a JSON Object": {
+                    "value": {
+                      "errors": [
+                        {
+                          "status": 422,
+                          "detail": "The request body isn't a JSON object: \"This is not valid JSON\"",
+                          "source": false
+                        }
+                      ]
+                    }
+                  }
                 },
                 "schema": {
                   "required": [
@@ -2486,6 +2525,7 @@
                         "$schema": "http://json-schema.org/draft-07/schema#",
                         "description": "Claims API 526 Schema",
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "veteran",
                           "serviceInformation",
@@ -2499,6 +2539,7 @@
                           "veteran": {
                             "description": "Veteran Object being submitted in Claim",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "currentMailingAddress",
                               "currentlyVAEmployee"
@@ -2537,6 +2578,7 @@
                               "currentMailingAddress": {
                                 "description": "Current Mailing Address Object being submitted.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "properties": {
                                   "addressLine1": {
                                     "description": "Address Veteran resides in.",
@@ -2658,6 +2700,7 @@
                               "changeOfAddress": {
                                 "description": "A Change of Address Object being submitted.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "properties": {
                                   "beginningDate": {
                                     "description": "Date in YYYY-MM-DD the Veteran changed address.",
@@ -2801,6 +2844,7 @@
                               "homelessness": {
                                 "description": "Object describing Veteran Homelessness if applicable.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "pointOfContact"
                                 ],
@@ -2808,6 +2852,7 @@
                                   "pointOfContact": {
                                     "description": "Object describing Homeless Veteran Point of Contact.",
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "pointOfContactName",
                                       "primaryPhone"
@@ -2824,6 +2869,7 @@
                                       "primaryPhone": {
                                         "description": "Phone Number Object for Point of Contact.",
                                         "type": "object",
+                                        "additionalProperties": false,
                                         "required": [
                                           "areaCode",
                                           "phoneNumber"
@@ -2845,6 +2891,7 @@
                                   },
                                   "currentlyHomeless": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "homelessSituationType",
                                       "otherLivingSituation"
@@ -2873,6 +2920,7 @@
                                   },
                                   "homelessnessRisk": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "homelessnessRiskSituationType",
                                       "otherLivingSituation"
@@ -2903,6 +2951,7 @@
                           "serviceInformation": {
                             "description": "Overview of Veteran's service history.",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "servicePeriods"
                             ],
@@ -2914,6 +2963,7 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "serviceBranch",
                                     "activeDutyBeginDate",
@@ -2971,6 +3021,7 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "confinementBeginDate",
                                     "confinementEndDate"
@@ -2989,6 +3040,7 @@
                               },
                               "reservesNationalGuardService": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "title10Activation",
                                   "obligationTermOfServiceFromDate",
@@ -3000,6 +3052,7 @@
                                 "properties": {
                                   "title10Activation": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "anticipatedSeparationDate",
                                       "title10ActivationDate"
@@ -3028,6 +3081,7 @@
                                   },
                                   "unitPhone": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "areaCode",
                                       "phoneNumber"
@@ -3053,6 +3107,7 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "firstName",
                                     "lastName"
@@ -3088,6 +3143,7 @@
                             "uniqueItems": true,
                             "items": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "disabilityActionType",
                                 "name"
@@ -3295,6 +3351,7 @@
                                   "uniqueItems": true,
                                   "items": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "name",
                                       "disabilityActionType",
@@ -3504,6 +3561,7 @@
                             "uniqueItems": true,
                             "items": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "startDate",
                                 "endDate",
@@ -3538,6 +3596,7 @@
                                 "center": {
                                   "description": "Location of Veteran Treatment.",
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "name",
                                     "country"
@@ -3561,6 +3620,7 @@
                           "servicePay": {
                             "description": "Details about Veteran receiving Service Pay from DoD.",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "waiveVABenefitsToRetainTrainingPay",
                               "waiveVABenefitsToRetainRetiredPay",
@@ -3580,6 +3640,7 @@
                               "militaryRetiredPay": {
                                 "description": "Retirement Pay information from Military Service.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "receiving",
                                   "payment"
@@ -3593,6 +3654,7 @@
                                   "payment": {
                                     "description": "Part of DoD paying Retirement Benefits.",
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "serviceBranch"
                                     ],
@@ -3639,6 +3701,7 @@
                           "directDeposit": {
                             "description": "Financial Direct Deposit information for Veteran.",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "accountType",
                               "accountNumber",
@@ -4496,6 +4559,7 @@
                         "$schema": "http://json-schema.org/draft-07/schema#",
                         "description": "Claims API 526 Schema",
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "veteran",
                           "serviceInformation",
@@ -4509,6 +4573,7 @@
                           "veteran": {
                             "description": "Veteran Object being submitted in Claim",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "currentMailingAddress",
                               "currentlyVAEmployee"
@@ -4547,6 +4612,7 @@
                               "currentMailingAddress": {
                                 "description": "Current Mailing Address Object being submitted.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "properties": {
                                   "addressLine1": {
                                     "description": "Address Veteran resides in.",
@@ -4668,6 +4734,7 @@
                               "changeOfAddress": {
                                 "description": "A Change of Address Object being submitted.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "properties": {
                                   "beginningDate": {
                                     "description": "Date in YYYY-MM-DD the Veteran changed address.",
@@ -4811,6 +4878,7 @@
                               "homelessness": {
                                 "description": "Object describing Veteran Homelessness if applicable.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "pointOfContact"
                                 ],
@@ -4818,6 +4886,7 @@
                                   "pointOfContact": {
                                     "description": "Object describing Homeless Veteran Point of Contact.",
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "pointOfContactName",
                                       "primaryPhone"
@@ -4834,6 +4903,7 @@
                                       "primaryPhone": {
                                         "description": "Phone Number Object for Point of Contact.",
                                         "type": "object",
+                                        "additionalProperties": false,
                                         "required": [
                                           "areaCode",
                                           "phoneNumber"
@@ -4855,6 +4925,7 @@
                                   },
                                   "currentlyHomeless": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "homelessSituationType",
                                       "otherLivingSituation"
@@ -4883,6 +4954,7 @@
                                   },
                                   "homelessnessRisk": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "homelessnessRiskSituationType",
                                       "otherLivingSituation"
@@ -4913,6 +4985,7 @@
                           "serviceInformation": {
                             "description": "Overview of Veteran's service history.",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "servicePeriods"
                             ],
@@ -4924,6 +4997,7 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "serviceBranch",
                                     "activeDutyBeginDate",
@@ -4981,6 +5055,7 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "confinementBeginDate",
                                     "confinementEndDate"
@@ -4999,6 +5074,7 @@
                               },
                               "reservesNationalGuardService": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "title10Activation",
                                   "obligationTermOfServiceFromDate",
@@ -5010,6 +5086,7 @@
                                 "properties": {
                                   "title10Activation": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "anticipatedSeparationDate",
                                       "title10ActivationDate"
@@ -5038,6 +5115,7 @@
                                   },
                                   "unitPhone": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "areaCode",
                                       "phoneNumber"
@@ -5063,6 +5141,7 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "firstName",
                                     "lastName"
@@ -5098,6 +5177,7 @@
                             "uniqueItems": true,
                             "items": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "disabilityActionType",
                                 "name"
@@ -5305,6 +5385,7 @@
                                   "uniqueItems": true,
                                   "items": {
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "name",
                                       "disabilityActionType",
@@ -5514,6 +5595,7 @@
                             "uniqueItems": true,
                             "items": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "startDate",
                                 "endDate",
@@ -5548,6 +5630,7 @@
                                 "center": {
                                   "description": "Location of Veteran Treatment.",
                                   "type": "object",
+                                  "additionalProperties": false,
                                   "required": [
                                     "name",
                                     "country"
@@ -5571,6 +5654,7 @@
                           "servicePay": {
                             "description": "Details about Veteran receiving Service Pay from DoD.",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "waiveVABenefitsToRetainTrainingPay",
                               "waiveVABenefitsToRetainRetiredPay",
@@ -5590,6 +5674,7 @@
                               "militaryRetiredPay": {
                                 "description": "Retirement Pay information from Military Service.",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "receiving",
                                   "payment"
@@ -5603,6 +5688,7 @@
                                   "payment": {
                                     "description": "Part of DoD paying Retirement Benefits.",
                                     "type": "object",
+                                    "additionalProperties": false,
                                     "required": [
                                       "serviceBranch"
                                     ],
@@ -5649,6 +5735,7 @@
                           "directDeposit": {
                             "description": "Financial Direct Deposit information for Veteran.",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "accountType",
                               "accountNumber",
@@ -6191,6 +6278,7 @@
                       "$schema": "http://json-schema.org/draft-07/schema#",
                       "description": "Form 0966 Schema",
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "type"
                       ],
@@ -6479,7 +6567,7 @@
                   "errors": [
                     {
                       "status": 422,
-                      "detail": "The property /type did not match the following requirements {\"type\"=>\"string\", \"example\"=>\"compensation\", \"description\"=>\"For type \\\"burial\\\", the request must be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.\", \"enum\"=>[\"compensation\", \"pension\", \"burial\"]}",
+                      "detail": "The property /type did not match the following requirements: {\"type\"=>\"string\", \"example\"=>\"compensation\", \"description\"=>\"For type \\\"burial\\\", the request must be made by a valid Veteran Representative. If the Representative is not a Veteran or a VA employee, this method is currently not available to them, and they should use the Benefits Intake API as an alternative.\", \"enum\"=>[\"compensation\", \"pension\", \"burial\"]}",
                       "source": "/type"
                     }
                   ]
@@ -6547,6 +6635,7 @@
                         "$schema": "http://json-schema.org/draft-07/schema#",
                         "description": "Form 0966 Schema",
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "type"
                         ],
@@ -7136,6 +7225,7 @@
                         "$schema": "http://json-schema.org/draft-07/schema#",
                         "description": "Form 0966 Schema",
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "type"
                         ],
@@ -7203,12 +7293,14 @@
                       "$schema": "http://json-schema.org/draft-07/schema#",
                       "description": "Form 2122 Schema",
                       "type": "object",
+                      "additionalProperties": false,
                       "required": [
                         "serviceOrganization"
                       ],
                       "properties": {
                         "veteran": {
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "address",
                             "phone",
@@ -7217,6 +7309,7 @@
                           "properties": {
                             "address": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "numberAndStreet",
                                 "city",
@@ -7259,15 +7352,13 @@
                                   "type": "string",
                                   "pattern": "^\\d{4}?$",
                                   "example": "6789"
-                                },
-                                "additionalProperties": {
-                                  "type": "boolean"
                                 }
                               }
                             },
                             "phone": {
                               "$comment": "the phone fields must not exceed 20 chars, when concatenated",
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "areaCode",
                                 "phoneNumber"
@@ -7319,6 +7410,7 @@
                         },
                         "claimant": {
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "firstName",
                             "lastName",
@@ -7345,6 +7437,7 @@
                             },
                             "address": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "numberAndStreet",
                                 "city",
@@ -7396,6 +7489,7 @@
                             "phone": {
                               "$comment": "the phone fields must not exceed 20 chars, when concatenated",
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "areaCode",
                                 "phoneNumber"
@@ -7440,6 +7534,7 @@
                         "serviceOrganization": {
                           "description": "Details of the Service Organization representing the veteran.",
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "poaCode"
                           ],
@@ -7471,6 +7566,7 @@
                             },
                             "address": {
                               "type": "object",
+                              "additionalProperties": false,
                               "required": [
                                 "numberAndStreet",
                                 "city",
@@ -7557,6 +7653,7 @@
                         },
                         "signatures": {
                           "type": "object",
+                          "additionalProperties": false,
                           "required": [
                             "veteran",
                             "representative"
@@ -7803,7 +7900,7 @@
                   "errors": [
                     {
                       "status": 422,
-                      "detail": "The property /serviceOrganization/poaCode did not match the following requirements {\"description\"=>\"The POA code of the organization.\", \"type\"=>\"string\", \"example\"=>\"A1Q\"}",
+                      "detail": "The property /serviceOrganization/poaCode did not match the following requirements: {\"description\"=>\"The POA code of the organization.\", \"type\"=>\"string\", \"example\"=>\"A1Q\"}",
                       "source": "/serviceOrganization/poaCode"
                     }
                   ]
@@ -7873,12 +7970,14 @@
                         "$schema": "http://json-schema.org/draft-07/schema#",
                         "description": "Form 2122 Schema",
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "serviceOrganization"
                         ],
                         "properties": {
                           "veteran": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "address",
                               "phone",
@@ -7887,6 +7986,7 @@
                             "properties": {
                               "address": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "numberAndStreet",
                                   "city",
@@ -7929,15 +8029,13 @@
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
-                                  },
-                                  "additionalProperties": {
-                                    "type": "boolean"
                                   }
                                 }
                               },
                               "phone": {
                                 "$comment": "the phone fields must not exceed 20 chars, when concatenated",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "areaCode",
                                   "phoneNumber"
@@ -7989,6 +8087,7 @@
                           },
                           "claimant": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "firstName",
                               "lastName",
@@ -8015,6 +8114,7 @@
                               },
                               "address": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "numberAndStreet",
                                   "city",
@@ -8066,6 +8166,7 @@
                               "phone": {
                                 "$comment": "the phone fields must not exceed 20 chars, when concatenated",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "areaCode",
                                   "phoneNumber"
@@ -8110,6 +8211,7 @@
                           "serviceOrganization": {
                             "description": "Details of the Service Organization representing the veteran.",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "poaCode"
                             ],
@@ -8141,6 +8243,7 @@
                               },
                               "address": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "numberAndStreet",
                                   "city",
@@ -8227,6 +8330,7 @@
                           },
                           "signatures": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "veteran",
                               "representative"
@@ -9373,12 +9477,14 @@
                         "$schema": "http://json-schema.org/draft-07/schema#",
                         "description": "Form 2122 Schema",
                         "type": "object",
+                        "additionalProperties": false,
                         "required": [
                           "serviceOrganization"
                         ],
                         "properties": {
                           "veteran": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "address",
                               "phone",
@@ -9387,6 +9493,7 @@
                             "properties": {
                               "address": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "numberAndStreet",
                                   "city",
@@ -9429,15 +9536,13 @@
                                     "type": "string",
                                     "pattern": "^\\d{4}?$",
                                     "example": "6789"
-                                  },
-                                  "additionalProperties": {
-                                    "type": "boolean"
                                   }
                                 }
                               },
                               "phone": {
                                 "$comment": "the phone fields must not exceed 20 chars, when concatenated",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "areaCode",
                                   "phoneNumber"
@@ -9489,6 +9594,7 @@
                           },
                           "claimant": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "firstName",
                               "lastName",
@@ -9515,6 +9621,7 @@
                               },
                               "address": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "numberAndStreet",
                                   "city",
@@ -9566,6 +9673,7 @@
                               "phone": {
                                 "$comment": "the phone fields must not exceed 20 chars, when concatenated",
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "areaCode",
                                   "phoneNumber"
@@ -9610,6 +9718,7 @@
                           "serviceOrganization": {
                             "description": "Details of the Service Organization representing the veteran.",
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "poaCode"
                             ],
@@ -9641,6 +9750,7 @@
                               },
                               "address": {
                                 "type": "object",
+                                "additionalProperties": false,
                                 "required": [
                                   "numberAndStreet",
                                   "city",
@@ -9727,6 +9837,7 @@
                           },
                           "signatures": {
                             "type": "object",
+                            "additionalProperties": false,
                             "required": [
                               "veteran",
                               "representative"
