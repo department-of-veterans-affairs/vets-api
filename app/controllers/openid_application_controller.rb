@@ -56,7 +56,7 @@ class OpenidApplicationController < ApplicationController
     return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
-    return confirm_icn_match(profile)
+    confirm_icn_match(profile)
   end
 
   def populate_payload_for_launch_scope
