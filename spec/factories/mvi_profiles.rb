@@ -48,7 +48,7 @@ FactoryBot.define do
     person_type_code { 'Patient' }
     full_mvi_ids {
       [
-        '1013062086V794840^NI^200M^USVHA^P',
+        '1000123456V123456^NI^200M^USVHA^P',
         '12345^PI^516^USVHA^PCE',
         '2^PI^553^USVHA^PCE',
         '12345^PI^200HD^USVHA^A',
@@ -59,7 +59,7 @@ FactoryBot.define do
       ]
     }
     icn { '1013062086V794840' }
-    icn_with_aaid { '1013062086V794840^NI^200M^USVHA' }
+    icn_with_aaid { '1000123456V123456^NI^200M^USVHA' }
     mhv_ids { Array.new(2) { Faker::Number.number(digits: 11) } }
     active_mhv_ids { mhv_ids }
     edipi { Faker::Number.number(digits: 10) }
@@ -82,7 +82,7 @@ FactoryBot.define do
       home_phone { '1112223333' }
       full_mvi_ids {
         [
-          '1013062086V794840^NI^200M^USVHA^P',
+          '1000123456V123456^NI^200M^USVHA^P',
           '12345^PI^516^USVHA^PCE',
           '2^PI^553^USVHA^PCE',
           '12345^PI^200HD^USVHA^A',
