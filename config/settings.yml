@@ -906,6 +906,11 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  # A notification for when a forms url has changed
+  slack:
+    enabled: false
+    notification_url: 'https://hooks.slack.com/services/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'
+    users: '<@U01GXFEGCA0>'
 
 # Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
 genisis:

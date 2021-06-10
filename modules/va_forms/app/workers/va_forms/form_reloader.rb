@@ -138,7 +138,9 @@ module VAForms
       return unless Settings.va_forms.slack.enabled
 
       @slack_url = Settings.va_forms.slack.notification_url
-      Faraday.post(@slack_url, "{\"text\": \"#{form_name} has changed from #{old_form_url} to #{new_form_url}\" }",
+      @slack_users = Settings.va_forms.slack.users
+      Faraday.post(@slack_url,
+                   "{\"text\": \"#{@slack_users} #{form_name} has changed from #{old_form_url} to #{new_form_url}\" }",
                    'Content-Type' => 'application/json')
     end
   end
