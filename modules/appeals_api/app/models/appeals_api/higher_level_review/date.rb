@@ -19,8 +19,8 @@ module AppealsApi
       date.strftime('%Y')
     end
 
-    def formatted_date
-      "#{month}/#{day}/#{year}"
+    def formatted_date(formatter: '/')
+      "#{month}#{formatter}#{day}#{formatter}#{year}"
     end
 
     def in_the_past?
