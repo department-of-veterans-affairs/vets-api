@@ -273,14 +273,16 @@ components:
           type: object
           required:
             - first_name
+            - last_name
           properties:
             first_name:
               type: string
-              nullable: true
+              nullable: false
               description: Veteran first name
               example: "Abraham"
             last_name:
               type: string
+              nullable: false
               description: Veteran last name
               example: "Lincoln"
             start_date:
