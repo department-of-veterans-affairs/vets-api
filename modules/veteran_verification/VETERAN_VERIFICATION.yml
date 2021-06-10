@@ -258,6 +258,7 @@ components:
         Service History for authorized Veteran
       required:
         - id
+        - attributes
       type: object
       properties:
         id:
