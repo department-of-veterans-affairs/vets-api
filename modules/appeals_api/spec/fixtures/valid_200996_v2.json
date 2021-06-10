@@ -18,11 +18,9 @@
       "socOptIn": true,
       "informalConferenceContact": "veteran",
       "informalConferenceTime": "800-1200 ET",
-      "representative": {
-        "name": {
-          "firstName": "Hellen",
-          "lastName": "Holly"
-        },
+      "informalConferenceRep": {
+        "firstName": "Helen",
+        "lastName": "Holly",
         "phone": {
           "countryCode": "6",
           "areaCode": "555",
@@ -39,7 +37,8 @@
         "decisionDate": "1900-01-01",
         "decisionIssueId": 1,
         "ratingIssueReferenceId": "2",
-        "ratingDecisionReferenceId": "3"
+        "ratingDecisionReferenceId": "3",
+        "socDate": "2020-08-01"
       }
     },
     {

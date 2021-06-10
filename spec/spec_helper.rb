@@ -49,6 +49,7 @@ unless ENV['NOCOVERAGE']
     # Modules
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AppsApi', 'modules/apps_api'
+    add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'

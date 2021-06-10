@@ -31,11 +31,7 @@ module V0
         # Brakeman will raise a warning if we use a claim's method or attribute in the source file name.
         # Use an arbitrary uuid for the source file name and don't use the return value of claim#to_pdf
         # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
-        uuid = SecureRandom.uuid
-
-        @claim.to_pdf(uuid, sign: false)
-
-        source_file_path = Rails.root.join 'tmp', 'pdfs', "10-10CG_#{uuid}.pdf"
+        source_file_path = PdfFill::Filler.fill_form(@claim, SecureRandom.uuid, sign: false)
         client_file_name = file_name_for_pdf(@claim.veteran_data)
         file_contents    = File.read(source_file_path)
 

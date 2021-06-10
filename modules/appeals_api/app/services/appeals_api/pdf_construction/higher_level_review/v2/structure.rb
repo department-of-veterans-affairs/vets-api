@@ -150,6 +150,7 @@ module AppealsApi
             whiteout_line pdf, :number_and_street
             whiteout_line pdf, :city
             whiteout_line pdf, :veteran_email
+            whiteout_line pdf, :veteran_phone_extension
             pdf.start_new_page
 
             whiteout_line pdf, :rep_first_name
@@ -201,6 +202,7 @@ module AppealsApi
           issues.first(NUMBER_OF_ISSUES_PER_PAGE).each_with_index do |issue, i|
             if (text = issue.dig('attributes', 'issue')&.presence)
               pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg1][i])
+              pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg1][i])
             end
           end
           pdf.start_new_page # Always start a new page even if there are no issues so other text can insert properly
@@ -208,6 +210,7 @@ module AppealsApi
           issues.drop(NUMBER_OF_ISSUES_PER_PAGE).each_with_index do |issue, i|
             if (text = issue.dig('attributes', 'issue')&.presence)
               pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg2][i])
+              pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg2][i])
             end
           end
         end

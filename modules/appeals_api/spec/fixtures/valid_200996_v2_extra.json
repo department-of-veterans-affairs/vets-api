@@ -12,8 +12,7 @@
             "city": "New York",
             "countryCodeISO2": "US",
             "stateCode": "NY",
-            "zipCode5": "30012",
-            "internationalPostalCode": "1"
+            "zipCode5": "30012"
           },
           "phone": {
             "countryCode": "34",
@@ -49,7 +48,8 @@
           "decisionDate": "1900-01-01",
           "decisionIssueId": 1,
           "ratingIssueReferenceId": "2",
-          "ratingDecisionReferenceId": "3"
+          "ratingDecisionReferenceId": "3",
+          "socDate": "2020-04-30"
         }
       },
       {
@@ -70,7 +70,8 @@
         "type": "contestableIssue",
         "attributes": {
           "issue": "left ear",
-          "decisionDate": "1900-01-04"
+          "decisionDate": "1900-01-04",
+          "socDate": "2019-05-15"
         }
       },
       {
@@ -112,7 +113,8 @@
         "type": "contestableIssue",
         "attributes": {
           "issue": "right foot",
-          "decisionDate": "1900-01-10"
+          "decisionDate": "1900-01-10",
+          "socDate": "2021-01-08"
         }
       },
       {
@@ -140,7 +142,8 @@
         "type": "contestableIssue",
         "attributes": {
           "issue": "lupus",
-          "decisionDate": "1900-01-14"
+          "decisionDate": "1900-01-14",
+          "socDate": "2020-09-23"
         }
       },
       {
