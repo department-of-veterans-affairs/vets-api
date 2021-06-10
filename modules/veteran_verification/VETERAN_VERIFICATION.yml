@@ -274,6 +274,7 @@ components:
           required:
             - first_name
             - last_name
+            - start_date
           properties:
             first_name:
               type: string
@@ -287,6 +288,7 @@ components:
               example: "Lincoln"
             start_date:
               type: string
+              nullable: true
               format: date
               description: start date of a service history episode (YYYY-mm-dd)
               example: '1948-04-08'
