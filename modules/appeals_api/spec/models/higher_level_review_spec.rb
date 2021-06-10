@@ -86,19 +86,19 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   describe '#birth_mm' do
-    subject { higher_level_review.birth_mm }
+    subject { higher_level_review.birth_date.month }
 
     it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][5..6] }
   end
 
   describe '#birth_dd' do
-    subject { higher_level_review.birth_dd }
+    subject { higher_level_review.birth_date.day }
 
     it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][8..9] }
   end
 
   describe '#birth_yyyy' do
-    subject { higher_level_review.birth_yyyy }
+    subject { higher_level_review.birth_date.year }
 
     it('matches header') { is_expected.to eq auth_headers['X-VA-Birth-Date'][0..3] }
   end
@@ -178,13 +178,19 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   describe '#contestable_issues' do
-    subject { higher_level_review.contestable_issues }
+    subject { higher_level_review.contestable_issues.to_json }
 
-    it('matches json') { is_expected.to eq form_data['included'] }
+    # ISSUE HAS AN EXTRA KEY
+
+    it 'matches json' do
+      issues = form_data['included'].map { |issue| AppealsApi::HigherLevelReview::ContestableIssue.new(issue) }.to_json
+
+      expect(subject).to eq(issues)
+    end
   end
 
   describe '#date_signed' do
-    subject { higher_level_review.date_signed }
+    subject { higher_level_review.date_signed.formatted_date }
 
     it('matches json') do
       expect(subject).to eq(

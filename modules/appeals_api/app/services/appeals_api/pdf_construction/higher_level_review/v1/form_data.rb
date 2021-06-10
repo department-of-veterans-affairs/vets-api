@@ -27,15 +27,15 @@ module AppealsApi
         end
 
         def birth_month
-          higher_level_review.birth_mm
+          higher_level_review.birth_date.month
         end
 
         def birth_day
-          higher_level_review.birth_dd
+          higher_level_review.birth_date.day
         end
 
         def birth_year
-          higher_level_review.birth_yyyy
+          higher_level_review.birth_date.year
         end
 
         delegate :file_number, to: :higher_level_review

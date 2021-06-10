@@ -70,21 +70,30 @@ module AppealsApi
 
             describe '#birth_mm' do
               it do
-                expect(higher_level_review).to receive(:birth_mm)
+                date = AppealsApi::HigherLevelReview::Date.new(Time.zone.now)
+                expect(higher_level_review).to receive(:birth_date).and_return(date)
+                expect(date).to receive(:month)
+
                 form_data.birth_month
               end
             end
 
             describe '#birth_dd' do
               it do
-                expect(higher_level_review).to receive(:birth_dd)
+                date = AppealsApi::HigherLevelReview::Date.new(Time.zone.now)
+                expect(higher_level_review).to receive(:birth_date).and_return(date)
+                expect(date).to receive(:day)
+
                 form_data.birth_day
               end
             end
 
             describe '#birth_yyyy' do
               it do
-                expect(higher_level_review).to receive(:birth_yyyy)
+                date = AppealsApi::HigherLevelReview::Date.new(Time.zone.now)
+                expect(higher_level_review).to receive(:birth_date).and_return(date)
+                expect(date).to receive(:year)
+
                 form_data.birth_year
               end
             end

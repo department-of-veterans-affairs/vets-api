@@ -58,7 +58,7 @@ module AppealsApi
             form_fields.conference_2_to_430 => form_data.informal_conference_times('1400-1630 ET'),
             form_fields.rep_name_and_phone_number => form_data.rep_name_and_phone_number,
             form_fields.signature => form_data.signature,
-            form_fields.date_signed => form_data.date_signed
+            form_fields.date_signed => form_data.date_signed.formatted_date
           }
 
           fill_contestable_issues!(options)

@@ -9,8 +9,7 @@ module AppealsApi
         end
 
         delegate :first_name, :middle_initial, :last_name, :number_and_street, :city, :state_code,
-                 :country_code, :file_number, :zip_code_5, :insurance_policy_number, :contestable_issues, :birth_mm,
-                 :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy,
+                 :country_code, :file_number, :zip_code_5, :insurance_policy_number, :contestable_issues,
                  to: :higher_level_review
 
         def first_three_ssn
@@ -165,6 +164,30 @@ module AppealsApi
 
         def stamp_text
           "#{last_name.truncate(35)} - #{ssn.last(4)}"
+        end
+
+        def birth_mm
+          higher_level_review.birth_date.month
+        end
+
+        def birth_yyyy
+          higher_level_review.birth_date.year
+        end
+
+        def birth_dd
+          higher_level_review.birth_date.day
+        end
+
+        def date_signed_mm
+          higher_level_review.date_signed.month
+        end
+
+        def date_signed_yyyy
+          higher_level_review.date_signed.year
+        end
+
+        def date_signed_dd
+          higher_level_review.date_signed.day
         end
 
         private
