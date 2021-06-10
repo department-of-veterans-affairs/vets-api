@@ -25,10 +25,6 @@ module AppealsApi
           ssn.last(4)
         end
 
-        def claimant_type(index)
-          index == 4 ? 1 : 'Off'
-        end
-
         def veteran_homeless
           higher_level_review.veteran_homeless? ? 1 : 'Off'
         end
