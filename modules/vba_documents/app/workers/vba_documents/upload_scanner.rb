@@ -23,8 +23,11 @@ module VBADocuments
       return false unless object.exists?
 
       upload.update(status: 'uploaded')
+      Rails.logger.info("Hi Guys upload scanner kicking off job with #{self.class.name.to_sym}!!!!!!!!!!!!!")
       VBADocuments::UploadProcessor.perform_async(upload.guid, caller: self.class.name.to_sym)
       true
+    rescue => ex
+      Rails.logger.info("Hi Guys upload scanner error #{ex}!!!!!!!!!!!!!", ex)
     end
 
     def expire(upload)
