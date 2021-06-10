@@ -275,6 +275,11 @@ components:
             - first_name
             - last_name
             - start_date
+            - end_date
+            - branch
+            - pay_grade
+            - discharge_status
+            - separation_reason
           properties:
             first_name:
               type: string
@@ -294,15 +299,18 @@ components:
               example: '1948-04-08'
             end_date:
               type: string
+              nullable: true
               format: date
               description: end date of a service history episode (YYYY-mm-dd)
               example: '1950-05-10'
             branch:
               type: string
+              nullable: false
               description: Branch of military including National Guard or Reserve status
               example: "Air Force"
             pay_grade:
               type: string
+              nullable: false
               description: |
                 Defines the level of compensation for a position, normalized across military branches
 
@@ -319,6 +327,7 @@ components:
               example: "W01"
             discharge_status:
               type: string
+              nullable: true
               description: |
                 Character of discharge from service episode. Possible values are:
 
@@ -337,6 +346,7 @@ components:
               example: honorable
             separation_reason:
               type: string
+              nullable: false
               description: Additional text description for separation reason beyond discharge_status value
               example: "SUFFICIENT SERVICE FOR RETIREMENT"
             deployments:
@@ -347,19 +357,26 @@ components:
       description: |
         Deployment during a service history episode
       type: object
+      required:
+        - start_date
+        - end_date
+        - location
       properties:
         start_date:
           type: string
+          nullable: true
           format: date
           description: beginning of deployment (YYYY-mm-dd)
           example: '1948-10-10'
         end_date:
           type: string
+          nullable: true
           format: date
           description: end of deployment (YYYY-mm-dd)
           example: '1949-10-09'
         location:
           type: string
+          nullable: true
           description: Three letter ISO country code of deployment location
           example: KOR
     ServiceHistoryToken:
