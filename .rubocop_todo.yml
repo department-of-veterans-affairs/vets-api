@@ -112,7 +112,6 @@ Lint/RedundantCopDisableDirective:
     - 'app/models/saved_claim/education_benefits/va_10203.rb'
     - 'app/policies/evss_policy.rb'
     - 'spec/jobs/facilities/pssg_download_spec.rb'
-    - 'spec/request/authentication/standard_authentication_spec.rb'
     - 'spec/support/saml/response_builder.rb'
 
 # Offense count: 1
