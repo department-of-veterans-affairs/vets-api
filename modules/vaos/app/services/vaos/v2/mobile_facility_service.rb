@@ -22,6 +22,7 @@ module VAOS
         end
       end
 
+      # update for #25903
       def get_scheduling_configurations(facility_ids, cc_enabled, pagination_params = {})
         params = {
           facility_ids: facility_ids,
