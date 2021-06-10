@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.shared_examples 'paginated request from params with expected IDs' do |request_params, ids|
+RSpec.shared_examples 'paginated request from params with expected IDs' do |request_params, ids, mobile = nil|
   let(:params) { request_params }
 
   context request_params do
@@ -14,6 +14,13 @@ RSpec.shared_examples 'paginated request from params with expected IDs' do |requ
 
     it "is expected to contain ids: #{ids}" do
       expect(parsed_body['data'].collect { |x| x['id'] }).to match(ids)
+    end
+
+    unless mobile.nil?
+      it "is expected that all results have mobile=#{mobile}" do
+        expected_array = ids.collect { |id| { id: id, mobile: mobile } }
+        expect(parsed_body['data'].collect { |x| x['attributes'].slice(:id, :mobile) }).to match(expected_array)
+      end
     end
 
     it 'is expected to have specified pagination metadata' do
@@ -98,93 +105,125 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
         get '/v1/facilities/va', params: { bbox: [-122.786758, 45.451913, -122.440689, 45.64] }
       end.to instrument('lighthouse.facilities.request.faraday')
     end
-    context 'exclude_mobile=false' do
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        bbox: [-74.730, 40.015, -73.231, 41.515],
-                        page: 2
-                      },
-                      %w[
-                        vc_0102V vc_0857MVC vc_0110V nca_808 vha_526
-                        vha_526QA vc_0109V vha_561GD vc_0132V vha_630A4
-                      ]
 
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        bbox: [-122.786758, 45.451913, -122.440689, 45.64]
-                      },
-                      %w[
-                        vba_348e vha_648GI vba_348 vba_348a vc_0617V
-                        vba_348d vha_648 vba_348h vha_648A4 nca_954
-                      ]
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      bbox: [-74.730, 40.015, -73.231, 41.515],
+                      page: 2
+                    },
+                    %w[
+                      vc_0102V vc_0857MVC vc_0110V nca_808 nca_947
+                      vha_526 vha_526QA vc_0109V vha_561GD vc_0132V
+                    ]
 
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                        type: 'health'
-                      },
-                      %w[vha_648GI vha_648 vha_648A4 vha_648GE]
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      bbox: [-122.786758, 45.451913, -122.440689, 45.64]
+                    },
+                    %w[
+                      vba_348e vha_648GI vba_348 vba_348a vc_0617V
+                      vba_348d vha_648 vba_348h vha_648A4 nca_954
+                    ]
 
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                        type: 'benefits'
-                      },
-                      %w[vba_348e vba_348 vba_348a vba_348d vba_348h]
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
+                      type: 'health'
+                    },
+                    %w[vha_648GI vha_648 vha_648A4 vha_648GE]
 
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        bbox: [-122.786758, 45.451913, -122.440689, 45.64],
-                        type: 'benefits',
-                        services: ['DisabilityClaimAssistance']
-                      },
-                      %w[vba_348]
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
+                      type: 'benefits'
+                    },
+                    %w[vba_348e vba_348 vba_348a vba_348d vba_348h]
 
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        lat: 33.298639,
-                        long: -111.789659
-                      },
-                      %w[
-                        vha_644BY vc_0524V vba_345f vba_345g vba_345
-                        vha_644QA vc_0517V vha_644GG vha_644 vha_644QB
-                      ]
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      bbox: [-122.786758, 45.451913, -122.440689, 45.64],
+                      type: 'benefits',
+                      services: ['DisabilityClaimAssistance']
+                    },
+                    %w[vba_348]
 
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        zip: 85_297
-                      },
-                      ['vha_644BY']
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      lat: 33.298639,
+                      long: -111.789659
+                    },
+                    %w[
+                      vha_644BY vc_0524V vba_345f vba_345g vba_345
+                      vha_644QA vc_0517V vha_644GG vha_644 vha_644QB
+                    ]
 
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        ids: 'vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD'
-                      },
-                      %w[vha_442 vha_552 vha_552GB vha_442GC vha_442GB vha_552GA vha_552GD]
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      zip: 85_297
+                    },
+                    ['vha_644BY']
+
+    it_behaves_like 'paginated request from params with expected IDs',
+                    {
+                      ids: 'vha_442,vha_552,vha_552GB,vha_442GC,vha_442GB,vha_552GA,vha_552GD'
+                    },
+                    %w[vha_442 vha_552 vha_552GB vha_442GC vha_442GB vha_552GA vha_552GD]
+
+    context 'params[:exclude_mobile]' do
+      context 'true' do
+        it_behaves_like 'paginated request from params with expected IDs',
+                        {
+                          exclude_mobile: true,
+                          bbox: [-74.730, 40.015, -73.231, 41.515],
+                          page: 1
+                        },
+                        %w[
+                          vba_306h vba_306i vha_630 vba_306 vha_630GA
+                          vc_0133V vha_526GD vc_0106V vc_0105V vha_561GE
+                        ]
+      end
     end
 
-    context 'exclude_mobile=true' do
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        exclude_mobile: true,
-                        bbox: [-74.730, 40.015, -73.231, 41.515],
-                        page: 2
-                      },
-                      %w[
-                        vc_0102V vc_0110V nca_808 vha_526
-                        vc_0109V vha_561GD vc_0132V vha_630A4
-                      ]
+    context 'params[:mobile]' do
+      context 'mobile not passed' do
+        it_behaves_like 'paginated request from params with expected IDs',
+                        {
+                          bbox: [-74.730, 40.015, -73.231, 41.515],
+                          page: 1
+                        },
+                        %w[
+                          vba_306h vba_306i vha_630 vba_306 vha_630GA
+                          vc_0133V vha_526GD vc_0106V vc_0105V vha_561GE
+                        ]
+      end
 
-      it_behaves_like 'paginated request from params with expected IDs',
-                      {
-                        exclude_mobile: true,
-                        lat: 33.298639,
-                        long: -111.789659
-                      },
-                      %w[
-                        vha_644BY vc_0524V vba_345f vba_345g vba_345
-                        vha_644QA vc_0517V vha_644GG vha_644
-                      ]
+      context 'true' do
+        it_behaves_like 'paginated request from params with expected IDs',
+                        {
+                          mobile: true,
+                          bbox: [-74.730, 40.015, -73.231, 41.515],
+                          page: 1
+                        },
+                        %w[
+                          vc_0857MVC vha_526QA vha_630QA vha_630QB
+                          vha_620QA vha_620QC vha_632QA vha_632QB
+                        ],
+                        true
+      end
+
+      context 'false' do
+        it_behaves_like 'paginated request from params with expected IDs',
+                        {
+                          mobile: false,
+                          bbox: [-74.730, 40.015, -73.231, 41.515],
+                          page: 1
+                        },
+                        %w[
+                          vha_630 vha_630GA vc_0133V vha_526GD vc_0106V
+                          vc_0105V vha_561GE vc_0102V vc_0110V vha_526
+                        ],
+                        false
+      end
     end
   end
 
@@ -204,36 +243,38 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
             attributes: {
               access: {
                 health: [
-                  { service: 'Audiology',        new: 55.40625,  established: 54.988095 },
-                  { service: 'Dermatology',      new: 41.826086, established: 14.304347 },
-                  { service: 'MentalHealthCare', new: 14.888888, established: 0.865256 },
-                  { service: 'Ophthalmology',    new: 35.0,      established: 5.923076 },
-                  { service: 'Optometry',        new: 15.615384, established: 9.194656 },
-                  { service: 'PrimaryCare',      new: 10.383928, established: 7.072874 },
-                  { service: 'SpecialtyCare',    new: 22.0,      established: 14.042572 }
+                  { service: 'Audiology',        new: 30.792207, established: 32.107981 },
+                  { service: 'Dermatology',      new: 17.095238, established: 56.152542 },
+                  { service: 'MentalHealthCare', new: 14.083333, established: 1.885372 },
+                  { service: 'Ophthalmology',    new: 33.0,      established: 6.691056 },
+                  { service: 'Optometry',        new: 46.035087, established: 43.350537 },
+                  { service: 'PrimaryCare',      new: 9.394957,  established: 7.711797 },
+                  { service: 'SpecialtyCare',    new: 24.126666, established: 23.555555 }
                 ],
-                effective_date: '2020-09-14'
+                effectiveDate: '2021-04-05'
+
               },
-              active_status: 'A',
+              activeStatus: 'A',
               address: {
                 mailing: {},
                 physical: {
                   zip: '98661-3753',
                   city: 'Vancouver',
                   state: 'WA',
-                  address_1: '1601 East 4th Plain Boulevard',
-                  address_2: nil,
-                  address_3: nil
+                  address1: '1601 East 4th Plain Boulevard',
+                  address2: nil,
+                  address3: nil
                 }
               },
               classification: 'VA Medical Center (VAMC)',
-              facility_type: 'va_health_facility',
+              detailedServices: nil,
+              facilityType: 'va_health_facility',
               feedback: {
                 health: {
-                  primary_care_urgent: 0.8100000023841858,
-                  primary_care_routine: 0.9200000166893005
+                  primaryCareUrgent: 0.7699999809265137,
+                  primaryCareRoutine: 0.8500000238418579
                 },
-                effective_date: '2020-04-16'
+                effectiveDate: '2021-03-05'
               },
               hours: {
                 monday: '730AM-430PM',
@@ -249,17 +290,19 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
               long: -122.65538544,
               mobile: false,
               name: 'Portland VA Medical Center-Vancouver',
-              operating_status: {
+              operatingStatus: {
                 code: 'NORMAL'
               },
+              operationalHoursSpecialInstructions: 'Expanded or Nontraditional hours are available for some ' \
+                'services on a routine and or requested basis. Please call our main phone number for details. |',
               phone: {
                 fax: '360-690-0864',
                 main: '360-759-1901',
                 pharmacy: '503-273-5183',
-                after_hours: '360-696-4061',
-                patient_advocate: '503-273-5308',
-                mental_health_clinic: '503-273-5187',
-                enrollment_coordinator: '503-273-5069'
+                afterHours: '360-696-4061',
+                patientAdvocate: '503-273-5308',
+                mentalHealthClinic: '503-273-5187',
+                enrollmentCoordinator: '503-273-5069'
               },
               services: {
                 other: [],
@@ -267,6 +310,7 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   Audiology
                   DentalServices
                   Dermatology
+                  EmergencyCare
                   MentalHealthCare
                   Nutrition
                   Ophthalmology
@@ -275,9 +319,9 @@ RSpec.describe 'V1::Facilities::Va', type: :request, team: :facilities, vcr: vcr
                   PrimaryCare
                   SpecialtyCare
                 ],
-                last_updated: '2020-09-14'
+                lastUpdated: '2021-04-05'
               },
-              unique_id: '648A4',
+              uniqueId: '648A4',
               visn: '20',
               website: 'https://www.portland.va.gov/locations/vancouver.asp'
             }

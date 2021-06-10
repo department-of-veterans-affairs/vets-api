@@ -10,6 +10,7 @@ require 'oidc/key_service'
 require 'okta/user_profile'
 require 'okta/service'
 require 'jwt'
+require 'base64'
 
 class OpenidApplicationController < ApplicationController
   skip_before_action :verify_authenticity_token
@@ -34,33 +35,117 @@ class OpenidApplicationController < ApplicationController
   def authenticate_token
     return false if token.blank?
 
+    # Only want to fetch the Okta profile if the session isn't already established and not a CC token
+    @session = Session.find(token) unless token.client_credentials_token?
+    profile = @session.profile unless @session.nil? || @session.profile.nil?
+    profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !profile.nil?
+    populate_ssoi_token_payload(profile) if !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
+
+    if @session.nil? && !token.client_credentials_token?
+      establish_session(profile)
+      return false if @session.nil?
+    end
+
     # issued for a client vs a user
-    if token.client_credentials_token?
-      token.payload[:icn] = fetch_smart_launch_context if token.payload['scp'].include?('launch/patient')
+    if token.client_credentials_token? || token.ssoi_token?
+      populate_payload_for_launch_patient_scope if token.payload['scp'].include?('launch/patient')
+      populate_payload_for_launch_scope if token.payload['scp'].include?('launch')
+
       return true
     end
 
-    @session = Session.find(token)
-    establish_session if @session.nil?
-    return false if @session.nil?
+    return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
+  end
+
+  def populate_payload_for_launch_scope
+    analyze_redis_launch_context
+    token.payload[:launch] =
+      base64_json?(@session.launch) ? JSON.parse(Base64.decode64(@session.launch)) : { patient: @session.launch }
+  end
+
+  def populate_payload_for_launch_patient_scope
+    analyze_redis_launch_context
+    token.payload[:icn] = @session.launch
+    token.payload[:launch] = { patient: @session.launch } unless @session.launch.nil?
+  end
+
+  def analyze_redis_launch_context
+    @session = Session.find(token)
+    # Sessions are not originally created for client credentials tokens, one will be created here.
+    if @session.nil?
+      ttl = token.payload['exp'] - Time.current.utc.to_i
+      launch = fetch_smart_launch_context
+      @session = build_launch_session(ttl, launch)
+      @session.save
+    # Launch context is not attached to the session for SSOi tokens, it will be added here.
+    elsif @session.launch.nil?
+      @session.launch = fetch_smart_launch_context
+      @session.save
+    end
+  end
+
+  def populate_ssoi_token_payload(profile)
+    token.payload['last_login_type'] = 'ssoi'
+    token.payload['icn'] = profile.attrs['icn']
+    token.payload['npi'] = profile.attrs['npi']
+    token.payload['sec_id'] = profile.attrs['SecID']
+    token.payload['vista_id'] = profile.attrs['VistaId']
   end
 
   def token_from_request
     auth_request = request.authorization.to_s
     return unless auth_request[TOKEN_REGEX]
 
-    Token.new(auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, ''), fetch_aud)
+    token_string = auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, '')
+
+    if jwt?(token_string)
+      Token.new(token_string, fetch_aud)
+    else
+      # Future block for opaque tokens
+      raise error_klass('Invalid token.')
+    end
   end
 
-  def establish_session
+  def base64_json?(launch_string)
+    JSON.parse(Base64.decode64(launch_string))
+    true
+  rescue JSON::ParserError
+    false
+  end
+
+  def jwt?(token_string)
+    JWT.decode(token_string, nil, false, algorithm: 'RS256')
+    true
+  rescue JWT::DecodeError
+    false
+  end
+
+  def error_klass(error_detail_string)
+    # Errors from the jwt gem (and other dependencies) are reraised with
+    # this class so we can exclude them from Sentry without needing to know
+    # all the classes used by our dependencies.
+    Common::Exceptions::TokenValidationError.new(detail: error_detail_string)
+  end
+
+  def establish_session(profile)
     ttl = token.payload['exp'] - Time.current.utc.to_i
-    profile = fetch_profile(token.identifiers.okta_uid)
+
     user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
-    @session = build_session(ttl)
+    @session = build_session(ttl,
+                             Okta::UserProfile.new({ 'last_login_type' => profile['last_login_type'],
+                                                     'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'],
+                                                     'npi' => profile['npi'], 'icn' => profile['icn'],
+                                                     'uuid' => uuid(profile) }))
     @session.save && user_identity.save && @current_user.save
+  end
+
+  # Helper method that uses the profile uuid set by SSOe since the sub == ICN in that scenario
+  # but falls back to the token.identifiers.uuid
+  def uuid(profile)
+    profile['uuid'] || token.identifiers.uuid
   end
 
   def token
@@ -78,8 +163,14 @@ class OpenidApplicationController < ApplicationController
     end
   end
 
-  def build_session(ttl)
-    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid)
+  def build_session(ttl, profile)
+    session = Session.new(token: token.to_s, uuid: uuid(profile), profile: profile)
+    session.expire(ttl)
+    session
+  end
+
+  def build_launch_session(ttl, launch)
+    session = Session.new(token: token.to_s, launch: launch)
     session.expire(ttl)
     session
   end
@@ -91,13 +182,15 @@ class OpenidApplicationController < ApplicationController
   def fetch_smart_launch_context
     response = RestClient.get(Settings.oidc.smart_launch_url,
                               { Authorization: 'Bearer ' + token.token_string })
-    unless response.nil? || response.code != 200
+    raise error_klass('Invalid launch context') if response.nil?
+
+    if response.code == 200
       json_response = JSON.parse(response.body)
       json_response['launch']
     end
   rescue => e
     log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
-    nil
+    raise error_klass('Invalid launch context')
   end
 
   attr_reader :current_user, :session, :scopes

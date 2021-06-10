@@ -7,8 +7,8 @@ RSpec.describe SupportingDocumentationAttachmentUploader do
 
   let(:guid) { '1234' }
 
-  it 'whitelists image and pdf files' do
-    expect(subject.extension_whitelist).to match_array %w[pdf png gif tiff tif jpeg jpg]
+  it 'allows image and pdf files' do
+    expect(subject.extension_allowlist).to match_array %w[pdf png gif tiff tif jpeg jpg]
   end
 
   it 'returns a store directory containing guid' do

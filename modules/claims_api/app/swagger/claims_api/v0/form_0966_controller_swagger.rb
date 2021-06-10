@@ -10,11 +10,12 @@ module ClaimsApi
 
       swagger_path '/forms/0966' do
         operation :get do
+          key :deprecated, true
           security do
             key :apikey, []
           end
-          key :summary, 'Get 0966 JSON Schema for form'
-          key :description, 'Returns a single 0966 JSON schema to auto generate a form'
+          key :summary, 'Get a 0966 schema for a form.'
+          key :description, 'Returns 0966 schema to automatically generate a form.'
           key :operationId, 'get0966JsonSchema'
           key :produces, [
             'application/json'
@@ -22,6 +23,14 @@ module ClaimsApi
           key :tags, [
             'Intent to File'
           ]
+
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
 
           response 200 do
             key :description, 'schema response'
@@ -41,8 +50,8 @@ module ClaimsApi
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -50,7 +59,7 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :$ref, :NotAuthorizedModel
                   end
                 end
               end
@@ -62,8 +71,8 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-          key :summary, 'Accepts 0966 Intent to File form submission'
-          key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
+          key :summary, 'Submit form 0966 Intent to File.'
+          key :description, 'Establishes an intent to file for disability compensation, burial, or pension claims.'
           key :operationId, 'post0966itf'
           key :tags, [
             'Intent to File'
@@ -80,7 +89,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
-            key :description, 'SSN of Veteran to fetch'
+            key :description, 'SSN of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -88,7 +97,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-First-Name'
             key :in, :header
-            key :description, 'First Name of Veteran to fetch'
+            key :description, 'First Name of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -96,7 +105,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Last-Name'
             key :in, :header
-            key :description, 'Last Name of Veteran to fetch'
+            key :description, 'Last Name of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -104,24 +113,8 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Birth-Date'
             key :in, :header
-            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran to fetch'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
-            key :required, false
             key :type, :string
           end
 
@@ -188,14 +181,14 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form0966Output
+                  key :$ref, :Form0966Output
                 end
               end
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -203,7 +196,39 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :$ref, :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :ForbiddenModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -217,8 +242,8 @@ module ClaimsApi
           security do
             key :apikey, []
           end
-          key :summary, 'Returns last active 0966 Intent to File form submission'
-          key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
+          key :summary, 'Returns last active 0966 Intent to File form submission.'
+          key :description, 'Returns the last active 0966 form for a Veteran.'
           key :operationId, 'active0966itf'
           key :tags, [
             'Intent to File'
@@ -235,7 +260,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-SSN'
             key :in, :header
-            key :description, 'SSN of Veteran to fetch'
+            key :description, 'SSN of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -243,7 +268,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-First-Name'
             key :in, :header
-            key :description, 'First Name of Veteran to fetch'
+            key :description, 'First Name of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -251,7 +276,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Last-Name'
             key :in, :header
-            key :description, 'Last Name of Veteran to fetch'
+            key :description, 'Last Name of Veteran being represented'
             key :required, true
             key :type, :string
           end
@@ -259,23 +284,7 @@ module ClaimsApi
           parameter do
             key :name, 'X-VA-Birth-Date'
             key :in, :header
-            key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
-            key :required, true
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-EDIPI'
-            key :in, :header
-            key :description, 'EDIPI Number of Veteran to fetch'
-            key :required, false
-            key :type, :string
-          end
-
-          parameter do
-            key :name, 'X-VA-User'
-            key :in, :header
-            key :description, 'VA username of the person making the request'
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
             key :required, true
             key :type, :string
           end
@@ -304,14 +313,14 @@ module ClaimsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Form0966Output
+                  key :$ref, :Form0966Output
                 end
               end
             end
           end
 
-          response :default do
-            key :description, 'unexpected error'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -319,7 +328,39 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :$ref, :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Resource not found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :NotFoundModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end
@@ -330,15 +371,64 @@ module ClaimsApi
 
       swagger_path '/forms/0966/validate' do
         operation :post do
-          key :summary, ' 0966 Intent to File form submission dry run'
-          key :description, 'Accepts JSON payload.'
+          key :deprecated, true
+          security do
+            key :apikey, []
+          end
+          key :summary, 'Test the 0966 Intent to File form submission.'
+          key :description, 'Test to ensure the form submission works with your parameters. Submission is validated against the GET /forms/0966 schema.'
           key :operationId, 'validate0966itf'
           key :tags, [
             'Intent to File'
           ]
 
-          security do
-            key :apikey, []
+          parameter do
+            key :name, 'apikey'
+            key :in, :header
+            key :description, 'API Key given to access data'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-SSN'
+            key :in, :header
+            key :description, 'SSN of Veteran being represented'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-First-Name'
+            key :in, :header
+            key :description, 'First Name of Veteran being represented'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Last-Name'
+            key :in, :header
+            key :description, 'Last Name of Veteran being represented'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-Birth-Date'
+            key :in, :header
+            key :description, 'Date of Birth of Veteran being represented, in iso8601 format'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, 'X-VA-LOA'
+            key :in, :header
+            key :description, 'The level of assurance of the user making the request'
+            key :example, '3'
+            key :required, true
+            key :type, :string
           end
 
           request_body do
@@ -397,8 +487,8 @@ module ClaimsApi
             end
           end
 
-          response 422 do
-            key :description, 'Invalid Payload'
+          response 401 do
+            key :description, 'Unauthorized'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -406,7 +496,23 @@ module ClaimsApi
                 property :errors do
                   key :type, :array
                   items do
-                    key :'$ref', :ErrorModel
+                    key :$ref, :NotAuthorizedModel
+                  end
+                end
+              end
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable entity'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    key :$ref, :UnprocessableEntityModel
                   end
                 end
               end

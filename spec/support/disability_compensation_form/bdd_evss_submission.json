@@ -4,6 +4,7 @@
         "autoCestPDFGenerationDisabled": false,
         "bddQualified": true,
         "claimantCertification": true,
+        "claimSubmissionSource": "VA.gov",
         "directDeposit": {
             "accountNumber": "11111",
             "accountType": "SAVINGS",
@@ -65,17 +66,16 @@
             },
             "separationLocationCode": "98374",
             "separationLocationName": "Indianapolis",
-            "servedInCombatZone": true,
             "servicePeriods": [
                 {
-                    "activeDutyBeginDate": "2000-01-01",
-                    "activeDutyEndDate": "2020-06-01",
-                    "serviceBranch": "Coast Guard"
+                    "activeDutyBeginDate": "2021-01-02",
+                    "activeDutyEndDate": "2021-06-01",
+                    "serviceBranch": "Coast Guard Reserves"
                 },
                 {
                     "activeDutyBeginDate": "2020-06-02",
                     "activeDutyEndDate": "2021-01-01",
-                    "serviceBranch": "Coast Guard Reserves"
+                    "serviceBranch": "Coast Guard"
                 }
             ]
         },

@@ -8,12 +8,20 @@ module VAOS
       before_action :validate_params, only: :index
 
       def index
-        render json: each_serializer.new(appointments[:data], meta: appointments[:meta])
+        if appointments[:meta][:errors]&.any?
+          render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: 207
+        else
+          render json: each_serializer.new(appointments[:data], meta: appointments[:meta]), status: 200
+        end
       end
 
       def create
         appointment_service.post_appointment(create_params)
         head :no_content # There is no id associated with the created resource, so no point returning a response body
+      end
+
+      def show
+        render json: VAOS::V0::VAAppointmentsSerializer.new(appointment)
       end
 
       def cancel
@@ -40,13 +48,22 @@ module VAOS
         VAOS::AppointmentService.new(current_user)
       end
 
+      def appointment
+        @appointment ||= appointment_service.get_appointment(id)
+      end
+
       def appointments
         @appointments ||=
           appointment_service.get_appointments(type, start_date, end_date, pagination_params)
       end
 
       def each_serializer
-        "VAOS::V0::#{params[:type].upcase}AppointmentsSerializer".constantize
+        case params[:type].upcase
+        when 'CC'
+          VAOS::V0::CCAppointmentsSerializer
+        when 'VA'
+          VAOS::V0::VAAppointmentsSerializer
+        end
       end
 
       def validate_params
@@ -54,6 +71,10 @@ module VAOS
         raise Common::Exceptions::InvalidFieldValue.new('type', type) unless %w[va cc].include?(type)
         raise Common::Exceptions::ParameterMissing, 'start_date' if params[:start_date].blank?
         raise Common::Exceptions::ParameterMissing, 'end_date' if params[:end_date].blank?
+      end
+
+      def id
+        params[:id]
       end
 
       def type

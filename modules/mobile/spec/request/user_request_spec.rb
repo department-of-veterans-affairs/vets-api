@@ -154,13 +154,32 @@ RSpec.describe 'user', type: :request do
             lettersAndDocuments
             militaryServiceHistory
             userProfileUpdate
+            secureMessaging
           ]
+        )
+      end
+
+      it 'includes a health attribute with user facilities and is_cerner_patient' do
+        expect(attributes['health']).to include(
+          {
+            'isCernerPatient' => true,
+            'facilities' => [
+              {
+                'facilityId' => '757',
+                'isCerner' => true
+              },
+              {
+                'facilityId' => '358',
+                'isCerner' => false
+              }
+            ]
+          }
         )
       end
 
       context 'when user object birth_date is nil' do
         before do
-          allow_any_instance_of(IAMUserIdentity).to receive(:birth_date).and_return(nil)
+          iam_sign_in(FactoryBot.build(:iam_user, :no_birth_date))
           get '/mobile/v0/user', headers: iam_headers
         end
 
@@ -192,7 +211,7 @@ RSpec.describe 'user', type: :request do
 
     context 'when the upstream va profile service returns an error' do
       before do
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException.new('VET360_502')
         )
       end
@@ -207,7 +226,7 @@ RSpec.describe 'user', type: :request do
 
     context 'when the va profile service throws an error' do
       before do
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           ArgumentError.new
         )
       end
@@ -217,6 +236,13 @@ RSpec.describe 'user', type: :request do
 
         expect(response).to have_http_status(:internal_server_error)
         expect(response.body).to match_json_schema('errors')
+      end
+    end
+
+    context 'after a profile request' do
+      it 'kicks off a pre cache appointments job' do
+        expect(Mobile::V0::PreCacheAppointmentsJob).to receive(:perform_async).once
+        get '/mobile/v0/user', headers: iam_headers
       end
     end
   end

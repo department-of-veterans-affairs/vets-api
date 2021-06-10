@@ -6,9 +6,27 @@ describe HealthQuest::Lighthouse::Token do
   subject { described_class }
 
   let(:user) { double('User', account_uuid: 'abc123', icn: '1008596379V859838') }
-  let(:token) { subject.build(user: user) }
+  let(:token) { subject.build(user: user, api: 'pgd_api') }
+
+  describe 'constants' do
+    it 'has an ACCESS_TOKEN' do
+      expect(subject::ACCESS_TOKEN).to eq('access_token')
+    end
+
+    it 'has an EXPIRATION' do
+      expect(subject::EXPIRATION).to eq('exp')
+    end
+
+    it 'has a SCOPES_DELIMITER' do
+      expect(subject::SCOPES_DELIMITER).to eq(' ')
+    end
+  end
 
   describe 'attributes' do
+    it 'responds to api' do
+      expect(token.respond_to?(:api)).to be(true)
+    end
+
     it 'responds to user' do
       expect(token.respond_to?(:user)).to be(true)
     end
@@ -71,6 +89,60 @@ describe HealthQuest::Lighthouse::Token do
       token.decoded_token = { 'exp' => 5.minutes.from_now.utc.to_i }
 
       expect(token.ttl_duration).to be_a(Integer)
+    end
+  end
+
+  describe '#api_paths' do
+    context 'when pgd_api' do
+      it 'returns the pgd token path' do
+        pgd_token_path = '/oauth2/pgd/v1/token'
+
+        expect(token.api_paths['pgd_api']).to eq(pgd_token_path)
+      end
+    end
+
+    context 'when health_api' do
+      it 'returns the health token path' do
+        health_token_path = '/oauth2/health/system/v1/token'
+
+        expect(token.api_paths['health_api']).to eq(health_token_path)
+      end
+    end
+  end
+
+  describe '#scopes' do
+    context 'when pgd_api' do
+      it 'returns the pgd api scopes' do
+        expect(token.scopes['pgd_api']).to eq(Settings.hqva_mobile.lighthouse.pgd_api_scopes)
+      end
+    end
+
+    context 'when health_api' do
+      it 'returns the health api scopes' do
+        expect(token.scopes['health_api']).to eq(Settings.hqva_mobile.lighthouse.health_api_scopes)
+      end
+    end
+  end
+
+  describe '#post_params' do
+    context 'when pgd_api' do
+      it 'sets the pgd scopes' do
+        scopes = Settings.hqva_mobile.lighthouse.pgd_api_scopes.join(' ')
+        matched_scope = URI.encode_www_form(scope: scopes)
+
+        expect(token.post_params).to include(matched_scope)
+      end
+    end
+
+    context 'when health_api' do
+      let(:token) { subject.build(user: user, api: 'health_api') }
+
+      it 'sets the health scopes' do
+        scopes = Settings.hqva_mobile.lighthouse.health_api_scopes.join(' ')
+        matched_scope = URI.encode_www_form(scope: scopes)
+
+        expect(token.post_params).to include(matched_scope)
+      end
     end
   end
 end

@@ -15,12 +15,10 @@ namespace :docker_debugging do
         Thread.send(:new) { loop {} }.join
       end
       if s.set_up_db
-        puts 'Starting db setup'
         Rake::Task['db:drop'].invoke
         Rake::Task['db:create'].invoke
         Rake::Task['db:schema:load'].invoke
-        Rails.env = 'test'
-        Rake::Task['db:schema:load'].invoke
+        Rake::Task['db:migrate'].invoke
         puts 'All dun!'
       end
       if s.enable_sidekiq

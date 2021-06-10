@@ -7,6 +7,7 @@ module AppealsApi
     class Generator
       def initialize(appeal, version: 'V1')
         @appeal = appeal
+        appeal.update(pdf_version: version)
         @structure = appeal.pdf_structure(version)
       end
 
@@ -28,7 +29,6 @@ module AppealsApi
       attr_accessor :appeal, :structure
 
       def fill_unique_form_fields
-        pdftk = PdfForms.new(Settings.binaries.pdftk)
         form_fill_path = "/tmp/#{appeal.id}-tmp"
 
         pdftk.fill_form(
@@ -58,23 +58,13 @@ module AppealsApi
       def finalize_pages
         return @all_pages_path unless structure.final_page_adjustments
 
-        pdftk = PdfForms.new(Settings.binaries.pdftk)
         adjusted_pages_path = "/tmp/#{appeal.id}-rebuilt-pages-tmp.pdf"
         pdftk.cat({ @all_pages_path => structure.final_page_adjustments }, adjusted_pages_path)
         adjusted_pages_path
       end
 
       def stamp
-        stamper = CentralMail::DatestampPdf.new(@unstamped_path)
-
-        bottom_stamped_path = stamper.run(
-          text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
-          x: 5,
-          y: 5,
-          text_only: true
-        )
-
-        stamped_pdf_path = CentralMail::DatestampPdf.new(bottom_stamped_path).run(
+        stamped_pdf_path = CentralMail::DatestampPdf.new(@unstamped_path).run(
           text: "Submitted by #{appeal.consumer_name} via api.va.gov",
           x: 429,
           y: 775,
@@ -90,10 +80,14 @@ module AppealsApi
 
       def combine_form_fill_and_additional_pages(additional_pages_added_path)
         path = "/tmp/#{appeal.id}-completed-unstamped-tmp.pdf"
-        unstamped_completed_pdf = CombinePDF.load(@form_fill_path) << CombinePDF.load(additional_pages_added_path)
-        unstamped_completed_pdf.save(path)
+
+        pdftk.cat(@form_fill_path, additional_pages_added_path, path)
 
         path
+      end
+
+      def pdftk
+        @pdftk ||= PdfForms.new(Settings.binaries.pdftk)
       end
 
       def pdf_template_path

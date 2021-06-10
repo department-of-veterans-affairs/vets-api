@@ -12,6 +12,7 @@ module VeteranVerification
     attribute :id, String
     attribute :combined_disability_rating, Integer
     attribute :combined_effective_date, String
+    attribute :legal_effective_date, String
     attribute :individual_ratings, Array
 
     def self.rating_service
@@ -43,17 +44,11 @@ module VeteranVerification
       DisabilityRating.new(
         id: 0,
         combined_disability_rating: response[:disability_rating_record][:service_connected_combined_degree],
-        combined_effective_date: get_combined_effective_date(response[:disability_rating_record]),
+        combined_effective_date:
+            get_formatted_date(response[:disability_rating_record][:combined_degree_effective_date]),
+        legal_effective_date: get_formatted_date(response[:disability_rating_record][:legal_effective_date]),
         individual_ratings: individual_ratings(response)
       )
-    end
-
-    def self.get_combined_effective_date(disability_rating_record)
-      if disability_rating_record[:combined_degree_effective_date].nil?
-        nil
-      else
-        DateTime.strptime(disability_rating_record[:combined_degree_effective_date], '%m%d%Y')
-      end
     end
 
     def self.individual_ratings(response)
@@ -66,7 +61,7 @@ module VeteranVerification
       ratings = response[:disability_rating_record][:ratings].map do |rating|
         {
           decision: rating[:disability_decision_type_name],
-          effective_date: (DateTime.strptime(rating[:begin_date], '%m%d%Y') unless rating[:begin_date].nil?),
+          effective_date: get_formatted_date(rating[:begin_date]),
           rating_percentage: rating[:diagnostic_percent].to_i
         }
       end
@@ -74,6 +69,14 @@ module VeteranVerification
         (rating[:decision].eql? 'Service Connected')
       end
       filtered_ratings.compact
+    end
+
+    def self.get_formatted_date(rating_date)
+      if rating_date.nil?
+        nil
+      else
+        DateTime.strptime(rating_date, '%m%d%Y')
+      end
     end
   end
 end

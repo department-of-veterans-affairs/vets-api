@@ -23,6 +23,80 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
     expect(described_class.new).to be_an(Facilities::PPMS::V1::Client)
   end
 
+  context 'StatsD notifications' do
+    context 'PPMS responds Successfully' do
+      it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:measure)
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:measure).with(
+          'facilities.ppms.provider_locator',
+          kind_of(Numeric),
+          hash_including(
+            tags: [
+              'facilities.ppms',
+              'facilities.ppms.radius:200',
+              'facilities.ppms.results:11'
+            ]
+          )
+        )
+        expect(StatsD).to receive(:increment).with(
+          'facilities.ppms.response.total',
+          hash_including(
+            tags: [
+              'http_status:200'
+            ]
+          )
+        )
+
+        expect do
+          Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
+        end.to instrument('facilities.ppms.request.faraday')
+      end
+    end
+
+    context 'PPMS responds with a Failure', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_500') do
+      it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:measure)
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:measure).with(
+          'facilities.ppms.provider_locator',
+          kind_of(Numeric),
+          hash_including(
+            tags: [
+              'facilities.ppms',
+              'facilities.ppms.radius:200',
+              'facilities.ppms.results:0'
+            ]
+          )
+        )
+        expect(StatsD).to receive(:increment).with(
+          'facilities.ppms.response.total',
+          hash_including(
+            tags: [
+              'http_status:500'
+            ]
+          )
+        )
+        expect(StatsD).to receive(:increment).with(
+          'facilities.ppms.response.failures',
+          hash_including(
+            tags: [
+              'http_status:500'
+            ]
+          )
+        )
+
+        expect do
+          Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
+        end.to raise_error(
+          Common::Exceptions::BackendServiceException
+        ).and instrument('facilities.ppms.request.faraday')
+      end
+    end
+  end
+
   context 'with an http timeout' do
     it 'logs an error and raise GatewayTimeout' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
@@ -41,6 +115,14 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
         .to raise_error(Common::Exceptions::BackendServiceException) do |e|
           expect(e.message).to match(/PPMS_502/)
         end
+    end
+  end
+
+  context 'with an empty result', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_empty_search') do
+    it 'returns an empty array' do
+      r = described_class.new.provider_locator(params.merge(specialties: ['213E00000X']))
+
+      expect(r).to be_empty
     end
   end
 
@@ -64,7 +146,7 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
   describe '#provider_locator' do
     it 'returns a list of providers' do
       r = Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
-      expect(r.length).to be 9
+      expect(r.length).to be 10
       expect(r[0]).to have_attributes(
         acc_new_patients: 'true',
         address_city: 'RED BANK',

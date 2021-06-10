@@ -23,7 +23,10 @@ RSpec.describe SavedClaim::DependencyClaim do
   describe '#format_and_uplad_pdf' do
     it 'calls upload to vbms' do
       expect_any_instance_of(described_class).to receive(:upload_to_vbms).with(
-        a_string_starting_with('tmp/pdfs/686C-674_')
+        {
+          path: a_string_starting_with('tmp/pdfs/686C-674_'),
+          doc_type: '148'
+        }
       )
 
       dependency_claim.add_veteran_info(va_file_number_with_payload)

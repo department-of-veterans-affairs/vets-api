@@ -23,7 +23,7 @@ module AppsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :AppsIndex
+                  key :$ref, :AppsIndex
                 end
               end
             end
@@ -55,7 +55,7 @@ module AppsApi
                 key :type, :object
                 key :required, [:data]
                 property :data do
-                  key :'$ref', :Scopes
+                  key :$ref, :Scopes
                 end
               end
             end

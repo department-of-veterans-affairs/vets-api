@@ -28,7 +28,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       subject.perform_async(submission.id)
       expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
       expect(Form526JobStatus).to receive(:upsert).twice
-      expect(Rails.logger).to receive(:error).once
       expect { described_class.drain }.to raise_error(error_class)
     end
 
@@ -100,7 +99,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         expect_any_instance_of(EVSS::DisabilityCompensationForm::Service).to receive(:submit_form526).and_raise(
           EVSS::DisabilityCompensationForm::ServiceUnavailableException
         )
-
+        expect(Rails.logger).to receive(:error).once
         expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
       end
     end
@@ -108,8 +107,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with a breakers outage' do
       it 'runs the retryable_error_handler and raises a gateway timeout' do
         EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.begin_forced_outage!
-
+        expect(Rails.logger).to receive(:error).once
         expect_retryable_error(Breakers::OutageException)
+        EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service.end_forced_outage!
       end
     end
 
@@ -138,7 +138,26 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     context 'with an upstream service error' do
       it 'sets the transaction to "retrying"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_err_msg') do
+          expect(Rails.logger).to receive(:error).twice
           expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceException)
+        end
+      end
+    end
+
+    context 'with an upstream bad gateway' do
+      it 'sets the transaction to "retrying"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_502') do
+          expect(Rails.logger).to receive(:error).twice
+          expect_retryable_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
+
+    context 'with an upstream service unavailable' do
+      it 'sets the transaction to "retrying"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_503') do
+          expect(Rails.logger).to receive(:error).twice
+          expect_retryable_error(EVSS::DisabilityCompensationForm::ServiceUnavailableException)
         end
       end
     end

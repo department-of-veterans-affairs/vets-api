@@ -32,15 +32,16 @@ class SimpleCovHelper
   end
 
   def merge_results
-    results = all_results.map { |file| SimpleCov::Result.from_hash(JSON.parse(File.read(file))) }
-    SimpleCov::ResultMerger.merge_results(*results).tap do |result|
-      SimpleCov::ResultMerger.store_result(result)
-    end
+    SimpleCov.collate all_results
+  rescue RuntimeError
+    nil
   end
 
-  def add_filters
+  def self.add_filters
     add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'config/initializers/clamscan.rb'
+    add_filter 'lib/apps/configuration.rb'
+    add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/gibft/configuration.rb'
@@ -57,21 +58,25 @@ class SimpleCovHelper
     add_filter 'version.rb'
   end
 
-  def add_modules
+  def self.add_modules
+    # Modules
+    add_group 'AppealsApi', 'modules/appeals_api/'
+    add_group 'CheckIn', 'modules/check_in/'
+    add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'CovidVaccine', 'modules/covid_vaccine/'
+    add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'HealthQuest', 'modules/health_quest'
+    add_group 'Identity', 'modules/identity/'
+    add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
     add_group 'Swagger', 'app/swagger'
-    add_group 'Uploaders', 'app/uploaders'
-    add_group 'AppealsApi', 'modules/appeals_api/'
-    add_group 'ClaimsApi', 'modules/claims_api/'
-    add_group 'CovidVaccine', 'modules/covid_vaccine/'
-    add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
+    add_group 'Uploaders', 'app/uploaders'
+    add_group 'VAOS', 'modules/vaos/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
-    add_group 'OpenidAuth', 'modules/openid_auth/'
-    add_group 'VAOS', 'modules/vaos/'
   end
 end

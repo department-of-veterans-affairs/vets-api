@@ -12,10 +12,13 @@ gem 'websocket-extensions', '>= 0.1.5'
 path 'modules' do
   gem 'appeals_api'
   gem 'apps_api'
+  gem 'check_in'
   gem 'claims_api'
   gem 'covid_research'
   gem 'covid_vaccine'
+  gem 'facilities_api'
   gem 'health_quest'
+  gem 'identity'
   gem 'mobile'
   gem 'openid_auth'
   gem 'test_user_dashboard'
@@ -26,15 +29,19 @@ path 'modules' do
   gem 'veteran_confirmation'
   gem 'veteran_verification'
 end
+# End Modules
+
+# needed for PGHero performance dashboard
+gem 'sass-rails', '>= 6'
 
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.7'
-gem 'puma-plugin-statsd', '~> 0.1.0'
-gem 'rails', '~> 6.0.2'
+gem 'puma', '~> 5.3.2'
+gem 'puma-plugin-statsd', '~> 1.2.1'
+gem 'rails', '~> 6.0.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
-gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
+gem 'sidekiq-scheduler', '~> 3.1' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
@@ -59,12 +66,16 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
-gem 'fhir_client', '~> 4.0.4'
-gem 'flipper'
-gem 'flipper-active_record'
-gem 'flipper-active_support_cache_store'
-gem 'flipper-ui'
+gem 'fhir_client', '~> 4.0.6'
+gem 'flipper', '~> 0.20.4'
+gem 'flipper-active_record', '~> 0.20.4'
+gem 'flipper-active_support_cache_store', '~> 0.20.4'
+gem 'flipper-ui', '~> 0.20.4'
 gem 'foreman'
+gem 'google-api-client'
+gem 'google-apis-core'
+gem 'google-apis-generator'
+gem 'googleauth'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
@@ -80,10 +91,12 @@ gem 'levenshtein-ffi'
 gem 'liquid'
 gem 'mail', '2.7.1'
 gem 'memoist'
-gem 'mini_magick', '~> 4.10.1'
+gem 'mimemagic', '~> 0.4.3'
+gem 'mini_magick', '~> 4.11.0'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.11'
-gem 'notifications-ruby-client', '~> 5.1'
+gem 'notifications-ruby-client', '~> 5.3'
+gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'okcomputer'
 gem 'olive_branch'
@@ -95,6 +108,7 @@ gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
 gem 'pg_query', '>= 0.9.0'
+gem 'pg_search'
 gem 'pghero'
 gem 'prawn'
 gem 'prawn-table'
@@ -103,7 +117,7 @@ gem 'rack'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'
-gem 'rails_semantic_logger', '~> 4.4'
+gem 'rails_semantic_logger', '~> 4.5'
 gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'
@@ -114,6 +128,7 @@ gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
 gem 'sentry-raven'
 gem 'shrine'
+gem 'slack-notify'
 gem 'staccato'
 gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
 gem 'strong_migrations'
@@ -123,9 +138,9 @@ gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
+gem 'with_advisory_lock'
 
 group :development do
-  gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
@@ -149,9 +164,7 @@ group :test do
   gem 'rspec-retry'
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
-  # < 0.18 required due to bug with reporting to CodeClimate
-  # https://github.com/codeclimate/test-reporter/issues/418
-  gem 'simplecov', '< 0.18', require: false
+  gem 'simplecov', require: false
   gem 'super_diff'
   gem 'vcr'
   gem 'webrick', '>= 1.6.1'
@@ -159,9 +172,9 @@ end
 
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
-  gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
+  gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'bootsnap', require: false
-  gem 'brakeman', '~> 4.7'
+  gem 'brakeman', '~> 5.0'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
@@ -183,6 +196,7 @@ group :development, :test do
   gem 'rspec-instrumentation-matcher'
   gem 'rspec-its'
   gem 'rspec-rails'
+  gem 'rswag'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
@@ -197,7 +211,7 @@ end
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
 if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
     Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
-   ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty?
+   ENV.fetch('BUNDLE_ENTERPRISE__CONTRIBSYS__COM', '').empty? && ENV.keys.grep(/DEPENDABOT/).empty?
   Bundler.ui.warn 'No credentials found to install Sidekiq Enterprise. This is fine for local development but you may not check in this Gemfile.lock with any Sidekiq gems removed. The README file in this directory contains more information.'
 else
   source 'https://enterprise.contribsys.com/' do

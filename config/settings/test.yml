@@ -57,10 +57,19 @@ shrine:
 account:
   enabled: true
 
+directory:
+  url: http://example.com/services/apps/v0/
+  apikey: <fake_api_key>
+
 search:
   access_key: TESTKEY
   affiliate: va
   url: https://search.usa.gov/api/v2
+
+search_typeahead:
+  api_key: TEST_KEY
+  name: va
+  url: https://api.gsa.gov/technology/searchgov/v1
 
 search_click_tracking:
   access_key: TESTKEY
@@ -88,6 +97,15 @@ va_forms:
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
 
+vanotify:
+  client_url: http://fakeapi.com
+  services:
+    lighthouse:
+      api_key: fake_api_key
+      template_id:
+        disconnection_template: fake_template_id
+        connection_template: fake_template_id
+
 veteran_readiness_and_employment:
   base_url: https://fake_url.com
   credentials: fake_auth
@@ -99,12 +117,37 @@ hqva_mobile:
   key_path: modules/health_quest/config/rsa/sandbox_rsa
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
+  facilities:
+    url: "https://sandbox-api.va.gov"
+    ids_path: "/v1/facilities/va"
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"
+    pgd_token_path: "/oauth2/pgd/v1/token"
+    health_api_path: "/services/fhir/v0/r4"
+    health_token_path: "/oauth2/health/system/v1/token"
     host: "sandbox-api.va.gov"
-    aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    pgd_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
+    health_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7"
     claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     redis_session_prefix: "healthquest_lighthouse"
+    health_api: "health_api"
+    pgd_api: "pgd_api"
     mock: false
     key_path: modules/health_quest/config/rsa/sandbox_rsa
+    pgd_api_scopes:
+      - "launch/patient"
+      - "patient/Observation.read"
+      - "patient/Observation.write"
+      - "patient/Questionnaire.read"
+      - "patient/Questionnaire.write"
+      - "patient/QuestionnaireResponse.read"
+      - "patient/QuestionnaireResponse.write"
+    health_api_scopes:
+      - "launch/patient"
+      - "patient/Appointment.read"
+      - "patient/Location.read"
+      - "patient/Organization.read"
+      - "patient/Patient.read"

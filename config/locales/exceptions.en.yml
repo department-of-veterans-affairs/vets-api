@@ -188,6 +188,12 @@ en:
         detail: "%{detail}"
         code: 401
         status: 401
+      open_id_service_error:
+        <<: *defaults
+        title: OpenId Service Error
+        detail: "%{detail}"
+        code: "%{code}"
+        status: "%{status}"
       no_query_params_allowed:
         <<: *defaults
         title: No query params allowed
@@ -208,6 +214,12 @@ en:
           detail: "'%{value}' is not an available option"
           code: 141
           status: 422
+        const:
+          <<: *defaults
+          title: Invalid value
+          detail: "'%{value}' does not match the provided const"
+          code: 148
+          status: 422
         length:
           <<: *defaults
           title: Invalid length
@@ -216,8 +228,8 @@ en:
           status: 422
         pattern:
           <<: *defaults
-          title: Invalid format
-          detail: "'%{value}' did not match the defined format"
+          title: Invalid pattern
+          detail: "'%{value}' did not match the defined pattern"
           code: 143
           status: 422
         range:
@@ -244,6 +256,12 @@ en:
           detail: "The %{size} items provided did not match the definition"
           code: 147
           status: 422
+        format:
+          <<: *defaults
+          title: Invalid format
+          detail: "'%{value}' did not match the defined format"
+          code: 149
+          status: 422
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
@@ -257,21 +275,65 @@ en:
     # Below this line just define the minor code as key to be used by client error
       VA900:
         <<: *external_defaults
-      SM105: # What casues this? Perhaps then we can come up with more customized detail below
+      SM100:
+        <<: *validation_errors
+        code: 'SM100'
+        detail: 'The message body cannot be blank'
+      SM101:
+        <<: *external_defaults
+        code: 'SM101'
+        detail: 'Application authentication failed'
+        status: 401
+      SM102:
+        <<: *external_defaults
+        code: 'SM102'
+        detail: 'Application authorization failed'
+        status: 401
+      SM103:
+        <<: *external_defaults
+        code: 'SM103'
+        detail: 'Invalid User Credentials'
+        status: 401
+      SM104:
+        <<: *external_defaults
+        code: 'SM104'
+        detail: 'Missing User Credentials'
+        status: 401
+      SM105: # What causes this? Perhaps then we can come up with more customized detail below
         <<: *external_defaults
         code: 'SM105'
         detail: 'User was not found'
         status: 422
+      SM106:
+        <<: *external_defaults
+        code: 'SM106'
+        detail: 'User is not eligible because they are blocked'
+        status: 403
+      SM111:
+        <<: *external_defaults
+        code: 'SM111'
+        detail: 'Invalid user permissions (invalid user type for resource requested)'
+        status: 403
       SM112: # 'User is not owner of entity requested' (usually attachments)
         <<: *external_defaults
         code: 'SM112'
         detail: 'You do not have access to the requested resource'
         status: 403
+      SM113:
+        <<: *external_defaults
+        code: 'SM113'
+        detail: 'Unable to read attachment'
+        status: 422
+      SM114:
+        <<: *external_defaults
+        code: 'SM114'
+        detail: 'Unable to move message'
+        status: 400
       SM115:
         <<: *external_defaults
         code: 'SM115'
         title: Record not found
-        detail: 'Attachment requested could not be found'
+        detail: 'Entity requested could not be found'
         status: 404
       SM116: # 'The Folder must be empty before delete'
         <<: *external_defaults
@@ -283,10 +345,54 @@ en:
         code: 'SM117'
         detail: 'A data integrity issue was encountered'
         status: 502
+      SM118:
+        <<: *external_defaults
+        code: 'SM118'
+        detail: 'It is not possible to move a message from the DRAFTS folder'
+        status: 422
       SM119: # 'Triage team does not exist' when trying to create new message
         <<: *external_defaults
         code: 'SM119'
         detail: 'Triage team does not exist'
+        status: 422
+      SM120:
+        <<: *validation_errors
+        code: 'SM120'
+        detail: 'The Page Number must be greater than zero'
+      SM121:
+        <<: *validation_errors
+        code: 'SM121'
+        detail: 'The Page Size must be greater than zero'
+      SM122:
+        <<: *validation_errors
+        code: 'SM122'
+        detail: 'The attachment file type is currently not supported'
+      SM123:
+        <<: *validation_errors
+        code: 'SM123'
+        detail: 'The filename is a required parameter'
+      SM124:
+        <<: *external_defaults
+        code: 'SM124'
+        detail: 'The attachment file size exceeds the supported size limits'
+        status: 413
+      SM125:
+        <<: *validation_errors
+        code: 'SM125'
+        detail: 'To create a folder the name is required'
+      SM126:
+        <<: *external_defaults
+        code: 'SM126'
+        detail: 'The folder already exists with the requested name'
+        status: 422
+      SM127:
+        <<: *validation_errors
+        code: 'SM127'
+        detail: 'The folder name should only contain letters, numbers, and spaces'
+      SM128:
+        <<: *external_defaults
+        code: 'SM128'
+        detail: 'The message you are attempting to send is not a draft '
         status: 422
       SM129:
         <<: *external_defaults
@@ -297,6 +403,20 @@ en:
         <<: *external_defaults
         code: 'SM130'
         detail: 'Unable to reply because the source message is expired'
+        status: 422
+      SM131:
+        <<: *external_defaults
+        code: 'SM131'
+        detail: 'Unable to reply to a message that is a draft'
+        status: 422
+      SM133:
+        <<: *validation_errors
+        code: 'SM133'
+        detail: 'PageSize exceeds the maximum allowed limit'
+      SM134:
+        <<: *external_defaults
+        code: 'SM134'
+        detail: 'The message you are attempting to save is not a draft'
         status: 422
       SM135: # 'User is not eligible because they have not accepted terms and conditions or opted-in'
         <<: *external_defaults
@@ -312,9 +432,19 @@ en:
         <<: *validation_errors
         code: 'SM152'
         detail: 'Email address is invalid'
+      SM900: # 'Mailbox Service Error'
+        <<: *external_defaults
+        code: 'SM900'
+        detail: 'Service is temporarily unavailable'
+        status: 503
       SM901: # 'Authentication Service Error' (connection pool issue)
         <<: *external_defaults
         code: 'SM901'
+        detail: 'Service is temporarily unavailable'
+        status: 503
+      SM902: # 'Triage Group Service Error'
+        <<: *external_defaults
+        code: 'SM902'
         detail: 'Service is temporarily unavailable'
         status: 503
       SM903:
@@ -577,6 +707,12 @@ en:
         code: 'SEARCH_429'
         detail: 'Exceeded Search.gov rate limit'
         status: 429
+      SEARCH_TYPEAHEAD_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'SEARCH_TYPEAHEAD_400'
+        detail: 'Missing Query'
+        status: 400
       SEARCH_CLICK_TRACKING_400:
         <<: *external_defaults
         title: Bad Request
@@ -594,7 +730,7 @@ en:
         <<: *external_defaults
         title: Bad Request
         code: 'VAOS_400'
-        detail: # deliberarly left nil to reference response.body which is unparsable string (not json)
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
         status: 400
       VAOS_204:
         <<: *external_defaults
@@ -726,12 +862,6 @@ en:
         title: Requires alphanumeric address 1
         code: VET360_ADDR109
         detail: Address Line 1 must be alphanumeric
-        status: 400
-      VET360_ADDR110:
-        <<: *external_defaults
-        title: Address Line 2 Size
-        code: VET360_ADDR110
-        detail: Size must be between 0 and 100.
         status: 400
       VET360_ADDR110:
         <<: *external_defaults
@@ -955,12 +1085,6 @@ en:
         code: VET360_ADDR146
         detail: Address POU may not be null
         status: 400
-      VET360_ADDR146:
-        <<: *external_defaults
-        title: Address POU Null
-        code: VET360_ADDR146
-        detail: Address POU may not be null
-        status: 400
       VET360_ADDR147:
         <<: *external_defaults
         title: County value not found
@@ -1026,12 +1150,6 @@ en:
         title: Invalid confirmation date
         code: VET360_ADDR206
         detail: ConfirmationDate can not be greater than sourceDate
-        status: 400
-      VET360_ADDR300:
-        <<: *external_defaults
-        title: Address Inactive
-        code: VET360_ADDR300
-        detail: Cannot modify an existing inactive record.
         status: 400
       VET360_ADDR300:
         <<: *external_defaults
@@ -1852,6 +1970,16 @@ en:
         detail: Internal server error
         code: VANOTIFY_500
         status: 500
+      VETEXT_PUSH_400:
+        <<: *external_defaults
+        code: 'VETEXT_PUSH_400'
+        detail: The request to the upstream service was malformed and could not be processed
+        status: 400
+      VETEXT_PUSH_502:
+        <<: *external_defaults
+        code: 'VETEXT_PUSH_502'
+        detail: Received an invalid response from the upstream server
+        status: 502
 
   decision_review:
     exceptions:

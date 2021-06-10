@@ -20,9 +20,16 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
   end
 
   describe 'POST create' do
+    before do
+      allow(ClaimsApi::VBMSUploader).to receive(:new) { OpenStruct.new(upload!: true) }
+    end
+
     context 'logged in ' do
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
+            { regional_office: { number: '319' } }
+          )
           sign_in_as(loa3_user)
 
           form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
@@ -36,6 +43,9 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
     context 'visitor' do
       it 'validates successfully' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
+            { regional_office: { number: '319' } }
+          )
           form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
 
           post(:create, params: form_params)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/base_headers'
+require 'formatters/date_formatter'
 
 module EVSS
   class DisabilityCompensationAuthHeaders < EVSS::BaseHeaders
@@ -23,21 +24,20 @@ module EVSS
           edi: @user.edipi,
           firstName: @user.first_name,
           lastName: @user.last_name,
-          birthDate: iso8601_birth_date,
+          birthDate: Formatters::DateFormatter.format_date(@user.birth_date, :datetime_iso8601),
           gender: gender
         }
       }.to_json
     end
 
     def gender
-      case @user.gender || @user.mpi&.profile&.gender
+      case @user.gender
       when 'F'
         'FEMALE'
       when 'M'
         'MALE'
       else
-        Raven.extra_context(user_gender: @user.gender,
-                            mvi_gender: @user.mpi&.profile&.gender)
+        Raven.extra_context(user_gender: @user.gender)
         raise Common::Exceptions::UnprocessableEntity,
               detail: 'Gender is required & must be "F" or "M"',
               source: self.class,

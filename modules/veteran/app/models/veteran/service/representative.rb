@@ -19,6 +19,7 @@ module Veteran
 
       validates :poa_codes, presence: true
 
+      # rubocop:disable Lint/DuplicateBranch
       def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)
         reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
         reps.each do |rep|
@@ -30,6 +31,7 @@ module Veteran
         end
         nil
       end
+      # rubocop:enable Lint/DuplicateBranch
 
       def self.matching_ssn(rep, ssn)
         rep.ssn.present? && rep.ssn == ssn

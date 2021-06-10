@@ -13,6 +13,7 @@ module V0
           'telephone',
           telephone_params
         )
+        Rails.logger.info('TelephonesController#create request completed', sso_logging_info)
       end
 
       def update
@@ -21,6 +22,7 @@ module V0
           telephone_params,
           http_verb: 'put'
         )
+        Rails.logger.info('TelephonesController#update request completed', sso_logging_info)
       end
 
       def destroy
@@ -29,6 +31,7 @@ module V0
           add_effective_end_date(telephone_params),
           http_verb: 'put'
         )
+        Rails.logger.info('TelephonesController#destroy request completed', sso_logging_info)
       end
 
       private
@@ -38,7 +41,6 @@ module V0
           :area_code,
           :country_code,
           :extension,
-          :effective_start_date,
           :id,
           :is_international,
           :is_textable,
@@ -47,9 +49,7 @@ module V0
           :is_voicemailable,
           :phone_number,
           :phone_type,
-          :source_date,
-          :transaction_id,
-          :vet360_id
+          :transaction_id
         )
       end
     end

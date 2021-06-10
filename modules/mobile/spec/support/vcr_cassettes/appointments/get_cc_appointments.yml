@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/24811694708759028/booked-cc-appointments?endDate=2021-02-01T10:30:00Z&pageSize=0&startDate=2020-11-01T10:30:00Z&useCache=true
+    uri: https://veteran.apps.va.gov/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/24811694708759028/booked-cc-appointments?endDate=2021-11-01T00:00:00Z&pageSize=0&startDate=2019-11-01T00:00:00Z&useCache=false
     body:
       encoding: US-ASCII
       string: ''
@@ -1381,7 +1381,7 @@ http_interactions:
                 "state" : "MD",
                 "zipCode" : "00000"
               },
-              "instructionsToVeteran" : "",
+              "instructionsToVeteran" : "Test",
               "appointmentTime" : "11/01/2020 16:30:00",
               "timeZone" : "-11:00 EDT"
             }, {

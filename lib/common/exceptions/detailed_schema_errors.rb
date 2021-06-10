@@ -29,7 +29,7 @@ module Common
       private
 
       def i18n_interpolated(path, options = {})
-        merge_values = Hash[options.map { |attr, opts| [attr, i18n_field("#{path}.#{attr}", opts)] }]
+        merge_values = options.map { |attr, opts| [attr, i18n_field("#{path}.#{attr}", opts)] }.to_h
         i18n_data[path].merge(merge_values)
       end
 
@@ -48,6 +48,13 @@ module Common
         data = i18n_interpolated :enum, detail: { value: error['data'], enum: opts }
         data[:meta] ||= {}
         data.merge! meta: { available_options: opts }
+        data
+      end
+
+      def const(error)
+        data = i18n_interpolated :const, detail: { value: error['data'] }
+        data[:meta] ||= {}
+        data.merge! meta: { required_value: error.dig('schema', 'const') }
         data
       end
 
@@ -85,8 +92,7 @@ module Common
       end
 
       def schema(_error)
-        data = i18n_interpolated :schema
-        data
+        i18n_interpolated :schema
       end
 
       def array_items(error)
@@ -102,6 +108,14 @@ module Common
       alias minitems array_items
       alias maxitems array_items
       alias uniqueitems array_items
+
+      def format(error)
+        format = error.dig 'schema', 'format'
+        data = i18n_interpolated :format, detail: { value: error['data'] }
+        data[:meta] ||= {}
+        data.merge! meta: { format: format }
+        data
+      end
     end
   end
 end

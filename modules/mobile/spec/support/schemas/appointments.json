@@ -25,23 +25,28 @@
             "type": "object",
             "required": [
               "appointmentType",
+              "cancelId",
               "comment",
-              "facilityId",
               "healthcareService",
               "location",
               "minutesDuration",
               "startDateLocal",
               "startDateUtc",
-              "status"
+              "status",
+              "timeZone",
+              "vetextId"
             ],
             "properties": {
               "appointmentType": {
                 "type": "string"
               },
-              "comment": {
-                "type": ["string", "null"]
+              "cancelId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               },
-              "facilityId": {
+              "comment": {
                 "type": [
                   "string",
                   "null"
@@ -144,7 +149,10 @@
                 }
               },
               "minutesDuration": {
-                "type": ["integer", "null"]
+                "type": [
+                  "integer",
+                  "null"
+                ]
               },
               "startDateLocal": {
                 "type": "string"
@@ -154,9 +162,81 @@
               },
               "status": {
                 "type": "string"
+              },
+              "timeZone": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "vetextId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
               }
             }
           }
+        }
+      }
+    },
+    "meta": {
+      "required": [
+        "errors",
+        "pagination"
+      ],
+      "properties": {
+        "errors": {
+          "type": ["array", "null"]
+        },
+        "pagination": {
+          "type": "object",
+          "required": [
+            "currentPage",
+            "perPage",
+            "totalPages",
+            "totalEntries"
+          ],
+          "properties": {
+            "currentPage": {
+              "type": "integer"
+            },
+            "perPage": {
+              "type": "integer"
+            },
+            "totalPages": {
+              "type": "integer"
+            },
+            "totalEntries": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    },
+    "links": {
+      "required": [
+        "self",
+        "first",
+        "prev",
+        "next",
+        "last"
+      ],
+      "properties": {
+        "self": {
+          "type": "string"
+        },
+        "first": {
+          "type": "string"
+        },
+        "prev": {
+          "type": ["string", "null"]
+        },
+        "next": {
+          "type": ["string", "null"]
+        },
+        "last": {
+          "type": "string"
         }
       }
     }

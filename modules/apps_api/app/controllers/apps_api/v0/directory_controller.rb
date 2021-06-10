@@ -2,17 +2,16 @@
 
 # dependencies
 require_dependency 'apps_api/application_controller'
-require 'okta/directory_service.rb'
+require 'okta/directory_service'
 module AppsApi
   module V0
     class DirectoryController < ApplicationController
       skip_before_action(:authenticate)
       before_action :set_directory_application, only: %i[show update destroy]
-      before_action :verify_auth, only: %i[create update destroy]
 
       def index
         render json: {
-          data: DirectoryApplication.order('LOWER(name)')
+          data: DirectoryApplication.order('LOWER(name)').paginate(page: params[:page], per_page: 10)
         }
       end
 
@@ -56,22 +55,16 @@ module AppsApi
       def scopes
         directory_service = Okta::DirectoryService.new
         parsed_scopes = directory_service.scopes(params[:category])
-        if parsed_scopes.any? do
+        if parsed_scopes.any?
           render json: {
             data: parsed_scopes
           }
-           rescue
-             head :no_content
-        end
+        else
+          head :no_content
         end
       end
 
       private
-
-      def verify_auth
-        # put this secret in settings.local.yml
-        head :unauthorized unless request.authorization == Settings.directory.secret
-      end
 
       def set_directory_application
         @directory_application = DirectoryApplication.find_by(name: params[:id])

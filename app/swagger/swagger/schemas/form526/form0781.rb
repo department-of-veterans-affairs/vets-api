@@ -15,7 +15,7 @@ module Swagger
           end
           property :incidents, type: :array, minItems: 1 do
             items type: :object do
-              key :'$ref', :Incident
+              key :$ref, :Incident
             end
           end
         end
@@ -30,21 +30,21 @@ module Swagger
                    pattern: Swagger::Schemas::Form526::Form526SubmitV2::DATE_PATTERN,
                    example: '2019-10-XX'
           property :incidentLocation, type: :object do
-            key :'$ref', :IncidentLocation
+            key :$ref, :IncidentLocation
           end
           property :incidentDescription, type: :string
           property :unitAssigned, type: :string
           property :unitAssignedDates, type: :object do
-            key :'$ref', :DateRange
+            key :$ref, :DateRange
           end
           property :personsInvolved, type: :array do
             items type: :object do
-              key :'$ref', :PersonInvolved
+              key :$ref, :PersonInvolved
             end
           end
           property :sources, type: :array do
             items type: :object do
-              key :'$ref', :Source
+              key :$ref, :Source
             end
           end
         end

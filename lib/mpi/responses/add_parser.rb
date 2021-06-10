@@ -2,12 +2,14 @@
 
 require 'sentry_logging'
 require_relative 'parser_base'
+require 'identity/parsers/gc_ids'
 
 module MPI
   module Responses
-    # Parses a MVI response and returns a MviProfile
+    # Parses an MVI response and returns an MviProfile
     class AddParser < ParserBase
       include SentryLogging
+      include Identity::Parsers::GCIds
 
       ACKNOWLEDGEMENT_DETAIL_CODE_XPATH = 'acknowledgement/acknowledgementDetail/code'
       BODY_XPATH = 'env:Envelope/env:Body/idm:MCCI_IN000002UV01'

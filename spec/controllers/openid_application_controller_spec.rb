@@ -36,7 +36,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       end
 
       it 'permits access when token has allowed scopes' do
-        with_okta_configured do
+        with_okta_profile_configured do
           get :index
           expect(response).to be_ok
         end
@@ -113,7 +113,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       end
 
       it 'permits access to one action with the correct scope' do
-        with_okta_configured do
+        with_okta_profile_configured do
           get :index
           expect(response).to be_ok
         end
@@ -129,32 +129,8 @@ RSpec.describe OpenidApplicationController, type: :controller do
         end
       end
 
-      it 'permits access to all actions when the correct scope is provided' do
-        with_okta_configured do
-          token_opts = { 'scp' => %w[openid] }
-          change_encoded_token_payload(token_opts)
-
-          get :show, params: { id: 1 }
-          expect(response).to be_ok
-          patch :update, params: { id: 1 }
-          expect(response).to be_ok
-        end
-      end
-
-      it 'rejects access to all actions when the incorrect scope is provided' do
-        with_okta_configured do
-          token_opts = { 'scp' => %w[profile] }
-          change_encoded_token_payload(token_opts)
-
-          get :show, params: { id: 1 }
-          expect(response.status).to eq(401)
-          patch :update, params: { id: 1 }
-          expect(response.status).to eq(401)
-        end
-      end
-
       it 'permits access if at least one of the allowed scopes is provided' do
-        with_okta_configured do
+        with_okta_profile_configured do
           token_opts = { 'scp' => %w[email] }
           change_encoded_token_payload(token_opts)
 
@@ -164,7 +140,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       end
 
       it 'permits access if all the allowed scopes are provided' do
-        with_okta_configured do
+        with_okta_profile_configured do
           token_opts = { 'scp' => %w[email openid] }
           change_encoded_token_payload(token_opts)
 
@@ -211,13 +187,34 @@ RSpec.describe OpenidApplicationController, type: :controller do
       end
 
       it 'returns 200 and add the user to the session' do
-        with_okta_configured do
+        with_okta_profile_configured do
           request.headers['Authorization'] = 'Bearer FakeToken'
           get :index
           expect(response).to be_ok
           expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
         end
+      end
+
+      it 'returns 200 and add the ssoi user to the session' do
+        with_ssoi_profile_configured do
+          request.headers['Authorization'] = 'Bearer FakeToken'
+          get :index
+          sesh = Session.find('FakeToken')
+          expect(sesh.profile).not_to be_nil
+          expect(sesh.token).not_to be_nil
+          expect(sesh.uuid).not_to be_nil
+        end
+      end
+    end
+
+    context 'with an opaque token supplied and no session' do
+      it 'returns 401' do
+        request.headers['Authorization'] = 'Bearer FakeToken'
+        get :index
+        expect(response.status).to eq(401)
+        errors = JSON.parse(response.body)['errors']
+        expect(errors[0]['detail']).to eq('Invalid token.')
       end
     end
 

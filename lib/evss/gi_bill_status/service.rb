@@ -68,8 +68,8 @@ module EVSS
       # @return [EVSS::GiBillStatus::GiBillStatusRestponse] A status response object containing
       # information from the endpoint
       #
-      def get_gi_bill_status
-        raw_response = perform(:get, '')
+      def get_gi_bill_status(additional_headers = {})
+        raw_response = perform(:get, '', nil, additional_headers)
         EVSS::GiBillStatus::GiBillStatusResponse.new(raw_response.status, raw_response)
       rescue Common::Client::Errors::ClientError => e
         response = OpenStruct.new(status: e.status, body: e.body)

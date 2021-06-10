@@ -7,9 +7,7 @@ RSpec.describe 'Intent to file', type: :request do
     { 'X-VA-SSN': '796-10-4437',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
-      'X-VA-EDIPI': '1007697216',
       'X-Consumer-Username': 'TestConsumer',
-      'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-LOA' => '3',
       'X-VA-Gender': 'M' }
@@ -65,6 +63,12 @@ RSpec.describe 'Intent to file', type: :request do
     it 'fails if none is passed in' do
       post path, headers: headers
       expect(response.status).to eq(422)
+    end
+
+    it "returns a 403 when 'burial' type is provided" do
+      data[:data][:attributes][:type] = 'burial'
+      post path, params: data.to_json, headers: headers
+      expect(response.status).to eq(403)
     end
   end
 

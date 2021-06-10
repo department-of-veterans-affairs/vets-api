@@ -25,12 +25,12 @@ module Swagger
               property :transaction_id, type: :string, example: '786efe0e-fd20-4da2-9019-0c00540dba4d'
               property :type, type: :string, enum:
                 %w[
-                  AsyncTransaction::Vet360::AddressTransaction
-                  AsyncTransaction::Vet360::EmailTransaction
-                  AsyncTransaction::Vet360::InitializePersonTransaction
-                  AsyncTransaction::Vet360::PermissionTransaction
-                  AsyncTransaction::Vet360::TelephoneTransaction
-                ], example: 'AsyncTransaction::Vet360::EmailTransaction'
+                  AsyncTransaction::VAProfile::AddressTransaction
+                  AsyncTransaction::VAProfile::EmailTransaction
+                  AsyncTransaction::VAProfile::InitializePersonTransaction
+                  AsyncTransaction::VAProfile::PermissionTransaction
+                  AsyncTransaction::VAProfile::TelephoneTransaction
+                ], example: 'AsyncTransaction::VAProfile::EmailTransaction'
               property :metadata, type: :array do
                 items type: :object do
                   property :code, type: :string, example: 'CORE103'
@@ -63,12 +63,12 @@ module Swagger
                 property :transaction_id, type: :string, example: '786efe0e-fd20-4da2-9019-0c00540dba4d'
                 property :type, type: :string, enum:
                   %w[
-                    AsyncTransaction::Vet360::AddressTransaction
-                    AsyncTransaction::Vet360::EmailTransaction
-                    AsyncTransaction::Vet360::InitializePersonTransaction
-                    AsyncTransaction::Vet360::PermissionTransaction
-                    AsyncTransaction::Vet360::TelephoneTransaction
-                  ], example: 'AsyncTransaction::Vet360::AddressTransaction'
+                    AsyncTransaction::VAProfile::AddressTransaction
+                    AsyncTransaction::VAProfile::EmailTransaction
+                    AsyncTransaction::VAProfile::InitializePersonTransaction
+                    AsyncTransaction::VAProfile::PermissionTransaction
+                    AsyncTransaction::VAProfile::TelephoneTransaction
+                  ], example: 'AsyncTransaction::VAProfile::AddressTransaction'
                 property :metadata, type: :array do
                   items type: :object do
                     property :code, type: :string, example: 'CORE103'

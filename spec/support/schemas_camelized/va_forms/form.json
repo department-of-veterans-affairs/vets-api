@@ -54,6 +54,12 @@
                 "null"
               ]
             },
+            "createdAt": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "pages": {
               "type": "integer"
             },
@@ -115,6 +121,12 @@
               }
             },
             "benefitCategories": {
+              "type": [
+                "array",
+                "null"
+              ]
+            },
+            "vaFormAdministration": {
               "type": [
                 "array",
                 "null"

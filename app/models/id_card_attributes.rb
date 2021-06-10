@@ -10,24 +10,22 @@ class IdCardAttributes
   end
 
   # Return dict of traits in canonical order
-  # rubocop:disable Metrics/CyclomaticComplexity
   def traits
     {
       'edipi' => @user.edipi,
       'firstname' => @user.first_name,
       'lastname' => @user.last_name,
-      'address' => @user.va_profile&.address&.street || '',
-      'city' => @user.va_profile&.address&.city || '',
-      'state' => @user.va_profile&.address&.state || '',
-      'zip' => @user.va_profile&.address&.postal_code || '',
+      'address' => @user.address[:street] || '',
+      'city' => @user.address[:city] || '',
+      'state' => @user.address[:state] || '',
+      'zip' => @user.address[:zip] || '',
       'email' => @user.email || '',
-      'phone' => @user.va_profile&.home_phone || '',
+      'phone' => @user.home_phone || '',
       'title38status' => title38_status_code,
       'branchofservice' => branches_of_service,
       'dischargetype' => discharge_types
     }
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
 
   private
 

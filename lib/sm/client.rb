@@ -17,6 +17,11 @@ module SM
 
     MHV_MAXIMUM_PER_PAGE = 250
     CONTENT_DISPOSITION = 'attachment; filename='
+    STATSD_KEY_PREFIX = if instance_of? SM::Client
+                          'api.sm'
+                        else
+                          'mobile.sm'
+                        end
 
     ##
     # @!group Preferences
@@ -66,9 +71,14 @@ module SM
     #
     # @return [Common::Collection[Folder]]
     #
-    def get_folders
-      json = perform(:get, 'folder', nil, token_headers).body
-      Common::Collection.new(Folder, json)
+    def get_folders(user_uuid, use_cache)
+      cache_key = "#{user_uuid}-folders"
+      get_cached_or_fetch_data(use_cache, cache_key, Folder) do
+        json = perform(:get, 'folder', nil, token_headers).body
+        data = Common::Collection.new(Folder, json)
+        Folder.set_cached(cache_key, data)
+        data
+      end
     end
 
     ##
@@ -108,21 +118,25 @@ module SM
     #
     # @return [Common::Collection]
     #
-    def get_folder_messages(folder_id)
-      page = 1
-      json = { data: [], errors: {}, metadata: {} }
+    def get_folder_messages(user_uuid, folder_id, use_cache)
+      cache_key = "#{user_uuid}-folder-messages-#{folder_id}"
+      get_cached_or_fetch_data(use_cache, cache_key, Message) do
+        page = 1
+        json = { data: [], errors: {}, metadata: {} }
 
-      loop do
-        path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
-        page_data = perform(:get, path, nil, token_headers).body
-        json[:data].concat(page_data[:data])
-        json[:metadata].merge(page_data[:metadata])
-        break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
+        loop do
+          path = "folder/#{folder_id}/message/page/#{page}/pageSize/#{MHV_MAXIMUM_PER_PAGE}"
+          page_data = perform(:get, path, nil, token_headers).body
+          json[:data].concat(page_data[:data])
+          json[:metadata].merge(page_data[:metadata])
+          break unless page_data[:data].size == MHV_MAXIMUM_PER_PAGE
 
-        page += 1
+          page += 1
+        end
+        messages = Common::Collection.new(Message, json)
+        Message.set_cached(cache_key, messages)
+        messages
       end
-
-      Common::Collection.new(Message, json)
     end
     # @!endgroup
 
@@ -210,7 +224,7 @@ module SM
     def post_create_message(args = {})
       validate_create_context(args)
 
-      json = perform(:post, 'message', args, token_headers).body
+      json = perform(:post, 'message', args.to_h, token_headers).body
       Message.new(json)
     end
 
@@ -225,7 +239,7 @@ module SM
       validate_create_context(args)
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
-      json = perform(:post, 'message/attach', args, custom_headers).body
+      json = perform(:post, 'message/attach', args.to_h, custom_headers).body
       Message.new(json)
     end
 
@@ -240,7 +254,7 @@ module SM
       validate_reply_context(args)
 
       custom_headers = token_headers.merge('Content-Type' => 'multipart/form-data')
-      json = perform(:post, "message/#{id}/reply/attach", args, custom_headers).body
+      json = perform(:post, "message/#{id}/reply/attach", args.to_h, custom_headers).body
       Message.new(json)
     end
 
@@ -254,7 +268,7 @@ module SM
     def post_create_message_reply(id, args = {})
       validate_reply_context(args)
 
-      json = perform(:post, "message/#{id}/reply", args, token_headers).body
+      json = perform(:post, "message/#{id}/reply", args.to_h, token_headers).body
       Message.new(json)
     end
 
@@ -296,7 +310,7 @@ module SM
       path = "message/#{message_id}/attachment/#{attachment_id}"
 
       response = perform(:get, path, nil, token_headers)
-      filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '')
+      filename = response.response_headers['content-disposition'].gsub(CONTENT_DISPOSITION, '').gsub(/%22|"/, '')
       { body: response.body, filename: filename }
     end
     # @!endgroup
@@ -308,11 +322,31 @@ module SM
     #
     # @return [Common::Collection[TriageTeam]]
     #
-    def get_triage_teams
-      json = perform(:get, 'triageteam', nil, token_headers).body
-      Common::Collection.new(TriageTeam, json)
+    def get_triage_teams(user_uuid, use_cache)
+      cache_key = "#{user_uuid}-triage-teams"
+      get_cached_or_fetch_data(use_cache, cache_key, TriageTeam) do
+        json = perform(:get, 'triageteam', nil, token_headers).body
+        data = Common::Collection.new(TriageTeam, json)
+        TriageTeam.set_cached(cache_key, data)
+        data
+      end
     end
     # @!endgroup
+
+    def get_cached_or_fetch_data(use_cache, cache_key, model)
+      data = nil
+      data = model.get_cached(cache_key) if use_cache
+
+      if data
+        Rails.logger.info("secure messaging #{model} cache fetch", cache_key)
+        statsd_cache_hit
+        Common::Collection.new(model, { data: data })
+      else
+        Rails.logger.info("secure messaging #{model} service fetch", cache_key)
+        statsd_cache_miss
+        yield
+      end
+    end
 
     private
 
@@ -347,5 +381,20 @@ module SM
         raise Common::Exceptions::ValidationErrors, draft
       end
     end
+
+    ##
+    # @!group StatsD
+    ##
+    # Report stats of secure messaging events
+    #
+
+    def statsd_cache_hit
+      StatsD.increment("#{STATSD_KEY_PREFIX}.cache.hit")
+    end
+
+    def statsd_cache_miss
+      StatsD.increment("#{STATSD_KEY_PREFIX}.cache.miss")
+    end
+    # @!endgroup
   end
 end

@@ -46,9 +46,7 @@
   "fieldVaFormDeletedDate": {
     "value": "2020-07-16"
   },
-  "langcode": {
-    "value": "en"
-  },
+  "fieldVaFormLanguage": "en",
   "entityUrl": {
     "path": "/find-forms/about-form-21-0966"
   },
@@ -65,6 +63,7 @@
     "format": "rich_text",
     "processed": "Someusagehtml"
   },
+  "fieldVaFormRowId": 5382,
   "fieldVaFormNumber": "21-0966",
   "fieldVaFormToolIntro": "some intro text",
   "fieldVaFormToolUrl": {
@@ -79,6 +78,11 @@
       }
     }
   ],
+  "fieldVaFormAdministration": {
+    "entity": {
+      "entityLabel": "Veterans Benefits Administration"
+    }
+  },
   "fieldVaFormRevisionDate": {
     "value": "2018-08-22",
     "date": "2018-08-22 12:00:00 UTC"

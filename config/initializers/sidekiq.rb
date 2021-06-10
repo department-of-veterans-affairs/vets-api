@@ -2,6 +2,7 @@
 
 require 'sidekiq_stats_instrumentation/client_middleware'
 require 'sidekiq_stats_instrumentation/server_middleware'
+require 'sidekiq/retry_monitoring'
 require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
@@ -17,13 +18,14 @@ Sidekiq.configure_server do |config|
   config.super_fetch! if defined?(Sidekiq::Pro)
 
   config.on(:startup) do
-    Sidekiq.schedule = YAML.load_file(File.expand_path('../sidekiq_scheduler.yml', __dir__))
+    Sidekiq.schedule = YAML.safe_load(ERB.new(File.read(File.expand_path('../sidekiq_scheduler.yml', __dir__))).result)
     Sidekiq::Scheduler.reload_schedule!
   end
 
   config.server_middleware do |chain|
     chain.add Sidekiq::SemanticLogging
     chain.add SidekiqStatsInstrumentation::ServerMiddleware
+    chain.add Sidekiq::RetryMonitoring
     chain.add Sidekiq::ErrorTag
   end
 

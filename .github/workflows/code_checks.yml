@@ -1,0 +1,128 @@
+name: Code Checks
+on: [push]
+jobs:
+  linting_and_security:
+    name: Linting and Security
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+    runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+
+      - name: Run bundle-audit (checks gems for CVE issues)
+        run:  bundle exec bundle-audit check --update
+
+      - name: Run Rubocop
+        run: bundle exec rubocop --parallel --format progress --format json --out rubocop.json
+
+      - name: Run Brakeman
+        run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.json
+
+      - uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Linting and Security Results
+          path: |
+            rubocop.json
+            brakeman.json
+          if-no-files-found: ignore
+
+  tests:
+    name: Test
+    env:
+      BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+      CI: true
+      DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
+      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners (setup-ruby)
+      RAILS_ENV: test
+      "Settings.binaries.clamdscan": "clamscan"
+      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
+      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
+      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
+      TERM: xterm-256color
+    runs-on: asg
+
+    services:
+      postgres:
+        image: postgis/postgis:11-2.5
+        env:
+          POSTGRES_USER: vets-api
+          POSTGRES_PASSWORD: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: ruby/setup-ruby@v1
+        env:
+          ImageOS: ubuntu20
+        with:
+          bundler-cache: true
+
+      - name: Setup Database
+        run: bundle exec parallel_test -n 14 -e 'bundle exec rake db:reset'
+
+      - name: Run Specs
+        run: bundle exec parallel_rspec spec/ modules -n 14 -o '--color --tty'
+
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Coverage Report
+          path: coverage
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Test Results
+          path: log/*.xml
+          if-no-files-found: ignore
+
+  publish_results:
+    name: Publish Results
+    if: always()
+    needs: [linting_and_security, tests]
+    runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
+
+    steps:
+      - uses: actions/download-artifact@v2
+
+      - uses: duderman/rubocop-annotate-action@v0.1.0
+        with:
+          path: Linting and Security Results/rubocop.json
+        if: hashFiles('Linting and Security Results/rubocop.json') != ''
+
+      - uses: devmasx/brakeman-linter-action@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          REPORT_PATH: Linting and Security Results/brakeman.json
+        if: hashFiles('Linting and Security/brakeman.json') != ''
+
+      - name: Publish Test Results
+        uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
+        if: always()
+        with:
+          check_name: Test Results
+          comment_mode: off
+          files: Test Results/*.xml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fix up coverage report to work with coverage-check-action
+        run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
+
+      - name: Publish Coverage Report
+        uses: devmasx/coverage-check-action@v1.2.0
+        if: hashFiles('Coverage Report/.last_run.json') != ''
+        with:
+          type: simplecov
+          result_path: Coverage Report/.last_run.json
+          min_coverage: 90
+          token: ${{ secrets.GITHUB_TOKEN }}

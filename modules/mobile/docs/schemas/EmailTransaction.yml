@@ -34,7 +34,7 @@ properties:
             example: "COMPLETED_SUCCESS"
           type:
             type: string
-            example: "AsyncTransaction::Vet360::EmailTransaction"
+            example: "AsyncTransaction::VAProfile::EmailTransaction"
           metadata:
             type: array
             example: [ ]

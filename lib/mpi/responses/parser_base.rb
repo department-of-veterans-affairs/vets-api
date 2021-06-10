@@ -35,20 +35,6 @@ module MPI
         EXTERNAL_RESPONSE_CODES[:invalid_request] == @code
       end
 
-      def sanitize_edipi(edipi)
-        return unless edipi.present? && edipi.is_a?(String)
-
-        # Remove non-digit characters from input, and match the first contiguous 10 digits found
-        edipi.match(/\d{10}/)&.to_s
-      end
-
-      def sanitize_id(id)
-        return unless id.present? && id.is_a?(String)
-
-        # Remove non-digit characters from input
-        id.match(/\d+/)&.to_s
-      end
-
       def locate_element(el, path)
         locate_elements(el, path)&.first
       end

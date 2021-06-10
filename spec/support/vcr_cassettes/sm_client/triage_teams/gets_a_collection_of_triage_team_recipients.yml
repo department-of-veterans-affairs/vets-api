@@ -33,8 +33,8 @@ http_interactions:
       - Tue, 31 Jan 2017 21:20:38 GMT
     body:
       encoding: UTF-8
-      string: '{"triageTeam":[{"name":"Automation Triage","relationType":"PATIENT","triageTeamId":153463},{"name":"Sustainment
-        Team","relationType":"PATIENT","triageTeamId":333647},{"name":"Vets.gov Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586}]}'
+      string: '{"triageTeam":[{"name":"Automation Triage","relationType":"PATIENT","triageTeamId":153463,"preferredTeam":true},{"name":"Sustainment
+ Team","relationType":"PATIENT","triageTeamId":333647,"preferredTeam":true},{"name":"Vets.gov Testing_DAYT29","relationType":"PATIENT","triageTeamId":613586,"preferredTeam":false}]}'
     http_version: 
   recorded_at: Tue, 31 Jan 2017 21:20:38 GMT
 recorded_with: VCR 3.0.3

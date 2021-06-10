@@ -13,11 +13,14 @@ FactoryBot.define do
       status { 'error' }
     end
     trait :status_received do
-      status { 'received' }
+      status { 'submitted' }
     end
     trait :completed_a_week_ago do
       updated_at { 8.days.ago }
       status { AppealsApi::NoticeOfDisagreement::COMPLETE_STATUSES.sample }
+    end
+    trait :board_review_hearing do
+      board_review_option { 'hearing' }
     end
   end
 

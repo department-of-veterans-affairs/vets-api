@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../app/controllers/apps_api/v0/directory_controller.rb'
+require_relative '../../../app/controllers/apps_api/v0/directory_controller'
 
 RSpec.describe 'Application Directory Endpoint', type: :request do
   let(:auth_string) { 'blah' }
@@ -13,31 +13,27 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   end
   let(:valid_params) do
     {
-      "name": 'testing',
-      "logo_url": 'www.example.com/image2',
-      "service_categories": ['Health'],
-      "app_type": 'Third-Party-OAuth',
-      "platforms": ['iOS'],
-      "app_url": 'www.example.com',
-      "description": 'This is the testing description',
-      "privacy_url": 'www.example.com/privacy',
-      "tos_url": 'www.example.com/tos'
+      name: 'testing',
+      logo_url: 'www.example.com/image2',
+      service_categories: ['Health'],
+      app_type: 'Third-Party-OAuth',
+      platforms: ['iOS'],
+      app_url: 'www.example.com',
+      description: 'This is the testing description',
+      privacy_url: 'www.example.com/privacy',
+      tos_url: 'www.example.com/tos'
     }
   end
   let(:invalid_params) do
     {
       # missing required variables
-      "name": 'testing',
-      "platforms": ['iOS'],
-      "app_url": 'www.example.com',
-      "description": 'This is the testing description',
-      "privacy_url": 'www.example.com/privacy',
-      "tos_url": 'www.example.com/tos'
+      name: 'testing',
+      platforms: ['iOS'],
+      app_url: 'www.example.com',
+      description: 'This is the testing description',
+      privacy_url: 'www.example.com/privacy',
+      tos_url: 'www.example.com/tos'
     }
-  end
-
-  before do
-    allow(Settings.directory).to receive(:secret).and_return(auth_string)
   end
 
   describe '#get /services/apps/v0/directory' do
@@ -77,15 +73,6 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
   end
 
   describe '#destroy /services/apps/v0/directory/:name' do
-    it 'returns unauthorized if the header is invalid' do
-      post '/services/apps/v0/directory',
-           params: { id: 'testing', directory_application: valid_params },
-           headers: valid_headers
-      delete '/services/apps/v0/directory/testing',
-             params: { id: 'testing' },
-             headers: invalid_headers
-      expect(response).to have_http_status(:unauthorized)
-    end
     it 'deletes the app' do
       post '/services/apps/v0/directory',
            params: { id: 'testing', directory_application: valid_params },
@@ -150,6 +137,16 @@ RSpec.describe 'Application Directory Endpoint', type: :request do
       VCR.use_cassette('okta/verification-scopes', match_requests_on: %i[method path]) do
         get '/services/apps/v0/directory/scopes'
         expect(response).to have_http_status(:no_content)
+      end
+    end
+  end
+
+  describe '#get /services/apps/v0/directory/:page' do
+    context 'when paginating' do
+      it 'returns paginated apps' do
+        get '/services/apps/v0/directory?page=1'
+        body = JSON.parse(response.body)
+        expect(body['data'].length).to be <= 10
       end
     end
   end

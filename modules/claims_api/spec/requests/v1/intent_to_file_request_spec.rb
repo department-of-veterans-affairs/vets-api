@@ -7,9 +7,7 @@ RSpec.describe 'Intent to file', type: :request do
     { 'X-VA-SSN': '796-10-4437',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
-      'X-VA-EDIPI': '1007697216',
       'X-Consumer-Username': 'TestConsumer',
-      'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
@@ -29,9 +27,9 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#0966' do
-    it 'returns a successful get response with json schema' do
-      with_okta_user(scopes) do |auth_header|
-        get path, headers: headers.merge(auth_header)
+    describe 'schema' do
+      it 'returns a successful get response with json schema' do
+        get path
         json_schema = JSON.parse(response.body)['data'][0]
         expect(json_schema).to eq(JSON.parse(schema))
       end
@@ -71,7 +69,6 @@ RSpec.describe 'Intent to file', type: :request do
     it 'posts a 403 when a representative who doesn\'t have an MPI account tries to post type "burial"' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-          expect_any_instance_of(OpenidUser).to receive(:participant_id).and_raise(ArgumentError.new('whatever'))
           data[:data][:attributes] = { type: 'burial' }
           post path, params: data.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(403)

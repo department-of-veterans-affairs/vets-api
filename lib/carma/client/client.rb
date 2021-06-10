@@ -23,7 +23,9 @@ module CARMA
             payload,
             'Content-Type': 'application/json',
             'Sforce-Auto-Assign': 'FALSE'
-          ).body
+          ) do |req|
+            req.options.timeout = 120 # open/read timeout in seconds
+          end.body
         end
       end
 

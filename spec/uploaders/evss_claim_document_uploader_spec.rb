@@ -84,7 +84,7 @@ RSpec.describe EVSSClaimDocumentUploader do
   describe '#final_filename' do
     it 'returns the right filename' do
       [uploader_with_tiff, uploader_with_jpg].each do |uploader|
-        expect(uploader.final_filename).to eq('converted_image.TIF.jpg')
+        expect(uploader.final_filename).to match(/converted_image.TIF.jpe?g/)
       end
     end
   end
@@ -98,6 +98,56 @@ RSpec.describe EVSSClaimDocumentUploader do
 
     it 'shouldnt convert if the file isnt tiff' do
       expect(uploader_with_jpg.converted_exists?).to eq(false)
+    end
+
+    [
+      {
+        path: 'files/doctors-note.gif',
+        final_filename: 'converted_doctors-note_gif.png',
+        description: 'misnamed png',
+        binary_or_name_changes: true
+      },
+      {
+        path: 'files/doctors-note.jpg',
+        final_filename: 'converted_doctors-note_jpg.png',
+        description: 'misnamed png',
+        binary_or_name_changes: true
+      },
+      {
+        path: 'files/va.gif',
+        final_filename: 'va.gif',
+        description: 'no change',
+        binary_or_name_changes: false
+      },
+      {
+        path: 'evss_claim/image.TIF',
+        final_filename: /converted_image_TIF.jpe?g/,
+        description: 'ext and filetype match /BUT/ tifs not allowed',
+        binary_or_name_changes: true
+      },
+      {
+        path: 'evss_claim/secretly_a_jpg.tif',
+        final_filename: /converted_secretly_a_jpg_tif.jpe?g/,
+        description: 'misnamed jpg',
+        binary_or_name_changes: true
+      },
+      {
+        path: 'evss_claim/secretly_a_tif.jpg',
+        final_filename: 'converted_secretly_a_tif.jpg',
+        description: "converted, but file extension doesn't change",
+        binary_or_name_changes: true
+      }
+    ].each do |args|
+      path, final_filename, description, binary_or_name_changes = args.values_at(
+        :path, :final_filename, :description, :binary_or_name_changes
+      )
+      it "#{description}: #{path.split('/').last} -> #{final_filename}" do
+        uploader = described_class.new '1234', ['11', nil]
+        file = Rack::Test::UploadedFile.new "spec/fixtures/#{path}", "image/#{path.split('.').last}"
+        uploader.store! file
+        expect(uploader.converted_exists?).to eq binary_or_name_changes
+        expect(uploader.final_filename).to match(final_filename)
+      end
     end
   end
 

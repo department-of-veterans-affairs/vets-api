@@ -43,7 +43,7 @@ module AuthenticationAndSSOConcerns
 
   def load_user
     @session_object = Session.find(session[:token])
-    @current_user = User.find(@session_object.uuid) if @session_object
+    @current_user = User.find(@session_object.uuid) if @session_object&.uuid
   end
 
   # Destroys the user's session in Redis and the MHV SSO Cookie
@@ -59,6 +59,7 @@ module AuthenticationAndSSOConcerns
 
   # Destroys the users session in 1) Redis, 2) the MHV SSO Cookie, 3) and the Session Cookie
   def reset_session
+    AfterLogoutJob.perform_async(account_uuid: @current_user&.account_uuid) unless Rails.env.production?
     Rails.logger.info('SSO: ApplicationController#reset_session', sso_logging_info)
 
     clear_session

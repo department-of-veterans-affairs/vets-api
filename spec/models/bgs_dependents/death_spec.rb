@@ -12,7 +12,8 @@ RSpec.describe BGSDependents::Death do
       'location' => { 'state' => 'CA', 'city' => 'Hollywood' },
       'full_name' => { 'first' => 'Billy', 'middle' => 'Yohan', 'last' => 'Johnson', 'suffix' => 'Sr.' },
       'dependent_type' => 'CHILD',
-      'child_status' => { 'child_under18' => true }
+      'child_status' => { 'child_under18' => true },
+      'dependent_income' => false
     }
   end
   let(:formatted_params_result) do
@@ -24,7 +25,8 @@ RSpec.describe BGSDependents::Death do
       'first' => 'Billy',
       'middle' => 'Yohan',
       'last' => 'Johnson',
-      'suffix' => 'Sr.'
+      'suffix' => 'Sr.',
+      'dependent_income' => 'N'
     }
   end
 

@@ -29,10 +29,20 @@ module ClaimsApi
     delegate :birls_id, to: :mpi, allow_nil: true
     delegate :participant_id, to: :mpi, allow_nil: true
 
-    alias dslogon_edipi edipi
-
     def birth_date
       va_profile[:birth_date]
+    end
+
+    def gender_mpi
+      mpi_profile&.gender
+    end
+
+    def edipi_mpi
+      mpi_profile&.edipi
+    end
+
+    def participant_id_mpi
+      mpi_profile&.participant_id
     end
 
     # Virtus doesnt provide a valid? method, but MPI requires it
@@ -54,14 +64,14 @@ module ClaimsApi
     end
 
     def ssn=(new_ssn)
-      raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless SSN_REGEX.match?(new_ssn)
+      raise ::Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless SSN_REGEX.match?(new_ssn)
 
       super(new_ssn)
     end
 
     def va_profile=(new_va_profile)
       matches = Date.parse(new_va_profile.birth_date).iso8601
-      raise Common::Exceptions::ParameterMissing, 'X-VA-Birth-Date' unless matches
+      raise ::Common::Exceptions::ParameterMissing, 'X-VA-Birth-Date' unless matches
 
       super(new_va_profile)
     end
@@ -93,6 +103,20 @@ module ClaimsApi
       OpenStruct.new(
         birth_date: birth_date
       )
+    end
+
+    def mpi_icn
+      return nil unless mpi
+
+      mpi.icn
+    end
+
+    private
+
+    def mpi_profile
+      return nil unless mpi
+
+      mpi.profile
     end
   end
 end

@@ -55,7 +55,8 @@ module EVSS
 
       def handle_error(error)
         Raven.tags_context(team: 'benefits-memorial-1') # tag sentry logs with team name
-        if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
+        if (error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)) ||
+           error.is_a?(EVSS::ErrorMiddleware::EVSSError)
           begin
             log_edipi if invalid_address_error?(error)
           ensure

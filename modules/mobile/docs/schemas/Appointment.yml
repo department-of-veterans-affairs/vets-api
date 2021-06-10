@@ -14,32 +14,26 @@ properties:
     type: object
     required:
       - appointmentType
-      - status
-      - startTime
-      - minutesDuration
+      - cancelId
       - comment
-      - timeZone
+      - clinicId
+      - facilityId
       - healthcareService
       - location
+      - minutesDuration
+      - startDateLocal
+      - startDateUtc
+      - status
+      - timeZone
+      - vetextId
     properties:
       appointmentType:
         type: string
         enum: [ COMMUNITY_CARE, VA, VA_VIDEO_CONNECT_ATLAS, VA_VIDEO_CONNECT_HOME, VA_VIDEO_CONNECT_GFE, VA_VIDEO_CONNECT_ONSITE ]
         example: VA
-      status:
+      cancelId:
         type: string
-        description: Booking status of the appointment. Note that 'HIDDEN' means that the status should be hidden, the appointment should still be visible.
-        enum: [ BOOKED, CANCELLED, HIDDEN ]
-        example: BOOKED
-      startDateLocal:
-        type: datetime
-        example: 2019-04-20T14:15:00.000-04:00
-      startDateUtc:
-        type: datetime
-        example: 2019-04-20T18:15:00.000Z
-      minutesDuration:
-        type: integer
-        example: 60
+        example: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment:
         type: string
         example: Please arrive 20 minutes before the start of your appointment
@@ -105,6 +99,23 @@ properties:
           code:
             type: string
             example: GL32C
+      minutesDuration:
+        type: integer
+        example: 60
+      startDateLocal:
+        type: datetime
+        example: 2019-04-20T14:15:00.000-04:00
+      startDateUtc:
+        type: datetime
+        example: 2019-04-20T18:15:00.000Z
+      status:
+        type: string
+        description: Booking status of the appointment. Note that 'HIDDEN' means that the status should be hidden, the appointment should still be visible.
+        enum: [ BOOKED, CANCELLED, HIDDEN ]
+        example: BOOKED
       timeZone:
         type: string
         example: "America/Los_Angeles"
+      vetextId:
+        type: string
+        example: 308;20210106.140000

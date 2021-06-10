@@ -6,6 +6,8 @@ module HealthQuest
     # An object responsible for fetching and building access_tokens
     # from the Lighthouse for the Lighthouse::Session object.
     #
+    # @!attribute api
+    #   @return [String]
     # @!attribute user
     #   @return [User]
     # @!attribute request
@@ -17,24 +19,29 @@ module HealthQuest
     # @!attribute decoded_token
     #   @return [Hash]
     class Token
-      attr_reader :user, :request, :claims_token
+      ACCESS_TOKEN = 'access_token'
+      EXPIRATION = 'exp'
+      SCOPES_DELIMITER = ' '
+
+      attr_reader :api, :user, :request, :claims_token
       attr_accessor :access_token, :decoded_token
 
       ##
       # Builds a Lighthouse::Token instance from a user
       #
       # @param user [User] the current user
-      #
+      # @param api [String] the Lighthouse api
       # @return [Lighthouse::Token] an instance of this class
       #
-      def self.build(user:)
-        new(user)
+      def self.build(user:, api:)
+        new(user: user, api: api)
       end
 
-      def initialize(user)
-        @user = user
+      def initialize(opts)
+        @api = opts[:api]
+        @user = opts[:user]
         @request = Request.build
-        @claims_token = ClaimsToken.build.sign_assertion
+        @claims_token = ClaimsToken.build(api: api).sign_assertion
       end
 
       ##
@@ -45,9 +52,9 @@ module HealthQuest
       # @return [Lighthouse::Token]
       #
       def fetch
-        response = request.post('/oauth2/pgd/v1/token', post_params)
+        response = request.post(api_paths[api], post_params)
 
-        self.access_token = JSON.parse(response.body).fetch('access_token')
+        self.access_token = JSON.parse(response.body).fetch(ACCESS_TOKEN)
         self.decoded_token = JWT.decode(access_token, nil, false).first
         self
       end
@@ -67,22 +74,50 @@ module HealthQuest
       # @return [Integer]
       #
       def ttl_duration
-        exp = decoded_token.fetch('exp')
+        exp = decoded_token.fetch(EXPIRATION)
+
         Time.zone.at(exp).utc.to_i - Time.zone.now.utc.to_i - 5
       end
 
-      private
-
+      ##
+      # Build the encoded form string from a hash of parameters
+      #
+      # @return [String]
+      #
       def post_params
         hash = {
-          grant_type: 'client_credentials',
-          client_assertion_type: 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+          grant_type: lighthouse.grant_type,
+          client_assertion_type: lighthouse.client_assertion_type,
           client_assertion: claims_token,
-          scope: 'launch/patient patient/Patient.read patient/Questionnaire.read patient/QuestionnaireResponse.read',
+          scope: scopes[api].join(SCOPES_DELIMITER),
           launch: user&.icn
         }
 
         URI.encode_www_form(hash)
+      end
+
+      ##
+      # Hash for selecting the access token path based on the api
+      #
+      # @return [Hash]
+      #
+      def api_paths
+        { 'pgd_api' => lighthouse.pgd_token_path, 'health_api' => lighthouse.health_token_path }
+      end
+
+      ##
+      # Hash for selecting the request scopes based on the api
+      #
+      # @return [Hash]
+      #
+      def scopes
+        { 'pgd_api' => lighthouse.pgd_api_scopes, 'health_api' => lighthouse.health_api_scopes }
+      end
+
+      private
+
+      def lighthouse
+        Settings.hqva_mobile.lighthouse
       end
     end
   end

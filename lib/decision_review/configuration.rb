@@ -41,6 +41,7 @@ module DecisionReview
         faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
 
+        faraday.request :multipart
         faraday.request :json
 
         faraday.response :betamocks if mock_enabled?
@@ -54,6 +55,10 @@ module DecisionReview
     #
     def mock_enabled?
       Settings.decision_review.mock || false
+    end
+
+    def breakers_error_threshold
+      80 # breakers will be tripped if error rate reaches 80% over a two minute period.
     end
   end
 end

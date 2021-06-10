@@ -76,7 +76,9 @@ end
 
 class VbmsCheck < BaseCheck
   def check
-    response = Faraday::Connection.new.get(Settings.vbms.url) { |request| request.options.timeout = 20 }
+    connection = Faraday::Connection.new
+    connection.options.timeout = 10
+    response = connection.get("#{Settings.vbms.url}/vbms-efolder-svc/upload-v1/eFolderUploadService?wsdl")
     response.status == 200 ? process_success : process_failure
   rescue
     process_failure
@@ -92,9 +94,10 @@ end
 OkComputer::Registry.register 'evss', EvssCheck.new
 OkComputer::Registry.register 'mpi', MpiCheck.new
 OkComputer::Registry.register 'bgs-vet_record', BgsCheck.new('vet_record')
+OkComputer::Registry.register 'bgs-corporate_update', BgsCheck.new('corporate_update')
 OkComputer::Registry.register 'bgs-intent_to_file', BgsCheck.new('intent_to_file')
 OkComputer::Registry.register 'bgs-claimant', BgsCheck.new('claimant')
 OkComputer::Registry.register 'bgs-contention', BgsCheck.new('contention')
 OkComputer::Registry.register 'vbms', VbmsCheck.new
 
-OkComputer.make_optional %w[vbms bgs-vet_record bgs-claimant bgs-contention]
+OkComputer.make_optional %w[vbms bgs-vet_record bgs-corporate_update bgs-contention]

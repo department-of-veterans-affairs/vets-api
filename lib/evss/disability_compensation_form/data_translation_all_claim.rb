@@ -53,6 +53,7 @@ module EVSS
         output_form['applicationExpirationDate'] = application_expiration_date
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
+        output_form['claimSubmissionSource'] = 'VA.gov'
         output_form.compact!
 
         output_form.update(translate_banking_info)
@@ -203,7 +204,6 @@ module EVSS
             'servicePeriods' => translate_service_periods,
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
-            'servedInCombatZone' => input_form['servedInCombatZonePost911'],
             'alternateNames' => translate_names
           }.compact
         }
@@ -618,11 +618,19 @@ module EVSS
 
       def user_supplied_rad_date
         # Retrieve the most recent Release from Active Duty (RAD) date from user supplied service periods
-        recent_service_period = translate_service_periods.sort_by { |episode| episode['activeDutyEndDate'] }.reverse[0]
+        # Exclude Reserve and Guard
+        recent_service_periods = translate_service_periods.reject do |episode|
+          episode['serviceBranch'].include?('Reserve') || episode['serviceBranch'].include?('National Guard')
+        end
+        return nil if recent_service_periods.blank?
+
+        recent_service_period = recent_service_periods.sort_by { |episode| episode['activeDutyEndDate'] }.reverse[0]
         recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
       end
 
       def days_until_release
+        return 0 unless user_supplied_rad_date
+
         @days_until_release ||= user_supplied_rad_date - @form_submission_date
       end
 

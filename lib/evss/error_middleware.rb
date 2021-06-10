@@ -27,20 +27,16 @@ module EVSS
 
     def on_complete(env)
       status = env[:status]
-
+      resp = env.body
+      Raven.extra_context(body: resp)
       case status
       when 200
         if env.response_headers['content-type'].downcase.include?('xml')
           handle_xml_body(env)
-        else
-          resp = env.body
-
-          if resp['success'] == false || resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
-            raise EVSSError.new(resp['messages'], resp['messages'], resp)
-          end
+        elsif resp['success'] == false || resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
+          raise EVSSError.new(resp['messages'], resp['messages'], resp)
         end
       when 503, 504
-        resp = env.body
         raise EVSSBackendServiceError.new("EVSS#{status}", { status: status }, status, resp)
       end
     end

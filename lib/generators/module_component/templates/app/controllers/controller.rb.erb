@@ -2,7 +2,7 @@
 
 module <%= class_name %>
   module V0
-    class <%= class_name %>Controller < ApplicationController
+    class <%= @comp_name.camelize %>Controller < ApplicationController
       def index
         message = service.get_message
         render json: <%= class_name %>Serializer.new(message).serialized_json

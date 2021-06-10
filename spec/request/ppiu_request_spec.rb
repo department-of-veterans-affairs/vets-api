@@ -117,14 +117,32 @@ RSpec.describe 'PPIU', type: :request do
       end
 
       context 'when the user does have an associated email address' do
-        it 'calls a background job to send an email' do
+        subject do
           VCR.use_cassette('evss/ppiu/update_payment_information') do
-            user.all_emails do |email|
-              expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
-            end
-
             put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           end
+        end
+
+        context 'with the va notify email flag on' do
+          it 'sends an email through va notify' do
+            Flipper.enable(:direct_deposit_vanotify)
+
+            expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
+              user.all_emails, :comp_pen
+            )
+
+            subject
+          end
+        end
+
+        it 'calls a background job to send an email' do
+          Flipper.disable(:direct_deposit_vanotify)
+
+          user.all_emails do |email|
+            expect(DirectDepositEmailJob).to receive(:perform_async).with(email, nil)
+          end
+
+          subject
         end
       end
 

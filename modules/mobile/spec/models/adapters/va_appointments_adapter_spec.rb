@@ -20,11 +20,19 @@ describe Mobile::V0::Adapters::VAAppointments do
   end
 
   it 'returns a set of the facilities for the appointments' do
-    expect(adapted_facilities).to eq(Set.new(['442']))
+    expect(adapted_facilities).to eq(Set.new(%w[442 442GC]))
   end
 
   context 'with a booked VA appointment' do
     let(:booked_va) { adapted_appointments[0] }
+
+    it 'has an id' do
+      expect(booked_va[:id]).to eq('202006031600983000030800000000000000')
+    end
+
+    it 'has a cancel id of the encoded cancel params' do
+      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7R3JlZW4gVGVhbSBDbGluaWMx')
+    end
 
     it 'has a type of VA' do
       expect(booked_va[:appointment_type]).to eq('VA')
@@ -34,12 +42,8 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(booked_va[:comment]).to eq('RP test')
     end
 
-    it 'has a facility_id that matches the parent facility id' do
-      expect(booked_va[:facility_id]).to eq('442')
-    end
-
     it 'has a healthcare_service that matches the clinic name' do
-      expect(booked_va[:healthcare_service]).to eq('CHY PC KILPATRICK')
+      expect(booked_va[:healthcare_service]).to eq('Green Team Clinic1')
     end
 
     it 'has a location with a name (address to be filled in by facilities api)' do
@@ -84,10 +88,30 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a time zone' do
       expect(booked_va[:time_zone]).to eq('America/Denver')
     end
+
+    it 'has a vetext id' do
+      expect(booked_va[:vetext_id]).to eq('308;20201103.090000')
+    end
+
+    it 'has a facility_id' do
+      expect(booked_va[:facility_id]).to eq('442')
+    end
+
+    it 'has a sta6aid' do
+      expect(booked_va[:sta6aid]).to eq('442')
+    end
   end
 
   context 'with a cancelled VA appointment' do
     let(:cancelled_va) { adapted_appointments[1] }
+
+    it 'has an id' do
+      expect(cancelled_va[:id]).to eq('202006032020983000030800000000000000')
+    end
+
+    it 'does not have a cancel id' do
+      expect(cancelled_va[:cancel_id]).to be_nil
+    end
 
     it 'has a type of VA' do
       expect(cancelled_va[:appointment_type]).to eq('VA')
@@ -97,12 +121,8 @@ describe Mobile::V0::Adapters::VAAppointments do
       expect(cancelled_va[:comment]).to be_nil
     end
 
-    it 'has a facility_id that matches the parent facility id' do
-      expect(cancelled_va[:facility_id]).to eq('442')
-    end
-
     it 'has a healthcare_service that matches the clinic name' do
-      expect(cancelled_va[:healthcare_service]).to eq('CHY PC KILPATRICK')
+      expect(cancelled_va[:healthcare_service]).to eq('Green Team Clinic1')
     end
 
     it 'has a location with a name (address to be filled in by facilities api)' do
@@ -147,10 +167,26 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a time zone' do
       expect(cancelled_va[:time_zone]).to eq('America/Denver')
     end
+
+    it 'has a facility_id' do
+      expect(cancelled_va[:facility_id]).to eq('442')
+    end
+
+    it 'has a sta6aid' do
+      expect(cancelled_va[:sta6aid]).to eq('442')
+    end
   end
 
   context 'with a booked home video appointment' do
     let(:booked_video_home) { adapted_appointments[7] }
+
+    it 'has an id' do
+      expect(booked_video_home[:id]).to eq('202006111600983000045500000000000000')
+    end
+
+    it 'does not have a cancel id' do
+      expect(booked_video_home[:cancel_id]).to be_nil
+    end
 
     it 'has a type of VA_VIDEO_CONNECT_HOME' do
       expect(booked_video_home[:appointment_type]).to eq('VA_VIDEO_CONNECT_HOME')
@@ -158,10 +194,6 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'does not have comment' do
       expect(booked_video_home[:comment]).to be_nil
-    end
-
-    it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_home[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -215,16 +247,20 @@ describe Mobile::V0::Adapters::VAAppointments do
   context 'with a booked atlas appointment' do
     let(:booked_video_atlas) { adapted_appointments[8] }
 
+    it 'has an id' do
+      expect(booked_video_atlas[:id]).to eq('202006141600983000094500000000000000')
+    end
+
+    it 'does not have a cancel id' do
+      expect(booked_video_atlas[:cancel_id]).to be_nil
+    end
+
     it 'has a type of VA' do
       expect(booked_video_atlas[:appointment_type]).to eq('VA_VIDEO_CONNECT_ATLAS')
     end
 
     it 'has no comment' do
       expect(booked_video_atlas[:comment]).to be_nil
-    end
-
-    it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_atlas[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -278,16 +314,20 @@ describe Mobile::V0::Adapters::VAAppointments do
   context 'with a booked video appointment on VA furnished equipment' do
     let(:booked_video_gfe) { adapted_appointments[9] }
 
+    it 'has an id' do
+      expect(booked_video_gfe[:id]).to eq('202006151200984000118400000000000000')
+    end
+
+    it 'does not have a cancel id' do
+      expect(booked_video_gfe[:cancel_id]).to be_nil
+    end
+
     it 'has a type of VA' do
       expect(booked_video_gfe[:appointment_type]).to eq('VA_VIDEO_CONNECT_GFE')
     end
 
     it 'has a comment' do
       expect(booked_video_gfe[:comment]).to eq('Medication Review')
-    end
-
-    it 'has a facility_id that matches the parent facility id' do
-      expect(booked_video_gfe[:facility_id]).to eq('442')
     end
 
     it 'has a healthcare_service that matches the clinic name' do
@@ -349,21 +389,80 @@ describe Mobile::V0::Adapters::VAAppointments do
       subject.parse(JSON.parse(appointment_fixtures_missing_status, symbolize_names: true))[0]
     end
 
-    let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+    context 'with  past appointment' do
+      before { Timecop.freeze(Time.zone.parse('2021-01-13')) }
 
-    it 'includes a hidden status' do
-      expect(booked_va_hidden_status.to_hash).to include(
-        {
-          appointment_type: 'VA',
-          comment: 'Follow-up/Routine: sasdfasdf',
-          facility_id: '442',
-          healthcare_service: 'FTC CPAP',
-          minutes_duration: 60,
-          start_date_local: DateTime.parse('2021-01-14 13:00:00.000 MST -07:00'),
-          start_date_utc: DateTime.parse('2021-01-14 20:00:00.000 +00:00 +00:00'),
-          status: 'HIDDEN'
-        }
+      after { Timecop.return }
+
+      let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+
+      it 'does not include a hidden status' do
+        expect(booked_va_hidden_status.to_hash).to include(
+          {
+            status: 'BOOKED'
+          }
+        )
+      end
+    end
+
+    context 'with a future appointment' do
+      before { Timecop.freeze(Time.zone.parse('2021-01-15')) }
+
+      after { Timecop.return }
+
+      let(:booked_va_hidden_status) { adapted_appointments_missing_status[2] }
+
+      it 'includes a hidden status' do
+        expect(booked_va_hidden_status.to_hash).to include(
+          {
+            status: 'HIDDEN'
+          }
+        )
+      end
+    end
+  end
+
+  context 'with a VA appointment that has a missing friendly name' do
+    let(:missing_friendly_name) { adapted_appointments[3] }
+
+    it 'uses the VDS clinic name' do
+      expect(missing_friendly_name[:healthcare_service]).to eq('CHY PC CASSIDY')
+    end
+  end
+
+  context 'with appointments that have different facility and station ids' do
+    let(:appointment_facility_station_ids_json) do
+      File.read(
+        Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments_sta6aid.json')
       )
+    end
+
+    let(:appointment_facility_station_ids) do
+      subject.parse(JSON.parse(appointment_facility_station_ids_json, symbolize_names: true))[0]
+    end
+
+    context 'with an appointment that has different ids' do
+      let(:appointment_different_ids) { appointment_facility_station_ids.first }
+
+      it 'has the expected facility id' do
+        expect(appointment_different_ids.facility_id).to eq('442')
+      end
+
+      it 'has the expected sta6aid' do
+        expect(appointment_different_ids.sta6aid).to eq('442GC')
+      end
+    end
+
+    context 'with an appointment that has the same id for both' do
+      let(:appointment_same_ids) { appointment_facility_station_ids.last }
+
+      it 'has the expected facility id' do
+        expect(appointment_same_ids.facility_id).to eq('442')
+      end
+
+      it 'has the expected sta6aid' do
+        expect(appointment_same_ids.sta6aid).to eq('442')
+      end
     end
   end
 end

@@ -38,7 +38,7 @@ module SAML
       @loa3_context = loa3_context
 
       if (params[:action] == 'saml_callback') && params[:RelayState].present?
-        @type = JSON.parse(params[:RelayState])['type']
+        @type = JSON.parse(CGI.unescapeHTML(params[:RelayState]))['type']
       end
       @query_params = {}
       @tracker = initialize_tracker(params)
@@ -52,7 +52,6 @@ module SAML
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
       return verify_url if auth == 'success' && user.loa[:current] < user.loa[:highest]
 
@@ -71,7 +70,6 @@ module SAML
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def logout_redirect_url
       "#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}"

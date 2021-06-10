@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vet360/contact_information/service'
+require 'va_profile/contact_information/service'
 
 module V0
   module Profile
@@ -16,7 +16,7 @@ module V0
       end
 
       def statuses
-        transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(@current_user, service)
+        transactions = AsyncTransaction::VAProfile::Base.refresh_transaction_statuses(@current_user, service)
 
         render json: transactions, each_serializer: AsyncTransaction::BaseSerializer
       end
@@ -28,7 +28,7 @@ module V0
       end
 
       def service
-        ::Vet360::ContactInformation::Service.new(@current_user)
+        VAProfile::ContactInformation::Service.new(@current_user)
       end
     end
   end

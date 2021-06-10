@@ -13,6 +13,7 @@ module V0
           'address',
           address_params
         )
+        Rails.logger.info('AddressesController#create request completed', sso_logging_info)
       end
 
       def update
@@ -21,6 +22,7 @@ module V0
           address_params,
           http_verb: 'put'
         )
+        Rails.logger.info('AddressesController#update request completed', sso_logging_info)
       end
 
       def destroy
@@ -29,11 +31,11 @@ module V0
           add_effective_end_date(address_params),
           http_verb: 'put'
         )
+        Rails.logger.info('AddressesController#destroy request completed', sso_logging_info)
       end
 
       private
 
-      # rubocop:disable Metrics/MethodLength
       def address_params
         params.permit(
           :address_line1,
@@ -45,20 +47,16 @@ module V0
           :country_code_iso3,
           :county_code,
           :county_name,
-          :effective_start_date,
           :validation_key,
           :id,
           :international_postal_code,
           :province,
-          :source_date,
           :state_code,
           :transaction_id,
-          :vet360_id,
           :zip_code,
           :zip_code_suffix
         )
       end
-      # rubocop:enable Metrics/MethodLength
     end
   end
 end

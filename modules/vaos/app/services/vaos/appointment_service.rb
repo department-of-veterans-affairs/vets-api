@@ -10,10 +10,20 @@ module VAOS
 
       with_monitoring do
         response = perform(:get, get_appointments_base_url(type), params, headers, timeout: 55)
+
         {
           data: deserialized_appointments(response.body, type),
-          meta: pagination(pagination_params)
+          meta: pagination(pagination_params).merge(partial_errors(response))
         }
+      end
+    end
+
+    def get_appointment(id)
+      params = {}
+
+      with_monitoring do
+        response = perform(:get, show_appointment_url(id), params, headers)
+        OpenStruct.new(response.body)
       end
     end
 
@@ -69,7 +79,7 @@ module VAOS
                          end
       return [] unless appointment_list
 
-      appointment_list.map { |appointments| OpenStruct.new(appointments) }
+      appointment_list.map { |appointment| OpenStruct.new(appointment) }
     end
 
     # TODO: need underlying APIs to support pagination consistently
@@ -84,12 +94,30 @@ module VAOS
       }
     end
 
+    def partial_errors(response)
+      if response.status == 200 && response.body[:errors]&.any?
+        log_message_to_sentry(
+          'VAOS::AppointmentService#get_appointments has response errors.',
+          :info,
+          errors: response.body[:errors].to_json
+        )
+      end
+
+      {
+        errors: (response.body[:errors] || []) # VAMF drops null valued keys; ensure we always return empty array
+      }
+    end
+
     def get_appointments_base_url(type)
       if type == 'va'
         "/appointments/v1/patients/#{user.icn}/appointments"
       else
         "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/patient/ICN/#{user.icn}/booked-cc-appointments"
       end
+    end
+
+    def show_appointment_url(id)
+      "/appointments/v1/patients/#{user.icn}/appointments/#{id}"
     end
 
     def post_appointment_url(site)

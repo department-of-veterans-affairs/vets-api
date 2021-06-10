@@ -34,9 +34,11 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             Darrell.Neel@va.gov
             Delli-Gatti_Michael@bah.com
             Joseph.Preisser@va.gov
-            Joseph.Welton@va.gov
+            kyle.pietrosanto@va.gov
             lihan@adhocteam.us
+            Lucas.Tickner@va.gov
             Neel_Darrell@bah.com
+            Ricardo.DaSilva@va.gov
             shawkey_daniel@bah.com
             sonntag_adam@bah.com
             tammy.hurley1@va.gov
@@ -60,8 +62,9 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             dana.kuykendall@va.gov
             Jennifer.Waltz2@va.gov
             Joseph.Preisser@va.gov
-            Joseph.Welton@va.gov
+            Joshua.Lashbrook@va.gov
             kathleen.dalfonso@va.gov
+            kyle.pietrosanto@va.gov
             lihan@adhocteam.us
             Lucas.Tickner@va.gov
             Ricardo.DaSilva@va.gov
@@ -104,9 +107,11 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             Darrell.Neel@va.gov
             Delli-Gatti_Michael@bah.com
             Joseph.Preisser@va.gov
-            Joseph.Welton@va.gov
+            kyle.pietrosanto@va.gov
             lihan@adhocteam.us
+            Lucas.Tickner@va.gov
             Neel_Darrell@bah.com
+            Ricardo.DaSilva@va.gov
             shawkey_daniel@bah.com
             sonntag_adam@bah.com
             tammy.hurley1@va.gov
@@ -132,8 +137,9 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             dana.kuykendall@va.gov
             Jennifer.Waltz2@va.gov
             Joseph.Preisser@va.gov
-            Joseph.Welton@va.gov
+            Joshua.Lashbrook@va.gov
             kathleen.dalfonso@va.gov
+            kyle.pietrosanto@va.gov
             lihan@adhocteam.us
             Lucas.Tickner@va.gov
             Ricardo.DaSilva@va.gov

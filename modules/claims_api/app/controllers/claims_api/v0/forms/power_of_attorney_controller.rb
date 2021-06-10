@@ -1,22 +1,26 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/base_form_controller'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V0
     module Forms
-      class PowerOfAttorneyController < ClaimsApi::BaseFormController
+      class PowerOfAttorneyController < ClaimsApi::V0::Forms::Base
         include ClaimsApi::DocumentValidations
+        include ClaimsApi::EndpointDeprecation
+        include ClaimsApi::PoaVerification
 
         FORM_NUMBER = '2122'
 
-        skip_before_action(:authenticate)
-        before_action :validate_json_schema, only: %i[submit_form_2122 validate]
-        before_action :validate_documents_content_type, only: %i[upload]
-        before_action :validate_documents_page_size, only: %i[upload]
-
+        # POST to change power of attorney for a Veteran.
+        #
+        # @return [JSON] Record in pending state
         def submit_form_2122
+          validate_json_schema
+
+          poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
+          validate_poa_code!(poa_code)
+
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
                                                                                           source_name: source_name)
           unless power_of_attorney&.status&.in?(%w[submitted pending])
@@ -40,31 +44,75 @@ module ClaimsApi
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # PUT to upload a wet-signed 2122 form.
+        # Required if "signatures" not supplied in above POST.
+        #
+        # @return [JSON] Claim record
         def upload
+          validate_documents_content_type
+          validate_documents_page_size
+
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
                                                                                           source_name: source_name)
           power_of_attorney.set_file_data!(documents.first, params[:doc_type])
-          power_of_attorney.status = 'submitted'
+          power_of_attorney.status = ClaimsApi::PowerOfAttorney::SUBMITTED
           power_of_attorney.save!
           power_of_attorney.reload
           ClaimsApi::VBMSUploadJob.perform_async(power_of_attorney.id)
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # GET the current status of a previous POA change request.
+        #
+        # @return [JSON] POA record with current status
         def status
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(id: params[:id],
                                                                                           source_name: source_name)
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
+
           render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
         end
 
+        # GET current POA for a Veteran.
+        #
+        # @return [JSON] Last POA change request through Claims API
         def active
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
-                                                                                          source_name: source_name)
-          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
+
+          representative_info = build_representative_info(current_poa_code)
+
+          render json: {
+            data: {
+              id: nil,
+              type: 'claims_api_power_of_attorneys',
+              attributes: {
+                status: ClaimsApi::PowerOfAttorney::UPDATED,
+                date_request_accepted: current_poa_begin_date,
+                representative: {
+                  service_organization: {
+                    name: representative_info[:name],
+                    phone_number: representative_info[:phone_number],
+                    poa_code: current_poa_code
+                  }
+                },
+                previous_poa: previous_poa_code
+              }
+            }
+          }
         end
 
+        # POST to validate 2122 submission payload.
+        #
+        # @return [JSON] Success if valid, error messages if invalid.
         def validate
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
+          validate_json_schema
           render json: validation_success
+        end
+
+        def schema
+          add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V0_DEV_DOCS)
+          super
         end
 
         private
@@ -93,6 +141,44 @@ module ClaimsApi
               }
             }
           }
+        end
+
+        def current_poa_begin_date
+          return nil if current_poa.try(:begin_date).blank?
+
+          Date.strptime(current_poa.begin_date, '%m/%d/%Y')
+        end
+
+        def current_poa
+          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+        end
+
+        def current_poa_code
+          current_poa.try(:code)
+        end
+
+        def previous_poa_code
+          @previous_poa_code ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).previous_poa_code
+        end
+
+        def build_representative_info(poa_code)
+          if poa_code_in_organization?(poa_code)
+            veteran_service_organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
+            raise 'Veteran Service Organization not found' if veteran_service_organization.blank?
+
+            {
+              name: veteran_service_organization.name,
+              phone_number: veteran_service_organization.phone
+            }
+          else
+            representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).first
+            raise 'Power of Attorney not found' if representative.blank?
+
+            {
+              name: "#{representative.first_name} #{representative.last_name}",
+              phone_number: representative.phone
+            }
+          end
         end
       end
     end

@@ -18,6 +18,13 @@ module Mobile
         )
       end
 
+      def destroy
+        delete_params = email_params.to_h.merge(effective_end_date: Time.now.utc.iso8601)
+        render_transaction_to_json(
+          service.save_and_await_response(resource_type: :email, params: delete_params, update: true)
+        )
+      end
+
       private
 
       def email_params

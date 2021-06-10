@@ -15,12 +15,12 @@ module Swagger
             property :underDoctorHopitalCarePast12M, type: :boolean
             property :doctorProvidedCare, type: :array do
               items type: :object do
-                key :'$ref', :ProvidedCare
+                key :$ref, :ProvidedCare
               end
             end
             property :hospitalProvidedCare, type: :array do
               items type: :object do
-                key :'$ref', :ProvidedCare
+                key :$ref, :ProvidedCare
               end
             end
             property :disabilityAffectedEmploymentFullTimeDate,
@@ -37,7 +37,7 @@ module Swagger
             property :occupationDuringMostEarnings, type: :string
             property :previousEmployers, type: :array do
               items type: :object do
-                key :'$ref', :PreviousEmployer
+                key :$ref, :PreviousEmployer
               end
             end
             property :disabilityPreventMilitaryDuties, type: :boolean
@@ -56,7 +56,7 @@ module Swagger
             property :attemptedToObtainEmploymentSinceUnemployability, type: :boolean
             property :appliedEmployers, type: :array do
               items type: :object do
-                key :'$ref', :AppliedEmployer
+                key :$ref, :AppliedEmployer
               end
             end
             property :education, type: :string, enum:
@@ -76,7 +76,7 @@ module Swagger
               items type: :object do
                 property :name, type: :string
                 property :dates, type: :object do
-                  key :'$ref', :DateRange
+                  key :$ref, :DateRange
                 end
               end
             end
@@ -87,7 +87,7 @@ module Swagger
         swagger_schema :ProvidedCare do
           property :name, type: :string
           property :address, type: :object do
-            key :'$ref', :AddressNoRequiredFields
+            key :$ref, :AddressNoRequiredFields
           end
           property :dates, type: :string
         end
@@ -95,7 +95,7 @@ module Swagger
         swagger_schema :PreviousEmployer do
           property :name, type: :string
           property :employerAddress, type: :object do
-            key :'$ref', :AddressNoRequiredFields
+            key :$ref, :AddressNoRequiredFields
           end
           property :phone,
                    type: :string,
@@ -103,7 +103,7 @@ module Swagger
           property :typeOfWork, type: :string
           property :hoursPerWeek, type: :number, minLength: 0, maxLength: 999
           property :dates, type: :object do
-            key :'$ref', :DateRange
+            key :$ref, :DateRange
           end
           property :timeLostFromIllness, type: :string
           property :mostEarningsInAMonth, type: :number, minimum: 0
@@ -113,7 +113,7 @@ module Swagger
         swagger_schema :AppliedEmployer do
           property :name, type: :string
           property :address, type: :object do
-            key :'$ref', :AddressNoRequiredFields
+            key :$ref, :AddressNoRequiredFields
           end
           property :workType, type: :string
           property :date,

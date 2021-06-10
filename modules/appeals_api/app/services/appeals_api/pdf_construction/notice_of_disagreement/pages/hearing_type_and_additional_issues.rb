@@ -46,14 +46,15 @@ module AppealsApi
           def hearing_type_text
             return if no_hearing_type?
 
-            "\nHearing Type Preference: #{form_data.hearing_type_preference.humanize}\n"
+            "\n<b>Hearing Type Preference:</b>\n#{form_data.hearing_type_preference.humanize}\n"
           end
 
           def extra_issues_table_data
-            header = ['A. Specific Issue(s)', 'B. Date of Decision']
+            header = ['A. Specific Issue(s)', 'B. Disagreement Reason', 'C. Date of Decision']
 
             data = form_data.contestable_issues.drop(MAX_ISSUES_ON_FIRST_PAGE).map do |issue|
-              [issue['attributes']['issue'], issue['attributes']['decisionDate']]
+              [issue['attributes']['issue'], issue['attributes']['disagreementReason'],
+               issue['attributes']['decisionDate']]
             end
 
             data.unshift(header)

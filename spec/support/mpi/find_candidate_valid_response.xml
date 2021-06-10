@@ -80,6 +80,12 @@
                     <value value="169" xsi:type="INT"/>
                   </queryMatchObservation>
                 </subjectOf1>
+                <subjectOf2 typeCode="SBJ">
+                  <administrativeObservation classCode="VERIF">
+                    <code codeSystem="2.16.840.1.113883.4.349" code="PERSON_TYPE" displayName="Person Type"/>
+                    <value xsi:type="CD" code="PAT" displayName="Patient"/>
+                  </administrativeObservation>
+                </subjectOf2>
               </patient>
             </subject1>
             <custodian typeCode="CST">
@@ -97,7 +103,7 @@
         <queryByParameter>
           <queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/>
           <statusCode code="new"/>
-          <modifyCode code="MVI.COMP2"/>
+          <modifyCode code="MVI.COMP1.RMS"/>
           <initialQuantity value="1"/>
           <parameterList>
             <livingSubjectAdministrativeGender>

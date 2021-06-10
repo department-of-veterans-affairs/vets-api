@@ -10,13 +10,19 @@
         "name": { "$ref": "#/definitions/name" },
         "age": { "$ref": "#/definitions/age" },
         "married": { "$ref": "#/definitions/married" },
+        "pattern": { "$ref": "#/definitions/pattern" },
         "email": { "$ref": "#/definitions/email" },
         "gender": { "$ref": "#/definitions/gender" },
+        "favoriteFood": { "$ref": "#/definitions/favoriteFood" },
+        "hungry?": { "$ref": "#/definitions/hungry?" },
+        "dessert": { "$ref": "#/definitions/dessert" },
         "location": { "$ref": "#/definitions/location" },
         "favoriteFruits": { "$ref":  "#/definitions/favoriteFruits" },
         "requiredField": { "$ref": "#/definitions/requiredField" }
       },
-      "required": ["name", "age", "married", "email", "gender", "location", "requiredField"]
+      "required": ["name", "age", "married", "pattern", "email", "gender", "favoriteFood", "hungry?", "location", "requiredField"],
+      "if": { "properties": { "hungry?": { "const":  true } } },
+      "then": { "required":  ["dessert"] }
     },
     "name": {
       "type": "string",
@@ -31,10 +37,13 @@
     "married": {
       "type": "boolean"
     },
-    "email": {
+    "pattern": {
       "type": "string",
       "pattern": ".@.",
       "minLength": 3
+    },
+    "email": {
+      "format": "email"
     },
     "gender": {
       "type": "string",
@@ -42,6 +51,21 @@
         "male",
         "female",
         "undisclosed"
+      ]
+    },
+    "favoriteFood": {
+      "type": "string",
+      "const": "pizza"
+    },
+    "hungry?": {
+      "type": "boolean"
+    },
+    "dessert": {
+      "type": "string",
+      "enum": [
+        "cheesecake",
+        "snickerdoodles",
+        "cream puff"
       ]
     },
     "location": {

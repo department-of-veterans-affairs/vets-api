@@ -71,14 +71,14 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Preferences
+              key :$ref, :Preferences
             end
           end
 
           response 404 do
             key :description, 'Not found: Preference record not found'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
         end
@@ -118,14 +118,14 @@ module Swagger
           response 404 do
             key :description, 'Preference not found. No data was modified.'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
 
           response 422 do
             key :description, 'UserPreferences not deleted. No data was modified.'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
         end
@@ -224,7 +224,7 @@ module Swagger
           response 404 do
             key :description, 'Not found: Preference record not found'
             schema do
-              key :'$ref', :Errors
+              key :$ref, :Errors
             end
           end
 
@@ -303,7 +303,7 @@ module Swagger
             property :title, type: :string
             property :preference_choices, type: :array do
               items do
-                key :'$ref', :PreferenceChoices
+                key :$ref, :PreferenceChoices
               end
             end
           end

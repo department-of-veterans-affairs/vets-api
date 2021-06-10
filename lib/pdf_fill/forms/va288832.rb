@@ -267,10 +267,22 @@ module PdfFill
           'year' => {
             key: 'F[0].Page_2[0].DOByear[0]'
           }
-        } # end date_signed
+        }, # end date_signed
+        'claimantName' => { key: 'claimantName' },
+        'claimantSsn' => { key: 'claimantSsn' },
+        'claimantDob' => { key: 'claimantDob' },
+        'claimantVaFileNumber' => { key: 'claimantVaFileNumber' },
+        'claimantEmail' => { key: 'claimantEmail' },
+        'claimantRelationship' => { key: 'claimantRelationship' },
+        'claimantTelephone' => { key: 'claimantTelephone' },
+        'claimantMailingAddress' => { key: 'claimantMailingAddress' },
+        'veteranName' => { key: 'veteranName' },
+        'veteranSocialSecurityNumber' => { key: 'veteranSocialSecurityNumber' },
+        'veteranVaFileNumber' => { key: 'veteranVaFileNumber' }
       }.freeze
 
       def merge_fields(_options = {})
+        merge_addendum_helpers
         merge_claimant_helpers
         merge_veteran_helpers
 
@@ -351,6 +363,21 @@ module PdfFill
         return @form_data['veteranSsn'] = split_ssn(ssn.delete('-')) if ssn.present?
 
         @form_data['veteranSsn'] = @form_data.dig('claimantInformation', 'ssn')
+      end
+
+      def merge_addendum_helpers
+        @form_data['claimantName'] = combine_full_name(@form_data.dig('claimantInformation', 'fullName'))
+        @form_data['claimantSsn'] = @form_data.dig('claimantInformation', 'ssn')
+        @form_data['claimantDob'] = @form_data.dig('claimantInformation', 'dateOfBirth')
+        @form_data['claimantVaFileNumber'] = @form_data.dig('claimantInformation', 'vaFileNumber')
+        # possible values for relationship: ['isActiveDuty', 'isVeteran', 'isSpouse', 'isChild']
+        # on the PDF we want to remove the 'is' from the beginning of each of those values
+        @form_data['claimantRelationship'] = @form_data.dig('status')[2..]
+        @form_data['claimantEmail'] = @form_data.dig('claimantInformation', 'emailAddress')
+        @form_data['claimantTelephone'] = @form_data.dig('claimantInformation', 'phoneNumber')
+        @form_data['claimantMailingAddress'] = combine_full_address(@form_data.dig('claimantAddress'))
+        @form_data['veteranName'] = combine_full_name(@form_data.dig('veteranFullName'))
+        @form_data['veteranVaFileNumber'] = @form_data.dig('vaFileNumber')
       end
     end
   end

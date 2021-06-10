@@ -2,16 +2,17 @@
 
 require 'saml/errors'
 require 'digest'
-require 'mpi/responses/parser_base'
-require 'mpi/responses/id_parser'
+require 'identity/parsers/gc_ids'
 
 module SAML
   module UserAttributes
     class SSOe
       include SentryLogging
+      include Identity::Parsers::GCIds
       SERIALIZABLE_ATTRIBUTES = %i[email first_name middle_name last_name common_name zip gender ssn birth_date
                                    uuid idme_uuid sec_id mhv_icn mhv_correlation_id mhv_account_type
-                                   dslogon_edipi loa sign_in multifactor participant_id birls_id icn].freeze
+                                   edipi loa sign_in multifactor participant_id birls_id icn
+                                   person_types].freeze
       INBOUND_AUTHN_CONTEXT = 'urn:oasis:names:tc:SAML:2.0:ac:classes:Password'
 
       attr_reader :attributes, :authn_context, :warnings
@@ -41,11 +42,11 @@ module SAML
       end
 
       def participant_id
-        MPI::Responses::ParserBase.new.sanitize_id(mvi_ids[:vba_corp_id])
+        sanitize_id(mvi_ids[:vba_corp_id])
       end
 
       def birls_id
-        MPI::Responses::ParserBase.new.sanitize_id(mvi_ids[:birls_id])
+        sanitize_id(mvi_ids[:birls_id])
       end
 
       def icn
@@ -78,6 +79,11 @@ module SAML
 
       def email
         safe_attr('va_eauth_emailaddress')
+      end
+
+      # Returns an array beause a person can have multipe types.
+      def person_types
+        safe_attr('va_eauth_persontype')&.split('|')
       end
 
       ### Identifiers
@@ -123,8 +129,12 @@ module SAML
         safe_attr('va_eauth_dslogonassurance')
       end
 
-      def dslogon_edipi
+      def edipi
         safe_attr('va_eauth_dodedipnid')&.split(',')&.first
+      end
+
+      def sponsor_dod_epi_pn_id
+        safe_attr('va_eauth_sponsordodedipnid')&.split(',')&.first
       end
 
       # va_eauth_credentialassurancelevel is supposed to roll up the
@@ -219,7 +229,7 @@ module SAML
         gcids = safe_attr('va_eauth_gcIds')
         return {} unless gcids
 
-        @mvi_ids = MPI::Responses::IdParser.new.parse_string(gcids)
+        @mvi_ids = parse_string_gcids(gcids)
       end
 
       def safe_attr(key)

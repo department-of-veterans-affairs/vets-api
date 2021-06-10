@@ -22,6 +22,43 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     pending_record
   end
 
+  describe 'validate_service_dates' do
+    context 'when activeDutyEndDate is before activeDutyBeginDate' do
+      it 'throws an error' do
+        auto_form.form_data = { 'serviceInformation' => { 'servicePeriods' => [{
+          'activeDutyBeginDate' => '1991-05-02',
+          'activeDutyEndDate' => '1990-04-05'
+        }] } }
+
+        expect(auto_form.save).to eq(false)
+        expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
+      end
+    end
+
+    context 'when activeDutyEndDate is not provided' do
+      it 'throws an error' do
+        auto_form.form_data = { 'serviceInformation' => { 'servicePeriods' => [{
+          'activeDutyBeginDate' => '1991-05-02',
+          'activeDutyEndDate' => nil
+        }] } }
+
+        expect(auto_form.save).to eq(true)
+      end
+    end
+
+    context 'when activeDutyBeginDate is not provided' do
+      it 'throws an error' do
+        auto_form.form_data = { 'serviceInformation' => { 'servicePeriods' => [{
+          'activeDutyBeginDate' => nil,
+          'activeDutyEndDate' => '1990-04-05'
+        }] } }
+
+        expect(auto_form.save).to eq(false)
+        expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
+      end
+    end
+  end
+
   describe 'pending?' do
     context 'no pending records' do
       it 'is false' do
@@ -53,6 +90,18 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     it 'adds an identifier for Lighthouse submissions' do
       payload = JSON.parse(pending_record.to_internal)
       expect(payload['form526']['claimSubmissionSource']).to eq('Lighthouse')
+    end
+
+    it 'converts special issues to EVSS codes' do
+      payload = JSON.parse(pending_record.to_internal)
+      expect(payload['form526']['disabilities'].first['specialIssues']).to eq(['PTSD_2'])
+      expect(payload['form526']['disabilities'].first['secondaryDisabilities'].first['specialIssues']).to eq([])
+    end
+
+    it 'converts homelessness situation type to EVSS code' do
+      payload = JSON.parse(pending_record.to_internal)
+      actual = payload['form526']['veteran']['homelessness']['currentlyHomeless']['homelessSituationType']
+      expect(actual).to eq('FLEEING_CURRENT_RESIDENCE')
     end
   end
 

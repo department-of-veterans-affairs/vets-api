@@ -25,11 +25,8 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
       expect_unauthorized
     end
 
-    context 'with a flipper disabled user' do
-      before do
-        allow(User).to receive(:find).with(user.uuid).and_return(user)
-        expect(Flipper).to receive(:enabled?).with(:ch33_dd, user).and_return(false).twice
-      end
+    context 'with a non multifactor user' do
+      let(:user) { build(:user, :loa3) }
 
       expect_unauthorized
     end
@@ -86,7 +83,21 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     end
 
     context 'with a successful update' do
+      context 'if direct_deposit_vanotify flag is enabled' do
+        it 'sends confirmation emails to the vanotify job' do
+          Flipper.enable(:direct_deposit_vanotify)
+
+          expect(VANotifyDdEmailJob).to receive(:send_to_emails).with(
+            user.all_emails, :ch33
+          )
+
+          send_successful_update
+        end
+      end
+
       it 'sends confirmation emails' do
+        Flipper.disable(:direct_deposit_vanotify)
+
         expect(DirectDepositEmailJob).to receive(:send_to_emails).with(
           user.all_emails, nil, :ch33
         )

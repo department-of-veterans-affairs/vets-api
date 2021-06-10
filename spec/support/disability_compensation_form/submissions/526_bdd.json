@@ -6,6 +6,7 @@
       "autoCestPDFGenerationDisabled": false,
       "applicationExpirationDate": "2021-08-01T00:00:00Z",
       "bddQualified": true,
+      "claimSubmissionSource": "VA.gov",
       "directDeposit": {
         "accountType": "CHECKING",
         "accountNumber": "9876543211234",

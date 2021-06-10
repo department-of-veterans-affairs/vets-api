@@ -33,6 +33,9 @@ Rails.application.configure do
   # Disable request forgery protection in test environment.
   config.action_controller.allow_forgery_protection = false
 
+  # store files on hard drive during rspec tests
+  config.active_storage.service = :local
+
   # Tell Action Mailer not to deliver emails to the real world.
   # The :test delivery method accumulates sent emails in the
   # ActionMailer::Base.deliveries array.
@@ -43,6 +46,8 @@ Rails.application.configure do
 
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
+
+  config.cache_store = :null_store
 
   # Speed up specs by not writing logs during RSpec runs
   unless ENV.fetch('RAILS_ENABLE_TEST_LOG', false)

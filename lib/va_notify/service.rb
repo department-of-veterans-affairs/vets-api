@@ -2,7 +2,7 @@
 
 require 'notifications/client'
 require 'common/client/base'
-require 'va_notify/configuration'
+require_relative 'configuration'
 
 module VaNotify
   class Service < Common::Client::Base
@@ -14,7 +14,7 @@ module VaNotify
 
     attr_reader :notify_client
 
-    def initialize
+    def initialize(api_key)
       overwrite_client_networking
       @notify_client ||= Notifications::Client.new(api_key, client_url)
     rescue => e
@@ -49,10 +49,6 @@ module VaNotify
 
     def client_url
       config.base_path
-    end
-
-    def api_key
-      config.api_key
     end
 
     def handle_error(error)

@@ -22,7 +22,8 @@
       "lastTreatmentFacility": {
         "name": "My Hospital",
         "type": "hospital"
-      }
+      },
+      "signature": "Rosamond A Jerde"
   },
   "primaryCaregiver": {
     "fullName": {
@@ -44,7 +45,8 @@
     "alternativePhoneNumber": "9990239330",
     "email": "primaryCaregiverEmail@email.com",
     "vetRelationship": "Spouse",
-    "hasHealthInsurance": true
+    "hasHealthInsurance": true,
+    "signature": "Joan Jerde"
   },
   "secondaryCaregiverOne": {
     "fullName": {
@@ -86,6 +88,7 @@
     "primaryPhoneNumber": "8784844999",
     "alternativePhoneNumber": "8788894300",
     "email": "secondaryTwoCaregiverEmail@email.com",
-    "vetRelationship": "Friend/Neighbor"
+    "vetRelationship": "Friend/Neighbor",
+    "signature": "Derrick J. Jaskolski"
   }
 } 

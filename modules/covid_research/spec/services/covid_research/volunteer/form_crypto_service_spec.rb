@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-require_relative '../../../../app/services/covid_research/volunteer/form_crypto_service.rb'
-require_relative '../../../covid_research_spec_helper.rb'
-
-RSpec.configure do |c|
-  c.include CovidResearchSpecHelper
-end
+require 'rails_helper'
+require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 
 RSpec.describe CovidResearch::Volunteer::FormCryptoService do
   let(:subject)        { described_class.new }

@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
 module Form1010cgHelpers
+  def build_claim_data(&mutations)
+    data = VetsJsonSchema::EXAMPLES['10-10CG'].clone
+    mutations&.call data
+    data
+  end
+
   def build_claim_data_for(form_subject, &mutations)
     data = {
       'fullName' => {

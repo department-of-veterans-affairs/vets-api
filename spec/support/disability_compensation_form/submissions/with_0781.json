@@ -280,6 +280,10 @@
                 "country": "USA",
                 "postalCode": "21200-1111"
               }
+            },
+            {
+              "address":
+              {"country":"USA"}
             }
           ]
         }

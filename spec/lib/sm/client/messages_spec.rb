@@ -40,7 +40,7 @@ describe 'sm client' do
     it 'gets a message with id', :vcr do
       message = client.get_message(existing_message_id)
       expect(message.attributes[:id]).to eq(existing_message_id)
-      expect(message.attributes[:subject].strip).to eq('Release 16.2- SM last login')
+      expect(message.attributes[:subject].strip).to eq('Quote test: “test”')
     end
 
     it 'gets a message thread', :vcr do
@@ -124,6 +124,11 @@ describe 'sm client' do
 
         expect(attachment[:filename]).to eq('noise300x200.png')
         expect(attachment[:body].encoding.to_s).to eq('ASCII-8BIT')
+      end
+
+      it 'gets a single attachment with quotes in filename', :vcr do
+        attachment = client.get_attachment(message_id, attachment_id)
+        expect(attachment[:filename]).to eq('noise300x200.png')
       end
     end
   end

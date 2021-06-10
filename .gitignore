@@ -74,6 +74,9 @@ dump.rdb
 # Ignore IDE files
 *.iml
 
+#ignore storage files
+/storage/*
+
 #ignore docker_debugging and .env
 docker_debugging
 .env

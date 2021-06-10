@@ -39,7 +39,7 @@ http_interactions:
       - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"272111863","edi":"9294277224","firstName":"abraham","lastName":"lincoln"}}'
   response:
     status:
-      code: 500
+      code: 200
       message: OK
     headers:
       Date:

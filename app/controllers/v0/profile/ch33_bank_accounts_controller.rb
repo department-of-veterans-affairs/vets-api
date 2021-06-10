@@ -22,7 +22,13 @@ module V0
           return render(json: res, status: :bad_request)
         end
 
-        DirectDepositEmailJob.send_to_emails(current_user.all_emails, params[:ga_client_id], :ch33)
+        if Flipper.enabled?(:direct_deposit_vanotify, current_user)
+          VANotifyDdEmailJob.send_to_emails(current_user.all_emails, :ch33)
+        else
+          DirectDepositEmailJob.send_to_emails(current_user.all_emails, params[:ga_client_id], :ch33)
+        end
+
+        Rails.logger.info('Ch33BankAccountsController#update request completed', sso_logging_info)
 
         render_find_ch33_dd_eft
       end

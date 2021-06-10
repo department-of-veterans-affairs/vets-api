@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
-require 'vet360/models/validation_address'
-require 'vet360/address_validation/service'
+require 'va_profile/models/validation_address'
+require 'va_profile/address_validation/service'
 
 module V0
   module Profile
     class AddressValidationController < ApplicationController
       def create
-        address = Vet360::Models::ValidationAddress.new(address_params)
+        address = VAProfile::Models::ValidationAddress.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
+
+        Rails.logger.info('AddressValidationController#create request completed', sso_logging_info)
 
         render(json: service.address_suggestions(address))
       end
@@ -33,7 +35,7 @@ module V0
       end
 
       def service
-        @service ||= Vet360::AddressValidation::Service.new
+        @service ||= VAProfile::AddressValidation::Service.new
       end
     end
   end

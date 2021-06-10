@@ -33,8 +33,20 @@ RSpec.describe BGS::Form686c do
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:create).and_call_original
       expect_any_instance_of(BGS::BenefitClaim).to receive(:create).and_call_original
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
+      expect_any_instance_of(BGS::Service).to receive(:update_proc).with('3831475', { proc_state: 'MANUAL_VAGOV' })
 
       BGS::Form686c.new(user_object).submit(all_flows_payload)
+    end
+  end
+
+  it 'submits a non-manual claim' do
+    VCR.use_cassette('bgs/form686c/submit') do
+      claim = BGS::Form686c.new(user_object)
+
+      expect(claim).to receive(:get_state_type).and_return 'Started'
+      expect_any_instance_of(BGS::Service).to receive(:update_proc).with('3831475', { proc_state: 'Ready' })
+
+      claim.submit(all_flows_payload)
     end
   end
 end

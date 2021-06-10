@@ -58,7 +58,7 @@ PrePush:
   # Re-run Brakeman before pushing, as it's quick.
   Brakeman:
     enabled: true
-    command: ['bundle', 'exec', 'brakeman']
+    command: ['bundle', 'exec', 'brakeman', '--run-all-checks', '--confidence-level=2']
 
 PostCheckout:
   ALL:

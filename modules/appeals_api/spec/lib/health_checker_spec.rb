@@ -14,13 +14,15 @@ describe AppealsApi::HealthChecker do
 
   let(:faraday_response) { instance_double('Faraday::Response') }
 
-  describe '#services_are_healthy?' do
+  describe '#appeals_services_are_healthy?' do
     context 'when caseflow is healthy' do
       it 'returns true' do
         allow(faraday_response).to receive(:body).and_return({ 'healthy' => true })
         allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
 
-        expect(subject).to be_services_are_healthy
+        response = subject.appeals_services_are_healthy?
+
+        expect(response).to eq(true)
       end
     end
 
@@ -29,7 +31,47 @@ describe AppealsApi::HealthChecker do
         allow(faraday_response).to receive(:body).and_return({ 'healthy' => false })
         allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
 
-        expect(subject).not_to be_services_are_healthy
+        response = subject.appeals_services_are_healthy?
+
+        expect(response).to eq(false)
+      end
+    end
+  end
+
+  describe '#decision_reviews_services_are_healthy?' do
+    context 'when caseflow is healthy but central mail is not' do
+      it 'returns false' do
+        allow(faraday_response).to receive(:body).and_return({ 'healthy' => true })
+        allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
+        allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(true)
+
+        response = subject.decision_reviews_services_are_healthy?
+
+        expect(response).to eq(false)
+      end
+    end
+
+    context 'when caseflow is not healthy and central mail is' do
+      it 'returns false' do
+        allow(faraday_response).to receive(:body).and_return({ 'healthy' => false })
+        allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
+        allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
+
+        response = subject.decision_reviews_services_are_healthy?
+
+        expect(response).to eq(false)
+      end
+    end
+
+    context 'both central mail and caseflow are healthy' do
+      it 'returns true' do
+        allow(faraday_response).to receive(:body).and_return({ 'healthy' => true })
+        allow(client_stub).to receive(:healthcheck).and_return(faraday_response)
+        allow(CentralMail::Service).to receive(:current_breaker_outage?).and_return(false)
+
+        response = subject.decision_reviews_services_are_healthy?
+
+        expect(response).to eq(true)
       end
     end
   end

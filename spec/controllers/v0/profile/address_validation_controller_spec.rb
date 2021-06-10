@@ -4,9 +4,9 @@ require 'rails_helper'
 
 RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   let(:user) { FactoryBot.build(:user) }
-  let(:address) { build(:vet360_address) }
+  let(:address) { build(:va_profile_address) }
   let(:multiple_match_addr) do
-    build(:vet360_address, :multiple_matches)
+    build(:va_profile_address, :multiple_matches)
   end
 
   before do
@@ -16,7 +16,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   describe '#create' do
     context 'with an invalid address' do
       it 'returns an error' do
-        post(:create, params: { address: build(:vet360_validation_address).to_h })
+        post(:create, params: { address: build(:va_profile_validation_address).to_h })
 
         expect(response.code).to eq('422')
         expect(JSON.parse(response.body)).to eq(
@@ -64,7 +64,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     context 'with a found address' do
       it 'returns suggested addresses for a given address' do
         VCR.use_cassette(
-          'vet360/address_validation/candidate_multiple_matches',
+          'va_profile/address_validation/candidate_multiple_matches',
           VCR::MATCH_EVERYTHING
         ) do
           post(:create, params: { address: multiple_match_addr.to_h })

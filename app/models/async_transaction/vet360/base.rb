@@ -20,8 +20,8 @@ module AsyncTransaction
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
       # @param user [User] The user associated with the transaction
-      # @param response [Vet360::ContactInformation::TransactionResponse] An instance of
-      #   a Vet360::ContactInformation::TransactionResponse class, be it Email, Address, etc.
+      # @param response [VAProfile::ContactInformation::TransactionResponse] An instance of
+      #   a VAProfile::ContactInformation::TransactionResponse class, be it Email, Address, etc.
       # @return [AsyncTransaction::Vet360::Base] A AsyncTransaction::Vet360::Base record, be it Email, Address, etc.
       #
       def self.start(user, response)
@@ -38,7 +38,7 @@ module AsyncTransaction
 
       # Updates the status and transaction_status with fresh API data
       # @param user [User] the user whose tx data is being updated
-      # @param service [Vet360::ContactInformation::Service] an initialized vet360 client
+      # @param service [VAProfile::ContactInformation::Service] an initialized vet360 client
       # @param tx_id [int] the transaction_id
       # @return [AsyncTransaction::Vet360::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
@@ -52,8 +52,8 @@ module AsyncTransaction
       # Requests a transaction from vet360 for an app transaction
       # @param user [User] the user whose tx data is being updated
       # @param transaction_record [AsyncTransaction::Vet360::Base] the tx record to be checked
-      # @param service [Vet360::ContactInformation::Service] an initialized vet360 client
-      # @return [Vet360::Models::Transaction]
+      # @param service [VAProfile::ContactInformation::Service] an initialized vet360 client
+      # @return [VAProfile::Models::Transaction]
       def self.fetch_transaction(transaction_record, service)
         case transaction_record
         when AsyncTransaction::Vet360::AddressTransaction
@@ -98,7 +98,7 @@ module AsyncTransaction
       # Wrapper for .refresh_transaction_status which finds any outstanding transactions
       #   for a user and refreshes them
       # @param user [User] the user whose transactions we're checking
-      # @param service [Vet360::ContactInformation::Service] an initialized vet360 client
+      # @param service [VAProfile::ContactInformation::Service] an initialized vet360 client
       # @return [Array] An array with any outstanding transactions refreshed. Empty if none.
       def self.refresh_transaction_statuses(user, service)
         last_ongoing_transactions_for_user(user).each_with_object([]) do |transaction, array|

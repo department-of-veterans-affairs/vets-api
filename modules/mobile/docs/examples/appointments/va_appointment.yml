@@ -3,11 +3,10 @@ data:
     id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
     attributes:
       appointmentType: va
-      status: BOOKED
-      startDateLocal: 2019-04-20T14:15:00.000-04:00
-      startDateUtc: 2019-04-20T18:15:00.000Z
-      minutesDuration: 60
+      cancelId: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment: Please arrive 20 minutes before the start of your appointment
+      clinicId: "308"
+      facilityId: "442"
       healthcareService: Blind Rehabilitation Center
       location:
         name: VA Long Beach Healthcare System
@@ -24,4 +23,17 @@ data:
           extension: "5696"
         url: null
         code: null
+      minutesDuration: 60
+      startDateLocal: 2019-04-20T14:15:00.000-04:00
+      startDateUtc: 2019-04-20T18:15:00.000Z
+      status: BOOKED
       timeZone: America/Los_Angeles
+      vetextId: 308;20210106.140000
+meta:
+  errors: null
+links:
+  self: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=3&page[size]=10"
+  first: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=1&page[size]=10"
+  prev: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=2&page[size]=10"
+  next: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=4&page[size]=10"
+  last: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=6&page[size]=10"

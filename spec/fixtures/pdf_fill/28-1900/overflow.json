@@ -1,44 +1,39 @@
 {
-  "use_eva": true,
-  "use_telecounseling": true,
-  "appointment_time_preferences": {
-    "morning": true,
-    "mid_day": false,
-    "afternoon": false,
-    "other": false
-  },
-  "years_of_education": "12",
-  "is_moving": true,
-  "new_address": {
+  "useEva": true,
+  "useTelecounseling": true,
+  "appointmentTimePreferences": ["morning"],
+  "yearsOfEducation": "12",
+  "isMoving": true,
+  "newAddress": {
     "country": "USA",
     "street": "100117 5th Ave",
     "street2": "Apt 812",
     "street3": "6th Floor",
     "city": "New York",
     "state": "NY",
-    "postal_code": "10028"
+    "postalCode": "10028"
   },
-  "veteran_address": {
+  "veteranAddress": {
     "country": "USA",
     "street": "4201 Henry Ave",
     "street2": "8th Floor",
     "street3": "Suite 106",
     "city": "Philadelphia",
     "state": "PA",
-    "postal_code": "19144"
+    "postalCode": "19144"
   },
-  "main_phone": "2159512800",
-  "cell_phone": "2159516800",
+  "mainPhone": "2159512800",
+  "cellPhone": "2159516800",
   "email": "sam@test.com",
-  "veteran_information": {
-    "full_name": {
+  "veteranInformation": {
+    "fullName": {
       "first": "AdamAdamAdamAdam",
       "middle": "B",
       "last": "Huberws",
       "suffix": "Jr."
     },
     "ssn": "796-10-4437",
-    "va_file_number": "88246556",
-    "birth_date": "1950-10-04"
+    "VAFileNumber": "88246556",
+    "dob": "1950-10-04"
   }
 }

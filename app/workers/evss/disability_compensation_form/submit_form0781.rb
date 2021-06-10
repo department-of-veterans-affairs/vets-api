@@ -36,6 +36,7 @@ module EVSS
       # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
+        Raven.tags_context(source: '526EZ-all-claims')
         super(submission_id)
         with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
           parsed_forms = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
@@ -101,6 +102,9 @@ module EVSS
       def upload_to_vbms(auth_headers, evss_claim_id, pdf_path, form_id)
         upload_data = get_evss_claim_metadata(pdf_path, form_id)
         document_data = create_document_data(evss_claim_id, upload_data)
+
+        raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
+
         client = EVSS::DocumentsService.new(auth_headers)
         file_body = File.open(pdf_path).read
         client.upload(file_body, document_data)

@@ -8,17 +8,17 @@ module ClaimsApi
     include Sidekiq::Worker
     include SentryLogging
 
-    def perform(user, flashes, auto_claim_id: nil)
+    def perform(user, flashes, auto_claim_id = nil)
       service = bgs_service(user).claimant
 
       flashes.each do |flash_name|
         # Note: Assumption that duplicate flashes are ignored when submitted
-        service.add_flash(file_number: user.ssn, flash_name: flash_name)
+        service.add_flash(file_number: user['ssn'], flash_name: flash_name)
       rescue BGS::ShareError, BGS::PublicError => e
         persist_exception(e, auto_claim_id: auto_claim_id)
       end
 
-      assigned_flashes = service.find_assigned_flashes(user.ssn)[:flashes]
+      assigned_flashes = service.find_assigned_flashes(user['ssn'])[:flashes]
       flashes.each do |flash_name|
         assigned_flash = assigned_flashes.find { |af| af[:flash_name] == flash_name }
         if assigned_flash.blank?
@@ -39,11 +39,9 @@ module ClaimsApi
     end
 
     def bgs_service(user)
-      external_key = user.common_name || user.email
-
       BGS::Services.new(
-        external_uid: user.icn || user.uuid,
-        external_key: external_key
+        external_uid: user['ssn'],
+        external_key: user['ssn']
       )
     end
   end

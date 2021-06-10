@@ -23,6 +23,12 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'fileNumber":"(\w+)"'
+  - :method: :post
+    :path: "/api/v1/digital-services/financial-status-report/formtopdf"
+    :file_path: "debt_management_center/financial_status_reports/create"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'fileNumber":"(\w+)"'
 
 - :name: 'MDOT'
   :base_uri: <%= "#{URI(Settings.mdot.url).host}:#{URI(Settings.mdot.url).port}" %>
@@ -247,12 +253,6 @@
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
   - :method: :post
-    :path: "/wss-form526-services-web/rest/form526/v1/submit"
-    :file_path: "evss/disability_form/submit"
-    :cache_multiple_responses:
-      :uid_location: header
-      :uid_locator: 'va_eauth_pnid'
-  - :method: :post
     :path: <%= "/#{Settings.evss.alternate_service_name}/rest/form526/v2/submit" %>
     :file_path: "evss/disability_form/form526"
     :cache_multiple_responses:
@@ -334,24 +334,28 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
+      :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
     :path: <%= URI(Settings.mvi.url).path %>
     :file_path: "mvi/profile_icn"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id extension="([V0-9]*)"(?: root="2.16.840.1.113883.4.349")'
+      :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
     :path: <%= URI(Settings.mvi.url).path %>
     :file_path: "mvi/profile_icn"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )extension="([V0-9]*)"'
+      :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
   - :method: :post
     :path: <%= URI(Settings.mvi.url).path %>
     :file_path: "mvi/profile_edipi"
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '(?:root="2.16.840.1.113883.3.42.10001.100001.12" )?extension="(\d{10})"(?: root="2.16.840.1.113883.3.42.10001.100001.12")?'
+      :optional_code_locator: 'modifyCode code="(MVI\.COMP1\.RMS|MVI\.COMP2)"'
 
 
 # EMIS

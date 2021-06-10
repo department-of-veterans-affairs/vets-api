@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'json_marshal/marshaller'
+require 'claims_api/special_issue_mappers/evss'
+require 'claims_api/homelessness_situation_type_mapper'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
@@ -15,6 +17,7 @@ module ClaimsApi
                                                  marshal: true,
                                                  marshaler: JsonMarshal::Marshaller)
 
+    validate :validate_service_dates
     after_create :log_special_issues
     after_create :log_flashes
 
@@ -52,14 +55,18 @@ module ClaimsApi
     def to_internal
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       form_data['claimSubmissionSource'] = 'Lighthouse'
+
+      resolve_special_issue_mappings!
+      resolve_homelessness_situation_type_mappings!
+
       {
-        "form526": form_data
+        form526: form_data
       }.to_json
     end
 
     def self.pending?(id)
       query = where(id: id)
-      query.exists? ? query.first : false
+      query.exists? && query.first.evss_id.nil? ? query.first : false
     end
 
     def self.evss_id_by_token(token)
@@ -92,6 +99,30 @@ module ClaimsApi
 
     private
 
+    def resolve_special_issue_mappings!
+      mapper = ClaimsApi::SpecialIssueMappers::Evss.new
+      (form_data['disabilities'] || []).each do |disability|
+        disability['specialIssues'] = (disability['specialIssues'] || []).map do |special_issue|
+          mapper.code_from_name(special_issue)
+        end.compact
+
+        (disability['secondaryDisabilities'] || []).each do |secondary_disability|
+          secondary_disability['specialIssues'] = (secondary_disability['specialIssues'] || []).map do |special_issue|
+            mapper.code_from_name(special_issue)
+          end.compact
+        end
+      end
+    end
+
+    def resolve_homelessness_situation_type_mappings!
+      return if form_data['veteran']['homelessness'].blank?
+      return if form_data['veteran']['homelessness']['currentlyHomeless'].blank?
+
+      mapper = ClaimsApi::HomelessnessSituationTypeMapper.new
+      name = form_data['veteran']['homelessness']['currentlyHomeless']['homelessSituationType']
+      form_data['veteran']['homelessness']['currentlyHomeless']['homelessSituationType'] = mapper.code_from_name(name)
+    end
+
     def log_flashes
       Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following flashes - #{flashes}") if flashes.present?
     end
@@ -100,6 +131,25 @@ module ClaimsApi
       return if special_issues.blank?
 
       Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following special issues - #{special_issues}")
+    end
+
+    def validate_service_dates
+      service_periods = form_data.dig('serviceInformation', 'servicePeriods')
+
+      service_periods.each do |service_period|
+        start_date = if service_period['activeDutyBeginDate'].present?
+                       Date.parse(service_period['activeDutyBeginDate'])
+                     end
+        end_date = (Date.parse(service_period['activeDutyEndDate']) if service_period['activeDutyEndDate'].present?)
+
+        if start_date.present? && end_date.blank?
+          next
+        elsif start_date.blank?
+          errors.add :activeDutyBeginDate, 'must be present'
+        elsif (start_date.blank? && end_date.present?) || start_date > end_date
+          errors.add :activeDutyBeginDate, 'must be before activeDutyEndDate'
+        end
+      end
     end
 
     def remove_encrypted_fields

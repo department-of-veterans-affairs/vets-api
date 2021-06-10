@@ -7,10 +7,10 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
   let!(:upload) { create(:notice_of_disagreement, :status_received) }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:in_process_element) do
-    [{ "uuid": 'ignored',
-       "status": 'In Process',
-       "errorMessage": '',
-       "lastUpdated": '2018-04-25 00:02:39' }]
+    [{ uuid: 'ignored',
+       status: 'In Process',
+       errorMessage: '',
+       lastUpdated: '2018-04-25 00:02:39' }]
   end
 
   describe '#perform' do
@@ -36,7 +36,7 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusBatch, type: :job do
       it 'does not update statuses' do
         with_settings(Settings.modules_appeals_api, notice_of_disagreement_updater_enabled: false) do
           Sidekiq::Testing.inline! { AppealsApi::NoticeOfDisagreementUploadStatusBatch.new.perform }
-          expect(upload.status).to eq('received')
+          expect(upload.status).to eq('submitted')
         end
       end
     end

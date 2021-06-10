@@ -44,6 +44,16 @@ RSpec.describe DirectDepositMailer, type: [:mailer] do
           "We'll use your updated information to deposit any education benefits you may receive"
         )
       end
+
+      context 'string dd_type' do
+        let(:dd_type) { 'ch33' }
+
+        it 'includes the right text' do
+          expect(subject.body.raw_source).to include(
+            "We'll use your updated information to deposit any education benefits you may receive"
+          )
+        end
+      end
     end
   end
 end

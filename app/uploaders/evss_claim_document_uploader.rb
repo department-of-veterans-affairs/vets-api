@@ -1,20 +1,21 @@
 # frozen_string_literal: true
 
 # Files that will be associated with a previously submitted claim, from the Claim Status tool
-class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
+class EVSSClaimDocumentUploader < EVSSClaimDocumentUploaderBase
   include CarrierWave::MiniMagick
-  include SetAWSConfig
-  include ValidateEVSSFileSize
+  include ConvertFileType
 
-  def size_range
-    1.byte...150.megabytes
-  end
-
-  version :converted, if: :tiff? do
-    process(convert: :jpg)
-
-    def full_filename(file)
-      "converted_#{file}.jpg"
+  version :converted, if: :tiff_or_incorrect_extension? do
+    process(convert: :jpg, if: :tiff?)
+    def full_filename(original_name_for_file)
+      name = "converted_#{original_name_for_file}"
+      extension = CarrierWave::SanitizedFile.new(nil).send(:split_extension, original_name_for_file)[1]
+      mimemagic_object = self.class.inspect_binary file
+      if self.class.incorrect_extension?(extension: extension, mimemagic_object: mimemagic_object)
+        extension = self.class.extensions_from_mimemagic_object(mimemagic_object).first
+        return "#{name.gsub('.', '_')}.#{extension}"
+      end
+      name
     end
   end
 
@@ -28,26 +29,6 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     set_storage_options!
   end
 
-  def converted_exists?
-    converted.present? && converted.file.exists?
-  end
-
-  def final_filename
-    if converted_exists?
-      converted.file.filename
-    else
-      filename
-    end
-  end
-
-  def read_for_upload
-    if converted_exists?
-      converted.read
-    else
-      read
-    end
-  end
-
   def store_dir
     store_dir = "evss_claim_documents/#{@user_uuid}"
     @ids.compact.each do |id|
@@ -56,19 +37,11 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     store_dir
   end
 
-  def extension_whitelist
-    %w[pdf gif tiff tif jpeg jpg bmp txt]
-  end
-
   def move_to_cache
     false
   end
 
   private
-
-  def tiff?(file)
-    file.content_type == 'image/tiff'
-  end
 
   def set_storage_options!
     if Settings.evss.s3.uploads_enabled

@@ -14,6 +14,19 @@
           "type": "DOMESTIC",
           "zipLastFour": "6789",
           "state": "OR"
+        },
+        "homelessness": {
+          "currentlyHomeless": {
+            "homelessSituationType": "fleeing",
+            "otherLivingSituation": "none"
+          },
+          "pointOfContact": {
+            "pointOfContactName": "Firstname Lastname",
+            "primaryPhone": {
+              "areaCode": "123",
+              "phoneNumber": "5551234"
+            }
+          }
         }
       },
       "claimantCertification": true,

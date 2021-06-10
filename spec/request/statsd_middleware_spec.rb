@@ -91,9 +91,9 @@ RSpec.describe StatsdMiddleware, type: :request do
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)
   end
 
-  it 'uses not_in_whitelist for source_app when the value is not in white list' do
+  it 'uses not_in_allowlist for source_app when the value is not in allow list' do
     stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
-    tags = %w[controller:v0/prescriptions action:index source_app:not_in_whitelist status:200]
+    tags = %w[controller:v0/prescriptions action:index source_app:not_in_allowlist status:200]
     expect do
       get '/v0/prescriptions', headers: { 'Source-App-Name' => 'foo' }
     end.to trigger_statsd_increment(StatsdMiddleware::STATUS_KEY, tags: tags, times: 1)

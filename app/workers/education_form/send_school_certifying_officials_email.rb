@@ -54,7 +54,7 @@ module EducationForm
     end
 
     def get_institution
-      GIDSRedis.new.get_institution_details({ id: @facility_code })[:data][:attributes]
+      GIDSRedis.new.get_institution_details_v0({ id: @facility_code })[:data][:attributes]
     end
 
     def less_than_six_months?
@@ -89,9 +89,7 @@ module EducationForm
       if emails.any?
         StatsD.increment("#{stats_key}.success")
         SchoolCertifyingOfficialsMailer.build(@claim.open_struct_form, emails, nil).deliver_now
-        if Flipper.enabled?(:stem_applicant_email, @user)
-          StemApplicantScoMailer.build(@claim.open_struct_form, nil).deliver_now
-        end
+        StemApplicantScoMailer.build(@claim.open_struct_form, nil).deliver_now
         @claim.email_sent(true)
       else
         StatsD.increment("#{stats_key}.failure")

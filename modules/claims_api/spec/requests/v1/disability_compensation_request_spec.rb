@@ -7,9 +7,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',
       'X-VA-Last-Name': 'FORD',
-      'X-VA-EDIPI': '1007697216',
       'X-Consumer-Username': 'TestConsumer',
-      'X-VA-User': 'adhoc.test.user',
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
@@ -32,9 +30,9 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:path) { '/services/claims/v1/forms/526' }
     let(:schema) { File.read(Rails.root.join('modules', 'claims_api', 'config', 'schemas', '526.json')) }
 
-    it 'returns a successful get response with json schema' do
-      with_okta_user(scopes) do |auth_header|
-        get path, headers: headers.merge(auth_header)
+    describe 'schema' do
+      it 'returns a successful get response with json schema' do
+        get path
         json_schema = JSON.parse(response.body)['data'][0]
         expect(json_schema).to eq(JSON.parse(schema))
       end
@@ -139,16 +137,16 @@ RSpec.describe 'Disability Claims ', type: :request do
         with_okta_user(scopes) do |auth_header|
           par = json_data
           par['data']['attributes']['veteran']['homelessness'] = {
-            "pointOfContact": {
-              "pointOfContactName": 'John Doe',
-              "primaryPhone": {
-                "areaCode": '555',
-                "phoneNumber": '555-5555'
+            pointOfContact: {
+              pointOfContactName: 'John Doe',
+              primaryPhone: {
+                areaCode: '555',
+                phoneNumber: '555-5555'
               }
             },
-            "currentlyHomeless": {
-              "homelessSituationType": 'NOT_A_HOMELESS_TYPE',
-              "otherLivingSituation": 'other living situations'
+            currentlyHomeless: {
+              homelessSituationType: 'NOT_A_HOMELESS_TYPE',
+              otherLivingSituation: 'other living situations'
             }
           }
           post path, params: par.to_json, headers: headers.merge(auth_header)
@@ -161,16 +159,16 @@ RSpec.describe 'Disability Claims ', type: :request do
         with_okta_user(scopes) do |auth_header|
           par = json_data
           par['data']['attributes']['veteran']['homelessness'] = {
-            "pointOfContact": {
-              "pointOfContactName": 'John Doe',
-              "primaryPhone": {
-                "areaCode": '555',
-                "phoneNumber": '555-5555'
+            pointOfContact: {
+              pointOfContactName: 'John Doe',
+              primaryPhone: {
+                areaCode: '555',
+                phoneNumber: '555-5555'
               }
             },
-            "homelessnessRisk": {
-              "homelessnessRiskSituationType": 'NOT_RISK_TYPE',
-              "otherLivingSituation": 'other living situations'
+            homelessnessRisk: {
+              homelessnessRiskSituationType: 'NOT_RISK_TYPE',
+              otherLivingSituation: 'other living situations'
             }
           }
           post path, params: par.to_json, headers: headers.merge(auth_header)
@@ -406,12 +404,12 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:auto_claim) { create(:auto_established_claim) }
     let(:non_auto_claim) { create(:auto_established_claim, :autoCestPDFGeneration_disabled) }
     let(:binary_params) do
-      { 'attachment1': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
-        'attachment2': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
+      { attachment1: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"),
+        attachment2: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
     end
     let(:base64_params) do
-      { 'attachment1': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf"),
-        'attachment2': File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
+      { attachment1: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf"),
+        attachment2: File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/base64pdf") }
     end
 
     it 'upload 526 binary form through PUT' do
@@ -419,6 +417,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
             params: binary_params, headers: headers.merge(auth_header))
+        expect(response.status).to eq(200)
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
       end
@@ -429,6 +428,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{auto_claim.id}",
             params: base64_params, headers: headers.merge(auth_header))
+        expect(response.status).to eq(200)
         auto_claim.reload
         expect(auto_claim.file_data).to be_truthy
       end
@@ -439,7 +439,6 @@ RSpec.describe 'Disability Claims ', type: :request do
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         put("/services/claims/v1/forms/526/#{non_auto_claim.id}",
             params: binary_params, headers: headers.merge(auth_header))
-        non_auto_claim.reload
         expect(response.status).to eq(422)
       end
     end
@@ -450,6 +449,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
              params: binary_params, headers: headers.merge(auth_header))
+        expect(response.status).to eq(200)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
       end
@@ -461,6 +461,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         count = auto_claim.supporting_documents.count
         post("/services/claims/v1/forms/526/#{auto_claim.id}/attachments",
              params: base64_params, headers: headers.merge(auth_header))
+        expect(response.status).to eq(200)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 2)
       end
@@ -473,6 +474,19 @@ RSpec.describe 'Disability Claims ', type: :request do
         post("/services/claims/v1/forms/526/#{bad_id}/attachments",
              params: binary_params, headers: headers.merge(auth_header))
         expect(response.status).to eq(404)
+      end
+    end
+
+    context 'when a claim is already established' do
+      let(:auto_claim) { create(:auto_established_claim, :status_established) }
+
+      it 'returns a 404 error because only pending claims are allowed' do
+        with_okta_user(scopes) do |auth_header|
+          allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+          put("/services/claims/v1/forms/526/#{auto_claim.id}",
+              params: binary_params, headers: headers.merge(auth_header))
+          expect(response.status).to eq(404)
+        end
       end
     end
   end

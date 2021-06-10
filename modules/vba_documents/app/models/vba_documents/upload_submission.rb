@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'vba_documents/upload_error'
+require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
 
@@ -8,16 +9,38 @@ module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
-
+    extend SQLSupport
     send(:validates_uniqueness_of, :guid)
+    before_save :capture_status_time, if: :status_changed?
+    after_find :set_initial_status
+    attr_reader :current_status
 
+    # We don't want to check successes before
+    # this date as it used to be the endpoint
+    VBMS_IMPLEMENTATION_DATE = Date.parse('28-06-2019')
+    FINAL_SUCCESS_STATUS_KEY = 'final_success_status'
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
-
     ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
+    RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 
+    # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
+    scope :aged_processing, lambda { |look_back, unit_of_measure, status|
+      where(status: status)
+        .where("(metadata -> 'status' -> ? -> 'start')::bigint < ?", status,
+               look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
+        .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
+      # lambda above stops security scan from finding false positive sql injection!
+    }
+
     after_save :report_errors
+
+    def initialize(attributes = nil)
+      super
+      @current_status = status
+      self.metadata = { 'status' => { @current_status => { 'start' => Time.now.to_i } } }
+    end
 
     def self.fake_status(guid)
       empty_submission = OpenStruct.new(guid: guid,
@@ -82,6 +105,20 @@ module VBADocuments
       self[:consumer_name] || 'unknown'
     end
 
+    # data structure
+    # [{"status"=>"vbms", "min_secs"=>816, "max_secs"=>816, "avg_secs"=>816, "rowcount"=>1},
+    # {"status"=>"pending", "min_secs"=>0, "max_secs"=>23, "avg_secs"=>9, "rowcount"=>7},
+    # {"status"=>"processing", "min_secs"=>9, "max_secs"=>22, "avg_secs"=>16, "rowcount"=>2},
+    # {"status"=>"success", "min_secs"=>17, "max_secs"=>38, "avg_secs"=>26, "rowcount"=>3},
+    # {"status"=>"received", "min_secs"=>10, "max_secs"=>539681, "avg_secs"=>269846, "rowcount"=>2},
+    # {"status"=>"uploaded", "min_secs"=>0, "max_secs"=>21, "avg_secs"=>10, "rowcount"=>6}]
+    def self.status_elapsed_times(from, to, consumer_name = nil)
+      avg_status_sql = status_elapsed_time_sql(consumer_name)
+      ActiveRecord::Base.connection_pool.with_connection do |c|
+        c.raw_connection.exec_params(avg_status_sql, [from, to]).to_a
+      end
+    end
+
     private
 
     def rewrite_url(url)
@@ -128,6 +165,23 @@ module VBADocuments
     def report_errors
       key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
       StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_attribute?(:status) && status == 'error'
+    end
+
+    def set_initial_status
+      @current_status = status
+    end
+
+    def capture_status_time
+      from = @current_status
+      to = status
+      time = Time.now.to_i
+      # ensure that we have a current status. Old upload submissions may not have been run through the initializer
+      # so we are checking that here
+      metadata['status'][from]['end'] = time if metadata.key? 'status'
+      metadata['status'] ||= {}
+      metadata['status'][to] ||= {}
+      metadata['status'][to]['start'] = time
+      @current_status = to
     end
   end
 end

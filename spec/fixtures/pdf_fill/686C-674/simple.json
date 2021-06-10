@@ -23,6 +23,7 @@
       "phone_number": "1112223333",
       "email_address": "vets.gov.user+228@gmail.com"
     },
+    "household_income": true,
     "spouse_information": {
       "full_name": {
         "first": "Jenny",
@@ -43,10 +44,11 @@
         "city": "Slawson"
       },
       "type": "OTHER",
-      "type_other": "Some Other type"
+      "type_other": "Other"
     },
     "does_live_with_spouse": {
       "spouse_does_live_with_veteran": false,
+      "spouse_income": false,
       "current_spouse_reason_for_separation": "Other",
       "address": {
         "country_name": "USA",

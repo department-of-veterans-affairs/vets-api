@@ -14,7 +14,17 @@ module VBMS
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim.persistent_attachments.each do |attachment|
-        claim.upload_to_vbms("tmp#{attachment.file_url}")
+        file_extension = File.extname(URI.parse(attachment.file.url).path)
+
+        if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
+          file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
+
+          File.rename(file_path, "#{file_path}#{file_extension}")
+          file_path = "#{file_path}#{file_extension}"
+
+          claim.upload_to_vbms(path: file_path)
+          Common::FileHelpers.delete_file_if_exists(file_path)
+        end
       end
 
       generate_pdf(claim, submittable_686, submittable_674)
@@ -36,7 +46,7 @@ module VBMS
 
     def generate_pdf(claim, submittable_686, submittable_674)
       claim.upload_pdf('686C-674') if submittable_686
-      claim.upload_pdf('21-674') if submittable_674
+      claim.upload_pdf('21-674', doc_type: '142') if submittable_674
     end
   end
 end

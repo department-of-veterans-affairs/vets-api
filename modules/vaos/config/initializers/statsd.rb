@@ -10,3 +10,6 @@ vaos_endpoints.each do |endpoint|
   StatsD.increment("api.vaos.#{endpoint}.total", 0)
   StatsD.increment("api.vaos.#{endpoint}.fail", 0)
 end
+
+StatsD.increment('api.vaos.va_mobile.response.total', 0)
+StatsD.increment('api.vaos.va_mobile.response.fail', 0)

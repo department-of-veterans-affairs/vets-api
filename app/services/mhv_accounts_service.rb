@@ -42,9 +42,7 @@ class MHVAccountsService
         mhv_account.registered_at = Time.current
         mhv_account.mhv_correlation_id = mhv_id
         mhv_account.register!
-        user.va_profile.mhv_ids = [mhv_id] + user.va_profile.mhv_ids
-        user.va_profile.active_mhv_ids = [mhv_id] + user.va_profile.active_mhv_ids
-        user.recache
+        user.set_mhv_ids(mhv_id)
       end
     end
   rescue => e
@@ -94,17 +92,13 @@ class MHVAccountsService
   end
 
   def address_params
-    if user.va_profile&.address.present?
-      {
-        address1: user.va_profile.address.street,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        zip: user.va_profile.address.postal_code,
-        country: user.va_profile.address.country
-      }
-    else
-      {}
-    end
+    {
+      address1: user.address[:street],
+      city: user.address[:city],
+      state: user.address[:state],
+      zip: user.address[:zip],
+      country: user.address[:country]
+    }
   end
 
   def params_for_registration
@@ -114,7 +108,7 @@ class MHVAccountsService
       is_veteran: user.veteran?,
       province: nil, # TODO: We need to determine if this is something that could actually happen (non USA)
       email: user.email,
-      home_phone: user.va_profile&.home_phone,
+      home_phone: user.home_phone,
       sign_in_partners: 'VA.GOV',
       terms_version: mhv_account.terms_and_conditions_accepted.terms_and_conditions.version,
       terms_accepted_date: mhv_account.terms_and_conditions_accepted.created_at

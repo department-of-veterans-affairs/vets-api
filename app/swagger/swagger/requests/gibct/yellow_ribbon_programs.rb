@@ -80,7 +80,7 @@ module Swagger
               key :description, 'response'
 
               schema do
-                key :'$ref', :GibctYellowRibbonPrograms
+                key :$ref, :GibctYellowRibbonPrograms
               end
             end
           end

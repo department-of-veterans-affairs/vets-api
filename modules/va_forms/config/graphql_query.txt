@@ -13,6 +13,8 @@
   }
 }
 fragment vaForm on NodeVaForm {
+  fieldVaFormNumber
+  fieldVaFormRowId
   entityBundle
   entityId
   entityPublished
@@ -43,9 +45,7 @@ fragment vaForm on NodeVaForm {
   fieldVaFormDeletedDate {
     value
   }
-  langcode {
-    value
-  }
+  fieldVaFormLanguage
   title
   fieldVaFormName
   fieldVaFormTitle
@@ -58,7 +58,6 @@ fragment vaForm on NodeVaForm {
     format
     processed
   }
-  fieldVaFormNumber
   fieldVaFormToolIntro
   fieldVaFormToolUrl {
     uri
@@ -107,6 +106,11 @@ fragment vaForm on NodeVaForm {
         fieldVaFormNumber
       }
     }
+  }
+  fieldVaFormAdministration {
+        entity {
+          entityLabel
+        }
   }
   changed
   status

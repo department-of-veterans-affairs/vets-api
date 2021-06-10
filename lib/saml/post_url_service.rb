@@ -26,7 +26,7 @@ module SAML
       @loa3_context = loa3_context
 
       if (params[:action] == 'saml_callback') && params[:RelayState].present?
-        @type = JSON.parse(params[:RelayState])['type']
+        @type = JSON.parse(CGI.unescapeHTML(params[:RelayState]))['type']
       end
       @query_params = {}
       @tracker = initialize_tracker(params)
@@ -39,7 +39,6 @@ module SAML
       user.loa[:current] < user.loa[:highest]
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def login_redirect_url(auth: 'success', code: nil)
       if auth == 'success'
         # if the original auth request specified a redirect, use that
@@ -62,7 +61,6 @@ module SAML
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def logout_redirect_url
       "#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}"
@@ -83,7 +81,7 @@ module SAML
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       save_saml_request_tracker(saml_auth_request.uuid, link_authn_context)
       post_params = saml_auth_request.create_params(new_url_settings, 'RelayState' => relay_state_params)
-      login_url = new_url_settings.idp_sso_target_url
+      login_url = new_url_settings.idp_sso_service_url
       [login_url, post_params]
     end
   end

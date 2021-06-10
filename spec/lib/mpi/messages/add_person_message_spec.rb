@@ -91,16 +91,18 @@ describe MPI::Messages::AddPersonMessage do
     end
 
     context 'missing arguments' do
+      before { stub_mpi_not_found }
+
       let(:user) { build(:user, :loa3, user_hash) }
 
       let(:user_hash) do
         {
           first_name: 'MARK',
           last_name: 'WEBB',
-          middle_name: '',
+          middle_name: 'WEBBER',
           birth_date: '1950-10-04',
           ssn: nil,
-          dslogon_edipi: '1013590059'
+          edipi: '1013590059'
         }
       end
 

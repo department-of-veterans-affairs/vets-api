@@ -16,33 +16,31 @@ module Mobile
         #
         # @start_date DateTime the start of the date range
         # @end_date DateTime the end of the date range
-        # @use_cache Boolean whether or not to use the appointments cache within VAMF
         #
         # @return Hash two lists of appointments, va and cc (community care)
         #
-        def get_appointments(start_date, end_date, use_cache = true)
+        def get_appointments(start_date, end_date)
           params = {
             startDate: start_date.utc.iso8601,
             endDate: end_date.utc.iso8601,
             pageSize: 0,
-            useCache: use_cache
+            useCache: false
           }
 
           responses = { cc: nil, va: nil }
           errors = { cc: nil, va: nil }
 
           config.parallel_connection.in_parallel do
-            responses[:cc], errors[:cc] = get(cc_url, params)
-            responses[:va], errors[:va] = get(va_url, params)
+            responses[:cc], errors[:cc] = parallel_get(cc_url, params)
+            responses[:va], errors[:va] = parallel_get(va_url, params)
           end
 
-          StatsD.increment('mobile.appointments.get_appointments.success')
           [responses, errors]
         end
 
         private
 
-        def get(url, params)
+        def parallel_get(url, params)
           response = config.parallel_connection.get(url, params, headers)
           [response, nil]
         rescue VAOS::Exceptions::BackendServiceException => e
@@ -64,6 +62,11 @@ module Mobile
             "/patient/ICN/#{@user.icn}/booked-cc-appointments"
         end
 
+        def cancel_appointment_url(facility_id)
+          "/var/VeteranAppointmentRequestService/v4/rest/direct-scheduling/site/#{facility_id}/patient/ICN/" \
+           "#{@user.icn}/cancel-appointment"
+        end
+
         def internal_error(e, url)
           Rails.logger.error(
             'mobile appointments internal exception',
@@ -76,7 +79,6 @@ module Mobile
             detail: e.message
           }
 
-          StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
         end
 
@@ -92,8 +94,15 @@ module Mobile
             detail: e.response_values[:detail]
           }
 
-          StatsD.increment('mobile.appointments.get_appointments.failure')
           [nil, error]
+        end
+
+        def log_clinic_details(action, clinic_id, site_code)
+          Rails.logger.warn(
+            "Clinic does not support VAOS appointment #{action}",
+            clinic_id: clinic_id,
+            site_code: site_code
+          )
         end
       end
     end

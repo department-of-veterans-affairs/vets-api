@@ -45,7 +45,7 @@ module PdfInfo
     def page_size
       page_size_str = self['Page size']
       height = page_size_str.split('x')[0].strip.to_i
-      width = page_size_str.split('x')[1].strip.split(' ')[0].to_i
+      width = page_size_str.split('x')[1].strip.split[0].to_i
       {
         height: height,
         width: width

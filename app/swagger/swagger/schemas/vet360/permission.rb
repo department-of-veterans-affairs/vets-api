@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'vet360/models/permission'
+require 'va_profile/models/permission'
 
 module Swagger
   module Schemas
@@ -12,8 +12,8 @@ module Swagger
           key :required, %i[permission_type permission_value]
           property :permission_type,
                    type: :string,
-                   enum: ::Vet360::Models::Permission::PERMISSION_TYPES,
-                   example: ::Vet360::Models::Permission::TEXT,
+                   enum: ::VAProfile::Models::Permission::PERMISSION_TYPES,
+                   example: ::VAProfile::Models::Permission::TEXT,
                    description: 'Describes specific type of permission.'
           property :permission_value,
                    type: :boolean,
@@ -38,8 +38,8 @@ module Swagger
                    example: 1
           property :permission_type,
                    type: :string,
-                   enum: ::Vet360::Models::Permission::PERMISSION_TYPES,
-                   example: ::Vet360::Models::Permission::TEXT,
+                   enum: ::VAProfile::Models::Permission::PERMISSION_TYPES,
+                   example: ::VAProfile::Models::Permission::TEXT,
                    description: 'Describes specific type of permission.'
           property :permission_value,
                    type: :boolean,

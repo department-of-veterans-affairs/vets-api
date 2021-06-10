@@ -56,6 +56,32 @@ paths:
                         #type: number
                         #description: 'Counter used for pagination'
                         #example: 1
+  /directory/{app_name}:
+    get:
+      parameters:
+        - in: path
+          name: app_name
+          required: true
+          schema:
+            type: string
+          description: The name of the app you want to query. If none is passed, the request will hit the  `GET /directory` endpoint above.
+      tags:
+        - apps
+      summary: Retrieve information on a single application in the Application Directory. If there is no app by that name, `data` will be null.
+      operationId: getApp
+      responses:
+        '200':
+          description: Returns information on the `app_name` requested. If there is no app by that name, `data` will be null.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/App"
+
   /directory/scopes/{service_category}:
     get:
       parameters:

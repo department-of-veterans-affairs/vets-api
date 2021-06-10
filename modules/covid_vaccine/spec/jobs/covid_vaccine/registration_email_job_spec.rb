@@ -10,6 +10,18 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
     let(:date) { 'December, 10, 2020' }
     let(:confirmation_id) { 'confirmation_id_uuid' }
 
+    it 'the service is initialized with the correct parameters' do
+      test_service_api_key = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
+      instance = instance_double(VaNotify::Service)
+      allow(instance).to receive(:send_email)
+      with_settings(
+        Settings.vanotify.services.va_gov, { api_key: test_service_api_key }
+      ) do
+        expect(VaNotify::Service).to receive(:new).with(test_service_api_key).and_return(instance)
+        described_class.new.perform(email, date, confirmation_id)
+      end
+    end
+
     it 'queues the job' do
       expect { job }
         .to change(described_class.jobs, :size).by(1)
@@ -27,7 +39,7 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
         .to receive(:send_email).with(
           {
             email_address: email,
-            template_id: Settings.vanotify.template_id.covid_vaccine_registration,
+            template_id: Settings.vanotify.services.va_gov.template_id.covid_vaccine_registration,
             personalisation: {
               'date' => date,
               'confirmation_id' => confirmation_id

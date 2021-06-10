@@ -20,10 +20,25 @@ module V0
       render(json: claim.education_benefits_claim)
     end
 
+    def stem_claim_status
+      current_applications = []
+      load_user
+      current_applications = user_stem_automated_decision_claims unless @current_user.nil?
+
+      render json: current_applications, each_serializer: EducationStemClaimStatusSerializer
+    end
+
     private
 
     def form_type
       params[:form_type] || '1990'
+    end
+
+    def user_stem_automated_decision_claims
+      EducationBenefitsClaim.joins(:education_stem_automated_decision)
+                            .where(
+                              'education_stem_automated_decisions.user_uuid' => @current_user.uuid
+                            ).to_a
     end
 
     def education_benefits_claim_params

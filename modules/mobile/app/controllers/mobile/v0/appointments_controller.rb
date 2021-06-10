@@ -2,111 +2,127 @@
 
 require_dependency 'mobile/application_controller'
 require 'lighthouse/facilities/client'
+require 'mobile/v0/exceptions/validation_errors'
 
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
+      after_action :clear_appointments_cache, only: :cancel
+
       def index
-        responses, errors = appointments_service.get_appointments(start_date, end_date)
+        use_cache = params[:useCache] || true
+        start_date = params[:startDate] || one_year_ago.iso8601
+        end_date = params[:endDate] || one_year_from_now.iso8601
+        page = params[:page] || { number: 1, size: 10 }
+        reverse_sort = !(params[:sort] =~ /-startDateUtc/).nil?
 
-        va_appointments = []
-        cc_appointments = []
-        options = {
-          meta: {
-            errors: nil
-          }
-        }
+        validated_params = Mobile::V0::Contracts::GetPaginatedList.new.call(
+          start_date: start_date,
+          end_date: end_date,
+          page_number: page[:number],
+          page_size: page[:size],
+          use_cache: use_cache,
+          reverse_sort: reverse_sort
+        )
 
-        va_appointments = parse_va_appointments(responses[:va].body) unless errors[:va]
-        cc_appointments = cc_adapter.parse(responses[:cc].body) unless errors[:cc]
+        raise Mobile::V0::Exceptions::ValidationErrors, validated_params if validated_params.failure?
 
-        appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
+        render json: fetch_cached_or_service(validated_params)
+      end
 
-        errors = errors.values.compact
-        raise Common::Exceptions::BackendServiceException, 'VAOS_502' if errors.size == 2
+      def cancel
+        decoded_cancel_params = Mobile::V0::Appointment.decode_cancel_id(params[:id])
+        contract = Mobile::V0::Contracts::CancelAppointment.new.call(decoded_cancel_params)
+        raise Mobile::V0::Exceptions::ValidationErrors, contract if contract.failure?
 
-        options[:meta][:errors] = errors if errors.size.positive?
-
-        render json: Mobile::V0::AppointmentSerializer.new(appointments, options)
+        appointments_proxy.put_cancel_appointment(decoded_cancel_params)
+        head :no_content
       end
 
       private
 
-      def parse_va_appointments(appointments_from_response)
-        appointments, facility_ids = va_adapter.parse(appointments_from_response)
-        appointments = appointments_with_facilities(appointments, facility_ids) if appointments.size.positive?
-        appointments
+      def use_cache?(validated_params)
+        # use cache if date range is within +/- 1 year and use_cache is true
+        validated_params[:start_date] >= one_year_ago.iso8601 &&
+          validated_params[:end_date] <= one_year_from_now.iso8601 && validated_params[:use_cache]
       end
 
-      def appointments_with_facilities(va_appointments, facility_ids)
-        facilities = facilities_service.get_facilities(
-          ids: facility_ids.to_a.map { |id| "vha_#{id}" }.join(',')
-        )
-        facilities_by_id = facilities.index_by(&:id)
-        va_appointments.map do |appointment|
-          facility = facilities_by_id["vha_#{appointment.facility_id}"]
-          # resources are immutable and are updated with new copies
-          appointment.new(
-            location: appointment.location.new(
-              address: address_from_facility(facility),
-              phone: phone_from_facility(facility),
-              lat: facility.lat,
-              long: facility.long
-            )
-          )
+      def clear_appointments_cache
+        Mobile::V0::Appointment.clear_cache(@current_user)
+      end
+
+      def one_year_ago
+        (DateTime.now.utc.beginning_of_day - 1.year)
+      end
+
+      def one_year_from_now
+        (DateTime.now.utc.beginning_of_day + 1.year)
+      end
+
+      def fetch_cached_or_service(validated_params)
+        appointments = nil
+        appointments = Mobile::V0::Appointment.get_cached(@current_user) if use_cache?(validated_params)
+
+        # if appointments has been retrieved from redis, delete the cached version and return recovered appointments
+        # otherwise fetch appointments from the upstream service
+        appointments, errors = if appointments
+                                 Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
+                                 [appointments, nil]
+                               else
+                                 Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
+                                 # because a user's entire set of appointments are locally cached and we always
+                                 # fetch a two year range these are later filtered by start and end date params
+                                 # from the request
+                                 appointments, errors = appointments_proxy.get_appointments(
+                                   start_date: [validated_params[:start_date], one_year_ago].min,
+                                   end_date: [validated_params[:end_date], one_year_from_now].max
+                                 )
+                                 Mobile::V0::Appointment.set_cached(@current_user, appointments)
+                                 [appointments, errors]
+                               end
+
+        appointments.reverse! if validated_params[:reverse_sort]
+
+        # filter by request start and end date params here
+        appointments = appointments.filter do |appointment|
+          appointment.start_date_utc.between? validated_params[:start_date], validated_params[:end_date]
         end
+        page_appointments, page_meta_data = paginate(list: appointments, validated_params: validated_params)
+
+        Mobile::V0::AppointmentSerializer.new(page_appointments, options(errors, page_meta_data))
       end
 
-      def address_from_facility(facility)
-        address = facility.address['physical']
-        return nil unless address
+      def paginate(list:, validated_params:)
+        page_number = validated_params[:page_number]
+        page_size = validated_params[:page_size]
+        pages = list.each_slice(page_size).to_a
+        page_meta_data = {
+          links: Mobile::PaginationLinksHelper.links(pages.size, validated_params, request),
+          pagination: {
+            current_page: page_number,
+            per_page: page_size,
+            total_pages: pages.size,
+            total_entries: list.size
+          }
+        }
 
-        Mobile::V0::AppointmentAddress.new(
-          street: address.slice('address_1', 'address_2', 'address_3').values.compact.join(', '),
-          city: address['city'],
-          state: address['state'],
-          zip_code: address['zip']
-        )
+        return [[], page_meta_data] if page_number > pages.size
+
+        [pages[page_number - 1], page_meta_data]
       end
 
-      def phone_from_facility(facility)
-        # captures area code (\d{3}) number \s(\d{3}-\d{4})
-        # and extension (until the end of the string) (\S*)\z
-        phone_captures = facility.phone['main'].match(/(\d{3})-(\d{3}-\d{4})(\S*)\z/)
-
-        Mobile::V0::AppointmentPhone.new(
-          area_code: phone_captures[1].presence,
-          number: phone_captures[2].presence,
-          extension: phone_captures[3].presence
-        )
+      def options(errors, page_meta_data)
+        {
+          meta: {
+            errors: errors.nil? ? nil : errors,
+            pagination: page_meta_data[:pagination]
+          },
+          links: page_meta_data[:links]
+        }
       end
 
-      def appointments_service
-        Mobile::V0::Appointments::Service.new(@current_user)
-      end
-
-      def facilities_service
-        Lighthouse::Facilities::Client.new
-      end
-
-      def va_adapter
-        Mobile::V0::Adapters::VAAppointments.new
-      end
-
-      def cc_adapter
-        Mobile::V0::Adapters::CommunityCareAppointments.new
-      end
-
-      def start_date
-        DateTime.parse(params[:startDate])
-      rescue ArgumentError, TypeError
-        raise Common::Exceptions::InvalidFieldValue.new('startDate', params[:startDate])
-      end
-
-      def end_date
-        DateTime.parse(params[:endDate])
-      rescue ArgumentError, TypeError
-        raise Common::Exceptions::InvalidFieldValue.new('endDate', params[:endDate])
+      def appointments_proxy
+        Mobile::V0::Appointments::Proxy.new(@current_user)
       end
     end
   end

@@ -8,7 +8,7 @@ module AppealsApi::V1
       swagger_component do
         schema :nodStatus do
           key :type, :string
-          key :enum, AppealsApi::CentralMailStatus::STATUSES
+          key :enum, AppealsApi::NodStatus::STATUSES
           key :example, 'submitted'
         end
 
@@ -27,12 +27,12 @@ module AppealsApi::V1
             property :attributes do
               key :type, :object
               key :description, 'Required by JSON API standard'
-              key :required, %i[veteran boardReviewOption timezone]
+              key :required, %i[veteran boardReviewOption timezone socOptIn]
 
               property :veteran do
                 key :type, :object
                 key :description, 'Veteran Object being submitted in appeal'
-                key :required, %i[homeless address]
+                key :required, %i[homeless phone emailAddressText]
 
                 property :homeless do
                   key :type, :boolean
@@ -42,8 +42,35 @@ module AppealsApi::V1
 
                 property :address do
                   key :type, :object
-                  key :description, 'Address of the Veteran'
-                  key :required, %i[zipCode5]
+                  key :description, 'Address of the Veteran - not required if Veteran is homeless. Cannot exceed 165
+                                     characters when all fields are concatenated.'
+                  key :required, %i[addressLine1 city countryName zipCode5]
+
+                  property :addressLine1 do
+                    key :type, :string
+                    key :description, 'First line for address'
+                  end
+
+                  property :addressLine2 do
+                    key :type, :string
+                    key :description, 'Second line for address'
+                  end
+
+                  property :addressLine3 do
+                    key :type, :string
+                    key :description, 'Third line for address'
+                  end
+
+                  property :city do
+                    key :type, :string
+                    key :description, 'City of residence'
+                  end
+
+                  property :stateCode do
+                    key :type, :string
+                    key :description, 'State of residence in 2-character format'
+                    key :example, 'UT'
+                  end
 
                   property :zipCode5 do
                     key :type, :string
@@ -52,19 +79,83 @@ module AppealsApi::V1
                     key :maxLength, 5
                     key :minLength, 5
                   end
+
+                  property :countryName do
+                    key :type, :string
+                    key :description, 'Country of residence'
+                  end
+
+                  property :internationalPostalCode do
+                    key :type, :string
+                    key :description, 'Use if residence outside of the United States'
+                  end
+                end
+
+                property :phone do
+                  key :type, :object
+                  key :description, 'The phone number of the veteran. Cannot exceed 20 characters when
+                                     all fields are concatenated.'
+                  key :required, %i[areaCode phoneNumber]
+
+                  property :countryCode do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 3
+                  end
+
+                  property :areaCode do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 4
+                  end
+
+                  property :phoneNumber do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 14
+                  end
+
+                  property :phoneNumberExt do
+                    key :type, :string
+                    key :minLength, 1
+                    key :maxLength, 10
+                  end
+                end
+
+                property :emailAddressText do
+                  key :type, :string
+                  key :format, :email
+                  key :description, 'Email of the Veteran'
+                  key :maxLength, 120
+                  key :minLength, 5
                 end
               end
 
               property :boardReviewOption do
                 key :type, :string
-                key :example, 'evidence_submission'
-                key :description, 'type of Board Review NOD being requested'
+                key :example, 'hearing'
+                key :enum, %w[direct_review evidence_submission hearing]
+
+                key :description, 'The option selected for the NOD submission'
+              end
+
+              property :hearingTypePreference do
+                key :type, :string
+                key :example, 'video_conference'
+                key :enum, %w[virtual_hearing video_conference central_office]
+                key :description,
+                    "The type of hearing selected, required if 'hearing' is selected for boardReviewOption"
               end
 
               property :timezone do
                 key :type, :string
                 key :example, 'America/Chicago'
-                key :description, 'timezone of Veteran'
+                key :description, 'Timezone of Veteran'
+              end
+              property :socOptIn do
+                key :type, :boolean
+                key :description, 'Indicates whether or not any contestable issues listed on the form are being
+                                   withdrawn from the legacy appeals process'
               end
             end
           end
@@ -75,7 +166,7 @@ module AppealsApi::V1
             key :maxItems, 100
 
             items do
-              key :'$ref', :contestableIssue
+              key :$ref, :contestableIssue
             end
           end
         end
@@ -87,13 +178,13 @@ module AppealsApi::V1
           property :data do
             property :id do
               key :type, :string
-              key :description, 'unique ID of created NOD'
+              key :description, 'Unique ID of created NOD'
               key :example, '97751cb6-d06d-4179-87f6-75e3fc9d875c'
             end
 
             property :type do
               key :type, :string
-              key :description, 'name of record class'
+              key :description, 'Name of record class'
               key :example, 'noticeOfDisagreement'
             end
 
@@ -102,19 +193,19 @@ module AppealsApi::V1
 
               property :status do
                 key :type, :string
-                key :description, 'status of NOD'
+                key :description, 'Status of NOD'
                 key :example, 'pending'
               end
 
               property :createdAt do
                 key :type, :string
-                key :description, 'created timestamp of the NOD'
+                key :description, 'Created timestamp of the NOD'
                 key :example, '2020-12-16T19:52:23.909Z'
               end
 
               property :updatedAt do
                 key :type, :string
-                key :description, 'updated timestamp of the NOD'
+                key :description, 'Updated timestamp of the NOD'
                 key :example, '2020-12-16T19:52:23.909Z'
               end
             end
@@ -128,7 +219,7 @@ module AppealsApi::V1
                 property :type do
                   key :type, :string
                   key :example, 'noticeOfDisagreement'
-                  key :description, 'the data type submitted'
+                  key :description, 'The data type submitted'
                 end
 
                 property :attributes do
@@ -140,7 +231,22 @@ module AppealsApi::V1
                     property :homeless do
                       key :type, :boolean
                       key :example, false
-                      key :description, 'value of submitted homeless key'
+                      key :description, 'Value of submitted homeless key'
+                    end
+
+                    property :address do
+                      key :type, :object
+                      key :description, 'Value of submitted address if not homeless'
+                    end
+
+                    property :phone do
+                      key :type, :object
+                      key :description, 'Value of submitted phone number'
+                    end
+
+                    property :emailAddressText do
+                      key :type, :string
+                      key :description, 'Value of submitted email'
                     end
 
                     property :representativesName do
@@ -154,19 +260,25 @@ module AppealsApi::V1
                   property :boardReviewOption do
                     key :type, :string
                     key :example, 'hearing'
-                    key :description, 'the option selected for the NOD submission'
+                    key :description, 'The option selected for the NOD submission'
                   end
 
                   property :hearingTypePreference do
                     key :type, :string
                     key :example, 'video_conference'
-                    key :description, 'the type of hearing selected'
+                    key :description, 'The type of hearing selected'
                   end
 
                   property :timezone do
                     key :type, :string
                     key :example, 'America/Chicago'
-                    key :description, 'the timezone selected for the NOD submission'
+                    key :description, 'The timezone selected for the NOD submission'
+                  end
+
+                  property :socOptIn do
+                    key :type, :boolean
+                    key :description, 'Indicates whether or not any contestable issues listed on the form are being
+                                       withdrawn from the legacy appeals process'
                   end
                 end
               end
@@ -176,7 +288,7 @@ module AppealsApi::V1
           property :included do
             key :type, :array
             items do
-              key :'$ref', :contestableIssue
+              key :$ref, :contestableIssue
             end
           end
         end
@@ -194,7 +306,7 @@ module AppealsApi::V1
           property :detail do
             key :type, :string
             key :example, 'invalidType is not an available option'
-            key :description, 'A more detailed message about why an error occured'
+            key :description, 'A more detailed message about why an error occurred'
           end
 
           property :code do
@@ -254,7 +366,7 @@ module AppealsApi::V1
           property :type do
             key :type, :string
             key :example, 'contestableIssue'
-            key :description, 'the type of data included'
+            key :description, 'The type of data included'
           end
 
           property :attributes do
@@ -263,8 +375,8 @@ module AppealsApi::V1
             property :issue do
               key :type, :string
               key :example, 'tinnitus'
-              key :example, 'the type of issue being contested'
-              key :maxLength, 368
+              key :example, 'The type of issue being contested'
+              key :maxLength, 180
             end
 
             property :decisionDate do
@@ -273,7 +385,20 @@ module AppealsApi::V1
               key :example, 'The decision date for the contested issue'
               key :maxLength, 10
             end
+
+            property :disagreementReason do
+              key :type, :string
+              key :example, 'Effective Date'
+              key :example, 'The point of contention for this specific issue'
+              key :maxLength, 90
+            end
           end
+        end
+
+        schema :evidenceSubmissionStatus do
+          key :type, :string
+          key :enum, %w[processing s3_failed s3_error vbms_error vbms_failed submitted]
+          key :example, 'submitted'
         end
       end
     end

@@ -7,7 +7,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-  %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203].each do |form_type|
+  %w[1990 1995 1990e 5490 5495 1990n 0993 0994 10203 1990s].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -32,7 +32,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
   describe '#regional_office' do
     it 'returns the regional office' do
       expect(education_benefits_claim.regional_office).to eq(
-        "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"
+        "VA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"
       )
     end
   end
@@ -82,6 +82,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         'transfer_of_entitlement' => false,
         'chapter1607' => false,
         'vettec' => false,
+        'vrrap' => false,
         'education_benefits_claim_id' => subject.education_benefits_claim.id
       }
     end
@@ -265,6 +266,18 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         education_benefits_claim.reprocess_at('western')
       end.to change(education_benefits_claim, :regional_processing_office).from('eastern').to('western')
       expect(education_benefits_claim.processed_at).to be nil
+    end
+  end
+
+  describe '#form_headers' do
+    it 'appends 22- to FORM_TYPES' do
+      expect(described_class.form_headers).to eq(described_class::FORM_TYPES.map { |t| "22-#{t}" }.freeze)
+    end
+
+    it 'appends 22- to passed in array' do
+      form_types = %w[1990s 10203]
+      form_headers = %w[22-1990s 22-10203]
+      expect(described_class.form_headers(form_types)).to eq(form_headers)
     end
   end
 end

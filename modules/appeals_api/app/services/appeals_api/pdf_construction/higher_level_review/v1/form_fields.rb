@@ -96,11 +96,11 @@ module AppealsApi
           "F[0].#subform[2].BenefitType[#{index}]"
         end
 
-        def same_office?
+        def same_office
           'F[0].#subform[2].HIGHERLEVELREVIEWCHECKBOX[0]'
         end
 
-        def informal_conference?
+        def informal_conference
           'F[0].#subform[2].INFORMALCONFERENCECHECKBOX[0]'
         end
 

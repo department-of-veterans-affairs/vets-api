@@ -24,19 +24,20 @@ unless ENV['NOCOVERAGE']
     add_filter 'app/models/in_progress_disability_compensation_form.rb'
     add_filter 'app/serializers/appeal_serializer.rb'
     add_filter 'config/initializers/clamscan.rb'
+    add_filter 'lib/apps/configuration.rb'
+    add_filter 'lib/apps/responses/response.rb'
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/gibft/configuration.rb'
     add_filter 'lib/ihub/appointments/response.rb'
     add_filter 'lib/salesforce/configuration.rb'
-    add_filter 'lib/vet360/address_validation/configuration.rb'
+    add_filter 'lib/va_profile/address_validation/configuration.rb'
     add_filter 'lib/search/response.rb'
-    add_filter 'lib/vet360/exceptions/builder.rb'
-    add_filter 'lib/vet360/response.rb'
+    add_filter 'lib/va_profile/exceptions/builder.rb'
+    add_filter 'lib/va_profile/response.rb'
     add_filter 'modules/appeals_api/app/swagger'
     add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
     add_filter 'modules/apps_api/app/swagger'
-    add_filter 'modules/apps_api/lib/apps_api/directory_application_creator.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
@@ -46,27 +47,40 @@ unless ENV['NOCOVERAGE']
     add_filter 'version.rb'
 
     # Modules
+    add_group 'AppealsApi', 'modules/appeals_api/'
+    add_group 'AppsApi', 'modules/apps_api'
+    add_group 'CheckIn', 'modules/check_in/'
+    add_group 'ClaimsApi', 'modules/claims_api/'
+    add_group 'CovidResearch', 'modules/covid_research/'
+    add_group 'CovidVaccine', 'modules/covid_vaccine/'
+    add_group 'FacilitiesApi', 'modules/facilities_api/'
+    add_group 'HealthQuest', 'modules/health_quest/'
+    add_group 'Identity', 'modules/identity/'
+    add_group 'Mobile', 'modules/mobile/'
+    add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
     add_group 'Swagger', 'app/swagger'
-    add_group 'Uploaders', 'app/uploaders'
-    add_group 'AppealsApi', 'modules/appeals_api/'
-    add_group 'AppsApi', 'modules/apps_api'
-    add_group 'ClaimsApi', 'modules/claims_api/'
-    add_group 'CovidVaccine', 'modules/covid_vaccine/'
-    add_group 'OpenidAuth', 'modules/openid_auth/'
     add_group 'TestUserDashboard', 'modules/test_user_dashboard/'
+    add_group 'Uploaders', 'app/uploaders'
+    add_group 'VAOS', 'modules/vaos/'
+    add_group 'VAForms', 'modules/va_forms/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
-    add_group 'OpenidAuth', 'modules/openid_auth/'
-    add_group 'VAOS', 'modules/vaos/'
-    add_group 'HealthQuest', 'modules/health_quest/'
-    add_group 'Mobile', 'modules/mobile/'
+    # End Modules
 
-    SimpleCov.minimum_coverage_by_file 90 unless ENV['CIRCLE_JOB']
-    SimpleCov.refuse_coverage_drop unless ENV['CIRCLE_JOB']
+    if ENV['CI']
+      SimpleCov.minimum_coverage 90
+      SimpleCov.refuse_coverage_drop
+    end
+  end
+  if ENV['TEST_ENV_NUMBER'] # parallel specs
+    SimpleCov.at_exit do
+      result = SimpleCov.result
+      result.format! if ParallelTests.number_of_running_processes <= 1
+    end
   end
 end
 

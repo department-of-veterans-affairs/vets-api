@@ -104,7 +104,7 @@ RSpec.describe SAML::User do
           mhv_icn: nil,
           mhv_correlation_id: nil,
           mhv_account_type: nil,
-          dslogon_edipi: nil,
+          edipi: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
           email: 'vets.gov.user+262@example.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
@@ -118,7 +118,8 @@ RSpec.describe SAML::User do
           participant_id: nil,
           birls_id: nil,
           icn: nil,
-          common_name: nil
+          common_name: nil,
+          person_types: nil
         )
       end
 
@@ -143,7 +144,7 @@ RSpec.describe SAML::User do
           mhv_icn: nil,
           mhv_correlation_id: nil,
           mhv_account_type: nil,
-          dslogon_edipi: nil,
+          edipi: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
           email: 'vets.gov.user+262@example.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
@@ -157,7 +158,8 @@ RSpec.describe SAML::User do
           participant_id: nil,
           birls_id: nil,
           icn: nil,
-          common_name: nil
+          common_name: nil,
+          person_types: nil
         )
       end
 
@@ -183,7 +185,7 @@ RSpec.describe SAML::User do
           mhv_icn: '1008830476V316605',
           mhv_correlation_id: nil,
           mhv_account_type: nil,
-          dslogon_edipi: nil,
+          edipi: nil,
           uuid: '54e78de6140d473f87960f211be49c08',
           email: 'vets.gov.user+262@example.com',
           idme_uuid: '54e78de6140d473f87960f211be49c08',
@@ -194,7 +196,8 @@ RSpec.describe SAML::User do
           participant_id: nil,
           birls_id: nil,
           icn: '1008830476V316605',
-          common_name: 'vets.gov.user+262@example.com'
+          common_name: 'vets.gov.user+262@example.com',
+          person_types: nil
         )
       end
 
@@ -213,7 +216,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: nil,
           authn_context: authn_context,
-          dslogon_edipi: nil,
+          edipi: nil,
           first_name: nil,
           last_name: nil,
           middle_name: nil,
@@ -233,7 +236,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: nil,
           multifactor: multifactor,
-          common_name: nil
+          common_name: nil,
+          person_types: nil
         )
       end
 
@@ -254,7 +258,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1988-11-24',
           authn_context: authn_context,
-          dslogon_edipi: nil,
+          edipi: nil,
           first_name: 'ALEX',
           last_name: 'MAC',
           middle_name: nil,
@@ -274,7 +278,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1013183292V131165',
           multifactor: multifactor,
-          common_name: 'alexmac_0@example.com'
+          common_name: 'alexmac_0@example.com',
+          person_types: nil
         )
       end
     end
@@ -290,7 +295,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: nil,
           authn_context: authn_context,
-          dslogon_edipi: nil,
+          edipi: nil,
           first_name: nil,
           last_name: nil,
           middle_name: nil,
@@ -313,7 +318,8 @@ RSpec.describe SAML::User do
           icn: nil,
           participant_id: nil,
           multifactor: true,
-          common_name: nil
+          common_name: nil,
+          person_types: nil
         )
       end
 
@@ -332,7 +338,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1977-03-07',
           authn_context: authn_context,
-          dslogon_edipi: '2107307560',
+          edipi: '2107307560',
           first_name: 'TRISTAN',
           last_name: 'GPTESTSYSTWO',
           middle_name: nil,
@@ -355,7 +361,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1012853550V207686',
           multifactor: multifactor,
-          common_name: 'k+tristan@example.com'
+          common_name: 'k+tristan@example.com',
+          person_types: nil
         )
       end
     end
@@ -375,7 +382,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1977-03-07',
           authn_context: authn_context,
-          dslogon_edipi: '2107307560',
+          edipi: '2107307560',
           first_name: 'TRISTAN',
           last_name: 'GPTESTSYSTWO',
           middle_name: nil,
@@ -398,7 +405,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: nil,
           multifactor: multifactor,
-          common_name: 'k+tristan@example.com'
+          common_name: 'k+tristan@example.com',
+          person_types: nil
         )
       end
     end
@@ -622,7 +630,7 @@ RSpec.describe SAML::User do
 
         it 'de-duplicates values' do
           expect(subject.to_hash).to include(
-            dslogon_edipi: '0123456789'
+            edipi: '0123456789'
           )
         end
 
@@ -636,7 +644,7 @@ RSpec.describe SAML::User do
 
         it 'de-duplicates values' do
           expect(subject.to_hash).to include(
-            dslogon_edipi: nil
+            edipi: nil
           )
         end
 
@@ -655,7 +663,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: nil,
           authn_context: authn_context,
-          dslogon_edipi: '1606997570',
+          edipi: '1606997570',
           first_name: nil,
           last_name: nil,
           middle_name: nil,
@@ -677,7 +685,8 @@ RSpec.describe SAML::User do
           participant_id: nil,
           birls_id: nil,
           icn: nil,
-          multifactor: multifactor
+          multifactor: multifactor,
+          person_types: nil
         )
       end
     end
@@ -692,7 +701,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1951-06-04',
           authn_context: authn_context,
-          dslogon_edipi: '2106798217',
+          edipi: '2106798217',
           first_name: 'BRANDIN',
           last_name: 'MILLER-NIETO',
           middle_name: 'BRANSON',
@@ -715,7 +724,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1013173963V366678',
           multifactor: false,
-          common_name: 'iam.tester@example.com'
+          common_name: 'iam.tester@example.com',
+          person_types: nil
         )
       end
 
@@ -735,7 +745,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1956-07-10',
           authn_context: authn_context,
-          dslogon_edipi: '1005169255',
+          edipi: '1005169255',
           first_name: 'JOHNNIE',
           last_name: 'WEAVER',
           middle_name: 'LEONARD',
@@ -758,7 +768,8 @@ RSpec.describe SAML::User do
           birls_id: '796123607',
           icn: '1012740600V714187',
           multifactor: multifactor,
-          common_name: 'dslogon10923109@gmail.com'
+          common_name: 'dslogon10923109@gmail.com',
+          person_types: %w[PAT VET]
         )
       end
     end
@@ -777,7 +788,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1956-07-10',
           authn_context: authn_context,
-          dslogon_edipi: '1005169255',
+          edipi: '1005169255',
           first_name: 'JOHNNIE',
           last_name: 'WEAVER',
           middle_name: 'LEONARD',
@@ -800,7 +811,8 @@ RSpec.describe SAML::User do
           birls_id: '796123607',
           icn: '1012740600V714187',
           multifactor: multifactor,
-          common_name: 'dslogon10923109@gmail.com'
+          common_name: 'dslogon10923109@gmail.com',
+          person_types: %w[PAT VET]
         )
       end
     end
@@ -836,7 +848,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1946-10-20',
           authn_context: authn_context,
-          dslogon_edipi: '1606997570',
+          edipi: '1606997570',
           first_name: 'SOFIA',
           last_name: 'MCKIBBENS',
           middle_name: nil,
@@ -859,7 +871,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1012779219V964737',
           multifactor: multifactor,
-          common_name: 'SOFIA MCKIBBENS'
+          common_name: 'SOFIA MCKIBBENS',
+          person_types: nil
         )
       end
 
@@ -888,7 +901,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1982-05-23',
           authn_context: authn_context,
-          dslogon_edipi: nil,
+          edipi: nil,
           first_name: 'ZACK',
           last_name: 'DAYTMHV',
           middle_name: nil,
@@ -911,7 +924,8 @@ RSpec.describe SAML::User do
           birls_id: nil,
           icn: '1013062086V794840',
           multifactor: multifactor,
-          common_name: 'mhvzack@mhv.va.gov'
+          common_name: 'mhvzack@mhv.va.gov',
+          person_types: nil
         )
       end
     end
@@ -929,7 +943,7 @@ RSpec.describe SAML::User do
         expect(subject.to_hash).to eq(
           birth_date: '1969-04-07',
           authn_context: authn_context,
-          dslogon_edipi: '1320002060',
+          edipi: '1320002060',
           first_name: 'JERRY',
           last_name: 'GPKTESTNINE',
           middle_name: nil,
@@ -952,7 +966,8 @@ RSpec.describe SAML::User do
           birls_id: '666271151',
           icn: '1012827134V054550',
           multifactor: multifactor,
-          common_name: 'vets.gov.user+262@gmail.com'
+          common_name: 'vets.gov.user+262@gmail.com',
+          person_types: nil
         )
       end
     end

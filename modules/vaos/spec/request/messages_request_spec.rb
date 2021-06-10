@@ -102,19 +102,6 @@ RSpec.describe 'vaos appointment request messages', type: :request do
       end
 
       context 'with access and invalid message' do
-        let(:request_body) { { message_text: Faker::Lorem.characters(number: 101) } }
-
-        it 'returns a validation error', :skip_mvi do
-          post "/vaos/v0/appointment_requests/#{request_id}/messages", params: request_body
-
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response.body).to be_a(String)
-          expect(JSON.parse(response.body)['errors'].first['detail'])
-            .to eq('message-text - is too long (maximum is 100 characters)')
-        end
-      end
-
-      context 'with access and invalid message' do
         let(:request_body) { { message_text: '' } }
 
         it 'returns a validation error', :skip_mvi do

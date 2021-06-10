@@ -31,7 +31,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'stem_automated_decision feature disabled' do
       it 'does not create education_stem_automated_decision' do
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(false)
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(false).at_least(:once)
         instance.after_submit(user)
         expect(instance.education_benefits_claim.education_stem_automated_decision).to be_nil
       end
@@ -39,11 +39,39 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
 
     context 'stem_automated_decision feature enabled' do
       it 'creates education_stem_automated_decision for user' do
-        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision).and_return(true)
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(true).at_least(:once)
         instance.after_submit(user)
         expect(instance.education_benefits_claim.education_stem_automated_decision).not_to be_nil
         expect(instance.education_benefits_claim.education_stem_automated_decision.user_uuid)
           .to eq(user.uuid)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.auth_headers).not_to be_nil
+      end
+
+      it 'saves user auth_headers' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(true).at_least(:once)
+        instance.after_submit(user)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.auth_headers).not_to be_nil
+      end
+
+      it 'populates claim with user POA' do
+        expect(user).to receive(:power_of_attorney).and_return({ poa_code: 'aaa' })
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(true).at_least(:once)
+        instance.after_submit(user)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.poa).to eq(true)
+      end
+
+      it 'treats user POA nil as nil' do
+        expect(user).to receive(:power_of_attorney).and_return(nil)
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(true).at_least(:once)
+        instance.after_submit(user)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
+      end
+
+      it 'handles POA exception' do
+        expect(user).to receive(:power_of_attorney).and_raise(StandardError)
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, user).and_return(true).at_least(:once)
+        instance.after_submit(user)
+        expect(instance.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
       end
 
       it 'does not create education_stem_automated_decision without user' do

@@ -1017,10 +1017,10 @@ module PdfFill
             first_key: 'full_name',
             'supporting_stepchild' => {
               'supporting_stepchild_yes' => {
-                'key': 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[79]'
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[79]'
               },
               'supporting_stepchild_no' => {
-                'key': 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[78]'
+                key: 'form1[0].#subform[25].#subform[26].#subform[27].RadioButtonList[78]'
               }
             }, # end of supporting_stepchild
             'full_name' => {
@@ -1124,9 +1124,9 @@ module PdfFill
             }, # end of address
             # 21F. DATE STEPCHILD LEFT VETERAN'S HOUSEHOLD (MM-DD-YYYY)
             'living_expenses_paid' => {
-              'more_than_half' => { 'key': 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
-              'half' => { 'key': 'step_children.living_expenses_paid.half[%iterator%]' },
-              'less_than_half' => { 'key': 'step_children.living_expenses_paid.less_than_half[%iterator%]' }
+              'more_than_half' => { key: 'step_children.living_expenses_paid.more_than_half[%iterator%]' },
+              'half' => { key: 'step_children.living_expenses_paid.half[%iterator%]' },
+              'less_than_half' => { key: 'step_children.living_expenses_paid.less_than_half[%iterator%]' }
             } # end of living_expenses_paid
           }, # end of step_children
           # -----------------  SECTION VI: VETERAN/CLAIMANT REPORTING DEATH OF A DEPENDENT  ----------------- #
@@ -1134,15 +1134,15 @@ module PdfFill
             limit: 2,
             first_key: 'full_name',
             'dependent_type' => {
-              'spouse' => { 'key': 'deaths.dependent_type.spouse[%iterator%]' },
-              'minor_child' => { 'key': 'deaths.dependent_type.minor_child[%iterator%]' },
-              'stepchild' => { 'key': 'deaths.dependent_type.stepchild[%iterator%]' },
-              'adopted' => { 'key': 'deaths.dependent_type.adopted[%iterator%]' },
-              'dependent_parent' => { 'key': 'deaths.dependent_type.dependent_parent[%iterator%]' },
+              'spouse' => { key: 'deaths.dependent_type.spouse[%iterator%]' },
+              'minor_child' => { key: 'deaths.dependent_type.minor_child[%iterator%]' },
+              'stepchild' => { key: 'deaths.dependent_type.stepchild[%iterator%]' },
+              'adopted' => { key: 'deaths.dependent_type.adopted[%iterator%]' },
+              'dependent_parent' => { key: 'deaths.dependent_type.dependent_parent[%iterator%]' },
               'child_incapable_self_support' => {
-                'key': 'deaths.dependent_type.child_incapable_self_support[%iterator%]'
+                key: 'deaths.dependent_type.child_incapable_self_support[%iterator%]'
               },
-              '18_23_years_old_in_school' => { 'key': 'deaths.dependent_type.18_23_years_old_in_school[%iterator%]' }
+              '18_23_years_old_in_school' => { key: 'deaths.dependent_type.18_23_years_old_in_school[%iterator%]' }
             },
             'full_name' => {
               'first' => {
@@ -1404,6 +1404,7 @@ module PdfFill
           }
           # @TODO remarks
         },
+        'addendum' => { key: 'addendum' },
         'veteran_ssn' => {
           'ssn1' => {
             'first' => { key: 'form1[0].#subform[18].Veterans_SocialSecurityNumber_FirstThreeNumbers[1]' },
@@ -1487,6 +1488,8 @@ module PdfFill
       }.freeze
 
       def merge_fields(_options = {})
+        merge_addendum_helpers
+
         merge_veteran_helpers
         merge_spouse_helpers
 
@@ -1869,6 +1872,54 @@ module PdfFill
         8.times do |i|
           @form_data['veteran_ssn']['ssn' + (i + 1).to_s] = veteran_ssn
         end
+      end
+
+      def merge_addendum_helpers
+        addendum_text = add_household_income
+
+        # income question when adding spouse
+        spouse_name = combine_full_name(@form_data.dig('dependents_application', 'spouse_information', 'full_name'))
+        spouse_income = @form_data.dig('dependents_application', 'does_live_with_spouse', 'spouse_income')
+        addendum_text += add_dependent_income(spouse_name, spouse_income)
+
+        # income questions when adding children
+        children_to_add = @form_data.dig('dependents_application', 'children_to_add')
+        addendum_text += add_dependents(children_to_add, 'child_income')
+
+        # income question when reporting a divorce
+        spouse_name = combine_full_name(@form_data.dig('dependents_application', 'report_divorce', 'full_name'))
+        spouse_income = @form_data.dig('dependents_application', 'report_divorce', 'spouse_income')
+        addendum_text += add_dependent_income(spouse_name, spouse_income)
+
+        # income questions when reporting deaths
+        deaths = @form_data.dig('dependents_application', 'deaths')
+        addendum_text += add_dependents(deaths, 'dependent_income')
+
+        @form_data['addendum'] = addendum_text
+      end
+
+      def add_household_income
+        net_worth = @form_data.dig('dependents_application', 'household_income')
+        "Did the household have a net worth greater than $130,773 in the last tax year? #{format_boolean(net_worth)}"
+      end
+
+      def add_dependent_income(dependent_name, dependent_income)
+        return '' if dependent_name.blank?
+
+        "\n\nDid #{dependent_name} have an income in the last 365 days? #{format_boolean(dependent_income)}"
+      end
+
+      def add_dependents(dependents_hash, income_attr)
+        return '' if dependents_hash.blank?
+
+        dependent_text = ''
+        dependents_hash.each do |dependent|
+          dependent_name = combine_full_name(dependent.dig('full_name'))
+          dependent_income = dependent.dig(income_attr)
+          dependent_text += add_dependent_income(dependent_name, dependent_income)
+        end
+
+        dependent_text
       end
     end
   end

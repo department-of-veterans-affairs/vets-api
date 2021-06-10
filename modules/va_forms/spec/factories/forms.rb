@@ -3,6 +3,7 @@
 FactoryBot.define do
   factory :va_form, class: 'VAForms::Form' do
     form_name { '526ez' }
+    row_id { 4909 }
     url { 'https://va.gov/va_form/21-526ez.pdf' }
     title { 'Disability Compensation' }
     first_issued_on { Time.zone.today - 1.day }
@@ -18,6 +19,7 @@ FactoryBot.define do
     factory :deleted_va_form, parent: :va_form do
       has_been_deleted
       form_name { '528' }
+      row_id { 1315 }
     end
   end
 end

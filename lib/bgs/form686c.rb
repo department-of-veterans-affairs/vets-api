@@ -12,12 +12,17 @@ require_relative 'children'
 
 module BGS
   class Form686c
+    REMOVE_CHILD_OPTIONS = %w[report_child18_or_older_is_not_attending_school
+                              report_stepchild_not_in_household
+                              report_marriage_of_child_under18].freeze
+
     def initialize(user)
       @user = user
     end
 
     def submit(payload)
-      proc_id = create_proc_id_and_form
+      vnp_proc_state_type_cd = get_state_type(payload)
+      proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
       veteran = VnpVeteran.new(proc_id: proc_id, payload: payload, user: @user, claim_type: '130DPNEBNADJ').create
 
       process_relationships(proc_id, veteran, payload)
@@ -37,7 +42,8 @@ module BGS
       ).create
 
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
-      bgs_service.update_proc(proc_id)
+      proc_state = vnp_proc_state_type_cd == 'MANUAL_VAGOV' ? vnp_proc_state_type_cd : 'Ready'
+      bgs_service.update_proc(proc_id, proc_state: proc_state)
     end
 
     private
@@ -58,14 +64,36 @@ module BGS
       ).create_all
     end
 
-    def create_proc_id_and_form
-      vnp_response = bgs_service.create_proc
+    def create_proc_id_and_form(vnp_proc_state_type_cd)
+      vnp_response = bgs_service.create_proc(proc_state: vnp_proc_state_type_cd)
       bgs_service.create_proc_form(
         vnp_response[:vnp_proc_id],
         '21-686c'
       )
 
       vnp_response[:vnp_proc_id]
+    end
+
+    def get_state_type(payload)
+      selectable_options = payload['view:selectable686_options']
+      dependents_app = payload['dependents_application']
+
+      # search through the "selectable_options" hash and check if any of the "REMOVE_CHILD_OPTIONS" are set to true
+      return 'MANUAL_VAGOV' if REMOVE_CHILD_OPTIONS.any? { |child_option| selectable_options[child_option] }
+
+      # if the user is adding a spouse and the marriage type is anything other than CEREMONIAL, set the status to manual
+      if selectable_options['add_spouse']
+        marriage_types = %w[COMMON-LAW TRIBAL PROXY OTHER]
+        return 'MANUAL_VAGOV' if marriage_types.any? { |m| m == dependents_app['current_marriage_information']['type'] }
+      end
+
+      # search through the array of "deaths" and check if the dependent_type = "CHILD" or "DEPENDENT_PARENT"
+      if selectable_options['report_death']
+        relationships = %w[CHILD DEPENDENT_PARENT]
+        return 'MANUAL_VAGOV' if dependents_app['deaths'].any? { |h| relationships.include?(h['dependent_type']) }
+      end
+
+      'Started'
     end
 
     def bgs_service

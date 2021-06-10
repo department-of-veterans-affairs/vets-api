@@ -9,10 +9,13 @@ require 'evss/pciu/service'
 require 'mpi/messages/find_profile_message'
 require 'mpi/service'
 require 'saml/user'
+require 'formatters/date_formatter'
+require 'va_profile/configuration'
 
 class User < Common::RedisStore
   include BetaSwitch
   include Authorization
+  extend Gem::Deprecate
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
@@ -35,6 +38,7 @@ class User < Common::RedisStore
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
 
   delegate :email, to: :identity, allow_nil: true
+  delegate :loa3?, to: :identity, allow_nil: true
 
   # This delegated method is called with #account_uuid
   delegate :uuid, to: :account, prefix: true, allow_nil: true
@@ -60,8 +64,23 @@ class User < Common::RedisStore
     pciu&.get_alternate_phone&.to_s
   end
 
+  # Identity getter methods
+
+  def birls_id
+    identity&.birls_id || mpi&.birls_id
+  end
+
+  # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
+  def birth_date
+    birth_date = identity.birth_date || birth_date_mpi
+
+    Rails.logger.info "[User] Cannot find birth date for User with uuid: #{uuid}" if birth_date.nil?
+
+    Formatters::DateFormatter.format_date(birth_date)
+  end
+
   def first_name
-    identity.first_name || (mhv_icn.present? ? mpi&.profile&.given_names&.first : nil)
+    identity.first_name || first_name_mpi
   end
 
   def full_name_normalized
@@ -69,137 +88,206 @@ class User < Common::RedisStore
       first: first_name&.capitalize,
       middle: middle_name&.capitalize,
       last: last_name&.capitalize,
-      suffix: va_profile&.normalized_suffix
+      suffix: normalized_suffix
     }
   end
 
-  def ssn_normalized
-    ssn&.gsub(/[^\d]/, '')
-  end
-
-  def middle_name
-    identity.middle_name || (mhv_icn.present? ? mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
-  end
-
-  def last_name
-    identity.last_name || (mhv_icn.present? ? mpi&.profile&.family_name : nil)
-  end
-
   def gender
-    identity.gender || (mhv_icn.present? ? mpi&.profile&.gender : nil)
-  end
-
-  def birth_date
-    identity.birth_date || (mhv_icn.present? ? mpi&.profile&.birth_date&.to_date&.to_s : nil)
-  end
-
-  def zip
-    identity.zip || (mhv_icn.present? ? mpi&.profile&.address&.postal_code : nil)
-  end
-
-  def ssn
-    identity.ssn || (mhv_icn.present? ? mpi&.profile&.ssn : nil)
-  end
-
-  def mhv_correlation_id
-    identity.mhv_correlation_id || mpi.mhv_correlation_id
-  end
-
-  def mhv_account_type
-    identity.mhv_account_type || MHVAccountTypeService.new(self).mhv_account_type
-  end
-
-  def mhv_account_state
-    return 'DEACTIVATED' if (va_profile.mhv_ids.to_a - va_profile.active_mhv_ids.to_a).any?
-    return 'MULTIPLE' if va_profile.active_mhv_ids.to_a.size > 1
-    return 'NONE' if mhv_correlation_id.blank?
-
-    'OK'
-  end
-
-  def loa
-    identity&.loa || {}
-  end
-
-  delegate :multifactor, to: :identity, allow_nil: true
-  delegate :authn_context, to: :identity, allow_nil: true
-  delegate :mhv_icn, to: :identity, allow_nil: true
-  delegate :idme_uuid, to: :identity, allow_nil: true
-  delegate :dslogon_edipi, to: :identity, allow_nil: true
-  delegate :common_name, to: :identity, allow_nil: true
-
-  # mpi attributes
-  delegate :icn, to: :mpi
-  delegate :icn_with_aaid, to: :mpi
-  delegate :vet360_id, to: :mpi
-  delegate :search_token, to: :mpi
-
-  # emis attributes
-  delegate :military_person?, to: :veteran_status
-  delegate :veteran?, to: :veteran_status
-
-  def edipi
-    loa3? && dslogon_edipi.present? ? dslogon_edipi : mpi&.edipi
-  end
-
-  def sec_id
-    identity.sec_id || va_profile&.sec_id
+    identity.gender || gender_mpi
   end
 
   def icn
     identity&.icn || mpi&.icn
   end
 
-  def birls_id
-    identity&.birls_id || mpi&.birls_id
+  def loa
+    identity&.loa || {}
+  end
+
+  def mhv_account_type
+    identity.mhv_account_type || MHVAccountTypeService.new(self).mhv_account_type
+  end
+
+  def mhv_correlation_id
+    identity.mhv_correlation_id || mpi.mhv_correlation_id
+  end
+
+  def middle_name
+    identity.middle_name || mpi&.profile&.given_names.to_a[1..-1]&.join(' ').presence
+  end
+
+  def last_name
+    identity.last_name || last_name_mpi
   end
 
   def participant_id
     identity&.participant_id || mpi&.participant_id
   end
 
-  def va_profile
+  def sec_id
+    identity.sec_id || mpi_profile&.sec_id
+  end
+
+  def ssn
+    identity.ssn || ssn_mpi
+  end
+
+  def ssn_normalized
+    ssn&.gsub(/[^\d]/, '')
+  end
+
+  def zip
+    identity.zip || mpi&.profile&.address&.postal_code
+  end
+
+  # MPI getter methods
+
+  def mpi_profile
+    return nil unless mpi
+
     mpi.profile
   end
 
-  def va_profile_status
-    mpi.status
+  def active_mhv_ids
+    mpi_profile&.active_mhv_ids
   end
+
+  def address
+    address = mpi_profile&.address
+    {
+      street: address&.street,
+      city: address&.city,
+      state: address&.state,
+      country: address&.country,
+      zip: address&.postal_code
+    }
+  end
+
+  def birth_date_mpi
+    return nil unless mpi_profile
+
+    if mpi_profile.birth_date.nil?
+      Rails.logger.info "[User] Cannot find birth date from MPI profile for User with uuid: #{uuid}"
+      return nil
+    end
+
+    mpi_profile.birth_date
+  end
+
+  def edipi_mpi
+    mpi_profile&.edipi
+  end
+
+  def first_name_mpi
+    given_names&.first
+  end
+
+  def gender_mpi
+    mpi_profile&.gender
+  end
+
+  def given_names
+    mpi_profile&.given_names
+  end
+
+  def historical_icns
+    @mpi_historical_icn ||= MPIData.historical_icn_for_user(self)
+  end
+
+  def home_phone
+    mpi_profile&.home_phone
+  end
+
+  def last_name_mpi
+    mpi_profile&.family_name
+  end
+
+  def mhv_account_state
+    return 'DEACTIVATED' if (mhv_ids.to_a - active_mhv_ids.to_a).any?
+    return 'MULTIPLE' if active_mhv_ids.to_a.size > 1
+    return 'NONE' if mhv_correlation_id.blank?
+
+    'OK'
+  end
+
+  def mhv_ids
+    mpi_profile&.mhv_ids
+  end
+
+  def normalized_suffix
+    mpi_profile&.normalized_suffix
+  end
+
+  def ssn_mpi
+    mpi_profile&.ssn
+  end
+
+  def suffix
+    mpi_profile&.suffix
+  end
+
+  def mpi_profile?
+    mpi_profile != nil
+  end
+
+  def va_profile
+    mpi.profile
+  end
+  deprecate :va_profile, :none, 2021, 5
 
   def va_profile_error
     mpi.error
   end
+  deprecate :va_profile_error, :mpi_error, 2021, 5
 
-  # LOA1 no longer just means ID.me LOA1.
-  # It could also be DSLogon or MHV NON PREMIUM users who have not yet done ID.me FICAM LOA3.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
-  def loa1?
-    loa[:current] == LOA::ONE
+  def va_profile_status
+    mpi.status
+  end
+  deprecate :va_profile_status, :mpi_status, 2021, 5
+
+  # MPI setter methods
+
+  def set_mhv_ids(mhv_id)
+    mpi_profile.mhv_ids = [mhv_id] + mhv_ids
+    mpi_profile.active_mhv_ids = [mhv_id] + active_mhv_ids
+    recache
   end
 
-  def loa2?
-    loa[:current] == LOA::TWO
-  end
+  # identity attributes
+  delegate :multifactor, to: :identity, allow_nil: true
+  delegate :authn_context, to: :identity, allow_nil: true
+  delegate :mhv_icn, to: :identity, allow_nil: true
+  delegate :idme_uuid, to: :identity, allow_nil: true
+  delegate :common_name, to: :identity, allow_nil: true
+  delegate :person_types, to: :identity, allow_nil: true
 
-  # LOA3 no longer just means ID.me FICAM LOA3.
-  # It could also be DSLogon or MHV Premium users.
-  # It could also be DSLogon or MHV NON PREMIUM users who have done ID.me FICAM LOA3.
-  # Additionally, LOA3 does not automatically mean user has opted to have MFA.
-  # See also lib/saml/user_attributes/dslogon.rb
-  # See also lib/saml/user_attributes/mhv
-  def loa3?
-    loa[:current].try(:to_i) == LOA::THREE
+  # mpi attributes
+  delegate :icn, to: :mpi, prefix: true
+  delegate :icn_with_aaid, to: :mpi
+  delegate :vet360_id, to: :mpi
+  delegate :search_token, to: :mpi
+  delegate :id_theft_flag, to: :mpi
+  delegate :status, to: :mpi, prefix: true
+  delegate :error, to: :mpi, prefix: true
+  delegate :cerner_id, to: :mpi
+  delegate :cerner_facility_ids, to: :mpi
+
+  # emis attributes
+  delegate :military_person?, to: :veteran_status
+  delegate :veteran?, to: :veteran_status
+
+  def edipi
+    loa3? && identity.edipi.present? ? identity.edipi : edipi_mpi
   end
 
   def ssn_mismatch?
-    return false unless loa3? && identity&.ssn && va_profile&.ssn
+    return false unless loa3? && identity&.ssn && ssn_mpi
 
-    identity.ssn != va_profile.ssn
+    identity.ssn != ssn_mpi
   end
 
   def can_access_user_profile?
-    loa1? || loa2? || loa3?
+    loa[:current].present?
   end
 
   # True if the user has 1 or more treatment facilities, false otherwise
@@ -210,7 +298,7 @@ class User < Common::RedisStore
   # User's profile contains a list of VHA facility-specific identifiers.
   # Facilities in the defined range are treating facilities
   def va_treatment_facility_ids
-    facilities = va_profile&.vha_facility_ids
+    facilities = mpi_profile&.vha_facility_ids
     facilities.to_a.select do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
         Settings.mhv.facility_specific.include?(f)
@@ -277,9 +365,9 @@ class User < Common::RedisStore
   end
 
   def vet360_contact_info
-    return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
+    @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
   end
 
   def all_emails
@@ -302,18 +390,8 @@ class User < Common::RedisStore
     false
   end
 
-  def can_mvi_proxy_add?
-    personal_info? && edipi.present? && icn_with_aaid.present? && search_token.present?
-  rescue # Default to false for any error
-    false
-  end
-
-  def personal_info?
-    first_name.present? && last_name.present? && ssn.present? && birth_date.present?
-  end
-
   def mpi
-    @mpi ||= MPIData.for_user(self)
+    @mpi ||= MPIData.for_user(identity)
   end
 
   # A user can have served in the military without being a veteran.  For example,
@@ -334,7 +412,40 @@ class User < Common::RedisStore
     email&.downcase || account_uuid
   end
 
+  def relationships
+    @relationships ||= get_relationships_array
+  end
+
+  def mpi_add_person
+    add_person_identity = identity
+    add_person_identity.edipi = edipi
+    add_person_identity.ssn = ssn
+    add_person_identity.icn_with_aaid = icn_with_aaid
+    add_person_identity.search_token = search_token
+    mpi.user_identity = add_person_identity
+    mpi.add_person
+  end
+
   private
+
+  def get_relationships_array
+    return unless loa3?
+
+    mpi_profile_relationships || bgs_relationships
+  end
+
+  def mpi_profile_relationships
+    return unless mpi_profile && mpi_profile.relationships.presence
+
+    mpi_profile.relationships.map { |relationship| UserRelationship.from_mpi_relationship(relationship) }
+  end
+
+  def bgs_relationships
+    bgs_dependents = BGS::DependentService.new(self).get_dependents
+    return unless bgs_dependents.presence
+
+    bgs_dependents['persons'].map { |dependent| UserRelationship.from_bgs_dependent(dependent) }
+  end
 
   def pciu
     @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?

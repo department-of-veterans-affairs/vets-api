@@ -154,11 +154,11 @@ RSpec.describe 'Fetching user data', type: :request do
       end
     end
 
-    context 'with an error from a 503 raised by Vet360::ContactInformation::Service#get_person', skip_vet360: true do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', skip_vet360: true do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
-        allow_any_instance_of(Vet360::Service).to receive(:perform).and_raise(
+        allow_any_instance_of(VAProfile::Service).to receive(:perform).and_raise(
           Common::Client::Errors::ClientError.new(exception, 503, error_body)
         )
         get v0_user_url, params: nil

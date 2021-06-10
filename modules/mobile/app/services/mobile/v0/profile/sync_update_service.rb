@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'va_profile/person/service'
+
 module Mobile
   module V0
     module Profile
@@ -29,11 +31,27 @@ module Mobile
         # @params Hash the new parameters used in the update
         # @update whether the save is a new write or an update
         #
-        # @return AsyncTransaction::Vet360::Base the final async transaction status
+        # @return AsyncTransaction::VAProfile::Base the final async transaction status
         #
         def save_and_await_response(resource_type:, params:, update: false)
           http_method = update ? 'put' : 'post'
           initial_transaction = save!(http_method, resource_type, params)
+
+          # return non-received status transactions (errors)
+          return initial_transaction unless initial_transaction.transaction_status == TRANSACTION_RECEIVED
+
+          poll_with_backoff do
+            check_transaction_status!(initial_transaction.transaction_id)
+          end
+        ensure
+          StatsD.increment(
+            'mobile.profile.update.type', tags: ["type:#{resource_type}"], sample_rate: 1.0
+          )
+        end
+
+        def await_vet360_account_link
+          response = person_service.init_vet360_id
+          initial_transaction = AsyncTransaction::Vet360::InitializePersonTransaction.start(@user, response)
 
           # return non-received status transactions (errors)
           return initial_transaction unless initial_transaction.transaction_status == TRANSACTION_RECEIVED
@@ -50,11 +68,11 @@ module Mobile
           raise Common::Exceptions::ValidationErrors, record unless record.valid?
 
           response = contact_information_service.send("#{http_method}_#{resource_type.downcase}", record)
-          "AsyncTransaction::Vet360::#{resource_type.capitalize}Transaction".constantize.start(@user, response)
+          "AsyncTransaction::VAProfile::#{resource_type.capitalize}Transaction".constantize.start(@user, response)
         end
 
         def build_record(type, params)
-          "Vet360::Models::#{type.capitalize}"
+          "VAProfile::Models::#{type.capitalize}"
             .constantize
             .new(params)
             .set_defaults(@user)
@@ -106,7 +124,7 @@ module Mobile
         def check_transaction_status!(transaction_id)
           @transaction_id = transaction_id
 
-          transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
+          transaction = AsyncTransaction::VAProfile::Base.refresh_transaction_status(
             @user,
             contact_information_service,
             transaction_id
@@ -124,7 +142,11 @@ module Mobile
         end
 
         def contact_information_service
-          Vet360::ContactInformation::Service.new @user
+          VAProfile::ContactInformation::Service.new @user
+        end
+
+        def person_service
+          VAProfile::Person::Service.new @user
         end
 
         def raise_timeout_error(elapsed, try)

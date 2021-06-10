@@ -5,6 +5,7 @@ require 'appeals_api/form_schemas'
 
 class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
+  include AppealsApi::StatusSimulation
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
@@ -16,13 +17,13 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
-      AppealsApi::Engine.root.join('config/schemas/200996_headers.json')
+      AppealsApi::Engine.root.join('config/schemas/v1/200996_headers.json')
     )
   )['definitions']['hlrCreateParameters']['properties'].keys
 
   def create
     @higher_level_review.save
-    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review)
+    AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id)
     render_higher_level_review
   end
 
@@ -37,6 +38,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def show
+    @higher_level_review = with_status_simulation(@higher_level_review) if status_requested_and_allowed?
     render_higher_level_review
   end
 
@@ -78,7 +80,10 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def new_higher_level_review
     @higher_level_review = AppealsApi::HigherLevelReview.new(
-      auth_headers: headers, form_data: @json_body
+      auth_headers: headers,
+      form_data: @json_body,
+      source: headers['X-Consumer-Username'],
+      api_version: 'V1'
     )
 
     render_model_errors unless @higher_level_review.validate

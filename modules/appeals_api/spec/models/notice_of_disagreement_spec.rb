@@ -6,13 +6,12 @@ require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 describe AppealsApi::NoticeOfDisagreement, type: :model do
   include FixtureHelpers
 
-  let(:notice_of_disagreement) { build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers) }
-
-  let(:auth_headers) { default_auth_headers }
-  let(:form_data) { default_form_data }
-
-  let(:default_auth_headers) { fixture_as_json 'valid_10182_headers.json' }
-  let(:default_form_data) { fixture_as_json 'valid_10182.json' }
+  let(:auth_headers) { fixture_as_json 'valid_10182_headers.json' }
+  let(:form_data) { fixture_as_json 'valid_10182.json' }
+  let(:notice_of_disagreement) do
+    review_option = form_data['data']['attributes']['boardReviewOption']
+    build(:notice_of_disagreement, form_data: form_data, auth_headers: auth_headers, board_review_option: review_option)
+  end
 
   describe '.build' do
     before { notice_of_disagreement.valid? }
@@ -23,49 +22,47 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   # rubocop:disable Layout/LineLength
-  describe 'validations' do
-    describe '#validate_hearing_type_selection' do
-      context "when board review option 'hearing' selected" do
-        context 'when hearing type provided' do
-          before do
-            notice_of_disagreement.valid?
-          end
-
-          it 'does not throw an error' do
-            expect(notice_of_disagreement.errors.count).to be 0
-          end
+  describe '#validate_hearing_type_selection' do
+    context "when board review option 'hearing' selected" do
+      context 'when hearing type provided' do
+        before do
+          notice_of_disagreement.valid?
         end
 
-        context 'when hearing type missing' do
-          before do
-            form_data['data']['attributes'].delete('hearingTypePreference')
-            notice_of_disagreement.valid?
-          end
-
-          it 'throws an error' do
-            expect(notice_of_disagreement.errors.count).to be 1
-            expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
-              "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
-            )
-          end
+        it 'does not throw an error' do
+          expect(notice_of_disagreement.errors.count).to be 0
         end
       end
 
-      context "when board review option 'direct_review' or 'evidence_submission' is selected" do
-        let(:form_data) { fixture_as_json 'valid_10182_minimum.json' }
+      context 'when hearing type missing' do
+        before do
+          form_data['data']['attributes'].delete('hearingTypePreference')
+          notice_of_disagreement.valid?
+        end
 
-        context 'when hearing type provided' do
-          before do
-            notice_of_disagreement.form_data['data']['attributes']['hearingTypePreference'] = 'video_conference'
-            notice_of_disagreement.valid?
-          end
+        it 'throws an error' do
+          expect(notice_of_disagreement.errors.count).to be 1
+          expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
+            "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
+          )
+        end
+      end
+    end
 
-          it 'throws an error' do
-            expect(notice_of_disagreement.errors.count).to be 1
-            expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
-              "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
-            )
-          end
+    context "when board review option 'direct_review' or 'evidence_submission' is selected" do
+      let(:form_data) { fixture_as_json 'valid_10182_minimum.json' }
+
+      context 'when hearing type provided' do
+        before do
+          notice_of_disagreement.form_data['data']['attributes']['hearingTypePreference'] = 'video_conference'
+          notice_of_disagreement.valid?
+        end
+
+        it 'throws an error' do
+          expect(notice_of_disagreement.errors.count).to be 1
+          expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
+            "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
+          )
         end
       end
     end
@@ -112,10 +109,59 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
   end
 
   describe '#zip_code_5' do
-    it { expect(notice_of_disagreement.zip_code_5).to eq '66002' }
+    context 'when address present' do
+      it { expect(notice_of_disagreement.zip_code_5).to eq '30012' }
+    end
+
+    context 'when homeless and no address' do
+      before do
+        veteran_data = form_data['data']['attributes']['veteran']
+        veteran_data['homeless'] = true
+        veteran_data.delete('address')
+      end
+
+      it { expect(notice_of_disagreement.zip_code_5).to eq '00000' }
+    end
   end
 
   describe '#lob' do
     it { expect(notice_of_disagreement.lob).to eq 'BVA' }
+  end
+
+  describe '#board_review_option' do
+    it { expect(notice_of_disagreement.board_review_option).to eq 'hearing' }
+  end
+
+  describe '#update_status!' do
+    it 'error status' do
+      notice_of_disagreement.update_status!(status: 'error', code: 'code', detail: 'detail')
+
+      expect(notice_of_disagreement.status).to eq('error')
+      expect(notice_of_disagreement.code).to eq('code')
+      expect(notice_of_disagreement.detail).to eq('detail')
+    end
+
+    it 'other valid status' do
+      notice_of_disagreement.update_status!(status: 'success')
+
+      expect(notice_of_disagreement.status).to eq('success')
+    end
+
+    it 'invalid status' do
+      expect do
+        notice_of_disagreement.update_status!(status: 'invalid_status')
+      end.to raise_error(ActiveRecord::RecordInvalid,
+                         'Validation failed: Status is not included in the list')
+    end
+
+    it 'emits an event' do
+      handler = instance_double(AppealsApi::Events::Handler)
+      allow(AppealsApi::Events::Handler).to receive(:new).and_return(handler)
+      allow(handler).to receive(:handle!)
+
+      notice_of_disagreement.update_status!(status: 'pending')
+
+      expect(handler).to have_received(:handle!)
+    end
   end
 end

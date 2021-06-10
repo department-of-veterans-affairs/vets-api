@@ -35,6 +35,9 @@ development: &defaults
   sm_store:
     namespace: sm-service
     each_ttl: 1200
+  sm_store_mobile:
+    namespace: sm-service-mobile
+    each_ttl: 1200
   mdot:
     namespace: mdot
     each_ttl: 1800
@@ -47,6 +50,15 @@ development: &defaults
     each_ttl: 86400
   okta_response:
     namespace: okta-response
+    each_ttl: 3600
+  profile:
+    namespace: profile
+    each_ttl: 3600
+  launch:
+    namespace: launch
+    each_ttl: 3600
+  charon_response:
+    namespace: charon-response
     each_ttl: 3600
   okta_response_app:
     namespace: okta-response
@@ -66,15 +78,15 @@ development: &defaults
   facility_mental_health:
     namespace: facility_mental_health
     each_ttl: 2592000
+  financial_status_report:
+    namespace: financial_status_report
+    each_ttl: 1800
   pciu_address_dependencies:
     namespace: pciu-address-dependencies
     each_ttl: 604800
-  vet360_contact_info_response:
-    namespace: vet360-contact-info-response
+  va_profile_contact_info_response:
+    namespace: va-profile-contact-info-response
     each_ttl: 3600 # 1 hour
-  vet360_reference_data_response:
-    namespace: vet360-reference-data-response
-    each_ttl: 86400
   intent_to_file_response:
     namespace: intent-to-file-response
     each_ttl: 86400
@@ -114,7 +126,18 @@ development: &defaults
   iam_user_identity:
     namespace: iam-user-identity
     each_ttl: 1800
-
+  mobile_vets360_account_link_lock:
+    namespace: mobile-vets360-account-link
+    each_ttl: 180
+  mobile_app_appointments_store:
+    namespace: mobile-app-appointments-store
+    each_ttl: 1800
+  mobile_app_claims_store:
+    namespace: mobile-app-claims-store
+    each_ttl: 1800
+  secure_messaging_store:
+    namespace: secure_messaging_store
+    each_ttl: 1800
 test:
   <<: *defaults
   redis:

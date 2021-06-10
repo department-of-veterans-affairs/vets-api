@@ -9,6 +9,9 @@ module Common
       end
 
       def status_code
+        return if errors&.first.blank?
+        return errors.first[:status]&.to_i if errors.first.is_a?(Hash)
+
         errors&.first&.status&.to_i
       end
 
@@ -43,7 +46,7 @@ module Common
       end
 
       def i18n_interpolated(options = {})
-        merge_values = Hash[options.map { |attribute, opts| [attribute, i18n_field(attribute, opts)] }]
+        merge_values = options.map { |attribute, opts| [attribute, i18n_field(attribute, opts)] }.to_h
         i18n_data.merge(merge_values)
       end
     end

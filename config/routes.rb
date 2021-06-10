@@ -30,11 +30,16 @@ Rails.application.routes.draw do
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
     resources :debt_letters, only: %i[index show]
-    resources :financial_status_reports, only: :create
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
+    resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token
 
     resources :preferred_facilities, only: %i[index create destroy]
+
+    resources :apps, only: %i[index show]
+    scope_default = { category: 'unknown_category' }
+    get 'apps/scopes/:category', to: 'apps#scopes', defaults: scope_default
+    get 'apps/scopes', to: 'apps#scopes', defaults: scope_default
 
     resources :letters, only: [:index] do
       collection do
@@ -53,8 +58,15 @@ Rails.application.routes.draw do
       get 'separation_locations'
     end
 
+    resources :financial_status_reports, only: %i[create] do
+      collection do
+        get :download_pdf
+      end
+    end
+
     post '/mvi_users/:id', to: 'mpi_users#submit'
 
+    resource :decision_review_evidence, only: :create
     resource :upload_supporting_evidence, only: :create
 
     resource :sessions, only: [] do
@@ -66,9 +78,10 @@ Rails.application.routes.draw do
     resource :post911_gi_bill_status, only: [:show]
     resource :vso_appointments, only: [:create]
 
-    resource :education_benefits_claims, only: [:create] do
+    resource :education_benefits_claims, only: %i[create show] do
       collection do
         post(':form_type', action: :create, as: :form_type)
+        get(:stem_claim_status)
       end
     end
 
@@ -84,11 +97,17 @@ Rails.application.routes.draw do
     resources :caregivers_assistance_claims, only: :create
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
 
+    namespace :form1010cg do
+      resources :attachments, only: :create
+    end
+
     resources :dependents_applications, only: %i[create show] do
       collection do
         get(:disability_rating)
       end
     end
+
+    resources :dependents_verifications, only: %i[create index]
 
     if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
@@ -169,13 +188,6 @@ Rails.application.routes.draw do
       end
     end
 
-    scope :facilities, module: 'facilities' do
-      resources :va, only: %i[index show], defaults: { format: :json }
-      resources :ccp, only: %i[index show], defaults: { format: :json }
-      get 'suggested', to: 'va#suggested'
-      get 'services', to: 'ccp#services'
-    end
-
     scope :gi, module: 'gids' do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
@@ -250,12 +262,14 @@ Rails.application.routes.draw do
       get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+      resources :communication_preferences, only: %i[index create update]
 
       resources :ch33_bank_accounts, only: %i[index]
       put 'ch33_bank_accounts', to: 'ch33_bank_accounts#update'
     end
 
     resources :search, only: :index
+    resources :search_typeahead, only: :index
     resources :search_click_tracking, only: :create
 
     get 'forms', to: 'forms#index'
@@ -328,6 +342,25 @@ Rails.application.routes.draw do
         get 'urgent_care', on: :collection
       end
     end
+
+    namespace :gi, module: 'gids' do
+      resources :institutions, only: :show, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+        get :children, on: :member
+      end
+
+      resources :institution_programs, only: :index, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
+      resources :calculator_constants, only: :index, defaults: { format: :json }
+
+      resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
+
+      resources :zipcode_rates, only: :show, defaults: { format: :json }
+    end
   end
 
   root 'v0/example#index', module: 'v0'
@@ -340,7 +373,8 @@ Rails.application.routes.draw do
     mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
-    mount ClaimsApi::Engine, at: '/claims'
+    mount ClaimsApi::Engine, at: '/claims', as: 'legacy_claims'
+    mount ClaimsApi::Engine, at: '/benefits'
     mount Veteran::Engine, at: '/veteran'
     mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
@@ -348,11 +382,14 @@ Rails.application.routes.draw do
   end
 
   # Modules
-  mount HealthQuest::Engine, at: '/health_quest'
-  mount VAOS::Engine, at: '/vaos'
+  mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
-  mount Mobile::Engine, at: '/mobile'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
+  mount FacilitiesApi::Engine, at: '/facilities_api'
+  mount HealthQuest::Engine, at: '/health_quest'
+  mount Mobile::Engine, at: '/mobile'
+  mount VAOS::Engine, at: '/vaos'
+  # End Modules
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
@@ -361,6 +398,8 @@ Rails.application.routes.draw do
     require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  mount PgHero::Engine, at: 'pghero'
 
   mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 

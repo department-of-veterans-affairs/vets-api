@@ -4,20 +4,28 @@ require 'caseflow/service'
 
 module AppealsApi
   class HealthChecker
-    SERVICES = %w[caseflow].freeze
+    APPEALS_SERVICES = %w[caseflow].freeze
+    DECISION_REVIEWS_SERVICES = %w[caseflow central_mail].freeze
 
     def initialize
       @caseflow_healthy = nil
+      @central_mail_healthy = nil
     end
 
-    def services_are_healthy?
+    def appeals_services_are_healthy?
       caseflow_is_healthy?
+    end
+
+    def decision_reviews_services_are_healthy?
+      caseflow_is_healthy? && central_mail_is_healthy?
     end
 
     def healthy_service?(service)
       case service
       when /caseflow/i
         caseflow_is_healthy?
+      when /central_mail/i
+        central_mail_is_healthy?
       else
         raise "AppealsApi::HealthChecker doesn't recognize #{service}"
       end
@@ -30,6 +38,12 @@ module AppealsApi
 
       response = Caseflow::Service.new.healthcheck
       @caseflow_healthy = response.body['healthy'] == true
+    end
+
+    def central_mail_is_healthy?
+      return @central_mail_healthy unless @central_mail_healthy.nil?
+
+      @central_mail_healthy = !CentralMail::Service.current_breaker_outage?
     end
   end
 end

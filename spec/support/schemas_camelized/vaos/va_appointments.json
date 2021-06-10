@@ -11,35 +11,34 @@
       "minItems": 0,
       "uniqueItems": true,
       "items": {
-        "$ref": "va_appointment.json"
+        "$ref": "va_appointment_raw.json"
       }
     },
     "meta": {
       "type": "object",
-      "required": [
-        "pagination"
-      ],
+      "required": ["pagination", "errors"],
       "properties": {
         "pagination": {
           "type": "object",
-          "required": [
-            "currentPage",
-            "perPage",
-            "totalPages",
-            "totalEntries"
-          ],
+          "required": ["currentPage", "perPage", "totalPages", "totalEntries"],
           "properties": {
-            "currentPage": {
-              "type": "integer"
-            },
-            "perPage": {
-              "type": "integer"
-            },
-            "totalPages": {
-              "type": "integer"
-            },
-            "totalEntries": {
-              "type": "integer"
+            "currentPage": { "type": "integer" },
+            "perPage": { "type": "integer" },
+            "totalPages": { "type": "integer" },
+            "totalEntries": { "type": "integer" }
+          }
+        },
+        "errors": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": false,
+          "items": {
+            "type": "object",
+            "required": ["code", "source", "summary"],
+            "properties": {
+              "code": { "type": "integer" },
+              "source": { "type": "string" },
+              "summary": { "type": "string" }
             }
           }
         }

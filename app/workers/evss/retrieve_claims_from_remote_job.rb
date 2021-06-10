@@ -8,6 +8,7 @@ module EVSS
     sidekiq_options retry: false
 
     def perform(user_uuid)
+      Raven.tags_context(source: 'claims-status')
       @user = User.find user_uuid
       tracker = EVSSClaimsSyncStatusTracker.find_or_build(user_uuid)
       auth_headers = EVSS::AuthHeaders.new(@user).to_h

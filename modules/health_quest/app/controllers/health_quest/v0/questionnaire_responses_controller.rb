@@ -4,7 +4,7 @@ module HealthQuest
   module V0
     class QuestionnaireResponsesController < HealthQuest::V0::BaseController
       def index
-        render json: factory.search(params[:filters]).response[:body]
+        render json: factory.search(request.query_parameters).response[:body]
       end
 
       def show
@@ -12,14 +12,21 @@ module HealthQuest
       end
 
       def create
-        render json: factory.create(params[questionnaire_response]).response[:body]
+        render json: factory.create(questionnaire_response_params).response[:body]
       end
 
       private
 
+      def questionnaire_response_params
+        params.require(:questionnaire_response).permit!
+      end
+
       def factory
-        @factory =
-          HealthQuest::PatientGeneratedData::QuestionnaireResponse::Factory.manufacture(current_user)
+        HealthQuest::Resource::Factory.manufacture(
+          user: current_user,
+          resource_identifier: 'questionnaire_response',
+          api: Settings.hqva_mobile.lighthouse.pgd_api
+        )
       end
     end
   end

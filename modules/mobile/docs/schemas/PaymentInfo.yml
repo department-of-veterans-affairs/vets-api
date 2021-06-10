@@ -26,7 +26,8 @@ properties:
           - indexIndicator
           - isCompetentIndicator
           - noFiduciaryAssignedIndicator
-          - notDeceasedIndicator
+          - notDeceasedIndicato
+          - canUpdatePayment
         properties:
           canUpdateAddress:
             type: boolean
@@ -45,6 +46,8 @@ properties:
           noFiduciaryAssignedIndicator:
             type: boolean
           notDeceasedIndicator:
+            type: boolean
+          canUpdatePayment:
             type: boolean
       paymentAccount:
         type: object

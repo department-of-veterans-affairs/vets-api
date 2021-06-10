@@ -37,9 +37,9 @@ pipeline {
       }
     }
 
-    stage('Setup Testing DB') {
+    stage('Setup Testing parallel DBs') {
       steps {
-        sh 'env=$RAILS_ENV make db'
+        sh 'env=$RAILS_ENV make spec_parallel_setup'
       }
     }
 
@@ -75,21 +75,13 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        sh 'env=$RAILS_ENV make spec'
+        sh 'env=$RAILS_ENV make spec_parallel'
       }
       post {
         success {
           archiveArtifacts artifacts: "coverage/**"
           publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
           junit 'log/*.xml'
-        }
-      }
-    }
-
-    stage('Run Danger Bot') {
-      steps {
-        withCredentials([string(credentialsId: 'danger-github-api-token',    variable: 'DANGER_GITHUB_API_TOKEN')]) {
-          sh 'env=$RAILS_ENV make danger'
         }
       }
     }
@@ -102,6 +94,7 @@ pipeline {
           stringParam(name: 'devops_branch', value: 'master'),
           stringParam(name: 'api_branch', value: env.THE_BRANCH),
           stringParam(name: 'web_branch', value: 'master'),
+          stringParam(name: 'content_branch', value: 'master'),
           stringParam(name: 'source_repo', value: 'vets-api'),
         ], wait: false
       }

@@ -3,11 +3,10 @@ data:
     id: "23fe358d-6e82-4541-804c-ce7562ba28f4"
     attributes:
       appointmentType: VA_VIDEO_CONNECT_HOME
-      status: CANCELLED
-      startDateLocal: 2019-04-20T14:15:00.000-04:00
-      startDateUtc: 2019-04-20T18:15:00.000Z
-      minutesDuration: 60
+      cancelId: MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=
       comment: Please log on 5 minutes before the start of your appointment
+      clinicId: ~
+      facilityId: ~
       healthcareService: null
       location:
         name: null
@@ -17,4 +16,17 @@ data:
         phone: null
         url: https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#
         code: null
+      minutesDuration: 60
+      startDateLocal: 2019-04-20T14:15:00.000-04:00
+      startDateUtc: 2019-04-20T18:15:00.000Z
+      status: CANCELLED
       timeZone: America/Los_Angeles
+      vetextId: 308;20210106.140000
+meta:
+  errors: null
+links:
+  self: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=3&page[size]=10"
+  first: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=1&page[size]=10"
+  prev: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=2&page[size]=10"
+  next: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=4&page[size]=10"
+  last: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=6&page[size]=10"

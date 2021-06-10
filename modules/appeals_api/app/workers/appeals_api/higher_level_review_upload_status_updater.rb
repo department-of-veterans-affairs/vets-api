@@ -1,17 +1,30 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'sidekiq/monitored_worker'
+require 'appeals_api/sidekiq_retry_notifier'
 
 module AppealsApi
   class HigherLevelReviewUploadStatusUpdater
     include Sidekiq::Worker
+    include Sidekiq::MonitoredWorker
 
-    sidekiq_options 'retry': true, unique_until: :success
+    # Only retry for ~30 minutes since the job that spawns this one runs every hour
+    sidekiq_options retry: 5, unique_until: :success
 
     def perform(ids)
-      HigherLevelReview.where(id: ids).find_in_batches(batch_size: 100) do |batch|
-        HigherLevelReview.refresh_statuses_using_central_mail! batch
+      batch_size = CentralMailUpdater::MAX_UUIDS_PER_REQUEST
+      HigherLevelReview.where(id: ids).find_in_batches(batch_size: batch_size) do |batch|
+        CentralMailUpdater.new.call(batch)
       end
+    end
+
+    def retry_limits_for_notification
+      [2, 5]
+    end
+
+    def notify(retry_params)
+      SidekiqRetryNotifier.notify!(retry_params)
     end
   end
 end

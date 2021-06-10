@@ -5,7 +5,7 @@ require 'common/exceptions'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
-    include CentralMailStatus
+    include NodStatus
 
     def self.load_json_schema(filename)
       MultiJson.load File.read Rails.root.join('modules', 'appeals_api', 'config', 'schemas', "#{filename}.json")
@@ -20,7 +20,10 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    validate :validate_hearing_type_selection
+    validate :validate_hearing_type_selection, if: :pii_present?
+
+    has_many :evidence_submissions, as: :supportable, dependent: :destroy
+    has_many :status_updates, as: :statusable, dependent: :destroy
 
     def pdf_structure(version)
       Object.const_get(
@@ -29,19 +32,19 @@ module AppealsApi
     end
 
     def veteran_first_name
-      header_field_as_string 'X-VA-Veteran-First-Name'
+      header_field_as_string 'X-VA-First-Name'
     end
 
     def veteran_last_name
-      header_field_as_string 'X-VA-Veteran-Last-Name'
+      header_field_as_string 'X-VA-Last-Name'
     end
 
     def ssn
-      header_field_as_string 'X-VA-Veteran-SSN'
+      header_field_as_string 'X-VA-SSN'
     end
 
     def file_number
-      header_field_as_string 'X-VA-Veteran-File-Number'
+      header_field_as_string 'X-VA-File-Number'
     end
 
     def consumer_name
@@ -52,7 +55,35 @@ module AppealsApi
       header_field_as_string 'X-Consumer-ID'
     end
 
-    def veteran_homeless_state
+    def veteran_contact_info
+      form_data&.dig('data', 'attributes', 'veteran')
+    end
+
+    def mailing_address
+      address_combined = [
+        veteran_contact_info.dig('address', 'addressLine1'),
+        veteran_contact_info.dig('address', 'addressLine2'),
+        veteran_contact_info.dig('address', 'addressLine3')
+      ].compact.map(&:strip).join(' ')
+
+      [
+        address_combined,
+        veteran_contact_info.dig('address', 'city'),
+        veteran_contact_info.dig('address', 'stateCode'),
+        veteran_contact_info.dig('address', 'zipCode5'),
+        veteran_contact_info.dig('address', 'countryName')
+      ].compact.map(&:strip).join(', ')
+    end
+
+    def phone
+      AppealsApi::HigherLevelReview::Phone.new(veteran_contact_info&.dig('phone')).to_s
+    end
+
+    def email
+      veteran_contact_info.dig('emailAddressText')
+    end
+
+    def veteran_homeless?
       form_data&.dig('data', 'attributes', 'veteran', 'homeless')
     end
 
@@ -60,7 +91,7 @@ module AppealsApi
       form_data&.dig('data', 'attributes', 'veteran', 'representativesName')
     end
 
-    def board_review_option
+    def board_review_value
       form_data&.dig('data', 'attributes', 'boardReviewOption')
     end
 
@@ -69,11 +100,29 @@ module AppealsApi
     end
 
     def zip_code_5
-      form_data&.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')
+      # schema already validated address presence if not homeless
+      veteran_contact_info&.dig('address', 'zipCode5') || '00000'
     end
 
     def lob
       'BVA'
+    end
+
+    def accepts_evidence?
+      board_review_option == 'evidence_submission'
+    end
+
+    def update_status!(status:, code: nil, detail: nil)
+      handler = Events::Handler.new(event_type: :nod_status_updated, opts: {
+                                      from: self.status,
+                                      to: status,
+                                      status_update_time: Time.zone.now,
+                                      statusable_id: id
+                                    })
+
+      update!(status: status, code: code, detail: detail)
+
+      handler.handle!
     end
 
     private
@@ -92,7 +141,7 @@ module AppealsApi
     end
 
     def board_review_hearing_selected?
-      board_review_option == 'hearing'
+      board_review_value == 'hearing'
     end
 
     def includes_hearing_type_preference?
@@ -113,6 +162,11 @@ module AppealsApi
 
     def header_field_as_string(key)
       auth_headers&.dig(key).to_s.strip
+    end
+
+    # After expunging pii, form_data is nil, update will fail unless validation skipped
+    def pii_present?
+      proc { |a| a.form_data.present? }
     end
   end
 end

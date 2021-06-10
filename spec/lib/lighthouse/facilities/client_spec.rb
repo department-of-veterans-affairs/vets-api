@@ -3,13 +3,14 @@
 require 'rails_helper'
 require 'lighthouse/facilities/client'
 
-RSpec.describe Lighthouse::Facilities::Client do
-  vcr_options = {
-    match_requests_on: %i[path query],
-    allow_playback_repeats: true,
-    record: :new_episodes
-  }
+vcr_options = {
+  cassette_name: '/lighthouse/facilities',
+  match_requests_on: %i[path query],
+  allow_playback_repeats: true,
+  record: :new_episodes
+}
 
+RSpec.describe Lighthouse::Facilities::Client, team: :facilities, vcr: vcr_options do
   let(:facilities_client) { Lighthouse::Facilities::Client.new }
 
   let(:params) do
@@ -56,28 +57,34 @@ RSpec.describe Lighthouse::Facilities::Client do
         'tuesday' => '730AM-430PM',
         'wednesday' => '730AM-430PM'
       },
-      services: { 'health' => %w[Audiology Cardiology Dermatology Ophthalmology
-                                 PrimaryCare SpecialtyCare],
-                  'last_updated' => '2020-09-14', 'other' => [] },
+      services: { 'health' => %w[Audiology Cardiology Dermatology EmergencyCare
+                                 Ophthalmology PrimaryCare SpecialtyCare],
+                  'last_updated' => '2021-04-05', 'other' => [] },
       feedback: {
-        'effective_date' => nil,
-        'health' => {}
+        'effective_date' => '2021-03-05',
+        'health' => {
+          'primary_care_urgent' => 0.0,
+          'primary_care_routine' => 0.9100000262260437,
+          'specialty_care_urgent' => 0.0,
+          'specialty_care_routine' => 0.0
+        }
       },
       access: {
-        'effective_date' => '2020-09-14',
+        'effective_date' => '2021-04-05',
         'health' => [
-          { 'established' => 29.705882, 'new' => 68.857142, 'service' => 'Audiology' },
-          { 'established' => 29.108695, 'new' => 2.2,       'service' => 'Cardiology' },
-          { 'established' => 7.153846,  'new' => 81.714285, 'service' => 'Dermatology' },
-          { 'established' => 28.462962, 'new' => 98.222222, 'service' => 'Ophthalmology' },
-          { 'established' => 15.333333, 'new' => 7.0,       'service' => 'PrimaryCare' },
-          { 'established' => 26.449197, 'new' => 61.53125,  'service' => 'SpecialtyCare' }
+          { 'service' => 'Audiology',        'new' => 103.0,      'established' => 73.833333 },
+          { 'service' => 'Cardiology',       'new' => 42.285714,  'established' => 19.053571 },
+          { 'service' => 'Dermatology',      'new' => 140.25,     'established' => 18.666666 },
+          { 'service' => 'Ophthalmology',    'new' => 131.0,      'established' => 33.333333 },
+          { 'service' => 'PrimaryCare',      'new' => 30.111111,  'established' => 29.153846 },
+          { 'service' => 'SpecialtyCare',    'new' => 76.986666,  'established' => 38.891509 }
         ]
       },
       mobile: false,
       active_status: 'A',
       visn: '21',
       operating_status: { 'code' => 'NORMAL' },
+      operational_hours_special_instructions: nil,
       facility_type_prefix: 'vha',
       unique_id: '358'
     }
@@ -104,10 +111,17 @@ RSpec.describe Lighthouse::Facilities::Client do
     end
   end
 
-  describe '#get_by_id', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities') do
+  describe '#get_by_id' do
     it 'returns a facility' do
       r = facilities_client.get_by_id('vha_358')
       expect(r).to have_attributes(vha_358_attributes)
+    end
+
+    it 'has operational_hours_special_instructions' do
+      r = facilities_client.get_by_id('vc_0617V')
+      expect(r[:operational_hours_special_instructions]).to eql('Expanded or Nontraditional hours are available for ' \
+        'some services on a routine and or requested basis. Please call our main phone number for details. | Vet ' \
+        'Center after hours assistance is available by calling 1-877-WAR-VETS (1-877-927-8387).')
     end
 
     it 'returns a 404 error' do
@@ -121,7 +135,7 @@ RSpec.describe Lighthouse::Facilities::Client do
     end
   end
 
-  describe '#get_facilities', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities') do
+  describe '#get_facilities' do
     it 'returns matching facilities for bbox request' do
       r = facilities_client.get_facilities(params)
       expect(r.length).to be 8

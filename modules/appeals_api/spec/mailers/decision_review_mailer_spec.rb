@@ -5,12 +5,12 @@ require 'rails_helper'
 RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
   describe '#build' do
     subject do
-      described_class.build(date_from: 7.days.ago, date_to: Time.zone.now).deliver_now
+      described_class.build(date_from: 7.days.ago, date_to: Time.zone.now, friendly_duration: 'duration').deliver_now
     end
 
     it 'sends the email' do
       with_settings(Settings, vsp_environment: 'spartacus') do
-        expect(subject.subject).to eq 'Decision Review API report (Spartacus)'
+        expect(subject.subject).to eq 'duration Decision Review API report (Spartacus)'
       end
     end
 

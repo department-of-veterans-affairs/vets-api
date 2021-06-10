@@ -8,6 +8,7 @@ module EVSS
     sidekiq_options retry: false
 
     def perform(user_uuid, claim_id)
+      Raven.tags_context(source: 'claims-status')
       user = User.find user_uuid
       claim = EVSSClaim.find claim_id
       auth_headers = EVSS::AuthHeaders.new(user).to_h
@@ -16,9 +17,6 @@ module EVSS
       ).find_claim_with_docs_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update(data: raw_claim)
       set_status(user_uuid, claim_id, 'SUCCESS')
-    rescue ActiveRecord::ConnectionTimeoutError
-      set_status(user_uuid, claim_id, 'FAILED')
-      raise
     rescue
       set_status(user_uuid, claim_id, 'FAILED')
       raise

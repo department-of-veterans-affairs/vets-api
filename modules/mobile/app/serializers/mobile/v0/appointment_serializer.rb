@@ -6,15 +6,16 @@ module Mobile
       include FastJsonapi::ObjectSerializer
 
       attributes :appointment_type,
+                 :cancel_id,
                  :comment,
-                 :facility_id,
                  :healthcare_service,
                  :location,
                  :minutes_duration,
                  :start_date_local,
                  :start_date_utc,
                  :status,
-                 :time_zone
+                 :time_zone,
+                 :vetext_id
     end
   end
 end

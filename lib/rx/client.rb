@@ -71,7 +71,7 @@ module Rx
     #
     def get_tracking_history_rx(id)
       json = perform(:get, "prescription/rxtracking/#{id}", nil, token_headers).body
-      tracking_history = json[:data].map { |t| Hash[t].merge(prescription_id: id) }
+      tracking_history = json[:data].map { |t| t.to_h.merge(prescription_id: id) }
       Common::Collection.new(::Tracking, json.merge(data: tracking_history))
     end
 

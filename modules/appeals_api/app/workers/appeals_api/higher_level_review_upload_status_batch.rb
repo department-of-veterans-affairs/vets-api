@@ -6,7 +6,8 @@ module AppealsApi
   class HigherLevelReviewUploadStatusBatch
     include Sidekiq::Worker
 
-    sidekiq_options 'retry': true, unique_until: :success
+    # No need to retry since the schedule will run this every hour
+    sidekiq_options retry: false
 
     def perform
       return unless enabled? && higher_level_review_ids.present?
@@ -21,7 +22,7 @@ module AppealsApi
     private
 
     def higher_level_review_ids
-      @higher_level_review_ids ||= HigherLevelReview.received_or_processing.order(created_at: :asc).pluck(:id)
+      @higher_level_review_ids ||= HigherLevelReview.incomplete_statuses.order(created_at: :asc).pluck(:id)
     end
 
     def slice_size

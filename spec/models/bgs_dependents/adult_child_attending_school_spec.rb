@@ -15,7 +15,8 @@ RSpec.describe BGSDependents::AdultChildAttendingSchool do
       'first' => 'Ernie',
       'middle' => 'bubkis',
       'last' => 'McCracken',
-      'suffix' => 'II'
+      'suffix' => 'II',
+      'dependent_income' => 'Y'
     }
   end
   let(:address_response) do

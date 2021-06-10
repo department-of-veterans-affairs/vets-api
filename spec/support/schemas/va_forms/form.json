@@ -26,6 +26,7 @@
             "title": { "type": "string" },
             "first_issued_on": { "type": ["string", "null"] },
             "last_revision_on": { "type": ["string", "null"] },
+            "created_at": { "type": ["string", "null"] },
             "pages": { "type": "integer" },
             "valid_pdf": { "type": "boolean" },
             "sha256": { "type": "string" },
@@ -38,6 +39,7 @@
             "deleted_at": { "type": ["string", "null"] },
             "related_forms": { "type": ["array", "null"], "items": { "type": "string"}  },
             "benefit_categories": { "type": ["array", "null"] },
+            "va_form_administration": { "type": ["array", "null"] },
             "versions": {
               "type": "array",
               "items": {

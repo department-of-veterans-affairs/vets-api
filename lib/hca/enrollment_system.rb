@@ -41,6 +41,7 @@ module HCA
       'coast guard' => 5,
       'merchant seaman' => 7,
       'noaa' => 10,
+      'space force' => 15,
       'usphs' => 9,
       'f.commonwealth' => 11,
       'f.guerilla' => 12,
@@ -747,7 +748,7 @@ module HCA
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
       request['va:form']['va:applications'] = {
         'va:applicationInfo' => [{
-          'va:appDate' => Time.zone.now.utc.strftime('%Y-%m-%d'),
+          'va:appDate' => Time.now.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d'),
           'va:appMethod' => '1'
         }]
       }

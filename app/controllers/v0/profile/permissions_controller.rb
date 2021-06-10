@@ -13,6 +13,7 @@ module V0
           'permission',
           permission_params
         )
+        Rails.logger.info('PermissionsController#create request completed', sso_logging_info)
       end
 
       def update
@@ -21,6 +22,7 @@ module V0
           permission_params,
           http_verb: 'put'
         )
+        Rails.logger.info('PermissionsController#update request completed', sso_logging_info)
       end
 
       def destroy
@@ -29,19 +31,17 @@ module V0
           permission_params,
           http_verb: 'put'
         )
+        Rails.logger.info('PermissionsController#destroy request completed', sso_logging_info)
       end
 
       private
 
       def permission_params
         params.permit(
-          :effective_start_date,
           :id,
           :permission_type,
           :permission_value,
-          :source_date,
-          :transaction_id,
-          :vet360_id
+          :transaction_id
         )
       end
     end

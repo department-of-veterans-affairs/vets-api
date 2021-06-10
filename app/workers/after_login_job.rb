@@ -22,5 +22,6 @@ class AfterLoginJob
 
     evss_create_account
     create_user_account
+    TestUserDashboard::CheckoutUser.new(@current_user.account_uuid).call unless Rails.env.production?
   end
 end

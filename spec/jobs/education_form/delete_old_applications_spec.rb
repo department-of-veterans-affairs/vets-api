@@ -27,13 +27,30 @@ RSpec.describe EducationForm::DeleteOldApplications do
     @edu_claim_old = create(:education_benefits_claim,
                             processed_at: 3.months.ago,
                             saved_claim: @saved_claim_old)
+
+    @saved_claim10203_old = build(:education_benefits_10203, form: '{}')
+    @saved_claim10203_old.save(validate: false)
+    @edu_claim10203_old = create(:education_benefits_claim_10203,
+                                 education_stem_automated_decision: build(:education_stem_automated_decision),
+                                 processed_at: 13.months.ago,
+                                 saved_claim: @saved_claim10203_old)
+
+    @saved_claim10203_newer = build(:education_benefits_10203, form: '{}')
+    @saved_claim10203_newer.save(validate: false)
+    @edu_claim10203_newer = create(:education_benefits_claim_10203,
+                                   education_stem_automated_decision: build(:education_stem_automated_decision),
+                                   processed_at: 11.months.ago,
+                                   saved_claim: @saved_claim10203_newer)
   end
 
   describe '#perform' do
     it 'deletes old records' do
+      # rubocop:disable Layout/MultilineMethodCallIndentation
       expect { subject.perform }
-        .to change(EducationBenefitsClaim, :count).from(4).to(3)
-                                                  .and change { SavedClaim::EducationBenefits.count }.from(4).to(3)
+        .to change(EducationBenefitsClaim, :count).from(6).to(4)
+        .and change { SavedClaim::EducationBenefits.count }.from(6).to(4)
+        .and change(EducationStemAutomatedDecision, :count).from(2).to(1)
+      # rubocop:enable Layout/MultilineMethodCallIndentation
 
       expect { @edu_claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)
       expect { @saved_claim_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)

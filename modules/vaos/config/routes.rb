@@ -5,6 +5,7 @@ VAOS::Engine.routes.draw do
     resources :appointments, only: %i[index create] do
       put 'cancel', on: :collection
     end
+    get '/appointments/:type/:id', to: 'appointments#show', type: /va/, constraints: { id: /[a-zA-Z0-9.]+/ }
     resources :appointment_requests, only: %i[index create update show] do
       resources :messages, only: %i[index create]
     end
@@ -22,6 +23,7 @@ VAOS::Engine.routes.draw do
       resources :limits, only: :index
       get 'visits/:schedule_type', to: 'visits#index'
     end
+    get '/facilities/limits', to: 'facilities#limits'
     resource :preferences, only: %i[show update]
     resources :direct_booking_eligibility_criteria, only: :index
     resources :request_eligibility_criteria, only: :index
@@ -38,5 +40,18 @@ VAOS::Engine.routes.draw do
     get '/Slot', to: 'slots#index'
     post '/Appointment', to: 'appointments#create'
     put '/Appointment/:id', to: 'appointments#update'
+  end
+
+  namespace :v2, defaults: { format: :json } do
+    get '/appointments', to: 'appointments#index'
+    get '/appointments/:appointment_id', to: 'appointments#show'
+    put '/appointments/:id', to: 'appointments#update'
+    get '/locations/:location_id/clinics', to: 'clinics#index'
+    get '/locations/:location_id/clinics/:clinic_id/slots', to: 'slots#index'
+    get '/patients/', to: 'patients#index'
+    get '/scheduling/configurations', to: 'scheduling#configurations'
+    get '/facilities', to: 'facilities#index'
+
+    post '/appointments', to: 'appointments#create'
   end
 end

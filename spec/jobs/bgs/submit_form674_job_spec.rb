@@ -28,16 +28,21 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
   end
 
   context 'error' do
+    before do
+      InProgressForm.create!(form_id: '686C-674', user_uuid: user.uuid, form_data: all_flows_payload)
+    end
+
     it 'calls #submit for 674 submission' do
+      job = described_class.new
       client_stub = instance_double('BGS::Form674')
       mailer_double = double('Mail::Message')
       allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
       expect(client_stub).to receive(:submit).and_raise(StandardError)
-
       allow(mailer_double).to receive(:deliver_later)
       expect(DependentsApplicationFailureMailer).to receive(:build).with(an_instance_of(User)) { mailer_double }
+      expect(job).to receive(:salvage_save_in_progress_form).with('686C-674', user.uuid, anything)
 
-      described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
+      job.perform(user.uuid, dependency_claim.id, vet_info)
     end
   end
 end

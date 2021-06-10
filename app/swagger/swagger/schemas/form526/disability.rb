@@ -23,7 +23,7 @@ module Swagger
           property :causedByDisabilityDescription, type: :string
           property :specialIssues, type: :array do
             items do
-              key :'$ref', :SpecialIssue
+              key :$ref, :SpecialIssue
             end
           end
           property :worsenedDescription, type: :string
@@ -47,7 +47,7 @@ module Swagger
             ]
           property :specialIssues, type: :array do
             items do
-              key :'$ref', :SpecialIssue
+              key :$ref, :SpecialIssue
             end
           end
           property :ratedDisabilityId, type: :string
@@ -69,7 +69,7 @@ module Swagger
                 ]
               property :specialIssues, type: :array do
                 items do
-                  key :'$ref', :SpecialIssue
+                  key :$ref, :SpecialIssue
                 end
               end
               property :ratedDisabilityId, type: :string

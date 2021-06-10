@@ -74,13 +74,9 @@ module MDOT
         VA_VETERAN_MIDDLE_NAME: @user.middle_name,
         VA_VETERAN_LAST_NAME: @user.last_name,
         VA_VETERAN_ID: @user.ssn.last(4),
-        VA_VETERAN_BIRTH_DATE: format_birthdate(@user.birth_date),
+        VA_VETERAN_BIRTH_DATE: @user.birth_date,
         VA_ICN: @user.icn
       }
-    end
-
-    def format_birthdate(date)
-      Date.parse(date).strftime('%Y-%m-%d')
     end
 
     def submission_headers
@@ -132,7 +128,7 @@ module MDOT
 
     def handle_client_error(error)
       save_error_details(error)
-      code = error&.status != 503 ? error.body['result'].downcase : 'service_unavailable'
+      code = error&.status == 503 ? 'service_unavailable' : error.body['result'].downcase
 
       raise_backend_exception(
         MDOT::ExceptionKey.new("MDOT_#{code}"),

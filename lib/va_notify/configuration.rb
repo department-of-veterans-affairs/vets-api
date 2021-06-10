@@ -26,10 +26,6 @@ module VaNotify
       Settings.vanotify.client_url
     end
 
-    def api_key
-      Settings.vanotify.api_key
-    end
-
     def service_name
       'VANotify'
     end

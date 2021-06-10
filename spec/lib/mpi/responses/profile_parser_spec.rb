@@ -29,7 +29,8 @@ describe MPI::Responses::ProfileParser do
           birls_ids: [],
           sec_id: nil,
           historical_icns: nil,
-          search_token: 'WSDOC1609131753362231779394902'
+          search_token: 'WSDOC1609131753362231779394902',
+          id_theft_flag: false
         )
       end
 
@@ -38,6 +39,7 @@ describe MPI::Responses::ProfileParser do
       end
 
       context 'when name parsing fails' do
+        let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_missing_name_response.xml')) }
         let(:mvi_profile) do
           build(
             :mpi_profile_response,
@@ -49,12 +51,12 @@ describe MPI::Responses::ProfileParser do
             birls_ids: [],
             sec_id: nil,
             historical_icns: nil,
-            search_token: 'WSDOC1609131753362231779394902'
+            search_token: 'WSDOC1609131753362231779394902',
+            id_theft_flag: false
           )
         end
 
         it 'sets the names to false' do
-          allow(parser).to receive(:get_patient_name).and_return(nil)
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
       end
@@ -82,7 +84,8 @@ describe MPI::Responses::ProfileParser do
               'UNK^NI^200DOD^USDOD^A',
               'UNK^PI^200CORP^USVBA^A'
             ],
-            search_token: 'WSDOC1609131753362231779394902'
+            search_token: 'WSDOC1609131753362231779394902',
+            id_theft_flag: false
           )
         end
 
@@ -113,13 +116,104 @@ describe MPI::Responses::ProfileParser do
               '1008714701^PN^200PROV^USDVA^A',
               '1100792239^PI^200MHS^USVHA^A'
             ],
-            search_token: 'WSDOC1908201553145951848240311'
+            search_token: 'WSDOC1908201553145951848240311',
+            id_theft_flag: false
           )
         end
 
         it 'filters with only first name and retrieve correct MHV id' do
           expect(parser.parse).to have_deep_attributes(mvi_profile)
         end
+      end
+    end
+  end
+
+  context 'given a valid response with relationship information' do
+    let(:body) { Ox.parse(File.read('spec/support/mpi/find_candidate_with_relationship_response.xml')) }
+
+    before do
+      allow(faraday_response).to receive(:body) { body }
+    end
+
+    describe '#parse' do
+      let(:mvi_profile) do
+        build(
+          :mpi_profile_response,
+          :with_relationship,
+          :with_nil_address,
+          given_names: %w[Randy],
+          family_name: 'Little',
+          suffix: 'Jr',
+          gender: 'M',
+          birth_date: '19901004',
+          ssn: '999123456',
+          home_phone: '1112223333',
+          icn: nil,
+          icn_with_aaid: nil,
+          historical_icns: [],
+          full_mvi_ids: [],
+          sec_id: nil,
+          vet360_id: nil,
+          mhv_ids: [],
+          active_mhv_ids: [],
+          vha_facility_ids: [],
+          cerner_id: nil,
+          cerner_facility_ids: [],
+          edipi: nil,
+          participant_id: nil,
+          birls_id: nil,
+          birls_ids: [],
+          search_token: 'WSDOC2005221733165441605720989',
+          person_type_code: 'Dependent',
+          relationships: [mpi_profile_relationship_component],
+          id_theft_flag: false
+        )
+      end
+
+      let(:mpi_profile_relationship_component) do
+        build(
+          :mpi_profile_relationship,
+          person_type_code: [],
+          given_names: %w[Mark],
+          family_name: 'Webb',
+          suffix: 'Jr',
+          gender: 'M',
+          birth_date: '19501004',
+          ssn: '796104437',
+          address: nil,
+          home_phone: 'mailto:Daniel.Rocha@va.gov',
+          full_mvi_ids: [
+            '1008709396V637156^NI^200M^USVHA^P',
+            '1013590059^NI^200DOD^USDOD^A',
+            '0001740097^PN^200PROV^USDVA^A',
+            '796104437^PI^200BRLS^USVBA^A',
+            '13367440^PI^200CORP^USVBA^A',
+            '0000027647^PN^200PROV^USDVA^A',
+            '0000027648^PN^200PROV^USDVA^A',
+            '1babbd957ca14e44880a534b65bb0ed4^PN^200VIDM^USDVA^A',
+            '4795335^PI^200MH^USVHA^A',
+            '7909^PI^200VETS^USDVA^A',
+            '6400bbf301eb4e6e95ccea7693eced6f^PN^200VIDM^USDVA^A'
+          ],
+          icn: '1008709396V637156',
+          icn_with_aaid: '1008709396V637156^NI^200M^USVHA',
+          mhv_ids: ['4795335'],
+          active_mhv_ids: ['4795335'],
+          vha_facility_ids: %w[200MH],
+          edipi: '1013590059',
+          participant_id: '13367440',
+          birls_id: '796104437',
+          birls_ids: ['796104437'],
+          sec_id: '0001740097',
+          vet360_id: '7909',
+          historical_icns: [],
+          cerner_id: nil,
+          cerner_facility_ids: []
+        )
+      end
+
+      it 'returns a MviProfile with the parsed attributes' do
+        expect(parser.parse).to have_deep_attributes(mvi_profile)
       end
     end
   end
@@ -196,7 +290,9 @@ describe MPI::Responses::ProfileParser do
           '0001234567^PN^200PROV^USDVA^A',
           '123412345^PI^200BRLS^USVBA^A'
         ],
-        search_token: 'WSDOC1611060614456041732180196'
+        search_token: 'WSDOC1611060614456041732180196',
+        person_type_code: 'Patient',
+        id_theft_flag: false
       )
     end
 
@@ -219,7 +315,8 @@ describe MPI::Responses::ProfileParser do
         sec_id: nil,
         birls_id: nil,
         birls_ids: [],
-        search_token: 'WSDOC1609131753362231779394902'
+        search_token: 'WSDOC1609131753362231779394902',
+        id_theft_flag: false
       )
     end
 

@@ -1,22 +1,13 @@
 type: object
 required:
-  - data
+  - preference
+  - enabled
 properties:
-  data:
-    type: object
-    required:
-      - type
-      - attributes
-    properties:
-      type:
-        type: string
-        example: "pushPreferences"
-        readOnly: true
-      attributes:
-        type: object
-        properties:
-          pushNotificationTypes:
-            type: array
-            items:
-              type: object
-              $ref: "./PushNotificationType.yml"
+  preference:
+    type: string
+    example: "appointment_reminders"
+  enabled:
+    type: boolean
+    example: true
+
+

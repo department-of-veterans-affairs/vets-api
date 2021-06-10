@@ -26,7 +26,7 @@ COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
-SPEC_PATH    := spec/
+SPEC_PATH    := spec/ modules/
 DB           := "bin/rails db:setup db:migrate"
 LINT         := "bin/rails lint['$(files)']"
 DOWN         := down
@@ -129,19 +129,23 @@ server:  ## Starts the server (natively)
 
 .PHONY: spec
 spec:  ## Runs spec tests
-ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) "bin/rspec ${SPEC_PATH}"
-else
-	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
-endif
 
 .PHONY: spec_parallel_setup
-spec_parallel_setup:  ## Setup the parallel test dbs. This resets the curret test db, as well as the parallel tests dbs
-	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'rake db:reset'"
+spec_parallel_setup:  ## Setup the parallel test dbs. This resets the current test db, as well as the parallel test dbs
+ifeq ($(ENV_ARG), dev)
+	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset'"
+else
+	@$(COMPOSE_TEST) $(BASH) -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -e 'bundle exec rake db:reset'"
+endif
 
 .PHONY: spec_parallel
 spec_parallel:  ## Runs spec tests in parallel
-	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true NOCOVERAGE=true parallel_rspec ${SPEC_PATH}"
+ifeq ($(ENV_ARG), dev)
+	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true NOCOVERAGE=true bundle exec parallel_rspec ${SPEC_PATH}"
+else
+	@$(COMPOSE_TEST) $(BASH) -c "DISABLE_BOOTSNAP=true bundle exec parallel_rspec ${SPEC_PATH}"
+endif
 
 .PHONY: up
 up: db  ## Starts the server and associated services with docker-compose, use `clam=1 make up` to run ClamAV

@@ -100,11 +100,14 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     }
   end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
-  let(:user) { OpenidUser.new(build(:user_identity_attrs, :loa3)) }
+  let(:some_ttl) { 86_400 }
+  let(:identity) { OpenidUserIdentity.create(build(:user_identity_attrs, :loa3)) }
+  let(:user) { OpenidUser.build_from_identity(identity: identity, ttl: some_ttl) }
 
   context 'with valid responses' do
     before do
       allow(JWT).to receive(:decode).and_return(jwt)
+      allow(RestClient).to receive(:get).and_return(launch_response)
       Session.create(token: token, uuid: user.uuid)
       user.save
     end
@@ -149,6 +152,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'when a response is invalid' do
     before do
       allow(JWT).to receive(:decode).and_return(jwt)
+      allow(RestClient).to receive(:get).and_return(launch_response)
       Session.create(uuid: user.uuid, token: token)
       user.save
     end
@@ -163,8 +167,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'v1 POST returns a not found when va profile returns not found', :aggregate_failures do
-      allow_any_instance_of(OpenidUser).to receive(:va_profile_status).and_return('NOT_FOUND')
+    it 'v1 POST returns a not found when mpi profile returns not found', :aggregate_failures do
+      allow_any_instance_of(OpenidUser).to receive(:mpi_status).and_return('NOT_FOUND')
       with_okta_configured do
         post '/internal/auth/v1/validation', params: nil, headers: auth_header
 
@@ -173,8 +177,8 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'v1 POST returns a server error when va profile returns server error', :aggregate_failures do
-      allow_any_instance_of(OpenidUser).to receive(:va_profile_status).and_return('SERVER_ERROR')
+    it 'v1 POST returns a server error when mpi profile returns server error', :aggregate_failures do
+      allow_any_instance_of(OpenidUser).to receive(:mpi_status).and_return('SERVER_ERROR')
       with_okta_configured do
         post '/internal/auth/v1/validation', params: nil, headers: auth_header
 
@@ -204,16 +208,15 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   context 'with client credentials jwt and failed launch lookup' do
     before do
       allow(JWT).to receive(:decode).and_return(client_credentials_jwt)
-      allow(RestClient).to receive(:get).and_return(failed_launch_response)
+      allow(RestClient).to receive(:get).and_raise(failed_launch_response)
     end
 
-    it 'v1 POST returns true if the user is a veteran' do
+    it 'v1 POST returns 401 Invalid launch context' do
       with_okta_configured do
         post '/internal/auth/v1/validation', params: nil, headers: auth_header
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(json_api_response['data']['attributes'].keys)
-        expect(JSON.parse(response.body)['data']['attributes']['va_identifiers']['icn']).to eq(nil)
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Invalid launch context'
       end
     end
   end

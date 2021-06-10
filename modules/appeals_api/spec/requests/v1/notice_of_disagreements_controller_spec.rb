@@ -26,6 +26,9 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     context 'creates an NOD and persists the data' do
       it 'with all headers' do
         post(path, params: @data, headers: @headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
@@ -36,7 +39,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'fails when a required header is missing' do
-        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-Veteran-SSN'))
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
@@ -69,9 +72,10 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'returns error objects in JSON API 1.0 ErrorObject format' do
-        expected_keys = %w[code detail links meta sentry_type source status title]
-        expect(parsed['errors'].first.keys).to match_array(expected_keys)
-        expect(parsed['errors'][0]['source']['pointer']).to eq '/data/attributes/hearingTypePreference'
+        expected_keys = %w[code detail meta source status title]
+        expect(parsed['errors'].first.keys).to include(*expected_keys)
+        expect(parsed['errors'][0]['meta']['missing_fields']).to eq ['address']
+        expect(parsed['errors'][0]['source']['pointer']).to eq '/data/attributes/veteran'
       end
     end
 
@@ -103,6 +107,18 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
     end
 
+    it 'allow for status simulation' do
+      with_settings(Settings, vsp_environment: 'development') do
+        with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
+          uuid = create(:notice_of_disagreement).id
+          status_simulation_headers = { 'Status-Simulation' => 'error' }
+          get("#{path}#{uuid}", headers: status_simulation_headers)
+
+          expect(parsed.dig('data', 'attributes', 'status')).to eq('error')
+        end
+      end
+    end
+
     it 'returns an error when given a bad uuid' do
       uuid = 0
       get("#{path}#{uuid}")
@@ -111,4 +127,21 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       expect(parsed['errors']).not_to be_empty
     end
   end
+
+  # rubocop:disable Layout/LineLength
+  describe '#render_model_errors' do
+    let(:path) { base_path 'notice_of_disagreements' }
+    let(:data) { JSON.parse(@minimum_valid_data) }
+
+    it 'returns model errors in JSON API 1.0 ErrorObject format' do
+      data['data']['attributes']['boardReviewOption'] = 'hearing'
+
+      post(path, params: data.to_json, headers: @headers)
+
+      expect(response.status).to eq(422)
+      expect(parsed['errors'][0]['source']['pointer']).to eq('/data/attributes/hearingTypePreference')
+      expect(parsed['errors'][0]['detail']).to eq("If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present")
+    end
+  end
+  # rubocop:enable Layout/LineLength
 end

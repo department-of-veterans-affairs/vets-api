@@ -209,10 +209,10 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             'veteranAddress' => {
               'street' => street_check[:street],
               'street2' => street_check[:street2],
-              'city' => user.va_profile.address.city,
-              'state' => user.va_profile.address.state,
-              'country' => user.va_profile.address.country,
-              'postalCode' => user.va_profile.address.postal_code[0..4]
+              'city' => user.address[:city],
+              'state' => user.address[:state],
+              'country' => user.address[:country],
+              'postalCode' => user.address[:zip].slice(0, 5)
             },
             'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
           }
@@ -223,9 +223,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
           expected_data
           get v0_in_progress_form_url('FAKEFORM'), params: nil
 
-          if user.va_profile&.normalized_suffix.present?
-            expected_data['veteranFullName']['suffix'] = user.va_profile&.normalized_suffix
-          end
+          expected_data['veteranFullName']['suffix'] = user.normalized_suffix if user.normalized_suffix.present?
 
           check_case_of_keys_recursively = lambda do |value|
             case value

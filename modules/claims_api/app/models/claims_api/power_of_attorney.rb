@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/stamp_signature_error'
 require 'json_marshal/marshaller'
 require 'common/file_helpers'
 
@@ -13,75 +12,22 @@ module ClaimsApi
 
     PENDING = 'pending'
     UPDATED = 'updated'
+    SUBMITTED = 'submitted'
     ERRORED = 'errored'
 
-    before_validation :set_md5
-    validates :md5, uniqueness: true
+    before_save :set_md5
 
     def self.find_using_identifier_and_source(source_name:, id: nil, header_md5: nil, md5: nil)
       primary_identifier = {}
       primary_identifier[:id] = id if id.present?
       primary_identifier[:header_md5] = header_md5 if header_md5.present?
       primary_identifier[:md5] = md5 if md5.present?
-      poa = ClaimsApi::PowerOfAttorney.find_by(primary_identifier)
-      return nil if poa.present? && poa.source_data['name'] != source_name
+      # it's possible to have duplicate POAs, so be sure to return the most recently created match
+      poas = ClaimsApi::PowerOfAttorney.where(primary_identifier).order(created_at: :desc)
+      poas = poas.select { |poa| poa.source_data['name'] == source_name }
+      return nil if poas.blank?
 
-      poa
-    end
-
-    def sign_pdf
-      signatures = convert_signatures_to_images
-      page_1_path = insert_signatures(1, signatures[:veteran], signatures[:representative])
-      page_2_path = insert_signatures(2, signatures[:veteran], signatures[:representative])
-      { page1: page_1_path, page2: page_2_path }
-    end
-
-    def convert_signatures_to_images
-      {
-        veteran: convert_base64_data_to_image('veteran'),
-        representative: convert_base64_data_to_image('representative')
-      }
-    end
-
-    def convert_base64_data_to_image(signature)
-      path = "tmp/#{signature}_#{id}_signature_b64.png"
-
-      File.open(path, 'wb') do |f|
-        f.write(Base64.decode64(form_data.dig('signatures', signature)))
-      end
-      path
-    end
-
-    def insert_signatures(page, veteran_signature, representative_signature)
-      pdf_path = Rails.root.join('modules', 'claims_api', 'config', 'pdf_templates', "21-22A-#{page}.pdf")
-      stamp_path = "#{::Common::FileHelpers.random_file_path}.pdf"
-
-      inserted = []
-      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-        y_representative_coords = page == 1 ? 118 : 216
-        y_veteran_coords = page == 1 ? 90 : 322
-        pdf.image representative_signature, at: [35, y_representative_coords], height: 20
-        inserted << 'representative'
-        pdf.image veteran_signature, at: [35, y_veteran_coords], height: 20
-      end
-      stamp(pdf_path, stamp_path, delete_source: false)
-    rescue Prawn::Errors::UnsupportedImageType
-      signature = inserted.empty? ? 'representative' : 'veteran'
-      update signature_errors: ["#{signature} was not a recognized image format"]
-      raise ClaimsApi::StampSignatureError.new(
-        message: "#{signature} could not be inserted",
-        detail: "#{signature} was not a recognized image format"
-      )
-    end
-
-    def stamp(file_path, stamp_path, delete_source: true)
-      out_path = "#{::Common::FileHelpers.random_file_path}.pdf"
-      PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
-      File.delete(file_path) if delete_source
-      out_path
-    rescue
-      ::Common::FileHelpers.delete_file_if_exists(out_path)
-      raise
+      poas.last
     end
 
     def fetch_file_path(uploader)
@@ -98,11 +44,7 @@ module ClaimsApi
     end
 
     def representative
-      form_data.merge(participant_id: nil)
-    end
-
-    def veteran
-      { participant_id: nil }
+      form_data
     end
 
     def previous_poa
@@ -114,6 +56,7 @@ module ClaimsApi
                                     'va_eauth_service_transaction_id',
                                     'va_eauth_issueinstant',
                                     'Authorization')
+      headers['status'] = status
       self.header_md5 = Digest::MD5.hexdigest headers.to_json
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
@@ -127,7 +70,9 @@ module ClaimsApi
     end
 
     def external_uid
-      source_data.present? ? source_data['icn'] : Settings.bgs.external_uid
+      return source_data['icn'] if source_data.present? && source_data['icn'].present?
+
+      Settings.bgs.external_uid
     end
 
     def signature_image_paths

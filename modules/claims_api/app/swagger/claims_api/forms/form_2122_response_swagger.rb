@@ -62,12 +62,12 @@ module ClaimsApi
         schema :Veteran do
           property :address do
             key :type, :object
-            key :'$ref', :Address
+            key :$ref, :Address
           end
 
           property :phone do
             key :type, :object
-            key :'$ref', :Phone
+            key :$ref, :Phone
           end
 
           property :email do
@@ -118,12 +118,12 @@ module ClaimsApi
 
           property :address do
             key :type, :object
-            key :'$ref', :Address
+            key :$ref, :Address
           end
 
           property :phone do
             key :type, :object
-            key :'$ref', :Phone
+            key :$ref, :Phone
           end
 
           property :relationship do
@@ -183,7 +183,7 @@ module ClaimsApi
 
                 property :address do
                   key :type, :object
-                  key :'$ref', :Address
+                  key :$ref, :Address
                 end
 
                 property :jobTitle do
@@ -208,15 +208,15 @@ module ClaimsApi
 
               property :veteran do
                 key :type, :object
-                key :'$ref', :Veteran
+                key :$ref, :Veteran
               end
 
               property :claimant do
                 key :type, :object
-                key :'$ref', :Claimant
+                key :$ref, :Claimant
               end
 
-              property :signatureFiles do
+              property :signatures do
                 key :type, :object
                 property :veteran do
                   key :type, :string
@@ -238,10 +238,20 @@ module ClaimsApi
                 key :description, 'AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT\'S BEHALF TO CHANGE CLAIMANT\'S ADDRESS'
               end
 
-              property :consentLimit do
-                key :type, :string
+              property :consentLimits do
+                key :type, :array
                 key :description, 'Consent in Item 19 for the disclosure of records relating to treatment for drug abuse, alcoholism or alcohol abuse, infection
 with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as follows'
+                items do
+                  key :type, :string
+                  key :example, 'DRUG ABUSE'
+                  key :enum, [
+                    'DRUG ABUSE',
+                    'ALCOHOLISM',
+                    'HIV',
+                    'SICKLE CELL'
+                  ]
+                end
               end
             end
           end
@@ -253,13 +263,13 @@ with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as
 
           property :id do
             key :type, :string
-            key :example, '6e47701b-802b-4520-8a41-9af2117a20bd'
+            key :example, 'null'
             key :description, 'Power of Attorney Submission UUID'
           end
 
           property :type do
             key :type, :string
-            key :example, 'evss_power_of_attorney'
+            key :example, 'claims_api_power_of_attorneys'
             key :description, 'Required by JSON API standard'
           end
 
@@ -267,10 +277,16 @@ with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as
             key :type, :object
             key :description, 'Required by JSON API standard'
 
-            property :relationship_type do
+            property :status do
               key :type, :string
-              key :example, ''
-              key :description, 'Type of relationships'
+              key :example, 'submitted'
+              key :description, 'Says if the power of attorney is pending, submitted, updated or errored'
+              key :enum, %w[
+                pending
+                submitted
+                updated
+                errored
+              ]
             end
 
             property :date_request_accepted do
@@ -280,54 +296,19 @@ with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as
               key :description, 'Date request was first accepted'
             end
 
-            property :status do
-              key :type, :string
-              key :example, 'submitted'
-              key :description, 'Says if the power of attorney is pending, updated or errored'
-              key :enum, %w[
-                pending
-                updated
-                errored
-              ]
-            end
-
             property :representative do
               key :type, :object
               key :description, 'Information about VSO, Attorney or Claims Agents'
 
-              property :poa_code do
-                key :type, :string
-                key :example, 'A01'
-                key :description, 'Power of Attorney Code submitted for Veteran'
-              end
+              property :service_organization do
+                key :type, :object
+                key :description, 'Organization of representative.'
 
-              property :poa_first_name do
-                key :type, :string
-                key :example, 'John'
-                key :description, 'Power of Attorney representative first name submitted for Veteran'
-              end
-
-              property :poa_last_name do
-                key :type, :string
-                key :example, 'Doe'
-                key :description, 'Power of Attorney representative last name submitted for Veteran'
-              end
-
-              property :participant_id do
-                key :type, :string
-                key :example, '987654'
-                key :description, 'Participant ID for veteran representative'
-              end
-            end
-
-            property :veteran do
-              key :type, :object
-              key :description, 'Information about Veteran'
-
-              property :participant_id do
-                key :type, :string
-                key :example, '14567'
-                key :description, 'Participant ID for veteran'
+                property :poa_code do
+                  key :type, :string
+                  key :example, 'A01'
+                  key :description, 'Power of Attorney Code submitted for Veteran'
+                end
               end
             end
 
@@ -336,6 +317,20 @@ with the human immunodeficiency virus (HIV), or sickle cell anemia is limited as
               key :example, 'B02'
               key :description, 'Current or Previous Power of Attorney Code submitted for Veteran'
             end
+          end
+        end
+
+        schema :NoPOAFound do
+          property :status do
+            key :type, :string
+            key :example, '404'
+            key :description, 'HTTP error code'
+          end
+
+          property :detail do
+            key :type, :string
+            key :example, 'POA not found'
+            key :description, 'HTTP error detail'
           end
         end
       end

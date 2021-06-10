@@ -12,7 +12,6 @@ module AppealsApi
           @higher_level_review = higher_level_review
         end
 
-        # rubocop:disable Metrics/AbcSize
         # rubocop:disable Metrics/MethodLength
         def form_fill
           options = {
@@ -51,8 +50,8 @@ module AppealsApi
             form_fields.benefit_type(6) => form_data.benefit_type('voc_rehab'),
             form_fields.benefit_type(7) => form_data.benefit_type('pension_survivors_benefits'),
             form_fields.benefit_type(8) => form_data.benefit_type('compensation'),
-            form_fields.same_office? => form_data.same_office?,
-            form_fields.informal_conference? => form_data.informal_conference?,
+            form_fields.same_office => form_data.same_office,
+            form_fields.informal_conference => form_data.informal_conference,
             form_fields.conference_8_to_10 => form_data.informal_conference_times('800-1000 ET'),
             form_fields.conference_10_to_1230 => form_data.informal_conference_times('1000-1230 ET'),
             form_fields.conference_1230_to_2 => form_data.informal_conference_times('1230-1400 ET'),
@@ -64,7 +63,6 @@ module AppealsApi
 
           fill_contestable_issues!(options)
         end
-        # rubocop:enable Metrics/AbcSize
         # rubocop:enable Metrics/MethodLength
 
         def insert_overlaid_pages(form_fill_path)
@@ -76,7 +74,7 @@ module AppealsApi
 
           @additional_pages_pdf ||= Prawn::Document.new(skip_page_creation: true)
 
-          HigherLevelReview::Pages::AdditionalIssues.new(
+          HigherLevelReview::Pages::V1::AdditionalIssues.new(
             @additional_pages_pdf,
             form_data
           ).build!
@@ -93,7 +91,12 @@ module AppealsApi
         end
 
         def stamp(stamped_pdf_path)
-          stamped_pdf_path
+          CentralMail::DatestampPdf.new(stamped_pdf_path).run(
+            text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
+            x: 5,
+            y: 5,
+            text_only: true
+          )
         end
 
         private
