@@ -78,6 +78,7 @@
 
     "hlrCreateInformalConferenceRep": {
       "type": "object",
+      "description" : "The Representative information listed MUST match the current Power of Attorney for the Veteran.  Any changes to the Power of Attorney must be submitted via a VA 21-22 form separately.",
       "properties": {
         "firstName": { "type": "string", "maxLength": 30 },
         "lastName":  { "type": "string", "maxLength": 40 },
@@ -170,7 +171,8 @@
         "decisionDate":              { "$ref": "#/definitions/date" },
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },
-        "ratingDecisionReferenceId": { "type": "string" }
+        "ratingDecisionReferenceId": { "type": "string" },
+        "socDate":                   { "$ref": "#/definitions/date" }
       },
       "additionalProperties": false,
       "required": [ "issue", "decisionDate" ]
