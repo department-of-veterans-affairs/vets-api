@@ -256,10 +256,13 @@ components:
     ServiceHistoryEpisode:
       description: |
         Service History for authorized Veteran
+      required:
+        - id
       type: object
       properties:
         id:
           type: string
+          nullable: false
           description: Service History Episode ID
           example: "12312AASDf"
         type:
