@@ -14,6 +14,13 @@ RSpec.describe 'claims and appeals overview', type: :request do
 
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
+  describe '#index is polled an unauthorized user' do
+    it 'and not user returns a 401 status' do
+      get '/mobile/v0/claims-and-appeals-overview'
+      expect(response).to have_http_status(:unauthorized)
+    end
+  end
+
   describe 'GET /v0/claims-and-appeals-overview' do
     before { iam_sign_in }
 
@@ -182,17 +189,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
             expect(response.parsed_body.dig('meta', 'errors')[0]['service']).to eq('claims')
             expect(response.parsed_body.dig('meta', 'errors')[1]['service']).to eq('appeals')
             expect(response.body).to match_json_schema('claims_and_appeals_overview_response')
-          end
-        end
-      end
-    end
-
-    describe '#index is polled without user sign in' do
-      it 'and not user returns a 500 status' do
-        VCR.use_cassette('claims/claims') do
-          VCR.use_cassette('appeals/appeals') do
-            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
-            expect(response).to have_http_status(:internal_server_error)
           end
         end
       end
