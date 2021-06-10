@@ -143,12 +143,10 @@ class OpenidApplicationController < ApplicationController
 
   # Ensure the Okta profile ICN continues to match the MPI ICN
   # If mismatched, revoke in Okta, set @session to nil, and return false
+  # POA support (profile['icn'].nil?)
+  # Incomplete test case support (@current_user.identity.nil?)
   def confirm_icn_match(profile)
-    if profile['icn'].nil?
-      true #POA support
-    elsif @current_user.identity.nil?
-      true #incomplete test case support
-    elsif @current_user.icn == profile['icn']
+    if profile['icn'].nil? || @current_user.identity.nil? || @current_user.icn == profile['icn']
       true
     else
       Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
