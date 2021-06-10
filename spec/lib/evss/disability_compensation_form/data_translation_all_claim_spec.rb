@@ -1502,14 +1502,15 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           expect(subject.send(:bdd_qualified?)).to eq false
         end
       end
+
       context 'activated in guard' do
         let(:form_content) do
           {
             'form526' => {
               'serviceInformation' => {
-                'reservesNationalGuardService' =>  {
-                  'title10Activation' =>  {
-                    'anticipatedSeparationDate' =>  (today + 100).to_s,
+                'reservesNationalGuardService' => {
+                  'title10Activation' => {
+                    'anticipatedSeparationDate' => (today + 100).to_s,
                     'title10ActivationDate' => '2015-01-01'
                   }
                 },

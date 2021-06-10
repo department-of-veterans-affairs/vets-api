@@ -624,11 +624,12 @@ module EVSS
             episode['activeDutyEndDate']
           end
         end
-        recent_service_periods_end_dates << service_info.dig('reservesNationalGuardService', 'title10Activation', 'anticipatedSeparationDate')
+        recent_service_periods_end_dates << service_info.dig('reservesNationalGuardService', 'title10Activation',
+                                                             'anticipatedSeparationDate')
         recent_service_periods_end_dates.compact!
         return nil if recent_service_periods_end_dates.blank?
 
-        recent_service_periods_end_dates.sort.last.in_time_zone(EVSS_TZ).to_date
+        recent_service_periods_end_dates.max.in_time_zone(EVSS_TZ).to_date
       end
 
       def days_until_release
