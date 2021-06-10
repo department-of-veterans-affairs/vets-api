@@ -39,7 +39,11 @@ require 'iam_ssoe_oauth/configuration'
 # Read the redis config, create a connection and a namespace for breakers
 # .to_h because hashes from config_for don't support non-symbol keys
 redis_options = REDIS_CONFIG[:redis].to_h
-redis_namespace = Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
+redis_namespace = if Rails.env.test?
+                    Redis::Namespace.new('breakers', redis: MockRedis.new(redis_options))
+                  else
+                    Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
+                  end
 
 services = [
   DebtManagementCenter::DebtsConfiguration.instance.breakers_service,
