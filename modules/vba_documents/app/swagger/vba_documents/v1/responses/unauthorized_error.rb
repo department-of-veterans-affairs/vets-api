@@ -6,7 +6,7 @@ module VBADocuments
       module UnauthorizedError
         def self.extended(base)
           base.response 401 do
-            key :description, 'Unauthorized Request'
+            key :description, 'Unauthorized request'
             content 'application/json' do
               schema do
                 key :type, :object

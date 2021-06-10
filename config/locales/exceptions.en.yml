@@ -730,7 +730,7 @@ en:
         <<: *external_defaults
         title: Bad Request
         code: 'VAOS_400'
-        detail: # deliberarly left nil to reference response.body which is unparsable string (not json)
+        detail: # deliberately left nil to reference response.body which is unparsable string (not json)
         status: 400
       VAOS_204:
         <<: *external_defaults

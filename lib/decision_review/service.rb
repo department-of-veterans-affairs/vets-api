@@ -139,13 +139,13 @@ module DecisionReview
     ##
     # Get the url to upload supporting evidence for a Notice of Disagreement
     #
-    # @param nod_id [uuid] The uuid of the submited Notice of Disagreement
+    # @param nod_uuid [uuid] The uuid of the submited Notice of Disagreement
     # @return [Faraday::Response]
     #
 
-    def get_notice_of_disagreement_upload_url(nod_id:, ssn:)
+    def get_notice_of_disagreement_upload_url(nod_uuid:, ssn:)
       with_monitoring_and_error_handling do
-        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_id: nod_id },
+        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: nod_uuid },
                 { 'X-VA-SSN' => ssn.to_s.strip.presence }
       end
     end
@@ -160,26 +160,29 @@ module DecisionReview
     # @return [Faraday::Response]
     #
 
-    def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata:)
-      # After we start using Faradata >=1.0 we won't need to use tmpfiles
-      metadata_tmpfile = Tempfile.new('metadata.json')
-      metadata_tmpfile.write(metadata.to_json)
-      metadata_tmpfile.rewind
-
-      content_tmpfile = Tempfile.new(file_upload.filename)
+    def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata_string:)
+      content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
       content_tmpfile.write(file_upload.read)
       content_tmpfile.rewind
 
-      params = { metadata: Faraday::UploadIO.new(metadata_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
-                 content: Faraday::UploadIO.new(content_tmpfile.path, file_upload.content_type, file_upload.filename) }
+      json_tmpfile = Tempfile.new('metadata.json', encoding: 'utf-8')
+      json_tmpfile.write(metadata_string)
+      json_tmpfile.rewind
+
+      params = { metadata: Faraday::UploadIO.new(json_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
+                 content: Faraday::UploadIO.new(content_tmpfile.path, Mime[:pdf].to_s, file_upload.filename) }
+
+      # when we upgrade to Faraday >1.0
+      # params = { metadata: Faraday::FilePart.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
+      #            content: Faraday::FilePart.new(content_tmpfile, Mime[:pdf].to_s, file_upload.filename) }
       with_monitoring_and_error_handling do
-        perform :put, upload_url, params, nil
+        perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
       end
     ensure
-      metadata_tmpfile.close
-      metadata_tmpfile.unlink
       content_tmpfile.close
       content_tmpfile.unlink
+      json_tmpfile.close
+      json_tmpfile.unlink
     end
 
     ##
@@ -198,13 +201,21 @@ module DecisionReview
 
     def self.file_upload_metadata(user)
       {
-        'veteranFirstName' => user.first_name.to_s.strip,
-        'veteranLastName' => user.last_name.to_s.strip.presence,
+        'veteranFirstName' => transliterate_name(user.first_name),
+        'veteranLastName' => transliterate_name(user.last_name),
         'zipCode' => user.zip,
         'fileNumber' => user.ssn.to_s.strip,
         'source' => 'Vets.gov',
         'businessLine' => 'BVA'
       }.to_json
+    end
+
+    # upstream requirements
+    # ^[a-zA-Z\-\/\s]{1,50}$
+    # Cannot be missing or empty or longer than 50 characters.
+    # Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed
+    def self.transliterate_name(str)
+      I18n.transliterate(str.to_s).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
     end
 
     private

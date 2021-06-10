@@ -1,0 +1,11 @@
+# Add mobile label to any change within the modules/mobile directory
+mobile:
+  - any: ['modules/mobile/**/*']
+  
+# Add vaos label to any change within the modules/vaos directory
+vaos:
+  - any: ['modules/vaos/**/*']
+
+# Add tools-be-review label to any change not within the modules directory
+tools-be-review:
+  - any: ['!modules/**/*']

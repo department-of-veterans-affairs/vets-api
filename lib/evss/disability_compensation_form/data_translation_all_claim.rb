@@ -204,7 +204,6 @@ module EVSS
             'servicePeriods' => translate_service_periods,
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
-            'servedInCombatZone' => input_form['servedInCombatZonePost911'],
             'alternateNames' => translate_names
           }.compact
         }

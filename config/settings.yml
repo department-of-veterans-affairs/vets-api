@@ -25,7 +25,7 @@ saml_ssoe:
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html
+  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
   request_signing: false
   response_signing: false
   response_encryption: false
@@ -410,7 +410,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  timeout: 40
+  timeout: 60
 
 vic:
   url: https://some.fakesite.com
@@ -555,6 +555,7 @@ reports:
       - Brandon.Scott2@va.gov
       - Brian.Grubb@va.gov
       - Christina.DiTucci@va.gov
+      - Darla.vanNieukerk@va.gov
       - EDU.VBAMUS@va.gov
       - John.McNeal@va.gov
       - Joseph.Preisser@va.gov
@@ -691,6 +692,7 @@ flipper:
     - alastair@adhocteam.us
     - anna@adhoc.team
     - bill.ryan@adhocteam.us
+    - cameron@oddball.io
     - cory.trimm@va.gov
     - cwheeler@governmentcio.com
     - dan.hinze@adhocteam.us
@@ -712,6 +714,7 @@ flipper:
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
     - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
+    - jwolf@governmentcio.com # Jason Wolf Product Manager for GCIO
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kam@adhocteam.us
@@ -740,6 +743,7 @@ flipper:
     - paul.phillips@thoughtworks.com
     - pherbert@thoughtworks.com
     - regarr@gmail.com # Robin Garrison - AdHoc
+    - riley.anderson@oddball.io
     - roth_matthew@bah.com
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
@@ -913,6 +917,7 @@ genisis:
 # Settings for the VEText integration (mobile push notifications)
 vetext_push:
   va_mobile_app_sid: mobile-app-sid
+  va_mobile_app_debug_sid: mobile-app-debug-sid
   base_url: https://vetext1.r01.med.va.gov
   user: vets-api-username
   pass: secret
@@ -921,6 +926,71 @@ veteran_readiness_and_employment:
   base_url: ~
   credentials: ~
   auth_endpoint: ~
+  daily_report:
+    emails:
+      - VRC.VBABOS@va.gov
+      - VRE.VBAPRO@va.gov
+      - VRE.VBANYN@va.gov
+      - VRC.VBABUF@va.gov
+      - VRE.VBAHAR@va.gov
+      - vre.vbanew@va.gov
+      - VREBDD.VBAPHI@va.gov
+      - VRE.VBAPIT@va.gov
+      - VRE.VBABAL@va.gov
+      - VRE.VBAROA@va.gov
+      - VRE.VBAHUN@va.gov
+      - VRETMP.VBAATG@va.gov
+      - VRE281900.VBASPT@va.gov
+      - VRC.VBAWIN@va.gov
+      - VRC.VBACMS@va.gov
+      - VREAPPS.VBANAS@va.gov
+      - VRC.VBANOL@va.gov
+      - VRE.VBAMGY@va.gov
+      - VRE.VBAJAC@va.gov
+      - VRE.VBACLE@va.gov
+      - VRE.VBAIND@va.gov
+      - VRE.VBALOU@va.gov
+      - VAVBACHI.VRE@va.gov
+      - VRE.VBADET@va.gov
+      - VREApplications.VBAMIW@va.gov
+      - VRC.VBASTL@va.gov
+      - VRE.VBADES@va.gov
+      - VRE.VBALIN@va.gov
+      - VRC.VBASPL@va.gov
+      - VRE.VBADEN@va.gov
+      - VRC.VBAALB@va.gov
+      - VRE.VBASLC@va.gov
+      - VRC.VBAOAK@va.gov
+      - ROVRC.VBALAN@va.gov
+      - VRE.VBAPHO@va.gov
+      - VRE.VBASEA@va.gov
+      - VRE.VBABOI@va.gov
+      - VRE.VBAPOR@va.gov
+      - VREAPPS.VBAWAC@va.gov
+      - VRE.VBALIT@va.gov
+      - VREBDD.VBAMUS@va.gov
+      - VRE.VBAREN@va.gov
+      - MBVRE.VBASAJ@va.gov
+      - VRE.VBAMPI@va.gov
+      - VRE.VBAHOU@va.gov
+      - VRE.VBAWAS@va.gov
+      - VRE.VBAMAN@va.gov
+      - EBENAPPS.VBASDC@va.gov
+      - VRE.VBATOG@va.gov
+      - VRE.VBAMAN@va.gov
+      - VRC.VBAFHM@va.gov
+      - VRC.VBAFAR@va.gov
+      - VRC.VBAFAR@va.gov
+      - VRE.VBADEN@va.gov
+      - VRE.VBAWIC@va.gov
+      - VRC.VBAHON@va.gov
+      - VAVBA/WIM/RO/VR&E@vba.va.gov
+      - VRE.VBAANC@va.gov
+      - VRE.VBAPIT@va.gov
+      - VRE-CMS.VBAVACO@va.gov
+      - Jason.Wolf@va.gov
+    staging_emails:
+      - kcrawford@governmentcio.com
 
 # Settings for connecting to the va.gov Google Analytics for the Cypress Viewport Updater
 google_analytics_cvu:

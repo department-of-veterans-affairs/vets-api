@@ -159,11 +159,6 @@ features:
     actor_type: user
     description: Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
     enable_in_development: true
-  form996_higher_level_review:
-    actor_type: user
-    description: >
-      Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
-    enable_in_development: true
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
@@ -234,9 +229,6 @@ features:
     actor_type: user
     description: This determines when the wizard should show up on the form 526 intro page
     enable_in_development: true
-  show_chapter_31:
-    actor_type: user
-    description: This will toggle between an eBenefits link and a VA.gov link for the VR&E chapter 31 form
   show_edu_benefits_0994_wizard:
     actor_type: user
     description: This determines when the wizard should show up on the 0994 introduction page
@@ -372,6 +364,10 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
+  va_online_scheduling_variant_testing:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for VAOS variant testing.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
@@ -386,4 +382,16 @@ features:
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
+    enable_in_development: true
+  edu_form5490_updates:
+    actor_type: user
+    description: Form 5490 updates in support of Isakson and Roe legislation
+    enable_in_development: true
+  edu_form10203_updates:
+    actor_type: user
+    description: Form 10203 updates in support of Isakson and Roe legislation
+    enable_in_development: true
+  check_in_experience_enabled:
+    actor_type: user
+    description: Enables the health care check-in experiences
     enable_in_development: true
