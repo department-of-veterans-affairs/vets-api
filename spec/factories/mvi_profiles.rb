@@ -94,7 +94,7 @@ FactoryBot.define do
           '123456789^PI^200VETS^USDVA^A'
         ]
       }
-      icn { '1013062086V794840' }
+      icn { '1000123456V123456' }
       mhv_ids { ['123456'] }
       active_mhv_ids { ['123456'] }
       vha_facility_ids { %w[516 553 200HD 200IP 200MHV] }
