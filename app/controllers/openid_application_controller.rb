@@ -152,9 +152,9 @@ class OpenidApplicationController < ApplicationController
       false
     end
   rescue => e
-    log_message_to_sentry('Error retrieving current_user for OIDC token', :error, body: e)
     # Only temporary
-    true
+    log_message_to_sentry('Error retrieving current_user for OIDC token', :error, body: e)
+    false
   end
 
   def token
