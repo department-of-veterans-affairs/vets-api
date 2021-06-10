@@ -356,7 +356,7 @@
             ]
           }
         ],
-        "description": "Allows authenticated veterans and veteran representatives to retrieve a veteran's id.",
+        "description": "Allows authenticated Veterans and Veteran representatives to retrieve a Veteran's id.",
         "parameters": [
 
         ],

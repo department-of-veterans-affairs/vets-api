@@ -12,7 +12,7 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
       security [bearer_token: []]
       consumes 'application/json'
       produces 'application/json'
-      description "Allows authenticated veterans and veteran representatives to retrieve a veteran's id."
+      description "Allows authenticated Veterans and Veteran representatives to retrieve a Veteran's id."
 
       let(:Authorization) { 'Bearer token' }
       parameter SwaggerSharedComponents.body_examples[:veteran_identifier]
