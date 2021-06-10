@@ -17,7 +17,7 @@ module Mobile
           if error.respond_to?(:details)
             error.details
           elsif error.respond_to?(:errors)
-            error.errors.to_json
+            error.errors.as_json
           else
             error.message
           end
