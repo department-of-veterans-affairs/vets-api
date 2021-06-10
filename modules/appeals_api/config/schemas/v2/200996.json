@@ -171,7 +171,8 @@
         "decisionDate":              { "$ref": "#/definitions/date" },
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },
-        "ratingDecisionReferenceId": { "type": "string" }
+        "ratingDecisionReferenceId": { "type": "string" },
+        "socDate":                   { "$ref": "#/definitions/date" }
       },
       "additionalProperties": false,
       "required": [ "issue", "decisionDate" ]
