@@ -3,7 +3,11 @@
 require 'rails_helper'
 
 # Note these specs MUST be run in order
+
+# rubocop:disable RSpec/FilePath
 RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
+  # rubocop:enable RSpec/FilePath
+
   OUTBOUND_CASSETTE = 'complex_interaction/external_interactions'
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
 
