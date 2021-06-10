@@ -15,11 +15,11 @@ RSpec.describe 'claims and appeals overview', type: :request do
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   describe 'GET /v0/claims-and-appeals-overview' do
+    before { iam_sign_in }
+
+    let(:params) { { useCache: false } }
+
     describe '#index (all user claims) is polled' do
-      before { iam_sign_in }
-
-      let(:params) { { useCache: false } }
-
       it 'and a result that matches our schema is successfully returned with the 200 status ' do
         VCR.use_cassette('claims/claims') do
           VCR.use_cassette('appeals/appeals') do
@@ -59,8 +59,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
     end
 
     describe '#index (all user claims) is polled with additional pagination params' do
-      before { iam_sign_in }
-
       let(:params) do
         { useCache: false,
           startDate: '2017-05-01T07:00:00.000Z',
@@ -83,8 +81,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
     end
 
     describe '#index (all user claims) is polled requesting only closed claims' do
-      before { iam_sign_in }
-
       let(:params) do
         { useCache: false,
           startDate: '2017-05-01T07:00:00.000Z',
@@ -108,8 +104,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
     end
 
     describe '#index (all user claims) is polled requesting only open claims' do
-      before { iam_sign_in }
-
       let(:params) do
         { useCache: false,
           startDate: '2017-05-01T07:00:00.000Z',
@@ -133,8 +127,6 @@ RSpec.describe 'claims and appeals overview', type: :request do
     end
 
     describe '#index is polled' do
-      before { iam_sign_in }
-
       let(:params) { { useCache: false } }
 
       it 'and claims service fails, but appeals succeeds' do
@@ -201,6 +193,23 @@ RSpec.describe 'claims and appeals overview', type: :request do
           VCR.use_cassette('appeals/appeals') do
             get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers
             expect(response).to have_http_status(:internal_server_error)
+          end
+        end
+      end
+    end
+
+    context 'when an internal error occurs getting claims' do
+      it 'includes appeals but has error details in the meta object for claims' do
+        allow_any_instance_of(IAMUser).to receive(:loa).and_raise(NoMethodError)
+        VCR.use_cassette('claims/claims') do
+          VCR.use_cassette('appeals/appeals') do
+            get '/mobile/v0/claims-and-appeals-overview', headers: iam_headers, params: params
+            expect(response.parsed_body.dig('data').size).to eq(
+              5
+            )
+            expect(response.parsed_body.dig('meta', 'errors').first).to eq(
+              { 'service' => 'claims', 'errorDetails' => 'NoMethodError' }
+            )
           end
         end
       end
