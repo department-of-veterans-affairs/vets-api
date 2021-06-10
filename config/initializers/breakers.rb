@@ -36,14 +36,13 @@ require 'va_profile/contact_information/configuration'
 require 'va_profile/communication/configuration'
 require 'iam_ssoe_oauth/configuration'
 
-# Read the redis config, create a connection and a namespace for breakers
-# .to_h because hashes from config_for don't support non-symbol keys
-redis_options = REDIS_CONFIG[:redis].to_h
-redis_namespace = if Rails.env.test?
-                    Redis::Namespace.new('breakers', redis: MockRedis.new(redis_options))
-                  else
-                    Redis::Namespace.new('breakers', redis: Redis.new(redis_options))
-                  end
+def breakers_redis_namespace
+  # Read the redis config, create a connection and a namespace for breakers
+  # .to_h because hashes from config_for don't support non-symbol keys
+  redis_options = REDIS_CONFIG[:redis].to_h
+  redis = Rails.env.test? ? MockRedis : Redis
+  Redis::Namespace.new('breakers', redis: redis.new(redis_options))
+end
 
 services = [
   DebtManagementCenter::DebtsConfiguration.instance.breakers_service,
@@ -89,7 +88,7 @@ services << CentralMail::Configuration.instance.breakers_service if Settings.cen
 plugin = Breakers::StatsdPlugin.new
 
 client = Breakers::Client.new(
-  redis_connection: redis_namespace,
+  redis_connection: breakers_redis_namespace,
   services: services,
   logger: Rails.logger,
   plugins: [plugin]
