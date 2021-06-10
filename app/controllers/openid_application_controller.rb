@@ -56,7 +56,7 @@ class OpenidApplicationController < ApplicationController
     return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
-    confirm_icn_match(profile)
+    return confirm_icn_match(profile)
   end
 
   def populate_payload_for_launch_scope
@@ -142,15 +142,19 @@ class OpenidApplicationController < ApplicationController
   end
 
   # Ensure the Okta profile ICN continues to match the MPI ICN
-  # If mismatched, invalidate above @session and revoke in Okta
-  # return false if icn_mismatch?(profile)
+  # If mismatched, revoke in Okta, set @session to nil, and return false
   def confirm_icn_match(profile)
     if @current_user.icn == profile['icn']
       true
     else
-      Okta::Service.new.clear_user_session(@session.uuid)
+      Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
+      @session = nil
       false
     end
+  rescue => e
+    log_message_to_sentry('Error retrieving current_user for OIDC token', :error, body: e)
+    # Only temporary
+    true
   end
 
   def token
