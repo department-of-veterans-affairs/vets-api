@@ -150,7 +150,7 @@ class OpenidApplicationController < ApplicationController
     else
       Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
       @session = nil
-      log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
+      log_message_to_sentry('Profile ICN mismatch detected. Clearing user session.', :error)
       false
     end
   end
