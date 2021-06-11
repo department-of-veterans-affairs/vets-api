@@ -9,15 +9,17 @@ module TestUserDashboard
 
     def require_jwt
       token = request.headers['JWT']
-      rsa_public = request.headers['PK']
-      head :forbidden unless valid_token(token, rsa_public)
+      pub_key = request.headers['PK']
+
+      head :forbidden unless valid_token(token, pub_key)
     end
 
     private
 
-    def valid_token(token, rsa_public)
-      return false unless token
+    def valid_token(token, pub_key)
+      return false unless token && pub_key
 
+      rsa_public = OpenSSL::PKey::RSA.new(Base64.decode64(pub_key))
       token.gsub!('Bearer ', '')
       begin
         JWT.decode token, rsa_public, true, { algorithm: 'RS256' }
