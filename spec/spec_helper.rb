@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'mock_redis'
+require 'fakeredis/rspec'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'

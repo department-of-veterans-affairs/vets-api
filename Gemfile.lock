@@ -542,8 +542,6 @@ GEM
     mini_mime (1.1.0)
     mini_portile2 (2.5.3)
     minitest (5.14.4)
-    mock_redis (0.28.0)
-      ruby2_keywords
     msgpack (1.3.3)
     multi_json (1.15.0)
     multi_xml (0.6.0)
@@ -811,7 +809,6 @@ GEM
       rexml
     ruby-vips (2.1.2)
       ffi (~> 1.12)
-    ruby2_keywords (0.0.4)
     rubyzip (2.3.0)
     rufus-scheduler (3.7.0)
       fugit (~> 1.1, >= 1.1.6)
@@ -1047,7 +1044,6 @@ DEPENDENCIES
   mimemagic (~> 0.4.3)
   mini_magick (~> 4.11.0)
   mobile!
-  mock_redis
   net-sftp
   nokogiri (~> 1.11)
   notifications-ruby-client (~> 5.3)
