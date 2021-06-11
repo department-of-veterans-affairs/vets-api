@@ -8,7 +8,7 @@ describe Sidekiq::ErrorTag do
     include Sidekiq::Worker
 
     def perform
-      $named_tags = Sidekiq::Logger.logger.named_tags
+      $named_tags = Sidekiq.logger.named_tags
     end
   end
 
