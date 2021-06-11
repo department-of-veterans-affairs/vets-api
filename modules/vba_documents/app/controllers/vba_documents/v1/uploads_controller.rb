@@ -14,7 +14,6 @@ module VBADocuments
       before_action :verify_settings, only: [:download]
 
       def create
-        Rails.logger.info('Hi Guys building a pending guid!!!!!!!!!!!!!')
         submission = VBADocuments::UploadSubmission.create(
           consumer_name: request.headers['X-Consumer-Username'],
           consumer_id: request.headers['X-Consumer-ID']
