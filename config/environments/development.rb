@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'active_support/core_ext/integer/time'
 require 'config_helper'
 
 Rails.application.configure do
@@ -10,8 +11,8 @@ Rails.application.configure do
   routes.default_url_options = { host: config.hostname, protocol: config.protocol }
   # Settings specified here will take precedence over those in config/application.rb.
 
-  # In the development environment your application's code is reloaded on
-  # every request. This slows down response time but is perfect for development
+  # In the development environment your application's code is reloaded any time
+  # it changes. This slows down response time but is perfect for development
   # since you don't have to restart the web server when you make code changes.
   config.cache_classes = false
 
@@ -27,6 +28,12 @@ Rails.application.configure do
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
+
+  # Raise exceptions for disallowed deprecations.
+  config.active_support.disallowed_deprecation = :raise
+
+  # Tell Active Support which deprecation messages to disallow.
+  config.active_support.disallowed_deprecation_warnings = []
 
   # Raise an error on page load if there are pending migrations.
   # config.active_record.migration_error = :page_load
@@ -51,7 +58,8 @@ Rails.application.configure do
   # config.assets.raise_runtime_errors = true
 
   # Raises error for missing translations
-  # config.action_view.raise_on_missing_translations = true
+  config.i18n.raise_on_missing_translations = true
+
   ConfigHelper.setup_action_mailer(config)
 
   config.rails_semantic_logger.semantic   = false

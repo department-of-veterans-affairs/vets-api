@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'active_support/core_ext/integer/time'
+
 Rails.application.configure do
   # Specify environment specific hostname and protocol
   config.hostname = Settings.hostname
@@ -47,6 +49,15 @@ Rails.application.configure do
   # Print deprecation notices to the stderr.
   config.active_support.deprecation = :stderr
 
+  # Raise exceptions for disallowed deprecations.
+  config.active_support.disallowed_deprecation = :raise
+
+  # Tell Active Support which deprecation messages to disallow.
+  config.active_support.disallowed_deprecation_warnings = []
+
+  # Raises error for missing translations
+  config.i18n.raise_on_missing_translations = true
+
   config.cache_store = :null_store
 
   # Speed up specs by not writing logs during RSpec runs
@@ -54,6 +65,4 @@ Rails.application.configure do
     config.logger = Logger.new(nil)
     config.log_level = :fatal
   end
-  # Raises error for missing translations
-  config.action_view.raise_on_missing_translations = true
 end
