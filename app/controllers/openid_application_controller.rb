@@ -34,6 +34,7 @@ class OpenidApplicationController < ApplicationController
 
   def authenticate_token
     return false if token.blank?
+    
     # Only want to fetch the Okta profile if the session isn't already established and not a CC token
     @session = Session.find(token) unless token.client_credentials_token?
     profile = @session.profile unless @session.nil? || @session.profile.nil?
@@ -149,6 +150,7 @@ class OpenidApplicationController < ApplicationController
     else
       Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
       @session = nil
+      log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
       false
     end
   end
