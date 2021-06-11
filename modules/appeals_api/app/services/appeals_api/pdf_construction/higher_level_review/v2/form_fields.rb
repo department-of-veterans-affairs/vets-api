@@ -4,9 +4,6 @@ module AppealsApi
   module PdfConstruction
     module HigherLevelReview::V2
       class FormFields
-        FIRST_PAGE_ISSUES_ROW_COUNT = 7
-        SECOND_PAGE_ISSUES_ROW_COUNT = 6
-
         def middle_initial
           'form1[0].#subform[2].Veteran_Middle_Initial1[0]'
         end
@@ -170,6 +167,9 @@ module AppealsApi
 
         # rubocop:disable Metrics/MethodLength
         def boxes
+          number_of_issues_on_second_pg = Structure::NUMBER_OF_ISSUES_SECOND_PAGE
+          number_of_issues_on_first_pg = Structure::NUMBER_OF_ISSUES_FIRST_PAGE
+
           { first_name: { at: [3, 560], width: 195 },
             last_name: { at: [230, 560], width: 293 },
             number_and_street: { at: [29, 462], width: 512 },
@@ -182,16 +182,16 @@ module AppealsApi
             rep_international_number: { at: [275, 555], width: 195 },
             rep_domestic_ext: { at: [225, 555], width: 50 },
             issues_pg1: [].tap do |n|
-              FIRST_PAGE_ISSUES_ROW_COUNT.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
+              number_of_issues_on_first_pg.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
             end,
             issues_pg2: [].tap do |n|
-              SECOND_PAGE_ISSUES_ROW_COUNT.times { |i| n << { at: [-3, 675 - (46.5 * i)], width: 369, height: 43 } }
+              number_of_issues_on_second_pg.times { |i| n << { at: [-3, 675 - (46.5 * i)], width: 369, height: 43 } }
             end,
             soc_date_pg1: [].tap do |n|
-              FIRST_PAGE_ISSUES_ROW_COUNT.times { |i| n << { at: [375, 315 - (46.5 * i)], width: 160, height: 15 } }
+              number_of_issues_on_first_pg.times { |i| n << { at: [375, 315 - (46.5 * i)], width: 160, height: 15 } }
             end,
             soc_date_pg2: [].tap do |n|
-              SECOND_PAGE_ISSUES_ROW_COUNT.times { |i| n << { at: [380, 670 - (46.5 * i)], width: 160, height: 15 } }
+              number_of_issues_on_second_pg.times { |i| n << { at: [380, 670 - (46.5 * i)], width: 160, height: 15 } }
             end,
             signature: { at: [-3, 329], width: 369, height: 18 },
             # The rest aren't currently used, but kept for if/when we need them
