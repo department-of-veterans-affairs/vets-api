@@ -1,0 +1,57 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6ImU0ZDQ4MTk4LWVkOWMtNGJmMi1hMGE2LWNjMWVlNjdhMzVmMyIsIm5iZiI6MTYyMzM1NTI0MywiZXhwIjoxNjIzMzU2MjAzLCJzc3QiOjE2MjMzNTUyOTMsInZlcnNpb24iOjIuMSwiZ2VuZGVyIjoiRkVNQUxFIiwiZG9iIjoiMTk1MzA0MDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMwNDAxIiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInNzbiI6Ijc5NjA2MTk3NiJ9.YPhtZg-7HsaKT2nC5vsZMPzUJBJW4UxnrpRvLoCJ_1_O3YqDtSquMWpSoTaQ1J3z56BAc-O0Thf_VcdtCKrZgK7YrOW1kO3A27BSE7xKWe4Lsj7aJY4Tg9CvbDhocHexNU0NrOP-zx1ayWKqlGRNcsjTQrrQtJfL3GFUcBT99yQxAFkIl9Y6owyA6IhCstqcO8C7BSHVFXejK3nX81VeZku0wLvmqGomGmaG2DuygqMP_3XJPeVUPorC5oi36Pgx126B_4G6Ji3wnzSgvhGCNb5oSsbnKkkXchkNiBixgsFK-uQH2AmTosWuhcw-qPViBpi3y_v7HBGalMJ4yldniTi_INK-fWUfFUVYbrPR7V5yX5HlARvj1x3rFoiBVKiHT_xQUuW2-udGTHJ8hIuOLNXSw6Q_DVeVnENo4gfp7AIPp9-9o2BkXgrSLgXzKlQNZJQz7OWtJM952suGNr75Qq2CCZkrjZgz7aK5JBZRdIFgX99t9m1W4ooWBLfSNjnp3gl2dhXHbC6NFlQk2vsc-62y_cT7YdUtNJBuGJ32wkZL5nOBAK07YN8IsWgh0-Awx6G1ZlMk2hVtjJIE7MovCD_TCVUOF6uiQ9oZOoTBsuC8XmbgFaIxY4FutzVP62PEM8yMVBhYq9o7uVOju6Z5pSpFqdRuOr-jF8SfKDsFqsw
+    headers:
+      Accept:
+      - text/plain
+      Content-Type:
+      - text/plain
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 10 Jun 2021 20:01:55 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1663'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.15.0
+      Cache-Control:
+      - no-store
+      B3:
+      - bb2fd612ce316779-d03b4c427875aedf-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - cde2f4f
+      X-Vamf-Timestamp:
+      - '2021-05-28T03:45:51+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMzM1NTMxNSwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMzM1NjIxNSwianRpIjoiZTRkNDgxOTgtZWQ5Yy00YmYyLWEwYTYtY2MxZWU2N2EzNWYzIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIzMzU1MTM1LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.jSKD8sBMQM0mSuFIFywdBgKdgmJ-X304G1s_tk_wVD4TB1MzVWr-Ep4jeFFeX_7T-oOExdAKI9hhU7s1AA6vPwxsnGU8rUWyj6HeyrPistQL7PwnKruJdcq_Aqndi_YBywQbLik2eDtph2YcNCbIkQXGHCfk-vqK4LrSjvcL8ieFzh23Mc6ZMCK1CRNfFq4wAtE4wMg1xyG9h14F3HWLtIqufgsvZ3iJ0Tal2bBIGYz5-LvSSRDgeeNRdGGpGAa09djlbHIBRtK75uw0MH46vfJo3TYwZ0j__v2Lp4NfP5n9SfJkihm_BmUBrYca9euaN01K4OBQdF70x_0xOvpzOA
+  recorded_at: Thu, 10 Jun 2021 20:01:55 GMT
+recorded_with: VCR 6.0.0

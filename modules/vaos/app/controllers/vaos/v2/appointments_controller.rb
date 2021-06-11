@@ -5,6 +5,8 @@ require 'common/exceptions'
 module VAOS
   module V2
     class AppointmentsController < VAOS::V0::BaseController
+      skip_before_action :verify_authenticity_token
+
       def index
         render json: VAOS::V2::AppointmentsSerializer.new(appointments[:data], meta: appointments[:meta])
       end
@@ -58,8 +60,28 @@ module VAOS
       end
 
       def create_params
-        params.permit(:kind, :status, :location_id, :clinic, :reason, :slot, :contact,
-                      :service_type, :requested_periods)
+        params.permit(:kind,
+                      :status,
+                      :location_id,
+                      :clinic,
+                      :reason, 
+                      :service_type, 
+                      slot: [
+                        :id,
+                        :start,
+                        :end
+                      ], 
+                      contact: [ 
+                        telecom: [
+                          :type,
+                          :value
+                        ]
+                      ],
+                      requested_periods: [
+                        :start,
+                        :end
+                      ]
+                    )
       end
 
       def start_date

@@ -7,7 +7,7 @@ describe VAOS::V2::MobileFacilityService do
 
   let(:user) { build(:user, :vaos) }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  #before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#configuration' do
     context 'with a facility id' do
@@ -46,19 +46,32 @@ describe VAOS::V2::MobileFacilityService do
       end
     end
 
-    # context 'with a facility id and children true' do
-    #   it 'returns a configuration' do
-    #     VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_200',
-    #                      match_requests_on: %i[method uri]) do
-    #       params = {
-    #         ids: %w[688],
-    #         children: true
-    #       }
-    #       response = subject.get_facilities(params)
-    #       expect(response[:data].size).to eq(8)
-    #     end
-    #   end
-    # end
+    context 'with multiple facility ids' do
+      it 'returns a configuration' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_multiple_facilities_200',
+        record: :new_episodes) do
+          params = {
+            ids: %w[688 983]
+          }
+          response = subject.get_facilities(params)
+          expect(response[:data].size).to eq(2)
+        end
+      end
+    end
+
+    context 'with a facility id and children true' do
+      it 'returns a configuration' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_200',
+                         record: :new_episodes) do
+          params = {
+            ids: %w[688],
+            children: true
+          }
+          response = subject.get_facilities(params)
+          expect(response[:data].size).to eq(8)
+        end
+      end
+    end
 
     context 'when the upstream server returns a 400' do
       it 'raises a backend exception' do

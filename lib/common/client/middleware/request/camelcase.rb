@@ -10,7 +10,9 @@ module Common
           end
 
           def call(env)
+            binding.pry
             env[:body] = camelcase(env[:body]) unless env.request_headers['Content-Type'] == 'text/plain'
+            binding.pry
             @app.call(env)
           end
 

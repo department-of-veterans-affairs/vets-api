@@ -12,7 +12,7 @@ FactoryBot.define do
       kind { 'cc' }
       status { 'proposed' }
       location_id { '983' }
-      reason { 'Testing' }
+      reason { 'sadfasdf' }
 
       contact do
         {
@@ -23,7 +23,7 @@ FactoryBot.define do
             },
             {
               'type': 'email',
-              'value': 'judymorisooooooooooooon@gmail.com'
+              'value': 'kennethsfang@aol.com'
             }
           ]
         }
@@ -33,8 +33,7 @@ FactoryBot.define do
       requested_periods do
         [
           {
-            'start' => DateTime.new(2021, 0o6, 15, 12, 0o0, 0).iso8601(3),
-            'end' => DateTime.new(2021, 0o6, 15, 23, 59, 0).iso8601(3)
+            'start' => DateTime.new(2021, 0o6, 16, 12, 0o0, 0).iso8601(3)
           }
         ]
       end

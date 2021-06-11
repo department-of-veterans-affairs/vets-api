@@ -11,17 +11,42 @@ describe VAOS::V2::AppointmentsService do
   let(:id) { '202006031600983000030800000000000000' }
   let(:appointment_id) { 123 }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  #before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#post_appointment' do
     let(:request_body) do
       FactoryBot.build(:appointment_form_v2, :eligible).attributes
     end
 
+    test_body = {
+      "kind": "cc",
+      "status": "proposed",
+      "locationId": "983",
+      "reason": "sadfasdf",
+      "slot": {},
+      "contact": {
+        "telecom": [
+          {
+            "type": "phone",
+            "value": "2125688889"
+          },
+          {
+            "type": "email",
+            "value": "kennethsfang@aol.com"
+          }
+        ]
+      },
+      "serviceType": "CCPOD",
+      "requestedPeriods": [
+        {
+          "start": "2021-06-16T12:00:00.000+00:00"
+        }
+      ]}   
+
     context 'when request is valid' do
       it 'returns the created appointment' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_200', match_requests_on: %i[method uri]) do
-          response = subject.post_appointment(request_body)
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_200_test3', record: :new_episodes) do
+          response = subject.post_appointment(test_body)
           expect(response[:id]).to be_a(String)
         end
       end

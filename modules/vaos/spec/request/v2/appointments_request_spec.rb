@@ -8,7 +8,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(current_user)
-    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    #allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -21,11 +21,38 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         FactoryBot.build(:appointment_form_v2, :eligible).attributes
       end
 
+      test_body = {
+        "kind": "cc",
+        "status": "proposed",
+        "location_id": "983",
+        "reason": "sadfasdf",
+        "slot": {},
+        "contact": {
+          "telecom": [
+            {
+              "type": "phone",
+              "value": "2125688889"
+            },
+            {
+              "type": "email",
+              "value": "kennethsfang@aol.com"
+            }
+          ]
+        },
+        "service_type": "CCPOD",
+        "requested_periods": [
+          {
+            "start": "2021-06-16T12:00:00.000+00:00"
+          }
+        ]}      
       it 'creates the appointment' do
-        VCR.use_cassette('vaos/v2/appointments/post_appointments_200', match_requests_on: %i[method uri]) do
-          post '/vaos/v2/appointments', params: request_body, headers: inflection_header
-          expect(response).to have_http_status(:created)
-          expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
+        current_user
+        VCR.use_cassette('vaos/v2/appointments/post_appointments_200_test2', record: :new_episodes) do
+         
+          post '/vaos/v2/appointments', params: test_body
+          binding.pry
+          #expect(response).to have_http_status(:created)
+          #expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
         end
       end
 

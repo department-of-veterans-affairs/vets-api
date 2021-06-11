@@ -12,8 +12,10 @@ module VAOS
           children: query_params[:children],
           types: query_params[:types]
         }.merge(page_params(pagination_params)).compact
+        binding.pry
         with_monitoring do
           options = { params_encoder: Faraday::FlatParamsEncoder }
+          binding.pry
           response = perform(:get, facilities_url, params, headers, options)
           {
             data: deserialized_facilities(response.body[:data]),

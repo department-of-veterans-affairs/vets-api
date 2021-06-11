@@ -25,7 +25,7 @@ module VAOS
       def params
         raise Common::Exceptions::ValidationErrors, self unless valid?
 
-        attributes.compact
+        attributes.compact.merge(patient_icn: @user.icn)
       end
     end
   end

@@ -540,4 +540,700 @@ http_interactions:
           } ]
         }
   recorded_at: Fri, 21 May 2021 17:13:14 GMT
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6ImMzODNiMzgxLWFmMjItNDA1ZS05MjEzLTI4OWFlY2YxZmE4ZiIsIm5iZiI6MTYyMzM1MzAzMiwiZXhwIjoxNjIzMzUzOTkyLCJzc3QiOjE2MjMzNTMwODIsInZlcnNpb24iOjIuMSwiZ2VuZGVyIjoiRkVNQUxFIiwiZG9iIjoiMTk1MzA0MDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMwNDAxIiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInNzbiI6Ijc5NjA2MTk3NiJ9.lWKUCWi8pqx4q9NyfUsgExi8GACDUKuh3LFeqVAIAyMtIenvTp_F2ErNIhrRs6A7UTyDGZp3apJvnWHXwWywl7j-JvLGAY3_PbCU4PM8u9VGrwJpj00hyAi6cw-G25zd8BU77dthPEGhzdmVSfnWNYkR2ZQYMIFwc873FGXpK64A8MJ4PA3jYamTpHuEhkxRTP9pfMotF8DFaPptsllAZ_S4fv5bYnaw54sH_ezOH6ijDZzdk25fVJ1Cy-7_XvgFcgxyCHDsHGRkDVTM1DqxD_PDnBUALhwRyW6mKal7KfPhPWig67ogUap5GgpkY0aEmr94aF0ODKEYU3G_Ger3Gpu_5dcVVRreMI320w3EuuXFT91WMhhqyDDavG-jFe1V6uuUx4_riMNKAIbWdK-vPb4HB4ET77rM3jZjhYExcJwyae5kZt6QYtsIpXTnNmr6XKyAJq6-oZUr6NA7Jf2d653pdIhtz7bfS9XeB3tXTTHyQJzLHYtY2HVddIRxCxE_zS2OGbakbZ6PLXnbVSRXaoVS7AB_fKsVtx54eahQkofLW3-eTZVwWxC2zwqpA6-V1YzSh0EbWK3I9S0QlXUu-FHthrB6cTJbMmi6hgERdpb9y0Uby83nkp-R6gMfOp1TesjuARhizhFwcT0F7afG3nwo2UIMpqHz-5u2mX2STas
+    headers:
+      Accept:
+      - text/plain
+      Content-Type:
+      - text/plain
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 10 Jun 2021 19:24:53 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1663'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.15.0
+      Cache-Control:
+      - no-store
+      B3:
+      - 8a438eee7e7230d8-dc1250a9939952d0-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - cde2f4f
+      X-Vamf-Timestamp:
+      - '2021-05-28T03:45:51+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMzM1MzA5MiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMzM1Mzk5MywianRpIjoiYzM4M2IzODEtYWYyMi00MDVlLTkyMTMtMjg5YWVjZjFmYThmIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIzMzUyOTEzLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.hiQtvczHB_C8Ot_6ARm900HOeom751U7rFGtY60TduDLNAoIGieBEGzsZaxswOP6OKdy5-z_d69WcPajhx7wg9CZV1a27oCakdLxOwDnFojFCWvNIoKX7aDFsV4Md4O0t1QnGy42M6RF7RCHPilyNk0_PNf_v8BBrI228L_ZHJuphk69wU8NeuNP0Jht2_0p27YCZNfUJNXpRkSZGh5SW2XxNkY0_BfKqY6pxIHreP9WfBT6uGPMeLfGSe96aGehKg9Q6dwiuJ8GHeiO7dE1ACR1RvnxGkEkf1_JkBo6-TjaXBPjHcCAFcRyOUxDnhCRrzQSTfohK8qzrcbHMQMWRg
+  recorded_at: Thu, 10 Jun 2021 19:24:53 GMT
+- request:
+    method: get
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/facilities/v2/facilities?children=true&ids=983&pageSize=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMzM1MzA5MiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMzM1Mzk5MywianRpIjoiYzM4M2IzODEtYWYyMi00MDVlLTkyMTMtMjg5YWVjZjFmYThmIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIzMzUyOTEzLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.hiQtvczHB_C8Ot_6ARm900HOeom751U7rFGtY60TduDLNAoIGieBEGzsZaxswOP6OKdy5-z_d69WcPajhx7wg9CZV1a27oCakdLxOwDnFojFCWvNIoKX7aDFsV4Md4O0t1QnGy42M6RF7RCHPilyNk0_PNf_v8BBrI228L_ZHJuphk69wU8NeuNP0Jht2_0p27YCZNfUJNXpRkSZGh5SW2XxNkY0_BfKqY6pxIHreP9WfBT6uGPMeLfGSe96aGehKg9Q6dwiuJ8GHeiO7dE1ACR1RvnxGkEkf1_JkBo6-TjaXBPjHcCAFcRyOUxDnhCRrzQSTfohK8qzrcbHMQMWRg
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 10 Jun 2021 19:24:53 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1285'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.5.2
+      B3:
+      - 30b7dda1cbe17c7f-88f39850256272b7-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - cc1bce1
+      X-Vamf-Timestamp:
+      - '2021-05-30T22:09:53+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : [ {
+            "id" : "983",
+            "vistaSite" : "983",
+            "vastParent" : "983",
+            "type" : "va_facilities",
+            "name" : "Cheyenne VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "timezone" : {
+              "zoneId" : "America/Denver",
+              "abbreviation" : "MDT"
+            },
+            "lat" : 39.744507,
+            "long" : -104.830956,
+            "website" : "https://www.denver.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "307-778-7550",
+              "fax" : "307-778-7381",
+              "pharmacy" : "866-420-6337",
+              "afterHours" : "307-778-7550",
+              "patientAdvocate" : "307-778-7550 x7517",
+              "mentalHealthClinic" : "307-778-7349",
+              "enrollmentCoordinator" : "307-778-7550 x7579"
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "2360 East Pershing Boulevard" ],
+              "city" : "Cheyenne",
+              "state" : "WY",
+              "postalCode" : "82001-5356"
+            },
+            "mobile" : false,
+            "healthService" : [ "Audiology", "Cardiology", "DentalServices", "EmergencyCare", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "UrgentCare", "Urology", "WomensHealth" ],
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            }
+          } ]
+        }
+  recorded_at: Thu, 10 Jun 2021 19:24:53 GMT
+- request:
+    method: get
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/facilities/v2/facilities?children=true&ids=688&pageSize=0
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMzM1MzA5MiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMzM1Mzk5MywianRpIjoiYzM4M2IzODEtYWYyMi00MDVlLTkyMTMtMjg5YWVjZjFmYThmIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIzMzUyOTEzLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.hiQtvczHB_C8Ot_6ARm900HOeom751U7rFGtY60TduDLNAoIGieBEGzsZaxswOP6OKdy5-z_d69WcPajhx7wg9CZV1a27oCakdLxOwDnFojFCWvNIoKX7aDFsV4Md4O0t1QnGy42M6RF7RCHPilyNk0_PNf_v8BBrI228L_ZHJuphk69wU8NeuNP0Jht2_0p27YCZNfUJNXpRkSZGh5SW2XxNkY0_BfKqY6pxIHreP9WfBT6uGPMeLfGSe96aGehKg9Q6dwiuJ8GHeiO7dE1ACR1RvnxGkEkf1_JkBo6-TjaXBPjHcCAFcRyOUxDnhCRrzQSTfohK8qzrcbHMQMWRg
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 10 Jun 2021 19:27:20 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.5.2
+      B3:
+      - faf433a409daad03-c1d862135418b573-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - cc1bce1
+      X-Vamf-Timestamp:
+      - '2021-05-30T22:09:53+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "data" : [ {
+            "id" : "688",
+            "vistaSite" : "688",
+            "vastParent" : "688",
+            "type" : "va_health_facility",
+            "name" : "Washington VA Medical Center",
+            "classification" : "VA Medical Center (VAMC)",
+            "website" : "https://www.washingtondc.va.gov/locations/directions.asp",
+            "phone" : {
+              "main" : "202-745-8000",
+              "fax" : "202-745-8530",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8000",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "202-745-8000 x 58127",
+              "enrollmentCoordinator" : "202-745-8000 x56333"
+            },
+            "hoursOfOperation" : [ {
+              "daysOfWeek" : "sun",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "mon",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "tue",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "wed",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "thu",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "fri",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "sat",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            } ],
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "50 Irving Street, Northwest", null, null ],
+              "city" : "Washington",
+              "state" : "DC",
+              "postalCode" : "20422-0001"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GA",
+            "vistaSite" : "688",
+            "type" : "va_health_facility",
+            "name" : "Fort Belvoir VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "website" : "https://www.washingtondc.va.gov/locations/VA_Ft_Belvoir_Community_Clinic.asp",
+            "phone" : {
+              "main" : "571-231-2408",
+              "fax" : "571-231-2408",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "571-231-2408",
+              "enrollmentCoordinator" : "202-745-8000 x6333"
+            },
+            "hoursOfOperation" : [ {
+              "daysOfWeek" : "sun",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            }, {
+              "daysOfWeek" : "mon",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "tue",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "wed",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "thu",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "fri",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "sat",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            } ],
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "9300 Dewitt Loop", null, null ],
+              "city" : "Fort Belvoir",
+              "state" : "VA",
+              "postalCode" : "22060-5285"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GB",
+            "vistaSite" : "688",
+            "type" : "va_health_facility",
+            "name" : "Southeast Washington VA Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "website" : "https://www.washingtondc.va.gov/locations/Southeast_Washington_DC.asp",
+            "phone" : {
+              "main" : "202-745-8685",
+              "fax" : "202-562-8789",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "202-745-8685",
+              "enrollmentCoordinator" : "202-745-8000 x6333"
+            },
+            "hoursOfOperation" : [ {
+              "daysOfWeek" : "sun",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            }, {
+              "daysOfWeek" : "mon",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "tue",
+              "openingTime" : "700AM",
+              "closingTime" : "330PM"
+            }, {
+              "daysOfWeek" : "wed",
+              "openingTime" : "700AM",
+              "closingTime" : "330PM"
+            }, {
+              "daysOfWeek" : "thu",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "fri",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "sat",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            } ],
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "820 Chesapeake Street, Southeast", null, null ],
+              "city" : "Washington",
+              "state" : "DC",
+              "postalCode" : "20032-3428"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GD",
+            "vistaSite" : "688",
+            "type" : "va_health_facility",
+            "name" : "Charlotte Hall VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "website" : "https://www.washingtondc.va.gov/locations/Charlotte_Hall_MD.asp",
+            "phone" : {
+              "main" : "301-884-7102",
+              "fax" : "301-884-7106",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "301-884-7102",
+              "enrollmentCoordinator" : "202-745-8000 x6333"
+            },
+            "hoursOfOperation" : [ {
+              "daysOfWeek" : "sun",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            }, {
+              "daysOfWeek" : "mon",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "tue",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "wed",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "thu",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "fri",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "sat",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            } ],
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "29640 Three Notch Road", null, null ],
+              "city" : "Charlotte Hall",
+              "state" : "MD",
+              "postalCode" : "20622-3244"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GE",
+            "vistaSite" : "688",
+            "type" : "va_health_facility",
+            "name" : "Southern Prince George's County VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "website" : "https://www.washingtondc.va.gov/locations/Southern_Prince_George_s_County_Community_Based_Outpatient_Clinic.asp",
+            "phone" : {
+              "main" : "301-423-3700",
+              "fax" : "301-423-8388",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8000",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "301-423-3700",
+              "enrollmentCoordinator" : "202-745-8000 x6333"
+            },
+            "hoursOfOperation" : [ {
+              "daysOfWeek" : "sun",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            }, {
+              "daysOfWeek" : "mon",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "tue",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "wed",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "thu",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "fri",
+              "openingTime" : "730AM",
+              "closingTime" : "400PM"
+            }, {
+              "daysOfWeek" : "sat",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            } ],
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "5801 Allentown Road", null, "Suites 104 and 106" ],
+              "city" : "Camp Springs",
+              "state" : "MD",
+              "postalCode" : "20746-4563"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GF",
+            "vistaSite" : "688",
+            "type" : "va_health_facility",
+            "name" : "Montgomery County VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "website" : "https://www.washingtondc.va.gov/locations/Montgomery_County_Community_Based_Outpatient_Clinic.asp",
+            "phone" : {
+              "main" : "301-591-5858",
+              "fax" : "301-963-5535",
+              "pharmacy" : "202-745-8000",
+              "afterHours" : "202-745-8000",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "301-591-5858",
+              "enrollmentCoordinator" : "202-745-8000"
+            },
+            "hoursOfOperation" : [ {
+              "daysOfWeek" : "sun",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            }, {
+              "daysOfWeek" : "mon",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "tue",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "wed",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "thu",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "fri",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "sat",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            } ],
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "15810 Gaither Drive", "Shady Grove Development Park", "Suite 130" ],
+              "city" : "Gaithersburg",
+              "state" : "MD",
+              "postalCode" : "20877-1429"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688GG",
+            "vistaSite" : "688",
+            "type" : "va_health_facility",
+            "name" : "Lexington Park VA Clinic",
+            "classification" : "Primary Care CBOC",
+            "website" : "https://www.washingtondc.va.gov/locations/Lexington_Park_VA_Community_Based_Outpatient_Clinic.asp",
+            "phone" : {
+              "main" : "240-237-1625",
+              "fax" : "240-237-1626",
+              "pharmacy" : "202-745-8235",
+              "afterHours" : "202-745-8247",
+              "patientAdvocate" : "202-745-8588",
+              "mentalHealthClinic" : "240-237-1625",
+              "enrollmentCoordinator" : "202-745-8247 x6333"
+            },
+            "hoursOfOperation" : [ {
+              "daysOfWeek" : "sun",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            }, {
+              "daysOfWeek" : "mon",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "tue",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "wed",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "thu",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "fri",
+              "openingTime" : "800AM",
+              "closingTime" : "430PM"
+            }, {
+              "daysOfWeek" : "sat",
+              "openingTime" : "Closed",
+              "closingTime" : "Closed"
+            } ],
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "45870 East Run Boulevard", "East Run Center", "Suite 300" ],
+              "city" : "Lexington Park",
+              "state" : "MD",
+              "postalCode" : "20653-2383"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          }, {
+            "id" : "688QA",
+            "vistaSite" : "688",
+            "type" : "va_health_facility",
+            "name" : "Franklin Street VA Clinic",
+            "classification" : "Other Outpatient Services (OOS)",
+            "website" : "https://www.washingtondc.va.gov/locations/Community_Resource_and_Referral_Center_CRRC.asp",
+            "phone" : {
+              "main" : "202-745-3012",
+              "fax" : "202-636-7661",
+              "pharmacy" : "202-745-8000 x55603",
+              "afterHours" : "202-636-7660",
+              "patientAdvocate" : "202-745-8000 x58235",
+              "mentalHealthClinic" : "202-745-3012",
+              "enrollmentCoordinator" : "202-745-8000 x58251"
+            },
+            "hoursOfOperation" : [ {
+              "daysOfWeek" : "sun",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "mon",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "tue",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "wed",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "thu",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "fri",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            }, {
+              "daysOfWeek" : "sat",
+              "openingTime" : "24/7",
+              "closingTime" : "24/7"
+            } ],
+            "mailingAddress" : {
+              "type" : "postal",
+              "line" : [ null, null, null ]
+            },
+            "physicalAddress" : {
+              "type" : "physical",
+              "line" : [ "1500 Franklin Street Northeast", "Community Resource & Referral Center (CRRC)", null ],
+              "city" : "Washington",
+              "state" : "DC",
+              "postalCode" : "20018-2000"
+            },
+            "mobile" : false,
+            "operatingStatus" : {
+              "code" : "NORMAL"
+            },
+            "visn" : "5"
+          } ]
+        }
+  recorded_at: Thu, 10 Jun 2021 19:27:20 GMT
 recorded_with: VCR 6.0.0

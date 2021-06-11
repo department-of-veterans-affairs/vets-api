@@ -1,0 +1,96 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/users/v2/session?processRules=true
+    body:
+      encoding: US-ASCII
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJzdWIiOiIxMDEyODQ1MzMxVjE1MzA0MyIsImlkVHlwZSI6IklDTiIsImlzcyI6Imdvdi52YS52YW9zIiwiZmlyc3ROYW1lIjoiSnVkeSIsImxhc3ROYW1lIjoiTW9ycmlzb24iLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS5pYW0uc3NvZS52MSIsImp0aSI6ImI0ZWVhNGVmLTI5NmEtNDYyOS1iODRjLWYzYmYxMGFhNjNmOCIsIm5iZiI6MTYyMzM1OTg5MCwiZXhwIjoxNjIzMzYwODUwLCJzc3QiOjE2MjMzNTk5NDAsInZlcnNpb24iOjIuMSwiZ2VuZGVyIjoiRkVNQUxFIiwiZG9iIjoiMTk1MzA0MDEiLCJkYXRlT2ZCaXJ0aCI6IjE5NTMwNDAxIiwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInNzbiI6Ijc5NjA2MTk3NiJ9.ExbH58TCeE_bx2RJcse6AV5gU6ezVRnladR8ypacX57O3k8V2-_SmUBhKalkUhB6bcy67vBizGpvw5KS6pPyXm-AZKCQNqjtLkyF1YpwdFn0IuTaPuuG8fzu2Q-MhRDuYC26KgZaLmIOH1w7uaReP9oozobL-3UjOflKm8c_P1bwK7gIpxT36RwQWZfHl_HB3wqSOnmaiZDTXHBOc6wlMhVepRSF1LCq0-3jzoJ3xbsW7Vv5BhHuIearS_QRXHrrkVDEEbfCdgFHZTXcRn4TyXTqgKxQCmV5293v_cYP8Sta_QIVs0tVRPMBedc5IHV-dzE7LubbDJJotx6DCS0QAVBV0VItZye6G2BZYnOdGeMeSGNLCkWaSGJ-84p66NemAY085A10GwhESC8wk-1BBNa9C66KOV9aKfz6nvn5cSO6BeqYHVFH6NJ-d3W2vdIHSUk3Y9wdihT-Fbiwh_O_hKFjJaYn9diXcOphO48l92QosK2cPfe7qBaGcKjoayYYnceuFQWnxO_WMbYYrNKmcGjStEKXkNoIHi_4T9tQ5bEWYCpXX1yHDDR5PlBiUbHn1CaOHlqOczErFV-IAR5sF7Y3KKGH8JK-esmmLMP_WaopdtZosSa4aWOQwmObfmN8QaKH_DcIDzvE_BOtRl1Od1PeqHfJEieO-Q2-uPCWM3k
+    headers:
+      Accept:
+      - text/plain
+      Content-Type:
+      - text/plain
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 10 Jun 2021 21:19:11 GMT
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '1663'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 2.15.0
+      Cache-Control:
+      - no-store
+      B3:
+      - 4288b2eb932135f9-4c60f7e548290dbd-0
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - cde2f4f
+      X-Vamf-Timestamp:
+      - '2021-05-28T03:45:51+0000'
+      Access-Control-Allow-Origin:
+      - "*.va.gov"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMzM1OTk1MCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMzM2MDg1MSwianRpIjoiYjRlZWE0ZWYtMjk2YS00NjI5LWI4NGMtZjNiZjEwYWE2M2Y4IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIzMzU5NzcxLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.Rip39-hkV7vTAZMkfQA8lbZFyl1b7Z4y0ymvuVEYQYv4wjMvwEUcdIjsyPEYHNQYVTsfuk-DaZMAM2ix3l59vi3f_Y87Ilf45y66onCcUJZo2wzLs9dWOGcLnXLiC6E-YgCIp9_ko1Z595zZ2HzkQ8vcGJv-1pkrb5CguZxSeeomF_6pw7-gGj996yLRCs-OfnyEpsHWxHcQBQQy9e6oBNo6d9CbNJxjYfxZi10cmlxlKvzATcRzSMn6ROxXZBGqY-ivtcMgXkcSwaySY1-1pVQnhNmh2rbT9pAw4KYeRhqrwVBKNaEzSwDmuXNuZ8I0X8c-0p7dMdAq1f1nE5xtDA
+  recorded_at: Thu, 10 Jun 2021 21:19:11 GMT
+- request:
+    method: post
+    uri: https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4463/vaos/v1/patients/1012845331V153043/appointments
+    body:
+      encoding: UTF-8
+      string: '{"kind":"cc","status":"proposed","locationId":"983","reason":"sadfasdf","slot":{},"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"kennethsfang@aol.com"}]},"requestedPeriods":[],"patientIcn":"1012845331V153043"}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMzM1OTk1MCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMzM2MDg1MSwianRpIjoiYjRlZWE0ZWYtMjk2YS00NjI5LWI4NGMtZjNiZjEwYWE2M2Y4IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIzMzU5NzcxLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.Rip39-hkV7vTAZMkfQA8lbZFyl1b7Z4y0ymvuVEYQYv4wjMvwEUcdIjsyPEYHNQYVTsfuk-DaZMAM2ix3l59vi3f_Y87Ilf45y66onCcUJZo2wzLs9dWOGcLnXLiC6E-YgCIp9_ko1Z595zZ2HzkQ8vcGJv-1pkrb5CguZxSeeomF_6pw7-gGj996yLRCs-OfnyEpsHWxHcQBQQy9e6oBNo6d9CbNJxjYfxZi10cmlxlKvzATcRzSMn6ROxXZBGqY-ivtcMgXkcSwaySY1-1pVQnhNmh2rbT9pAw4KYeRhqrwVBKNaEzSwDmuXNuZ8I0X8c-0p7dMdAq1f1nE5xtDA
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 504
+      message: Gateway Time-out
+    headers:
+      Server:
+      - awselb/2.0
+      Date:
+      - Thu, 10 Jun 2021 21:19:21 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '132'
+    body:
+      encoding: UTF-8
+      string: "<html>\r\n<head><title>504 Gateway Time-out</title></head>\r\n<body>\r\n<center><h1>504
+        Gateway Time-out</h1></center>\r\n</body>\r\n</html>\r\n"
+  recorded_at: Thu, 10 Jun 2021 21:19:21 GMT
+recorded_with: VCR 6.0.0
