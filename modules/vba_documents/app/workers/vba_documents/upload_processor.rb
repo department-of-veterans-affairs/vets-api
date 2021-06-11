@@ -14,12 +14,9 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
-    def perform(guid, retries = 0, caller_data)
+    def perform(guid, retries = 0, caller_data = {})
       @retries = retries
       @cause = caller_data['caller'].nil? ? :unknown : caller_data['caller']
-      Rails.logger.info("Hi Guys processing 6 #{guid}!!!!!!!!!!!!! my cause is #{@cause}")
-      Rails.logger.info("Hi Guys processing retries #{retries}!!!!!!!!!!!!! ")
-      Rails.logger.info("Hi Guys processing a guid!!!!!!!!!!!!! my caller_data is #{caller_data}")
       # @retries variable used via the CentralMail::Utilities which is included via
       # VBADocuments::UploadValidations
       response = nil
@@ -34,8 +31,6 @@ module VBADocuments
         end
       end
       response&.success? ? true : false
-    rescue => ex
-      Rails.logger.info("Hi Guys UploadProcessor bad #{ex}", ex)
     end
 
     private
@@ -98,11 +93,10 @@ module VBADocuments
     end
 
     def process_response(response)
-      sad_response = FakeResponse.new(429, "UUID already in cache")
-      Rails.logger.info("Hi Guys in process_response!!!!!!!!!!!!")
+      # sad_response = FakeResponse.new(429, "UUID already in cache")
       # record submission attempt, record time and success status to an array\
       # record response.body
-      response = sad_response
+      #response = sad_response
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         @upload.update(status: 'received')
         record_attempts(:cause)
@@ -115,40 +109,20 @@ module VBADocuments
     end
 
     def record_attempts(cause_key)
-      Rails.logger.info("Hi Guys in record_attempts!!!!!!!!!!!! ")
       if (cause_key.eql? :uuid_already_in_cache_cause)
-        Rails.logger.info("Hi Guys in record_attempts uploaded!!!!!!!!!!!!")
         @upload.metadata['status']['uploaded'][cause_key.to_s] ||= {}
         @upload.metadata['status']['uploaded'][cause_key.to_s][@cause] ||= []
         @upload.metadata['status']['uploaded'][cause_key.to_s][@cause] << Time.now.to_i
-      elsif(cause_key.eql? :received)
-        Rails.logger.info("Hi Guys in record_attempts received!!!!!!!!!!!! ")
+      elsif(cause_key.eql? :cause)
         @upload.metadata['status']['received'][cause_key.to_s] ||= []
-        @upload.metadata['status']['received'][cause_key.to_s] << @cause #should *never* have an array greater than 1 in length
+        @upload.metadata['status']['received'][cause_key.to_s] << @cause
+        #should *never* have an array greater than 1 in length
       end
-      saved = @upload.save
-    rescue => ex
-      Rails.logger.info("Hi Guys in record_attempts saving!!!!!!!!!!!! my save is #{saved}")
-      Rails.logger.info("Hi Guys in record_attempts exception!!!!!!!!!!!! my save is #{ex}", ex)
+      @upload.save!
     end
-
-=begin
-{"size"=>279144,
-"status"=>{
-    "vbms"=>{"start"=>1621951451},
-    "pending"=>{"end"=>1621875664, "start"=>1621875659},
-    "success"=>{"end"=>1621951451, "start"=>1621933462,},
-    "received"=>{"end"=>1621897451, "start"=>1621897441, cause 'manual, v0, upload_scanner, unsuccessful' },
-    "uploaded"=>{"end"=>1621897441, "start"=>1621875664, attempts: {v0 => [t1,t2,t3], 'manual' => [t1,t2], upload_scanner => [t1], unsuccessful =>[] },
-                 "processing"=>{"end"=>1621933462, "start"=>1621897451}},
-    "last_slack_notification"=>1621890000,
-    "uuid_already_in_cache_count"=>2
-}
-=end
 
 
     def process_concurrent_duplicate
-
       # This should never occur now that we are using with_advisory_lock in perform, but if it does we will record it
       # and otherwise leave this model alone as another instance of this job is currently also processing this guid
       @upload.metadata['uuid_already_in_cache_count'] ||= 0

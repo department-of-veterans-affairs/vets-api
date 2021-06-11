@@ -116,7 +116,23 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    it 'counts concurrent duplicates that our vendor asserts occurred' do
+    it 'tracks how we got into the recieved state' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive(:status).and_return(200)
+      allow(faraday_response).to receive(:body).and_return('')
+      allow(faraday_response).to receive(:success?).and_return(true)
+      capture_body = nil
+      expect(client_stub).to receive(:upload) { |arg|
+        capture_body = arg
+        faraday_response
+      }
+      described_class.new.perform(upload.guid, 0, {'caller' => 'tester'})
+      upload.reload
+      expect(upload.metadata['status']['received']['cause'].first).to eq('tester')
+    end
+
+    it 'counts concurrent duplicates, and tracks causes, that our upstream provider asserts occurred' do
       upload_model = VBADocuments::UploadSubmission.new
       upload_model.status = 'uploaded'
       upload_model.save!
@@ -128,12 +144,18 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(File).to receive(:size).and_return(10)
       allow_any_instance_of(File).to receive(:rewind).and_return(nil)
-      response = described_class.new.perform(upload_model.guid)
+      caller = {'caller' => 'tester'}
+      other_caller = {'caller' => 'tester2'}
+      response = described_class.new.perform(upload_model.guid, 0,caller)
       expect(response).to be(false)
-      described_class.new.perform(upload_model.guid)
-      described_class.new.perform(upload_model.guid)
+      described_class.new.perform(upload_model.guid, 0,caller)
+      described_class.new.perform(upload_model.guid, 0,caller)
       upload_model.reload
       expect(upload_model.metadata['uuid_already_in_cache_count']).to eq(3)
+      expect(upload_model.metadata['status']['uploaded']['uuid_already_in_cache_cause']['tester'].count).to eq(3)
+      described_class.new.perform(upload_model.guid, 0,other_caller)
+      upload_model.reload
+      expect(upload_model.metadata['status']['uploaded']['uuid_already_in_cache_cause']['tester2'].count).to eq(1)
     end
 
     it 'parses and uploads a valid multipart payload' do
