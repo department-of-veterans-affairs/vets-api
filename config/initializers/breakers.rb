@@ -41,7 +41,7 @@ def breakers_redis_namespace
   # .to_h because hashes from config_for don't support non-symbol keys
   redis_options = REDIS_CONFIG[:redis].to_h
   redis = Rails.env.test? ? MockRedis : Redis
-  Redis::Namespace.new('breakers', redis: redis.new(redis_options))
+  Redis::Namespace.new('breakers', redis: MockRedis.new(redis_options))
 end
 
 services = [

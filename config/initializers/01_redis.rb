@@ -32,5 +32,5 @@ Redis.current = if Settings.redis.app_data.key?(:secondary_url)
                 elsif Rails.env.test?
                   MockRedis.new(REDIS_CONFIG[:redis].to_hash)
                 else
-                  Redis.new(REDIS_CONFIG[:redis].to_hash)
+                  MockRedis.new(REDIS_CONFIG[:redis].to_hash)
                 end
