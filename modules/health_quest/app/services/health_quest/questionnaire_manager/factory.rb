@@ -300,7 +300,7 @@ module HealthQuest
         @get_lighthouse_appointments ||=
           lighthouse_appointment_service.search(
             patient: user.icn,
-            date: [date_ge_one_year_ago, date_le_one_year_from_now],
+            date: [date_ge_one_month_ago, date_le_two_weeks_from_now],
             _count: '100'
           )
       end
@@ -384,7 +384,7 @@ module HealthQuest
         @get_questionnaire_responses ||=
           questionnaire_response_service.search(
             source: user.icn,
-            authored: [date_ge_one_year_ago, date_le_one_year_from_now],
+            authored: [date_ge_one_month_ago, date_le_two_weeks_from_now],
             _count: '100'
           )
       end
@@ -429,20 +429,20 @@ module HealthQuest
         }
       end
 
-      def date_ge_one_year_ago
-        year = tz_date_string(1.year.ago)
+      def date_ge_one_month_ago
+        month = tz_date_string(1.month.ago)
 
-        "ge#{year}"
+        "ge#{month}"
       end
 
-      def date_le_one_year_from_now
-        year = tz_date_string(1.year.from_now)
+      def date_le_two_weeks_from_now
+        weeks = tz_date_string(2.weeks.from_now)
 
-        "le#{year}"
+        "le#{weeks}"
       end
 
-      def tz_date_string(year)
-        year.in_time_zone.to_date.to_s
+      def tz_date_string(span)
+        span.in_time_zone.to_date.to_s
       end
 
       def default_response
