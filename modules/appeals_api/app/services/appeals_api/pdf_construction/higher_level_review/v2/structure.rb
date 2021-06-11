@@ -6,8 +6,9 @@ module AppealsApi
   module PdfConstruction
     module HigherLevelReview::V2
       class Structure
-        MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM = 13
-        NUMBER_OF_ISSUES_PER_PAGE = 7
+        NUMBER_OF_ISSUES_FIRST_PAGE = 7
+        NUMBER_OF_ISSUES_SECOND_PAGE = 6
+        MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM = (NUMBER_OF_ISSUES_FIRST_PAGE + NUMBER_OF_ISSUES_SECOND_PAGE).freeze
 
         def initialize(higher_level_review)
           @higher_level_review = higher_level_review
@@ -199,16 +200,18 @@ module AppealsApi
 
         def fill_contestable_issues_text(pdf)
           issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
-          issues.first(NUMBER_OF_ISSUES_PER_PAGE).each_with_index do |issue, i|
+          issues.first(NUMBER_OF_ISSUES_FIRST_PAGE).each_with_index do |issue, i|
             if (text = issue.dig('attributes', 'issue')&.presence)
               pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg1][i])
+              pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg1][i])
             end
           end
           pdf.start_new_page # Always start a new page even if there are no issues so other text can insert properly
 
-          issues.drop(NUMBER_OF_ISSUES_PER_PAGE).each_with_index do |issue, i|
+          issues.drop(NUMBER_OF_ISSUES_FIRST_PAGE).each_with_index do |issue, i|
             if (text = issue.dig('attributes', 'issue')&.presence)
               pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg2][i])
+              pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg2][i])
             end
           end
         end

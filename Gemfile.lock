@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 358f9e41f2fb1be893d213ce7820e936563c0909
+  revision: b4be1577b6e845f311b885d952a4e1f18a824027
   branch: master
   specs:
-    vets_json_schema (20.5.2)
+    vets_json_schema (20.6.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -797,7 +797,7 @@ GEM
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.7.0, < 2.0)
-    rubocop-rspec (2.3.0)
+    rubocop-rspec (2.4.0)
       rubocop (~> 1.0)
       rubocop-ast (>= 1.1.0)
     rubocop-thread_safety (0.4.2)

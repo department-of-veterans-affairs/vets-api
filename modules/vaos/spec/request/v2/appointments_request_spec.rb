@@ -21,10 +21,6 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         FactoryBot.build(:appointment_form_v2, :eligible).attributes
       end
 
-      let(:request_body_bad_request_no_icn) do
-        FactoryBot.build(:appointment_form_v2, :bad_request_no_icn).attributes
-      end
-
       it 'creates the appointment' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_200', match_requests_on: %i[method uri]) do
           post '/vaos/v2/appointments', params: request_body, headers: inflection_header
@@ -35,7 +31,7 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
       it 'returns a 400 error' do
         VCR.use_cassette('vaos/v2/appointments/post_appointments_400', match_requests_on: %i[method uri]) do
-          post '/vaos/v2/appointments', params: request_body_bad_request_no_icn
+          post '/vaos/v2/appointments', params: request_body
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
           expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(

@@ -123,6 +123,27 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
+      # rubocop:disable Layout/LineLength
+      it 'doesn\'t allow additional fields' do
+        with_okta_user(scopes) do |auth_header|
+          params = json_data
+          params['data']['attributes']['serviceInformation']['someBadField'] = 'someValue'
+          params['data']['attributes']['anotherBadField'] = 'someValue'
+
+          post path, params: params.to_json, headers: headers.merge(auth_header)
+
+          expect(response.status).to eq(422)
+          expect(JSON.parse(response.body)['errors'].size).to eq(2)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The property /serviceInformation/someBadField is not defined on the schema. Additional properties are not allowed'
+          )
+          expect(JSON.parse(response.body)['errors'][1]['detail']).to eq(
+            'The property /anotherBadField is not defined on the schema. Additional properties are not allowed'
+          )
+        end
+      end
+      # rubocop:enable Layout/LineLength
+
       it 'requires currentMailingAddress subfields' do
         with_okta_user(scopes) do |auth_header|
           params = json_data
