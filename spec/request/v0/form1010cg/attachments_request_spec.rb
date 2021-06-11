@@ -48,7 +48,7 @@ RSpec.describe 'Form 10-10CG Attachments', type: :request do
 
       it 'accepts a file upload' do
         VCR.use_cassette "s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options do
-          make_upload_request_with('files/doctors-note.jpg', 'image/jpg')
+          make_upload_request_with('doctors-note.jpg', 'image/jpg')
 
           expect(response).to have_http_status(:ok)
 
@@ -73,7 +73,7 @@ RSpec.describe 'Form 10-10CG Attachments', type: :request do
 
       it 'accepts a file upload' do
         VCR.use_cassette "s3/object/put/#{form_attachment_guid}/doctors-note.pdf", vcr_options do
-          make_upload_request_with('files/doctors-note.pdf', 'application/pdf')
+          make_upload_request_with('doctors-note.pdf', 'application/pdf')
 
           expect(response).to have_http_status(:ok)
 
