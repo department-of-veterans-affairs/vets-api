@@ -13,8 +13,7 @@ module Mobile
       end
 
       def update
-        create_draft_params = { message_draft: draft_params.to_h, id: params[:id] }
-        client.post_create_message_draft(create_draft_params)
+        client.post_create_message_draft(draft_params.merge(id: params[:id]).to_h)
         head :no_content
       end
 
@@ -26,9 +25,8 @@ module Mobile
       end
 
       def update_reply_draft
-        create_reply_draft_params = { message_draft: reply_draft_params.to_h, id: params[:draft_id] }
         client.post_create_message_draft_reply(
-          params[:reply_id], create_reply_draft_params
+          params[:reply_id], reply_draft_params.merge(id: params[:draft_id]).to_h
         )
         head :no_content
       end
@@ -36,18 +34,11 @@ module Mobile
       private
 
       def draft_params
-        @draft_params ||= begin
-          params[:message_draft] = JSON.parse(params[:message_draft]) if params[:message_draft].is_a?(String)
-          params.require(:message_draft).permit(:category, :body, :recipient_id, :subject)
-        end
+        @draft_params ||= params.require(:message_draft).permit(:category, :body, :recipient_id, :subject)
       end
 
       def reply_draft_params
-        @reply_draft_params ||= begin
-          # TODO: fix redundant JSON.parse maybe
-          params[:message_draft] = JSON.parse(params[:message_draft]) if params[:message_draft].is_a?(String)
-          params.require(:message_draft).permit(:body)
-        end
+        @reply_draft_params ||= params.require(:message_draft).permit(:body)
       end
     end
   end
