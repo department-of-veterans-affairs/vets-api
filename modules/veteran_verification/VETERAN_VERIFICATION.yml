@@ -288,6 +288,7 @@ components:
             - pay_grade
             - discharge_status
             - separation_reason
+            - deployments
           properties:
             first_name:
               type: string
@@ -324,6 +325,7 @@ components:
 
                 Possible values include the concatenation of Pay Plan Code and Pay Grade Code.
                 Pay Plan Code is represented as a two-character code, and can be one of five values:
+                 - CC (Commissioned Corps)
                  - CC (Commissioned Corps)
                  - MC (Cadet)
                  - ME (Enlisted)
