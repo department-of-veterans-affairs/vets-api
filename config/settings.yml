@@ -25,7 +25,7 @@ saml_ssoe:
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html
+  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
   request_signing: false
   response_signing: false
   response_encryption: false
@@ -410,7 +410,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  timeout: 40
+  timeout: 60
 
 vic:
   url: https://some.fakesite.com
@@ -714,6 +714,7 @@ flipper:
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
     - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
+    - jwolf@governmentcio.com # Jason Wolf Product Manager for GCIO
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kam@adhocteam.us

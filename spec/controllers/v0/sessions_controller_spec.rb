@@ -114,7 +114,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           it 'redirects' do
             get(:new, params: { type: :slo })
             expect(get(:new, params: { type: :slo }))
-              .to redirect_to('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+              .to redirect_to('https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov')
           end
         end
       end
@@ -224,7 +224,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
-            .to eq('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+            .to eq('https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil

@@ -204,7 +204,6 @@ module EVSS
             'servicePeriods' => translate_service_periods,
             'confinements' => translate_confinements,
             'reservesNationalGuardService' => translate_national_guard_service,
-            'servedInCombatZone' => input_form['servedInCombatZonePost911'],
             'alternateNames' => translate_names
           }.compact
         }
@@ -619,14 +618,18 @@ module EVSS
 
       def user_supplied_rad_date
         # Retrieve the most recent Release from Active Duty (RAD) date from user supplied service periods
-        # Exclude Reserve and Guard
-        recent_service_periods = translate_service_periods.reject do |episode|
-          episode['serviceBranch'].include?('Reserve') || episode['serviceBranch'].include?('National Guard')
+        # Exclude Reserve and Guard unless activated on federal orders
+        recent_service_periods_end_dates = translate_service_periods.collect do |episode|
+          unless episode['serviceBranch'].include?('Reserve') || episode['serviceBranch'].include?('National Guard')
+            episode['activeDutyEndDate']
+          end
         end
-        return nil if recent_service_periods.blank?
+        recent_service_periods_end_dates << service_info.dig('reservesNationalGuardService', 'title10Activation',
+                                                             'anticipatedSeparationDate')
+        recent_service_periods_end_dates.compact!
+        return nil if recent_service_periods_end_dates.blank?
 
-        recent_service_period = recent_service_periods.sort_by { |episode| episode['activeDutyEndDate'] }.reverse[0]
-        recent_service_period['activeDutyEndDate'].in_time_zone(EVSS_TZ).to_date
+        recent_service_periods_end_dates.max.in_time_zone(EVSS_TZ).to_date
       end
 
       def days_until_release

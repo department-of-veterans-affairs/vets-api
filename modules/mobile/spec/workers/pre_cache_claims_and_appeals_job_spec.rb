@@ -32,7 +32,8 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
                 subtype: 'supplementalClaim',
                 completed: false,
                 date_filed: '2020-09-23',
-                updated_at: '2020-09-23'
+                updated_at: '2020-09-23',
+                display_title: 'supplemental claim for disability compensation'
               }
             )
           end
@@ -40,11 +41,35 @@ RSpec.describe Mobile::V0::PreCacheClaimsAndAppealsJob, type: :job do
       end
     end
 
-    context 'with any errors' do
-      it 'does not cache the appointments' do
+    context 'with a HTTP error' do
+      it 'does not cache the claims' do
         VCR.use_cassette('claims/claims_with_errors') do
           VCR.use_cassette('appeals/appeals') do
             expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+            subject.perform(user.uuid)
+            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+          end
+        end
+      end
+    end
+
+    context 'when a NoMethodError error occurs' do
+      it 'does not cache the claims' do
+        VCR.use_cassette('claims/claims') do
+          VCR.use_cassette('appeals/appeals') do
+            allow_any_instance_of(IAMUser).to receive(:loa).and_raise(NoMethodError)
+            subject.perform(user.uuid)
+            expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
+          end
+        end
+      end
+    end
+
+    context 'when a Faraday::ClientError error occurs' do
+      it 'does not cache the claims' do
+        VCR.use_cassette('claims/claims') do
+          VCR.use_cassette('appeals/appeals') do
+            allow_any_instance_of(EVSS::BaseService).to receive(:get).and_raise(Faraday::ClientError)
             subject.perform(user.uuid)
             expect(Mobile::V0::ClaimOverview.get_cached(user)).to be_nil
           end
