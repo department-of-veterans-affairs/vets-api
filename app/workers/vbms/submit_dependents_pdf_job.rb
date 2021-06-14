@@ -52,14 +52,14 @@ module VBMS
 
     def get_doc_type(attachment, parsed_form)
       supporting_documents = parsed_form['dependents_application']['child_supporting_documents']
-      child_doc = supporting_documents.any? { |h| h['confirmation_code'] == attachment.guid }
+      child_doc = supporting_documents.any? { |doc| doc['confirmation_code'] == attachment.guid }
       if child_doc
         child_evidence = parsed_form['dependents_application']['child_evidence_document_type']
         return child_evidence if child_evidence.present?
       end
 
       supporting_documents = parsed_form['dependents_application']['spouse_supporting_documents']
-      spouse_doc = supporting_documents.any? { |h| h['confirmation_code'] == attachment.guid }
+      spouse_doc = supporting_documents.any? { |doc| doc['confirmation_code'] == attachment.guid }
       if spouse_doc
         spouse_evidence = parsed_form['dependents_application']['spouse_evidence_document_type']
         return spouse_evidence if spouse_evidence.present?
