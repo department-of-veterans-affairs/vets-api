@@ -284,7 +284,7 @@ components:
             - last_name
             - start_date
             - end_date
-            - branch
+            - branch_of_service
             - pay_grade
             - discharge_status
             - separation_reason
@@ -311,7 +311,7 @@ components:
               format: date
               description: end date of a service history episode (YYYY-mm-dd)
               example: '1950-05-10'
-            branch:
+            branch_of_service:
               type: string
               nullable: false
               description: Branch of military including National Guard or Reserve status
