@@ -143,7 +143,7 @@ module VAForms
                      "{\"text\": \"#{slack_users} #{form_name} has changed from #{old_form_url} to #{new_form_url}\" }",
                      'Content-Type' => 'application/json')
       rescue Faraday::ClientError, Faraday::Error => e
-        Rails.logger.error(e.message)
+        Rails.logger.error("Failed to notify slack channel of forms change! #{e.message}", e)
       end
       end
   end
