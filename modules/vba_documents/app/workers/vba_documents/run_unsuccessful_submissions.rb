@@ -11,7 +11,7 @@ module VBADocuments
       guids.each do |guid|
         Rails.logger.info("Running VBADocuments::RunUnsuccessfulSubmissions for GUID #{guid}",
                           { 'job' => 'VBADocuments::RunUnsuccessfulSubmissions', guid: guid })
-        VBADocuments::UploadProcessor.perform_async(guid, caller: self.class.name.to_sym)
+        VBADocuments::UploadProcessor.perform_async(guid, caller: self.class.name)
       end
     end
   end

@@ -14,11 +14,10 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
-    def perform(guid, retries = 0, caller_data = {})
+    def perform(guid, retries = 0, caller_data)
+      # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations
       @retries = retries
-      @cause = caller_data['caller'].nil? ? :unknown : caller_data['caller']
-      # @retries variable used via the CentralMail::Utilities which is included via
-      # VBADocuments::UploadValidations
+      @cause = caller_data.nil? ? :unknown : caller_data['caller']
       response = nil
       VBADocuments::UploadSubmission.with_advisory_lock(guid) do
         @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
@@ -86,48 +85,17 @@ module VBADocuments
       CentralMail::Service.new.upload(body)
     end
 
-    FakeResponse = Struct.new(:status, :body) do
-      def success?
-        false
-      end
-    end
-
     def process_response(response)
-      # sad_response = FakeResponse.new(429, "UUID already in cache")
-      # record submission attempt, record time and success status to an array\
-      # record response.body
-      #response = sad_response
-      if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
+      # record submission attempt, record time and success status to an array
+      if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX) # TODO: GovCIO needs to return this...
         @upload.update(status: 'received')
-        record_attempts(:cause)
+        @upload.track_uploaded_received(:cause, @cause)
       elsif response.status == 429 && response.body =~ /UUID already in cache/
-        record_attempts(:uuid_already_in_cache_cause)
-        process_concurrent_duplicate
+        @upload.track_uploaded_received(:uuid_already_in_cache_cause, @cause)
+        @upload.track_concurrent_duplicate
       else
         map_error(response.status, response.body, VBADocuments::UploadError)
       end
-    end
-
-    def record_attempts(cause_key)
-      if (cause_key.eql? :uuid_already_in_cache_cause)
-        @upload.metadata['status']['uploaded'][cause_key.to_s] ||= {}
-        @upload.metadata['status']['uploaded'][cause_key.to_s][@cause] ||= []
-        @upload.metadata['status']['uploaded'][cause_key.to_s][@cause] << Time.now.to_i
-      elsif(cause_key.eql? :cause)
-        @upload.metadata['status']['received'][cause_key.to_s] ||= []
-        @upload.metadata['status']['received'][cause_key.to_s] << @cause
-        #should *never* have an array greater than 1 in length
-      end
-      @upload.save!
-    end
-
-
-    def process_concurrent_duplicate
-      # This should never occur now that we are using with_advisory_lock in perform, but if it does we will record it
-      # and otherwise leave this model alone as another instance of this job is currently also processing this guid
-      @upload.metadata['uuid_already_in_cache_count'] ||= 0
-      @upload.metadata['uuid_already_in_cache_count'] += 1
-      @upload.save!
     end
   end
 end
