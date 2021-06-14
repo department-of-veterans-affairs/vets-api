@@ -145,6 +145,6 @@ module VAForms
       rescue Faraday::ClientError, Faraday::Error => e
         Rails.logger.error("Failed to notify slack channel of forms change! #{e.message}", e)
       end
-      end
+    end
   end
 end
