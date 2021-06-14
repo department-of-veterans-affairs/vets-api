@@ -84,7 +84,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
-          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
       end
 
@@ -96,7 +96,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
-          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
       end
     end

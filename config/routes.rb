@@ -384,6 +384,7 @@ Rails.application.routes.draw do
   end
 
   # Modules
+  mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount FacilitiesApi::Engine, at: '/facilities_api'

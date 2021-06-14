@@ -12,8 +12,10 @@ module JsonSchema
     def to_human(detail)
       if detail['type'] == 'required'
         "The property #{to_source(detail)} did not contain the required key #{detail['details']['missing_key']}"
+      elsif detail['type'] == 'schema' && detail['schema_pointer'].end_with?('additionalProperties')
+        "The property #{to_source(detail)} is not defined on the schema. Additional properties are not allowed"
       else
-        "The property #{detail['data_pointer']} did not match the following requirements #{detail['schema']}"
+        "The property #{detail['data_pointer']} did not match the following requirements: #{detail['schema']}"
       end
     end
 
