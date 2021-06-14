@@ -124,4 +124,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       expect(claim.regional_office).to be_empty
     end
   end
+
+  describe '#send_to_central_mail!' do
+    it 'sends the claim to central mail' do
+      claim.send_to_central_mail!
+    end
+
+    it 'calls process_attachments! method' do
+      expect(claim).to receive(:process_attachments!)
+      claim.send_to_central_mail!
+    end
+  end
 end

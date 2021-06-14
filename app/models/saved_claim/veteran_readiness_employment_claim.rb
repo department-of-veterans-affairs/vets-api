@@ -135,6 +135,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     uploader.upload!
   end
 
+  def send_to_central_mail!
+    form_copy = parsed_form
+
+    form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'ssn')
+    form_copy['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
+    form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
+
+    update(form: form_copy.to_json)
+
+    log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
+    process_attachments!
+  end
+
   # SavedClaims require regional_office to be defined
   def regional_office
     []
