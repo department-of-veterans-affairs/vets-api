@@ -93,6 +93,19 @@ RSpec.describe 'Power of Attorney ', type: :request do
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
         end
       end
+
+      it 'doesn\'t allow additional fields' do
+        with_okta_user(scopes) do |auth_header|
+          params = json_data
+          params['data']['attributes']['someBadField'] = 'someValue'
+          post path, params: params.to_json, headers: headers.merge(auth_header)
+          expect(response.status).to eq(422)
+          expect(JSON.parse(response.body)['errors'].size).to eq(1)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The property /someBadField is not defined on the schema. Additional properties are not allowed'
+          )
+        end
+      end
     end
 
     describe '#check status' do
