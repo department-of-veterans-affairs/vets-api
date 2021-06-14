@@ -100,7 +100,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
   swagger_path '/higher_level_reviews/contestable_issues/{benefit_type}' do
     operation :get, tags: HLR_TAG do
       key :operationId, 'getContestableIssues'
-      key :summary, 'Returns all contestable issues for a specific veteran.'
+      key :summary, 'Please use v1 - Returns all contestable issues for a specific veteran.'
       key :description, 'Please use v1 to retrieve a list of the Contestable Issues.'
     end
   end
