@@ -14,15 +14,16 @@ module VBMS
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim.persistent_attachments.each do |attachment|
-        file_extension = File.extname(URI.parse(attachment.file.url).path)
+        doc_type = get_doc_type(attachment, claim.parsed_form)
 
+        file_extension = File.extname(URI.parse(attachment.file.url).path)
         if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
           file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
 
           File.rename(file_path, "#{file_path}#{file_extension}")
           file_path = "#{file_path}#{file_extension}"
 
-          claim.upload_to_vbms(path: file_path)
+          claim.upload_to_vbms(path: file_path, doc_type: doc_type)
           Common::FileHelpers.delete_file_if_exists(file_path)
         end
       end
@@ -47,6 +48,24 @@ module VBMS
     def generate_pdf(claim, submittable_686, submittable_674)
       claim.upload_pdf('686C-674') if submittable_686
       claim.upload_pdf('21-674', doc_type: '142') if submittable_674
+    end
+
+    def get_doc_type(attachment, parsed_form)
+      supporting_documents = parsed_form['dependents_application']['child_supporting_documents']
+      child_doc = supporting_documents.any? { |h| h['confirmation_code'] == attachment.guid }
+      if child_doc
+        child_evidence = parsed_form['dependents_application']['child_evidence_document_type']
+        return child_evidence if child_evidence.present?
+      end
+
+      supporting_documents = parsed_form['dependents_application']['spouse_supporting_documents']
+      spouse_doc = supporting_documents.any? { |h| h['confirmation_code'] == attachment.guid }
+      if spouse_doc
+        spouse_evidence = parsed_form['dependents_application']['spouse_evidence_document_type']
+        return spouse_evidence if spouse_evidence.present?
+      end
+
+      '10' # return '10' which is doc type 'UNKNOWN'
     end
   end
 end
