@@ -145,7 +145,7 @@ class OpenidApplicationController < ApplicationController
   # If mismatched, revoke in Okta, set @session to nil, and return false
   # POA support (profile['icn'].nil?)
   def confirm_icn_match(profile)
-    if profile['icn'].nil? || @current_user.icn == profile['icn']
+    if profile['icn'].nil? || @current_user&.icn == profile['icn']
       true
     else
       Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
