@@ -148,10 +148,12 @@ class OpenidApplicationController < ApplicationController
     if profile['icn'].nil? || @current_user&.icn == profile['icn']
       true
     else
-      Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
-      @session = nil
-      log_message_to_sentry('Profile ICN mismatch detected. Clearing user session.', :error)
-      false
+      # Temporarily log only to get an accurate count of this issue
+      # Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
+      # @session = nil
+      log_message_to_sentry('Profile ICN mismatch detected.', :warn)
+      # false
+      true
     end
   end
 

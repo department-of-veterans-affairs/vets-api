@@ -404,17 +404,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '502'
       end
     end
-
-    it 'v2 POST returns a server error when mpi profile returns mismatch', :aggregate_failures do
-      allow_any_instance_of(OpenidUser).to receive(:icn).and_return('123456789V0')
-      with_okta_configured do
-        post '/internal/auth/v2/validation', params: nil, headers: auth_header
-
-        expect(response).to have_http_status(:unauthorized)
-        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
-        expect(JSON.parse(response.body)['errors'].first['detail']).to eq 'Not authorized'
-      end
-    end
   end
 
   context 'with client credentials jwt' do
