@@ -14,7 +14,7 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
-    def perform(guid, retries = 0, caller_data)
+    def perform(guid, caller_data, retries = 0)
       # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations
       @retries = retries
       @cause = caller_data.nil? ? :unknown : caller_data['caller']
