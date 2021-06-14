@@ -19,8 +19,8 @@
           "value": {
             "errors": [
               {"status": 422,
-                "detail": "The request body isn't a JSON object: 9873",
-                "source": false}]}},
+                "detail": "The request body isn't a JSON object",
+                "source": null}]}},
         "violatesJsonSchema": {
           "value": {
             "errors": [

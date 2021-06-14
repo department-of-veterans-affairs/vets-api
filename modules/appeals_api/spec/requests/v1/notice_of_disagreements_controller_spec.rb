@@ -79,11 +79,34 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
     end
 
-    context 'when validation fails due to a JSON parse error' do
-      it 'responds with a JSON parse error' do
-        allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
-        post(path, params: @data, headers: @headers)
-        expect(response.status).to eq(422)
+    context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+      before do
+        fake_io_object = OpenStruct.new string: json
+        allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+      end
+
+      context 'request.body is a JSON string' do
+        let(:json) { '"Hello!"' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
+      end
+
+      context 'request.body is a JSON integer' do
+        let(:json) { '66' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
       end
     end
   end
