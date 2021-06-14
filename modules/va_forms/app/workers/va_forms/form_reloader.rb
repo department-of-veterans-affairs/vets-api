@@ -59,10 +59,10 @@ module VAForms
     def build_and_save_form(form)
       va_form = VAForms::Form.find_or_initialize_by row_id: form['fieldVaFormRowId']
       attrs = init_attributes(form)
-      incoming_url = form['fieldVaFormUrl']['uri']
+      new_url = form['fieldVaFormUrl']['uri']
       stored_url = VAForms::Form.where(row_id: form['fieldVaFormRowId']).select('url').first.url
-      notify_slack(incoming_url, stored_url, form['fieldVaFormNumber']) if stored_url != incoming_url
-      va_form_url = incoming_url.starts_with?('http') ? incoming_url.gsub('http:', 'https:') : expand_va_url(incoming_url)
+      notify_slack(new_url, stored_url, form['fieldVaFormNumber']) if stored_url != new_url
+      va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
       attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
