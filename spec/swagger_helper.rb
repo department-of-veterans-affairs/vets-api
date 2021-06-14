@@ -106,7 +106,7 @@ RSpec.configure do |config|
         securitySchemes: {
           sandboxOauth: {
             type: :oauth2,
-            description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)'
+            description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
             flows: {
               authorizationCode: {
                 authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',

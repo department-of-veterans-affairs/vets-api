@@ -10,7 +10,7 @@ describe 'Power of Attorney', swagger_doc: 'v1/swagger.json' do  # rubocop:disab
       deprecated true
       tags 'Power of Attorney'
       operationId 'get2122JsonSchema'
-      security [bearer_token: []]
+      security [ {sandboxOauth: ['claim.read']} ]
       produces 'application/json'
       description 'Returns schema to automatically generate a POA form.'
       let(:Authorization) { 'Bearer token' }
@@ -38,7 +38,7 @@ describe 'Power of Attorney', swagger_doc: 'v1/swagger.json' do  # rubocop:disab
     post 'Submit a POA form.' do
       tags 'Power of Attorney'
       operationId 'post2122'
-      security [bearer_token: []]
+      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
       consumes 'application/json'
       produces 'application/json'
       post_description = <<~VERBIAGE
@@ -188,7 +188,7 @@ describe 'Power of Attorney', swagger_doc: 'v1/swagger.json' do  # rubocop:disab
     put 'Upload a signed 21-22 document.' do
       tags 'Power of Attorney'
       operationId 'upload2122Attachment'
-      security [bearer_token: []]
+      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
       consumes 'multipart/form-data'
       produces 'application/json'
       put_description = <<~VERBIAGE
@@ -342,7 +342,7 @@ describe 'Power of Attorney', swagger_doc: 'v1/swagger.json' do  # rubocop:disab
     get 'Check POA status by ID.' do
       tags 'Power of Attorney'
       operationId 'get2122poa'
-      security [bearer_token: []]
+      security [ {sandboxOauth: ['claim.read']} ]
       produces 'application/json'
       description 'Based on ID, returns a 21-22 submission and current status.'
 
@@ -488,7 +488,7 @@ describe 'Power of Attorney', swagger_doc: 'v1/swagger.json' do  # rubocop:disab
     get 'Check active POA status.' do
       tags 'Power of Attorney'
       operationId 'getActive2122Poa'
-      security [bearer_token: []]
+      security [ {sandboxOauth: ['claim.read']} ]
       produces 'application/json'
       active_description = <<~VERBIAGE
         Returns the last active POA for a Veteran.
@@ -628,7 +628,7 @@ describe 'Power of Attorney', swagger_doc: 'v1/swagger.json' do  # rubocop:disab
       deprecated true
       tags 'Power of Attorney'
       operationId 'validate2122poa'
-      security [bearer_token: []]
+      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
       consumes 'application/json'
       produces 'application/json'
       validation_description = <<~VERBIAGE
