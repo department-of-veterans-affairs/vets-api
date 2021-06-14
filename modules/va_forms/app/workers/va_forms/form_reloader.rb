@@ -6,7 +6,6 @@ module VAForms
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
-
     FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
@@ -137,11 +136,15 @@ module VAForms
     def notify_slack(old_form_url, new_form_url, form_name)
       return unless Settings.va_forms.slack.enabled
 
-      @slack_url = Settings.va_forms.slack.notification_url
-      @slack_users = Settings.va_forms.slack.users
-      Faraday.post(@slack_url,
-                   "{\"text\": \"#{@slack_users} #{form_name} has changed from #{old_form_url} to #{new_form_url}\" }",
-                   'Content-Type' => 'application/json')
-    end
+      slack_url = Settings.va_forms.slack.notification_url
+      slack_users = Settings.va_forms.slack.users
+      begin
+        Faraday.post(slack_url,
+                     "{\"text\": \"#{slack_users} #{form_name} has changed from #{old_form_url} to #{new_form_url}\" }",
+                     'Content-Type' => 'application/json')
+      rescue Faraday::ClientError, Faraday::Error => e
+        Rails.logger.error(e.message)
+      end
+      end
   end
 end
