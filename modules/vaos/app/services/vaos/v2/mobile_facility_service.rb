@@ -22,7 +22,7 @@ module VAOS
         end
       end
 
-      def get_scheduling_configurations(facility_ids, cc_enabled, pagination_params = {})
+      def get_scheduling_configurations(facility_ids, cc_enabled = nil, pagination_params = {})
         params = {
           facilityIds: facility_ids,
           ccEnabled: cc_enabled

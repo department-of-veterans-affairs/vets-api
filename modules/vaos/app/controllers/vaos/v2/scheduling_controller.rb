@@ -15,8 +15,7 @@ module VAOS
       end
 
       def csv_facility_ids
-        params.require(:facility_ids)
-        ids = params[:facility_ids]
+        ids = params.require(:facility_ids)
         ids.is_a?(Array) ? ids.to_csv(row_sep: nil) : ids
       end
     end

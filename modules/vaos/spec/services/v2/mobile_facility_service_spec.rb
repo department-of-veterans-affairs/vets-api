@@ -10,14 +10,30 @@ describe VAOS::V2::MobileFacilityService do
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
   describe '#configuration' do
-    context 'with a facility id' do
-      it 'returns a configuration' do
+    context 'with a single facility id arg' do
+      it 'returns a scheduling configuration' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_200',
-                         match_requests_on: %i[method uri]) do
-          response = subject.get_scheduling_configurations(489, false)
+                         match_requests_on: %i[method uri], tag: :force_utf8) do
+          response = subject.get_scheduling_configurations('489')
           expect(response[:data].size).to eq(1)
         end
       end
+    end
+
+    context 'with multiple facility ids arg' do
+      it 'returns scheduling configurations' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_scheduling_configurations_200',
+                         match_requests_on: %i[method uri], tag: :force_utf8) do
+          response = subject.get_scheduling_configurations('489,984')
+          expect(response[:data].size).to eq(2)
+        end
+      end
+    end
+
+    context 'with multiple facility ids and cc enabled args' do
+      it 'returns scheduling configuration'
+      # TODO: passing in the cc_enabled argument is currently ignored by the VAOS Service.
+      # Once fixed, implement this rspec.
     end
 
     context 'when the upstream server returns a 500' do
