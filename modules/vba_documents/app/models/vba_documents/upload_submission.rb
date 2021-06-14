@@ -124,7 +124,8 @@ module VBADocuments
       when :uuid_already_in_cache_cause
         metadata['status']['uploaded'][cause_key.to_s] ||= {}
         metadata['status']['uploaded'][cause_key.to_s][cause] ||= []
-        metadata['status']['uploaded'][cause_key.to_s][cause] << Time.now.to_i
+        cause_array = metadata['status']['uploaded'][cause_key.to_s][cause]
+        cause_array << Time.now.to_i unless cause_array.length > 10
       when :cause
         metadata['status']['received'][cause_key.to_s] ||= []
         metadata['status']['received'][cause_key.to_s] << cause

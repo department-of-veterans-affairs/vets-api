@@ -611,7 +611,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           capture_body = arg
           faraday_response
         }
-        described_class.new.perform(upload.guid, after_retries, test_caller)
+        described_class.new.perform(upload.guid, test_caller, after_retries)
         expect(capture_body).to be_a(Hash)
         expect(capture_body).to have_key('metadata')
         expect(capture_body).to have_key('document')
