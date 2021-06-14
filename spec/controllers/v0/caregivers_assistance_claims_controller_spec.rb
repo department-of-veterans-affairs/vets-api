@@ -308,7 +308,6 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
     it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :download_pdf
     it_behaves_like '10-10CG request with missing param: form', :download_pdf
-    it_behaves_like '10-10CG request with invalid form data', :download_pdf
 
     it 'generates a filled out 10-10CG and sends file as response', run_at: '2017-07-25 00:00:00 -0400' do
       form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
