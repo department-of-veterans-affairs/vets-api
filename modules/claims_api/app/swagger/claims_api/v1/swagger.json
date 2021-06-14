@@ -134,10 +134,12 @@
                         "properties": {
                           "id": {
                             "type": "string",
-                            "description": "Claim ID from EVSS"
+                            "description": "Claim ID from EVSS",
+                            "example": "8347210"
                           },
                           "type": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "evss_claims"
                           },
                           "attributes": {
                             "type": "object",
@@ -185,23 +187,28 @@
                               },
                               "open": {
                                 "type": "boolean",
-                                "description": "Has the claim been resolved"
+                                "description": "Has the claim been resolved",
+                                "example": "true"
                               },
                               "waiver_submitted": {
                                 "type": "boolean",
-                                "description": "Requested Decision or Waiver 5103 Submitted"
+                                "description": "Requested Decision or Waiver 5103 Submitted",
+                                "example": "false"
                               },
                               "documents_needed": {
                                 "type": "boolean",
-                                "description": "Does the claim require additional documents to be submitted"
+                                "description": "Does the claim require additional documents to be submitted",
+                                "example": "false"
                               },
                               "development_letter_sent": {
                                 "type": "boolean",
-                                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim",
+                                "example": "false"
                               },
                               "decision_letter_sent": {
                                 "type": "boolean",
-                                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim",
+                                "example": "false"
                               },
                               "status": {
                                 "type": "string",
@@ -212,11 +219,13 @@
                                   "Evidence gathering, review, and decision",
                                   "Preparation for notification",
                                   "Complete"
-                                ]
+                                ],
+                                "example": "Claim received"
                               },
                               "requested_decision": {
                                 "type": "boolean",
-                                "description": "The claim filer has requested a claim decision be made"
+                                "description": "The claim filer has requested a claim decision be made",
+                                "example": "false"
                               },
                               "claim_type": {
                                 "type": "string",
@@ -226,7 +235,8 @@
                                   "Compensation and Pension",
                                   "Dependency",
                                   "Administrative Review"
-                                ]
+                                ],
+                                "example": "Compensation"
                               }
                             }
                           }
@@ -418,7 +428,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bc977e38-7d2b-424d-8684-56f0e156148d",
+                    "id": "f9540c74-45f4-457f-a6b4-8f77a1ed4469",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -467,11 +477,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "e987e360-ac68-4e63-8ca9-aa876c06b6e8",
+                          "id": "fa3943c8-de88-4e62-8bae-22d479e79549",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-09T22:46:04.460Z"
+                          "uploaded_at": "2021-06-09T20:38:04.232Z"
                         }
                       ]
                     }
@@ -2157,7 +2167,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7e8b99e8-dfb1-41c9-a5e8-2c3577a97890",
+                    "id": "f314c103-ec1a-4e29-9b12-a4f21fba0d04",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2175,13 +2185,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T22:46:04.861Z",
+                      "updated_at": "2021-06-09T20:38:04.630Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "7e8b99e8-dfb1-41c9-a5e8-2c3577a97890",
+                      "token": "f314c103-ec1a-4e29-9b12-a4f21fba0d04",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3835,7 +3845,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c91c8b12-2a10-4ffa-aa16-cb2fa35ecacf",
+                    "id": "600bf193-e8c6-43f5-ae3d-bde6d49aa83a",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3853,13 +3863,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T22:46:05.243Z",
+                      "updated_at": "2021-06-09T20:38:04.888Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c91c8b12-2a10-4ffa-aa16-cb2fa35ecacf",
+                      "token": "600bf193-e8c6-43f5-ae3d-bde6d49aa83a",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5869,7 +5879,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b71eef4a-73f2-4a87-946c-a243366d564e",
+                    "id": "4205c8b5-caa1-40be-b260-1cdddd59940e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5883,7 +5893,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T22:46:06.217Z",
+                      "updated_at": "2021-06-09T20:38:05.718Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5892,7 +5902,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "76680c7c-bec5-43fe-95ca-20fc35210105",
+                          "id": "5d62dd07-5ed1-4ee6-ab8d-f25fb392e845",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -7729,7 +7739,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "820b8b01-b077-480b-8325-656870f076e3",
+                    "id": "5833750e-25e0-449b-b587-da0e446919b2",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -8419,7 +8429,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9011f084-4cdd-47c3-a253-3398839a669b",
+                    "id": "b85564e5-ca08-4052-bc49-60f1bf0bdeae",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -8712,7 +8722,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "150d9173-287f-431e-848e-0f48f7e58a9c",
+                    "id": "d1240997-e997-4cab-8c8b-e4e64dfa03ea",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
