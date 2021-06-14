@@ -33,7 +33,7 @@ module V1
       type = params[:type]
 
       if type == 'slo'
-        Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
+        Rails.logger.info("SessionsController version:v1 LOGOUT of type #{type}", sso_logging_info)
         reset_session
         url = url_service.ssoe_slo_url
         # due to shared url service implementation
@@ -47,6 +47,7 @@ module V1
     end
 
     def ssoe_slo_callback
+      Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
       redirect_to url_service.logout_redirect_url
     end
 
@@ -57,6 +58,7 @@ module V1
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
+      Rails.logger.info("SessionsController version:v1 saml_callback complete, user_uuid=#{@current_user&.uuid}")
     rescue SAML::SAMLError => e
       handle_callback_error(e, :failure, saml_response, e.level, e.context, e.code, e.tag)
     rescue => e
@@ -259,11 +261,13 @@ module V1
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
+        Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user&.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
         tags_and_error_code = tags << "error:#{error&.code || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
         Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
+        Rails.logger.info("SessionsController version:v1 login failure, user_uuid=#{@current_user&.uuid}")
       end
     end
 
@@ -300,6 +304,7 @@ module V1
                   exc.message
                 end
       conditional_log_message_to_sentry(message, level, context, code)
+      Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
       redirect_to url_service.login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)

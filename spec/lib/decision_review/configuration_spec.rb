@@ -7,7 +7,7 @@ describe DecisionReview::Configuration do
   describe '.read_timeout' do
     context 'when Settings.caseflow.timeout is set' do
       it 'uses the setting' do
-        expect(DecisionReview::Configuration.instance.read_timeout).to eq(40)
+        expect(DecisionReview::Configuration.instance.read_timeout).to eq(60)
       end
     end
   end

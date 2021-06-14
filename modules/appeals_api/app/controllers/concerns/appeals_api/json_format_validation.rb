@@ -19,12 +19,12 @@ module AppealsApi
         render_body_is_not_a_hash_error request.body.string
       end
 
-      def render_body_is_not_a_hash_error(body)
+      def render_body_is_not_a_hash_error(_)
         status = 422
         error = {
           status: status,
-          detail: "The request body isn't a JSON object: #{body.inspect}",
-          source: false
+          detail: "The request body isn't a JSON object",
+          source: nil
         }
         render status: status, json: { errors: [error] }
       end

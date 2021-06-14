@@ -410,7 +410,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  timeout: 40
+  timeout: 60
 
 vic:
   url: https://some.fakesite.com

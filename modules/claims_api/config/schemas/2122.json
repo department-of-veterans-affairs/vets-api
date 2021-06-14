@@ -2,12 +2,14 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Form 2122 Schema",
   "type": "object",
+  "additionalProperties": false,
   "required": [
     "serviceOrganization"
   ],
   "properties": {
     "veteran": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "address",
         "phone",
@@ -16,6 +18,7 @@
       "properties": {
         "address": {
           "type": "object",
+          "additionalProperties": false,
           "required": [
             "numberAndStreet",
             "city",
@@ -56,13 +59,13 @@
               "type": "string",
               "pattern": "^\\d{4}?$",
               "example": "6789"
-            },
-            "additionalProperties": { "type": "boolean" }
+            }
           }
         },
         "phone": {
           "$comment": "the phone fields must not exceed 20 chars, when concatenated",
           "type": "object",
+          "additionalProperties": false,
           "required": [
             "areaCode",
             "phoneNumber"
@@ -106,6 +109,7 @@
     },
     "claimant": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "firstName",
         "lastName",
@@ -132,6 +136,7 @@
         },
         "address": {
           "type": "object",
+          "additionalProperties": false,
           "required": [
             "numberAndStreet",
             "city",
@@ -179,6 +184,7 @@
         "phone": {
           "$comment": "the phone fields must not exceed 20 chars, when concatenated",
           "type": "object",
+          "additionalProperties": false,
           "required": [
             "areaCode",
             "phoneNumber"
@@ -215,6 +221,7 @@
     "serviceOrganization": {
       "description": "Details of the Service Organization representing the veteran.",
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "poaCode"
       ],
@@ -246,6 +253,7 @@
         },
         "address": {
           "type": "object",
+          "additionalProperties": false,
           "required": [
             "numberAndStreet",
             "city",
@@ -328,6 +336,7 @@
     },
     "signatures": {
       "type": "object",
+      "additionalProperties": false,
       "required": [
         "veteran",
         "representative"

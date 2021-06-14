@@ -719,6 +719,7 @@ describe HCA::EnrollmentSystem do
       ['coast guard', 5],
       ['merchant seaman', 7],
       ['noaa', 10],
+      ['space force', 15],
       ['usphs', 9],
       ['f.commonwealth', 11],
       ['f.guerilla', 12],
