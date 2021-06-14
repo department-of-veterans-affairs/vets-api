@@ -12,10 +12,12 @@
         "properties": {
           "id": {
             "type": "string",
-            "description": "Claim ID from EVSS"
+            "description": "Claim ID from EVSS",
+            "example": "8347210"
           },
           "type": {
-            "type": "string"
+            "type": "string",
+            "example": "evss_claims"
           },
           "attributes": {
             "type": "object",
@@ -46,23 +48,28 @@
               },
               "open": {
                 "type": "boolean",
-                "description": "Has the claim been resolved"
+                "description": "Has the claim been resolved",
+                "example": "true"
               },
               "waiver_submitted": {
                 "type": "boolean",
-                "description": "Requested Decision or Waiver 5103 Submitted"
+                "description": "Requested Decision or Waiver 5103 Submitted",
+                "example": "false"
               },
               "documents_needed": {
                 "type": "boolean",
-                "description": "Does the claim require additional documents to be submitted"
+                "description": "Does the claim require additional documents to be submitted",
+                "example": "false"
               },
               "development_letter_sent": {
                 "type": "boolean",
-                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim",
+                "example": "false"
               },
               "decision_letter_sent": {
                 "type": "boolean",
-                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim",
+                "example": "false"
               },
               "status": {
                 "type": "string",
@@ -73,11 +80,13 @@
                   "Evidence gathering, review, and decision",
                   "Preparation for notification",
                   "Complete"
-                ]
+                ],
+                "example": "Claim received"
               },
               "requested_decision": {
                 "type": "boolean",
-                "description": "The claim filer has requested a claim decision be made"
+                "description": "The claim filer has requested a claim decision be made",
+                "example": "false"
               },
               "claim_type": {
                 "type": "string",
@@ -87,7 +96,8 @@
                   "Compensation and Pension",
                   "Dependency",
                   "Administrative Review"
-                ]
+                ],
+                "example": "Compensation"
               }
             }
           }
