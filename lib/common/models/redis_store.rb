@@ -67,7 +67,11 @@ module Common
     end
 
     def self.exists?(redis_key = nil)
-      redis_namespace.exists(redis_key) == 1
+      redis_namespace.exists?(redis_key)
+    end
+
+    def self.exists(redis_key = nil)
+      redis_namespace.exists(redis_key)
     end
 
     def self.create(attributes)
