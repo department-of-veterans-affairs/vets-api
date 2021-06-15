@@ -49,7 +49,7 @@ module Mobile
     end
 
     def access_token
-      @access_token ||= request.headers['Authorization'].gsub(ACCESS_TOKEN_REGEX, '')
+      @access_token ||= request.headers['Authorization']&.gsub(ACCESS_TOKEN_REGEX, '')
     end
 
     def raise_unauthorized(detail)
@@ -81,7 +81,7 @@ module Mobile
 
     def append_info_to_payload(payload)
       super
-      payload[:session] = Session.obscure_token(access_token) if access_token
+      payload[:session] = Session.obscure_token(access_token) if access_token.present?
       payload[:user_uuid] = current_user.uuid if current_user.present?
     end
   end
