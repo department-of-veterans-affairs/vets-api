@@ -26,7 +26,7 @@ module AppealsApi
         handle_upload_error(higher_level_review, e)
       rescue => e
         higher_level_review.update_status!(status: 'error', code: e.class.to_s, detail: e.message)
-        Rails.logger.info("#{self.class} error: #{e}")
+        Rails.logger.error("#{self.class} error: #{e}")
         raise
       end
     end
@@ -56,13 +56,13 @@ module AppealsApi
         'docType' => '20-0996'
       }
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
-      process_response(CentralMail::Service.new.upload(body), higher_level_review)
-      log_submission(higher_level_review, metadata)
+      process_response(CentralMail::Service.new.upload(body), higher_level_review, metadata)
     end
 
-    def process_response(response, higher_level_review)
+    def process_response(response, higher_level_review, metadata)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         higher_level_review.update_status!(status: 'submitted')
+        log_submission(higher_level_review, metadata)
       else
         map_error(response.status, response.body, AppealsApi::UploadError)
       end
@@ -76,13 +76,13 @@ module AppealsApi
     end
 
     def log_upload_error(higher_level_review, e)
-      Rails.logger.info("#{higher_level_review.class.to_s.gsub('::', ' ')}: Submission failure",
-                        'source' => higher_level_review.consumer_name,
-                        'consumer_id' => higher_level_review.consumer_id,
-                        'consumer_username' => higher_level_review.consumer_name,
-                        'uuid' => higher_level_review.id,
-                        'code' => e.code,
-                        'detail' => e.detail)
+      Rails.logger.error("#{higher_level_review.class.to_s.gsub('::', ' ')}: Submission failure",
+                         'source' => higher_level_review.consumer_name,
+                         'consumer_id' => higher_level_review.consumer_id,
+                         'consumer_username' => higher_level_review.consumer_name,
+                         'uuid' => higher_level_review.id,
+                         'code' => e.code,
+                         'detail' => e.detail)
     end
 
     def handle_upload_error(higher_level_review, e)
