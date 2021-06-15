@@ -6,7 +6,6 @@ module VAForms
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
-
     FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
@@ -59,8 +58,10 @@ module VAForms
     def build_and_save_form(form)
       va_form = VAForms::Form.find_or_initialize_by row_id: form['fieldVaFormRowId']
       attrs = init_attributes(form)
-      url = form['fieldVaFormUrl']['uri']
-      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
+      new_url = form['fieldVaFormUrl']['uri']
+      stored_url = VAForms::Form.where(row_id: form['fieldVaFormRowId']).select('url').first&.url
+      notify_slack(new_url, stored_url, form['fieldVaFormNumber']) if stored_url != new_url
+      va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
       attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
@@ -130,6 +131,20 @@ module VAForms
       raise ArgumentError, 'url must start with ./va or ./medical' unless url.starts_with?('./va', './medical')
 
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
+    end
+
+    def notify_slack(old_form_url, new_form_url, form_name)
+      return unless Settings.va_forms.slack.enabled
+
+      slack_url = Settings.va_forms.slack.notification_url
+      slack_users = Settings.va_forms.slack.users
+      begin
+        Faraday.post(slack_url,
+                     "{\"text\": \"#{slack_users} #{form_name} has changed from #{old_form_url} to #{new_form_url}\" }",
+                     'Content-Type' => 'application/json')
+      rescue Faraday::ClientError, Faraday::Error => e
+        Rails.logger.error("Failed to notify slack channel of forms change! #{e.message}", e)
+      end
     end
   end
 end
