@@ -10,7 +10,7 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
       deprecated true
       tags 'Disability'
       operationId 'get526JsonSchema'
-      security [ {sandboxOauth: ['claim.read']} ]
+      security [{ sandboxOauth: ['claim.read'] }]
       produces 'application/json'
       get_schema_description = <<~VERBIAGE
         Returns a single 526 schema to automatically generate a form. Using this GET endpoint allows users to download our current validations.
@@ -43,7 +43,7 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
     post 'Submits form 526' do
       tags 'Disability'
       operationId 'post526Claim'
-      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
+      security [{ sandboxOauth: ['claim.read', 'claim.write'] }]
       consumes 'application/json'
       produces 'application/json'
       post_description = <<~VERBIAGE
@@ -226,7 +226,7 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
     put 'Upload a 526 document' do
       tags 'Disability'
       operationId 'upload526Attachment'
-      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
+      security [{ sandboxOauth: ['claim.read', 'claim.write'] }]
       consumes 'multipart/form-data'
       produces 'application/json'
       put_description = <<~VERBIAGE
@@ -416,7 +416,7 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
       deprecated true
       tags 'Disability'
       operationId 'post526ClaimValidate'
-      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
+      security [{ sandboxOauth: ['claim.read', 'claim.write'] }]
       consumes 'application/json'
       produces 'application/json'
       validate_description = <<~VERBIAGE
@@ -567,7 +567,7 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
     post 'Upload documents supporting a 526 claim' do
       tags 'Disability'
       operationId 'upload526Attachments'
-      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
+      security [{ sandboxOauth: ['claim.read', 'claim.write'] }]
       consumes 'multipart/form-data'
       produces 'application/json'
       put_description = <<~VERBIAGE

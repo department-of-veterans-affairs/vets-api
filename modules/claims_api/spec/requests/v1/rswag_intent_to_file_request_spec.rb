@@ -10,7 +10,7 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
       deprecated true
       tags 'Intent to File'
       operationId 'get0966JsonSchema'
-      security [ {sandboxOauth: ['claim.read']} ]
+      security [{ sandboxOauth: ['claim.read'] }]
       produces 'application/json'
       description 'Returns a single 0966 JSON schema to auto generate a form.'
       let(:Authorization) { 'Bearer token' }
@@ -39,7 +39,7 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
     post 'Submit form 0966 Intent to File.' do
       tags 'Intent to File'
       operationId 'post0966itf'
-      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
+      security [{ sandboxOauth: ['claim.read', 'claim.write'] }]
       consumes 'application/json'
       produces 'application/json'
       post_description = <<~VERBIAGE
@@ -201,7 +201,7 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
     get 'Returns last active 0966 Intent to File form submission.' do
       tags 'Intent to File'
       operationId 'active0966itf'
-      security [ {sandboxOauth: ['claim.read']} ]
+      security [{ sandboxOauth: ['claim.read'] }]
       produces 'application/json'
       description 'Returns the last active 0966 form for a Veteran.'
 
@@ -367,7 +367,7 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
       deprecated true
       tags 'Intent to File'
       operationId 'validate0966itf'
-      security [ {sandboxOauth: ['claim.read', 'claim.write']} ]
+      security [{ sandboxOauth: ['claim.read', 'claim.write'] }]
       consumes 'application/json'
       produces 'application/json'
       validate_description = <<~VERBIAGE

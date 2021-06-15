@@ -9,7 +9,7 @@ describe 'EVSS Claims management', swagger_doc: 'v1/swagger.json' do  # rubocop:
     get 'Find all benefits claims for a Veteran' do
       tags 'Claims'
       operationId 'findClaims'
-      security [ {sandboxOauth: ['claim.read']} ]
+      security [{ sandboxOauth: ['claim.read'] }]
       produces 'application/json'
       index_description = 'Uses the Veteran’s metadata in headers to retrieve all claims for that Veteran. '
       index_description += 'An authenticated Veteran making a request with this endpoint will return their own claims'
@@ -136,7 +136,7 @@ describe 'EVSS Claims management', swagger_doc: 'v1/swagger.json' do  # rubocop:
     get 'Find Claim by ID' do
       tags 'Claims'
       operationId 'findClaimById'
-      security [ {sandboxOauth: ['claim.read']} ]
+      security [{ sandboxOauth: ['claim.read'] }]
       produces 'application/json'
 
       parameter name: :id, in: :path, type: :string, description: 'The ID of the claim being requested'
