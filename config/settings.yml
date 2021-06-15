@@ -196,6 +196,22 @@ modules_appeals_api:
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
   reports:
+    daily_decision_review:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
+    weekly_decision_review:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
     decision_review:
       enabled: false
       recipients:
@@ -793,8 +809,8 @@ hqva_mobile:
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
   facilities:
-    url: "https://api.va.gov"
-    ids_path: "/v1/facilities/va"
+    url: "https://staging-api.va.gov"
+    ids_path: "/facilities_api/v1/va"
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"
@@ -906,6 +922,11 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  # A notification for when a forms url has changed
+  slack:
+    enabled: false
+    notification_url: ''
+    users: '<>'
 
 # Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
 genisis:
