@@ -59,7 +59,10 @@ module V0
     end
 
     def file_name_for_pdf(veteran_data)
-      "10-10CG_#{veteran_data['fullName']['first']}_#{veteran_data['fullName']['last']}.pdf"
+      veteran_name = veteran_data.try(:[], 'fullName')
+      first_name = veteran_name.try(:[], 'first') || 'First'
+      last_name = veteran_name.try(:[], 'last') || 'Last'
+      "10-10CG_#{first_name}_#{last_name}.pdf"
     end
 
     def backend_service_outage
