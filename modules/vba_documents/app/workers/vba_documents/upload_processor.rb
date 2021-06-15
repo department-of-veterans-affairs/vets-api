@@ -17,7 +17,7 @@ module VBADocuments
     def perform(guid, caller_data, retries = 0)
       # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations
       @retries = retries
-      @cause = caller_data.nil? ? :unknown : caller_data['caller']
+      @cause = caller_data.nil? ? { caller: 'unknown' } : caller_data['caller']
       response = nil
       VBADocuments::UploadSubmission.with_advisory_lock(guid) do
         @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
