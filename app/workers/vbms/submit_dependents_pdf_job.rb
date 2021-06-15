@@ -14,7 +14,7 @@ module VBMS
       raise Invalid686cClaim unless claim.valid?(:run_686_form_jobs)
 
       claim.persistent_attachments.each do |attachment|
-        doc_type = get_doc_type(attachment, claim.parsed_form)
+        doc_type = get_doc_type(attachment.guid, claim.parsed_form)
 
         file_extension = File.extname(URI.parse(attachment.file.url).path)
         if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
@@ -50,22 +50,22 @@ module VBMS
       claim.upload_pdf('21-674', doc_type: '142') if submittable_674
     end
 
-    def get_doc_type(attachment, parsed_form)
-      supporting_documents = parsed_form['dependents_application']['child_supporting_documents']
-      child_doc = supporting_documents.any? { |doc| doc['confirmation_code'] == attachment.guid }
-      if child_doc
+    def get_doc_type(guid, parsed_form)
+      if check_doc_type(guid, parsed_form['dependents_application']['child_supporting_documents'])
         child_evidence = parsed_form['dependents_application']['child_evidence_document_type']
         return child_evidence if child_evidence.present?
       end
 
-      supporting_documents = parsed_form['dependents_application']['spouse_supporting_documents']
-      spouse_doc = supporting_documents.any? { |doc| doc['confirmation_code'] == attachment.guid }
-      if spouse_doc
+      if check_doc_type(guid, parsed_form['dependents_application']['spouse_supporting_documents'])
         spouse_evidence = parsed_form['dependents_application']['spouse_evidence_document_type']
         return spouse_evidence if spouse_evidence.present?
       end
 
       '10' # return '10' which is doc type 'UNKNOWN'
+    end
+
+    def check_doc_type(guid, supporting_documents)
+      supporting_documents.any? { |doc| doc['confirmation_code'] == guid }
     end
   end
 end
