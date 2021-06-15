@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'flipper/admin_user_constraint'
+require 'github_authentication/sidekiq_web'
 
 Rails.application.routes.draw do
-  require 'github_authentication/sidekiq_web'
-
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
