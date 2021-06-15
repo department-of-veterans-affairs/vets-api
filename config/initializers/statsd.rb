@@ -235,6 +235,11 @@ StatsD.increment('iam_ssoe_oauth.inactive_session', 0)
 
 StatsD.increment('iam_ssoe_oauth.auth_type', 0)
 
+%w[IDME MHV DSL].each do |cred|
+  StatsD.increment('iam_ssoe_oauth.session', 0, tags: ['type:new', "credential:#{cred}"])
+  StatsD.increment('iam_ssoe_oauth.session', 0, tags: ['type:refresh', "credential:#{cred}"])
+end
+
 # init VEText Push Notifications
 VEText::Service.extend StatsD::Instrument
 VEText::Service.statsd_count_success :register,

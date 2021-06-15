@@ -4,7 +4,6 @@ module Mobile
   class ApplicationController < ActionController::API
     include ExceptionHandling
     include Headers
-    include Instrumentation
     include Pundit
     include SentryLogging
     include SentryControllerLogging
@@ -78,6 +77,12 @@ module Mobile
 
     def vet360_linking_locked?(account_uuid)
       !vets360_link_redis_lock.get(account_uuid).nil?
+    end
+
+    def append_info_to_payload(payload)
+      super
+      payload[:session] = Session.obscure_token(access_token) if access_token
+      payload[:user_uuid] = current_user.uuid if current_user.present?
     end
   end
 end
