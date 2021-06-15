@@ -40,6 +40,17 @@ module Caseflow
       end
     end
 
+    def get_legacy_appeals(headers:)
+      with_monitoring do
+        authorized_perform(
+            :get,
+            "#{CASEFLOW_V3_API_PATH}/legacy_appeals".chomp('/'),
+            {},
+            headers
+        )
+      end
+    end
+
     ##
     # Returns contestable issues for a veteran.
     #
