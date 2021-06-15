@@ -25,11 +25,19 @@
   ],
   "components": {
     "securitySchemes": {
-      "bearer_token": {
-        "type": "http",
-        "name": "token",
-        "scheme": "bearer",
-        "bearer_format": "JWT"
+      "sandboxOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
       }
     }
   },
@@ -43,8 +51,8 @@
         "operationId": "findClaims",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read"
             ]
           }
         ],
@@ -368,8 +376,8 @@
         "operationId": "findClaimById",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read"
             ]
           }
         ],
@@ -428,7 +436,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f9540c74-45f4-457f-a6b4-8f77a1ed4469",
+                    "id": "bef09308-579b-4a7f-8bc6-0ecd035cacac",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -477,11 +485,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "fa3943c8-de88-4e62-8bae-22d479e79549",
+                          "id": "229c807f-00ea-4707-afb7-70bd59ef8938",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-09T20:38:04.232Z"
+                          "uploaded_at": "2021-06-14T22:32:08.868Z"
                         }
                       ]
                     }
@@ -843,8 +851,8 @@
         "operationId": "get526JsonSchema",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read"
             ]
           }
         ],
@@ -2116,8 +2124,9 @@
         "operationId": "post526Claim",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
@@ -2167,7 +2176,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f314c103-ec1a-4e29-9b12-a4f21fba0d04",
+                    "id": "b4530cdf-f4bd-4ff1-862b-06149fb3f0b8",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2185,13 +2194,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T20:38:04.630Z",
+                      "updated_at": "2021-06-14T22:32:09.394Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "f314c103-ec1a-4e29-9b12-a4f21fba0d04",
+                      "token": "b4530cdf-f4bd-4ff1-862b-06149fb3f0b8",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3785,8 +3794,9 @@
         "operationId": "upload526Attachment",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
@@ -3845,7 +3855,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "600bf193-e8c6-43f5-ae3d-bde6d49aa83a",
+                    "id": "1e07d752-fc2b-434a-b626-f5af3cb911eb",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3863,13 +3873,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T20:38:04.888Z",
+                      "updated_at": "2021-06-14T22:32:09.776Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "600bf193-e8c6-43f5-ae3d-bde6d49aa83a",
+                      "token": "1e07d752-fc2b-434a-b626-f5af3cb911eb",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4252,8 +4262,9 @@
         "operationId": "post526ClaimValidate",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
@@ -5819,8 +5830,9 @@
         "operationId": "upload526Attachments",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
@@ -5879,7 +5891,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4205c8b5-caa1-40be-b260-1cdddd59940e",
+                    "id": "5cd04a26-1987-4474-8783-608e606b11ae",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5893,7 +5905,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T20:38:05.718Z",
+                      "updated_at": "2021-06-14T22:32:10.667Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5902,7 +5914,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "5d62dd07-5ed1-4ee6-ab8d-f25fb392e845",
+                          "id": "346c4da6-8539-4cff-8776-0d485a8d3ee8",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6261,8 +6273,8 @@
         "operationId": "get0966JsonSchema",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read"
             ]
           }
         ],
@@ -6324,8 +6336,9 @@
         "operationId": "post0966itf",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
@@ -6685,8 +6698,8 @@
         "operationId": "active0966itf",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read"
             ]
           }
         ],
@@ -6999,8 +7012,9 @@
         "operationId": "validate0966itf",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
@@ -7276,8 +7290,8 @@
         "operationId": "get2122JsonSchema",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read"
             ]
           }
         ],
@@ -7688,8 +7702,9 @@
         "operationId": "post2122",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
@@ -7739,11 +7754,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5833750e-25e0-449b-b587-da0e446919b2",
+                    "id": "800c41de-39a1-4e8d-ad0d-7b2a945fa9e7",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-06-09",
+                      "date_request_accepted": "2021-06-14",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8369,8 +8384,9 @@
         "operationId": "upload2122Attachment",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
@@ -8429,11 +8445,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b85564e5-ca08-4052-bc49-60f1bf0bdeae",
+                    "id": "3ff1d1af-9d6b-469e-904e-296cb10795ec",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-09",
+                      "date_request_accepted": "2021-06-14",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8662,8 +8678,8 @@
         "operationId": "get2122poa",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read"
             ]
           }
         ],
@@ -8722,11 +8738,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d1240997-e997-4cab-8c8b-e4e64dfa03ea",
+                    "id": "d5622bde-4c91-42db-8811-59636e698e5e",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-09",
+                      "date_request_accepted": "2021-06-14",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8941,8 +8957,8 @@
         "operationId": "getActive2122Poa",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read"
             ]
           }
         ],
@@ -9247,8 +9263,9 @@
         "operationId": "validate2122poa",
         "security": [
           {
-            "bearer_token": [
-
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
             ]
           }
         ],
