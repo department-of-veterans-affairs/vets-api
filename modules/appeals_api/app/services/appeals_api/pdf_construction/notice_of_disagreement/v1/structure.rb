@@ -184,9 +184,9 @@ module AppealsApi
                              valign: :top
                            )
 
-              next unless issue['attributes']['disagreementReason']
+              next unless issue['attributes']['disagreementArea']
 
-              pdf.text_box "Disagreement Reason: #{issue['attributes']['disagreementReason']}",
+              pdf.text_box "Area of Disagreement: #{issue['attributes']['disagreementArea']}",
                            text_opts.merge(
                              at: [0, ypos - 19],
                              width: 444,
