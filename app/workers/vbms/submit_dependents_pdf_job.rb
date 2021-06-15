@@ -51,21 +51,26 @@ module VBMS
     end
 
     def get_doc_type(guid, parsed_form)
-      if check_doc_type(guid, parsed_form['dependents_application']['child_supporting_documents'])
-        child_evidence = parsed_form['dependents_application']['child_evidence_document_type']
-        return child_evidence if child_evidence.present?
-      end
+      doc_type = check_doc_type(guid, parsed_form, 'child')
+      return doc_type if doc_type.present?
 
-      if check_doc_type(guid, parsed_form['dependents_application']['spouse_supporting_documents'])
-        spouse_evidence = parsed_form['dependents_application']['spouse_evidence_document_type']
-        return spouse_evidence if spouse_evidence.present?
-      end
+      doc_type = check_doc_type(guid, parsed_form, 'spouse')
+      return doc_type if doc_type.present?
 
       '10' # return '10' which is doc type 'UNKNOWN'
     end
 
-    def check_doc_type(guid, supporting_documents)
-      supporting_documents.any? { |doc| doc['confirmation_code'] == guid }
+    def check_doc_type(guid, parsed_form, dependent_type)
+      if dependent_type == 'child'
+        supporting_documents = parsed_form['dependents_application']['child_supporting_documents']
+        evidence_type = parsed_form['dependents_application']['child_evidence_document_type']
+      else
+        supporting_documents = parsed_form['dependents_application']['spouse_supporting_documents']
+        evidence_type = parsed_form['dependents_application']['spouse_evidence_document_type']
+      end
+
+      guid_matches = supporting_documents.any? { |doc| doc['confirmation_code'] == guid }
+      return evidence_type if guid_matches && evidence_type.present?
     end
   end
 end
