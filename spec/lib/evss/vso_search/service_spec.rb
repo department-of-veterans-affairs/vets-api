@@ -5,7 +5,8 @@ require 'evss/vso_search/service'
 
 describe EVSS::VSOSearch::Service do
   let(:user) { create(:evss_user) }
-  let(:service) { described_class.new(user) }
+  let(:account) { user.account }
+  let(:service) { described_class.new(user, nil, account) }
   let(:response) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
   def it_returns_valid_payload(method, form = nil)
@@ -26,6 +27,17 @@ describe EVSS::VSOSearch::Service do
 
     it 'handles errors' do
       it_handles_errors(:get_current_info, response.body)
+    end
+
+    it 'uses passed in user account data if auth_headers are missing' do
+      headers = {
+        'Authorization' => 'Token token=PUBLICDEMO123',
+        'Content-Type' => 'application/json',
+        'edipi' => '1007697216',
+        'ssn' => '796043735'
+      }
+      expect(service).to receive(:perform).with(:post, 'getCurrentInfo', '', headers).and_return(response)
+      service.send(*[:get_current_info, {}].compact)
     end
 
     it 'sets the correct base headers and empty string for post body' do

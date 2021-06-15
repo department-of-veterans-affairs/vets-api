@@ -3314,16 +3314,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports updating diaries' do
-        depenency_verification_service = double('dep_verification')
-        expect(depenency_verification_service).to receive(:update_diaries)
-        expect(BGS::DependencyVerificationService).to receive(:new) { depenency_verification_service }
-
         expect(subject).to validate(
           :post,
           '/v0/dependents_verifications',
           200,
           headers.merge(
-            '_data' => { 'update_diaries' => 'true' }
+            '_data' => {
+              'dependency_verification_claim' => {
+                'form' => { 'update_diaries' => 'true' }
+              }
+            }
           )
         )
       end
