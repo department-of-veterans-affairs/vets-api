@@ -61,12 +61,12 @@ module VBMS
     end
 
     def check_doc_type(guid, parsed_form, dependent_type)
+      supporting_documents = parsed_form['dependents_application']['spouse_supporting_documents']
+      evidence_type = parsed_form['dependents_application']['spouse_evidence_document_type']
+
       if dependent_type == 'child'
         supporting_documents = parsed_form['dependents_application']['child_supporting_documents']
         evidence_type = parsed_form['dependents_application']['child_evidence_document_type']
-      else
-        supporting_documents = parsed_form['dependents_application']['spouse_supporting_documents']
-        evidence_type = parsed_form['dependents_application']['spouse_evidence_document_type']
       end
 
       guid_matches = supporting_documents.any? { |doc| doc['confirmation_code'] == guid }
