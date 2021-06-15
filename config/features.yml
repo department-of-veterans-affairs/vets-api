@@ -151,19 +151,6 @@ features:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
     enable_in_development: true
-  form526_benefits_delivery_at_discharge:
-    actor_type: user
-    description: Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
-    enable_in_development: true
-  form526_original_claims:
-    actor_type: user
-    description: Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
-    enable_in_development: true
-  form996_higher_level_review:
-    actor_type: user
-    description: >
-      Allows veterans request a higher-level review of an existing claim. Owned by va-benefits-memorial-1 team.
-    enable_in_development: true
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
@@ -321,10 +308,6 @@ features:
     actor_type: user
     description: Allows veterans to cancel VA appointments
     enable_in_development: true
-  va_online_scheduling_cheetah:
-    actor_type: user
-    description: Enables Project Cheetah discovery work
-    enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user
     description: Allows veterans to submit requests for Community Care appointments
@@ -369,6 +352,10 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
+  va_online_scheduling_variant_testing:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for VAOS variant testing.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
@@ -391,4 +378,8 @@ features:
   edu_form10203_updates:
     actor_type: user
     description: Form 10203 updates in support of Isakson and Roe legislation
+    enable_in_development: true
+  check_in_experience_enabled:
+    actor_type: user
+    description: Enables the health care check-in experiences
     enable_in_development: true

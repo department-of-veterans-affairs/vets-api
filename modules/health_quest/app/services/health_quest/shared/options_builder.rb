@@ -47,19 +47,83 @@ module HealthQuest
       #
       def registry
         {
-          appointment: {
-            patient: user.icn,
-            date: appointment_dates,
-            location: clinic_id
-          },
-          location: { _id: location_ids },
-          organization: { _id: organization_ids },
-          questionnaire_response: {
-            subject: appointment_reference,
-            source: user.icn,
-            authored: resource_created_date
-          },
-          questionnaire: { 'context-type-value': context_type_value }
+          appointment: appointment_registry,
+          location: location_registry,
+          organization: organization_registry,
+          questionnaire_response: questionnaire_response_registry,
+          questionnaire: questionnaire_registry
+        }
+      end
+
+      ##
+      # The configuration for the appointment registry.
+      #
+      # @return [Hash]
+      #
+      def appointment_registry
+        {
+          patient: user.icn,
+          date: appointment_dates,
+          location: clinic_id,
+          _count: resource_count,
+          page: resource_page
+        }
+      end
+
+      ##
+      # The configuration for the location registry.
+      #
+      # @return [Hash]
+      #
+      def location_registry
+        {
+          _id: location_ids,
+          organization: org_id,
+          identifier: location_identifier,
+          _count: resource_count,
+          page: resource_page
+        }
+      end
+
+      ##
+      # The configuration for the organization registry.
+      #
+      # @return [Hash]
+      #
+      def organization_registry
+        {
+          _id: organization_ids,
+          identifier: organization_identifier,
+          _count: resource_count,
+          page: resource_page
+        }
+      end
+
+      ##
+      # The configuration for the questionnaire response registry.
+      #
+      # @return [Hash]
+      #
+      def questionnaire_response_registry
+        {
+          subject: appointment_reference,
+          source: user.icn,
+          authored: resource_created_date,
+          _count: resource_count,
+          page: resource_page
+        }
+      end
+
+      ##
+      # The configuration for the questionnaire registry.
+      #
+      # @return [Hash]
+      #
+      def questionnaire_registry
+        {
+          'context-type-value': context_type_value,
+          _count: resource_count,
+          page: resource_page
         }
       end
 
@@ -79,6 +143,33 @@ module HealthQuest
       #
       def organization_ids
         @organization_ids ||= filters&.fetch(:_id, nil)
+      end
+
+      ##
+      # Get the list of locations for an organization from the filters.
+      #
+      # @return [String]
+      #
+      def org_id
+        @org_id ||= filters&.fetch(:organization, nil)
+      end
+
+      ##
+      # Get the organization identifier from the filters.
+      #
+      # @return [String]
+      #
+      def organization_identifier
+        @organization_identifier ||= filters&.fetch(:identifier, nil)
+      end
+
+      ##
+      # Get the organization identifier from the filters.
+      #
+      # @return [String]
+      #
+      def location_identifier
+        @location_identifier ||= filters&.fetch(:identifier, nil)
       end
 
       ##
@@ -134,6 +225,24 @@ module HealthQuest
       #
       def context_type_value
         @context_type_value ||= filters&.fetch(:'context-type-value', nil)
+      end
+
+      ##
+      # Get the resource count from the filters.
+      #
+      # @return [String]
+      #
+      def resource_count
+        @resource_count ||= filters&.fetch(:_count, nil)
+      end
+
+      ##
+      # Get the resource page from the filters.
+      #
+      # @return [String]
+      #
+      def resource_page
+        @resource_page ||= filters&.fetch(:page, nil)
       end
 
       private
