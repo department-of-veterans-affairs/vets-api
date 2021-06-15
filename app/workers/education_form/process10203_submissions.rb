@@ -57,16 +57,16 @@ module EducationForm
     #   by EducationForm::CreateDailySpoolFiles
     # Otherwise check submission data and EVSS data to see if submission can be marked as PROCESSED
     def process_user_submissions(user_submissions)
-      user_submissions.each_value do |submissions|
+      user_submissions.each do |user_uuid, submissions|
         auth_headers = submissions.last.education_stem_automated_decision.auth_headers
+        account = Account.find_by(idme_uuid: user_uuid)
 
         claim_ids = submissions.map(&:id).join(', ')
         log_info "EDIPI available for process STEM claim ids=#{claim_ids}: #{auth_headers&.key?('va_eauth_dodedipnid')}"
 
         gi_bill_status = get_gi_bill_status(auth_headers)
-
         # only check EVSS if poa wasn't set on submit
-        poa = submissions.last.education_stem_automated_decision.poa || get_user_poa_status(auth_headers)
+        poa = submissions.last.education_stem_automated_decision.poa || get_user_poa_status(account, auth_headers)
 
         if gi_bill_status == {} || gi_bill_status.remaining_entitlement.blank?
           submissions.each do |submission|
@@ -92,11 +92,11 @@ module EducationForm
     end
 
     # Retrieve poa status fromEVSS VSOSearch for a user
-    def get_user_poa_status(auth_headers)
+    def get_user_poa_status(account, auth_headers)
       return nil if auth_headers.nil?
       return nil unless auth_headers.key?('va_eauth_dodedipnid')
 
-      service = EVSS::VSOSearch::Service.new(nil, auth_headers)
+      service = EVSS::VSOSearch::Service.new(nil, auth_headers, account)
       service.get_current_info(auth_headers)['userPoaInfoAvailable']
     rescue => e
       log_exception_to_sentry(
