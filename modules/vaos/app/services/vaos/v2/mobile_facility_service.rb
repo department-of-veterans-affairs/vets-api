@@ -22,10 +22,10 @@ module VAOS
         end
       end
 
-      def get_scheduling_configurations(facility_ids, cc_enabled, pagination_params = {})
+      def get_scheduling_configurations(facility_ids, cc_enabled = nil, pagination_params = {})
         params = {
-          facility_ids: facility_ids,
-          cc_enabled: cc_enabled
+          facilityIds: facility_ids,
+          ccEnabled: cc_enabled
         }.merge(page_params(pagination_params)).compact
 
         with_monitoring do
