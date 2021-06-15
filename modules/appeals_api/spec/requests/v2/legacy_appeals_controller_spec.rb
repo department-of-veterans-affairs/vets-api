@@ -1,0 +1,103 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :request do
+  describe '#index' do
+    context 'when only ssn provided' do
+      it 'GETs legacy appeals from Caseflow successfully' do
+        # temporary cassette until caseflow endpoint complete and merged
+        VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
+          get_legacy_appeals(ssn: '242292129', file_number: nil)
+
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          expect(json['data']).not_to be nil
+          expect(json['data'][0]['attributes']).to include 'socDate'
+        end
+      end
+
+      context 'when ssn formatted incorrectly' do
+        it 'returns a 422 error with details' do
+          # temporary cassette until caseflow endpoint complete and merged
+          VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
+            get_legacy_appeals(ssn: '24-2921hw', file_number: nil)
+
+            errors = JSON.parse(response.body)['errors'][0]
+            expect(response).to have_http_status :unprocessable_entity
+            expect(errors['detail']).to include 'X-VA-SSN has an invalid format'
+          end
+        end
+      end
+    end
+
+    context 'when only file_number provided' do
+      it 'GETs legacy appeals from Caseflow successfully' do
+        # temporary cassette until caseflow endpoint complete and merged
+        VCR.use_cassette('caseflow/legacy_appeals_get_by_file_number') do
+          get_legacy_appeals(ssn: nil, file_number: '239120550')
+
+          expect(response).to have_http_status(:ok)
+          json = JSON.parse(response.body)
+          expect(json['data']).not_to be nil
+          expect(json['data'][0]['attributes']).to include 'socDate'
+        end
+      end
+    end
+
+    context 'when X-VA-SSN and X-VA-File-Number are missing' do
+      it 'returns a 422' do
+        get_legacy_appeals(ssn: nil, file_number: nil)
+
+        expect(response).to have_http_status :unprocessable_entity
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_an Array
+      end
+    end
+
+    context 'when receive and unusable response from Caseflow' do
+      before do
+        allow_any_instance_of(Caseflow::Service)
+          .to(receive(:get_legacy_appeals).and_return(Struct.new(:status, :body).new(200, '<nope nope nope>')))
+      end
+
+      it 'returns a 502' do
+        get_legacy_appeals(ssn: '123445223', file_number: '222222222')
+
+        expect(response).to have_http_status :bad_gateway
+        expect(JSON.parse(response.body)['errors']).to be_an Array
+      end
+    end
+
+    context 'when receive a Caseflow 4XX response' do
+      let(:status) { 400 }
+      let(:body) { { this_is: 'great' }.as_json }
+
+      before do
+        allow_any_instance_of(Caseflow::Service)
+          .to(receive(:get_legacy_appeals).and_return(Struct.new(:status, :body).new(status, body)))
+      end
+
+      it 'lets 4XX responses passthrough' do
+        get_legacy_appeals(ssn: '123445223', file_number: '222222222')
+
+        expect(response.status).to be status
+        expect(JSON.parse(response.body)).to eq body
+      end
+    end
+  end
+
+  private
+
+  def get_legacy_appeals(ssn: nil, file_number: nil)
+    headers = {}
+
+    if file_number.present?
+      headers['X-VA-File-Number'] = file_number
+    elsif ssn.present?
+      headers['X-VA-SSN'] = ssn
+    end
+
+    get('/services/appeals/v2/decision_reviews/legacy_appeals/', headers: headers)
+  end
+end
