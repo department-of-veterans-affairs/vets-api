@@ -696,8 +696,6 @@ GEM
       rack
       railties (>= 3.2)
       semantic_logger (~> 4.4)
-    rails_warden (0.6.0)
-      warden (>= 1.2.0)
     railties (6.0.3.7)
       actionpack (= 6.0.3.7)
       activesupport (= 6.0.3.7)
@@ -1090,7 +1088,6 @@ DEPENDENCIES
   rails (~> 6.0.3)
   rails-session_cookie
   rails_semantic_logger (~> 4.5)
-  rails_warden
   rainbow
   redis
   redis-namespace

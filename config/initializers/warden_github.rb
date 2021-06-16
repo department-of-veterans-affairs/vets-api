@@ -2,6 +2,6 @@
 
 Warden::GitHub::User.module_eval do
   def api
-    Octokit::Client.new(access_token: Settings.octokit_github_access_token)
+    Octokit::Client.new(access_token: Settings.github.api_key)
   end
 end

@@ -118,7 +118,7 @@ gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'
 gem 'rails_semantic_logger', '~> 4.5'
-gem 'rails_warden'
+
 gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'
