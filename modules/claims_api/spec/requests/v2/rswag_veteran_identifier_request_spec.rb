@@ -25,6 +25,7 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
           lastName: 'Ellis'
         }
       end
+      let(:scopes) { %w[claim.read] }
 
       describe 'Getting a successful response' do
         response '200', "Veteran's unique identifier" do
@@ -35,7 +36,10 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
           )
 
           before do |example|
-            submit_request(example.metadata)
+            with_okta_user(scopes) do |auth_header|
+              Authorization = auth_header # rubocop:disable Naming/ConstantName
+              submit_request(example.metadata)
+            end
           end
 
           after do |example|
@@ -55,8 +59,11 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
       describe 'Getting a 400 response' do
         context 'when parameters are missing' do
           before do |example|
-            data[:ssn] = nil
-            submit_request(example.metadata)
+            with_okta_user(scopes) do |auth_header|
+              Authorization = auth_header # rubocop:disable Naming/ConstantName
+              data[:ssn] = nil
+              submit_request(example.metadata)
+            end
           end
 
           after do |example|
@@ -111,8 +118,11 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
 
       describe 'Getting a 404 response' do
         before do |example|
-          data[:ssn] = '555555555'  # SSN other than Tamara's
-          submit_request(example.metadata)
+          with_okta_user(scopes) do |auth_header|
+            Authorization = auth_header # rubocop:disable Naming/ConstantName
+            data[:ssn] = '555555555'  # SSN other than Tamara's
+            submit_request(example.metadata)
+          end
         end
 
         after do |example|

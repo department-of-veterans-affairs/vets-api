@@ -6,7 +6,6 @@ module ClaimsApi
   module V2
     class VeteranIdentifierController < ClaimsApi::V2::ApplicationController
       # TODO: REMOVE BEFORE IMPLEMENTATION
-      skip_before_action :authenticate, only: %i[find]
       ICN_FOR_TEST_USER = '1012667145V762142'
       # TODO: REMOVE BEFORE IMPLEMENTATION
 
