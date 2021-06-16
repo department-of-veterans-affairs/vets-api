@@ -41,12 +41,13 @@ module Caseflow
     end
 
     def get_legacy_appeals(headers:)
+      # see pattern for contestable issues, higher level review etc below
       with_monitoring do
         authorized_perform(
-            :get,
-            "#{CASEFLOW_V3_API_PATH}/legacy_appeals".chomp('/'),
-            {},
-            headers
+          :get,
+          "#{CASEFLOW_V3_API_PATH}/legacy_appeals".chomp('/'),
+          {},
+          headers
         )
       end
     end
