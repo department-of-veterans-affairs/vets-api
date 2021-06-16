@@ -1,0 +1,889 @@
+{
+	"info": {
+		"_postman_id": "8d07c441-dc95-4ba8-a1ab-4b2ac481e8a4",
+		"name": "Benefits Intake",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/uploads/ - location",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 202\", function () {\r",
+							"    pm.response.to.have.status(202);\r",
+							"});\r",
+							"pm.test(\"Status is pending\", function () {\r",
+							"    pm.expect(jsonData.data.attributes.status).to.eql(\"pending\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//set environment variables\r",
+							"pm.environment.set(\"upload_location\", jsonData.data.attributes.location);\r",
+							"pm.environment.set(\"uuid_valid\", jsonData.data.attributes.guid);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{apikey}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "apikey",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "<Insert Key here>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{host}}/services/vba_documents/{{version}}/uploads",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/paths - upload valid document to location",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "metadata",
+							"contentType": "application/json",
+							"type": "file",
+							"src": "valid_metadata.json"
+						},
+						{
+							"key": "content",
+							"contentType": "application/pdf",
+							"type": "file",
+							"src": "/C:/work/vets-api/modules/vba_documents/spec/fixtures/valid_doc.pdf"
+						},
+						{
+							"key": "attachment1",
+							"type": "file",
+							"src": "/C:/work/vets-api/modules/vba_documents/spec/fixtures/valid_doc.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{upload_location}}",
+					"host": [
+						"{{upload_location}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/uploads/ - location missing first name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 202\", function () {\r",
+							"    pm.response.to.have.status(202);\r",
+							"});\r",
+							"pm.test(\"Status is pending\", function () {\r",
+							"    pm.expect(jsonData.data.attributes.status).to.eql(\"pending\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//set environment variables\r",
+							"pm.environment.set(\"upload_location\", jsonData.data.attributes.location);\r",
+							"pm.environment.set(\"uuid_missing_first_name\", jsonData.data.attributes.guid);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{apikey}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "apikey",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "<Insert Key here>",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://{{host}}/services/vba_documents/{{version}}/uploads",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/paths - upload missing first name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {}
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "metadata",
+							"contentType": "application/json",
+							"type": "file",
+							"src": "missing_first_metadata.json"
+						},
+						{
+							"key": "content",
+							"contentType": "application/pdf",
+							"type": "file",
+							"src": "valid_doc.pdf"
+						},
+						{
+							"key": "attachment1",
+							"type": "file",
+							"src": "valid_doc.pdf"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{upload_location}}",
+					"host": [
+						"{{upload_location}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/uploads/{uuid} valid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Upload is received\", function () {\r",
+							"    pm.expect(jsonData.data.attributes.status).to.eql(\"received\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"//set delay so files have time to upload\r",
+							"setTimeout(function(){}, pm.environment.get(\"upload_delay_ms\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{apikey}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "apikey",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "{{apikey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/services/vba_documents/{{version}}/uploads/{{uuid_valid}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads",
+						"{{uuid_valid}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/uploads/{uuid} missing first name",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error is displayed\", function () {\r",
+							"    pm.expect(jsonData.data.attributes.status).to.eql(\"error\");\r",
+							"    pm.expect(jsonData.data.attributes.detail).to.eql(\"Invalid Veteran name (e.g. empty, invalid characters, or too long). Names must match the regular expression /^[a-zA-Z\\\\-\\\\/\\\\s]{1,50}$/\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{apikey}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "apikey",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "apikey",
+						"value": "{{apikey}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{host}}/services/vba_documents/{{version}}/uploads/{{uuid_missing_first_name}}",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads",
+						"{{uuid_missing_first_name}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get a bulk status report for a list of previous uploads",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"for(var i = 0; i < jsonData.data.length; i++){\r",
+							"    \r",
+							"    //Valid document tests\r",
+							"    if (jsonData.data[i].id == pm.environment.get(\"uuid_valid\")){\r",
+							"        pm.test(\"Valid upload is received\", function () {\r",
+							"            pm.expect(jsonData.data[i].attributes.status).to.eql(\"received\");\r",
+							"        });\r",
+							"    }\r",
+							"\r",
+							"    //missing first name document tests\r",
+							"    else if (jsonData.data[i].id == pm.environment.get(\"uuid_missing_first_name\")){\r",
+							"        pm.test(\"Missing first name error is displayed\", function() {\r",
+							"            pm.expect(jsonData.data[i].attributes.status).to.eql(\"error\");\r",
+							"            pm.expect(jsonData.data[i].attributes.detail).to.eql(\"Invalid Veteran name (e.g. empty, invalid characters, or too long). Names must match the regular expression /^[a-zA-Z\\\\-\\\\/\\\\s]{1,50}$/\");\r",
+							"        });\r",
+							"    }\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{apikey}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "apikey",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "apikey",
+						"value": ""
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"ids\": [\n        \"{{uuid_valid}}\",\n        \"{{uuid_missing_first_name}}\"\n    ]\n}"
+				},
+				"url": {
+					"raw": "https://{{host}}/services/vba_documents/{{version}}/uploads/report",
+					"protocol": "https",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads",
+						"report"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Bad Request - invalid or missing list of guids",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"6d8433c1-cd55-4c24-affd-f592287a7572\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/report",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								"report"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Unauthorized Request",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"6d8433c1-cd55-4c24-affd-f592287a7572\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/report",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								"report"
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Bad API Token",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"6d8433c1-cd55-4c24-affd-f592287a7572\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/report",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								"report"
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "unexpected error",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"6d8433c1-cd55-4c24-affd-f592287a7572\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/report",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								"report"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"errors\": [\n  {\n   \"status\": -31480750,\n   \"details\": \"DOC104 - Upload rejected by downstream system.\"\n  },\n  {\n   \"status\": -43800033,\n   \"details\": \"DOC104 - Upload rejected by downstream system.\"\n  }\n ]\n}"
+				},
+				{
+					"name": "Upload status report retrieved successfully",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"ids\": [\n        \"6d8433c1-cd55-4c24-affd-f592287a7572\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/report",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								"report"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n \"data\": [\n  {\n   \"id\": \"6d8433c1-cd55-4c24-affd-f592287a7572\",\n   \"type\": \"document_upload\",\n   \"attributes\": {\n    \"guid\": \"6d8433c1-cd55-4c24-affd-f592287a7572\",\n    \"status\": \"uploaded\",\n    \"code\": \"et pariatur dolor\",\n    \"message\": \"mollit minim do\",\n    \"detail\": \"veniam Duis\",\n    \"updated_at\": \"2018-07-30T17:31:15.958Z\"\n   }\n  },\n  {\n   \"id\": \"6d8433c1-cd55-4c24-affd-f592287a7572\",\n   \"type\": \"document_upload\",\n   \"attributes\": {\n    \"guid\": \"6d8433c1-cd55-4c24-affd-f592287a7572\",\n    \"status\": \"pending\",\n    \"code\": \"proident pariatur adipisicing\",\n    \"message\": \"consequat ex ut\",\n    \"detail\": \"commodo ex ut\",\n    \"updated_at\": \"2018-07-30T17:31:15.958Z\"\n   }\n  }\n ]\n}"
+				}
+			]
+		},
+		{
+			"name": "Download zip of \"what the server sees\"",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "{{apikey}}",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "apikey",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "id",
+							"value": "{{uuid_valid}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{host}}/services/vba_documents/{{version}}/uploads/:id/download",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"services",
+						"vba_documents",
+						"{{version}}",
+						"uploads",
+						":id",
+						"download"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{uuid_valid}}",
+							"description": "(Required) ID as returned by a previous create upload request"
+						}
+					]
+				},
+				"description": "An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Only available in sandbox"
+			},
+			"response": [
+				{
+					"name": "Not Found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/:id/download",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								":id",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Unauthorized request",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/:id/download",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								":id",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Unauthorized",
+					"code": 401,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Zip file with the contents of your payload as parsed by our server",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/:id/download",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								":id",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/zip"
+						}
+					],
+					"cookie": [],
+					"body": "consequat ut eu amet dolor"
+				},
+				{
+					"name": "Bad API Token",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://sandbox-api.va.gov/services/vba_documents/{{version}}/uploads/:id/download",
+							"protocol": "https",
+							"host": [
+								"sandbox-api",
+								"va",
+								"gov"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"{{version}}",
+								"uploads",
+								":id",
+								"download"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Forbidden",
+					"code": 403,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain"
+						}
+					],
+					"cookie": [],
+					"body": ""
+				}
+			]
+		}
+	]
+}
