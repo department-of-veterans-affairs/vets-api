@@ -19,7 +19,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
         expect(@s3_bucket).to receive(:object).with(upload.guid).and_return(@s3_object)
         expect(@s3_object).to receive(:exists?).and_return(true)
         processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
-        expect(processor).to receive(:perform_async).with(upload.guid)
+        expect(processor).to receive(:perform_async).with(upload.guid, caller: described_class.name)
         described_class.new.perform
         updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
         expect(updated.status).to eq('uploaded')
@@ -57,7 +57,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
         expect(@s3_bucket).to receive(:object).with(upload.guid).and_return(@s3_object)
         expect(@s3_object).to receive(:exists?).and_return(true)
         processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
-        expect(processor).to receive(:perform_async).with(upload.guid)
+        expect(processor).to receive(:perform_async).with(upload.guid, caller: described_class.name)
         Timecop.travel(Time.zone.now + 25.minutes) do
           described_class.new.perform
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
