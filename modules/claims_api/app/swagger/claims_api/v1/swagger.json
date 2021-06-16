@@ -25,6 +25,24 @@
   ],
   "components": {
     "securitySchemes": {
+      "bearer_token": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "productionOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
+      },
       "sandboxOauth": {
         "type": "oauth2",
         "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
@@ -51,8 +69,18 @@
         "operationId": "findClaims",
         "security": [
           {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -376,8 +404,18 @@
         "operationId": "findClaimById",
         "security": [
           {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -436,7 +474,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bef09308-579b-4a7f-8bc6-0ecd035cacac",
+                    "id": "f2a1eedf-e037-496f-a13e-96c62f847f9c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -485,11 +523,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "229c807f-00ea-4707-afb7-70bd59ef8938",
+                          "id": "166a083f-34ed-44ed-a337-f329ab53f2e8",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-14T22:32:08.868Z"
+                          "uploaded_at": "2021-06-16T15:51:28.649Z"
                         }
                       ]
                     }
@@ -849,13 +887,6 @@
           "Disability"
         ],
         "operationId": "get526JsonSchema",
-        "security": [
-          {
-            "sandboxOauth": [
-              "claim.read"
-            ]
-          }
-        ],
         "description": "Returns a single 526 schema to automatically generate a form. Using this GET endpoint allows users to download our current validations.\n",
         "responses": {
           "200": {
@@ -2124,9 +2155,20 @@
         "operationId": "post526Claim",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -2176,7 +2218,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b4530cdf-f4bd-4ff1-862b-06149fb3f0b8",
+                    "id": "0db4fcbe-7881-4cc2-93c5-cd62c6fef1c0",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2194,13 +2236,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-14T22:32:09.394Z",
+                      "updated_at": "2021-06-16T15:51:28.971Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "b4530cdf-f4bd-4ff1-862b-06149fb3f0b8",
+                      "token": "0db4fcbe-7881-4cc2-93c5-cd62c6fef1c0",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3794,9 +3836,20 @@
         "operationId": "upload526Attachment",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -3855,7 +3908,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1e07d752-fc2b-434a-b626-f5af3cb911eb",
+                    "id": "45c18f76-794d-4a7e-88f2-e07ff45c48a9",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3873,13 +3926,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-14T22:32:09.776Z",
+                      "updated_at": "2021-06-16T15:51:29.276Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "1e07d752-fc2b-434a-b626-f5af3cb911eb",
+                      "token": "45c18f76-794d-4a7e-88f2-e07ff45c48a9",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4262,9 +4315,20 @@
         "operationId": "post526ClaimValidate",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -5830,9 +5894,20 @@
         "operationId": "upload526Attachments",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -5891,7 +5966,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5cd04a26-1987-4474-8783-608e606b11ae",
+                    "id": "94d8eb96-7987-4b16-8ae6-ce220bf8d2e9",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5905,7 +5980,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-14T22:32:10.667Z",
+                      "updated_at": "2021-06-16T15:51:29.919Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5914,7 +5989,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "346c4da6-8539-4cff-8776-0d485a8d3ee8",
+                          "id": "cc9f9267-e5f2-4d59-9ed5-36726e2e1190",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6271,13 +6346,6 @@
           "Intent to File"
         ],
         "operationId": "get0966JsonSchema",
-        "security": [
-          {
-            "sandboxOauth": [
-              "claim.read"
-            ]
-          }
-        ],
         "description": "Returns a single 0966 JSON schema to auto generate a form.",
         "responses": {
           "200": {
@@ -6336,9 +6404,20 @@
         "operationId": "post0966itf",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -6698,8 +6777,18 @@
         "operationId": "active0966itf",
         "security": [
           {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -7012,9 +7101,20 @@
         "operationId": "validate0966itf",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -7288,13 +7388,6 @@
           "Power of Attorney"
         ],
         "operationId": "get2122JsonSchema",
-        "security": [
-          {
-            "sandboxOauth": [
-              "claim.read"
-            ]
-          }
-        ],
         "description": "Returns schema to automatically generate a POA form.",
         "responses": {
           "200": {
@@ -7702,9 +7795,20 @@
         "operationId": "post2122",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -7754,11 +7858,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "800c41de-39a1-4e8d-ad0d-7b2a945fa9e7",
+                    "id": "dbe2409f-f48f-4ab5-b7a9-fda0fdff34e9",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-06-14",
+                      "date_request_accepted": "2021-06-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8384,9 +8488,20 @@
         "operationId": "upload2122Attachment",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -8445,11 +8560,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3ff1d1af-9d6b-469e-904e-296cb10795ec",
+                    "id": "8e700d7b-6e93-4478-8bb4-e1a3e1434fa4",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-14",
+                      "date_request_accepted": "2021-06-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8678,8 +8793,18 @@
         "operationId": "get2122poa",
         "security": [
           {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -8738,11 +8863,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d5622bde-4c91-42db-8811-59636e698e5e",
+                    "id": "53868f9a-ea44-4ede-ae5b-b145018ca138",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-14",
+                      "date_request_accepted": "2021-06-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8957,8 +9082,18 @@
         "operationId": "getActive2122Poa",
         "security": [
           {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
@@ -9263,9 +9398,20 @@
         "operationId": "validate2122poa",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "sandboxOauth": [
               "claim.read",
               "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
             ]
           }
         ],
