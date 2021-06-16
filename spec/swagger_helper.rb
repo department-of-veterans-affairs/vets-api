@@ -131,7 +131,10 @@ RSpec.configure do |config|
                 tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
                 scopes: {
                   'claim.read': 'Retrieve claim data',
-                  'claim.write': 'Submit claim data'
+                  'claim.write': 'Submit claim data',
+                  'openid': '',
+                  'profile': '',
+                  'offline_access': ''
                 }
               }
             }
