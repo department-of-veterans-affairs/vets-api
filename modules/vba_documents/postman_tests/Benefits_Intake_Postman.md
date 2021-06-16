@@ -13,6 +13,13 @@ Updates to Postman files will have to be exported as JSON files to the
 correct location in git and **then** committed. Postman has cloud syncing capabilities; however, 
 it doesn't integrate into a git repo and costs money.
 
+### Setting the apikey
+These APIs use an apikey to authorize requests. After importing the environments, 
+you'll need to place your apikey in each environment you want to use.
+
+**NOTE:** If you are saving changes to git, make sure to remove your apikey before
+ committing changes
+
 ## Running a collection
 Hover over a collection -> click the 3 dots -> Run collection.
 
@@ -25,7 +32,7 @@ I can Deselect All and select only the following requests:
 - PUT /paths - upload valid document to location
 - GET /uploads/{uuid} valid
 
-**Note:** check the Save Responses checkbox to be able to view the results of the 
+**NOTE:** check the Save Responses checkbox to be able to view the results of the 
 collection runner.
 
 Hit Run and the runner will perform each request and run the respective tests.
