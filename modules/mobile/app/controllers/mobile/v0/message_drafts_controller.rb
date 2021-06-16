@@ -8,8 +8,9 @@ module Mobile
       def create
         draft_response = client.post_create_message_draft(draft_params.to_h)
         render json: draft_response,
-               serializer: Mobile::V0::MessagesSerializer,
-               status: :created
+               serializer: Mobile::V0::MessageSerializer,
+               status: :created,
+               meta: {}
       end
 
       def update
@@ -20,8 +21,9 @@ module Mobile
       def create_reply_draft
         draft_response = client.post_create_message_draft_reply(params[:reply_id], reply_draft_params.to_h)
         render json: draft_response,
-               serializer: Mobile::V0::MessagesSerializer,
-               status: :created
+               serializer: Mobile::V0::MessageSerializer,
+               status: :created,
+               meta: {}
       end
 
       def update_reply_draft
