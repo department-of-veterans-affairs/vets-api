@@ -32,9 +32,9 @@ RSpec.describe 'facilities', type: :request do
         it 'returns facility details' do
           VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200', match_requests_on: %i[method uri]) do
             get '/vaos/v2/facilities?ids[]=983&ids[]=984', headers: inflection_header
-            # expect(response).to have_http_status(:ok)
-            # expect(response.body).to be_a(String)
-            # expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['data'].size).to eq(2)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
           end
         end
       end
