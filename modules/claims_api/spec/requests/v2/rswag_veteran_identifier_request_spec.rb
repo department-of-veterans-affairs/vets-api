@@ -26,6 +26,9 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
         }
       end
       let(:scopes) { %w[claim.read] }
+      let(:test_user_icn) { '1012667145V762142' }
+      let(:veteran) { ClaimsApi::Veteran.new }
+      let(:veteran_mpi_data) { MPIData.new }
 
       describe 'Getting a successful response' do
         response '200', "Veteran's unique identifier" do
@@ -36,6 +39,9 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
           )
 
           before do |example|
+            expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+            allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
             with_okta_user(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
@@ -118,9 +124,11 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
 
       describe 'Getting a 404 response' do
         before do |example|
+          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+          allow(veteran_mpi_data).to receive(:icn).and_return(nil)
           with_okta_user(scopes) do |auth_header|
             Authorization = auth_header # rubocop:disable Naming/ConstantName
-            data[:ssn] = '555555555'  # SSN other than Tamara's
             submit_request(example.metadata)
           end
         end

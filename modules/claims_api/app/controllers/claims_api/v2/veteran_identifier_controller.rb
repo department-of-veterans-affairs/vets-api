@@ -5,17 +5,17 @@ require 'evss/error_middleware'
 module ClaimsApi
   module V2
     class VeteranIdentifierController < ClaimsApi::V2::ApplicationController
-      # TODO: REMOVE BEFORE IMPLEMENTATION
-      ICN_FOR_TEST_USER = '1012667145V762142'
-      # TODO: REMOVE BEFORE IMPLEMENTATION
-
       def find
         raise ::Common::Exceptions::Unauthorized if request.headers['Authorization'].blank?
 
         validate_request
         veteran = find_veteran(params)
 
-        render json: { id: veteran[:id] }
+        unless veteran_icn_found?(veteran)
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+        end
+
+        render json: { id: veteran.mpi.icn }
       end
 
       private
@@ -46,31 +46,18 @@ module ClaimsApi
       end
 
       def find_veteran(params)
-        test_veteran_data = {
-          id: ICN_FOR_TEST_USER,
-          ssn: '796130115',
-          firstName: 'Tamara',
-          lastName: 'Ellis',
-          birthdate: '1967-06-19'
-        }
+        ClaimsApi::Veteran.new(
+          uuid: params[:ssn],
+          ssn: params[:ssn],
+          first_name: params[:firstName],
+          last_name: params[:lastName],
+          va_profile: ClaimsApi::Veteran.build_profile(params[:birthdate]),
+          loa: @current_user.loa
+        )
+      end
 
-        unless params[:ssn] == test_veteran_data[:ssn]
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-        end
-
-        unless params[:firstName].casecmp?(test_veteran_data[:firstName])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-        end
-
-        unless params[:lastName].casecmp?(test_veteran_data[:lastName])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-        end
-
-        unless params[:birthdate] == test_veteran_data[:birthdate]
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-        end
-
-        test_veteran_data
+      def veteran_icn_found?(veteran)
+        veteran&.mpi&.icn.present?
       end
     end
   end
