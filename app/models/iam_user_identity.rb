@@ -50,8 +50,6 @@ class IAMUserIdentity < ::UserIdentity
       sign_in: { service_name: "oauth_#{iam_auth_n_type}", account_type: iam_profile[:fediamassur_level] }
     )
 
-    StatsD.increment('iam_ssoe_oauth.auth_type', tags: ["type:#{iam_auth_n_type}"])
-
     identity.set_expire
     identity
   end
