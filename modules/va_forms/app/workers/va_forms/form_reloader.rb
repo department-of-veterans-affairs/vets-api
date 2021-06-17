@@ -22,8 +22,7 @@ module VAForms
         build_and_save_form(form)
       rescue => e
         log_message_to_sentry(
-          "#{form['fieldVaFormNumber']} failed to import into forms database",
-          :error, body: e.message
+          "#{form['fieldVaFormNumber']} failed to import into forms database", :error, body: e.message
         )
         next
       end
@@ -62,7 +61,10 @@ module VAForms
       stored_url = VAForms::Form.where(row_id: form['fieldVaFormRowId']).select('url').first&.url
       va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
       normalized_url = Addressable::URI.parse(va_form_url).normalize.to_s
-      notify_slack(normalized_url, stored_url, form['fieldVaFormNumber']) if stored_url != normalized_url
+      if stored_url != normalized_url && stored_url.present?
+        notify_slack(normalized_url, 
+                     stored_url, form['fieldVaFormNumber'])
+      end
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
       attrs[:url] = normalized_url
