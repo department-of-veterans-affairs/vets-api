@@ -68,4 +68,10 @@ class IAMUser < ::User
   def set_expire
     redis_namespace.expireat(REDIS_CONFIG[:iam_user][:namespace], expiration_timestamp)
   end
+  
+  def vet360_contact_info
+    super
+  rescue Faraday::ResourceNotFound => e
+    raise Common::Exceptions::RecordNotFound.new(id: self.vet360_id)
+  end
 end
