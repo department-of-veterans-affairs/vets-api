@@ -6,11 +6,11 @@ require 'common/client/errors'
 module VAOS
   module V2
     class MobileFacilityService < VAOS::SessionService
-      def get_facilities(query_params, pagination_params = {})
+      def get_facilities(ids:, children: nil, type: nil, pagination_params: {})
         params = {
-          ids: query_params[:ids],
-          children: query_params[:children],
-          types: query_params[:types]
+          ids: ids,
+          children: children,
+          type: type
         }.merge(page_params(pagination_params)).compact
         with_monitoring do
           options = { params_encoder: Faraday::FlatParamsEncoder }
