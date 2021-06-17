@@ -59,7 +59,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     AppealsApi::FormSchemas.new(
       SCHEMA_ERROR_TYPE,
       schema_version: 'v2'
-    ).validate!("#{self.class::FORM_NUMBER}_HEADERS", headers)
+    ).validate!("#{self.class::FORM_NUMBER}_HEADERS", request_headers)
   end
 
   def validate_json_schema_for_body
@@ -80,7 +80,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
     }
   end
 
-  def headers
+  def request_headers
     HEADERS.reduce({}) do |acc, header_key|
       header_value = request.headers[header_key]
 
@@ -90,9 +90,9 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def new_higher_level_review
     @higher_level_review = AppealsApi::HigherLevelReview.new(
-      auth_headers: headers,
+      auth_headers: request_headers,
       form_data: @json_body,
-      source: headers['X-Consumer-Username'],
+      source: request_headers['X-Consumer-Username'],
       api_version: 'V2'
     )
 
