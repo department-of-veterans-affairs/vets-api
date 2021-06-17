@@ -72,6 +72,6 @@ class IAMUser < ::User
   def vet360_contact_info
     super
   rescue Faraday::ResourceNotFound => e
-    raise Common::Exceptions::RecordNotFound.new(id: self.vet360_id)
+    raise Common::Exceptions::RecordNotFound.new(id: vet360_id)
   end
 end
