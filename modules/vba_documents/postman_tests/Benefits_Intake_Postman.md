@@ -8,7 +8,12 @@ files are in the following directory: vets-api\modules\vba_documents\spec\fixtur
 ![GitHub Logo](./images/working-directory.png)
 
 ### Importing collections and environments
-You'll need to select Import and drag the files from their Github locations.
+You'll need to select Import and drag the files from their Github locations.  
+\vets-api\modules\vba_documents\postman_tests\Automated Benefits Intake API.postman_collection  
+\vets-api\modules\va_forms\postman_tests\Automated Forms API.postman_collection  
+\vets-api\modules\vba_documents\postman_tests\localhost Environment.postman_environment  
+\vets-api\modules\vba_documents\postman_tests\Sandbox Environment.postman_environment  
+
 
 ![GitHub Logo](./images/postman-files.png)
 
