@@ -80,7 +80,7 @@ module ExceptionHandling
   end
 
   def report_mapped_exception(exception, va_exception)
-    extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_h) } : {}
+    extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
     # Add additional user specific context to the logs
     if exception.is_a?(Common::Exceptions::BackendServiceException) && current_user.present?
       extra[:icn] = current_user.icn
