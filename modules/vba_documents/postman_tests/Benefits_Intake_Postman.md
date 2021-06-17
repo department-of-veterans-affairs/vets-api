@@ -5,8 +5,14 @@ The Benefits Intake API uploads files so you'll need to set the working director
 Postman to know where the files are. To do so, go to File -> Settings. Most testing 
 files are in the following directory: vets-api\modules\vba_documents\spec\fixtures
 
+![GitHub Logo](./images/working-directory.png)
+
 ### Importing collections and environments
 You'll need to select Import and drag the files from their Github locations
+
+![GitHub Logo](./images/postman-files.png)
+
+![GitHub Logo](./images/import.png)
 
 ### Saving changes to git
 Updates to Postman files will have to be exported as JSON files to the 
@@ -21,7 +27,9 @@ you'll need to place your apikey in each environment you want to use.
  committing changes
 
 ## Running a collection
-Hover over a collection -> click the 3 dots -> Run collection.
+Hover over a collection -> click the 3 dots -> Run collection or your version may look like the screen shot below.
+
+![GitHub Logo](./images/run-collection.png)
 
 Make sure you have the desired Environment selected.
 
