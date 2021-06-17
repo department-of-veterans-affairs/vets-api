@@ -6,7 +6,7 @@ Postman to know where the files are. To do so, go to File -> Settings. Most test
 files are in the following directory: vets-api\modules\vba_documents\spec\fixtures
 
 ### Importing collections and environments
-You'll need to select Import and drag the files from their Github locations
+You'll need to select Import and drag the files from their Github locations.
 
 ### Saving changes to git
 Updates to Postman files will have to be exported as JSON files to the 
