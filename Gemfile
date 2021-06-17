@@ -52,6 +52,7 @@ gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
+gem 'bootsnap', require: false
 gem 'breakers'
 gem 'carrierwave'
 gem 'carrierwave-aws'
@@ -173,7 +174,6 @@ end
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
-  gem 'bootsnap', require: false
   gem 'brakeman', '~> 5.0'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
