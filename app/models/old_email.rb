@@ -5,8 +5,8 @@ require 'common/models/concerns/cache_aside'
 class OldEmail < Common::RedisStore
   redis_store REDIS_CONFIG[:old_email][:namespace]
   redis_ttl REDIS_CONFIG[:old_email][:each_ttl]
-  redis_key :account_uuid
+  redis_key :transaction_id
 
-  attribute :account_uuid, String
+  attribute :transaction_id, String
   attribute :email, String
 end
