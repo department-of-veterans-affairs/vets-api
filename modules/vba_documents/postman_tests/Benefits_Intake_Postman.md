@@ -8,7 +8,7 @@ files are in the following directory: vets-api\modules\vba_documents\spec\fixtur
 ![GitHub Logo](./images/working-directory.png)
 
 ### Importing collections and environments
-You'll need to select Import and drag the files from their Github locations
+You'll need to select Import and drag the files from their Github locations.
 
 ![GitHub Logo](./images/postman-files.png)
 
