@@ -250,6 +250,10 @@ features:
     actor_type: user
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
+  show_medical_copays:
+    actor_type: user
+    description: Enables the medical copays application on route /manage-va-debt/medical-copays/
+    enable_in_development: true
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
