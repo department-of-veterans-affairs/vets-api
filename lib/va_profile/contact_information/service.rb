@@ -75,7 +75,15 @@ module VAProfile
       # @param email [VAProfile::Models::Email] the email to update
       # @return [VAProfile::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def put_email(email)
-        post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
+        response = post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
+
+        transaction = response.transaction
+        if transaction.received?
+          old_email = @user.vet360_contact_info.email.email_address rescue nil
+          OldEmail.create(transaction_id: transaction.id, email: old_email) if old_email.present?
+        end
+
+        response
       end
 
       # GET's the status of an email transaction from the VAProfile api

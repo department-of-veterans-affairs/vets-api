@@ -20,6 +20,10 @@ module VAProfile
       attribute :id, String
       attribute :status, String
 
+      def received?
+        status == 'RECEIVED'
+      end
+
       # Converts a decoded JSON response from VAProfile to an instance of the Transaction model
       # @param body [Hash] the decoded response body from VAProfile
       # @return [VAProfile::Models::Transaction] the model built from the response body

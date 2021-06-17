@@ -94,13 +94,29 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#put_email' do
-    let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
+    let(:email) do
+      build(
+        :email, id: 8087, email_address: 'person42@example.com',
+        vet360_id: user.vet360_id, source_system_user: user.icn
+      )
+    end
 
     context 'when successful' do
+      it 'creates an old_email record' do
+        VCR.use_cassette('va_profile/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+            old_email = user.vet360_contact_info.email.email_address
+            expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+            response = subject.put_email(email)
+            expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
+          end
+        end
+      end
+
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          email.id = 8087
-          email.email_address = 'person42@example.com'
           response = subject.put_email(email)
           expect(response.transaction.id).to eq('7d1667a5-df5f-4559-be35-b36042c61187')
           expect(response).to be_ok
