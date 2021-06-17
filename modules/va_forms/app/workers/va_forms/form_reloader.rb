@@ -59,7 +59,7 @@ module VAForms
       va_form = VAForms::Form.find_or_initialize_by row_id: form['fieldVaFormRowId']
       attrs = init_attributes(form)
       new_url = form['fieldVaFormUrl']['uri']
-      stored_url = VAForms::Form.where(row_id: form['fieldVaFormRowId']).select('url').first&.url
+      # stored_url = VAForms::Form.where(row_id: form['fieldVaFormRowId']).select('url').first&.url
       # notify_slack(new_url, stored_url, form['fieldVaFormNumber']) if stored_url != new_url
       va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
