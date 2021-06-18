@@ -6,7 +6,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
   OBJ = :object
   HLR_TAG = ['Higher-Level Reviews'].freeze
   DOC_VISIBILITY_SETTING = Settings.modules_appeals_api.documentation.path_enabled_flag
-  V2_NOTICE = DOC_VISIBILITY_SETTING ? 'See v2 for this endpoint - ' : ''
+  DEPRECATION_V2_NOTICE = DOC_VISIBILITY_SETTING ? 'See v2 for this endpoint - ' : ''
 
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
@@ -72,7 +72,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     operation :post, tags: HLR_TAG do
       key :deprecated, DOC_VISIBILITY_SETTING
       key :operationId, 'postHigherLevelReviews'
-      key :summary, "#{V2_NOTICE}Creates a new Higher-Level Review."
+      key :summary, "#{DEPRECATION_V2_NOTICE}Creates a new Higher-Level Review."
       desc = 'Submits a Decision Review request of type *Higher-Level Review*. This endpoint is the same as ' \
         'submitting [VA Form 20-0996](https://www.vba.va.gov/pubs/forms/VBA-20-0996-ARE.pdf) via mail or fax.'
       key :description, desc
@@ -89,7 +89,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     operation :get, tags: HLR_TAG do
       key :deprecated, DOC_VISIBILITY_SETTING
       key :operationId, 'getHigherLevelReview'
-      key :summary, "#{V2_NOTICE}Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)"
+      key :summary, "#{DEPRECATION_V2_NOTICE}Shows a specific Higher-Level Review. (a.k.a. the Show endpoint)"
       key :description, 'Returns all of the data associated with a specific Higher-Level Review.'
       parameter name: 'uuid', in: 'path', required: true, description: 'Higher-Level Review UUID' do
         schema { key :$ref, :uuid }
@@ -147,7 +147,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     operation :get, tags: HLR_TAG do
       key :deprecated, DOC_VISIBILITY_SETTING
       key :operationId, 'getHigherLevelReviewSchema'
-      key :summary, "#{V2_NOTICE}Gets the Higher-Level Review JSON Schema."
+      key :summary, "#{DEPRECATION_V2_NOTICE}Gets the Higher-Level Review JSON Schema."
       desc = 'Returns the [JSON Schema](https://json-schema.org/) for the `POST /higher_level_reviews` endpoint.'
       key :description, desc
       response '200' do
@@ -165,7 +165,7 @@ class AppealsApi::V1::HigherLevelReviewsControllerSwagger
     operation :post, tags: HLR_TAG do
       key :deprecated, DOC_VISIBILITY_SETTING
       key :operationId, 'postValidateHigherLevelReview'
-      key :summary, "#{V2_NOTICE}Validates a POST request body against the JSON schema."
+      key :summary, "#{DEPRECATION_V2_NOTICE}Validates a POST request body against the JSON schema."
       desc = 'Like the `POST /higher_level_reviews`, but *only* does the validations **—does not submit anything.**'
       key :description, desc
       key :parameters, hlr_create_parameters
