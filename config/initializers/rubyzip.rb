@@ -3,5 +3,5 @@
 require 'zip'
 
 Rails.application.reloader.to_prepare do
-	Zip.continue_on_exists_proc = true
+  Zip.continue_on_exists_proc = true
 end

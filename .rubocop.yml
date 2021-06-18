@@ -88,7 +88,7 @@ Style/ZeroLengthPredicate:
   Enabled: false
 
 Layout/LineLength:
-  Max: 120
+  Max: 125
   Exclude:
     - 'Gemfile'
 

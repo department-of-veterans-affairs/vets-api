@@ -16,7 +16,6 @@ Rails.application.reloader.to_prepare do
   StatsD.increment('mobile.authentication.success', 0)
   StatsD.increment('mobile.authentication.failure', 0)
 
-
   # meta binding
   Mobile::V0::Appointments::Proxy.extend StatsD::Instrument
   Mobile::V0::Appointments::Proxy.statsd_count_success :get_appointments,
@@ -99,7 +98,6 @@ StatsD.increment('mobile.profile.update.type', 0)
 # service failure rate for linking Vet360 accounts (generating an id)
 StatsD.increment('mobile.profile.link_account.success', 0)
 StatsD.increment('mobile.profile.link_account.failure', 0)
-
 
 StatsD.increment('mobile.push.registration.success', 0)
 StatsD.increment('mobile.push.registration.failure', 0)

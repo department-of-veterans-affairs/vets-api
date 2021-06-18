@@ -19,7 +19,8 @@ Rails.application.reloader.to_prepare do
     config.super_fetch! if defined?(Sidekiq::Pro)
 
     config.on(:startup) do
-      Sidekiq.schedule = YAML.safe_load(ERB.new(File.read(File.expand_path('../sidekiq_scheduler.yml', __dir__))).result)
+      Sidekiq.schedule = YAML.safe_load(ERB.new(File.read(File.expand_path('../sidekiq_scheduler.yml',
+                                                                           __dir__))).result)
       Sidekiq::Scheduler.reload_schedule!
     end
 
