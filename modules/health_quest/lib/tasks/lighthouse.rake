@@ -7,7 +7,7 @@ namespace :lighthouse do
   namespace :pgd do
     namespace :questionnaires do
       desc 'Create new Questionnaire'
-      task :create, [:github_questionnaire, :icn] => [:environment, :confirm] do |task, args|
+      task :create, [:github_questionnaire] => [:environment, :confirm] do |task, args|
         puts "IN THE #{Rails.env} ENVIRONMENT"
         puts "SETTINGS FILE: #{Settings.vsp_environment}\n\n"
 
@@ -42,12 +42,25 @@ namespace :lighthouse do
         abort("PLEASE PASS A VALID .json FILE! #{args[:github_questionnaire]} is not a valid file format!") unless args[:github_questionnaire] =~ /^\S+.json/
 
         # spoof logged in user and their ICN
-        User = Struct.new(:icn)
-        current_user = User.new(args[:icn])
+        Foo = Struct.new(:icn)
+        current_user = Foo.new('foobaricn')
 
         # grab our authentication token from Lighthouse
         begin
-          token_response = HealthQuest::Lighthouse::Token.build(user: current_user, api: HQ_RAKE_API)&.fetch
+          access_token = HealthQuest::Lighthouse::Token.build(user: current_user, api: HQ_RAKE_API)
+
+          def access_token.post_params
+            hash = {
+              grant_type: lighthouse.grant_type,
+              client_assertion_type: lighthouse.client_assertion_type,
+              client_assertion: claims_token,
+              scope: 'system/Questionnaire.read system/Questionnaire.write'
+            }
+
+            URI.encode_www_form(hash)
+          end
+
+          token_response = access_token&.fetch
         rescue StandardError => e
           puts "LIGHTHOUSE TOKEN FETCH FAILED\n\n"
           abort "#{e.message}"
@@ -111,7 +124,7 @@ namespace :lighthouse do
       # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ #
 
       desc 'Update Questionnaire'
-      task :update, [:github_questionnaire, :icn] => [:environment, :confirm] do |task, args|
+      task :update, [:github_questionnaire] => [:environment, :confirm] do |task, args|
         puts "IN THE #{Rails.env} ENVIRONMENT"
         puts "SETTINGS FILE: #{Settings.vsp_environment}\n\n"
 
@@ -146,8 +159,8 @@ namespace :lighthouse do
         abort("PLEASE PASS A VALID .json FILE! #{args[:github_questionnaire]} is not a valid file format!") unless args[:github_questionnaire] =~ /^\S+.json/
 
         # spoof logged in user and their ICN
-        User = Struct.new(:icn)
-        current_user = User.new(args[:icn])
+        Foo = Struct.new(:icn)
+        current_user = Foo.new('foobaricn')
 
         # create a new Faraday(http client) object for Github
         github_conn = new_faraday_github_conn
@@ -175,7 +188,20 @@ namespace :lighthouse do
 
         # grab our authentication token from Lighthouse
         begin
-          token_response = HealthQuest::Lighthouse::Token.build(user: current_user, api: HQ_RAKE_API)&.fetch
+          access_token = HealthQuest::Lighthouse::Token.build(user: current_user, api: HQ_RAKE_API)
+
+          def access_token.post_params
+            hash = {
+              grant_type: lighthouse.grant_type,
+              client_assertion_type: lighthouse.client_assertion_type,
+              client_assertion: claims_token,
+              scope: 'system/Questionnaire.read system/Questionnaire.write'
+            }
+
+            URI.encode_www_form(hash)
+          end
+
+          token_response = access_token&.fetch
         rescue StandardError => e
           puts "LIGHTHOUSE TOKEN FETCH FAILED\n\n"
           abort "#{e.message}"

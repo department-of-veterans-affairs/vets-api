@@ -165,22 +165,33 @@ module AppealsApi
             year: "form1[0].#subform[#{subform}].DOByear[#{offset}]" }
         end
 
+        # rubocop:disable Metrics/MethodLength
         def boxes
+          number_of_issues_on_second_pg = Structure::NUMBER_OF_ISSUES_SECOND_PAGE
+          number_of_issues_on_first_pg = Structure::NUMBER_OF_ISSUES_FIRST_PAGE
+
           { first_name: { at: [3, 560], width: 195 },
             last_name: { at: [230, 560], width: 293 },
             number_and_street: { at: [29, 462], width: 512 },
             city: { at: [200, 441], width: 307 },
             veteran_email: { at: [8, 335], width: 513 },
+            veteran_phone_extension: { at: [220, 378], width: 50, height: 10 },
             rep_first_name: { at: [11, 586], width: 195 },
             rep_last_name: { at: [225, 586], width: 293 },
             rep_email: { at: [11, 525], width: 513 },
             rep_international_number: { at: [275, 555], width: 195 },
             rep_domestic_ext: { at: [225, 555], width: 50 },
             issues_pg1: [].tap do |n|
-              7.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
+              number_of_issues_on_first_pg.times { |i| n << { at: [-3, 320 - (46.5 * i)], width: 369, height: 43 } }
             end,
             issues_pg2: [].tap do |n|
-              6.times { |i| n << { at: [-3, 675 - (46.5 * i)], width: 369, height: 43 } }
+              number_of_issues_on_second_pg.times { |i| n << { at: [-3, 675 - (46.5 * i)], width: 369, height: 43 } }
+            end,
+            soc_date_pg1: [].tap do |n|
+              number_of_issues_on_first_pg.times { |i| n << { at: [375, 315 - (46.5 * i)], width: 160, height: 15 } }
+            end,
+            soc_date_pg2: [].tap do |n|
+              number_of_issues_on_second_pg.times { |i| n << { at: [380, 670 - (46.5 * i)], width: 160, height: 15 } }
             end,
             signature: { at: [-3, 329], width: 369, height: 18 },
             # The rest aren't currently used, but kept for if/when we need them
@@ -188,6 +199,7 @@ module AppealsApi
             rep_signature_last_name: { at: [226, 229], width: 293 },
             rep_signature: { at: [-4, 201], width: 369, height: 18 } }
         end
+        # rubocop:enable Metrics/MethodLength
       end
     end
   end

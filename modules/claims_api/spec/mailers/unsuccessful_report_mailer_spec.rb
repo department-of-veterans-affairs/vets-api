@@ -71,7 +71,6 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
           zachary.goldfine@va.gov
           david.mazik@va.gov
           premal.shah@va.gov
-          valerie.hase@va.gov
           mark.greenburg@adhocteam.us
           emily.goodrich@oddball.io
           lee.deboom@oddball.io
