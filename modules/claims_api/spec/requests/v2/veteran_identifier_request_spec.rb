@@ -20,12 +20,43 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
   describe 'Veteran Identifier' do
     context 'when auth header and body params are present' do
       context 'when veteran icn is found' do
-        context 'when user is a veteran representative' do
+        context 'when user is a Veteran representative' do
           it 'returns an id' do
             expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
             allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
             allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
             expect(::Veteran::Service::Representative).to receive(:find_by).and_return(true)
+            with_okta_user(scopes) do |auth_header|
+              post path, params: data, headers: auth_header
+              icn = JSON.parse(response.body)['id']
+
+              expect(icn).to eq(test_user_icn)
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+
+        context 'when user is also the Veteran that was found' do
+          okta_user_info = {
+            first_name: 'abraham',
+            last_name: 'lincoln',
+            ssn: '796111863',
+            va_profile: ClaimsApi::Veteran.build_profile('1809-02-12')
+          }
+          let(:veteran) do
+            ClaimsApi::Veteran.new(
+              first_name: okta_user_info[:first_name],
+              last_name: okta_user_info[:last_name],
+              ssn: okta_user_info[:ssn],
+              va_profile: okta_user_info[:va_profile]
+            )
+          end
+
+          it 'returns an id' do
+            expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+            allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
+            expect(::Veteran::Service::Representative).to receive(:find_by).and_return(nil)
             with_okta_user(scopes) do |auth_header|
               post path, params: data, headers: auth_header
               icn = JSON.parse(response.body)['id']
@@ -139,6 +170,22 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
 
             post path, params: invalid_data, headers: auth_header
             expect(response.status).to eq(400)
+          end
+        end
+      end
+    end
+
+    context 'when request is forbidden' do
+      context 'when user is not a Veteran representative, nor the matching Veteran' do
+        it 'reutrns a 403 forbidden response' do
+          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+          allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
+          expect(::Veteran::Service::Representative).to receive(:find_by).and_return(nil)
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data, headers: auth_header
+
+            expect(response.status).to eq(403)
           end
         end
       end
