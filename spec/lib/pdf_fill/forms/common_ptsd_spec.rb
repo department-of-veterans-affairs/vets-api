@@ -42,7 +42,6 @@ describe PdfFill::Forms::CommonPtsd do
     end
   end
 
-  # rubocop:disable Layout/LineLength
   describe '#expand_incident_location' do
     it 'expands the incident location into three lines one word each' do
       expect(including_class.new.expand_incident_location(
@@ -76,7 +75,6 @@ describe PdfFill::Forms::CommonPtsd do
       )
     end
   end
-  # rubocop:enable Layout/LineLength
 
   describe '#expand incident_unit_assignment' do
     it 'expands the incident unit assignment into three lines one word each' do

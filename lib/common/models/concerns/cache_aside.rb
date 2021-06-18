@@ -11,9 +11,7 @@ module Common
     extend ActiveSupport::Concern
 
     included do
-      unless self < Common::RedisStore
-        raise ArgumentError, 'Class composing Common::CacheAside must be a Common::RedisStore'
-      end
+      raise ArgumentError, 'Class composing Common::CacheAside must be a Common::RedisStore' unless self < Common::RedisStore
 
       def self.redis_config_key(key)
         redis_store REDIS_CONFIG[key][:namespace]

@@ -15,9 +15,7 @@ namespace :vba_documents do
   task :inspect_pdf, [:pdf_test_dir] => [:environment] do |_, args|
     pdf_test_dir = args[:pdf_test_dir]
     raise ArgumentError, NO_PDF_DIR unless pdf_test_dir
-    unless Dir.exist?(pdf_test_dir)
-      raise ArgumentError, "The PDF directory, #{pdf_test_dir} is not a valid directory path"
-    end
+    raise ArgumentError, "The PDF directory, #{pdf_test_dir} is not a valid directory path" unless Dir.exist?(pdf_test_dir)
 
     files = Dir["#{pdf_test_dir}/*"]
     pdfs = []

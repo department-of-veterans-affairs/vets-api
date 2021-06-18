@@ -48,9 +48,7 @@ Rails.application.reloader.to_prepare do
         Flipper.add(feature)
 
         # default features to enabled for test and those explicitly set for development
-        if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
-          Flipper.enable(feature)
-        end
+        Flipper.enable(feature) if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
       end
     end
     # remove features from UI that have been removed from code

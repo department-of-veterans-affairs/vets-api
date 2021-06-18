@@ -21,9 +21,7 @@ module Notifications
     end
 
     def validate_record_present!(notification, subject)
-      if notification.nil?
-        raise Common::Exceptions::RecordNotFound.new(subject), "User does not have a #{subject} record"
-      end
+      raise Common::Exceptions::RecordNotFound.new(subject), "User does not have a #{subject} record" if notification.nil?
     end
   end
 end

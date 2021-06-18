@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Layout/LineLength
 module Swagger
   module Schemas
     class EVSSAuthError
@@ -25,4 +24,3 @@ module Swagger
     end
   end
 end
-# rubocop:enable Layout/LineLength
