@@ -6,8 +6,6 @@ module ClaimsApi
   module V2
     class VeteranIdentifierController < ClaimsApi::V2::ApplicationController
       def find
-        raise ::Common::Exceptions::Unauthorized if request.headers['Authorization'].blank?
-
         validate_request
         veteran = find_veteran(params)
 
