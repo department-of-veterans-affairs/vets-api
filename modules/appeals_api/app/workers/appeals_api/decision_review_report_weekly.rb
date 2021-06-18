@@ -9,13 +9,17 @@ module AppealsApi
     sidekiq_options retry: 16
 
     def perform(to: Time.zone.now, from: 1.week.ago.beginning_of_day)
-      DecisionReviewMailer.build(date_from: from, date_to: to, friendly_duration: 'Weekly').deliver_now if enabled?
+      recipients = Settings.modules_appeals_api.reports.weekly_decision_review.recipients
+      if enabled?
+        DecisionReviewMailer.build(date_from: from, date_to: to, friendly_duration: 'Weekly',
+                                   recipients: recipients).deliver_now
+      end
     end
 
     private
 
     def enabled?
-      Settings.modules_appeals_api.reports.decision_review.enabled
+      Settings.modules_appeals_api.reports.weekly_decision_review.enabled
     end
   end
 end

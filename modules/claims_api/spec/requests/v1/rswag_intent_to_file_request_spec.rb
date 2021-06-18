@@ -4,13 +4,12 @@ require 'swagger_helper'
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components'
 
-describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
+describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/forms/0966' do
     get 'Get 0966 JSON Schema for form.' do
       deprecated true
       tags 'Intent to File'
       operationId 'get0966JsonSchema'
-      security [bearer_token: []]
       produces 'application/json'
       description 'Returns a single 0966 JSON schema to auto generate a form.'
       let(:Authorization) { 'Bearer token' }
@@ -39,7 +38,11 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
     post 'Submit form 0966 Intent to File.' do
       tags 'Intent to File'
       operationId 'post0966itf'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read', 'claim.write'] },
+        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { bearer_token: [] }
+      ]
       consumes 'application/json'
       produces 'application/json'
       post_description = <<~VERBIAGE
@@ -201,7 +204,11 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
     get 'Returns last active 0966 Intent to File form submission.' do
       tags 'Intent to File'
       operationId 'active0966itf'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read'] },
+        { sandboxOauth: ['claim.read'] },
+        { bearer_token: [] }
+      ]
       produces 'application/json'
       description 'Returns the last active 0966 form for a Veteran.'
 
@@ -367,7 +374,11 @@ describe 'Intent to file' do # rubocop:disable RSpec/DescribeClass
       deprecated true
       tags 'Intent to File'
       operationId 'validate0966itf'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read', 'claim.write'] },
+        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { bearer_token: [] }
+      ]
       consumes 'application/json'
       produces 'application/json'
       validate_description = <<~VERBIAGE

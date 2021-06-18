@@ -4,13 +4,12 @@ require 'swagger_helper'
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components'
 
-describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
+describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/forms/526' do
     get 'Get a 526 schema for a claim.' do
       deprecated true
       tags 'Disability'
       operationId 'get526JsonSchema'
-      security [bearer_token: []]
       produces 'application/json'
       get_schema_description = <<~VERBIAGE
         Returns a single 526 schema to automatically generate a form. Using this GET endpoint allows users to download our current validations.
@@ -43,7 +42,11 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
     post 'Submits form 526' do
       tags 'Disability'
       operationId 'post526Claim'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read', 'claim.write'] },
+        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { bearer_token: [] }
+      ]
       consumes 'application/json'
       produces 'application/json'
       post_description = <<~VERBIAGE
@@ -154,11 +157,8 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
 
           let(:scopes) { %w[claim.write] }
           let(:auto_cest_pdf_generation_disabled) { false }
-          let(:data) do
-            'This is not valid JSON'
-          end
 
-          before do |example|
+          def make_stubbed_request(example)
             stub_poa_verification
             stub_mpi
 
@@ -169,16 +169,56 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
             end
           end
 
-          after do |example|
+          def append_example_metadata(example, response)
             example.metadata[:response][:content] = {
               'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
+                examples: {
+                  example.metadata[:example_group][:description] => {
+                    value: JSON.parse(response.body, symbolize_names: true)
+                  }
+                }
               }
             }
           end
 
-          it 'returns a 422 response' do |example|
-            assert_response_matches_metadata(example.metadata)
+          context 'Violates JSON Schema' do
+            let(:data) do
+              temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
+              temp = JSON.parse(temp)
+              temp['data']['attributes']['someBadKey'] = 'someValue'
+
+              temp
+            end
+
+            before do |example|
+              make_stubbed_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+
+          context 'Not a JSON Object' do
+            let(:data) do
+              'This is not valid JSON'
+            end
+
+            before do |example|
+              make_stubbed_request(example)
+            end
+
+            after do |example|
+              append_example_metadata(example, response)
+            end
+
+            it 'returns a 422 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
           end
         end
       end
@@ -189,7 +229,11 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
     put 'Upload a 526 document' do
       tags 'Disability'
       operationId 'upload526Attachment'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read', 'claim.write'] },
+        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { bearer_token: [] }
+      ]
       consumes 'multipart/form-data'
       produces 'application/json'
       put_description = <<~VERBIAGE
@@ -379,7 +423,11 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
       deprecated true
       tags 'Disability'
       operationId 'post526ClaimValidate'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read', 'claim.write'] },
+        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { bearer_token: [] }
+      ]
       consumes 'application/json'
       produces 'application/json'
       validate_description = <<~VERBIAGE
@@ -530,7 +578,11 @@ describe 'Disability Claims' do # rubocop:disable RSpec/DescribeClass
     post 'Upload documents supporting a 526 claim' do
       tags 'Disability'
       operationId 'upload526Attachments'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read', 'claim.write'] },
+        { sandboxOauth: ['claim.read', 'claim.write'] },
+        { bearer_token: [] }
+      ]
       consumes 'multipart/form-data'
       produces 'application/json'
       put_description = <<~VERBIAGE

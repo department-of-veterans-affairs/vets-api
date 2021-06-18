@@ -58,8 +58,15 @@ module VAOS
       end
 
       def create_params
-        params.permit(:kind, :status, :location_id, :clinic, :reason, :slot, :contact,
-                      :service_type, :requested_periods, :patient_icn)
+        params.permit(:kind,
+                      :status,
+                      :location_id,
+                      :clinic,
+                      :reason,
+                      :service_type,
+                      slot: %i[id start end],
+                      contact: [telecom: %i[type value]],
+                      requested_periods: %i[start end])
       end
 
       def start_date

@@ -26,7 +26,7 @@ module VBADocuments
           validate_metadata(parts[META_PART_NAME])
           update_pdf_metadata(upload_model, inspector)
           perfect_metadata(upload_model, parts, Time.zone.now)
-          VBADocuments::UploadProcessor.perform_async(upload_model.guid)
+          VBADocuments::UploadProcessor.perform_async(upload_model.guid, caller: self.class.name)
         rescue VBADocuments::UploadError => e
           Rails.logger.warn("UploadError download_and_process for guid #{upload_model.guid}.", e)
           upload_model.update(status: 'error', code: e.code, detail: e.detail)
