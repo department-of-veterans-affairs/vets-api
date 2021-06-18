@@ -13,7 +13,7 @@ module ClaimsApi
 
         user_is_the_veteran   = current_user_is_the_veteran?(veteran: veteran, user: @current_user)
         user_is_a_veteran_rep = current_user_is_a_veteran_representative?(@current_user)
-        raise ::Common::Exceptions::Unauthorized unless user_is_the_veteran || user_is_a_veteran_rep
+        raise ::Common::Exceptions::Forbidden unless user_is_the_veteran || user_is_a_veteran_rep
 
         render json: { id: veteran.mpi.icn }
       end

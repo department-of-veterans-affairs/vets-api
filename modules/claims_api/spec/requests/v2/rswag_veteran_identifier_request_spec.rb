@@ -123,6 +123,39 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
         end
       end
 
+      describe 'Getting a 403 response' do
+        before do |example|
+          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+          allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
+          expect(::Veteran::Service::Representative).to receive(:find_by).and_return(nil)
+          with_okta_user(scopes) do |auth_header|
+            Authorization = auth_header # rubocop:disable Naming/ConstantName
+            submit_request(example.metadata)
+          end
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        response '403', 'Forbidden' do
+          schema JSON.parse(
+            File.read(
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')
+            )
+          )
+
+          it 'returns a 403 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
       describe 'Getting a 404 response' do
         before do |example|
           expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
