@@ -37,7 +37,7 @@ gem 'sass-rails', '>= 6'
 # Anchored versions, do not change
 gem 'puma', '~> 5.3.2'
 gem 'puma-plugin-statsd', '~> 1.2.1'
-gem 'rails', '~> 6.1.3'
+gem 'rails', '~> 6.0.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
@@ -45,7 +45,7 @@ gem 'sidekiq-scheduler', '~> 3.1' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
-gem 'activerecord-postgis-adapter'
+gem 'activerecord-postgis-adapter', '~> 6.0.0'
 gem 'addressable'
 gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
@@ -118,7 +118,7 @@ gem 'rack'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'
-gem 'rails_semantic_logger', '~> 4.5'
+gem 'rails_semantic_logger', '~> 4.6'
 gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'

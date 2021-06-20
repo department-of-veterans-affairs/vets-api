@@ -20,10 +20,10 @@ class MessageDraft < Message
   private
 
   def check_as_replydraft
-    errors.add(:base, 'This draft requires a reply-to message.') unless message?
+    errors[:base] << 'This draft requires a reply-to message.' unless message?
   end
 
   def check_as_draft
-    errors.add(:base, 'This draft cannot have a reply-to message') if message?
+    errors[:base] << 'This draft cannot have a reply-to message' if message?
   end
 end

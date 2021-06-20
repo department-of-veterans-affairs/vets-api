@@ -73,7 +73,7 @@ class InProgressForm < ApplicationRecord
   # https://dsva.slack.com/archives/C1A7KLZ9B/p1501856503336861
   def id_me_user_uuid
     if user_uuid && !user_uuid.length.in?([20, 21, 22, 23, 32])
-      errors.add(:user_uuid, "(#{user_uuid}) is not a proper length")
+      errors[:user_uuid] << "(#{user_uuid}) is not a proper length"
     end
   end
 

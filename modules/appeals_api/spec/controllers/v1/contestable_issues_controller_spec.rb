@@ -8,8 +8,10 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviews::ContestableIssuesC
     subject { described_class.new.send(:get_contestable_issues_from_caseflow).body }
 
     before do
-      expected_headers = { 'X-VA-SSN' => '872958715', 'X-VA-Receipt-Date' => '2019-12-01' }
-      allow_any_instance_of(described_class).to receive(:request_headers).and_return(expected_headers)
+      allow_any_instance_of(described_class).to receive(:headers).and_return({
+                                                                               'X-VA-SSN' => '872958715',
+                                                                               'X-VA-Receipt-Date' => '2019-12-01'
+                                                                             })
       allow_any_instance_of(described_class).to receive(:benefit_type).and_return('compensation')
     end
 
