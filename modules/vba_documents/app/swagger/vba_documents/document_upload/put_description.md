@@ -39,7 +39,7 @@ Content-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76
 ```
 
 Note that the Content-Disposition parameter "name" in each part must be the expected values
-"metadata", "content", "attachment1"..."attachmentN". The attachment names must be named 
+"metadata", "content", "attachment1"..."attachmentN". The attachment attributes must be named 
 exactly as they are listed here (case sensitive), for example: "attachment_1" or "Attachment2"
 are invalid.
 
