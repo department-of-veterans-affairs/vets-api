@@ -1,0 +1,194 @@
+{
+	"info": {
+		"_postman_id": "aed2ec09-6ce0-46f3-8903-fafb54a4b452",
+		"name": "Webhook ping",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Ping Webhook 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Only run the number of pings that the num_webhook_urls specifies\r",
+							"if(pm.environment.get(\"num_webhook_urls\") == 1) {\r",
+							"    postman.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"message\": \"This is kevins test1\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{webhookURL1}}",
+					"host": [
+						"{{webhookURL1}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping Webhook 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Only run the number of pings that the num_webhook_urls specifies\r",
+							"if(pm.environment.get(\"num_webhook_urls\") == 2) {\r",
+							"    postman.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"message\": \"This is kevins test2\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{webhookURL2}}",
+					"host": [
+						"{{webhookURL2}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping Webhook 3",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Only run the number of pings that the num_webhook_urls specifies\r",
+							"if(pm.environment.get(\"num_webhook_urls\") == 3) {\r",
+							"    postman.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"message\": \"This is kevins test3\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{webhookURL3}}",
+					"host": [
+						"{{webhookURL3}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping Webhook 4",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Only run the number of pings that the num_webhook_urls specifies\r",
+							"if(pm.environment.get(\"num_webhook_urls\") == 4) {\r",
+							"    postman.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"message\": \"This is kevins test4\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{webhookURL4}}",
+					"host": [
+						"{{webhookURL4}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Ping Webhook 5",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Only run the number of pings that the num_webhook_urls specifies\r",
+							"if(pm.environment.get(\"num_webhook_urls\") == 5) {\r",
+							"    postman.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"message\": \"This is kevins test5\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{webhookURL5}}",
+					"host": [
+						"{{webhookURL5}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
