@@ -322,6 +322,29 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
           expect(response.transaction.id).to eq(transaction_id)
         end
       end
+
+      context 'with an old_email record' do
+        before do
+          OldEmail.create(email: 'email@email.com', transaction_id: transaction_id)
+        end
+
+        it 'calls send_email_change_notification' do
+          VCR.use_cassette('va_profile/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
+            expect(VANotifyEmailJob).to receive(:perform_async).with(
+              'email@email.com',
+              described_class::CONTACT_INFO_CHANGE_TEMPLATE
+            )
+            expect(VANotifyEmailJob).to receive(:perform_async).with(
+              'person43@example.com',
+              described_class::CONTACT_INFO_CHANGE_TEMPLATE
+            )
+
+            subject.get_email_transaction_status(transaction_id)
+
+            expect(OldEmail.find(transaction_id)).to eq(nil)
+          end
+        end
+      end
     end
 
     context 'when not successful' do
