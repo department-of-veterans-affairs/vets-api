@@ -30,6 +30,7 @@ describe VAOS::Middleware::VAOSLogging do
 
   after { Timecop.return }
 
+  # TODO: test out flipper update
   context 'with status successful' do
     let(:status) { 200 }
 
