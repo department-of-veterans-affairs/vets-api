@@ -7,7 +7,7 @@ module VBMS
     include SentryLogging
 
     # Generates PDF for 686c form and uploads to VBMS
-    def perform(saved_claim_id, va_file_number_with_payload, submittable_686, submittable_674)
+    def perform(saved_claim_id, va_file_number_with_payload)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(va_file_number_with_payload)
 
@@ -27,8 +27,7 @@ module VBMS
           Common::FileHelpers.delete_file_if_exists(file_path)
         end
       end
-
-      generate_pdf(claim, submittable_686, submittable_674)
+      generate_pdf(claim)
     rescue => e
       send_error_to_sentry(e, claim&.id)
     end
@@ -45,9 +44,9 @@ module VBMS
       )
     end
 
-    def generate_pdf(claim, submittable_686, submittable_674)
-      claim.upload_pdf('686C-674') if submittable_686
-      claim.upload_pdf('21-674', doc_type: '142') if submittable_674
+    def generate_pdf(claim)
+      claim.upload_pdf('686C-674') if claim.submittable_686?
+      claim.upload_pdf('21-674', doc_type: '142') if claim.submittable_674?
     end
 
     def get_doc_type(guid, parsed_form)

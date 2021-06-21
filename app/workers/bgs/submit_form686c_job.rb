@@ -23,6 +23,8 @@ module BGS
     rescue
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       DependentsApplicationFailureMailer.build(user).deliver_now if user.present?
+    else
+      VBMS::SubmitDependentsPdfJob.perform_async(saved_claim_id, vet_info)
     end
 
     private
