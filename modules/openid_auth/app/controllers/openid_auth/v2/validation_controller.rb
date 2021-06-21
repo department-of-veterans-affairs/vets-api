@@ -67,7 +67,6 @@ module OpenidAuth
       def validated_payload
         # Ensure the token has `act` and `launch` keys.
         payload_object = setup_structure
-
         if token.ssoi_token?
           payload_object = populate_act_payload(payload_object)
           return payload_object unless
