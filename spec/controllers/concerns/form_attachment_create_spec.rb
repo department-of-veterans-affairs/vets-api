@@ -10,7 +10,7 @@ shared_examples_for 'a FormAttachmentCreate controller' do |user_factory: nil, a
   describe '#create' do
     let(:form_attachment_guid) { SecureRandom.uuid }
     let(:pdf_file) do
-      fixture_file_upload('files/doctors-note.pdf', 'application/pdf')
+      fixture_file_upload('doctors-note.pdf', 'application/pdf')
     end
     let(:form_attachment_model) { described_class::FORM_ATTACHMENT_MODEL }
     let(:param_namespace) { form_attachment_model.to_s.underscore.split('/').last }

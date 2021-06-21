@@ -42,7 +42,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it 'throws an error' do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
+          expect(notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/hearingTypePreference')
+          expect(notice_of_disagreement.errors.first.options[:detail]).to eq(
             "If '/data/attributes/boardReviewOption' 'hearing' is selected, '/data/attributes/hearingTypePreference' must also be present"
           )
         end
@@ -60,7 +61,8 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
         it 'throws an error' do
           expect(notice_of_disagreement.errors.count).to be 1
-          expect(notice_of_disagreement.errors[:'/data/attributes/hearingTypePreference'][0][:detail]).to eq(
+          expect(notice_of_disagreement.errors.first.attribute).to eq(:'/data/attributes/hearingTypePreference')
+          expect(notice_of_disagreement.errors.first.options[:detail]).to eq(
             "If '/data/attributes/boardReviewOption' 'direct_review' or 'evidence_submission' is selected, '/data/attributes/hearingTypePreference' must not be selected"
           )
         end
