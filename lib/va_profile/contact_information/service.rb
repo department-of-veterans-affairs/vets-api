@@ -10,6 +10,8 @@ require_relative 'transaction_response'
 module VAProfile
   module ContactInformation
     class Service < VAProfile::Service
+      CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+
       include Common::Client::Concerns::Monitoring
 
       configuration VAProfile::ContactInformation::Configuration
@@ -92,7 +94,9 @@ module VAProfile
       def get_email_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/emails/status/#{transaction_id}"
         transaction_status = get_transaction_status(route, EmailTransactionResponse)
-        binding.pry; fail
+
+        send_email_change_notification(transaction_status)
+
         transaction_status
       end
 
@@ -160,6 +164,20 @@ module VAProfile
       end
 
       private
+
+      def send_email_change_notification(transaction_status)
+        transaction = transaction_status.transaction
+
+        if transaction.completed_success?
+          old_email = OldEmail.find(transaction.id)
+          return if old_email.nil?
+
+          VANotifyEmailJob.perform_async(old_email.email, CONTACT_INFO_CHANGE_TEMPLATE)
+          VANotifyEmailJob.perform_async(transaction_status.new_email, CONTACT_INFO_CHANGE_TEMPLATE) if transaction_status.new_email.present?
+
+          old_email.destroy
+        end
+      end
 
       def vet360_id_present!
         raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
