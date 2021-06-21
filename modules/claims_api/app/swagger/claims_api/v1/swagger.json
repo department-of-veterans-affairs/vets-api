@@ -27,9 +27,35 @@
     "securitySchemes": {
       "bearer_token": {
         "type": "http",
-        "name": "token",
-        "scheme": "bearer",
-        "bearer_format": "JWT"
+        "scheme": "bearer"
+      },
+      "productionOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
+      },
+      "sandboxOauth": {
+        "type": "oauth2",
+        "description": "This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://sandbox-api.va.gov/oauth2/authorization",
+            "tokenUrl": "https://sandbox-api.va.gov/oauth2/token",
+            "scopes": {
+              "claim.read": "Retrieve claim data",
+              "claim.write": "Submit claim data"
+            }
+          }
+        }
       }
     }
   },
@@ -42,6 +68,16 @@
         ],
         "operationId": "findClaims",
         "security": [
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
           {
             "bearer_token": [
 
@@ -134,10 +170,12 @@
                         "properties": {
                           "id": {
                             "type": "string",
-                            "description": "Claim ID from EVSS"
+                            "description": "Claim ID from EVSS",
+                            "example": "8347210"
                           },
                           "type": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "evss_claims"
                           },
                           "attributes": {
                             "type": "object",
@@ -185,23 +223,28 @@
                               },
                               "open": {
                                 "type": "boolean",
-                                "description": "Has the claim been resolved"
+                                "description": "Has the claim been resolved",
+                                "example": "true"
                               },
                               "waiver_submitted": {
                                 "type": "boolean",
-                                "description": "Requested Decision or Waiver 5103 Submitted"
+                                "description": "Requested Decision or Waiver 5103 Submitted",
+                                "example": "false"
                               },
                               "documents_needed": {
                                 "type": "boolean",
-                                "description": "Does the claim require additional documents to be submitted"
+                                "description": "Does the claim require additional documents to be submitted",
+                                "example": "false"
                               },
                               "development_letter_sent": {
                                 "type": "boolean",
-                                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim"
+                                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim",
+                                "example": "false"
                               },
                               "decision_letter_sent": {
                                 "type": "boolean",
-                                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim"
+                                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim",
+                                "example": "false"
                               },
                               "status": {
                                 "type": "string",
@@ -212,11 +255,13 @@
                                   "Evidence gathering, review, and decision",
                                   "Preparation for notification",
                                   "Complete"
-                                ]
+                                ],
+                                "example": "Claim received"
                               },
                               "requested_decision": {
                                 "type": "boolean",
-                                "description": "The claim filer has requested a claim decision be made"
+                                "description": "The claim filer has requested a claim decision be made",
+                                "example": "false"
                               },
                               "claim_type": {
                                 "type": "string",
@@ -226,7 +271,8 @@
                                   "Compensation and Pension",
                                   "Dependency",
                                   "Administrative Review"
-                                ]
+                                ],
+                                "example": "Compensation"
                               }
                             }
                           }
@@ -358,6 +404,16 @@
         "operationId": "findClaimById",
         "security": [
           {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -418,7 +474,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bc977e38-7d2b-424d-8684-56f0e156148d",
+                    "id": "f2a1eedf-e037-496f-a13e-96c62f847f9c",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -467,11 +523,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "e987e360-ac68-4e63-8ca9-aa876c06b6e8",
+                          "id": "166a083f-34ed-44ed-a337-f329ab53f2e8",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-09T22:46:04.460Z"
+                          "uploaded_at": "2021-06-16T15:51:28.649Z"
                         }
                       ]
                     }
@@ -831,13 +887,6 @@
           "Disability"
         ],
         "operationId": "get526JsonSchema",
-        "security": [
-          {
-            "bearer_token": [
-
-            ]
-          }
-        ],
         "description": "Returns a single 526 schema to automatically generate a form. Using this GET endpoint allows users to download our current validations.\n",
         "responses": {
           "200": {
@@ -2106,6 +2155,18 @@
         "operationId": "post526Claim",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -2157,7 +2218,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7e8b99e8-dfb1-41c9-a5e8-2c3577a97890",
+                    "id": "0db4fcbe-7881-4cc2-93c5-cd62c6fef1c0",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2175,13 +2236,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T22:46:04.861Z",
+                      "updated_at": "2021-06-16T15:51:28.971Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "7e8b99e8-dfb1-41c9-a5e8-2c3577a97890",
+                      "token": "0db4fcbe-7881-4cc2-93c5-cd62c6fef1c0",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3775,6 +3836,18 @@
         "operationId": "upload526Attachment",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -3835,7 +3908,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c91c8b12-2a10-4ffa-aa16-cb2fa35ecacf",
+                    "id": "45c18f76-794d-4a7e-88f2-e07ff45c48a9",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3853,13 +3926,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T22:46:05.243Z",
+                      "updated_at": "2021-06-16T15:51:29.276Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c91c8b12-2a10-4ffa-aa16-cb2fa35ecacf",
+                      "token": "45c18f76-794d-4a7e-88f2-e07ff45c48a9",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4241,6 +4314,18 @@
         ],
         "operationId": "post526ClaimValidate",
         "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
           {
             "bearer_token": [
 
@@ -5809,6 +5894,18 @@
         "operationId": "upload526Attachments",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -5869,7 +5966,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b71eef4a-73f2-4a87-946c-a243366d564e",
+                    "id": "94d8eb96-7987-4b16-8ae6-ce220bf8d2e9",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5883,7 +5980,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-09T22:46:06.217Z",
+                      "updated_at": "2021-06-16T15:51:29.919Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5892,7 +5989,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "76680c7c-bec5-43fe-95ca-20fc35210105",
+                          "id": "cc9f9267-e5f2-4d59-9ed5-36726e2e1190",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6249,13 +6346,6 @@
           "Intent to File"
         ],
         "operationId": "get0966JsonSchema",
-        "security": [
-          {
-            "bearer_token": [
-
-            ]
-          }
-        ],
         "description": "Returns a single 0966 JSON schema to auto generate a form.",
         "responses": {
           "200": {
@@ -6313,6 +6403,18 @@
         ],
         "operationId": "post0966itf",
         "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
           {
             "bearer_token": [
 
@@ -6675,6 +6777,16 @@
         "operationId": "active0966itf",
         "security": [
           {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -6989,6 +7101,18 @@
         "operationId": "validate0966itf",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -7264,13 +7388,6 @@
           "Power of Attorney"
         ],
         "operationId": "get2122JsonSchema",
-        "security": [
-          {
-            "bearer_token": [
-
-            ]
-          }
-        ],
         "description": "Returns schema to automatically generate a POA form.",
         "responses": {
           "200": {
@@ -7678,6 +7795,18 @@
         "operationId": "post2122",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -7729,11 +7858,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "820b8b01-b077-480b-8325-656870f076e3",
+                    "id": "dbe2409f-f48f-4ab5-b7a9-fda0fdff34e9",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-06-09",
+                      "date_request_accepted": "2021-06-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8359,6 +8488,18 @@
         "operationId": "upload2122Attachment",
         "security": [
           {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -8419,11 +8560,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9011f084-4cdd-47c3-a253-3398839a669b",
+                    "id": "8e700d7b-6e93-4478-8bb4-e1a3e1434fa4",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-09",
+                      "date_request_accepted": "2021-06-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8652,6 +8793,16 @@
         "operationId": "get2122poa",
         "security": [
           {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
             "bearer_token": [
 
             ]
@@ -8712,11 +8863,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "150d9173-287f-431e-848e-0f48f7e58a9c",
+                    "id": "53868f9a-ea44-4ede-ae5b-b145018ca138",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-09",
+                      "date_request_accepted": "2021-06-16",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8930,6 +9081,16 @@
         ],
         "operationId": "getActive2122Poa",
         "security": [
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
           {
             "bearer_token": [
 
@@ -9236,6 +9397,18 @@
         ],
         "operationId": "validate2122poa",
         "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
           {
             "bearer_token": [
 

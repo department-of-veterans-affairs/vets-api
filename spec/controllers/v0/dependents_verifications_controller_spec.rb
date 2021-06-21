@@ -23,13 +23,20 @@ RSpec.describe V0::DependentsVerificationsController do
   end
 
   describe 'POST create' do
-    it 'fires the #update_diaries call' do
-      depenency_verification_service = double('dep_verification')
+    context 'logged in loa3 user' do
+      it 'validates successfully' do
+        form_params = { dependency_verification_claim: { form: { update_diaries: true } } }
 
-      expect(depenency_verification_service).to receive(:update_diaries)
-      expect(BGS::DependencyVerificationService).to receive(:new) { depenency_verification_service }
+        post(:create, params: form_params)
+        expect(response.code).to eq('200')
+      end
+    end
 
-      post(:create, params: { update_diaries: true })
+    context 'with update set to false' do
+      it 'returns no content' do
+        post(:create, params: { dependency_verification_claim: { form: { update_diaries: false } } })
+        expect(response.code).to eq('204')
+      end
     end
   end
 end
