@@ -25,8 +25,8 @@ module BGS
       DependentsApplicationFailureMailer.build(user).deliver_now if user.present?
     else
       VBMS::SubmitDependentsPdfJob.perform_async(
-        claim.id,
-        vet_info.to_686c_form_hash,
+        saved_claim_id,
+        vet_info,
         @submittable_686,
         @submittable_674
       )

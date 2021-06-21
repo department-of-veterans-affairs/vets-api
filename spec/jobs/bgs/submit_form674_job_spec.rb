@@ -23,6 +23,8 @@ RSpec.describe BGS::SubmitForm674Job, type: :job do
     client_stub = instance_double('BGS::Form674')
     allow(BGS::Form674).to receive(:new).with(an_instance_of(User)) { client_stub }
     expect(client_stub).to receive(:submit).once
+    expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_686?).and_return(false)
+    expect_any_instance_of(SavedClaim::DependencyClaim).to receive(:submittable_674?).and_return(true)
 
     described_class.new.perform(user.uuid, dependency_claim.id, vet_info)
   end
