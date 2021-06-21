@@ -85,8 +85,11 @@ class SavedClaim::DependencyClaim < SavedClaim
 
   # Run after a claim is saved, this processes any files/supporting documents that are present
   def process_attachments!
-    supporting_documents = parsed_form.dig('dependents_application', 'supporting_documents')
-    if supporting_documents
+    child_documents = parsed_form.dig('dependents_application', 'child_supporting_documents')
+    spouse_documents = parsed_form.dig('dependents_application', 'spouse_supporting_documents')
+    # add the two arrays together but also account for nil arrays
+    supporting_documents = [child_documents, spouse_documents].compact.reduce([], :|)
+    if supporting_documents.present?
       files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmation_code'] })
       files.find_each { |f| f.update(saved_claim_id: id) }
     end

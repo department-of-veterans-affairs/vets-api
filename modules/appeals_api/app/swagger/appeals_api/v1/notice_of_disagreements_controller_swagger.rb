@@ -641,6 +641,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   swagger_path '/path' do
     operation :put, tags: NOD_TAG do
       key :operationId, 'putNoticeOfDisagreementEvidenceSubmission'
+      key :description, File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v1', 'put_description.md'))
       key :summary, 'Accepts Notice of Disagreement Evidence Submission document upload.'
 
       parameter do

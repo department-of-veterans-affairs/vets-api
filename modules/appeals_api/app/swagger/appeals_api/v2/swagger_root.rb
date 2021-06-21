@@ -4,7 +4,7 @@ module AppealsApi::V2::SwaggerRoot
   include Swagger::Blocks
 
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
-  read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
+  read_file_from_same_dir = ->(filename) { read_file.call(['app', 'swagger', 'appeals_api', 'v2', filename]) }
 
   swagger_root do
     key :openapi, '3.0.0'

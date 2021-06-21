@@ -54,7 +54,7 @@ class SwaggerSharedComponents
         type: :string,
         name: 'X-VA-Birth-Date',
         required: false,
-        description: 'Veteran birthdate if consumer is representative'
+        description: 'Veteran birthdate if consumer is representative, in iso8601 format'
       },
       key_inflection_header: {
         in: :header,
@@ -74,7 +74,24 @@ class SwaggerSharedComponents
   end
 
   def self.body_examples # rubocop:disable Metrics/MethodLength
+    veteran_identifier_json_schema = JSON.parse(
+      File.read(
+        Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'veteran_identifier.json')
+      )
+    )
+
     {
+      veteran_identifier: {
+        in: :body,
+        name: 'data',
+        required: true,
+        description: 'Unique attributes of veteran.',
+        schema: {
+          type: :object,
+          required: veteran_identifier_json_schema['required'],
+          properties: veteran_identifier_json_schema['properties']
+        }
+      },
       intent_to_file: {
         in: :body,
         name: 'data',

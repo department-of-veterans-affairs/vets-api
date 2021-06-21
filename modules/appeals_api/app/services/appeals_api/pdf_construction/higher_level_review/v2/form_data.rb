@@ -25,37 +25,45 @@ module AppealsApi
           ssn.last(4)
         end
 
-        def claimant_type(index)
-          index == 4 ? 1 : 'Off'
-        end
-
         def veteran_homeless
           higher_level_review.veteran_homeless? ? 1 : 'Off'
         end
 
+        def veteran_phone_extension
+          ext = higher_level_review.veteran_phone_data&.dig('phoneNumberExt')
+
+          return '' if veteran_country_code != '1' || ext.blank?
+
+          "x#{ext}"
+        end
+
         def veteran_phone_area_code
-          return if higher_level_review.veteran_phone_data&.dig('countryCode') != '1'
+          return if veteran_country_code != '1'
 
           higher_level_review.veteran_phone_data&.dig('areaCode')
         end
 
         def veteran_phone_prefix
-          return if higher_level_review.veteran_phone_data&.dig('countryCode') != '1'
+          return if veteran_country_code != '1'
 
           higher_level_review.veteran_phone_data&.dig('phoneNumber')&.first(3)
         end
 
         def veteran_phone_line_number
-          return if higher_level_review.veteran_phone_data&.dig('countryCode') != '1'
+          return if veteran_country_code != '1'
 
           higher_level_review.veteran_phone_data.dig('phoneNumber')&.last(4)
         end
 
         def veteran_phone_international_number
-          return if higher_level_review.veteran_phone_data&.dig('countryCode') == '1'
+          return if veteran_country_code == '1'
 
           higher_level_review.veteran_phone_number.presence ||
             'USE PHONE ON FILE'
+        end
+
+        def veteran_country_code
+          higher_level_review.veteran_phone_data&.dig('countryCode')
         end
 
         def veteran_email
@@ -126,11 +134,29 @@ module AppealsApi
         end
 
         def rep_country_code
-          higher_level_review.rep_phone_data&.dig('countryCode')
+          higher_level_review.rep_phone_data&.dig('countryCode') || '1'
         end
 
         def soc_opt_in
           higher_level_review.soc_opt_in ? 1 : 'Off'
+        end
+
+        def soc_date(issue)
+          issue['attributes']&.dig('socDate')
+        end
+
+        def soc_date_formatted(issue)
+          date = soc_date(issue)
+          return '' unless date
+
+          Date.parse(date).strftime('%m-%d-%Y')
+        end
+
+        def soc_date_text(issue)
+          date = soc_date(issue)
+          return '' unless date
+
+          "SOC/SSOC Date: #{soc_date_formatted(issue)}"
         end
 
         def signature

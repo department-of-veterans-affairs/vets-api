@@ -4,12 +4,16 @@ require 'swagger_helper'
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components'
 
-describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
+describe 'EVSS Claims management', swagger_doc: 'v1/swagger.json' do  # rubocop:disable RSpec/DescribeClass
   path '/claims' do
-    get 'Retrieves all claims for a Veteran' do
+    get 'Find all benefits claims for a Veteran' do
       tags 'Claims'
       operationId 'findClaims'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read'] },
+        { sandboxOauth: ['claim.read'] },
+        { bearer_token: [] }
+      ]
       produces 'application/json'
       index_description = 'Uses the Veteran’s metadata in headers to retrieve all claims for that Veteran. '
       index_description += 'An authenticated Veteran making a request with this endpoint will return their own claims'
@@ -133,10 +137,14 @@ describe 'EVSS Claims management' do  # rubocop:disable RSpec/DescribeClass
   end
 
   path '/claims/{id}' do
-    get 'Find Claim id' do
+    get 'Find Claim by ID' do
       tags 'Claims'
       operationId 'findClaimById'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read'] },
+        { sandboxOauth: ['claim.read'] },
+        { bearer_token: [] }
+      ]
       produces 'application/json'
 
       parameter name: :id, in: :path, type: :string, description: 'The ID of the claim being requested'

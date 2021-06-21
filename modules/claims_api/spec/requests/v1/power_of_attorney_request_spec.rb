@@ -93,6 +93,19 @@ RSpec.describe 'Power of Attorney ', type: :request do
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
         end
       end
+
+      it 'doesn\'t allow additional fields' do
+        with_okta_user(scopes) do |auth_header|
+          params = json_data
+          params['data']['attributes']['someBadField'] = 'someValue'
+          post path, params: params.to_json, headers: headers.merge(auth_header)
+          expect(response.status).to eq(422)
+          expect(JSON.parse(response.body)['errors'].size).to eq(1)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The property /someBadField is not defined on the schema. Additional properties are not allowed'
+          )
+        end
+      end
     end
 
     describe '#check status' do
@@ -258,8 +271,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
               parsed = JSON.parse(response.body)
 
               expect(response.status).to eq(200)
-              expect(parsed['data']['attributes']['representative']['service_organization']['name'])
+              expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
                 .to eq('Some Great Organization')
+              expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
+                .to eq(nil)
+              expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
+                .to eq(nil)
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end
@@ -293,8 +310,12 @@ RSpec.describe 'Power of Attorney ', type: :request do
               parsed = JSON.parse(response.body)
 
               expect(response.status).to eq(200)
-              expect(parsed['data']['attributes']['representative']['service_organization']['name'])
-                .to eq('Tommy Testerson')
+              expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
+                .to eq('Tommy')
+              expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
+                .to eq('Testerson')
+              expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
+                .to eq(nil)
               expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
                 .to eq('555-555-5555')
             end
