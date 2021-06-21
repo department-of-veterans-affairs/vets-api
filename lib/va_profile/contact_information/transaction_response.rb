@@ -111,6 +111,13 @@ module VAProfile
 
         return_val
       end
+
+      def new_email
+        tx_output = response_body['tx_output'][0]
+        return if tx_output['effective_end_date'].present?
+
+        tx_output['email_address_text']
+      end
     end
 
     class TelephoneTransactionResponse < TransactionResponse; end
