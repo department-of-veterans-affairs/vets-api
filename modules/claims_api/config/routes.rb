@@ -69,13 +69,14 @@ ClaimsApi::Engine.routes.draw do
   end
 
   namespace :docs do
+    mount Rswag::Ui::Engine => 'swagger'
+    
     namespace :v0 do
       get 'api', to: 'api#index'
     end
 
     namespace :v1 do
       get 'api', to: 'api#index'
-      mount Rswag::Ui::Engine => 'swagger'
     end
 
     namespace :v2 do
