@@ -7,7 +7,7 @@ RSpec.describe 'Decision Review Evidences', type: :request do
   let(:user) { build(:disabilities_compensation_user) }
 
   let(:pdf_file) do
-    fixture_file_upload('files/doctors-note.pdf', 'application/pdf')
+    fixture_file_upload('doctors-note.pdf', 'application/pdf')
   end
 
   before do
@@ -30,7 +30,7 @@ RSpec.describe 'Decision Review Evidences', type: :request do
       it 'returns a 422  for a file that not an allowed type' do
         post '/v0/decision_review_evidence',
              params: { decision_review_evidence_attachment:
-                       { file_data: fixture_file_upload('spec/fixtures/files/saml_responses/loa1.xml',
+                       { file_data: fixture_file_upload('saml_responses/loa1.xml',
                                                         'application/xml') } }
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
