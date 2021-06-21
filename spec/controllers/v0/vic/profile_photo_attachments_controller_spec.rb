@@ -8,7 +8,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
 
     it 'uploads a profile photo attachment' do
       post(:create, params: { profile_photo_attachment: {
-             file_data: fixture_file_upload('files/sm_file1.jpg')
+             file_data: fixture_file_upload('sm_file1.jpg')
            } })
       expect(data['guid']).not_to be_nil
     end
@@ -19,7 +19,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
 
     before do
       post(:create, params: { profile_photo_attachment: {
-             file_data: fixture_file_upload('files/sm_file1.jpg')
+             file_data: fixture_file_upload('sm_file1.jpg')
            } })
       ProcessFileJob.drain
     end
