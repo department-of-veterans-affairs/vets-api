@@ -91,7 +91,9 @@ module VAProfile
       # @return [VAProfile::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def get_email_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/emails/status/#{transaction_id}"
-        get_transaction_status(route, EmailTransactionResponse)
+        transaction_status = get_transaction_status(route, EmailTransactionResponse)
+        binding.pry; fail
+        transaction_status
       end
 
       # POSTs a new telephone to the VAProfile API
