@@ -39,5 +39,10 @@ FactoryBot.define do
         ]
       end
     end
+
+    trait :with_empty_slot_hash do
+      eligible
+      slot { {} }
+    end
   end
 end

@@ -212,14 +212,6 @@ modules_appeals_api:
         - kelly@adhocteam.us
         - laura.trager@adhocteam.us
         - nathan.wright@oddball.io
-    decision_review:
-      enabled: false
-      recipients:
-        - drew.fisher@adhocteam.us
-        - jack.schuss@oddball.io
-        - kelly@adhocteam.us
-        - laura.trager@adhocteam.us
-        - nathan.wright@oddball.io
     daily_error:
       enabled: false
       recipients:
@@ -705,6 +697,7 @@ search_click_tracking:
 flipper:
   admin_user_emails:
     - adewitt@thoughtworks.com
+    - agarcia@clarityinnovates.com
     - alastair@adhocteam.us
     - anna@adhoc.team
     - bill.ryan@adhocteam.us
@@ -730,6 +723,7 @@ flipper:
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
     - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
+    - john.bramley@adhocteam.us
     - jwolf@governmentcio.com # Jason Wolf Product Manager for GCIO
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
@@ -772,6 +766,7 @@ flipper:
     - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
+    - trevor.bosaw@oddball.io
     - turner_desiree@bah.com
     - tze@adhocteam.us
     - zurbergram@gmail.com
@@ -821,7 +816,7 @@ hqva_mobile:
     host: "sandbox-api.va.gov"
     pgd_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
     health_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7"
-    claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    claim_common_id: "0oabja2lpllERXWxo2p7"
     grant_type: "client_credentials"
     client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     redis_session_prefix: "healthquest_lighthouse"
