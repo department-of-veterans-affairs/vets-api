@@ -4,7 +4,7 @@ class EVSS::DocumentUpload
   include Sidekiq::Worker
 
   # retry for one day
-  sidekiq_options retry: 14
+  sidekiq_options retry: 14, queue: 'low'
 
   def perform(auth_headers, user_uuid, document_hash)
     Raven.tags_context(source: 'claims-status')

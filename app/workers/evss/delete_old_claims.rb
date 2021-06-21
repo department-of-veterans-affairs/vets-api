@@ -4,6 +4,8 @@ module EVSS
   class DeleteOldClaims
     include Sidekiq::Worker
 
+    sidekiq_options queue: 'low'
+
     def perform
       Raven.tags_context(source: 'claims-status')
       claims = EVSSClaim.where('updated_at < ?', 1.day.ago)
