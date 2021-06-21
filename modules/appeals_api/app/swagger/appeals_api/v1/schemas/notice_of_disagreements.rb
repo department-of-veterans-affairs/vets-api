@@ -386,10 +386,10 @@ module AppealsApi::V1
               key :maxLength, 10
             end
 
-            property :disagreementReason do
+            property :disagreementArea do
               key :type, :string
               key :example, 'Effective Date'
-              key :example, 'The point of contention for this specific issue'
+              key :example, 'The specific part of the VA decision that the Veteran disagrees with. ex: service connection, effective date of award, evaluation of disability'
               key :maxLength, 90
             end
           end

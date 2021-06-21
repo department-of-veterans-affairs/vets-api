@@ -35,8 +35,12 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
 
   attr_reader :caseflow_response, :backend_service_exception
 
+  def request_headers
+    EXPECTED_HEADERS.index_with { |key| request.headers[key] }.compact
+  end
+
   def get_contestable_issues_from_caseflow
-    @caseflow_response = Caseflow::Service.new.get_contestable_issues headers: headers,
+    @caseflow_response = Caseflow::Service.new.get_contestable_issues headers: request_headers,
                                                                       benefit_type: benefit_type,
                                                                       decision_review_type: decision_review_type
   rescue Common::Exceptions::BackendServiceException => @backend_service_exception # rubocop:disable Naming/RescuedExceptionsVariableName
@@ -56,12 +60,6 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   #
   def decision_review_type
     raise NotImplementedError, 'Subclass of BaseContestableIssuesController must implement decision_review_type method'
-  end
-
-  def headers
-    EXPECTED_HEADERS.reduce({}) do |hash, key|
-      hash.merge(key => request.headers[key])
-    end.compact
   end
 
   def caseflow_response_has_a_body_and_a_status?

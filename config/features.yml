@@ -151,14 +151,6 @@ features:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
     enable_in_development: true
-  form526_benefits_delivery_at_discharge:
-    actor_type: user
-    description: Allows veterans to access the BDD flow in the 526 form. Owned by va-benefits-memorial-1 team.
-    enable_in_development: true
-  form526_original_claims:
-    actor_type: user
-    description: Allows veterans to access form526 as an original claims user. Owned by va-benefits-memorial-1 team.
-    enable_in_development: true
   get_help_ask_form:
     actor_type: user
     description: Enables inquiry form for users to submit questions, suggestions, and complaints.
@@ -258,6 +250,10 @@ features:
     actor_type: user
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
+  show_medical_copays:
+    actor_type: user
+    description: Enables the medical copays application on route /manage-va-debt/medical-copays/
+    enable_in_development: true
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
@@ -315,10 +311,6 @@ features:
   va_online_scheduling_cancel:
     actor_type: user
     description: Allows veterans to cancel VA appointments
-    enable_in_development: true
-  va_online_scheduling_cheetah:
-    actor_type: user
-    description: Enables Project Cheetah discovery work
     enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user

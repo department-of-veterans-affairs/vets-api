@@ -1502,6 +1502,36 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           expect(subject.send(:bdd_qualified?)).to eq false
         end
       end
+
+      context 'activated in guard' do
+        let(:form_content) do
+          {
+            'form526' => {
+              'serviceInformation' => {
+                'reservesNationalGuardService' => {
+                  'title10Activation' => {
+                    'anticipatedSeparationDate' => (today + 100).to_s,
+                    'title10ActivationDate' => '2015-01-01'
+                  }
+                },
+                'servicePeriods' => [
+                  {
+                    'dateRange' => {
+                      'from' => '1980-02-05',
+                      'to' => '2120-01-01'
+                    },
+                    'serviceBranch' => 'Air National Guard'
+                  }
+                ]
+              }
+            }
+          }
+        end
+
+        it 'bdd_qualified is true' do
+          expect(subject.send(:bdd_qualified?)).to eq true
+        end
+      end
     end
 
     context 'when rad date is < 90 days away' do
