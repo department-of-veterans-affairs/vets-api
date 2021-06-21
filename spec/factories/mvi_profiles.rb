@@ -58,7 +58,7 @@ FactoryBot.define do
         '12345678^PI^200CORP^USVBA^A'
       ]
     }
-    icn { Faker::Number.number(digits: 17) }
+    icn { '1013062086V794840' }
     icn_with_aaid { '1000123456V123456^NI^200M^USVHA' }
     mhv_ids { Array.new(2) { Faker::Number.number(digits: 11) } }
     active_mhv_ids { mhv_ids }
