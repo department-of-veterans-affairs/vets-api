@@ -50,6 +50,7 @@ module IAMSSOeOAuth
       user_identity = build_identity(iam_profile)
       session = build_session(@access_token, user_identity)
       user = build_user(user_identity)
+      handle_nil_user(user_identity) if user.nil?
       validate_user(user)
       log_session_info(iam_profile, user_identity, @access_token)
       persist(session, user)
@@ -122,6 +123,12 @@ module IAMSSOeOAuth
     rescue => e
       Rails.logger.error("IAM SSOe OAuth: Error parsing token time: #{e.message}")
       false
+    end
+
+    def handle_nil_user(user_identity)
+      Rails.logger.error('IAMSSOeOAuth::SessionManager built a nil user',
+                         sign_in_method: user_identity&.sign_in, user_identity_icn: user_identity&.icn)
+      raise Common::Exceptions::Unauthorized, detail: 'User is nil'
     end
   end
 end
