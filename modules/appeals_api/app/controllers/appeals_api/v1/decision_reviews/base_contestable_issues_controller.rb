@@ -65,7 +65,7 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   end
 
   def filtered_caseflow_response(decision_review_type, caseflow_response)
-    return caseflow_response if decision_review_type == 'appeals' # NOD requires this filtering step, HLR does not
+    return caseflow_response unless decision_review_type == 'appeals' # NOD requires this filtering step, HLR does not
     return caseflow_response if caseflow_response.body['data'].nil?
 
     caseflow_response.body['data'].reject! do |issue|
