@@ -422,6 +422,17 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports getting cemetaries preneed claim' do
+      VCR.use_cassette('preneeds/cemeteries/gets_a_list_of_cemeteries') do
+        expect(subject).to validate(
+          :get,
+          '/v0/preneeds/cemeteries',
+          200,
+          '_headers' => { 'content-type' => 'application/json' }
+        )
+      end
+    end
+
     describe 'preneed attachments upload' do
       it 'supports uploading a file' do
         expect(subject).to validate(
