@@ -63,7 +63,11 @@ module VAProfile
       # @return [VAProfile::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def get_address_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/addresses/status/#{transaction_id}"
-        get_transaction_status(route, AddressTransactionResponse)
+        transaction_status = get_transaction_status(route, AddressTransactionResponse)
+
+        send_contact_change_notification(transaction_status)
+
+        transaction_status
       end
 
       # POSTs a new address to the VAProfile API
@@ -167,9 +171,9 @@ module VAProfile
 
       def send_contact_change_notification(transaction_status)
         transaction = transaction_status.transaction
-        transaction_id = transaction.id
 
         if transaction.completed_success?
+          transaction_id = transaction.id
           return if TransactionNotification.find(transaction_id).present?
 
           VANotifyEmailJob.perform_async(
