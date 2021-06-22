@@ -96,7 +96,7 @@ module FacilitiesApi
 
         def provider_locator_params(params)
           specialties = Array.wrap(params[:specialties])
-          specialty_codes = specialties.first(4).map.with_index.with_object({}) do |(code, index), hsh|
+          specialty_codes = specialties.first(5).map.with_index.with_object({}) do |(code, index), hsh|
             hsh["specialtycode#{index + 1}".to_sym] = code
           end
 

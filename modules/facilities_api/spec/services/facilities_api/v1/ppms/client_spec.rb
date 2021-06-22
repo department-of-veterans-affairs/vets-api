@@ -122,6 +122,51 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
   end
 
   describe '#provider_locator' do
+    describe 'Require between 1 and 5 Specialties' do
+      let(:client) { FacilitiesApi::V1::PPMS::Client.new }
+      let(:fake_response) { double('fake_response') }
+
+      it 'accepts upto 5 specialties' do
+        allow(fake_response).to receive(:body)
+        expect(client).to receive(:perform).with(
+          :get,
+          'v1.0/ProviderLocator',
+          {
+            address: '40.415217,-74.057114',
+            maxResults: 11,
+            radius: 200,
+            specialtycode1: 'Code1',
+            specialtycode2: 'Code2',
+            specialtycode3: 'Code3',
+            specialtycode4: 'Code4',
+            specialtycode5: 'Code5'
+          }
+        ).and_return(fake_response)
+
+        client.provider_locator(params.merge(specialties: %w[Code1 Code2 Code3 Code4 Code5]))
+      end
+
+      it 'ignores more than 5 specialties' do
+        allow(fake_response).to receive(:body)
+        expect(client).to receive(:perform).with(
+          :get,
+          'v1.0/ProviderLocator',
+          {
+            address: '40.415217,-74.057114',
+            maxResults: 11,
+            radius: 200,
+            specialtycode1: 'Code1',
+            specialtycode2: 'Code2',
+            specialtycode3: 'Code3',
+            specialtycode4: 'Code4',
+            specialtycode5: 'Code5'
+          }
+        ).and_return(fake_response)
+
+        client.provider_locator(params.merge(specialties: %w[Code1 Code2 Code3 Code4 Code5 Code6]))
+      end
+    end
+
     it 'returns a list of providers' do
       r = FacilitiesApi::V1::PPMS::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
       expect(r.length).to be 10
