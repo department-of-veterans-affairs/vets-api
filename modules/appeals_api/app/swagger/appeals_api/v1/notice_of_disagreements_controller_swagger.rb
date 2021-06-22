@@ -25,6 +25,65 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     status: 500
   }.freeze
 
+  OBJ = :object
+
+  response_nod_show_not_found = read_json_from_same_dir['response_nod_show_not_found.json']
+  response_nod_create_error_422 = read_json_from_same_dir['response_nod_create_error_422.json']
+  response_nod_create_error_500 = read_json_from_same_dir['response_nod_create_error_500.json']
+
+  example_all_fields_used = read_json[['spec', 'fixtures', 'valid_10182.json']]
+
+  response_nod_show_success = lambda do
+    properties = {
+      status: { '$ref': '#/components/schemas/nodStatus' },
+      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
+      createdAt: { '$ref': '#/components/schemas/timeStamp' },
+      formData: { '$ref': '#/components/schemas/nodCreateRoot' }
+    }
+    type = :noticeOfDisagreement
+    schema = {
+      type: OBJ,
+      properties: {
+        id: { '$ref': '#/components/schemas/uuid' },
+        type: { type: :string, enum: [type] },
+        attributes: { type: OBJ, properties: properties }
+      }
+    }
+    time = '2020-04-23T21:06:12.531Z'
+    attrs = { status: :processing, updatedAt: time, createdAt: time, formData: example_all_fields_used }
+    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
+
+    {
+      description: 'Info about a single Notice of Disagreement',
+      content: { 'application/json': { schema: schema, examples: { nodFound: { value: example } } } }
+    }
+  end.call
+
+  headers_json_schema = read_json[['config', 'schemas', 'v1', '10182_headers.json']]
+  headers_swagger = AppealsApi::JsonSchemaToSwaggerConverter.new(headers_json_schema).to_swagger
+  header_schemas = headers_swagger['components']['schemas']
+  headers = header_schemas['nodCreateHeadersRoot']['properties'].keys
+  nod_create_parameters = headers.map do |header|
+    {
+      name: header,
+      in: 'header',
+      description: header_schemas[header]['allOf'][0]['description'],
+      required: header_schemas['nodCreateHeadersRoot']['required'].include?(header),
+      schema: { '$ref': "#/components/schemas/#{header}" }
+    }
+  end
+
+  nod_create_json_schema = read_json[['config', 'schemas', 'v1', '10182.json']]
+
+  nod_create_request_body = AppealsApi::JsonSchemaToSwaggerConverter.new(
+    nod_create_json_schema
+  ).to_swagger['requestBody']
+
+  nod_create_request_body['content']['application/json']['examples'] = {
+    'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_10182_minimum.json']] },
+    'all fields used': { value: example_all_fields_used }
+  }
+
   swagger_path '/notice_of_disagreements' do
     operation :post, tags: NOD_TAG do
       key :summary, 'Creates a new Notice of Disagreement.'
@@ -36,122 +95,11 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
       key :operationId, 'nodCreateRoot'
 
+      key :parameters, nod_create_parameters
+      key :requestBody, nod_create_request_body
+      key :responses, '200': response_nod_show_success, '404': response_nod_show_not_found, '422': response_nod_create_error_422, '500': response_nod_create_error_500
       security do
         key :apikey, []
-      end
-
-      parameter do
-        key :name, 'X-VA-First-Name'
-        key :in, :header
-        key :description, 'First Name of Veteran referenced in Notice of Disagreement'
-        key :required, true
-        key :type, :string
-        key :maxLength, 16
-
-        # The total amount of characters available for the First Name, Middle Name,
-        # Last Name is 52 characters. 16, allowing 4 for middle initial and
-        # whitespace, and then 36 is an acceptable distribution, but not set in
-        # stone.
-      end
-
-      parameter do
-        key :name, 'X-VA-Last-Name'
-        key :in, :header
-        key :description, 'Last Name of Veteran referenced in Notice of Disagreement'
-        key :required, true
-        key :type, :string
-        key :maxLength, 36
-      end
-
-      parameter do
-        key :name, 'X-VA-SSN'
-        key :in, :header
-        key :description, 'SSN of Veteran referenced in Notice of Disagreement'
-        key :required, true
-        key :type, :string
-        key :maxLength, 9
-      end
-
-      parameter do
-        key :name, 'X-VA-Birth-Date'
-        key :in, :header
-        key :description, 'Birth Date of Veteran referenced in Notice of Disagreement'
-        key :required, true
-        key :type, :string
-        key :maxLength, 10
-      end
-
-      parameter do
-        key :name, 'X-VA-File-Number'
-        key :in, :header
-        key :required, false
-        key :description, 'VA file number'
-        key :maxLength, 9
-      end
-
-      parameter do
-        key :name, 'X-VA-Birth-Date'
-        key :in, :header
-        key :required, false
-        key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
-        key :maxLength, 10
-      end
-
-      request_body do
-        key :required, true
-        content 'application/json' do
-          schema do
-            key :$ref, :nodCreateInput
-          end
-        end
-      end
-
-      response 200 do
-        key :description, '10182 success response'
-        content 'application/json' do
-          schema do
-            key :$ref, :nodCreateResponse
-          end
-        end
-      end
-
-      response 422 do
-        key :description, '10182 validation errors'
-        content 'application/json' do
-          schema do
-            key :type, :object
-            property :errors do
-              key :type, :array
-
-              items do
-                key :$ref, :errorModel
-              end
-            end
-
-            property :status do
-              key :type, :integer
-              key :description, 'Standard HTTP error response code.'
-              key :example, 422
-            end
-          end
-        end
-      end
-
-      response 500 do
-        key :description, 'Unknown Error'
-
-        content 'application/json' do
-          schema do
-            key :type, :object
-            key :example, ERROR_500_EXAMPLE
-            property :errors do
-              key :type, :array
-              items do
-                key :$ref, :errorModel
-              end
-            end
-          end
-        end
       end
     end
   end
