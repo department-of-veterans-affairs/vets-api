@@ -287,6 +287,8 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
 
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
+          expect(subject).to receive(:send_contact_change_notification)
+
           response = subject.get_telephone_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(VAProfile::Models::Transaction)
@@ -621,6 +623,8 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
           transaction_id = 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7'
 
           VCR.use_cassette('va_profile/contact_information/telephone_transaction_status') do
+            expect(subject).to receive(:send_contact_change_notification)
+
             expect { subject.get_telephone_transaction_status(transaction_id) }.to trigger_statsd_increment(
               "#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
             )

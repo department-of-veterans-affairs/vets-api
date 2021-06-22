@@ -124,7 +124,10 @@ module VAProfile
       #   a transaction object
       def get_telephone_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/telephones/status/#{transaction_id}"
-        get_transaction_status(route, TelephoneTransactionResponse)
+        transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
+        send_contact_change_notification(transaction_status)
+
+        transaction_status
       end
 
       # POSTs a new permission to the VAProfile API
