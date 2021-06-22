@@ -122,6 +122,9 @@ features:
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
+  facility_locator_ppms_use_secure_api:
+    actor_type: user
+    description: Use the new secure ppms api with new auth headers
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
@@ -147,6 +150,9 @@ features:
     actor_type: user
     description: Enhances Find A Forms MVP.
     enable_in_development: true
+  file_upload_short_workflow_enabled:
+    actor_type: user
+    description: Enables shorter workflow enhancement for file upload component
   form10182_nod:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
