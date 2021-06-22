@@ -25,64 +25,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     status: 500
   }.freeze
 
-  OBJ = :object
-
-  response_nod_show_not_found = read_json_from_same_dir['response_nod_show_not_found.json']
-  response_nod_create_error_422 = read_json_from_same_dir['response_nod_create_error_422.json']
-  response_nod_create_error_500 = read_json_from_same_dir['response_nod_create_error_500.json']
-
-  example_all_fields_used = read_json[['spec', 'fixtures', 'valid_10182.json']]
-
-  response_nod_show_success = lambda do
-    properties = {
-      status: { '$ref': '#/components/schemas/nodStatus' },
-      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
-      createdAt: { '$ref': '#/components/schemas/timeStamp' },
-      formData: { '$ref': '#/components/schemas/nodCreateRoot' }
-    }
-    type = :noticeOfDisagreement
-    schema = {
-      type: OBJ,
-      properties: {
-        id: { '$ref': '#/components/schemas/uuid' },
-        type: { type: :string, enum: [type] },
-        attributes: { type: OBJ, properties: properties }
-      }
-    }
-    time = '2020-04-23T21:06:12.531Z'
-    attrs = { status: :processing, updatedAt: time, createdAt: time, formData: example_all_fields_used }
-    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
-
-    {
-      description: 'Info about a single Notice of Disagreement',
-      content: { 'application/json': { schema: schema, examples: { nodFound: { value: example } } } }
-    }
-  end.call
-
-  headers_json_schema = read_json[['config', 'schemas', 'v1', '10182_headers.json']]
-  headers_swagger = AppealsApi::JsonSchemaToSwaggerConverter.new(headers_json_schema).to_swagger
-  header_schemas = headers_swagger['components']['schemas']
-  headers = header_schemas['nodCreateHeadersRoot']['properties'].keys
-  nod_create_parameters = headers.map do |header|
-    {
-      name: header,
-      in: 'header',
-      description: header_schemas[header]['allOf'][0]['description'],
-      required: header_schemas['nodCreateHeadersRoot']['required'].include?(header),
-      schema: { '$ref': "#/components/schemas/#{header}" }
-    }
-  end
-
-  nod_create_json_schema = read_json[['config', 'schemas', 'v1', '10182.json']]
-
-  nod_create_request_body = AppealsApi::JsonSchemaToSwaggerConverter.new(
-    nod_create_json_schema
-  ).to_swagger['requestBody']
-
-  nod_create_request_body['content']['application/json']['examples'] = {
-    'minimum fields used': { value: read_json[['spec', 'fixtures', 'valid_10182_minimum.json']] },
-    'all fields used': { value: example_all_fields_used }
-  }
+  nod_json_schema = AppealsApi::V1::NodJsonSchemaHelper.new
 
   swagger_path '/notice_of_disagreements' do
     operation :post, tags: NOD_TAG do
@@ -95,9 +38,9 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
       key :operationId, 'nodCreateRoot'
 
-      key :parameters, nod_create_parameters
-      key :requestBody, nod_create_request_body
-      key :responses, '200': response_nod_show_success, '404': response_nod_show_not_found, '422': response_nod_create_error_422, '500': response_nod_create_error_500
+      key :parameters, nod_json_schema.params
+      key :requestBody, nod_json_schema.request_body
+      key :responses, nod_json_schema.responses
       security do
         key :apikey, []
       end
