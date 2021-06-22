@@ -147,6 +147,9 @@ features:
     actor_type: user
     description: Enhances Find A Forms MVP.
     enable_in_development: true
+  file_upload_short_workflow_enabled:
+    actor_type: user
+    description: Enables shorter workflow enhancement for file upload component
   form10182_nod:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
