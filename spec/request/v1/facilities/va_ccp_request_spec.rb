@@ -64,459 +64,283 @@ RSpec.describe 'VA and Community Care Mashup', type: :request, team: :facilities
 
         bod = JSON.parse(response.body)
 
-        expect(bod).to match(
+        expect(bod['data']).to include(
           {
-            'data' => [
-              {
-                'id' => '927d31eb-11fd-43c2-ac29-11c1a4128819',
-                'type' => 'providerFacility',
-                'relationships' => {
-                  'providers' => {
-                    'data' => [
-                      {
-                        'id' => 'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => '4fd8291ae0bb51e568eb29d215ed5a784f9171b9f98f9963a706a5fc387a24c5',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => 'a0cfafe8986a6893bfc651244ce6e9fee21dfd3e7c4b82c33062d31281b8989c',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => '30f247acf7bd6635760a6398043bf0235030e8299aad5390a210f24a3b4684c4',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => '73f57df2aeda3424246aa1526d91a4eb2e27a6828bb646898a77e87b88b2bab9',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => 'dfa50f5b6bf7a5ffc36f11f636ef8d51ee1303c102c4fd9c6925ca1c2c433fa7',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => 'a9e664cb35c5705a371962fca74ea7c2f6b277aa75446673b8795b3afe7f29a1',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => 'a01a12227953e3b4e538e1ad1eea8a49c8f789ca587e849c13894529553e49b5',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => 'f6c97daea4f94f7e5c3ed73840ec3f61832da018c2d5e43a884c297dd94019f1',
-                        'type' => 'provider'
-                      },
-                      {
-                        'id' => '9a90ec56691c18bfe3a05fa99e44a3a8299700a07b02c1da65aefdaea1d9987c',
-                        'type' => 'provider'
-                      }
-                    ]
+            'id' => '927d31eb-11fd-43c2-ac29-11c1a4128819',
+            'type' => 'providerFacility',
+            'relationships' => {
+              'providers' => {
+                'data' => [
+                  {
+                    'id' =>
+                    '1a2ec66b370936eccc980db2fcf4b094fc61a5329aea49744d538f6a9bab2569',
+                    'type' => 'provider'
                   },
-                  'facilities' => {
-                    'data' => [
-                      {
-                        'id' => 'vha_561',
-                        'type' => 'facility'
-                      }
-                    ]
+                  {
+                    'id' =>
+                    '9424b96e29042c27843708f7f3272813da91439bdfc59ac6ff15199d49050b95',
+                    'type' => 'provider'
+                  },
+                  {
+                    'id' =>
+                    '0945d76221cda6f695abd1be1b0a69d8d424a91c57391ec650bb237a9b618729',
+                    'type' => 'provider'
+                  },
+                  {
+                    'id' =>
+                    'bec5a55684b934d859c6090810735965a07dfe9135fe51404e49f4dec51eafaa',
+                    'type' => 'provider'
+                  },
+                  {
+                    'id' =>
+                    '586ad0a071e8ac2736ccf4a434d61f98b8ac5633c64ac13a654c5dd78450114d',
+                    'type' => 'provider'
+                  },
+                  {
+                    'id' =>
+                    '671ecd71f4d2b7d600a3d2343205e2196255e80269d696bd396991361b593a34',
+                    'type' => 'provider'
+                  },
+                  {
+                    'id' =>
+                    '0bf256c9c6c9592a34d0f82922acdb1655dae964b487473effbf2c1881d1bc19',
+                    'type' => 'provider'
+                  },
+                  {
+                    'id' =>
+                    '724d059658cbf067586f493d474f282e69dc695302e964abaac3bd715599f2e3',
+                    'type' => 'provider'
+                  },
+                  {
+                    'id' =>
+                    '5b3dc91323efc8cd314776cb6b1c7aef17410d3aef5ba4b26cd16f6c2cef102e',
+                    'type' => 'provider'
+                  },
+                  {
+                    'id' =>
+                    'd2e4b7b1c751b29c0036f08d7e5c4d539a8985fa71513f7c4ba89c973383d197',
+                    'type' => 'provider'
                   }
-                }
-              }
-            ],
-            'included' => [
-              {
-                'id' => 'vha_561',
-                'type' => 'facility',
-                'attributes' => {
-                  'access' => {
-                    'health' => [
-                      {
-                        'service' => 'Audiology',
-                        'new' => 39.456,
-                        'established' => 32.118421
-                      },
-                      {
-                        'service' => 'Cardiology',
-                        'new' => 27.711538,
-                        'established' => 20.4
-                      },
-                      {
-                        'service' => 'Dermatology',
-                        'new' => 19.785714,
-                        'established' => 13.75
-                      },
-                      {
-                        'service' => 'Gastroenterology',
-                        'new' => 22.470588,
-                        'established' => 16.355555
-                      },
-                      {
-                        'service' => 'Gynecology',
-                        'new' => 22.962962,
-                        'established' => 5.612903
-                      },
-                      {
-                        'service' => 'MentalHealthCare',
-                        'new' => 3.964285,
-                        'established' => 1.37902
-                      },
-                      {
-                        'service' => 'Ophthalmology',
-                        'new' => 8.25,
-                        'established' => 18.841726
-                      },
-                      {
-                        'service' => 'Optometry',
-                        'new' => 33.75,
-                        'established' => 21.683168
-                      },
-                      {
-                        'service' => 'Orthopedics',
-                        'new' => 11.133333,
-                        'established' => 1.142857
-                      },
-                      {
-                        'service' => 'PrimaryCare',
-                        'new' => 19.391304,
-                        'established' => 18.299295
-                      },
-                      {
-                        'service' => 'SpecialtyCare',
-                        'new' => 22.659012,
-                        'established' => 16.878493
-                      },
-                      {
-                        'service' => 'Urology',
-                        'new' => 26.1875,
-                        'established' => 2.166666
-                      }
-                    ],
-                    'effectiveDate' => '2020-11-30'
+                ]
+              },
+              'facilities' => {
+                'data' => [
+                  {
+                    'id' => 'vha_561',
+                    'type' => 'facility'
                   },
-                  'activeStatus' => 'A',
-                  'address' => {
-                    'mailing' => {
-                    },
-                    'physical' => {
-                      'zip' => '07018-1023',
-                      'city' => 'East Orange',
-                      'state' => 'NJ',
-                      'address1' => '385 Tremont Avenue',
-                      'address2' => nil,
-                      'address3' => nil
+                  {
+                    'id' => 'vha_561A4',
+                    'type' => 'facility'
+                  },
+                  {
+                    'id' => 'vha_620',
+                    'type' => 'facility'
+                  },
+                  {
+                    'id' => 'vha_620A4',
+                    'type' => 'facility'
+                  },
+                  {
+                    'id' => 'vha_689',
+                    'type' => 'facility'
+                  },
+                  {
+                    'id' => 'vha_542',
+                    'type' => 'facility'
+                  },
+                  {
+                    'id' => 'vha_689A4',
+                    'type' => 'facility'
+                  }
+                ]
+              }
+            }
+          }
+        )
+
+        expect(bod['included'][0]).to match(
+          {
+            'id' => 'vha_561',
+            'type' => 'facility',
+            'attributes' => {
+              'access' => {
+                'health' => [
+                  {
+                    'service' => 'Audiology',
+                    'new' => 31.161971,
+                    'established' => 28.495652
+                  },
+                  {
+                    'service' => 'Cardiology',
+                    'new' => 51.1875,
+                    'established' => 27.459574
+                  },
+                  {
+                    'service' => 'Dermatology',
+                    'new' => 19.928571,
+                    'established' => 4.674757
+                  },
+                  {
+                    'service' => 'Gastroenterology',
+                    'new' => 25.939393,
+                    'established' => 27.321428
+                  },
+                  {
+                    'service' => 'Gynecology',
+                    'new' => 24.571428,
+                    'established' => 9.047619
+                  },
+                  {
+                    'service' => 'MentalHealthCare',
+                    'new' => 5.34375,
+                    'established' => 3.962011
+                  },
+                  {
+                    'service' => 'Ophthalmology',
+                    'new' => 24.222222,
+                    'established' => 36.638069
+                  },
+                  {
+                    'service' => 'Optometry',
+                    'new' => 26.722222,
+                    'established' => 41.70045
+                  },
+                  {
+                    'service' => 'Orthopedics',
+                    'new' => 9.056603,
+                    'established' => 0.725
+                  },
+                  {
+                    'service' => 'PrimaryCare',
+                    'new' => 14.436363,
+                    'established' => 14.335578
+                  },
+                  {
+                    'service' => 'SpecialtyCare',
+                    'new' => 17.562446,
+                    'established' => 16.47847
+                  },
+                  {
+                    'service' => 'Urology',
+                    'new' => 20.5,
+                    'established' => 8.352941
+                  }
+                ],
+                'effectiveDate' => '2021-06-07'
+              },
+              'activeStatus' => 'A',
+              'address' => {
+                'mailing' => {},
+                'physical' => {
+                  'zip' => '07018-1023',
+                  'city' => 'East Orange',
+                  'state' => 'NJ',
+                  'address1' => '385 Tremont Avenue',
+                  'address2' => nil,
+                  'address3' => nil
+                }
+              },
+              'classification' => 'VA Medical Center (VAMC)',
+              'detailedServices' => [
+                {
+                  'name' => 'COVID-19 vaccines',
+                  'descriptionFacility' => nil,
+                  'appointmentLeadin' =>
+                  '<p><em>&nbsp; &nbsp;Contact us to schedule, reschedule, or cancel your appointment. If a ' \
+                    'referral is required, you’ll need to contact your primary care provider first.</em></p>',
+                  'appointmentPhones' => [
+                    {
+                      'extension' => nil,
+                      'label' => 'Main phone',
+                      'number' => '973-676-1000',
+                      'type' => 'tel'
                     }
-                  },
-                  'classification' => 'VA Medical Center (VAMC)',
-                  'detailedServices' => nil,
-                  'facilityType' => 'va_health_facility',
-                  'feedback' => {
-                    'health' => {
-                      'primaryCareUrgent' => 0.7400000095367432,
-                      'primaryCareRoutine' => 0.7699999809265137,
-                      'specialtyCareUrgent' => 0.800000011920929,
-                      'specialtyCareRoutine' => 0.8999999761581421
-                    },
-                    'effectiveDate' => '2020-04-16'
-                  },
-                  'hours' => {
-                    'friday' => '24/7',
-                    'monday' => '24/7',
-                    'sunday' => '24/7',
-                    'tuesday' => '24/7',
-                    'saturday' => '24/7',
-                    'thursday' => '24/7',
-                    'wednesday' => '24/7'
-                  },
-                  'id' => 'vha_561',
-                  'lat' => 40.75380161,
-                  'long' => -74.23432989,
-                  'mobile' => false,
-                  'name' => 'East Orange VA Medical Center',
-                  'operatingStatus' => {
-                    'code' => 'NORMAL'
-                  },
-                  'operationalHoursSpecialInstructions' => nil,
-                  'phone' => {
-                    'fax' => '973-676-4226',
-                    'main' => '973-676-1000',
-                    'pharmacy' => '800-480-5590',
-                    'afterHours' => '973-676-1000',
-                    'patientAdvocate' => '973-676-1000 x3399',
-                    'mentalHealthClinic' => '973-676-1000 x 1421',
-                    'enrollmentCoordinator' => '973-676-1000 x3044'
-                  },
-                  'services' => {
-                    'other' => [],
-                    'health' => %w[
-                      Audiology
-                      Cardiology
-                      DentalServices
-                      Dermatology
-                      EmergencyCare
-                      Gastroenterology
-                      Gynecology
-                      MentalHealthCare
-                      Nutrition
-                      Ophthalmology
-                      Optometry
-                      Orthopedics
-                      Podiatry
-                      PrimaryCare
-                      SpecialtyCare
-                      UrgentCare
-                      Urology
-                    ],
-                    'lastUpdated' => '2020-11-30'
-                  },
-                  'uniqueId' => '561',
-                  'visn' => '2',
-                  'website' => 'https://www.newjersey.va.gov/locations/directions.asp'
+                  ],
+                  'onlineSchedulingAvailable' => nil,
+                  'referralRequired' => nil,
+                  'walkInsAccepted' => nil,
+                  'serviceLocations' => nil,
+                  'path' =>
+                  'https://www.newjersey.va.gov/services/covid-19-vaccines.asp'
                 }
+              ],
+              'facilityType' => 'va_health_facility',
+              'feedback' => {
+                'health' => {
+                  'primaryCareUrgent' => 0.6200000047683716,
+                  'primaryCareRoutine' => 0.8100000023841858,
+                  'specialtyCareUrgent' => 0.7799999713897705,
+                  'specialtyCareRoutine' => 0.8500000238418579
+                },
+                'effectiveDate' => '2021-03-05'
               },
-              {
-                'id' => 'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '5024 5TH AVE',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11220-1909'
-                  },
-                  'caresitePhone' => '718-571-9251',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.644795,
-                  'long' => -74.011055,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
+              'hours' => {
+                'friday' => '24/7',
+                'monday' => '24/7',
+                'sunday' => '24/7',
+                'tuesday' => '24/7',
+                'saturday' => '24/7',
+                'thursday' => '24/7',
+                'wednesday' => '24/7'
               },
-              {
-                'id' => '4fd8291ae0bb51e568eb29d215ed5a784f9171b9f98f9963a706a5fc387a24c5',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '2175 86TH ST',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11214-3205'
-                  },
-                  'caresitePhone' => '646-828-6401',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.602322,
-                  'long' => -73.993869,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
+              'id' => 'vha_561',
+              'lat' => 40.75380161,
+              'long' => -74.23432989,
+              'mobile' => false,
+              'name' => 'East Orange VA Medical Center',
+              'operatingStatus' => {
+                'code' => 'NORMAL'
               },
-              {
-                'id' => 'a0cfafe8986a6893bfc651244ce6e9fee21dfd3e7c4b82c33062d31281b8989c',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '418 5TH AVE # 420',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11215-3316'
-                  },
-                  'caresitePhone' => '718-965-2273',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.6698417,
-                  'long' => -73.98545,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
+              'operationalHoursSpecialInstructions' =>
+                            'Normal business hours are Monday through Friday, 8:00 a.m. to 4:30 p.m. |',
+              'phone' => {
+                'fax' => '973-676-4226',
+                'main' => '973-676-1000',
+                'pharmacy' => '800-480-5590',
+                'afterHours' => '973-676-1000',
+                'patientAdvocate' => '973-676-1000 x203399',
+                'mentalHealthClinic' => '973-676-1000 x 1421',
+                'enrollmentCoordinator' => '973-676-1000 x203044'
               },
-              {
-                'id' => '30f247acf7bd6635760a6398043bf0235030e8299aad5390a210f24a3b4684c4',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '712 BRIGHTON BEACH AVE',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11235-6412'
-                  },
-                  'caresitePhone' => '718-571-9291',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.5776963,
-                  'long' => -73.960225,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
+              'services' => {
+                'other' => [],
+                'health' => %w[Audiology Cardiology CaregiverSupport Covid19Vaccine DentalServices Dermatology
+                               EmergencyCare Gastroenterology Gynecology MentalHealthCare Nutrition Ophthalmology
+                               Optometry Orthopedics Podiatry PrimaryCare SpecialtyCare UrgentCare Urology],
+                'lastUpdated' => '2021-06-07'
               },
-              {
-                'id' => '73f57df2aeda3424246aa1526d91a4eb2e27a6828bb646898a77e87b88b2bab9',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '1305 KINGS HWY',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11229-1903'
-                  },
-                  'caresitePhone' => '718-280-5172',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.608378,
-                  'long' => -73.959851,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
+              'uniqueId' => '561',
+              'visn' => '2',
+              'website' => 'https://www.newjersey.va.gov/locations/directions.asp'
+            }
+          }
+        )
+
+        expect(bod['included']).to include(
+          {
+            'id' => '1a2ec66b370936eccc980db2fcf4b094fc61a5329aea49744d538f6a9bab2569',
+            'type' => 'provider',
+            'attributes' => {
+              'accNewPatients' => 'false',
+              'address' => {
+                'street' => '2 BAYSHORE PLZ',
+                'city' => 'ATLANTIC HIGHLANDS',
+                'state' => 'NJ',
+                'zip' => '07716'
               },
-              {
-                'id' => 'dfa50f5b6bf7a5ffc36f11f636ef8d51ee1303c102c4fd9c6925ca1c2c433fa7',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '874 FLATBUSH AVE',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11226-3102'
-                  },
-                  'caresitePhone' => '718-571-9372',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.650747,
-                  'long' => -73.959134,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
-              },
-              {
-                'id' => 'a9e664cb35c5705a371962fca74ea7c2f6b277aa75446673b8795b3afe7f29a1',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '288 FLATBUSH AVE',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11217-2812'
-                  },
-                  'caresitePhone' => '718-656-1290',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.678175,
-                  'long' => -73.97373,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
-              },
-              {
-                'id' => 'a01a12227953e3b4e538e1ad1eea8a49c8f789ca587e849c13894529553e49b5',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '2125 NOSTRAND AVE',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11210-3001'
-                  },
-                  'caresitePhone' => '718-489-3557',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.633455,
-                  'long' => -73.947402,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
-              },
-              {
-                'id' => 'f6c97daea4f94f7e5c3ed73840ec3f61832da018c2d5e43a884c297dd94019f1',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'true',
-                  'address' => {
-                    'street' => '256 UTICA AVE',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11213-4029'
-                  },
-                  'caresitePhone' => '718-240-2644',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.669966,
-                  'long' => -73.931422,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1326229022'
-                }
-              },
-              {
-                'id' => '9a90ec56691c18bfe3a05fa99e44a3a8299700a07b02c1da65aefdaea1d9987c',
-                'type' => 'provider',
-                'attributes' => {
-                  'accNewPatients' => 'false',
-                  'address' => {
-                    'street' => '256 UTICA AVE',
-                    'city' => 'BROOKLYN',
-                    'state' => 'NY',
-                    'zip' => '11213-4029'
-                  },
-                  'caresitePhone' => '718-571-9355',
-                  'email' => nil,
-                  'fax' => nil,
-                  'gender' => 'NotSpecified',
-                  'lat' => 40.669966,
-                  'long' => -73.931422,
-                  'name' => 'CITY MD URGENT CARE',
-                  'phone' => nil,
-                  'posCodes' => '20',
-                  'prefContact' => nil,
-                  'uniqueId' => '1487993564'
-                }
-              }
-            ]
+              'caresitePhone' => '732-291-2900',
+              'email' => nil,
+              'fax' => nil,
+              'gender' => 'NotSpecified',
+              'lat' => 40.409114,
+              'long' => -74.041849,
+              'name' => 'BAYSHORE PHARMACY',
+              'phone' => nil,
+              'posCodes' => '17',
+              'prefContact' => nil,
+              'uniqueId' => '1225028293'
+            }
           }
         )
       end
