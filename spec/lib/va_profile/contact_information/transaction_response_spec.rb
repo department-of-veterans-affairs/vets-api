@@ -11,24 +11,25 @@ describe VAProfile::ContactInformation::TransactionResponse do
 
     describe VAProfile::ContactInformation::EmailTransactionResponse do
       let(:body) do
-        {"tx_audit_id"=>"cb99a754-9fa9-4f3c-be93-ede12c14b68e",
-         "status"=>"COMPLETED_SUCCESS",
-         "tx_status"=>"COMPLETED_SUCCESS",
-         "tx_type"=>"PUSH",
-         "tx_interaction_type"=>"ATTENDED",
-         "tx_push_input"=>{"email_id"=>8087, "email_address_text"=>"person43@example.com", "source_date"=>"2020-01-16T03:11:59Z", "originating_source_system"=>"VETSGOV", "source_system_user"=>"1234", "vet360_id"=>1},
-         "tx_output"=>
-          [{"email_id"=>8087,
-            "email_address_text"=>"person43@example.com",
-            "create_date"=>"2018-09-06T17:49:03Z",
-            "update_date"=>"2020-01-16T03:12:00Z",
-            "tx_audit_id"=>"cb99a754-9fa9-4f3c-be93-ede12c14b68e",
-            "source_system"=>"VETSGOV",
-            "source_date"=>"2020-01-16T03:11:59Z",
-            "originating_source_system"=>"VETSGOV",
-            "source_system_user"=>"1234",
-            "effective_start_date"=>"2020-01-16T03:11:59.000Z",
-            "vet360_id"=>1}]}
+        { 'tx_audit_id' => 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
+          'status' => 'COMPLETED_SUCCESS',
+          'tx_status' => 'COMPLETED_SUCCESS',
+          'tx_type' => 'PUSH',
+          'tx_interaction_type' => 'ATTENDED',
+          'tx_push_input' => { 'email_id' => 8087, 'email_address_text' => 'person43@example.com',
+                               'source_date' => '2020-01-16T03:11:59Z', 'originating_source_system' => 'VETSGOV', 'source_system_user' => '1234', 'vet360_id' => 1 },
+          'tx_output' =>
+          [{ 'email_id' => 8087,
+             'email_address_text' => 'person43@example.com',
+             'create_date' => '2018-09-06T17:49:03Z',
+             'update_date' => '2020-01-16T03:12:00Z',
+             'tx_audit_id' => 'cb99a754-9fa9-4f3c-be93-ede12c14b68e',
+             'source_system' => 'VETSGOV',
+             'source_date' => '2020-01-16T03:11:59Z',
+             'originating_source_system' => 'VETSGOV',
+             'source_system_user' => '1234',
+             'effective_start_date' => '2020-01-16T03:11:59.000Z',
+             'vet360_id' => 1 }] }
       end
 
       describe '#new_email' do
@@ -40,7 +41,7 @@ describe VAProfile::ContactInformation::TransactionResponse do
 
         context 'with an effective_end_date' do
           before do
-            body['tx_output'][0]['effective_end_date'] = "2020-01-16T03:11:59.000Z"
+            body['tx_output'][0]['effective_end_date'] = '2020-01-16T03:11:59.000Z'
           end
 
           it 'returns nil' do

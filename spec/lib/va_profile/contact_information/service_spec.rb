@@ -97,7 +97,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
     let(:email) do
       build(
         :email, id: 8087, email_address: 'person42@example.com',
-        vet360_id: user.vet360_id, source_system_user: user.icn
+                vet360_id: user.vet360_id, source_system_user: user.icn
       )
     end
 

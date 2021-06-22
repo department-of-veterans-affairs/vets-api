@@ -85,7 +85,11 @@ module VAProfile
 
         transaction = response.transaction
         if transaction.received?
-          old_email = @user.va_profile_email rescue nil
+          old_email = begin
+            @user.va_profile_email
+          rescue
+            nil
+          end
           OldEmail.create(transaction_id: transaction.id, email: old_email) if old_email.present?
         end
 
@@ -195,7 +199,10 @@ module VAProfile
           return if old_email.nil?
 
           VANotifyEmailJob.perform_async(old_email.email, CONTACT_INFO_CHANGE_TEMPLATE)
-          VANotifyEmailJob.perform_async(transaction_status.new_email, CONTACT_INFO_CHANGE_TEMPLATE) if transaction_status.new_email.present?
+          if transaction_status.new_email.present?
+            VANotifyEmailJob.perform_async(transaction_status.new_email,
+                                           CONTACT_INFO_CHANGE_TEMPLATE)
+          end
 
           old_email.destroy
         end
