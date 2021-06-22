@@ -45,7 +45,7 @@ http_interactions:
       - 1; mode=block
     body:
       encoding: UTF-8
-      string: '{"data":[{"id":"1","type":"legacyAppeal","socDate":"01/01/2018"}]}'
+      string: '{"data":[{"id":"2","type":"legacyAppeal","attributes":{"assignedAttorney":null,"assignedJudge":null,"readableHearingRequestType":"Video","readableOriginalHearingRequestType":"Video","issues":[],"hearings":[],"completedHearingOnPreviousAppeal?":false,"appellantIsNotVeteran":false,"appellantFullName":null,"appellantAddress":{"address_line_1":"9999 MISSION ST","address_line_2":"UBER","address_line_3":"APT 2","city":"SAN FRANCISCO","zip":"94103","country":"USA","state":"CA"},"appellantTz":"America/Los_Angeles","appellantRelationship":"","assignedToLocation":"57","vbmsId":"123456789","veteranFullName":"Bob Smith","veteranDeathDate":null,"veteranAppellantDeceased":false,"veteranFileNumber":"123456789","externalId":"2","type":null,"aod":false,"docketNumber":"2","docketRangeDate":null,"status":null,"decisionDate":null,"form9Date":null,"nodDate":null,"certificationDate":null,"paperCase":true,"overtime":false,"caseflowVeteranId":2,"socDate":"Tue, 22 Jun 2018","closestRegionalOffice":null,"closestRegionalOfficeLabel":null,"availableHearingLocations":[],"docketName":"legacy","regionalOffice":{"key":"RO01","city":"Boston","state":"MA"},"documentId":null,"canEditDocumentId":false,"attorneyCaseReviewId":null}}]}'
     http_version:
   recorded_at: Wed, 08 Jan 2018 14:44:00 GMT
 recorded_with: VCR 3.0.3

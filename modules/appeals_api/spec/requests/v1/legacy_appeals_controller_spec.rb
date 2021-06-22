@@ -12,6 +12,7 @@ describe AppealsApi::V1::DecisionReviews::LegacyAppealsController, type: :reques
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
           expect(json['data']).not_to be nil
+          expect(json['data'][0]['attributes']).to include 'socDate'
         end
       end
     end
@@ -24,6 +25,7 @@ describe AppealsApi::V1::DecisionReviews::LegacyAppealsController, type: :reques
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
           expect(json['data']).not_to be nil
+          expect(json['data'][0]['attributes']).to include 'socDate'
         end
       end
     end

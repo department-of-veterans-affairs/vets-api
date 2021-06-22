@@ -41,7 +41,6 @@ module Caseflow
     end
 
     def get_legacy_appeals(headers:)
-      # see pattern for contestable issues, higher level review etc below
       with_monitoring do
         authorized_perform(
           :get,
