@@ -81,7 +81,7 @@ module VAProfile
 
         transaction = response.transaction
         if transaction.received?
-          old_email = @user.vet360_contact_info.email.email_address rescue nil
+          old_email = @user.va_profile_email rescue nil
           OldEmail.create(transaction_id: transaction.id, email: old_email) if old_email.present?
         end
 
