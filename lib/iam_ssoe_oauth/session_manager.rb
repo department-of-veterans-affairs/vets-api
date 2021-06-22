@@ -126,7 +126,8 @@ module IAMSSOeOAuth
     end
 
     def handle_nil_user(user_identity)
-      Rails.logger.error('IAMSSOeOAuth::SessionManager built a nil user', user_identity_icn: user_identity&.icn)
+      Rails.logger.error('IAMSSOeOAuth::SessionManager built a nil user',
+                         sign_in_method: user_identity&.sign_in, user_identity_icn: user_identity&.icn)
       raise Common::Exceptions::Unauthorized, detail: 'User is nil'
     end
   end
