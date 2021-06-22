@@ -57,7 +57,7 @@ describe PersonalInformationLogQueryBuilder do
     ],
     [
       'kwargs work like a normal "where" call',
-      Q.call(:hlr, updated_at: ['2021-04-02'.in_time_zone.beginning_of_day..'2021-04-02'.in_time_zone.end_of_day]),
+      Q.call(:hlr, updated_at: ['2021-04-02'.in_time_zone.all_day]),
       'SELECT "personal_information_logs".* FROM "personal_information_logs"' \
       ' WHERE "personal_information_logs"."updated_at" BETWEEN' \
       " '2021-04-02 00:00:00' AND '2021-04-02 23:59:59.999999' AND (error_class ILIKE ANY (array['%hlr%']))"
