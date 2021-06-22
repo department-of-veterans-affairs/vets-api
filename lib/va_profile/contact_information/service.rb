@@ -165,6 +165,21 @@ module VAProfile
 
       private
 
+      def send_contact_change_notification(transaction_status)
+        transaction = transaction_status.transaction
+        transaction_id = transaction.id
+
+        if transaction.completed_success?
+          return if TransactionNotification.find(transaction_id).present?
+
+          VANotifyEmailJob.perform_async(
+            @user.va_profile_email, CONTACT_INFO_CHANGE_TEMPLATE
+          )
+
+          TransactionNotification.create(transaction_id: transaction_id)
+        end
+      end
+
       def send_email_change_notification(transaction_status)
         transaction = transaction_status.transaction
 
