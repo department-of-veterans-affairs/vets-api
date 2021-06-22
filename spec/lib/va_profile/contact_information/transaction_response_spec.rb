@@ -16,8 +16,11 @@ describe VAProfile::ContactInformation::TransactionResponse do
           'tx_status' => 'COMPLETED_SUCCESS',
           'tx_type' => 'PUSH',
           'tx_interaction_type' => 'ATTENDED',
-          'tx_push_input' => { 'email_id' => 8087, 'email_address_text' => 'person43@example.com',
-                               'source_date' => '2020-01-16T03:11:59Z', 'originating_source_system' => 'VETSGOV', 'source_system_user' => '1234', 'vet360_id' => 1 },
+          'tx_push_input' => {
+            'email_id' => 8087, 'email_address_text' => 'person43@example.com',
+            'source_date' => '2020-01-16T03:11:59Z',
+            'originating_source_system' => 'VETSGOV', 'source_system_user' => '1234', 'vet360_id' => 1
+          },
           'tx_output' =>
           [{ 'email_id' => 8087,
              'email_address_text' => 'person43@example.com',
