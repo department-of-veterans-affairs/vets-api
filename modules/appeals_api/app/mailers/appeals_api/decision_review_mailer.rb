@@ -4,7 +4,7 @@ require 'appeals_api/decision_review_report'
 
 module AppealsApi
   class DecisionReviewMailer < ApplicationMailer
-    def build(date_from:, date_to:, friendly_duration: '')
+    def build(date_from:, date_to:, recipients:, friendly_duration: '')
       @report = DecisionReviewReport.new(from: date_from, to: date_to)
       @friendly_duration = friendly_duration
       @friendly_env = (Settings.vsp_environment || Rails.env).titleize
@@ -30,10 +30,6 @@ module AppealsApi
         'decision_review_mailer',
         'mailer.html.erb'
       )
-    end
-
-    def recipients
-      Settings.modules_appeals_api.reports.decision_review.recipients
     end
   end
 end

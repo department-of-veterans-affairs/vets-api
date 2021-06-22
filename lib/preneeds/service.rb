@@ -3,7 +3,7 @@
 require 'common/client/base'
 
 module Preneeds
-  # Proxy Service for the EOAS Service's PreNeed Applications endpoints.
+  # Proxy Service for the EOAS (Eligibility Office Automation System) Service's PreNeed Applications endpoints.
   # Requests are SOAP format, and the request bodies are built using the `Savon` gem,
   # The `Mail` gem is used to generate attachments for the #receive_pre_need_application method.
   # The actual submission of requests is facilitated using methods defined in the {Common::Client::Base} parent class.

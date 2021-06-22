@@ -24,9 +24,21 @@ module HealthQuest
       # @return [Array]
       #
       def get(query_params)
-        resp = connection.get(ids_path) { |req| req.params['ids'] = query_params }
+        resp = connection.get(ids_path) do |req|
+          req.params['ids'] = query_params
+          req.headers = facilities_headers
+        end
 
         JSON.parse(resp.body).fetch('data', [])
+      end
+
+      ##
+      # Facilities API request headers
+      #
+      # @return [Hash]
+      #
+      def facilities_headers
+        { 'Source-App-Name' => 'healthcare_experience_questionnaire' }
       end
 
       private
