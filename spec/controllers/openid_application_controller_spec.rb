@@ -221,7 +221,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
     context 'with a MHV credential profile' do
       let(:mvi_profile) do
         build(:mvi_profile,
-              icn: '10000012345V123457',
+              icn: '1013062086V794840',
               family_name: 'zackariah')
       end
 
@@ -244,7 +244,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           expect(response).to be_ok
           expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('mhvzack_0@example.com')
-          expect(JSON.parse(response.body)['icn']).to eq('10000012345V123457')
+          expect(JSON.parse(response.body)['icn']).to eq('1013062086V794840')
           expect(JSON.parse(response.body)['last_name']).to eq('zackariah')
           expect(JSON.parse(response.body)['loa_current']).to eq(3)
         end
@@ -256,7 +256,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       let(:faraday_response) { instance_double('Faraday::Response') }
       let(:mvi_profile) do
         build(:mvi_profile,
-              icn: '10000012345V123456',
+              icn: '1013062086V794840',
               family_name: 'WEAVER')
       end
 
@@ -276,7 +276,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           expect(response).to be_ok
           expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('dslogon10923109@example.com')
-          expect(JSON.parse(response.body)['icn']).to eq('10000012345V123456')
+          expect(JSON.parse(response.body)['icn']).to eq('1013062086V794840')
           expect(JSON.parse(response.body)['last_name']).to eq('WEAVER')
           expect(JSON.parse(response.body)['loa_current']).to eq(3)
         end
@@ -288,7 +288,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       let(:faraday_response) { instance_double('Faraday::Response') }
       let(:mvi_profile) do
         build(:mvi_profile,
-              icn: '10000012345V123458',
+              icn: '1013062086V794840',
               family_name: 'CARROLL')
       end
 
@@ -308,7 +308,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           expect(response).to be_ok
           expect(Session.find('FakeToken')).not_to be_nil
           expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
-          expect(JSON.parse(response.body)['icn']).to eq('10000012345V123458')
+          expect(JSON.parse(response.body)['icn']).to eq('1013062086V794840')
           expect(JSON.parse(response.body)['last_name']).to eq('CARROLL')
           expect(JSON.parse(response.body)['loa_current']).to eq(3)
         end

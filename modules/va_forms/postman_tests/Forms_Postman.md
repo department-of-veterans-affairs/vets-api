@@ -1,1 +1,1 @@
-### Please see the markdown file for [Benefits Intake Postman](https://github.com/department-of-veterans-affairs/vets-api/tree/49b0e6c5683a9e6e614c7759dc88a273891f3c4f/modules/vba_documents/postman_tests/Benefits_Intake_Postman.md)
+### Please see the markdown file for [Benefits Intake Postman](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/vba_documents/postman_tests/Benefits_Intake_Postman.md)

@@ -53,7 +53,7 @@ Progress beyond the `received` status can be simulated for testing. We allow pas
 The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `vbms`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
 
 ### Test data
-We use mock test data in the sandbox environment. Data is not sent upstream and does not necessary to align with any other systems' data. 
+We use mock test data in the sandbox environment. Data is not sent upstream and it is not necessary to align submitted test data with any other systems' data.
 
 ### Upload operation
 Allows a client to upload a multi-part document package (form + attachments + metadata).

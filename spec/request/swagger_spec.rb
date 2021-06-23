@@ -422,6 +422,17 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports getting cemetaries preneed claim' do
+      VCR.use_cassette('preneeds/cemeteries/gets_a_list_of_cemeteries') do
+        expect(subject).to validate(
+          :get,
+          '/v0/preneeds/cemeteries',
+          200,
+          '_headers' => { 'content-type' => 'application/json' }
+        )
+      end
+    end
+
     describe 'preneed attachments upload' do
       it 'supports uploading a file' do
         expect(subject).to validate(
@@ -452,7 +463,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           422,
           '_data' => {
             'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
+              'file_data' => fixture_file_upload('invalid_idme_cert.crt')
             }
           }
         )
@@ -678,7 +689,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           422,
           '_data' => {
             'hca_attachment' => {
-              file_data: fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
+              file_data: fixture_file_upload('invalid_idme_cert.crt')
             }
           }
         )
@@ -1068,7 +1079,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           headers.update(
             '_data' => {
               'supporting_evidence_attachment' => {
-                'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+                'file_data' => fixture_file_upload('malformed-pdf.pdf')
               }
             }
           )
@@ -3421,7 +3432,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/evss_claims/{evss_claim_id}/documents',
           202,
-          headers.merge('_data' => { file: fixture_file_upload('/files/doctors-note.pdf', 'application/pdf'),
+          headers.merge('_data' => { file: fixture_file_upload('doctors-note.pdf', 'application/pdf'),
                                      tracked_item_id: 33,
                                      document_type: 'L023' }, 'evss_claim_id' => 189_625)
         )
@@ -3431,7 +3442,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/evss_claims/{evss_claim_id}/documents',
           422,
-          headers.merge('_data' => { file: fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf',
+          headers.merge('_data' => { file: fixture_file_upload('malformed-pdf.pdf',
                                                                'application/pdf'),
                                      tracked_item_id: 33,
                                      document_type: 'L023' }, 'evss_claim_id' => 189_625)
