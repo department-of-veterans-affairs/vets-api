@@ -53,10 +53,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns a configuration' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200',
                          match_requests_on: %i[method uri]) do
-          params = {
-            ids: %w[688]
-          }
-          response = subject.get_facilities(params)
+          response = subject.get_facilities(ids: '688')
           expect(response[:data].size).to eq(1)
         end
       end
@@ -66,11 +63,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns a configuration' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_200',
                          match_requests_on: %i[method uri]) do
-          params = {
-            ids: %w[688],
-            children: true
-          }
-          response = subject.get_facilities(params)
+          response = subject.get_facilities(ids: '688', children: true)
           expect(response[:data].size).to eq(8)
         end
       end
@@ -80,7 +73,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/mobile_facility/get_facilities_400',
                          match_requests_on: %i[method uri]) do
-          expect { subject.get_facilities({}) }.to raise_error(
+          expect { subject.get_facilities(ids: nil) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -91,10 +84,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'raises a backend exception' do
         VCR.use_cassette('vaos/v2/mobile_facility/get_facilities_500',
                          match_requests_on: %i[method uri]) do
-          params = {
-            ids: %w[688]
-          }
-          expect { subject.get_facilities(params) }.to raise_error(
+          expect { subject.get_facilities(ids: '688') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end

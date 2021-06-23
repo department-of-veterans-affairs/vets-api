@@ -255,7 +255,7 @@ paths:
       operationId: getFacilities
       parameters:
         - in: query
-          name: types
+          name: type
           schema:
             type: string
           description: Not implemented and will be ignored if present.
