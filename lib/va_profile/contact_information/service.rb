@@ -81,15 +81,17 @@ module VAProfile
       # @param email [VAProfile::Models::Email] the email to update
       # @return [VAProfile::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def put_email(email)
-        response = post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
-
-        transaction = response.transaction
-        if transaction.received?
-          old_email = begin
+        old_email =
+          begin
             @user.va_profile_email
           rescue
             nil
           end
+
+        response = post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
+
+        transaction = response.transaction
+        if transaction.received?
           OldEmail.create(transaction_id: transaction.id, email: old_email) if old_email.present?
         end
 
