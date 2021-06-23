@@ -15,7 +15,7 @@ module VAProfile
         address: 'Address',
         email: 'Email address',
         phone: 'Phone number'
-      }
+      }.freeze
 
       include Common::Client::Concerns::Monitoring
 
@@ -212,6 +212,7 @@ module VAProfile
         if transaction.completed_success?
           old_email = OldEmail.find(transaction.id)
           return if old_email.nil?
+
           personalisation = get_email_personalisation(:email)
 
           VANotifyEmailJob.perform_async(old_email.email, CONTACT_INFO_CHANGE_TEMPLATE, personalisation)
