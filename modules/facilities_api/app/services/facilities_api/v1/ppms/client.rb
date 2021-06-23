@@ -46,7 +46,7 @@ module FacilitiesApi
 
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
         def specialties
-          response = perform(:get, '/dws/v1.0/Specialties', {})
+          response = perform(:get, specialties_url, {})
           response.body
         end
 
@@ -65,6 +65,14 @@ module FacilitiesApi
             '/dws/v1.0/PlaceOfServiceLocator'
           else
             '/v1.0/PlaceOfServiceLocator'
+          end
+        end
+
+        def specialties_url
+          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
+            '/dws/v1.0/Specialties'
+          else
+            '/v1.0/Specialties'
           end
         end
 
