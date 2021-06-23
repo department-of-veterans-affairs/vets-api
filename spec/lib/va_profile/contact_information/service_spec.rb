@@ -12,6 +12,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
   before do
     allow(user).to receive(:vet360_id).and_return(vet360_id)
     allow(user).to receive(:icn).and_return('1234')
+    Flipper.enable(:contact_info_change_email)
   end
 
   describe '#get_person' do
