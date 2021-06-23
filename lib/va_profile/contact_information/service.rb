@@ -91,9 +91,7 @@ module VAProfile
         response = post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
 
         transaction = response.transaction
-        if transaction.received?
-          OldEmail.create(transaction_id: transaction.id, email: old_email) if old_email.present?
-        end
+        OldEmail.create(transaction_id: transaction.id, email: old_email) if transaction.received? && old_email.present?
 
         response
       end
