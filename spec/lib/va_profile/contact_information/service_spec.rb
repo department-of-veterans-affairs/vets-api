@@ -335,11 +335,13 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
           VCR.use_cassette('va_profile/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
             expect(VANotifyEmailJob).to receive(:perform_async).with(
               'email@email.com',
-              described_class::CONTACT_INFO_CHANGE_TEMPLATE
+              described_class::CONTACT_INFO_CHANGE_TEMPLATE,
+              'contact_info' => 'Email address'
             )
             expect(VANotifyEmailJob).to receive(:perform_async).with(
               'person43@example.com',
-              described_class::CONTACT_INFO_CHANGE_TEMPLATE
+              described_class::CONTACT_INFO_CHANGE_TEMPLATE,
+              'contact_info' => 'Email address'
             )
 
             subject.get_email_transaction_status(transaction_id)
@@ -399,7 +401,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
 
         it 'doesnt send an email' do
           expect(VANotifyEmailJob).not_to receive(:perform_async)
-          subject.send(:send_contact_change_notification, transaction_status)
+          subject.send(:send_contact_change_notification, transaction_status, :address)
         end
       end
 
@@ -410,10 +412,11 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
 
             expect(VANotifyEmailJob).to receive(:perform_async).with(
               user.va_profile_email,
-              described_class::CONTACT_INFO_CHANGE_TEMPLATE
+              described_class::CONTACT_INFO_CHANGE_TEMPLATE,
+              'contact_info' => 'Email address'
             )
 
-            subject.send(:send_contact_change_notification, transaction_status)
+            subject.send(:send_contact_change_notification, transaction_status, :email)
 
             expect(TransactionNotification.find(transaction_id).present?).to eq(true)
           end
@@ -426,7 +429,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
         expect(transaction).to receive(:completed_success?).and_return(false)
 
         expect(VANotifyEmailJob).not_to receive(:perform_async)
-        subject.send(:send_contact_change_notification, transaction_status)
+        subject.send(:send_contact_change_notification, transaction_status, :address)
       end
     end
   end

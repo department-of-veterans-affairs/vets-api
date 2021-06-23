@@ -11,6 +11,11 @@ module VAProfile
   module ContactInformation
     class Service < VAProfile::Service
       CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+      EMAIL_PERSONALISATIONS = {
+        address: 'Address',
+        email: 'Email address',
+        phone: 'Phone number'
+      }
 
       include Common::Client::Concerns::Monitoring
 
@@ -65,7 +70,7 @@ module VAProfile
         route = "#{@user.vet360_id}/addresses/status/#{transaction_id}"
         transaction_status = get_transaction_status(route, AddressTransactionResponse)
 
-        send_contact_change_notification(transaction_status)
+        send_contact_change_notification(transaction_status, :address)
 
         transaction_status
       end
@@ -129,7 +134,7 @@ module VAProfile
       def get_telephone_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/telephones/status/#{transaction_id}"
         transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
-        send_contact_change_notification(transaction_status)
+        send_contact_change_notification(transaction_status, :phone)
 
         transaction_status
       end
@@ -176,7 +181,11 @@ module VAProfile
 
       private
 
-      def send_contact_change_notification(transaction_status)
+      def get_email_personalisation(type)
+        { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
+      end
+
+      def send_contact_change_notification(transaction_status, personalisation)
         return unless Flipper.enabled?(:contact_info_change_email, @user)
 
         transaction = transaction_status.transaction
@@ -186,7 +195,9 @@ module VAProfile
           return if TransactionNotification.find(transaction_id).present?
 
           VANotifyEmailJob.perform_async(
-            @user.va_profile_email, CONTACT_INFO_CHANGE_TEMPLATE
+            @user.va_profile_email,
+            CONTACT_INFO_CHANGE_TEMPLATE,
+            get_email_personalisation(personalisation)
           )
 
           TransactionNotification.create(transaction_id: transaction_id)
@@ -201,11 +212,15 @@ module VAProfile
         if transaction.completed_success?
           old_email = OldEmail.find(transaction.id)
           return if old_email.nil?
+          personalisation = get_email_personalisation(:email)
 
-          VANotifyEmailJob.perform_async(old_email.email, CONTACT_INFO_CHANGE_TEMPLATE)
+          VANotifyEmailJob.perform_async(old_email.email, CONTACT_INFO_CHANGE_TEMPLATE, personalisation)
           if transaction_status.new_email.present?
-            VANotifyEmailJob.perform_async(transaction_status.new_email,
-                                           CONTACT_INFO_CHANGE_TEMPLATE)
+            VANotifyEmailJob.perform_async(
+              transaction_status.new_email,
+              CONTACT_INFO_CHANGE_TEMPLATE,
+              personalisation
+            )
           end
 
           old_email.destroy
