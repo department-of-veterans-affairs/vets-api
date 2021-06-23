@@ -7,7 +7,11 @@ module V0
     before_action { authorize :debt, :access? }
 
     def create
-      render json: service.submit_financial_status_report(fsr_form)
+      render(
+        json: service.submit_financial_status_report(
+          fsr_form
+        )
+      )
     end
 
     def download_pdf
