@@ -9,4 +9,6 @@ class OldEmail < Common::RedisStore
 
   attribute :transaction_id, String
   attribute :email, String
+
+  validates(:transaction_id, :email, presence: true)
 end

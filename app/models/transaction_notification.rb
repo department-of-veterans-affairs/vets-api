@@ -8,4 +8,6 @@ class TransactionNotification < Common::RedisStore
   redis_key :transaction_id
 
   attribute :transaction_id, String
+
+  validates(:transaction_id, presence: true)
 end
