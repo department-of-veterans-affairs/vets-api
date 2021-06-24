@@ -7,8 +7,8 @@ describe AppealsApi::V1::DecisionReviews::LegacyAppealsController, type: :reques
     context 'when only ssn provided' do
       it 'GETs legacy appeals from Caseflow successfully' do
         # temporary cassette until caseflow endpoint complete and merged
-        VCR.use_cassette('caseflow/legacy_appeals') do
-          get_legacy_appeals(ssn: '120495723', file_number: nil)
+        VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
+          get_legacy_appeals(ssn: '242292129', file_number: nil)
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
           expect(json['data']).not_to be nil
@@ -20,8 +20,8 @@ describe AppealsApi::V1::DecisionReviews::LegacyAppealsController, type: :reques
     context 'when only file_number provided' do
       it 'GETs legacy appeals from Caseflow successfully' do
         # temporary cassette until caseflow endpoint complete and merged
-        VCR.use_cassette('caseflow/legacy_appeals') do
-          get_legacy_appeals(ssn: nil, file_number: '987654')
+        VCR.use_cassette('caseflow/legacy_appeals_get_by_file_number') do
+          get_legacy_appeals(ssn: nil, file_number: '239120550')
           expect(response).to have_http_status(:ok)
           json = JSON.parse(response.body)
           expect(json['data']).not_to be nil
@@ -32,13 +32,10 @@ describe AppealsApi::V1::DecisionReviews::LegacyAppealsController, type: :reques
 
     context 'when X-VA-SSN and X-VA-File-Number are missing' do
       it 'returns a 422' do
-        # temporary cassette until caseflow endpoint complete and merged
-        VCR.use_cassette('caseflow/legacy_appeals') do
-          get_legacy_appeals(ssn: nil, file_number: nil)
-          expect(response).to have_http_status(:unprocessable_entity)
-          json = JSON.parse(response.body)
-          expect(json['errors']).to be_an Array
-        end
+        get_legacy_appeals(ssn: nil, file_number: nil)
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_an Array
       end
     end
   end

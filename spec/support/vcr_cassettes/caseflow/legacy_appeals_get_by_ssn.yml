@@ -1,0 +1,102 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:3000/api/v3/decision_reviews/legacy_appeals
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization:
+      - Token token=super_secure_key_string
+      X-Va-Ssn:
+      - '242292129'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-Download-Options:
+      - noopen
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      Content-Type:
+      - application/json; charset=utf-8
+      X-Bullet-Console-Text:
+      - '["user: lauratrager\nUSE eager loading detected\n  LegacyHearing =\u003e
+        [:updated_by]\n  Add to your finder: :includes =\u003e [:updated_by]\nCall
+        stack\n  /Users/lauratrager/dev/caseflow/app/models/concerns/updated_by_user_concern.rb:15:in
+        `assign_updated_by_user''\n  /Users/lauratrager/dev/caseflow/app/models/legacy_hearing.rb:362:in
+        `assign_or_create_from_vacols_record''\n  /Users/lauratrager/dev/caseflow/app/repositories/hearing_repository.rb:112:in
+        `block in hearings_for''\n  /Users/lauratrager/dev/caseflow/app/repositories/hearing_repository.rb:110:in
+        `map''\n  /Users/lauratrager/dev/caseflow/app/repositories/hearing_repository.rb:110:in
+        `hearings_for''\n  /Users/lauratrager/dev/caseflow/app/repositories/hearing_repository.rb:25:in
+        `hearings_for_appeal''\n  /Users/lauratrager/dev/caseflow/app/models/legacy_appeal.rb:354:in
+        `hearings''\n  /Users/lauratrager/dev/caseflow/app/serializers/helpers/appeal_hearing_helper.rb:11:in
+        `hearings''\n  /Users/lauratrager/dev/caseflow/app/serializers/api/v3/legacy_appeal_serializer.rb:23:in
+        `block in \u003cclass:LegacyAppealSerializer\u003e''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:80:in
+        `serialized_legacy_appeals''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:15:in
+        `index''\n\n","user: lauratrager\nUSE eager loading detected\n  LegacyHearing
+        =\u003e [:virtual_hearing]\n  Add to your finder: :includes =\u003e [:virtual_hearing]\nCall
+        stack\n  /Users/lauratrager/dev/caseflow/app/models/concerns/has_virtual_hearing.rb:17:in
+        `virtual?''\n  /Users/lauratrager/dev/caseflow/app/serializers/helpers/appeal_hearing_helper.rb:12:in
+        `block in hearings''\n  /Users/lauratrager/dev/caseflow/app/serializers/helpers/appeal_hearing_helper.rb:11:in
+        `map''\n  /Users/lauratrager/dev/caseflow/app/serializers/helpers/appeal_hearing_helper.rb:11:in
+        `hearings''\n  /Users/lauratrager/dev/caseflow/app/serializers/api/v3/legacy_appeal_serializer.rb:23:in
+        `block in \u003cclass:LegacyAppealSerializer\u003e''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:80:in
+        `serialized_legacy_appeals''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:15:in
+        `index''\n\n"]'
+      Etag:
+      - W/"460f2ce561c6a388cfb15e752480a037"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Meta-Request-Version:
+      - 0.7.2
+      X-Request-Id:
+      - 6b9042ad-70c4-47da-bc31-782c33150ff3
+      X-Runtime:
+      - '0.865875'
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"id":"1","type":"legacyAppeal","attributes":{"assignedAttorney":null,"assignedJudge":null,"readableHearingRequestType":"Travel","readableOriginalHearingRequestType":"Travel","issues":[{"levels":["Schedular","Cartilage,
+        semilunar, removal of, symptomatic"],"program":"02","type":"12","codes":["04","5259"],"disposition":"F","close_date":"2018-02-17T00:00:00.000Z","note":"Aut
+        temporibus non sit eum.","vacols_sequence_id":7,"labels":["Compensation","Increased
+        rating","Schedular","Cartilage, semilunar, removal of, symptomatic"],"readjudication":false,"remand_reasons":[]},{"levels":["Schedular","Myositis"],"program":"02","type":"12","codes":["04","5021"],"disposition":"6","close_date":"2021-06-13T00:00:00.000Z","note":"Aut
+        temporibus non sit eum.","vacols_sequence_id":6,"labels":["Compensation","Increased
+        rating","Schedular","Myositis"],"readjudication":false,"remand_reasons":[]},{"levels":["All
+        Others","Tinnitus, recurrent"],"program":"02","type":"15","codes":["03","6260"],"disposition":"1","close_date":"2021-06-13T00:00:00.000Z","note":"Aut
+        temporibus non sit eum.","vacols_sequence_id":5,"labels":["Compensation","Service
+        connection","All Others","Tinnitus, recurrent"],"readjudication":false,"remand_reasons":[]},{"levels":["All
+        Others","Knee, other impairment of"],"program":"02","type":"15","codes":["03","5257"],"disposition":"A","close_date":"2016-12-08T00:00:00.000Z","note":"Aut
+        temporibus non sit eum.","vacols_sequence_id":3,"labels":["Compensation","Service
+        connection","All Others","Knee, other impairment of"],"readjudication":false,"remand_reasons":[]},{"levels":["New
+        and material","Tinnitus, recurrent"],"program":"02","type":"15","codes":["04","6260"],"disposition":"1","close_date":"2021-06-13T00:00:00.000Z","note":"Aut
+        temporibus non sit eum.","vacols_sequence_id":2,"labels":["Compensation","Service
+        connection","New and material","Tinnitus, recurrent"],"readjudication":false,"remand_reasons":[]},{"levels":["New
+        and material","Hearing loss"],"program":"02","type":"15","codes":["04","6100"],"disposition":"4","close_date":"2021-06-13T00:00:00.000Z","note":"Aut
+        temporibus non sit eum.","vacols_sequence_id":1,"labels":["Compensation","Service
+        connection","New and material","Hearing loss"],"readjudication":false,"remand_reasons":[]}],"hearings":[{"date":"2021-01-29T11:30:00.000-05:00","disposition":"postponed","external_id":"404651","held_by":"","is_virtual":false,"notes":null,"type":"Travel","viewed_by_judge":false,"created_at":"2021-06-24T17:54:24.295Z"},{"date":"2021-06-11T11:30:00.000-04:00","disposition":"held","external_id":"404667","held_by":"","is_virtual":false,"notes":"Rerum
+        autem nesciunt eveniet vero iure repellendus et.","type":"Travel","viewed_by_judge":false,"created_at":"2021-06-24T17:54:24.328Z"}],"completedHearingOnPreviousAppeal?":false,"appellantIsNotVeteran":false,"appellantFullName":null,"appellantAddress":{"address_line_1":"9999
+        MISSION ST","address_line_2":"UBER","address_line_3":"APT 2","city":"SAN FRANCISCO","zip":"94103","country":"USA","state":"CA"},"appellantTz":"America/Los_Angeles","appellantRelationship":"","assignedToLocation":"99","vbmsId":"228081153","veteranFullName":"Reina
+        M Schamberger","veteranDeathDate":null,"veteranAppellantDeceased":false,"veteranFileNumber":"228081153","externalId":"2096907","type":"Original","aod":false,"docketNumber":"3411177","docketRangeDate":"2017-01-04","status":"Complete","decisionDate":"2021-06-14T00:00:00.000Z","form9Date":"2017-01-04T00:00:00.000Z","nodDate":"2012-11-29T00:00:00.000Z","certificationDate":"2018-02-17","paperCase":false,"overtime":false,"caseflowVeteranId":20,"socDate":"2016-12-08T00:00:00.000Z","closestRegionalOffice":null,"closestRegionalOfficeLabel":null,"availableHearingLocations":[],"docketName":"legacy","regionalOffice":{"key":"RO44","city":"Los
+        Angeles","state":"CA"},"documentId":"173171523.1860","canEditDocumentId":false,"attorneyCaseReviewId":"2096907"}}]}'
+  recorded_at: Thu, 24 Jun 2021 18:38:03 GMT
+recorded_with: VCR 6.0.0
