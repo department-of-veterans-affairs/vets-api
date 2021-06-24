@@ -20,7 +20,7 @@ describe Mobile::V0::Adapters::VAAppointments do
   end
 
   it 'returns a set of the facilities for the appointments' do
-    expect(adapted_facilities).to eq(Set.new(['442']))
+    expect(adapted_facilities).to eq(Set.new(%w[442 442GC]))
   end
 
   context 'with a booked VA appointment' do
@@ -31,7 +31,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a cancel id of the encoded cancel params' do
-      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s=')
+      expect(booked_va[:cancel_id]).to eq('MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7R3JlZW4gVGVhbSBDbGluaWMx')
     end
 
     it 'has a type of VA' do
@@ -43,7 +43,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a healthcare_service that matches the clinic name' do
-      expect(booked_va[:healthcare_service]).to eq('CHY PC KILPATRICK')
+      expect(booked_va[:healthcare_service]).to eq('Green Team Clinic1')
     end
 
     it 'has a location with a name (address to be filled in by facilities api)' do
@@ -92,6 +92,14 @@ describe Mobile::V0::Adapters::VAAppointments do
     it 'has a vetext id' do
       expect(booked_va[:vetext_id]).to eq('308;20201103.090000')
     end
+
+    it 'has a facility_id' do
+      expect(booked_va[:facility_id]).to eq('442')
+    end
+
+    it 'has a sta6aid' do
+      expect(booked_va[:sta6aid]).to eq('442')
+    end
   end
 
   context 'with a cancelled VA appointment' do
@@ -114,7 +122,7 @@ describe Mobile::V0::Adapters::VAAppointments do
     end
 
     it 'has a healthcare_service that matches the clinic name' do
-      expect(cancelled_va[:healthcare_service]).to eq('CHY PC KILPATRICK')
+      expect(cancelled_va[:healthcare_service]).to eq('Green Team Clinic1')
     end
 
     it 'has a location with a name (address to be filled in by facilities api)' do
@@ -158,6 +166,14 @@ describe Mobile::V0::Adapters::VAAppointments do
 
     it 'has a time zone' do
       expect(cancelled_va[:time_zone]).to eq('America/Denver')
+    end
+
+    it 'has a facility_id' do
+      expect(cancelled_va[:facility_id]).to eq('442')
+    end
+
+    it 'has a sta6aid' do
+      expect(cancelled_va[:sta6aid]).to eq('442')
     end
   end
 
@@ -402,6 +418,50 @@ describe Mobile::V0::Adapters::VAAppointments do
             status: 'HIDDEN'
           }
         )
+      end
+    end
+  end
+
+  context 'with a VA appointment that has a missing friendly name' do
+    let(:missing_friendly_name) { adapted_appointments[3] }
+
+    it 'uses the VDS clinic name' do
+      expect(missing_friendly_name[:healthcare_service]).to eq('CHY PC CASSIDY')
+    end
+  end
+
+  context 'with appointments that have different facility and station ids' do
+    let(:appointment_facility_station_ids_json) do
+      File.read(
+        Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments_sta6aid.json')
+      )
+    end
+
+    let(:appointment_facility_station_ids) do
+      subject.parse(JSON.parse(appointment_facility_station_ids_json, symbolize_names: true))[0]
+    end
+
+    context 'with an appointment that has different ids' do
+      let(:appointment_different_ids) { appointment_facility_station_ids.first }
+
+      it 'has the expected facility id' do
+        expect(appointment_different_ids.facility_id).to eq('442')
+      end
+
+      it 'has the expected sta6aid' do
+        expect(appointment_different_ids.sta6aid).to eq('442GC')
+      end
+    end
+
+    context 'with an appointment that has the same id for both' do
+      let(:appointment_same_ids) { appointment_facility_station_ids.last }
+
+      it 'has the expected facility id' do
+        expect(appointment_same_ids.facility_id).to eq('442')
+      end
+
+      it 'has the expected sta6aid' do
+        expect(appointment_same_ids.sta6aid).to eq('442')
       end
     end
   end

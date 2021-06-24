@@ -4,6 +4,8 @@ require 'debt_management_center/financial_status_report_service'
 
 module V0
   class FinancialStatusReportsController < ApplicationController
+    before_action { authorize :debt, :access? }
+
     def create
       render json: service.submit_financial_status_report(fsr_form)
     end
@@ -12,7 +14,8 @@ module V0
       send_data(
         service.get_pdf,
         type: 'application/pdf',
-        filename: 'VA Form 5655 - Submitted'
+        filename: 'VA Form 5655 - Submitted',
+        disposition: 'attachment'
       )
     end
 
@@ -47,7 +50,7 @@ module V0
           :email,
           :date_of_birth,
           :married,
-          :ages_of_other_dependents,
+          ages_of_other_dependents: [],
           veteran_full_name: full_name,
           address: address,
           spouse_full_name: full_name,
@@ -86,7 +89,7 @@ module V0
         ],
         discretionary_income: %i[
           net_monthly_income_less_expenses
-          amoun_can_be_paid_toward_debt
+          amount_can_be_paid_toward_debt
         ],
         assets: [
           :cash_in_bank,

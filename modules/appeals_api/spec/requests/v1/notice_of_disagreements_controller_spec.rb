@@ -26,6 +26,9 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
     context 'creates an NOD and persists the data' do
       it 'with all headers' do
         post(path, params: @data, headers: @headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('noticeOfDisagreement')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
@@ -36,7 +39,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
 
       it 'fails when a required header is missing' do
-        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-Veteran-SSN'))
+        post(path, params: @data, headers: @minimum_required_headers.except('X-VA-SSN'))
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
@@ -76,11 +79,34 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
     end
 
-    context 'when validation fails due to a JSON parse error' do
-      it 'responds with a JSON parse error' do
-        allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
-        post(path, params: @data, headers: @headers)
-        expect(response.status).to eq(422)
+    context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+      before do
+        fake_io_object = OpenStruct.new string: json
+        allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+      end
+
+      context 'request.body is a JSON string' do
+        let(:json) { '"Hello!"' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
+      end
+
+      context 'request.body is a JSON integer' do
+        let(:json) { '66' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
       end
     end
   end
@@ -102,6 +128,18 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+    end
+
+    it 'allow for status simulation' do
+      with_settings(Settings, vsp_environment: 'development') do
+        with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
+          uuid = create(:notice_of_disagreement).id
+          status_simulation_headers = { 'Status-Simulation' => 'error' }
+          get("#{path}#{uuid}", headers: status_simulation_headers)
+
+          expect(parsed.dig('data', 'attributes', 'status')).to eq('error')
+        end
+      end
     end
 
     it 'returns an error when given a bad uuid' do

@@ -38,7 +38,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       )
 
       user.last_signed_in = Time.now.utc
-      pp user.va_profile
+      pp user.mpi_profile
     rescue => e
       puts "User query failed: #{e.message}"
     end
@@ -110,7 +110,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
         uuid: SecureRandom.uuid,
         loa: { current: LOA::THREE, highest: LOA::THREE }
       )
-      if user.va_profile.nil?
+      unless user.mpi_profile?
         puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"
         next
       end

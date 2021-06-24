@@ -26,6 +26,8 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
     context 'creates an HLR and persists the data' do
       it 'with all headers' do
         post(path, params: @data, headers: @headers)
+        hlr = AppealsApi::HigherLevelReview.last
+        expect(hlr.source).to eq('va.gov')
         expect(parsed['data']['type']).to eq('higherLevelReview')
         expect(parsed['data']['attributes']['status']).to eq('pending')
       end
@@ -82,7 +84,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
-          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
       end
 
@@ -94,7 +96,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
-          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
       end
     end
@@ -139,6 +141,18 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
       get("#{path}#{uuid}")
       expect(response.status).to eq(200)
       expect(parsed.dig('data', 'attributes', 'formData')).to be_a Hash
+    end
+
+    it 'allow for status simulation' do
+      with_settings(Settings, vsp_environment: 'development') do
+        with_settings(Settings.modules_appeals_api, status_simulation_enabled: true) do
+          uuid = create(:higher_level_review).id
+          status_simulation_headers = { 'Status-Simulation' => 'error' }
+          get("#{path}#{uuid}", headers: status_simulation_headers)
+
+          expect(parsed.dig('data', 'attributes', 'status')).to eq('error')
+        end
+      end
     end
 
     it 'returns an error when given a bad uuid' do

@@ -11,10 +11,9 @@ FactoryBot.define do
         'appointmentTimePreferences' => {
           'morning' => true,
           'midDay' => true,
-          'afternoon' => false,
-          'other' => false
+          'afternoon' => false
         },
-        'yearsOfEducation' => '2',
+        'yearsOfEducation' => '17',
         'isMoving' => true,
         'newAddress' => {
           'country' => 'USA',
@@ -39,7 +38,12 @@ FactoryBot.define do
             'last' => 'Simpson'
           },
           'ssn' => '987456457',
-          'dob' => '1998-01-02'
+          'dob' => '1998-01-02',
+          'VAFileNumber' => '88776655',
+          'pid' => '600036503',
+          'edipi' => '1005354478',
+          'vet360ID' => nil,
+          'regionalOffice' => '317 - St. Petersburg'
         }
       }.to_json
     }

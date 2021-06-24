@@ -2,17 +2,37 @@
 
 require_dependency 'facilities_api/application_controller'
 
-require 'facilities/ppms/v1/client'
-
 module FacilitiesApi
   class V1::CcpController < ApplicationController
     # Provider supports the following query parameters:
     # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
     # @param services - Optional specialty services filter
     def index
-      api_results = index_api_results
+      api_results = ppms_search
 
       render_json(V1::PPMS::ProviderSerializer, ppms_params, api_results)
+    end
+
+    def urgent_care
+      api_results = api.pos_locator(ppms_action_params)
+
+      render_json(V1::PPMS::ProviderSerializer, ppms_action_params, api_results)
+    end
+
+    def provider
+      api_results = if provider_urgent_care?
+                      api.pos_locator(ppms_action_params)
+                    else
+                      api.provider_locator(ppms_provider_params)
+                    end
+
+      render_json(V1::PPMS::ProviderSerializer, ppms_action_params, api_results)
+    end
+
+    def pharmacy
+      api_results = api.provider_locator(ppms_action_params.merge(specialties: ['3336C0003X']))
+
+      render_json(V1::PPMS::ProviderSerializer, ppms_action_params, api_results)
     end
 
     def specialties
@@ -26,10 +46,6 @@ module FacilitiesApi
     end
 
     private
-
-    def index_api_results
-      ppms_search
-    end
 
     def api
       @api ||= FacilitiesApi::V1::PPMS::Client.new
@@ -50,8 +66,20 @@ module FacilitiesApi
       )
     end
 
+    def ppms_action_params
+      params.permit(
+        :address,
+        :latitude,
+        :longitude,
+        :page,
+        :per_page,
+        :radius,
+        bbox: [],
+        specialties: []
+      )
+    end
+
     def ppms_provider_params
-      params.require(:type)
       params.require(:specialties)
       params.permit(
         :address,
@@ -77,11 +105,11 @@ module FacilitiesApi
     end
 
     def urgent_care?
-      provider_urgent_care? || ppms_params[:type] == 'urgent_care'
+      (ppms_params[:type] == 'provider' && provider_urgent_care?) || ppms_params[:type] == 'urgent_care'
     end
 
     def provider_urgent_care?
-      ppms_params[:type] == 'provider' && ppms_params[:specialties] == ['261QU0200X']
+      ppms_provider_params[:specialties] == ['261QU0200X']
     end
 
     def resource_path(options)

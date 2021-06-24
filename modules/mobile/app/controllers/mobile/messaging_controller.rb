@@ -25,9 +25,11 @@ module Mobile
     end
 
     def authenticate_client
-      # TODO: is this audit service call still needed?
-      MHVLoggingService.login(current_user)
       client.authenticate if client.session.expired?
+    end
+
+    def use_cache?
+      params[:useCache]&.downcase == 'true'
     end
 
     def pagination_params

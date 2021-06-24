@@ -37,6 +37,8 @@ module AppealsApi
       'Processing Error' => { status: 'error', code: 'DOC202' }
     }.freeze
 
+    V2_HLR_CENTRAL_STATUS_ATTRIBUTES = NOD_CENTRAL_STATUS_ATTRIBUTES
+
     CENTRAL_MAIL_STATUS = Struct.new(:id, :status, :error_message) do
       delegate :present?, to: :id
 
@@ -95,13 +97,17 @@ module AppealsApi
         attributes = attributes.merge(detail: "Downstream status: #{central_mail_status.error_message}")
       end
 
-      appeal.update! attributes
+      appeal.update_status! attributes
     end
 
     def central_mail_status_lookup(appeal)
       case appeal
       when AppealsApi::NoticeOfDisagreement then NOD_CENTRAL_STATUS_ATTRIBUTES
-      when AppealsApi::HigherLevelReview then HLR_CENTRAL_STATUS_ATTRIBUTES
+      when AppealsApi::HigherLevelReview
+        case appeal.api_version
+        when 'V2' then V2_HLR_CENTRAL_STATUS_ATTRIBUTES
+        else HLR_CENTRAL_STATUS_ATTRIBUTES
+        end
       end
     end
   end

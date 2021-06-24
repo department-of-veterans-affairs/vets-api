@@ -5,7 +5,7 @@ require 'active_support/core_ext/digest/uuid'
 
 # Subclasses the `User` model. Adds a unique redis namespace for IAM users.
 # Adds IAM sourced versions of ICN, EDIPI, and SEC ID and methods to use them
-# or hit MPI via the va_profile method.
+# or hit MPI via the mpi_profile.
 #
 class IAMUser < ::User
   redis_store REDIS_CONFIG[:iam_user][:namespace]
@@ -13,13 +13,10 @@ class IAMUser < ::User
   redis_key :uuid
 
   attribute :expiration_timestamp, Integer
-  attribute :iam_icn, String
   attribute :iam_edipi, String
   attribute :iam_sec_id, String
   attribute :iam_mhv_id, String
 
-  # MPI::Service uses 'mhv_icn' to query by icn rather than less accurate user traits
-  alias mhv_icn iam_icn
   alias mhv_correlation_id iam_mhv_id
 
   # Builds an user instance from a IAMUserIdentity
@@ -53,7 +50,7 @@ class IAMUser < ::User
   end
 
   def sec_id
-    identity.iam_sec_id || va_profile&.sec_id
+    identity.iam_sec_id || sec_id
   end
 
   def mhv_account_type
@@ -70,5 +67,11 @@ class IAMUser < ::User
 
   def set_expire
     redis_namespace.expireat(REDIS_CONFIG[:iam_user][:namespace], expiration_timestamp)
+  end
+
+  def vet360_contact_info
+    super
+  rescue Faraday::ResourceNotFound
+    raise Common::Exceptions::RecordNotFound.new(id: vet360_id)
   end
 end

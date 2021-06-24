@@ -56,23 +56,27 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
         'tuesday' => '730AM-430PM',
         'wednesday' => '730AM-430PM'
       },
-      services: { 'health' => %w[Audiology Cardiology Dermatology Gastroenterology
+      services: { 'health' => %w[Audiology Cardiology Dermatology EmergencyCare
                                  Ophthalmology PrimaryCare SpecialtyCare],
-                  'last_updated' => '2021-02-15', 'other' => [] },
+                  'last_updated' => '2021-04-05', 'other' => [] },
       feedback: {
-        'effective_date' => nil,
-        'health' => {}
+        'effective_date' => '2021-03-05',
+        'health' => {
+          'primary_care_urgent' => 0.0,
+          'primary_care_routine' => 0.9100000262260437,
+          'specialty_care_urgent' => 0.0,
+          'specialty_care_routine' => 0.0
+        }
       },
       access: {
-        'effective_date' => '2021-02-15',
+        'effective_date' => '2021-04-05',
         'health' => [
-          { 'service' => 'Audiology',        'new' => 81.333333, 'established' => 63.361702 },
-          { 'service' => 'Cardiology',       'new' => 128.0, 'established' => 52.26 },
-          { 'service' => 'Dermatology',      'new' => 165.333333, 'established' => 95.916666 },
-          { 'service' => 'Gastroenterology', 'new' => 273.0, 'established' => nil },
-          { 'service' => 'Ophthalmology',    'new' => 65.25, 'established' => 32.64 },
-          { 'service' => 'PrimaryCare',      'new' => 43.56, 'established' => 27.230158 },
-          { 'service' => 'SpecialtyCare',    'new' => 95.230769, 'established' => 53.319796 }
+          { 'service' => 'Audiology',        'new' => 103.0,      'established' => 73.833333 },
+          { 'service' => 'Cardiology',       'new' => 42.285714,  'established' => 19.053571 },
+          { 'service' => 'Dermatology',      'new' => 140.25,     'established' => 18.666666 },
+          { 'service' => 'Ophthalmology',    'new' => 131.0,      'established' => 33.333333 },
+          { 'service' => 'PrimaryCare',      'new' => 30.111111,  'established' => 29.153846 },
+          { 'service' => 'SpecialtyCare',    'new' => 76.986666,  'established' => 38.891509 }
         ]
       },
       mobile: false,
@@ -102,6 +106,57 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
         expect(e.status_code).to eq(401)
         expect(e.errors.first[:detail]).to eq('Invalid authentication credentials')
         expect(e.errors.first[:code]).to eq('LIGHTHOUSE_FACILITIES401')
+      end
+    end
+  end
+
+  context 'StatsD notifications' do
+    context 'Lighthouse responds Successfully' do
+      it "sends a 'facilities.lighthouse.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:increment).with(
+          'facilities.lighthouse.response.total',
+          hash_including(
+            tags: [
+              'http_status:200'
+            ]
+          )
+        )
+
+        expect do
+          FacilitiesApi::V1::Lighthouse::Client.new.get_facilities(params)
+        end.to instrument('lighthouse.facilities.request.faraday')
+      end
+    end
+
+    context 'Lighthouse responds with a Failure', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities_401') do
+      it "sends a 'facilities.lighthouse.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:measure)
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:increment).with(
+          'facilities.lighthouse.response.total',
+          hash_including(
+            tags: [
+              'http_status:401'
+            ]
+          )
+        )
+        expect(StatsD).to receive(:increment).with(
+          'facilities.lighthouse.response.failures',
+          hash_including(
+            tags: [
+              'http_status:401'
+            ]
+          )
+        )
+
+        expect do
+          FacilitiesApi::V1::Lighthouse::Client.new.get_by_id('vha_358')
+        end.to raise_error(
+          Common::Exceptions::BackendServiceException
+        ).and instrument('lighthouse.facilities.request.faraday')
       end
     end
   end

@@ -1,3 +1,5 @@
+// should be the same  to modules/appeals_api/config/schemas/v1/10182.json, but with the addition of uploads
+
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "JSON Schema for VA Form 10182",
@@ -10,11 +12,29 @@
       "additionalProperties": false,
       "properties": {
         "data":     { "$ref": "#/definitions/nodCreateData" },
-        "included": { "$ref": "#/definitions/nodCreateIncluded" }
+        "included": { "$ref": "#/definitions/nodCreateIncluded" },
+        "nodUploads": { "$ref": "#/definitions/nodCreateUploads" }
       },
       "required": ["data", "included"]
     },
 
+    "nodCreateUploads": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/nodCreateUpload" },
+      "minItems": 0,
+      "maxItems": 100,
+      "uniqueItems": true
+    },
+
+    "nodCreateUpload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name":       { "type": "string", "example": "private_medical_record.pdf" },
+        "confirmationCode": { "type": "string", "example": "d44d6f52-2e85-43d4-a5a3-1d9cb4e482a1"}
+      },
+      "required": [ "name", "confirmationCode" ]
+    },
 
     "nodCreateData": {
       "type": "object",
@@ -118,11 +138,12 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString", "maxLength": 255 },
+        "issue":                     { "$ref": "#/definitions/nodCreateNonBlankString", "maxLength": 180 },
         "decisionDate":              { "$ref": "#/definitions/nodCreateDate" },
         "decisionIssueId":           { "type": "integer" },
         "ratingIssueReferenceId":    { "type": "string" },
-        "ratingDecisionReferenceId": { "type": "string" }
+        "ratingDecisionReferenceId": { "type": "string" },
+        "disagreementArea":          { "type": "string", "maxLength": 90 }
       },
       "required": [ "issue", "decisionDate" ]
     },

@@ -38,6 +38,60 @@ describe 'IAMSSOeOAuth::SessionManager' do
         expect(@user.last_signed_in).to be_a_kind_of(Time)
       end
     end
+
+    context 'with newly-authenticated token' do
+      let(:dslogon_attrs) do
+        build(:dslogon_level2_introspection_payload, fediam_authentication_instant: Time.current.utc.iso8601,
+                                                     iat: (Time.current + 5.minutes).strftime('%s').to_i)
+      end
+
+      it 'increments the new OAuth session metric' do
+        allow_any_instance_of(IAMSSOeOAuth::Service).to receive(:post_introspect).and_return(dslogon_attrs)
+        allow(StatsD).to receive(:increment)
+        @user = session_manager.find_or_create_user
+        expect(StatsD).to have_received(:increment).with('iam_ssoe_oauth.session',
+                                                         tags: ['type:new', 'credential:DSL'])
+      end
+    end
+
+    context 'with refreshed token' do
+      let(:idme_attrs) do
+        build(:idme_loa3_introspection_payload, fediam_authentication_instant: Time.current.utc.iso8601,
+                                                iat: (Time.current + 1.hour).strftime('%s').to_i)
+      end
+
+      it 'increments the new OAuth session metric' do
+        allow_any_instance_of(IAMSSOeOAuth::Service).to receive(:post_introspect).and_return(idme_attrs)
+        allow(StatsD).to receive(:increment)
+        @user = session_manager.find_or_create_user
+        expect(StatsD).to have_received(:increment).with('iam_ssoe_oauth.session',
+                                                         tags: ['type:refresh', 'credential:IDME'])
+      end
+    end
+
+    context 'with unparseable timestamps' do
+      let(:mhv_attrs) do
+        build(:mhv_premium_introspection_payload, fediam_authentication_instant: Time.current.utc.iso8601,
+                                                  iat: 'garbage')
+      end
+
+      it 'increments the new OAuth session metric and defaults to refresh type' do
+        allow_any_instance_of(IAMSSOeOAuth::Service).to receive(:post_introspect).and_return(mhv_attrs)
+        allow(StatsD).to receive(:increment)
+        @user = session_manager.find_or_create_user
+        expect(StatsD).to have_received(:increment).with('iam_ssoe_oauth.session',
+                                                         tags: ['type:refresh', 'credential:MHV'])
+      end
+    end
+
+    context 'with a nil user' do
+      it 'raises an unauthorized error' do
+        allow(session_manager).to receive(:build_user).and_return(nil)
+        VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
+          expect { session_manager.find_or_create_user }.to raise_error(Common::Exceptions::Unauthorized)
+        end
+      end
+    end
   end
 
   describe '#logout' do

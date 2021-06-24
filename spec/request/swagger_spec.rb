@@ -232,6 +232,51 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports uploading a Form 10-10cg attachment' do
+      expect(subject).to validate(
+        :post,
+        '/v0/form1010cg/attachments',
+        400,
+        '_data' => {
+          'attachment' => {}
+        }
+      )
+
+      expect(subject).to validate(
+        :post,
+        '/v0/form1010cg/attachments',
+        422,
+        '_data' => {
+          'attachment' => {
+            file_data: fixture_file_upload('spec/fixtures/files/doctors-note.gif')
+          }
+        }
+      )
+
+      VCR.use_cassette 's3/object/put/834d9f51-d0c7-4dc2-9f2e-9b722db98069/doctors-note.pdf', {
+        record: :none,
+        allow_unused_http_interactions: false,
+        match_requests_on: %i[method host]
+      } do
+        expect(SecureRandom).to receive(:uuid).and_return(
+          '834d9f51-d0c7-4dc2-9f2e-9b722db98069'
+        )
+
+        allow(SecureRandom).to receive(:uuid).and_call_original
+
+        expect(subject).to validate(
+          :post,
+          '/v0/form1010cg/attachments',
+          200,
+          '_data' => {
+            'attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/files/doctors-note.pdf', 'application/pdf')
+            }
+          }
+        )
+      end
+    end
+
     it 'supports adding a pension' do
       expect(subject).to validate(
         :post,
@@ -377,6 +422,17 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       )
     end
 
+    it 'supports getting cemetaries preneed claim' do
+      VCR.use_cassette('preneeds/cemeteries/gets_a_list_of_cemeteries') do
+        expect(subject).to validate(
+          :get,
+          '/v0/preneeds/cemeteries',
+          200,
+          '_headers' => { 'content-type' => 'application/json' }
+        )
+      end
+    end
+
     describe 'preneed attachments upload' do
       it 'supports uploading a file' do
         expect(subject).to validate(
@@ -407,7 +463,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           422,
           '_data' => {
             'preneed_attachment' => {
-              'file_data' => fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
+              'file_data' => fixture_file_upload('invalid_idme_cert.crt')
             }
           }
         )
@@ -633,7 +689,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           422,
           '_data' => {
             'hca_attachment' => {
-              file_data: fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt')
+              file_data: fixture_file_upload('invalid_idme_cert.crt')
             }
           }
         )
@@ -1023,7 +1079,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           headers.update(
             '_data' => {
               'supporting_evidence_attachment' => {
-                'file_data' => fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf')
+                'file_data' => fixture_file_upload('malformed-pdf.pdf')
               }
             }
           )
@@ -1853,10 +1909,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'contestable_issues' do
+    describe 'HLR contestable_issues' do
       let(:benefit_type) { 'compensation' }
       let(:ssn) { '212222112' }
-      let(:receipt_date) { '2020-09-02' }
       let(:status) { 200 }
 
       it 'documents contestable_issues 200' do
@@ -1897,6 +1952,79 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
               '/v0/higher_level_reviews/contestable_issues/{benefit_type}',
               status,
               headers.merge('benefit_type' => benefit_type)
+            )
+          end
+        end
+      end
+    end
+
+    describe 'NOD contestable_issues' do
+      let(:ssn) { '212222112' }
+
+      it 'documents contestable_issues 200' do
+        VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
+          expect(subject).to validate(
+            :get,
+            '/v0/notice_of_disagreements/contestable_issues',
+            200,
+            headers
+          )
+        end
+      end
+
+      context '404' do
+        let(:ssn) { '000000000' }
+
+        it 'documents contestable_issues 404' do
+          VCR.use_cassette('decision_review/NOD-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
+            expect(subject).to validate(
+              :get,
+              '/v0/notice_of_disagreements/contestable_issues',
+              404,
+              headers
+            )
+          end
+        end
+      end
+    end
+
+    describe 'notice_of_disagreements' do
+      context 'GET' do
+        it 'documents notice_of_disagreements 200' do
+          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-200') do
+            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
+                                        200, headers.merge('uuid' => '1234567a-89b0-123c-d456-789e01234f56'))
+          end
+        end
+
+        it 'documents higher_level_reviews 404' do
+          VCR.use_cassette('decision_review/NOD-SHOW-RESPONSE-404') do
+            expect(subject).to validate(:get, '/v0/notice_of_disagreements/{uuid}',
+                                        404, headers.merge('uuid' => '0'))
+          end
+        end
+      end
+
+      context 'POST' do
+        it 'documents notice_of_disagreements 200' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200') do
+            # NoticeOfDisagreementsController is a pass-through, and uses request.body directly (not params[]).
+            # The validate helper does not create a parsable request.body string that works with the controller.
+            allow_any_instance_of(V0::NoticeOfDisagreementsController).to receive(:request_body_hash).and_return(
+              JSON.parse(File.read(Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                                   'valid_NOD_create_request.json')))
+            )
+            expect(subject).to validate(:post, '/v0/notice_of_disagreements', 200, headers)
+          end
+        end
+
+        it 'documents notice_of_disagreements 422' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE--422') do
+            expect(subject).to validate(
+              :post,
+              '/v0/notice_of_disagreements',
+              422,
+              headers.merge('_data' => { '_json' => '' })
             )
           end
         end
@@ -2260,14 +2388,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           {
             communication_item: {
               id: 2,
-              communication_channels: [
-                {
-                  id: 1,
-                  communication_permission: {
-                    allowed: true
-                  }
+              communication_channel: {
+                id: 1,
+                communication_permission: {
+                  allowed: true
                 }
-              ]
+              }
             }
           }
         end
@@ -2290,7 +2416,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
 
         it 'supports the communication preferences create response', run_at: '2021-03-24T22:38:21Z' do
-          valid_params[:communication_item][:communication_channels][0][:communication_permission][:allowed] = false
+          valid_params[:communication_item][:communication_channel][:communication_permission][:allowed] = false
           path = '/v0/profile/communication_preferences'
           expect(subject).to validate(:post, path, 401)
 
@@ -2715,21 +2841,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'search click tracking' do
       context 'when successful' do
         # rubocop:disable Layout/LineLength
-        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => 'testQuery', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent' } }
+        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => 'testQuery', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent', 'module_code' => 'I14Y' } }
 
         it 'sends data as query params' do
           VCR.use_cassette('search_click_tracking/success') do
-            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&user_agent={user_agent}', 204, params)
+            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 204, params)
           end
         end
       end
 
       context 'with an empty search query' do
-        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => '', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent' } }
+        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => '', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent', 'module_code' => 'I14Y' } }
 
         it 'returns a 400 with error details' do
           VCR.use_cassette('search_click_tracking/missing_parameter') do
-            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&user_agent={user_agent}', 400, params)
+            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 400, params)
           end
           # rubocop:enable Layout/LineLength
         end
@@ -3150,7 +3276,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'virtual agent' do
       describe 'POST v0/virtual_agent_token' do
         it 'returns webchat token' do
-          VCR.use_cassette('virtual_agent/webchat_token') do
+          VCR.use_cassette('virtual_agent/webchat_token_a') do
             expect(subject).to validate(:post, '/v0/virtual_agent_token', 200)
           end
         end
@@ -3199,16 +3325,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports updating diaries' do
-        depenency_verification_service = double('dep_verification')
-        expect(depenency_verification_service).to receive(:update_diaries)
-        expect(BGS::DependencyVerificationService).to receive(:new) { depenency_verification_service }
-
         expect(subject).to validate(
           :post,
           '/v0/dependents_verifications',
           200,
           headers.merge(
-            '_data' => { 'update_diaries' => 'true' }
+            '_data' => {
+              'dependency_verification_claim' => {
+                'form' => { 'update_diaries' => 'true' }
+              }
+            }
           )
         )
       end
@@ -3306,7 +3432,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/evss_claims/{evss_claim_id}/documents',
           202,
-          headers.merge('_data' => { file: fixture_file_upload('/files/doctors-note.pdf', 'application/pdf'),
+          headers.merge('_data' => { file: fixture_file_upload('doctors-note.pdf', 'application/pdf'),
                                      tracked_item_id: 33,
                                      document_type: 'L023' }, 'evss_claim_id' => 189_625)
         )
@@ -3316,7 +3442,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           :post,
           '/v0/evss_claims/{evss_claim_id}/documents',
           422,
-          headers.merge('_data' => { file: fixture_file_upload('spec/fixtures/files/malformed-pdf.pdf',
+          headers.merge('_data' => { file: fixture_file_upload('malformed-pdf.pdf',
                                                                'application/pdf'),
                                      tracked_item_id: 33,
                                      document_type: 'L023' }, 'evss_claim_id' => 189_625)

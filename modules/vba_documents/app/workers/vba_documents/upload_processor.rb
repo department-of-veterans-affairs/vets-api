@@ -14,16 +14,22 @@ module VBADocuments
     include Sidekiq::Worker
     include VBADocuments::UploadValidations
 
-    def perform(guid, retries = 0)
+    def perform(guid, caller_data, retries = 0)
+      # @retries variable used via the CentralMail::Utilities which is included via VBADocuments::UploadValidations
       @retries = retries
-      @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      if @upload
-        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
-        Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
-        download_and_process
-        tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
-        Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
+      @cause = caller_data.nil? ? { caller: 'unknown' } : caller_data['caller']
+      response = nil
+      VBADocuments::UploadSubmission.with_advisory_lock(guid) do
+        @upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+        if @upload
+          tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.as_json)
+          Rails.logger.info('VBADocuments: Start Processing.', tracking_hash)
+          response = download_and_process
+          tracking_hash = { 'job' => 'VBADocuments::UploadProcessor' }.merge(@upload.reload.as_json)
+          Rails.logger.info('VBADocuments: Stop Processing.', tracking_hash)
+        end
       end
+      response&.success? ? true : false
     end
 
     private
@@ -31,6 +37,7 @@ module VBADocuments
     # rubocop:disable Metrics/MethodLength
     def download_and_process
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(@upload.guid)
+      response = nil
       begin
         update_size(@upload, tempfile.size)
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
@@ -52,6 +59,7 @@ module VBADocuments
         tempfile.close
         close_part_files(parts) if parts.present?
       end
+      response
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -78,8 +86,13 @@ module VBADocuments
     end
 
     def process_response(response)
-      if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
+      # record submission attempt, record time and success status to an array
+      if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX) # TODO: GovCIO needs to return this...
         @upload.update(status: 'received')
+        @upload.track_uploaded_received(:cause, @cause)
+      elsif response.status == 429 && response.body =~ /UUID already in cache/
+        @upload.track_uploaded_received(:uuid_already_in_cache_cause, @cause)
+        @upload.track_concurrent_duplicate
       else
         map_error(response.status, response.body, VBADocuments::UploadError)
       end

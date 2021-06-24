@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'controllers/concerns/form_attachment_create_spec'
 
 RSpec.describe V0::HCAAttachmentsController, type: :controller do
+  it_behaves_like 'a FormAttachmentCreate controller'
+
   describe '#create' do
     it 'uploads an hca attachment' do
       post(:create, params: { hca_attachment: {
-             file_data: fixture_file_upload('pdf_fill/extras.pdf')
+             file_data: fixture_file_upload('../pdf_fill/extras.pdf')
            } })
       expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq HCAAttachment.last.guid
       expect(FormAttachment.last).to be_a(HCAAttachment)
@@ -20,7 +23,7 @@ RSpec.describe V0::HCAAttachmentsController, type: :controller do
     end
 
     it 'validates that the upload attachment is not nil' do
-      file_data = fixture_file_upload('pdf_fill/extras.pdf')
+      file_data = fixture_file_upload('../pdf_fill/extras.pdf')
 
       post(:create, params: { hca_attachment: {
              file_data: file_data

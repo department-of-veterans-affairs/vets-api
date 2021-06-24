@@ -15,7 +15,8 @@ describe Mobile::V0::Appointments::Service do
   after(:all) { VCR.configure { |c| c.cassette_library_dir = @original_cassette_dir } }
 
   before do
-    iam_sign_in
+    allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
+    iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
   end
@@ -23,8 +24,8 @@ describe Mobile::V0::Appointments::Service do
   after { Timecop.return }
 
   describe '#get_appointments' do
-    let(:start_date) { Time.now.utc }
-    let(:end_date) { start_date + 3.months }
+    let(:start_date) { (DateTime.now.utc.beginning_of_day - 1.year) }
+    let(:end_date) { (DateTime.now.utc.beginning_of_day + 1.year) }
 
     context 'when both va and cc appointments return 200s' do
       let(:responses) do

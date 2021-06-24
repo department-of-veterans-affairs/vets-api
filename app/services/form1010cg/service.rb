@@ -18,15 +18,26 @@ module Form1010cg
     NOT_FOUND = 'NOT_FOUND'
     AUDITOR = Form1010cg::Auditor.new
 
-    def self.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
+    def self.collect_attachments(claim)
+      poa_attachment_id   = claim.parsed_form['poaAttachmentId']
+      claim_pdf_path      = claim.to_pdf(sign: true)
+      poa_attachment_path = nil
+
+      if poa_attachment_id
+        attachment = Form1010cg::Attachment.find_by(guid: claim.parsed_form['poaAttachmentId'])
+        poa_attachment_path = attachment.to_local_file if attachment
+      end
+
+      [claim_pdf_path, poa_attachment_path]
+    end
+
+    def self.submit_attachments!(carma_case_id, veteran_name, claim_pdf_path, poa_attachment_path = nil)
       raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?
-      raise 'invalid document_type' unless CARMA::Models::Attachment::DOCUMENT_TYPES.values.include?(document_type)
 
-      carma_attachments = CARMA::Models::Attachments.new(
-        carma_case_id, veteran_name['first'], veteran_name['last']
-      )
+      carma_attachments = CARMA::Models::Attachments.new(carma_case_id, veteran_name['first'], veteran_name['last'])
 
-      carma_attachments.add(document_type, file_path)
+      carma_attachments.add('10-10CG', claim_pdf_path)
+      carma_attachments.add('POA', poa_attachment_path) if poa_attachment_path
       carma_attachments.submit!
     end
 
@@ -37,6 +48,7 @@ module Form1010cg
 
       # The CaregiversAssistanceClaim we are processing with this service
       @claim        = claim
+
       # The Form1010cg::Submission
       @submission   = submission
 
@@ -69,67 +81,16 @@ module Form1010cg
         metadata: carma_submission.request_body['metadata']
       )
 
-      if Flipper.enabled?(:async_10_10_cg_attachments)
-        submit_attachment_async
-      else
-        submit_attachment
-      end
-
+      submit_attachment_async
       submission
     end
 
     def submit_attachment_async
       submission.claim = claim
       submission.save
-      submission.attachments_job_id = Form1010cg::DeliverPdfToCARMAJob.perform_async(submission.claim_guid)
+      submission.attachments_job_id = Form1010cg::DeliverAttachmentsJob.perform_async(submission.claim_guid)
     rescue => e
       Rails.logger.error(e)
-    end
-
-    # Will generate a PDF version of the submission and attach it to the CARMA Case.
-    #
-    # @return [Boolean]
-    def submit_attachment # rubocop:disable Metrics/MethodLength
-      raise 'requires a submission'               if  submission.nil?
-      raise 'requires a processed submission'     if  submission.carma_case_id.blank?
-      raise 'submission already has attachments'  if  submission.attachments&.any?
-
-      file_path = begin
-                    claim.to_pdf(sign: true)
-                  rescue
-                    return false
-                  end
-
-      begin
-        carma_attachments = CARMA::Models::Attachments.new(
-          submission.carma_case_id,
-          claim.veteran_data['fullName']['first'],
-          claim.veteran_data['fullName']['last']
-        )
-
-        carma_attachments.add(CARMA::Models::Attachment::DOCUMENT_TYPES['10-10CG'], file_path)
-
-        carma_attachments.submit!(carma_client)
-        submission.attachments = carma_attachments.to_hash
-      rescue
-        # The end-user doesn't know an attachment is being sent with the submission at all. The PDF we're
-        # sending to CARMA is just the submission, itself, as a PDF. This is to follow the current
-        # conventions of CARMA: every case has the PDF of the submission attached.
-        #
-        # Regardless of the reason, we shouldn't raise an error when sending attachments fails.
-        # It's non-critical and we don't want the error to bubble up to the response,
-        # misleading the user to think their claim was not submitted.
-        #
-        # If we made it this far, there is a submission that exists in CARMA.
-        # So the user should get a sucessful response, whether attachments reach CARMA or not.
-        File.delete(file_path) if File.exist?(file_path)
-        return false
-      end
-
-      # In some cases the file will not exist here even though it's generated above.
-      # Check to see the file exists before attempting to delete it, in order to avoid raising an error.
-      File.delete(file_path) if File.exist?(file_path)
-      true
     end
 
     # Will raise an error unless the veteran specified on the claim's data can be found in MVI

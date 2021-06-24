@@ -2,18 +2,19 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_12_175709) do
+ActiveRecord::Schema.define(version: 2021_05_28_151724) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
+  enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -52,16 +53,33 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.bigint "byte_size", null: false
     t.string "checksum", null: false
     t.datetime "created_at", null: false
+    t.string "service_name", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
+  end
+
+  create_table "active_storage_variant_records", force: :cascade do |t|
+    t.bigint "blob_id", null: false
+    t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "appeal_submission_uploads", force: :cascade do |t|
+    t.string "decision_review_evidence_attachment_guid"
+    t.string "appeal_submission_id"
+    t.string "lighthouse_upload_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
     t.string "user_uuid"
     t.string "submitted_appeal_uuid"
     t.string "type_of_appeal"
-    t.string "board_review_otpion"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "board_review_option"
+    t.string "encrypted_upload_metadata"
+    t.string "encrypted_upload_metadata_iv"
   end
 
   create_table "appeals_api_event_subscriptions", force: :cascade do |t|
@@ -80,8 +98,6 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.string "encrypted_file_data"
     t.string "encrypted_file_data_iv"
     t.string "source"
-    t.string "code"
-    t.string "detail"
     t.uuid "guid", null: false
     t.integer "upload_submission_id", null: false
     t.index ["guid"], name: "index_appeals_api_evidence_submissions_on_guid"
@@ -100,6 +116,8 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.string "code"
     t.string "detail"
     t.string "source"
+    t.string "pdf_version"
+    t.string "api_version"
   end
 
   create_table "appeals_api_notice_of_disagreements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -113,6 +131,9 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.string "code"
     t.string "detail"
     t.string "source"
+    t.string "board_review_option"
+    t.string "pdf_version"
+    t.string "api_version"
   end
 
   create_table "appeals_api_status_updates", force: :cascade do |t|
@@ -356,6 +377,7 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.boolean "transfer_of_entitlement", default: false, null: false
     t.boolean "chapter1607", default: false, null: false
     t.boolean "vettec", default: false
+    t.boolean "vrrap", default: false, null: false
     t.index ["created_at"], name: "index_education_benefits_submissions_on_created_at"
     t.index ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true
     t.index ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd"
@@ -592,6 +614,17 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.index ["error_class"], name: "index_personal_information_logs_on_error_class"
   end
 
+  create_table "pghero_query_stats", force: :cascade do |t|
+    t.text "database"
+    t.text "user"
+    t.text "query"
+    t.bigint "query_hash"
+    t.float "total_time"
+    t.bigint "calls"
+    t.datetime "captured_at"
+    t.index ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at"
+  end
+
   create_table "preference_choices", id: :serial, force: :cascade do |t|
     t.string "code"
     t.string "description"
@@ -708,10 +741,10 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
+    t.text "services"
     t.uuid "idme_uuid"
   end
 
@@ -748,6 +781,8 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.string "form_details_url"
     t.jsonb "va_form_administration"
     t.integer "row_id"
+    t.float "ranking"
+    t.string "tags"
     t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
@@ -786,7 +821,6 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
     t.string "whodunnit"
     t.text "object"
     t.datetime "created_at"
-    t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
@@ -827,4 +861,5 @@ ActiveRecord::Schema.define(version: 2021_04_12_175709) do
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
 end

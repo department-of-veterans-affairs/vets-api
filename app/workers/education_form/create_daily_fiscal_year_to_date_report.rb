@@ -13,7 +13,7 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES - %w[1990s]
+    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES
 
     FORM_TYPE_HEADERS = EducationBenefitsClaim.form_headers(FORM_TYPES).map do |form_header|
       [form_header, '', '']
@@ -100,7 +100,7 @@ module EducationForm
       num_form_types = FORM_TYPES.size
 
       @ranges = {
-        day: @date.beginning_of_day..@date.end_of_day,
+        day: @date.all_day,
         year: beginning_of_fiscal_year..@date.end_of_day
       }
 

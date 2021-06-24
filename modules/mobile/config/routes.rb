@@ -10,7 +10,8 @@ Mobile::Engine.routes.draw do
     put '/appointments/cancel/:id', to: 'appointments#cancel'
     get '/claims-and-appeals-overview', to: 'claims_and_appeals#index'
     get '/claim/:id', to: 'claims_and_appeals#get_claim'
-    post '/claim/:id/documents', to: 'claims_and_appeals#upload_documents'
+    post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'
+    post '/claim/:id/documents/multi-image', to: 'claims_and_appeals#upload_multi_image_document'
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
@@ -20,7 +21,7 @@ Mobile::Engine.routes.draw do
     put '/payment-information/benefits', to: 'payment_information#update'
     put '/push/register', to: 'push_notifications#register'
     get '/push/prefs/:endpoint_sid', to: 'push_notifications#get_prefs'
-    put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_prefs'
+    put '/push/prefs/:endpoint_sid', to: 'push_notifications#set_pref'
     post '/push/send', to: 'push_notifications#send_notification'
     get '/user', to: 'users#show'
     get '/user/logout', to: 'users#logout'
@@ -49,6 +50,11 @@ Mobile::Engine.routes.draw do
           patch :move, on: :member
           post :reply, on: :member
           resources :attachments, only: [:show], defaults: { format: :json }
+        end
+
+        resources :message_drafts, only: %i[create update], defaults: { format: :json } do
+          post ':reply_id/replydraft', on: :collection, action: :create_reply_draft, as: :create_reply
+          put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
         end
       end
     end

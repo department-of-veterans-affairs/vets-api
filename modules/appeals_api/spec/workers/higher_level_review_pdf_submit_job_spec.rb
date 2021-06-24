@@ -49,7 +49,8 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       capture_body = arg
       faraday_response
     }
-    described_class.new.perform(higher_level_review.id)
+
+    expect { described_class.new.perform(higher_level_review.id) }.to raise_error(AppealsApi::UploadError)
     expect(capture_body).to be_a(Hash)
     expect(capture_body).to have_key('metadata')
     expect(capture_body).to have_key('document')
@@ -68,12 +69,20 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
       allow(faraday_response).to receive(:success?).and_return(false)
     end
 
-    it 'queues another job to retry the request' do
+    it 'puts the HLR into an error state' do
       expect(client_stub).to receive(:upload) { |_arg| faraday_response }
-      Timecop.freeze(Time.zone.now)
+      allow(AppealsApi::SidekiqRetryNotifier).to receive(:notify!).and_return(true)
       described_class.new.perform(higher_level_review.id)
-      expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
-      Timecop.return
+      expect(higher_level_review.reload.status).to eq('error')
+      expect(higher_level_review.code).to eq('DOC201')
+    end
+
+    it 'sends a retry notification' do
+      expect(client_stub).to receive(:upload) { |_arg| faraday_response }
+      allow(AppealsApi::SidekiqRetryNotifier).to receive(:notify!).and_return(true)
+      described_class.new.perform(higher_level_review.id)
+
+      expect(AppealsApi::SidekiqRetryNotifier).to have_received(:notify!)
     end
   end
 
@@ -88,6 +97,7 @@ RSpec.describe AppealsApi::HigherLevelReviewPdfSubmitJob, type: :job do
 
       higher_level_review.reload
       expect(higher_level_review.status).to eq('error')
+      expect(higher_level_review.code).to eq('RuntimeError')
     end
   end
 

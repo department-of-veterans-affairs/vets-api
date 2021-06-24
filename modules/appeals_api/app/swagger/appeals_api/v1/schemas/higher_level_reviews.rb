@@ -18,7 +18,7 @@ module AppealsApi::V1
 
         schema :hlrStatus do
           key :type, :string
-          key :enum, AppealsApi::HlrStatus::STATUSES
+          key :enum, AppealsApi::HlrStatus::V1_STATUSES
         end
 
         schema :errorWithTitleAndDetail do
@@ -46,7 +46,7 @@ module AppealsApi::V1
       def self.hlr_legacy_schemas
         read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
 
-        read_json_schema = ->(filename) { JSON.parse read_file[['config', 'schemas', filename]] }
+        read_json_schema = ->(filename) { JSON.parse read_file[['config', 'schemas', 'v1', filename]] }
 
         hlr_create_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
           read_json_schema['200996.json']

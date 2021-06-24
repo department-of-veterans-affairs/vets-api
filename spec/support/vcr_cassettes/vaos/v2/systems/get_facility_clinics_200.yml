@@ -1,0 +1,194 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicalService=audiology
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - f1c76a4a-54f0-4e82-88f5-baaaf9263a44
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 13 May 2021 16:43:07 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '2066'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.4.0
+      B3:
+      - 674d1c86307c89fe-8a5ff5d784ff5583-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6cfdbcb
+      X-Vamf-Timestamp:
+      - '2021-05-08T03:21:25+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"vistaSite":983,"id":"570","serviceName":"CHY C&P AUDIO","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true},{"vistaSite":983,"id":"945","serviceName":"FTC
+        C&P AUDIO BEV","physicalLocation":"FORT COLLINS AUDIO","stationId":"983GC","stationName":"CHYSHR-Fort
+        Collins VA Clinic","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS","patientDirectScheduling":true,"patientDisplay":true},{"vistaSite":983,"id":"947","serviceName":"CHY
+        C&P AUDIO JAN","physicalLocation":"C&P OFFICE","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS"},{"vistaSite":983,"id":"1014","serviceName":"CHY AUDIOLOGY","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","patientDirectScheduling":true,"patientDisplay":true},{"vistaSite":983,"id":"1020","serviceName":"WHT
+        AUDIO VAR2","physicalLocation":"WHEATLAND","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCodeName":"*Missing*","patientDirectScheduling":true,"patientDisplay":true},{"vistaSite":983,"id":"1022","serviceName":"TOR
+        C&P LORI","stationId":"983","stationName":"CHYSHR-Cheyenne VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS"},{"vistaSite":983,"id":"1072","serviceName":"WHT HEARING
+        AID LORI","physicalLocation":"WHEATLAND","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":449,"secondaryStopCodeName":"FITTING
+        & ADJSTMNTS 2ND ONLY"}]}'
+  recorded_at: Thu, 13 May 2021 16:43:07 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570,945
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - 3fd25390-a735-4e15-beb9-8a8be8aa9625
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 13 May 2021 23:01:46 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '673'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.4.0
+      B3:
+      - ea2637c860d62ce7-68df51d214560b2b-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6cfdbcb
+      X-Vamf-Timestamp:
+      - '2021-05-08T03:21:25+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"vistaSite":983,"id":"570","serviceName":"CHY C&P AUDIO","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true},{"vistaSite":983,"id":"945","serviceName":"FTC
+        C&P AUDIO BEV","physicalLocation":"FORT COLLINS AUDIO","stationId":"983GC","stationName":"CHYSHR-Fort
+        Collins VA Clinic","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS","patientDirectScheduling":true,"patientDisplay":true}]}'
+  recorded_at: Thu, 13 May 2021 23:01:46 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=570
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - c120e2b1-9fba-4e7e-bb50-77696a9eccdc
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 14 May 2021 03:20:45 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '321'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.4.0
+      B3:
+      - 767bf549f7976703-4d836145f32de0f1-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - 6cfdbcb
+      X-Vamf-Timestamp:
+      - '2021-05-08T03:21:25+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"data":[{"vistaSite":983,"id":"570","serviceName":"CHY C&P AUDIO","stationId":"983","stationName":"CHYSHR-Cheyenne
+        VA Medical Center","primaryStopCode":203,"primaryStopCodeName":"AUDIOLOGY","secondaryStopCode":450,"secondaryStopCodeName":"COMP
+        & PENS (C&P) EXAMS","patientDirectScheduling":false,"patientDisplay":true}]}'
+  recorded_at: Fri, 14 May 2021 03:20:45 GMT
+recorded_with: VCR 6.0.0

@@ -97,6 +97,10 @@ Rails.application.routes.draw do
     resources :caregivers_assistance_claims, only: :create
     post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
 
+    namespace :form1010cg do
+      resources :attachments, only: :create
+    end
+
     resources :dependents_applications, only: %i[create show] do
       collection do
         get(:disability_rating)
@@ -338,6 +342,25 @@ Rails.application.routes.draw do
         get 'urgent_care', on: :collection
       end
     end
+
+    namespace :gi, module: 'gids' do
+      resources :institutions, only: :show, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+        get :children, on: :member
+      end
+
+      resources :institution_programs, only: :index, defaults: { format: :json } do
+        get :search, on: :collection
+        get :autocomplete, on: :collection
+      end
+
+      resources :calculator_constants, only: :index, defaults: { format: :json }
+
+      resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
+
+      resources :zipcode_rates, only: :show, defaults: { format: :json }
+    end
   end
 
   root 'v0/example#index', module: 'v0'
@@ -350,7 +373,8 @@ Rails.application.routes.draw do
     mount AppsApi::Engine, at: '/apps'
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
-    mount ClaimsApi::Engine, at: '/claims'
+    mount ClaimsApi::Engine, at: '/claims', as: 'legacy_claims'
+    mount ClaimsApi::Engine, at: '/benefits'
     mount Veteran::Engine, at: '/veteran'
     mount VAForms::Engine, at: '/va_forms'
     mount VeteranVerification::Engine, at: '/veteran_verification'
@@ -358,6 +382,7 @@ Rails.application.routes.draw do
   end
 
   # Modules
+  mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount FacilitiesApi::Engine, at: '/facilities_api'
@@ -373,6 +398,8 @@ Rails.application.routes.draw do
     require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  mount PgHero::Engine, at: 'pghero'
 
   mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
 

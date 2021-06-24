@@ -38,6 +38,80 @@ def with_okta_profile_configured(&block)
   end
 end
 
+def with_okta_profile_with_uuid_configured(&block)
+  with_settings(
+    Settings.oidc,
+    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
+    issuer: 'https://example.com/oauth2/default',
+    issuer_prefix: 'https://example.com/oauth2',
+    audience: 'api://default',
+    base_api_url: 'https://example.com/',
+    base_api_token: 'token'
+  ) do
+    with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+      VCR.use_cassette('okta/metadata-ssoe') do
+        yield block
+      end
+    end
+  end
+end
+
+def vcr_cassette(open_id_cassette, &block)
+  VCR.use_cassette('okta/metadata') do
+    VCR.use_cassette(open_id_cassette) do
+      yield block
+    end
+  end
+end
+
+def with_ssoi_profile_configured(&block)
+  with_settings(
+    Settings.oidc,
+    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
+    issuer: 'https://example.com/oauth2/default',
+    issuer_prefix: 'https://example.com/oauth2',
+    audience: 'api://default',
+    base_api_url: 'https://example.com/',
+    base_api_token: 'token'
+  ) do
+    with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+      VCR.use_cassette('okta/metadata') do
+        VCR.use_cassette('okta/ssoi-user') do
+          yield block
+        end
+      end
+    end
+  end
+end
+
+def with_ssoi_charon_configured(&block)
+  with_settings(
+    Settings.oidc,
+    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
+    issuer_prefix: 'https://example.com/oauth2',
+    audience: 'api://default'
+  ) do
+    with_oidc_charon_configured(&block)
+  end
+end
+
+def with_oidc_charon_configured(&block)
+  with_settings(Settings.oidc.isolated_audience, default: 'api://default') do
+    with_settings(
+      Settings.oidc.charon,
+      enabled: true,
+      audience: 'https://example.com/xxxxxxservices/xxxxx',
+      endpoint: 'http://example.com/services/charon'
+    ) do
+      with_settings(
+        Settings.oidc, smart_launch_url: 'http://example.com/smart/launch'
+      ) do
+        vcr_cassette('okta/openid-user-charon', &block)
+      end
+    end
+  end
+end
+
 def okta_jwt(scopes)
   [{
     'ver' => 1,

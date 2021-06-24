@@ -110,13 +110,48 @@ module HealthQuest
       #
       # @return [Hash] an aggregated hash
       #
-      def all
+      def all # rubocop:disable Metrics/MethodLength
         @lighthouse_appointments = get_lighthouse_appointments.resource&.entry
         @locations = get_locations
-        return default_response if lighthouse_appointments.blank?
+
+        if lighthouse_appointments.blank? || @locations.blank?
+          Rails.logger.info(
+            "Loma Linda user does not have any Appointment resources? #{lighthouse_appointments.blank?}", user_info
+          )
+          Rails.logger.info("Loma Linda user does not have any Location resources? #{locations.blank?}", user_info)
+
+          return default_response
+        end
 
         concurrent_pgd_requests
-        return default_response if patient.blank? || questionnaires.blank?
+        @facilities = get_facilities
+
+        if organizations.blank? || questionnaire_responses.blank? || save_in_progress.blank?
+          Rails.logger.info(
+            "Loma Linda user does not have any Organization resources? #{organizations.blank?}", user_info
+          )
+          Rails.logger.info(
+            "Loma Linda user does not have any QuestionnaireResponse resources? #{questionnaire_responses.blank?}",
+            user_info
+          )
+          Rails.logger.info(
+            "Loma Linda user does not have any in progress items? #{save_in_progress.blank?}", user_info
+          )
+        end
+
+        if patient.blank?
+          Rails.logger.info("Loma Linda user does not have a Patient resource? #{patient.blank?}", user_info)
+
+          return default_response
+        end
+
+        if questionnaires.blank?
+          Rails.logger.info(
+            "Loma Linda user does not have any Questionnaire resources? #{questionnaires.blank?}", user_info
+          )
+
+          return default_response
+        end
 
         compose
       end
@@ -130,7 +165,7 @@ module HealthQuest
       # @param data [Hash] questionnaire answers and appointment data hash.
       # @return [FHIR::ClientReply] an instance of ClientReply
       #
-      def create_questionnaire_response(data)
+      def create_questionnaire_response(data) # rubocop:disable Metrics/MethodLength
         attrs = data.to_h.with_indifferent_access
         response = questionnaire_response_service.create(attrs)
 
@@ -145,6 +180,14 @@ module HealthQuest
 
               qr.save
             end
+
+            Rails.logger.info(
+              'Loma Linda user successfully created a QuestionnaireResponse resource', user_info
+            )
+          else
+            Rails.logger.info(
+              'Loma Linda user failed to create a QuestionnaireResponse resource', user_info
+            )
           end
         end
       end
@@ -157,8 +200,40 @@ module HealthQuest
       # @param questionnaire_response_id [String]
       # @return [String]
       #
-      def generate_questionnaire_response_pdf(questionnaire_response_id)
-        questionnaire_response_id
+      def generate_questionnaire_response_pdf(questionnaire_response_id) # rubocop:disable Metrics/MethodLength
+        snapshot = HealthQuest::QuestionnaireResponse
+                   .where(user_uuid: user.uuid, questionnaire_response_id: questionnaire_response_id.to_s)
+                   .first
+
+        appointment = lighthouse_appointment_service.get(snapshot.appointment_id)
+
+        unless appointment&.response&.fetch(:code) == 200
+          Rails.logger.info(
+            "Loma Linda user could not find an Appointment resource with id: #{snapshot&.appointment_id}", user_info
+          )
+        end
+
+        loc_id = appointment.resource.participant.first.actor.reference.match(ID_MATCHER)[1]
+        location = location_service.get(loc_id)
+
+        unless location&.response&.fetch(:code) == 200
+          Rails.logger.info(
+            "Loma Linda user could not find a Location resource with id: #{loc_id}", user_info
+          )
+        end
+
+        org_id = location.resource.managingOrganization.reference.match(ID_MATCHER)[1]
+        org = organization_service.get(org_id)
+
+        unless org&.response&.fetch(:code) == 200
+          Rails.logger.info(
+            "Loma Linda user could not find an Organization resource with id: #{org_id}", user_info
+          )
+        end
+
+        HealthQuest::QuestionnaireManager::QuestionnaireResponseReport
+          .manufacture(questionnaire_response: snapshot, appointment: appointment, location: location, org: org)
+          .render
       end
 
       ##
@@ -176,7 +251,6 @@ module HealthQuest
         # rubocop:disable ThreadSafety/NewThread
         request_threads << Thread.new { @patient = get_patient.resource }
         request_threads << Thread.new { @organizations = get_organizations }
-        request_threads << Thread.new { @facilities = get_facilities }
         request_threads << Thread.new { @questionnaires = get_questionnaires.resource&.entry }
         request_threads << Thread.new { @questionnaire_responses = get_questionnaire_responses.resource&.entry }
         request_threads << Thread.new { @save_in_progress = get_save_in_progress }
@@ -226,12 +300,14 @@ module HealthQuest
         @get_lighthouse_appointments ||=
           lighthouse_appointment_service.search(
             patient: user.icn,
-            date: [date_ge_one_year_ago, date_le_one_year_from_now]
+            date: [date_ge_one_month_ago, date_le_two_weeks_from_now],
+            _count: '100'
           )
       end
 
       ##
-      # Gets a list of Locations from the `lighthouse_appointments` array.
+      # Gets a list of Locations from the `lighthouse_appointments` array
+      # with a single request using the `_id` param
       #
       # @return [Array] a list of Locations
       #
@@ -245,15 +321,15 @@ module HealthQuest
             acc[location_id] << appt
           end
 
-        location_references.each_with_object([]) do |(k, _v), accumulator|
-          loc = location_service.get(k)
+        clinic_identifiers = location_references&.keys&.join(',')
+        location_response = location_service.search(_id: clinic_identifiers, _count: '100')
 
-          accumulator << loc
-        end
+        location_response&.resource&.entry
       end
 
       ##
       # Returns an array of Organizations from the Health API for the `locations` array
+      # with a single request using the `_id` param
       #
       # @return [Array] a list of Organizations
       #
@@ -267,11 +343,10 @@ module HealthQuest
             acc[org_id] << loc
           end
 
-        org_references.each_with_object([]) do |(k, _v), accumulator|
-          org = organization_service.get(k)
+        facility_identifiers = org_references&.keys&.join(',')
+        org_response = organization_service.search(_id: facility_identifiers, _count: '100')
 
-          accumulator << org
-        end
+        org_response&.resource&.entry
       end
 
       ##
@@ -281,7 +356,7 @@ module HealthQuest
       # @return [Array]
       #
       def get_facilities
-        list = locations.map { |loc| loc.resource.identifier.first.value }
+        list = organizations.map { |org| org.resource.identifier.last.value }
         facilities_ids = list.join(',')
 
         facilities_request.get(facilities_ids)
@@ -309,7 +384,8 @@ module HealthQuest
         @get_questionnaire_responses ||=
           questionnaire_response_service.search(
             source: user.icn,
-            authored: [date_ge_one_year_ago, date_le_one_year_from_now]
+            authored: [date_ge_one_month_ago, date_le_two_weeks_from_now],
+            _count: '100'
           )
       end
 
@@ -344,20 +420,29 @@ module HealthQuest
 
       private
 
-      def date_ge_one_year_ago
-        year = tz_date_string(1.year.ago)
-
-        "ge#{year}"
+      def user_info
+        {
+          user_uuid: user&.uuid,
+          user_icn: user&.icn,
+          loa: user&.loa,
+          facilities: user&.mpi_profile&.vha_facility_ids || []
+        }
       end
 
-      def date_le_one_year_from_now
-        year = tz_date_string(1.year.from_now)
+      def date_ge_one_month_ago
+        month = tz_date_string(1.month.ago)
 
-        "le#{year}"
+        "ge#{month}"
       end
 
-      def tz_date_string(year)
-        year.in_time_zone.to_date.to_s
+      def date_le_two_weeks_from_now
+        weeks = tz_date_string(2.weeks.from_now)
+
+        "le#{weeks}"
+      end
+
+      def tz_date_string(span)
+        span.in_time_zone.to_date.to_s
       end
 
       def default_response

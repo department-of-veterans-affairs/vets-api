@@ -5,6 +5,7 @@ require 'appeals_api/form_schemas'
 
 class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < AppealsApi::ApplicationController
   include AppealsApi::JsonFormatValidation
+  include AppealsApi::StatusSimulation
 
   skip_before_action(:authenticate)
   before_action :validate_json_format, if: -> { request.post? }
@@ -16,7 +17,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   MODEL_ERROR_STATUS = 422
   HEADERS = JSON.parse(
     File.read(
-      AppealsApi::Engine.root.join('config/schemas/10182_headers.json')
+      AppealsApi::Engine.root.join('config/schemas/v1/10182_headers.json')
     )
   )['definitions']['nodCreateHeadersRoot']['properties'].keys
   SCHEMA_ERROR_TYPE = Common::Exceptions::DetailedSchemaErrors
@@ -28,6 +29,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def show
+    @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
     render_notice_of_disagreement
   end
 
@@ -51,7 +53,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def validate_json_schema_for_headers
-    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!("#{FORM_NUMBER}_HEADERS", headers)
+    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!("#{FORM_NUMBER}_HEADERS", request_headers)
   end
 
   def validate_json_schema_for_body
@@ -69,14 +71,20 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
     }
   end
 
-  def headers
+  def request_headers
     HEADERS.reduce({}) do |hash, key|
       hash.merge(key => request.headers[key])
     end.compact
   end
 
   def new_notice_of_disagreement
-    @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.new(auth_headers: headers, form_data: @json_body)
+    @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.new(
+      auth_headers: request_headers,
+      form_data: @json_body,
+      source: request_headers['X-Consumer-Username'],
+      board_review_option: @json_body['data']['attributes']['boardReviewOption'],
+      api_version: 'V1'
+    )
     render_model_errors unless @notice_of_disagreement.validate
   end
 
@@ -86,9 +94,9 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def model_errors_to_json_api
-    errors = @notice_of_disagreement.errors.to_h.map do |source, data|
-      data = I18n.t('common.exceptions.validation_errors').deep_merge data
-      data[:source] = { pointer: source.to_s }
+    errors = @notice_of_disagreement.errors.map do |error|
+      data = I18n.t('common.exceptions.validation_errors').deep_merge error.options
+      data[:source] = { pointer: error.attribute.to_s }
       data
     end
     { errors: errors }

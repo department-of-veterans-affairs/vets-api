@@ -13,6 +13,7 @@ class EducationBenefitsClaim < ApplicationRecord
     transfer_of_entitlement
     vettec
     chapter30
+    vrrap
   ].freeze
 
   belongs_to(:saved_claim, class_name: 'SavedClaim::EducationBenefits', inverse_of: :education_benefits_claim)
@@ -116,6 +117,8 @@ class EducationBenefitsClaim < ApplicationRecord
       return benefits
     when '0994'
       benefits['vettec'] = true
+    when '1990s'
+      benefits['vrrap'] = true
     else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?

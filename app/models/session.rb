@@ -17,9 +17,12 @@ class Session < Common::RedisStore
   attribute :uuid
   attribute :created_at
   attribute :ssoe_transactionid
-
+  attribute :profile
+  attribute :charon_response
+  attribute :launch
+  # uuid no longer required as session may be for a system rather than a user
+  attribute :uuid
   validates :token, presence: true
-  validates :uuid, presence: true
   validates :created_at, presence: true
 
   validate :within_maximum_ttl
@@ -51,7 +54,7 @@ class Session < Common::RedisStore
       # copied from: https://github.com/plataformatec/devise/blob/master/lib/devise.rb#L475-L482
       rlength = (length * 3) / 4
       random_token = SecureRandom.urlsafe_base64(rlength).tr('lIO0', 'sxyz')
-      break random_token unless self.class.exists?(random_token)
+      break random_token unless self.class.exists?(random_token) == 1
     end
   end
 

@@ -10,9 +10,8 @@ module VAForms
           security do
             key :apikey, []
           end
-
-          key :summary, 'All VA Forms'
-          key :description, 'Returns all VA Forms and their last revision date'
+          key :summary, 'Returns all VA Forms and their last revision date'
+          key :description, 'Returns an index of all available VA forms. Optionally, pass a query parameter to filter forms by form number or title.'
           key :operationId, 'findForms'
           key :produces, [
             'application/json'
@@ -24,13 +23,13 @@ module VAForms
           parameter do
             key :name, :query
             key :in, :query
-            key :description, 'Query the form number as well as title'
+            key :description, 'Returns form data based on entered form name.'
             key :required, false
             key :type, :string
           end
 
           response 200 do
-            key :description, 'VAForms index response'
+            key :description, 'VA Forms index response'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -46,11 +45,27 @@ module VAForms
           end
 
           response 401 do
-            key :description, 'Invalid authentication credentials'
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                property :message do
+                  key :type, :string
+                  key :example, 'Invalid authentication credentials'
+                end
+              end
+            end
           end
 
-          response 404 do
-            key :description, 'Not Found'
+          response 429 do
+            key :description, 'Too many requests'
+            content 'application/json' do
+              schema do
+                property :message do
+                  key :type, :string
+                  key :example, 'API rate limit exceeded'
+                end
+              end
+            end
           end
         end
       end
@@ -61,7 +76,7 @@ module VAForms
             key :apikey, []
           end
           key :summary, 'Find form by form name'
-          key :description, 'Returns a single form '
+          key :description, 'Returns a single form and the full revision history'
           key :operationId, 'findFormByFormName'
           key :tags, [
             'Forms'
@@ -69,7 +84,7 @@ module VAForms
           parameter do
             key :name, :form_name
             key :in, :path
-            key :description, 'The VA form_name of the form being requested'
+            key :description, 'The VA form_name of the form being requested. The exact form name must be passed, including proper placement of prefixes and/or hyphens.'
             key :required, true
             key :example, '10-10EZ'
             schema do
@@ -78,7 +93,7 @@ module VAForms
           end
 
           response 200 do
-            key :description, 'VaForm response'
+            key :description, 'VA Form Show response'
             content 'application/json' do
               schema do
                 key :type, :object
@@ -91,11 +106,46 @@ module VAForms
           end
 
           response 401 do
-            key :description, 'Invalid authentication credentials'
+            key :description, 'Unauthorized'
+            content 'application/json' do
+              schema do
+                property :message do
+                  key :type, :string
+                  key :example, 'Invalid authentication credentials'
+                end
+              end
+            end
           end
 
           response 404 do
             key :description, 'Not Found'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, [:errors]
+                property :errors do
+                  key :type, :array
+                  items do
+                    property :message do
+                      key :type, :string
+                      key :example, 'Form not found'
+                    end
+                  end
+                end
+              end
+            end
+          end
+
+          response 429 do
+            key :description, 'Too many requests'
+            content 'application/json' do
+              schema do
+                property :message do
+                  key :type, :string
+                  key :example, 'API rate limit exceeded'
+                end
+              end
+            end
           end
         end
       end

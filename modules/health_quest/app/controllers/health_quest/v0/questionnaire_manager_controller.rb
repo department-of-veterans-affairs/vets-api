@@ -3,6 +3,8 @@
 module HealthQuest
   module V0
     class QuestionnaireManagerController < HealthQuest::V0::BaseController
+      before_action :log_info
+
       def index
         data = factory.all
 
@@ -17,7 +19,7 @@ module HealthQuest
 
       def show
         send_data factory.generate_questionnaire_response_pdf(params[:id]),
-                  filename: 'questionnaire_response',
+                  filename: 'questionnaire_response.pdf',
                   type: 'application/pdf',
                   disposition: 'inline'
       end

@@ -5,7 +5,7 @@ require_dependency 'appeals_api/form_schemas'
 class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   include Swagger::Blocks
 
-  PATH_ENABLED_FOR_ENV = Settings.modules_appeals_api.documentation.notice_of_disagreements_v1
+  PATH_ENABLED_FOR_ENV = Settings.modules_appeals_api.documentation.path_enabled_flag
 
   NOD_TAG = ['Notice of Disagreements'].freeze
 
@@ -26,8 +26,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   }.freeze
 
   swagger_path '/notice_of_disagreements' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :post, tags: NOD_TAG do
       key :summary, 'Creates a new Notice of Disagreement.'
 
@@ -39,7 +37,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'nodCreateRoot'
 
       security do
-        key :apiKey, []
+        key :apikey, []
       end
 
       parameter do
@@ -84,7 +82,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
 
       parameter do
-        key :name, 'X-VA-Veteran-File-Number'
+        key :name, 'X-VA-File-Number'
         key :in, :header
         key :required, false
         key :description, 'VA file number'
@@ -92,7 +90,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
 
       parameter do
-        key :name, 'X-VA-Veteran-Birth-Date'
+        key :name, 'X-VA-Birth-Date'
         key :in, :header
         key :required, false
         key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
@@ -159,8 +157,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/{uuid}' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :get, tags: NOD_TAG do
       key :operationId, 'getNoticeOfDisagreement'
       key :summary, 'Shows a specific Notice of Disagreement. (a.k.a. the Show endpoint)'
@@ -276,8 +272,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/schema' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :get do
       key :summary, 'Gets the Notice of Disagreement JSON Schema.'
       key :operationId, 'getNodJsonSchema'
@@ -332,8 +326,6 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/validate' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :post, tags: NOD_TAG do
       key :summary, 'Validates a POST request body against the JSON schema.'
       desc = 'Like the `POST /notice_of_disagreement`, but *only* does the validations **—does not submit anything.**'
@@ -341,7 +333,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       key :operationId, 'nodValidateSchema'
 
       security do
-        key :apiKey, []
+        key :apikey, []
       end
 
       parameter do
@@ -377,14 +369,14 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
       end
 
       parameter do
-        key :name, 'X-VA-Veteran-File-Number'
+        key :name, 'X-VA-File-Number'
         key :in, :header
         key :required, false
         key :description, 'VA file number'
       end
 
       parameter do
-        key :name, 'X-VA-Veteran-Birth-Date'
+        key :name, 'X-VA-Birth-Date'
         key :in, :header
         key :required, false
         key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
@@ -466,13 +458,15 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/notice_of_disagreements/evidence_submissions' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :post, tags: NOD_TAG do
       key :operationId, 'postNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Get a location for subsequent evidence submission document upload PUT request'
-      key :description, ''
-      parameter name: 'uuid', 'in': 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
+      key :description, <<~DESC
+        This is the first step to submitting supporting evidence for an NOD.  (See the Evidence Uploads section above for additional information.)
+
+        The Notice of Disagreement GUID that is returned when the NOD is submitted, is supplied to this endpoint to ensure the NOD is in a valid state for sending supporting evidence documents.  Only NODs that selected the Evidence Submission lane are allowed to submit evidence documents up to 90 days after the NOD is received by VA.
+      DESC
+      parameter name: 'nod_uuid', 'in': 'path', required: true, description: 'Associated Notice of Disagreement UUID' do
         schema { key :'$ref', :uuid }
       end
 
@@ -508,14 +502,12 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
                 end
 
                 property :status do
-                  key :description, 'status description here...'
                   key :type, :string
                   key :enum, %i[pending ...]
                   key :example, 'pending'
                 end
 
                 property :code do
-                  key :description, 'code description here...'
                   key :type, :string
                 end
 
@@ -548,6 +540,98 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
         end
       end
 
+      response 400 do
+        key :description, 'Bad Request'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            property :errors do
+              key :type, :array
+
+              items do
+                property :status do
+                  key :type, :integer
+                  key :example, 400
+                end
+                property :detail do
+                  key :type, :string
+                  key :example, 'Must supply a corresponding NOD id in order to submit evidence'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      response 404 do
+        key :description, 'Associated Notice of Disagreement not found'
+        content 'application/json' do
+          schema do
+            key :type, :object
+            property :errors do
+              key :type, :array
+
+              items do
+                property :status do
+                  key :type, :integer
+                  key :example, 404
+                end
+                property :detail do
+                  key :type, :string
+                  key :example, 'The record identified by {nod_uuid} not found.'
+                end
+              end
+            end
+          end
+        end
+      end
+
+      response 422 do
+        key :description, 'Validation errors'
+        content 'application/json' do
+          schema do
+            key :type, :object
+
+            property :title do
+              key :type, :string
+              key :enum, [:unprocessable_entity]
+              key :example, 'unprocessable_entity'
+            end
+
+            property :detail do
+              key :type, :string
+              key :enum,
+                  ["Request header 'X-VA-SSN' does not match the associated Notice of Disagreement's SSN",
+                   "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"]
+              key :example, "Corresponding Notice of Disagreement 'boardReviewOption' must be 'evidence_submission'"
+            end
+
+            property :status do
+              key :type, :integer
+              key :description, 'Standard HTTP error response code.'
+              key :example, 422
+            end
+          end
+        end
+      end
+
+      response 500 do
+        key :description, 'Unknown Error'
+
+        content 'application/json' do
+          schema do
+            key :type, :object
+            key :example, ERROR_500_EXAMPLE
+            property :errors do
+              key :type, :array
+              items do
+                key :$ref, :errorModel
+              end
+            end
+          end
+        end
+      end
+
       security do
         key :apikey, []
       end
@@ -555,12 +639,10 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
   end
 
   swagger_path '/path' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :put, tags: NOD_TAG do
       key :operationId, 'putNoticeOfDisagreementEvidenceSubmission'
+      key :description, File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v1', 'put_description.md'))
       key :summary, 'Accepts Notice of Disagreement Evidence Submission document upload.'
-      key :description, 'Detailed description here...'
 
       parameter do
         key :name, 'Content-MD5'
@@ -614,16 +696,10 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
           end
         end
       end
-
-      security do
-        key :apikey, []
-      end
     end
   end
 
   swagger_path '/notice_of_disagreements/evidence_submissions/{uuid}' do
-    next unless PATH_ENABLED_FOR_ENV
-
     operation :get, tags: NOD_TAG do
       key :operationId, 'getNoticeOfDisagreementEvidenceSubmission'
       key :summary, 'Shows a specific Notice of Disagreement Evidence Submission.'

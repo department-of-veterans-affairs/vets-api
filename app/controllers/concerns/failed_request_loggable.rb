@@ -7,11 +7,11 @@ module FailedRequestLoggable
     def exception_hash(exception)
       hash = {}
       %i[
-        as_json attributes backtrace errors
+        as_json attributes backtrace body errors
         inspect instance_values key message
         original_body original_status
         response_values sentry_type
-        serializable_hash status_code
+        serializable_hash status status_code
         to_a to_h to_json to_s
       ].each do |method|
         hash[method] = exception.send method
@@ -37,7 +37,7 @@ module FailedRequestLoggable
                              end
 
     hash[:birth_date] = begin
-                          @current_user.va_profile.birth_date.to_date.iso8601
+                          @current_user.birth_date_mpi.to_date.iso8601
                         rescue
                           nil
                         end

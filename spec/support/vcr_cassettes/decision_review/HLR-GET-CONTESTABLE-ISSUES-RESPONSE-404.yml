@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - abcd1234abcd1234abcd1234abcd1234abcd1234
+      - <LIGHTHOUSE_API_KEY>
       X-Va-Ssn:
       - '000000000'
       X-Va-Receipt-Date:

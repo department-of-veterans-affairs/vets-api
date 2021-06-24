@@ -13,25 +13,12 @@ require 'mpi/messages/find_profile_message_icn'
 require 'mpi/messages/find_profile_message_edipi'
 require 'mpi/responses/add_person_response'
 require 'mpi/responses/find_profile_response'
+require 'mpi/constants'
 
 module MPI
-  # Wrapper for the MVI (Master Veteran Index) Service. vets.gov has access
-  # to three MVI endpoints:
-  # * PRPA_IN201301UV02 (TODO(AJD): Add Person)
-  # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
-  # * PRPA_IN201305UV02 (aliased as .find_profile)
+  # Wrapper for the MVI (Master Veteran Index) Service.
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
-
-    # The MVI Service SOAP operations vets.gov has access to
-    unless const_defined?(:OPERATIONS)
-      OPERATIONS = {
-        add_person: 'PRPA_IN201301UV02',
-        update_person: 'PRPA_IN201302UV02',
-        find_profile: 'PRPA_IN201305UV02'
-      }.freeze
-    end
-
     # @return [MPI::Configuration] the configuration for this service
     configuration MPI::Configuration
 
@@ -45,7 +32,7 @@ module MPI
           raw_response = perform(
             :post, '',
             create_add_message(user_identity),
-            soapaction: OPERATIONS[:add_person]
+            soapaction: MPI::Constants::ADD_PERSON
           )
           MPI::Responses::AddPersonResponse.with_parsed_response(raw_response)
         end
@@ -53,13 +40,13 @@ module MPI
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
       log_message_to_sentry('MVI add_person connection failed.', :warn)
-      mvi_add_exception_response_for('MVI_503', e)
+      mvi_add_exception_response_for(MPI::Constants::OUTAGE_EXCEPTION, e)
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("MVI add_person connection failed: #{e.message}", :warn)
-      mvi_add_exception_response_for('MVI_504', e)
+      mvi_add_exception_response_for(MPI::Constants::CONNECTION_FAILED, e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_message_to_sentry("MVI add_person error: #{e.message}", :warn)
-      mvi_add_exception_response_for('MVI_504', e)
+      mvi_add_exception_response_for(MPI::Constants::CONNECTION_FAILED, e)
     rescue MPI::Errors::Base => e
       key = get_mvi_error_key(e)
       mvi_error_handler(user_identity, e, 'add_person')
@@ -72,14 +59,14 @@ module MPI
     # @param user [UserIdentity] the user to query MVI for
     # @return [MPI::Responses::FindProfileResponse] the parsed response from MVI.
     # rubocop:disable Metrics/MethodLength
-    def find_profile(user_identity)
-      profile_message = create_profile_message(user_identity)
+    def find_profile(user_identity, search_type = MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
+      profile_message = create_profile_message(user_identity, search_type: search_type)
       with_monitoring do
         measure_info(user_identity) do
           raw_response = perform(
             :post, '',
             profile_message,
-            soapaction: OPERATIONS[:find_profile]
+            soapaction: MPI::Constants::FIND_PROFILE
           )
           MPI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
@@ -87,19 +74,19 @@ module MPI
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
       log_message_to_sentry('MVI find_profile connection failed.', :warn)
-      mvi_profile_exception_response_for('MVI_503', e)
+      mvi_profile_exception_response_for(MPI::Constants::OUTAGE_EXCEPTION, e)
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :warn)
-      mvi_profile_exception_response_for('MVI_504', e)
+      mvi_profile_exception_response_for(MPI::Constants::CONNECTION_FAILED, e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_message_to_sentry("MVI find_profile error: #{e.message}", :warn)
-      mvi_profile_exception_response_for('MVI_504', e)
+      mvi_profile_exception_response_for(MPI::Constants::CONNECTION_FAILED, e)
     rescue MPI::Errors::Base => e
       mvi_error_handler(user_identity, e, 'find_profile', profile_message)
       if e.is_a?(MPI::Errors::RecordNotFound)
-        mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
+        mvi_profile_exception_response_for(MPI::Constants::NOT_FOUND, e, type: 'not_found')
       else
-        mvi_profile_exception_response_for('MVI_502', e)
+        mvi_profile_exception_response_for(MPI::Constants::ERROR, e)
       end
     end
     # rubocop:enable Metrics/MethodLength
@@ -117,9 +104,9 @@ module MPI
 
     def get_mvi_error_key(e)
       error_name = e.body&.[](:other)&.first&.[](:displayName)
-      return 'MVI_502_DUP' if error_name == 'Duplicate Key Identifier'
+      return MPI::Constants::DUPLICATE_ERROR if error_name == 'Duplicate Key Identifier'
 
-      'MVI_502'
+      MPI::Constants::ERROR
     end
 
     def mvi_add_exception_response_for(key, error)
@@ -172,44 +159,43 @@ module MPI
       }
     end
 
-    def create_add_message(user)
-      raise Common::Exceptions::ValidationErrors, user unless user.valid?
-
-      MPI::Messages::AddPersonMessage.new(user).to_xml if user.icn_with_aaid.present?
-    end
-
-    # rubocop:disable Layout/LineLength
-    def create_profile_message(user_identity)
-      return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
-      return message_edipi(user_identity) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
+    def create_add_message(user_identity)
       raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
 
-      message_user_attributes(user_identity)
+      MPI::Messages::AddPersonMessage.new(user_identity).to_xml if user_identity.icn_with_aaid.present?
     end
-    # rubocop:enable Layout/LineLength
 
-    def message_icn(user)
+    def create_profile_message(user_identity, search_type: MPI::Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
+      return message_icn(user_identity, search_type) if user_identity.mhv_icn.present?
+      return message_edipi(user_identity, search_type) if user_identity.edipi.present? && Settings.mvi.edipi_search
+      raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
+
+      message_user_attributes(user_identity, search_type)
+    end
+
+    def message_icn(user_identity, search_type)
       Raven.tags_context(mvi_find_profile: 'icn')
-      MPI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+      MPI::Messages::FindProfileMessageIcn.new(user_identity.mhv_icn, search_type: search_type).to_xml
     end
 
-    def message_edipi(user)
+    def message_edipi(user_identity, search_type)
       Raven.tags_context(mvi_find_profile: 'edipi')
-      MPI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi).to_xml
+      MPI::Messages::FindProfileMessageEdipi.new(user_identity.edipi, search_type: search_type).to_xml
     end
 
-    def message_user_attributes(user)
+    def message_user_attributes(user_identity, search_type)
       Raven.tags_context(mvi_find_profile: 'user_attributes')
-      given_names = [user.first_name]
-      given_names.push user.middle_name unless user.middle_name.nil?
+
+      given_names = [user_identity.first_name]
+      given_names.push user_identity.middle_name unless user_identity.middle_name.nil?
       profile = {
         given_names: given_names,
-        last_name: user.last_name,
-        birth_date: user.birth_date,
-        ssn: user.ssn,
-        gender: user.gender
+        last_name: user_identity.last_name,
+        birth_date: user_identity.birth_date,
+        ssn: user_identity.ssn,
+        gender: user_identity.gender
       }
-      MPI::Messages::FindProfileMessage.new(profile).to_xml
+      MPI::Messages::FindProfileMessage.new(profile, search_type: search_type).to_xml
     end
   end
 end

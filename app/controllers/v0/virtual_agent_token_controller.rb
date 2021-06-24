@@ -8,6 +8,8 @@ module V0
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
+      return render status: :not_found unless Flipper.enabled?(:virtual_agent_token)
+
       render json: { token: fetch_connector_token }
     end
 
@@ -40,10 +42,17 @@ module V0
     end
 
     def bearer_token
-      @bearer_token ||= 'Bearer ' + Settings.virtual_agent.webchat_secret
+      secret = if Flipper.enabled?(:virtual_agent_bot_a)
+                 Settings.virtual_agent.webchat_secret_a
+               else
+                 Settings.virtual_agent.webchat_secret_b
+               end
+      @bearer_token ||= 'Bearer ' + secret
     end
 
-    def service_exception_handler
+    def service_exception_handler(exception)
+      context = 'An error occurred with the Microsoft service that issues chatbot tokens'
+      log_exception_to_sentry(exception, 'context' => context)
       render nothing: true, status: :service_unavailable
     end
 

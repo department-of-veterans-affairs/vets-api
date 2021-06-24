@@ -14,67 +14,6 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   let(:build_valid_form_submission) { -> { VetsJsonSchema::EXAMPLES['10-10CG'].clone } }
   let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
-  shared_examples_for 'any invalid submission' do |endpoint:|
-    it 'requires a namespace of caregivers_assistance_claim' do
-      body = {}
-      post endpoint, params: body, headers: headers
-
-      expect(response).to have_http_status(:bad_request)
-
-      res_body = JSON.parse(response.body)
-
-      expect(res_body['errors'].count).to eq(1)
-      expect(res_body['errors'][0]['title']).to eq('Missing parameter')
-      expect(res_body['errors'][0]['detail']).to eq('The required parameter "caregivers_assistance_claim", is missing')
-    end
-
-    it 'prevents attributes undefined in schema from being submitted' do
-      body = { caregivers_assistance_claim: { form: JSON(anAttrNotInSchema: 'some value') } }.to_json
-      post endpoint, params: body, headers: headers
-
-      expect(response.code).to eq('422')
-
-      res_body = JSON.parse(response.body)
-
-      bad_attr_error = res_body['errors'].find { |error| error['title'].include?('anAttrNotInSchema') }
-
-      expect(bad_attr_error).to be_present
-      expect(res_body['errors'][0]['title']).to include("Form The property '#/' contains additional properties")
-      expect(res_body['errors'][0]['detail']).to be_present
-      expect(res_body['errors'][0]['code']).to eq('100')
-      expect(res_body['errors'][0]['source']['pointer']).to eq('data/attributes/form')
-      expect(res_body['errors'][0]['status']).to eq('422')
-    end
-
-    it 'provides formatted errors when missing required property' do
-      form_data = build_valid_form_submission.call
-      required_property = get_schema.call['required'][0]
-
-      form_data.delete(required_property)
-
-      body = { caregivers_assistance_claim: { form: form_data.to_json } }.to_json
-      post endpoint, params: body, headers: headers
-
-      expect(response.code).to eq('422')
-
-      res_body = JSON.parse(response.body)
-
-      expect(res_body['errors'].length).to eq(1)
-
-      schema_error = res_body['errors'][0]
-
-      expect(schema_error['title']).to include(
-        "Form The property '#/' did not contain a required property of '#{required_property}'"
-      )
-      expect(schema_error['detail']).to include(
-        "form - The property '#/' did not contain a required property of '#{required_property}'"
-      )
-      expect(schema_error['code']).to eq('100')
-      expect(schema_error['source']['pointer']).to eq('data/attributes/form')
-      expect(schema_error['status']).to eq('422')
-    end
-  end
-
   describe 'POST /v0/caregivers_assistance_claims' do
     subject do
       post endpoint, params: body, headers: headers
@@ -94,70 +33,27 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
       }
     end
 
-    it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims'
-
     timestamp = DateTime.parse('2020-03-09T06:48:59-04:00')
 
-    context 'when flipper :async_10_10_cg_attachments' do
-      context 'is enabled' do
-        before do
-          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(true)
-        end
-
-        after do
-          expect(Form1010cg::DeliverPdfToCARMAJob.jobs.size).to eq(1)
-        end
-
-        it 'can submit a valid submission', run_at: timestamp.iso8601 do
-          VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
-            VCR.use_cassette 'carma/auth/token/200', vcr_options do
-              VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-                subject
-              end
-            end
+    it 'can submit a valid submission', run_at: timestamp.iso8601 do
+      VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
+        VCR.use_cassette 'carma/auth/token/200', vcr_options do
+          VCR.use_cassette 'carma/submissions/create/201', vcr_options do
+            subject
           end
-
-          expect(response.code).to eq('200')
-
-          res_body = JSON.parse(response.body)
-
-          expect(res_body['data']).to be_present
-          expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-          expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-          expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
         end
       end
 
-      context 'is disabled' do
-        before do
-          expect(Flipper).to receive(:enabled?).with(:async_10_10_cg_attachments).and_return(false)
-        end
+      expect(response.code).to eq('200')
 
-        after do
-          expect(Form1010cg::DeliverPdfToCARMAJob.jobs.size).to eq(0)
-        end
+      res_body = JSON.parse(response.body)
 
-        it 'can submit a valid submission', run_at: timestamp.iso8601 do
-          VCR.use_cassette 'mpi/find_candidate/valid', vcr_options do
-            VCR.use_cassette 'carma/auth/token/200', vcr_options do
-              VCR.use_cassette 'carma/submissions/create/201', vcr_options do
-                VCR.use_cassette 'carma/attachments/upload/201', vcr_options do
-                  subject
-                end
-              end
-            end
-          end
+      expect(res_body['data']).to be_present
+      expect(res_body['data']['type']).to eq 'form1010cg_submissions'
+      expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
+      expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
 
-          expect(response.code).to eq('200')
-
-          res_body = JSON.parse(response.body)
-
-          expect(res_body['data']).to be_present
-          expect(res_body['data']['type']).to eq 'form1010cg_submissions'
-          expect(DateTime.parse(res_body['data']['attributes']['submittedAt'])).to eq timestamp
-          expect(res_body['data']['attributes']['confirmationNumber']).to eq 'aB935000000F3VnCAK'
-        end
-      end
+      expect(Form1010cg::DeliverAttachmentsJob.jobs.size).to eq(1)
     end
   end
 
@@ -169,8 +65,6 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
     after do
       File.delete(response_pdf) if File.exist?(response_pdf)
     end
-
-    it_behaves_like 'any invalid submission', endpoint: '/v0/caregivers_assistance_claims/download_pdf'
 
     it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
       form_data = get_fixture('pdf_fill/10-10CG/simple').to_json

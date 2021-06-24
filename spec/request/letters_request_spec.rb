@@ -122,13 +122,13 @@ RSpec.describe 'letters', type: :request do
     end
 
     context 'with a 404 evss response' do
+      let(:mvi_profile) { build(:mvi_profile, edipi: '1005079999', participant_id: '600039999') }
       let(:user) do
         build(:user, :loa3, first_name: 'John', last_name: 'SMith', birth_date: '1942-02-12', ssn: '799111223')
       end
 
       before do
-        user.va_profile.edipi = '1005079999'
-        user.va_profile.participant_id = '600039999'
+        stub_mpi(mvi_profile)
       end
 
       it 'returns a 404' do
@@ -166,11 +166,6 @@ RSpec.describe 'letters', type: :request do
           'deathResultOfDisability' => false,
           'survivorsAward' => false
         }
-      end
-
-      before do
-        user.va_profile.edipi = '1005079124'
-        user.va_profile.participant_id = '600036159'
       end
 
       it 'returns a 502' do

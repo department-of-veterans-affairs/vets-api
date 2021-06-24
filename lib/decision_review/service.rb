@@ -23,9 +23,7 @@ module DecisionReview
     HLR_CREATE_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-CREATE-RESPONSE-200'
     HLR_SHOW_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-SHOW-RESPONSE-200'
     HLR_GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA = VetsJsonSchema::SCHEMAS.fetch 'HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200'
-    REQUIRED_CREATE_NOTICE_OF_DISAGREEMENT_HEADERS = %w[X-VA-Veteran-First-Name X-VA-Veteran-Last-Name
-                                                        X-VA-Veteran-SSN X-VA-Veteran-Birth-Date].freeze
-    REQUIRED_CREATE_HIGHER_LEVEL_REVIEW_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
+    REQUIRED_CREATE_HEADERS = %w[X-VA-First-Name X-VA-Last-Name X-VA-SSN X-VA-Birth-Date].freeze
 
     ##
     # Create a Higher-Level Review
@@ -138,6 +136,88 @@ module DecisionReview
       end
     end
 
+    ##
+    # Get the url to upload supporting evidence for a Notice of Disagreement
+    #
+    # @param nod_uuid [uuid] The uuid of the submited Notice of Disagreement
+    # @return [Faraday::Response]
+    #
+
+    def get_notice_of_disagreement_upload_url(nod_uuid:, ssn:)
+      with_monitoring_and_error_handling do
+        perform :post, 'notice_of_disagreements/evidence_submissions', { nod_uuid: nod_uuid },
+                { 'X-VA-SSN' => ssn.to_s.strip.presence }
+      end
+    end
+
+    ##
+    # Get the url to upload supporting evidence for a Notice of Disagreement
+    #
+    # @param upload_url [String] The url for the document to be uploaded
+    # @param file_path [String] The file path for the document to be uploaded
+    # @param metadata [Hash] additional data
+    #
+    # @return [Faraday::Response]
+    #
+
+    def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata_string:)
+      content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
+      content_tmpfile.write(file_upload.read)
+      content_tmpfile.rewind
+
+      json_tmpfile = Tempfile.new('metadata.json', encoding: 'utf-8')
+      json_tmpfile.write(metadata_string)
+      json_tmpfile.rewind
+
+      params = { metadata: Faraday::UploadIO.new(json_tmpfile.path, Mime[:json].to_s, 'metadata.json'),
+                 content: Faraday::UploadIO.new(content_tmpfile.path, Mime[:pdf].to_s, file_upload.filename) }
+
+      # when we upgrade to Faraday >1.0
+      # params = { metadata: Faraday::FilePart.new(json_tmpfile, Mime[:json].to_s, 'metadata.json'),
+      #            content: Faraday::FilePart.new(content_tmpfile, Mime[:pdf].to_s, file_upload.filename) }
+      with_monitoring_and_error_handling do
+        perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
+      end
+    ensure
+      content_tmpfile.close
+      content_tmpfile.unlink
+      json_tmpfile.close
+      json_tmpfile.unlink
+    end
+
+    ##
+    # Returns all of the data associated with a specific Notice of Disagreement Evidence Submission.
+    #
+    # @param guid [uuid] the uuid returnd from get_notice_of_disagreement_upload_url
+    #
+    # @return [Faraday::Response]
+    #
+
+    def get_notice_of_disagreement_upload(guid:)
+      with_monitoring_and_error_handling do
+        perform :get, "notice_of_disagreements/evidence_submissions/#{guid}", nil
+      end
+    end
+
+    def self.file_upload_metadata(user)
+      {
+        'veteranFirstName' => transliterate_name(user.first_name),
+        'veteranLastName' => transliterate_name(user.last_name),
+        'zipCode' => user.zip,
+        'fileNumber' => user.ssn.to_s.strip,
+        'source' => 'Vets.gov',
+        'businessLine' => 'BVA'
+      }.to_json
+    end
+
+    # upstream requirements
+    # ^[a-zA-Z\-\/\s]{1,50}$
+    # Cannot be missing or empty or longer than 50 characters.
+    # Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed
+    def self.transliterate_name(str)
+      I18n.transliterate(str.to_s).gsub(%r{[^a-zA-Z\-/\s]}, '').strip.first(50)
+    end
+
     private
 
     def create_higher_level_review_headers(user)
@@ -152,7 +232,7 @@ module DecisionReview
         'X-VA-Insurance-Policy-Number' => nil
       }.compact
 
-      missing_required_fields = REQUIRED_CREATE_HIGHER_LEVEL_REVIEW_HEADERS - headers.keys
+      missing_required_fields = REQUIRED_CREATE_HEADERS - headers.keys
       if missing_required_fields.present?
         raise Common::Exceptions::Forbidden.new(
           source: "#{self.class}##{__method__}",
@@ -165,15 +245,15 @@ module DecisionReview
 
     def create_notice_of_disagreement_headers(user)
       headers = {
-        'X-VA-Veteran-First-Name' => user.first_name.to_s.strip, # can be an empty string for those with 1 legal name
-        'X-VA-Veteran-Middle-Initial' => middle_initial(user),
-        'X-VA-Veteran-Last-Name' => user.last_name.to_s.strip.presence,
-        'X-VA-Veteran-SSN' => user.ssn.to_s.strip.presence,
-        'X-VA-Veteran-File-Number' => nil,
-        'X-VA-Veteran-Birth-Date' => user.birth_date.to_s.strip.presence
+        'X-VA-First-Name' => user.first_name.to_s.strip, # can be an empty string for those with 1 legal name
+        'X-VA-Middle-Initial' => middle_initial(user),
+        'X-VA-Last-Name' => user.last_name.to_s.strip.presence,
+        'X-VA-SSN' => user.ssn.to_s.strip.presence,
+        'X-VA-File-Number' => nil,
+        'X-VA-Birth-Date' => user.birth_date.to_s.strip.presence
       }.compact
 
-      missing_required_fields = REQUIRED_CREATE_NOTICE_OF_DISAGREEMENT_HEADERS - headers.keys
+      missing_required_fields = REQUIRED_CREATE_HEADERS - headers.keys
       if missing_required_fields.present?
         raise Common::Exceptions::Forbidden.new(
           source: "#{self.class}##{__method__}",
@@ -206,6 +286,10 @@ module DecisionReview
     end
 
     def save_error_details(error)
+      PersonalInformationLog.create!(
+        error_class: "#{self.class.name}#save_error_details exception #{error.class} (HLR) (NOD)",
+        data: { error: Class.new.include(FailedRequestLoggable).exception_hash(error) }
+      )
       Raven.tags_context external_service: self.class.to_s.underscore
       Raven.extra_context url: config.base_path, message: error.message
     end

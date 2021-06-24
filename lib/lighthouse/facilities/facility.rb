@@ -11,6 +11,7 @@ module Lighthouse
       attribute :active_status, String
       attribute :address, Object
       attribute :classification, String
+      attribute :detailed_services, Object
       attribute :distance, Float
       attribute :facility_type, String
       attribute :facility_type_prefix, String

@@ -181,7 +181,7 @@ module V0
     end
 
     def saml_response_stats(saml_response)
-      type = JSON.parse(params[:RelayState] || '{}')['type']
+      type = html_escaped_relay_state['type']
       values = {
         'id' => saml_response.in_response_to,
         'authn' => saml_response.authn_context,
@@ -252,11 +252,11 @@ module V0
 
     def log_persisted_session_and_warnings
       obscure_token = Session.obscure_token(@session_object.token)
-      Rails.logger.info("Logged in user with id #{@session_object.uuid}, token #{obscure_token}")
+      Rails.logger.info("Logged in user with id #{@session_object&.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
-        additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
+        additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.ssn_mpi)
         log_message_to_sentry(
           'SessionsController version:v0 message:SSN from MPI Lookup does not match UserIdentity cache',
           :warn,
@@ -265,8 +265,12 @@ module V0
       end
     end
 
+    def html_escaped_relay_state
+      JSON.parse(CGI.unescapeHTML(params[:RelayState] || '{}'))
+    end
+
     def originating_request_id
-      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+      html_escaped_relay_state['originating_request_id']
     rescue
       'UNKNOWN'
     end

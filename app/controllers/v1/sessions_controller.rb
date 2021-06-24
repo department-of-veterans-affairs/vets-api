@@ -24,6 +24,7 @@ module V1
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
     VERSION_TAG = 'version:v1'
+    FIM_INVALID_MESSAGE_TIMESTAMP = 'invalid_message_timestamp'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -32,7 +33,7 @@ module V1
       type = params[:type]
 
       if type == 'slo'
-        Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
+        Rails.logger.info("SessionsController version:v1 LOGOUT of type #{type}", sso_logging_info)
         reset_session
         url = url_service.ssoe_slo_url
         # due to shared url service implementation
@@ -46,16 +47,18 @@ module V1
     end
 
     def ssoe_slo_callback
+      Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
       redirect_to url_service.logout_redirect_url
     end
 
     def saml_callback
-      set_sentry_context_for_callback if JSON.parse(params[:RelayState] || '{}')['type'] == 'mfa'
+      set_sentry_context_for_callback if html_escaped_relay_state['type'] == 'mfa'
       saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
       saml_response_stats(saml_response)
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
+      Rails.logger.info("SessionsController version:v1 saml_callback complete, user_uuid=#{@current_user&.uuid}")
     rescue SAML::SAMLError => e
       handle_callback_error(e, :failure, saml_response, e.level, e.context, e.code, e.tag)
     rescue => e
@@ -88,7 +91,7 @@ module V1
 
     def set_sentry_context_for_callback
       temp_session_object = Session.find(session[:token])
-      temp_current_user = User.find(temp_session_object.uuid) if temp_session_object
+      temp_current_user = User.find(temp_session_object.uuid) if temp_session_object&.uuid
       Raven.extra_context(
         current_user_uuid: temp_current_user.try(:uuid),
         current_user_icn: temp_current_user.try(:mhv_icn)
@@ -258,11 +261,13 @@ module V1
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
+        Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user&.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
         tags_and_error_code = tags << "error:#{error&.code || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
         Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
+        Rails.logger.info("SessionsController version:v1 login failure, user_uuid=#{@current_user&.uuid}")
       end
     end
 
@@ -299,6 +304,7 @@ module V1
                   exc.message
                 end
       conditional_log_message_to_sentry(message, level, context, code)
+      Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
       redirect_to url_service.login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)
@@ -316,12 +322,18 @@ module V1
       # If our error is that we have multiple mhv ids, this is a case where we won't log in the user,
       # but we give them a path to resolve this. So we don't want to throw an error, and we don't want
       # to pollute Sentry with this condition, but we will still log in case we want metrics in
-      # Cloudwatch or any other log aggregator
-      if code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE
+      # Cloudwatch or any other log aggregator. Additionally, if the user has an invalid message timestamp
+      # error, this means they have waited too long in the log in page to progress, so it's not really an
+      # appropriate Sentry error
+      if code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE || invalid_message_timestamp_error?(message)
         Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
       else
         log_message_to_sentry(message, level, extra_context: context)
       end
+    end
+
+    def invalid_message_timestamp_error?(message)
+      message.match(FIM_INVALID_MESSAGE_TIMESTAMP)
     end
 
     def set_cookies
@@ -337,11 +349,11 @@ module V1
 
     def log_persisted_session_and_warnings
       obscure_token = Session.obscure_token(@session_object.token)
-      Rails.logger.info("Logged in user with id #{@session_object.uuid}, token #{obscure_token}")
+      Rails.logger.info("Logged in user with id #{@session_object&.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frequently.
       if current_user.ssn_mismatch?
-        additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
+        additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.ssn_mpi)
         log_message_to_sentry(
           'SessionsController version:v1 message:SSN from MPI Lookup does not match UserIdentity cache',
           :warn,
@@ -350,8 +362,12 @@ module V1
       end
     end
 
+    def html_escaped_relay_state
+      JSON.parse(CGI.unescapeHTML(params[:RelayState] || '{}'))
+    end
+
     def originating_request_id
-      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+      html_escaped_relay_state['originating_request_id']
     rescue
       'UNKNOWN'
     end

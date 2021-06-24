@@ -7,7 +7,16 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
   subject { described_class }
 
-  let(:user) { double('User', icn: '1008596379V859838', account_uuid: 'abc123', uuid: '789defg') }
+  let(:user) do
+    double(
+      'User',
+      icn: '1008596379V859838',
+      account_uuid: 'abc123',
+      uuid: '789defg',
+      loa: 3,
+      mpi_profile: double('Facility', vha_facility_ids: ['1'])
+    )
+  end
   let(:session_store) { double('SessionStore', token: '123abc') }
   let(:session_service) do
     double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)
@@ -131,7 +140,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
     end
 
     context 'when appointments and patient and questionnaire_responses and sip and no questionnaires' do
-      let(:fhir_patient) { double('FHIR::Patient') }
+      let(:fhir_patient) { double('FHIR::Patient', loa: 3) }
       let(:client_reply) { double('FHIR::ClientReply', resource: fhir_patient) }
       let(:questionnaire_client_reply) { double('FHIR::ClientReply', resource: double('FHIR::ClientReply', entry: [])) }
 
@@ -155,7 +164,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
       [
         double('FHIR::Location',
                resource: double('FHIR::Bundle',
-                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                                identifier: [double('first', value: 'vha_442_3049')],
                                 to_hash: { id: 'I2-LABC' }))
       ]
     end
@@ -217,15 +226,15 @@ describe HealthQuest::QuestionnaireManager::Factory do
                                 ]))
       ]
     end
-    let(:location) { double('FHIR::Location', resource: OpenStruct.new) }
+    let(:location) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: ['my_location'])) }
 
     before do
       allow_any_instance_of(subject).to receive(:lighthouse_appointments).and_return(appointments)
-      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:get).with(anything).and_return(location)
+      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:search).with(anything).and_return(location)
     end
 
     it 'returns an array of locations' do
-      expect(described_class.manufacture(user).get_locations).to eq([location])
+      expect(described_class.manufacture(user).get_locations).to eq(['my_location'])
     end
   end
 
@@ -234,20 +243,28 @@ describe HealthQuest::QuestionnaireManager::Factory do
       [
         double('FHIR::Location',
                resource: double('FHIR::Bundle',
-                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')],
+                                identifier: [double('first', value: 'vha_442_3049')],
                                 managingOrganization: double('Reference', reference: '/O/I2-OABC'),
                                 to_hash: { id: 'I2-LABC' }))
       ]
     end
+    let(:organization) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: ['my_org'])) }
 
     before do
       allow_any_instance_of(subject).to receive(:locations).and_return(locations)
-      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:get)
-        .with(anything).and_return(default_organization)
+      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:search)
+        .with(anything).and_return(organization)
     end
 
     it 'returns an array of organizations' do
-      expect(described_class.manufacture(user).get_organizations).to eq([default_organization])
+      expect(described_class.manufacture(user).get_organizations).to eq(['my_org'])
+    end
+
+    it 'search receives the correct set of arguments' do
+      expect_any_instance_of(HealthQuest::Resource::Factory).to receive(:search)
+        .with({ _id: 'I2-OABC', _count: '100' }).once
+
+      described_class.manufacture(user).get_organizations
     end
   end
 
@@ -257,12 +274,19 @@ describe HealthQuest::QuestionnaireManager::Factory do
       [
         double('FHIR::Location',
                resource: double('FHIR::Bundle',
-                                identifier: [double('first', value: 'vha_442'), double('last', value: 'vha_442_3049')]))
+                                identifier: [double('first', value: 'vha_442_3049')]))
+      ]
+    end
+    let(:organizations) do
+      [
+        double('FHIR::Organization',
+               resource: double('Resource',
+                                identifier: [double('last', value: 'vha_442')]))
       ]
     end
 
     before do
-      allow_any_instance_of(subject).to receive(:locations).and_return(locations)
+      allow_any_instance_of(subject).to receive(:organizations).and_return(organizations)
       allow_any_instance_of(HealthQuest::Facilities::Request).to receive(:get).with(anything).and_return(facilities)
     end
 
@@ -307,8 +331,11 @@ describe HealthQuest::QuestionnaireManager::Factory do
     let(:questionnaire_response_id) { '1bc-123-345' }
 
     it 'returns the id for now' do
+      allow_any_instance_of(described_class).to receive(:generate_questionnaire_response_pdf)
+        .with(questionnaire_response_id).and_return('')
+
       expect(described_class.new(user).generate_questionnaire_response_pdf(questionnaire_response_id))
-        .to eq(questionnaire_response_id)
+        .to be_a(String)
     end
   end
 end

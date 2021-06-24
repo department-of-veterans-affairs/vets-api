@@ -3,8 +3,8 @@
     "id": 1860,
     "evss_id": 600118851,
     "data": {},
-    "created_at": "2021-04-05T18:35:16.414Z",
-    "updated_at": "2021-04-05T18:35:16.414Z",
+    "created_at": "2020-04-05T18:35:16.414Z",
+    "updated_at": "2020-04-05T18:35:16.414Z",
     "user_uuid": "3097e489-ad75-5746-ab1a-e0aabc1b426a",
     "list_data": {
       "appeal_possible": "No",
@@ -46,8 +46,8 @@
     "id": 1861,
     "evss_id": 600114693,
     "data": {},
-    "created_at": "2021-04-05T18:35:16.417Z",
-    "updated_at": "2021-04-05T18:35:16.417Z",
+    "created_at": "2020-04-05T18:35:16.417Z",
+    "updated_at": "2020-04-05T18:35:16.417Z",
     "user_uuid": "3097e489-ad75-5746-ab1a-e0aabc1b426a",
     "list_data": {
       "appeal_possible": "No",
@@ -89,8 +89,8 @@
     "id": 1862,
     "evss_id": 600114692,
     "data": {},
-    "created_at": "2021-04-05T18:35:16.419Z",
-    "updated_at": "2021-04-05T18:35:16.419Z",
+    "created_at": "2020-04-05T18:35:16.419Z",
+    "updated_at": "2020-04-05T18:35:16.419Z",
     "user_uuid": "3097e489-ad75-5746-ab1a-e0aabc1b426a",
     "list_data": {
       "appeal_possible": "No",
@@ -144,8 +144,8 @@
     "id": 1863,
     "evss_id": 600106271,
     "data": {},
-    "created_at": "2021-04-05T18:35:16.421Z",
-    "updated_at": "2021-04-05T18:35:16.421Z",
+    "created_at": "2020-04-05T18:35:16.421Z",
+    "updated_at": "2020-04-05T18:35:16.421Z",
     "user_uuid": "3097e489-ad75-5746-ab1a-e0aabc1b426a",
     "list_data": {
       "appeal_possible": "Yes",

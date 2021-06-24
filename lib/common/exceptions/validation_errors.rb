@@ -15,9 +15,9 @@ module Common
       end
 
       def errors
-        @resource.errors.map do |k, v|
-          full_message = resource.errors.full_message(k, v)
-          attributes = error_attributes(k, v, full_message)
+        @resource.errors.map do |error|
+          full_message = error.full_message
+          attributes = error_attributes(error.attribute, error.message, full_message)
           SerializableError.new(attributes)
         end
       end

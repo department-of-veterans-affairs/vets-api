@@ -37,7 +37,7 @@ end
 
 FactoryBot.define do
   factory :mvi_profile, class: 'MPI::Models::MviProfile' do
-    given_names { Array.new(2) { Faker::Name.first_name } }
+    given_names { Array.new(1) { Faker::Name.first_name } }
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }
     gender { %w[M F].sample }
@@ -58,7 +58,7 @@ FactoryBot.define do
         '12345678^PI^200CORP^USVBA^A'
       ]
     }
-    icn { Faker::Number.number(digits: 17) }
+    icn { '1013062086V794840' }
     icn_with_aaid { '1000123456V123456^NI^200M^USVHA' }
     mhv_ids { Array.new(2) { Faker::Number.number(digits: 11) } }
     active_mhv_ids { mhv_ids }
@@ -69,7 +69,7 @@ FactoryBot.define do
     birls_ids { birls }
     vet360_id { '123456789' }
     sec_id { '0001234567' }
-    historical_icns { %w[1000123457V123456 1000123458V123456] }
+    historical_icns { [] }
     search_token { 'WSDOC2002071538432741110027956' }
 
     factory :mpi_profile_response do
@@ -113,6 +113,10 @@ FactoryBot.define do
 
       trait :with_relationship do
         relationships { [build(:mpi_profile_relationship)] }
+      end
+
+      trait :with_historical_icns do
+        historical_icns { %w[1000123457V123456 1000123458V123456] }
       end
 
       trait :missing_attrs do

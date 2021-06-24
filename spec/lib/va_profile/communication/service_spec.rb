@@ -22,6 +22,22 @@ describe VAProfile::Communication::Service do
         end
       end
     end
+
+    context 'with empty communication-permissions response' do
+      before do
+        allow(user).to receive(:vet360_id).and_return('7909')
+      end
+
+      it 'returns the right groups' do
+        VCR.use_cassette('va_profile/communication/communication_permissions_not_found', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/communication/communication_items', VCR::MATCH_EVERYTHING) do
+            res = subject.get_items_and_permissions
+
+            expect(JSON.parse(res.to_json)).to eq(get_fixture('va_profile/items_without_permissions'))
+          end
+        end
+      end
+    end
   end
 
   describe '#get_communication_permissions' do
@@ -74,8 +90,8 @@ describe VAProfile::Communication::Service do
     context 'with an existing communication permission' do
       it 'puts to communication-permissions', run_at: '2021-03-24T23:46:17Z' do
         communication_item = build(:communication_item)
-        communication_item.communication_channels[0].communication_permission.id = 46
-        communication_item.communication_channels[0].communication_permission.allowed = true
+        communication_item.communication_channel.communication_permission.id = 46
+        communication_item.communication_channel.communication_permission.allowed = true
 
         VCR.use_cassette('va_profile/communication/put_communication_permissions', VCR::MATCH_EVERYTHING) do
           res = subject.update_communication_permission(communication_item)

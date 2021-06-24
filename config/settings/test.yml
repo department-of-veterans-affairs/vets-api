@@ -18,8 +18,6 @@ reports:
     region: region
     secret_access_key: secret
 
-db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
-
 saml:
   cert_path: spec/support/certificates/ruby-saml.crt
   key_path: spec/support/certificates/ruby-saml.key
@@ -120,8 +118,8 @@ hqva_mobile:
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
   facilities:
-    url: "https://sandbox-api.va.gov"
-    ids_path: "/v1/facilities/va"
+    url: "https://staging-api.va.gov"
+    ids_path: "/facilities_api/v1/va"
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"

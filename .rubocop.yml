@@ -18,7 +18,6 @@ AllCops:
     - '**/*.rake'
     - '**/*.rb'
   Exclude:
-    - 'bin/*'
     - db/schema.rb
     - db/seeds.rb
     - db/migrate/*.rb
@@ -142,7 +141,6 @@ Lint/AmbiguousBlockAssociation:
 Naming/FileName:
   Exclude:
     - "Guardfile"
-    - 'spec/lib/decision_review/schemas/NOD_create_request_body_schema_json_spec.rb'
 
 # TODO: REVIEW THESE AND MAKE CHANGES
 
@@ -234,7 +232,6 @@ RSpec/DescribeClass:
     - 'spec/lib/bb/client_spec.rb'
     - 'spec/lib/gi/client_spec.rb'
     - 'spec/lib/sm/client/folders_spec.rb'
-    - 'spec/lib/decision_review/schemas/NOD_create_request_body_schema_json_spec.rb'
 
 # Determined to be too benign and/or numerous to justify changing
 RSpec/AnyInstance:

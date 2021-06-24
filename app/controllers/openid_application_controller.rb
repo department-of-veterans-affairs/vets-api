@@ -37,34 +37,60 @@ class OpenidApplicationController < ApplicationController
 
     # Only want to fetch the Okta profile if the session isn't already established and not a CC token
     @session = Session.find(token) unless token.client_credentials_token?
-    profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !@session.nil?
+    profile = @session.profile unless @session.nil? || @session.profile.nil?
+    profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !profile.nil?
+    populate_ssoi_token_payload(profile) if !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
 
-    populate_ssoi_token_payload(profile) if @session.nil? && !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
+    if @session.nil? && !token.client_credentials_token?
+      establish_session(profile)
+      return false if @session.nil?
+    end
 
     # issued for a client vs a user
     if token.client_credentials_token? || token.ssoi_token?
-      if token.payload['scp'].include?('launch/patient')
-        launch = fetch_smart_launch_context
-        token.payload[:icn] = launch
-        token.payload[:launch] = { patient: launch } unless launch.nil?
-      end
-      if token.payload['scp'].include?('launch')
-        launch = fetch_smart_launch_context
-        token.payload[:launch] = base64_json?(launch) ? JSON.parse(Base64.decode64(launch)) : { patient: launch }
-      end
+      populate_payload_for_launch_patient_scope if token.payload['scp'].include?('launch/patient')
+      populate_payload_for_launch_scope if token.payload['scp'].include?('launch')
       return true
     end
 
-    establish_session(profile) if @session.nil?
-    return false if @session.nil?
+    return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
+    confirm_icn_match(profile)
+  end
+
+  def populate_payload_for_launch_scope
+    analyze_redis_launch_context
+    token.payload[:launch] =
+      base64_json?(@session.launch) ? JSON.parse(Base64.decode64(@session.launch)) : { patient: @session.launch }
+  end
+
+  def populate_payload_for_launch_patient_scope
+    analyze_redis_launch_context
+    token.payload[:icn] = @session.launch
+    token.payload[:launch] = { patient: @session.launch } unless @session.launch.nil?
+  end
+
+  def analyze_redis_launch_context
+    @session = Session.find(token)
+    # Sessions are not originally created for client credentials tokens, one will be created here.
+    if @session.nil?
+      ttl = token.payload['exp'] - Time.current.utc.to_i
+      launch = fetch_smart_launch_context
+      @session = build_launch_session(ttl, launch)
+      @session.save
+    # Launch context is not attached to the session for SSOi tokens, it will be added here.
+    elsif @session.launch.nil?
+      @session.launch = fetch_smart_launch_context
+      @session.save
+    end
   end
 
   def populate_ssoi_token_payload(profile)
     token.payload['last_login_type'] = 'ssoi'
     token.payload['icn'] = profile.attrs['icn']
     token.payload['npi'] = profile.attrs['npi']
+    token.payload['sec_id'] = profile.attrs['SecID']
     token.payload['vista_id'] = profile.attrs['VistaId']
   end
 
@@ -105,10 +131,26 @@ class OpenidApplicationController < ApplicationController
 
   def establish_session(profile)
     ttl = token.payload['exp'] - Time.current.utc.to_i
+
     user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token.identifiers.uuid, profile: profile, ttl: ttl)
     @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
-    @session = build_session(ttl)
+    @session = build_session(ttl,
+                             Okta::UserProfile.new({ 'last_login_type' => profile['last_login_type'],
+                                                     'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'],
+                                                     'npi' => profile['npi'], 'icn' => profile['icn'] }))
     @session.save && user_identity.save && @current_user.save
+  end
+
+  # Ensure the Okta profile ICN continues to match the MPI ICN
+  # If mismatched, revoke in Okta, set @session to nil, and return false
+  # POA support (profile['icn'].nil?)
+  def confirm_icn_match(profile)
+    # Temporarily log only to get an accurate count of this issue
+    # Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
+    # @session = nil
+    log_message_to_sentry('Profile ICN mismatch detected.', :warn) unless
+        profile['icn'].nil? || @current_user&.icn == profile['icn']
+    true
   end
 
   def token
@@ -126,8 +168,14 @@ class OpenidApplicationController < ApplicationController
     end
   end
 
-  def build_session(ttl)
-    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid)
+  def build_session(ttl, profile)
+    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid, profile: profile)
+    session.expire(ttl)
+    session
+  end
+
+  def build_launch_session(ttl, launch)
+    session = Session.new(token: token.to_s, launch: launch)
     session.expire(ttl)
     session
   end
@@ -139,13 +187,15 @@ class OpenidApplicationController < ApplicationController
   def fetch_smart_launch_context
     response = RestClient.get(Settings.oidc.smart_launch_url,
                               { Authorization: 'Bearer ' + token.token_string })
-    unless response.nil? || response.code != 200
+    raise error_klass('Invalid launch context') if response.nil?
+
+    if response.code == 200
       json_response = JSON.parse(response.body)
       json_response['launch']
     end
   rescue => e
     log_message_to_sentry('Error retrieving smart launch context for OIDC token: ' + e.message, :error)
-    nil
+    raise error_klass('Invalid launch context')
   end
 
   attr_reader :current_user, :session, :scopes

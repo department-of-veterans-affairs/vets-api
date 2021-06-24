@@ -12,6 +12,7 @@ gem 'websocket-extensions', '>= 0.1.5'
 path 'modules' do
   gem 'appeals_api'
   gem 'apps_api'
+  gem 'check_in'
   gem 'claims_api'
   gem 'covid_research'
   gem 'covid_vaccine'
@@ -30,18 +31,21 @@ path 'modules' do
 end
 # End Modules
 
+# needed for PGHero performance dashboard
+gem 'sass-rails', '>= 6'
+
 # Anchored versions, do not change
-gem 'puma', '~> 4.3.7'
-gem 'puma-plugin-statsd', '~> 0.1.0'
-gem 'rails', '~> 6.0.2'
+gem 'puma', '~> 5.3.2'
+gem 'puma-plugin-statsd', '~> 1.2.1'
+gem 'rails', '~> 6.1.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
-gem 'sidekiq-scheduler', '~> 3.0' # TODO: explanation
+gem 'sidekiq-scheduler', '~> 3.1' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
-gem 'activerecord-postgis-adapter', '~> 6.0.0'
+gem 'activerecord-postgis-adapter'
 gem 'addressable'
 gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
@@ -49,6 +53,7 @@ gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
 gem 'breakers'
+gem 'bootsnap', require: false
 gem 'carrierwave'
 gem 'carrierwave-aws'
 gem 'clam_scan'
@@ -62,13 +67,15 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
-gem 'fhir_client', '~> 4.0.5'
+gem 'fhir_client', '~> 4.0.6'
 gem 'flipper', '~> 0.20.4'
 gem 'flipper-active_record', '~> 0.20.4'
 gem 'flipper-active_support_cache_store', '~> 0.20.4'
 gem 'flipper-ui', '~> 0.20.4'
 gem 'foreman'
 gem 'google-api-client'
+gem 'google-apis-core'
+gem 'google-apis-generator'
 gem 'googleauth'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
@@ -85,6 +92,7 @@ gem 'levenshtein-ffi'
 gem 'liquid'
 gem 'mail', '2.7.1'
 gem 'memoist'
+gem 'mimemagic', '~> 0.4.3'
 gem 'mini_magick', '~> 4.11.0'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.11'
@@ -101,6 +109,7 @@ gem 'pdf-forms'
 gem 'pdf-reader'
 gem 'pg'
 gem 'pg_query', '>= 0.9.0'
+gem 'pg_search'
 gem 'pghero'
 gem 'prawn'
 gem 'prawn-table'
@@ -109,7 +118,7 @@ gem 'rack'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'
-gem 'rails_semantic_logger', '~> 4.5'
+gem 'rails_semantic_logger', '~> 4.6'
 gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'
@@ -130,9 +139,9 @@ gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
+gem 'with_advisory_lock'
 
 group :development do
-  gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
@@ -165,8 +174,7 @@ end
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
-  gem 'bootsnap', require: false
-  gem 'brakeman', '~> 5.0.0'
+  gem 'brakeman', '~> 5.0'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
@@ -188,11 +196,12 @@ group :development, :test do
   gem 'rspec-instrumentation-matcher'
   gem 'rspec-its'
   gem 'rspec-rails'
+  gem 'rswag'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'rubocop-thread_safety'
-  gem 'sidekiq', '~> 5.0'
+  gem 'sidekiq', '< 7'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
