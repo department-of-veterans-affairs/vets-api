@@ -6,6 +6,7 @@ require_relative '../support/vba_document_fixtures'
 RSpec.describe VBADocuments::UploadProcessor, type: :job do
   include VBADocuments::Fixtures
 
+  let(:test_caller) { { 'caller' => 'tester' } }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
@@ -17,7 +18,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:name_too_long_metadata) { get_erbed_fixture('name_too_long_metadata.json.erb').read }
   let(:invalid_metadata_missing) { get_fixture('invalid_metadata_missing.json').read }
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
-
+  let(:valid_metadata_space_in_name) { get_fixture('valid_metadata_space_in_name.json').read }
   let(:valid_doc) { get_fixture('valid_doc.pdf') }
   let(:locked_doc) { get_fixture('locked.pdf') }
   let(:non_pdf_doc) { get_fixture('valid_metadata.json') }
@@ -100,7 +101,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           # Why fork instead of threads?  We are testing the advisory lock under different processes just as sidekiq
           # will run the jobs.
           pids << fork do
-            response = described_class.new.perform(@upload_model.guid)
+            response = described_class.new.perform(@upload_model.guid, test_caller)
             writing = response.to_s
             temp_files[i].write(writing)
             temp_files[i].close
@@ -116,7 +117,23 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    it 'counts concurrent duplicates that our vendor asserts occurred' do
+    it 'tracks how we got into the recieved state' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive(:status).and_return(200)
+      allow(faraday_response).to receive(:body).and_return('')
+      allow(faraday_response).to receive(:success?).and_return(true)
+      capture_body = nil
+      expect(client_stub).to receive(:upload) { |arg|
+        capture_body = arg
+        faraday_response
+      }
+      described_class.new.perform(upload.guid, test_caller)
+      upload.reload
+      expect(upload.metadata['status']['received']['cause'].first).to eq('tester')
+    end
+
+    it 'counts concurrent duplicates, and tracks causes, that our upstream provider asserts occurred' do
       upload_model = VBADocuments::UploadSubmission.new
       upload_model.status = 'uploaded'
       upload_model.save!
@@ -128,12 +145,17 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(client_stub).to receive(:upload).and_return(faraday_response)
       allow(File).to receive(:size).and_return(10)
       allow_any_instance_of(File).to receive(:rewind).and_return(nil)
-      response = described_class.new.perform(upload_model.guid)
+      other_caller = { 'caller' => 'tester2' }
+      response = described_class.new.perform(upload_model.guid, test_caller)
       expect(response).to be(false)
-      described_class.new.perform(upload_model.guid)
-      described_class.new.perform(upload_model.guid)
+      described_class.new.perform(upload_model.guid, test_caller)
+      described_class.new.perform(upload_model.guid, test_caller)
       upload_model.reload
       expect(upload_model.metadata['uuid_already_in_cache_count']).to eq(3)
+      expect(upload_model.metadata['status']['uploaded']['uuid_already_in_cache_cause']['tester'].count).to eq(3)
+      described_class.new.perform(upload_model.guid, other_caller)
+      upload_model.reload
+      expect(upload_model.metadata['status']['uploaded']['uuid_already_in_cache_cause']['tester2'].count).to eq(1)
     end
 
     it 'parses and uploads a valid multipart payload' do
@@ -147,7 +169,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         capture_body = arg
         faraday_response
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       expect(capture_body).to be_a(Hash)
       expect(capture_body).to have_key('metadata')
       expect(capture_body).to have_key('document')
@@ -168,7 +190,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         capture_body = arg
         faraday_response
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       expect(capture_body).to be_a(Hash)
       expect(capture_body).to have_key('metadata')
       expect(capture_body).to have_key('document')
@@ -195,7 +217,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
             end
             r_val
           end
-          described_class.new.perform(upload.guid)
+          described_class.new.perform(upload.guid, test_caller)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.status).to eq('error')
           expect(updated.code).to eq('DOC106')
@@ -206,7 +228,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for invalid multipart format' do
       allow(VBADocuments::MultipartParser).to receive(:parse)
         .and_raise(VBADocuments::UploadError.new(code: 'DOC101'))
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC101')
@@ -214,11 +236,11 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
        name_too_long_metadata].each do |bad|
-      xit "sets error status for #{bad} name" do
+      it "sets error status for #{bad} name" do
         allow(VBADocuments::MultipartParser).to receive(:parse) {
           { 'metadata' => send(bad), 'content' => valid_doc }
         }
-        described_class.new.perform(upload.guid)
+        described_class.new.perform(upload.guid, test_caller)
         updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
         expect(updated.status).to eq('error')
         expect(updated.code).to eq('DOC102')
@@ -226,25 +248,27 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-    xit 'allows dashes and forward slashes in names' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'metadata' => dashes_slashes_first_last, 'content' => valid_doc }
-      }
-      allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(200)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(true)
-      expect(client_stub).to receive(:upload) { faraday_response }
-      described_class.new.perform(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('received')
+    %i[dashes_slashes_first_last valid_metadata_space_in_name].each do |allowed|
+      it "allows #{allowed} names" do
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'metadata' => send(allowed), 'content' => valid_doc }
+        }
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return('')
+        allow(faraday_response).to receive(:success?).and_return(true)
+        expect(client_stub).to receive(:upload) { faraday_response }
+        described_class.new.perform(upload.guid, test_caller)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).to eq('received')
+      end
     end
 
     it 'sets error status for non-JSON metadata part' do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_doc, 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -255,7 +279,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => 'I am not JSON', 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -266,7 +290,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => [valid_metadata].to_json, 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -279,7 +303,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -292,7 +316,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -305,7 +329,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -318,7 +342,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -329,7 +353,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_metadata, 'content' => valid_metadata }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC103')
@@ -339,7 +363,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_metadata, 'content' => non_pdf_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC103')
@@ -354,7 +378,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           v['metadata'] = hash.to_json
           v
         }
-        described_class.new.perform(upload.guid)
+        described_class.new.perform(upload.guid, test_caller)
         updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
         expect(updated.status).to eq('error')
         expect(updated.code).to eq('DOC102')
@@ -369,7 +393,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         .each_pair do |k, v|
         it k do
           allow(VBADocuments::MultipartParser).to receive(:parse) { send v.first }
-          described_class.new.perform(upload.guid)
+          described_class.new.perform(upload.guid, test_caller)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.status).to eq('error')
           expect(updated.code).to eq('DOC103')
@@ -380,7 +404,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'sets error status for out-of-spec JSON metadata' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { invalid_parts_nonstring }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -391,7 +415,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -402,7 +426,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_metadata }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC103')
@@ -412,7 +436,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.metadata['size'].class).to be == Integer
     end
@@ -423,7 +447,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           allow(VBADocuments::MultipartParser).to receive(:parse) {
             { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf") }
           }
-          described_class.new.perform(upload.guid)
+          described_class.new.perform(upload.guid, test_caller)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.status).to eq('error')
           expect(updated.code).to eq('DOC108')
@@ -436,7 +460,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         file = 'modules/vba_documents/spec/fixtures/valid_multipart_pdf_attachments.blob'
         VBADocuments::MultipartParser.parse_file(file)
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       pdf_data = updated.uploaded_pdf
       expect(pdf_data).to be_a(Hash)
@@ -469,7 +493,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
       it 'records line of business' do
         @md['businessLine'] = 'CMP'
-        described_class.new.perform(upload.guid)
+        described_class.new.perform(upload.guid, test_caller)
         updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
         expect(updated.uploaded_pdf['line_of_business']).to eq('CMP')
       end
@@ -477,7 +501,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       %w[LOG MED BUR OTH DROC].each do |future_lob|
         it "maps the future line of business #{future_lob} to CMP" do
           @md['businessLine'] = future_lob
-          described_class.new.perform(upload.guid)
+          described_class.new.perform(upload.guid, test_caller)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.uploaded_pdf['line_of_business']).to eq(future_lob)
           expect(updated.uploaded_pdf['submitted_line_of_business']).to eq('CMP')
@@ -491,7 +515,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
@@ -518,7 +542,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         capture_body = arg
         faraday_response
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       expect(capture_body).to be_a(Hash)
       expect(capture_body).to have_key('metadata')
       expect(capture_body).to have_key('document')
@@ -543,7 +567,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         capture_body = arg
         faraday_response
       }
-      described_class.new.perform(upload.guid)
+      described_class.new.perform(upload.guid, test_caller)
       expect(capture_body).to be_a(Hash)
       expect(capture_body).to have_key('metadata')
       expect(capture_body).to have_key('document')
@@ -569,7 +593,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           capture_body = arg
           faraday_response
         }
-        described_class.new.perform(upload.guid)
+        described_class.new.perform(upload.guid, test_caller)
         expect(capture_body).to be_a(Hash)
         expect(capture_body).to have_key('metadata')
         expect(capture_body).to have_key('document')
@@ -587,7 +611,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
           capture_body = arg
           faraday_response
         }
-        described_class.new.perform(upload.guid, after_retries)
+        described_class.new.perform(upload.guid, test_caller, after_retries)
         expect(capture_body).to be_a(Hash)
         expect(capture_body).to have_key('metadata')
         expect(capture_body).to have_key('document')
@@ -601,7 +625,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       it 'queues another job to retry the request' do
         expect(client_stub).to receive(:upload) { |_arg| faraday_response }
         Timecop.freeze(Time.zone.now)
-        described_class.new.perform(upload.guid)
+        described_class.new.perform(upload.guid, test_caller)
         expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
         Timecop.return
       end
@@ -612,7 +636,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:upload)
         .and_raise(Common::Exceptions::GatewayTimeout.new)
-      expect { described_class.new.perform(upload.guid) }.not_to raise_error(Common::Exceptions::GatewayTimeout)
+      expect do
+        described_class.new.perform(upload.guid, test_caller)
+      end.not_to raise_error(Common::Exceptions::GatewayTimeout)
       upload.reload
       expect(upload.status).to eq('uploaded')
     end
@@ -622,7 +648,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:upload)
         .and_raise(Faraday::TimeoutError.new)
-      expect { described_class.new.perform(upload.guid) }.not_to raise_error(Faraday::TimeoutError)
+      expect { described_class.new.perform(upload.guid, test_caller) }.not_to raise_error(Faraday::TimeoutError)
       upload.reload
       expect(upload.status).to eq('uploaded')
     end

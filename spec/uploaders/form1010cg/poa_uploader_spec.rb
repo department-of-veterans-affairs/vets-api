@@ -37,7 +37,7 @@ describe Form1010cg::PoaUploader, uploader_helpers: true do
 
   describe '#size_range' do
     it 'sets the store_dir to the initialized argument' do
-      expect(subject.size_range).to eq(1.byte...25.megabytes)
+      expect(subject.size_range).to eq(1.byte...10.megabytes)
     end
   end
 

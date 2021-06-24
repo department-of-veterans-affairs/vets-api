@@ -47,17 +47,6 @@ AppealsApi::Engine.routes.draw do
           post 'validate'
         end
       end
-
-      namespace :notice_of_disagreements do
-        # get 'contestable_issues', to: 'contestable_issues#index'
-        resources :evidence_submissions, only: %i[create show]
-      end
-      resources :notice_of_disagreements do
-        collection do
-          get 'schema'
-          post 'validate'
-        end
-      end
     end
   end
 

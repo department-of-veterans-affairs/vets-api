@@ -38,7 +38,7 @@
         "decisionIssueId": 1,
         "ratingIssueReferenceId": "2",
         "ratingDecisionReferenceId": "3",
-        "disagreementReason": "Effective Date"
+        "disagreementArea": "Effective Date"
       }
     },
     {

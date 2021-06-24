@@ -179,7 +179,7 @@ RSpec.describe 'user', type: :request do
 
       context 'when user object birth_date is nil' do
         before do
-          allow_any_instance_of(IAMUserIdentity).to receive(:birth_date).and_return(nil)
+          iam_sign_in(FactoryBot.build(:iam_user, :no_birth_date))
           get '/mobile/v0/user', headers: iam_headers
         end
 
@@ -209,7 +209,7 @@ RSpec.describe 'user', type: :request do
       end
     end
 
-    context 'when the upstream va profile service returns an error' do
+    context 'when the upstream va profile service returns a 502' do
       before do
         allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           Common::Exceptions::BackendServiceException.new('VET360_502')
@@ -224,7 +224,34 @@ RSpec.describe 'user', type: :request do
       end
     end
 
-    context 'when the va profile service throws an error' do
+    context 'when the upstream va profile service returns a 404' do
+      before do
+        allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
+          Faraday::ResourceNotFound.new('the resource could not be found')
+        )
+      end
+
+      it 'returns a record not found error' do
+        get '/mobile/v0/user', headers: iam_headers
+
+        expect(response).to have_http_status(:not_found)
+        expect(response.body).to match_json_schema('errors')
+        expect(response.parsed_body).to eq(
+          {
+            'errors' => [
+              {
+                'title' => 'Record not found',
+                'detail' => 'The record identified by {:id=>"1"} could not be found',
+                'code' => '404',
+                'status' => '404'
+              }
+            ]
+          }
+        )
+      end
+    end
+
+    context 'when the va profile service throws an internal error' do
       before do
         allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_raise(
           ArgumentError.new

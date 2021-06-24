@@ -7,26 +7,20 @@
       "veteran": {
         "address": { "zipCode5": "66002" },
         "phone": {
-          "countryCode": "34",
+          "countryCode": "1",
           "areaCode": "555",
           "phoneNumber": "8001111"
         },
-        "emailAddressText": "josie@example.com",
+        "email": "josie@example.com",
         "timezone": "America/Chicago",
         "homeless": false
       },
-      "ssoSsocOptIn": true,
-      "informalConferenceContact": [
-        "veteran"
-      ],
-      "informalConferenceTime": [
-        "800-1200 ET"
-      ],
-      "representative": {
-        "name": {
-          "firstName": "Hellen",
-          "lastName": "Holly"
-        },
+      "socOptIn": true,
+      "informalConferenceContact": "veteran",
+      "informalConferenceTime": "800-1200 ET",
+      "informalConferenceRep": {
+        "firstName": "Helen",
+        "lastName": "Holly",
         "phone": {
           "countryCode": "6",
           "areaCode": "555",
@@ -43,7 +37,8 @@
         "decisionDate": "1900-01-01",
         "decisionIssueId": 1,
         "ratingIssueReferenceId": "2",
-        "ratingDecisionReferenceId": "3"
+        "ratingDecisionReferenceId": "3",
+        "socDate": "2020-08-01"
       }
     },
     {

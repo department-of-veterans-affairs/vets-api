@@ -21,7 +21,7 @@ module DecisionReview
       appeal_submission = appeal_submission_upload.appeal_submission
       upload_url_response = DecisionReview::Service.new
                                                    .get_notice_of_disagreement_upload_url(
-                                                     nod_id: appeal_submission.submitted_appeal_uuid,
+                                                     nod_uuid: appeal_submission.submitted_appeal_uuid,
                                                      ssn: JSON.parse(appeal_submission.upload_metadata)['fileNumber']
                                                    )
       upload_url = upload_url_response.body.dig('data', 'attributes', 'location')
@@ -32,10 +32,18 @@ module DecisionReview
 
       DecisionReview::Service.new.put_notice_of_disagreement_upload(upload_url: upload_url,
                                                                     file_upload: carrierwave_sanitized_file,
-                                                                    metadata: appeal_submission.upload_metadata)
+                                                                    metadata_string: appeal_submission.upload_metadata)
 
       appeal_submission_upload.lighthouse_upload_id = upload_url_response.body.dig('data', 'id')
       appeal_submission_upload.save
+      StatsD.increment("#{STATSD_KEY_PREFIX}.success")
+    rescue => e
+      handle_error(e)
+    end
+
+    def handle_error(e)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.error")
+      raise e
     end
   end
 end

@@ -5,6 +5,7 @@ require 'support/controller_spec_helper'
 
 RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller do
   let(:loa3_user) { create(:evss_user) }
+  let(:user_no_pid) { create(:unauthorized_evss_user) }
 
   let(:test_form) do
     build(:veteran_readiness_employment_claim)
@@ -33,6 +34,24 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
           sign_in_as(loa3_user)
 
           form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
+          expect_any_instance_of(SavedClaim::VeteranReadinessEmploymentClaim).not_to receive(:send_to_central_mail!)
+
+          post(:create, params: form_params)
+          expect(response.code).to eq('200')
+        end
+      end
+    end
+
+    context 'logged in user with no pid' do
+      it 'validates successfully and sends to central mail' do
+        VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
+          expect_any_instance_of(BGS::RORoutingService).to receive(:get_regional_office_by_zip_code).and_return(
+            { regional_office: { number: '319' } }
+          )
+          sign_in_as(user_no_pid)
+
+          form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
+          expect_any_instance_of(SavedClaim::VeteranReadinessEmploymentClaim).to receive(:send_to_central_mail!)
 
           post(:create, params: form_params)
           expect(response.code).to eq('200')

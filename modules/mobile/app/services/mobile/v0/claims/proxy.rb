@@ -46,10 +46,10 @@ module Mobile
         end
 
         def request_decision(id)
-          claim = EVSSClaim.for_user(current_user).find_by(evss_id: id)
+          claim = EVSSClaim.for_user(@user).find_by(evss_id: id)
           jid = evss_claim_service.request_decision(claim)
           Rails.logger.info('Mobile Request', {
-                              claim_id: params[:id],
+                              claim_id: id,
                               job_id: jid
                             })
           claim.update(requested_decision: true)

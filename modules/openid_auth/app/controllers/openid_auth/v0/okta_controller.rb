@@ -31,7 +31,7 @@ module OpenidAuth
       def fetch_mvi_profile(user_attributes)
         user_identity = OpenidUserIdentity.new(
           birth_date: user_attributes[:dob],
-          dslogon_edipi: user_attributes[:dslogon_edipi],
+          edipi: user_attributes[:edipi],
           email: user_attributes[:user_email],
           first_name: user_attributes[:first_name],
           gender: user_attributes[:gender]&.chars&.first&.upcase,

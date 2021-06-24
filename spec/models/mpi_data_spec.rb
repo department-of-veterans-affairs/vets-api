@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe MPIData, skip_mvi: true do
   let(:user) { build(:user, :loa3) }
-  let(:mvi) { MPIData.for_user(user) }
+  let(:mvi) { MPIData.for_user(user.identity) }
   let(:mvi_profile) { build(:mvi_profile) }
   let(:mvi_codes) do
     {
@@ -32,12 +32,12 @@ describe MPIData, skip_mvi: true do
 
   describe '.new' do
     it 'creates an instance with user attributes' do
-      expect(mvi.user).to eq(user)
+      expect(mvi.user_identity).to eq(user.identity)
     end
   end
 
   describe '.historical_icn_for_user' do
-    subject { MPIData.historical_icn_for_user(user) }
+    subject { MPIData.historical_icn_for_user(user.identity) }
 
     let(:mpi_profile) { build(:mpi_profile_response, :with_historical_icns) }
 
@@ -61,7 +61,7 @@ describe MPIData, skip_mvi: true do
   end
 
   describe '#mvi_get_person_historical_icns' do
-    subject { MPIData.new(user).mvi_get_person_historical_icns }
+    subject { MPIData.new(user.identity).mvi_get_person_historical_icns }
 
     let(:mpi_profile) { build(:mpi_profile_response, :with_historical_icns) }
 
@@ -74,14 +74,55 @@ describe MPIData, skip_mvi: true do
     end
   end
 
-  describe '#mpi_add_person' do
+  describe '#add_person' do
     context 'with a successful add' do
+      let(:given_names) { %w[kitty puppy] }
+      let(:family_name) { 'banana' }
+      let(:birth_date) { '19801010' }
+      let(:icn_with_aaid) { 'some-icn-with-aaid' }
+      let(:edipi) { 'some-edipi' }
+      let(:search_token) { 'some-search_token' }
+      let(:gender) { 'M' }
+      let(:ssn) { '987654321' }
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              given_names: given_names,
+              family_name: family_name,
+              birth_date: birth_date,
+              icn_with_aaid: icn_with_aaid,
+              edipi: edipi,
+              search_token: search_token,
+              ssn: ssn,
+              gender: gender)
+      end
+      let(:expected_user_identity) do
+        build(:user_identity,
+              :loa3,
+              first_name: given_names.first,
+              middle_name: given_names.last,
+              last_name: family_name,
+              birth_date: birth_date,
+              icn_with_aaid: icn_with_aaid,
+              edipi: edipi,
+              search_token: search_token,
+              gender: gender,
+              ssn: ssn,
+              idme_uuid: user.idme_uuid)
+      end
+
+      it 'copies relevant results from orchestration search to fields for add person call' do
+        allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
+        allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
+        mvi.add_person
+        expect(mvi.user_identity.to_h).to include(expected_user_identity.to_h)
+      end
+
       it 'returns the successful response' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response)
         expect_any_instance_of(MPIData).to receive(:add_ids).once.and_call_original
         expect_any_instance_of(MPIData).to receive(:cache).once.and_call_original
-        response = user.mpi_add_person
+        response = mvi.add_person
         expect(response.status).to eq('OK')
       end
     end
@@ -89,7 +130,7 @@ describe MPIData, skip_mvi: true do
     context 'with a failed search' do
       it 'returns the failed search response' do
         allow_any_instance_of(MPI::Service).to receive(:find_profile).and_return(profile_response_error)
-        response = user.mpi_add_person
+        response = mvi.add_person
         expect_any_instance_of(MPI::Service).not_to receive(:add_person)
         expect(response.status).to eq('SERVER_ERROR')
       end
@@ -101,7 +142,7 @@ describe MPIData, skip_mvi: true do
         allow_any_instance_of(MPI::Service).to receive(:add_person).and_return(add_response_error)
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
-        response = user.mpi_add_person
+        response = mvi.add_person
         expect(response.status).to eq('SERVER_ERROR')
       end
     end
@@ -245,7 +286,7 @@ describe MPIData, skip_mvi: true do
   end
 
   describe '#add_ids' do
-    let(:mvi) { MPIData.for_user(user) }
+    let(:mvi) { MPIData.for_user(user.identity) }
     let(:response) do
       MPI::Responses::AddPersonResponse.new(
         status: 'OK',

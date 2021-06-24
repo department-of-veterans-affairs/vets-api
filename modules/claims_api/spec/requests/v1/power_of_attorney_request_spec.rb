@@ -93,6 +93,19 @@ RSpec.describe 'Power of Attorney ', type: :request do
           expect(JSON.parse(response.body)['errors'].size).to eq(1)
         end
       end
+
+      it 'doesn\'t allow additional fields' do
+        with_okta_user(scopes) do |auth_header|
+          params = json_data
+          params['data']['attributes']['someBadField'] = 'someValue'
+          post path, params: params.to_json, headers: headers.merge(auth_header)
+          expect(response.status).to eq(422)
+          expect(JSON.parse(response.body)['errors'].size).to eq(1)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The property /someBadField is not defined on the schema. Additional properties are not allowed'
+          )
+        end
+      end
     end
 
     describe '#check status' do
@@ -194,11 +207,21 @@ RSpec.describe 'Power of Attorney ', type: :request do
           Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
         end
 
+        let(:representative_info) do
+          {
+            name: 'Abraham Lincoln',
+            phone_number: '555-555-5555'
+          }
+        end
+
         it 'returns a 200' do
           with_okta_user(scopes) do |auth_header|
             allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
             expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
             expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
+            expect_any_instance_of(
+              ClaimsApi::V1::Forms::PowerOfAttorneyController
+            ).to receive(:build_representative_info).and_return(representative_info)
             get('/services/claims/v1/forms/2122/active',
                 params: nil, headers: headers.merge(auth_header))
 
@@ -216,6 +239,86 @@ RSpec.describe 'Power of Attorney ', type: :request do
             get('/services/claims/v1/forms/2122/active',
                 params: nil, headers: headers.merge(auth_header))
             expect(response.status).to eq(403)
+          end
+        end
+      end
+
+      describe 'additional POA info' do
+        before do
+          Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
+        end
+
+        context 'when representative is part of an organization' do
+          let(:user_types) { ['veteran_service_officer'] }
+
+          it "returns the organization's name and phone" do
+            with_okta_user(scopes) do |auth_header|
+              expect_any_instance_of(
+                ClaimsApi::V1::Forms::PowerOfAttorneyController
+              ).to receive(:validate_user_is_accredited!).and_return(nil)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+              expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
+              expect(::Veteran::Service::Representative).to receive(:where).and_return(
+                [OpenStruct.new(user_types: user_types)]
+              )
+              expect(::Veteran::Service::Organization).to receive(:find_by).and_return(
+                OpenStruct.new(name: 'Some Great Organization', phone: '555-555-5555')
+              )
+
+              get('/services/claims/v1/forms/2122/active', params: nil, headers: headers.merge(auth_header))
+
+              parsed = JSON.parse(response.body)
+
+              expect(response.status).to eq(200)
+              expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
+                .to eq('Some Great Organization')
+              expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
+                .to eq(nil)
+              expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
+                .to eq(nil)
+              expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
+                .to eq('555-555-5555')
+            end
+          end
+        end
+
+        context 'when representative is not part of an organization' do
+          let(:user_types) { [] }
+
+          it "returns the representative's name and phone" do
+            with_okta_user(scopes) do |auth_header|
+              expect_any_instance_of(
+                ClaimsApi::V1::Forms::PowerOfAttorneyController
+              ).to receive(:validate_user_is_accredited!).and_return(nil)
+              allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+              expect(bgs_poa_verifier).to receive(:current_poa).and_return(Struct.new(:code).new('HelloWorld'))
+              expect(bgs_poa_verifier).to receive(:previous_poa_code).and_return(nil)
+              allow(::Veteran::Service::Representative).to receive(:where).and_return(
+                [
+                  OpenStruct.new(
+                    first_name: 'Tommy',
+                    last_name: 'Testerson',
+                    phone: '555-555-5555',
+                    user_types: user_types
+                  )
+                ]
+              )
+
+              get('/services/claims/v1/forms/2122/active', params: nil, headers: headers.merge(auth_header))
+
+              parsed = JSON.parse(response.body)
+
+              expect(response.status).to eq(200)
+              expect(parsed['data']['attributes']['representative']['service_organization']['first_name'])
+                .to eq('Tommy')
+              expect(parsed['data']['attributes']['representative']['service_organization']['last_name'])
+                .to eq('Testerson')
+              expect(parsed['data']['attributes']['representative']['service_organization']['organization_name'])
+                .to eq(nil)
+              expect(parsed['data']['attributes']['representative']['service_organization']['phone_number'])
+                .to eq('555-555-5555')
+            end
           end
         end
       end

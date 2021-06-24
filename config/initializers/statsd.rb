@@ -93,15 +93,6 @@ StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.update_address.fail", 0)
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.policy.success", 0)
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.policy.failure", 0)
 
-# disability compenstation submissions
-StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.total", 0)
-StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.fail", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.try", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.success", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.retryable_error", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.non_retryable_error", 0)
-StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.exhausted", 0)
-
 # init caseflow
 StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
 StatsD.increment("#{Caseflow::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
@@ -147,8 +138,12 @@ StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.data, 0)
 StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
 StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 
-# init form 526
+# init form 526 - disability compenstation
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.total", 0)
+StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.fail", 0)
+
 %w[try success non_retryable_error retryable_error exhausted].each do |str|
+  StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm526::STATSD_KEY_PREFIX}.#{str}", 0)
   StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitUploads::STATSD_KEY_PREFIX}.#{str}", 0)
   StatsD.increment("#{CentralMail::SubmitForm4142Job::STATSD_KEY_PREFIX}.#{str}", 0)
   StatsD.increment("#{EVSS::DisabilityCompensationForm::SubmitForm0781::STATSD_KEY_PREFIX}.#{str}", 0)
@@ -157,6 +152,12 @@ StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 end
 StatsD.increment(Form526ConfirmationEmailJob::STATSD_ERROR_NAME, 0)
 StatsD.increment(Form526ConfirmationEmailJob::STATSD_SUCCESS_NAME, 0)
+
+# init Higher Level Review
+
+# Notice of Disagreement
+StatsD.increment("#{DecisionReview::SubmitUpload::STATSD_KEY_PREFIX}.success", 0)
+StatsD.increment("#{DecisionReview::SubmitUpload::STATSD_KEY_PREFIX}.error", 0)
 
 # init VaNotify
 StatsD.increment("#{VaNotify::Service::STATSD_KEY_PREFIX}.send_email.total", 0)
@@ -182,6 +183,10 @@ end
 StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
 
 ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_name, start_time, end_time, _id, payload|
+  payload_statuses = ["http_status:#{payload.status}"]
+  StatsD.increment('facilities.ppms.response.failures', tags: payload_statuses) unless payload.success?
+  StatsD.increment('facilities.ppms.response.total', tags: payload_statuses)
+
   duration = end_time - start_time
   measurement = case payload[:url].path
                 when /ProviderLocator/
@@ -200,16 +205,19 @@ ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_n
 
     if params['radius']
       tags << "facilities.ppms.radius:#{params['radius']}"
-      tags << "facilities.ppms.results:#{payload[:body]&.count || 0}"
+      tags << "facilities.ppms.results:#{payload[:body].is_a?(Array) ? payload[:body]&.count : 0}"
     end
 
     StatsD.measure(measurement, duration, tags: tags)
   end
 end
 
-ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, _|
-  duration = end_time - start_time
+ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, payload|
+  payload_statuses = ["http_status:#{payload.status}"]
+  StatsD.increment('facilities.lighthouse.response.failures', tags: payload_statuses) unless payload.success?
+  StatsD.increment('facilities.lighthouse.response.total', tags: payload_statuses)
 
+  duration = end_time - start_time
   StatsD.measure('facilities.lighthouse', duration, tags: ['facilities.lighthouse'])
 end
 
@@ -225,7 +233,11 @@ StatsD.increment('iam_ssoe_oauth.create_user_session.success', 0)
 StatsD.increment('iam_ssoe_oauth.create_user_session.failure', 0)
 StatsD.increment('iam_ssoe_oauth.inactive_session', 0)
 
-StatsD.increment('iam_ssoe_oauth.auth_type', 0)
+%w[IDME MHV DSL].each do |cred|
+  StatsD.increment(IAMSSOeOAuth::SessionManager::STATSD_OAUTH_SESSION_KEY, 0, tags: ['type:new', "credential:#{cred}"])
+  StatsD.increment(IAMSSOeOAuth::SessionManager::STATSD_OAUTH_SESSION_KEY, 0,
+                   tags: ['type:refresh', "credential:#{cred}"])
+end
 
 # init VEText Push Notifications
 VEText::Service.extend StatsD::Instrument
