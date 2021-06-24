@@ -14,6 +14,7 @@ module VBADocuments
     class UploadsController < ApplicationController
       include VBADocuments::UploadValidations
       skip_before_action(:authenticate)
+      before_action :verify_settings, only: [:download]
 
       def submit
         upload_model = UploadFile.new
@@ -37,6 +38,54 @@ module VBADocuments
         render json: upload_model,
                serializer: VBADocuments::V2::UploadSerializer, status: status
       end
+
+      def create
+        submission = VBADocuments::UploadSubmission.create(
+            consumer_name: request.headers['X-Consumer-Username'],
+            consumer_id: request.headers['X-Consumer-ID']
+        )
+
+        render status: :accepted,
+               json: submission,
+               serializer: VBADocuments::V1::UploadSerializer,
+               render_location: true
+      end
+
+      def show
+        submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
+
+        if submission.nil?
+          raise Common::Exceptions::RecordNotFound, params[:id]
+        elsif Settings.vba_documents.enable_status_override && request.headers['Status-Override']
+          submission.status = request.headers['Status-Override']
+          submission.save
+        else
+          submission.refresh_status! unless submission.status == 'expired'
+        end
+
+        render json: submission,
+               serializer: VBADocuments::V1::UploadSerializer,
+               render_location: false
+      end
+
+      def download
+        submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
+
+        zip_file_name = VBADocuments::PayloadManager.zip(submission)
+
+        File.open(zip_file_name, 'r') do |f|
+          send_data f.read, filename: "#{submission.guid}.zip", type: 'application/zip'
+        end
+
+        File.delete(zip_file_name)
+      end
+
+      private
+
+      def verify_settings
+        render plain: 'Not found', status: :not_found unless Settings.vba_documents.enable_download_endpoint
+      end
+
     end
   end
 end
