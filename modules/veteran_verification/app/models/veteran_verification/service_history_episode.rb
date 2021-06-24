@@ -46,14 +46,19 @@ module VeteranVerification
     end
 
     def self.episodes(emis, user)
-      emis.service_episodes_by_date.map do |episode|
+      episodes = emis.service_episodes_by_begin_date.reverse
+      deployments = emis.deployments.sort_by { |ep| ep.begin_date || Time.zone.today + 3650 }.reverse
+      episodes.map do |episode|
+        deployments_for_episode, deployments = deployments.partition do |dep|
+          (dep.begin_date >= episode.begin_date) && (episode.end_date.nil? || dep.end_date <= episode.end_date)
+        end
         ServiceHistoryEpisode.new(
           id: episode_identifier(episode, user),
           first_name: user.first_name,
           last_name: user.last_name,
           branch_of_service: emis.build_service_branch(episode),
           end_date: episode.end_date,
-          deployments: deployments(emis, episode),
+          deployments: deployments(deployments_for_episode),
           discharge_type: episode.discharge_character_of_service_code,
           start_date: episode.begin_date,
           pay_grade: build_pay_grade(episode),
@@ -69,11 +74,7 @@ module VeteranVerification
       )
     end
 
-    def self.deployments(emis, episode)
-      deployments_for_episode = emis.deployments.select do |dep|
-        (dep.begin_date >= episode.begin_date) && (dep.end_date <= episode.end_date)
-      end
-
+    def self.deployments(deployments_for_episode)
       deployments_for_episode.map do |dep|
         {
           start_date: dep.begin_date,

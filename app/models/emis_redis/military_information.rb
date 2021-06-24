@@ -329,6 +329,14 @@ module EMISRedis
       end.call
     end
 
+    # @return [Array<EMIS::Models::MilitaryServiceEpisode>] Cached
+    #  array of veteran's military service episodes sorted by begin_date
+    def service_episodes_by_begin_date
+      @service_episodes_by_date ||= lambda do
+        military_service_episodes.sort_by { |ep| ep.begin_date || Time.zone.today + 3650 }
+      end.call
+    end
+
     # @return [Array<Hash>] Veteran's military service episodes sorted by date
     #  in hash format including data about branch of service, date range,
     #  and personnel category codes
