@@ -122,6 +122,9 @@ features:
   facility_locator_ppms_legacy_urgent_care_to_pos_locator:
     actor_type: user
     description: force the legacy urgent care path to use the new POS locator
+  facility_locator_ppms_use_secure_api:
+    actor_type: user
+    description: Use the new secure ppms api with new auth headers
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
@@ -147,6 +150,9 @@ features:
     actor_type: user
     description: Enhances Find A Forms MVP.
     enable_in_development: true
+  file_upload_short_workflow_enabled:
+    actor_type: user
+    description: Enables shorter workflow enhancement for file upload component
   form10182_nod:
     actor_type: user
     description: Form 10182 Notice of Disagreement - Request a board appeal
@@ -250,6 +256,10 @@ features:
     actor_type: user
     description: Enables the Wizard for VA Form 5655 (Financial Status Report)
     enable_in_development: true
+  show_medical_copays:
+    actor_type: user
+    description: Enables the medical copays application on route /manage-va-debt/medical-copays/
+    enable_in_development: true
   show_healthcare_experience_questionnaire:
     actor_type: cookie_id
     description: Enables showing the pre-appointment questionnaire feature.
@@ -307,10 +317,6 @@ features:
   va_online_scheduling_cancel:
     actor_type: user
     description: Allows veterans to cancel VA appointments
-    enable_in_development: true
-  va_online_scheduling_cheetah:
-    actor_type: user
-    description: Enables Project Cheetah discovery work
     enable_in_development: true
   va_online_scheduling_community_care:
     actor_type: user

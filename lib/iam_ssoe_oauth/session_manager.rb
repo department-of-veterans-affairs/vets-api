@@ -4,6 +4,8 @@ require 'iam_ssoe_oauth/service'
 
 module IAMSSOeOAuth
   class SessionManager
+    STATSD_OAUTH_SESSION_KEY = 'iam_ssoe_oauth.session'
+
     def initialize(access_token)
       @access_token = access_token
       @session = IAMSession.find(access_token)
@@ -48,7 +50,9 @@ module IAMSSOeOAuth
       user_identity = build_identity(iam_profile)
       session = build_session(@access_token, user_identity)
       user = build_user(user_identity)
+      handle_nil_user(user_identity) if user.nil?
       validate_user(user)
+      log_session_info(iam_profile, user_identity, @access_token)
       persist(session, user)
     rescue Common::Exceptions::Unauthorized => e
       Rails.logger.error('IAMUser create user session: unauthorized', error: e.message)
@@ -96,6 +100,35 @@ module IAMSSOeOAuth
 
     def iam_ssoe_service
       IAMSSOeOAuth::Service.new
+    end
+
+    def log_session_info(iam_profile, identity, token)
+      session_type = (newly_authenticated?(iam_profile) ? 'new' : 'refresh')
+      credential_type = iam_profile[:fediamauth_n_type]
+      log_attrs = {
+        user_uuid: identity.uuid,
+        secid: identity.iam_sec_id,
+        token: Session.obscure_token(token),
+        credential_type: credential_type,
+        session_type: session_type
+      }
+      Rails.logger.info('IAM SSOe OAuth: Session established', log_attrs)
+      StatsD.increment(STATSD_OAUTH_SESSION_KEY, tags: ["type:#{session_type}", "credential:#{credential_type}"])
+    end
+
+    def newly_authenticated?(iam_profile)
+      auth_instant = DateTime.strptime(iam_profile[:fediam_authentication_instant])
+      token_instant = Time.at(iam_profile[:iat]).utc.to_datetime
+      auth_instant + 10.minutes > token_instant
+    rescue => e
+      Rails.logger.error("IAM SSOe OAuth: Error parsing token time: #{e.message}")
+      false
+    end
+
+    def handle_nil_user(user_identity)
+      Rails.logger.error('IAMSSOeOAuth::SessionManager built a nil user',
+                         sign_in_method: user_identity&.sign_in, user_identity_icn: user_identity&.icn)
+      raise Common::Exceptions::Unauthorized, detail: 'User is nil'
     end
   end
 end
