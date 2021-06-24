@@ -1,0 +1,62 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://vaausvrsapp81.aac.va.gov/VIERSService/eMIS/v2/MilitaryInformationService
+    body:
+      encoding: ASCII-8BIT
+      string: |2
+
+        <soap:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:v1="http://viers.va.gov/cdi/CDI/commonService/v2" xmlns:v12="http://viers.va.gov/cdi/eMIS/RequestResponse/v2" xmlns:v13="http://viers.va.gov/cdi/eMIS/commonService/v2" xmlns:v11="http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2">
+          <soap:Header>
+            <v1:inputHeaderInfo>
+              <v1:userId>vets.gov</v1:userId>
+              <v1:sourceSystemName>vets.gov</v1:sourceSystemName>
+              <v1:transactionId>9eac7549-8c2e-4f83-8a5a-b33d326b0a6e</v1:transactionId>
+            </v1:inputHeaderInfo>
+          </soap:Header>
+          <soap:Body>
+            <v11:eMISserviceEpisodeRequest>
+              <v12:edipiORicn>
+                <v13:edipiORicnValue>1007697216</v13:edipiORicnValue>
+                <v13:inputType>EDIPI</v13:inputType>
+              </v12:edipiORicn>
+            </v11:eMISserviceEpisodeRequest>
+          </soap:Body>
+        </soap:Envelope>
+    headers:
+      Accept:
+      - text/xml;charset=UTF-8
+      Content-Type:
+      - application/soap+xml;charset=UTF-8
+      User-Agent:
+      - Vets.gov Agent
+      Soapaction:
+      - http://viers.va.gov/cdi/eMIS/getMilitaryServiceEpisodes/v2
+      Date:
+      - Wed, 27 Nov 2019 19:29:58 GMT
+      Content-Length:
+      - '949'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 27 Nov 2019 19:30:00 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux)
+      Content-Length:
+      - '2246'
+      Cache-Control:
+      - max-age=0, no-store
+      Content-Type:
+      - application/soap+xml;charset=utf-8
+    body:
+      encoding: UTF-8
+      string: <?xml version="1.0" encoding="utf-8"?> <NS1:Envelope xmlns:NS1="http://www.w3.org/2003/05/soap-envelope"> <NS1:Header> <NS2:essResponseCode xmlns:NS2="http://va.gov/ess/message/v1">Success</NS2:essResponseCode> <NS3:inputHeaderInfo xmlns:NS3="http://viers.va.gov/cdi/CDI/commonService/v2"> <NS3:userId>vets.gov</NS3:userId> <NS3:sourceSystemName>vets.gov</NS3:sourceSystemName> <NS3:transactionId>9eac7549-8c2e-4f83-8a5a-b33d326b0a6e</NS3:transactionId> </NS3:inputHeaderInfo> </NS1:Header> <NS1:Body> <NS4:eMISserviceEpisodeResponse xmlns:NS4="http://viers.va.gov/cdi/eMIS/RequestResponse/MilitaryInfo/v2"> <NS5:militaryServiceEpisode xmlns:NS5="http://viers.va.gov/cdi/eMIS/RequestResponse/v2"> <NS6:edipi xmlns:NS6="http://viers.va.gov/cdi/eMIS/commonService/v2">1007697216</NS6:edipi> <NS7:keyData xmlns:NS7="http://viers.va.gov/cdi/eMIS/commonService/v2"> <NS7:personnelOrganizationCode>51</NS7:personnelOrganizationCode> <NS7:personnelCategoryTypeCode>N</NS7:personnelCategoryTypeCode> <NS7:personnelSegmentIdentifier>1</NS7:personnelSegmentIdentifier> </NS7:keyData> <NS8:militaryServiceEpisodeData xmlns:NS8="http://viers.va.gov/cdi/eMIS/commonService/v2"> <NS8:serviceEpisodeStartDate>2010-02-02</NS8:serviceEpisodeStartDate> <NS8:serviceEpisodeEndDate>2016-12-01</NS8:serviceEpisodeEndDate> <NS8:serviceEpisodeTerminationReason>S</NS8:serviceEpisodeTerminationReason> <NS8:branchOfServiceCode>A</NS8:branchOfServiceCode> <NS8:dischargeCharacterOfServiceCode>B</NS8:dischargeCharacterOfServiceCode> <NS8:personnelStatusChangeTransactionTypeCode>343</NS8:personnelStatusChangeTransactionTypeCode> <NS8:narrativeReasonForSeparationCode>999</NS8:narrativeReasonForSeparationCode> <NS8:narrativeReasonForSeparationTxt>UNKNOWN</NS8:narrativeReasonForSeparationTxt> <NS8:mgadLossCategoryCode>11</NS8:mgadLossCategoryCode> <NS8:payPlanCode>MW</NS8:payPlanCode> <NS8:payGradeCode>04</NS8:payGradeCode> <NS8:serviceRankNameCode>CW4</NS8:serviceRankNameCode> <NS8:serviceRankNameTxt>Chief Warrant Officer</NS8:serviceRankNameTxt> <NS8:payGradeDate>2010-02-02</NS8:payGradeDate> <NS8:activeDutyServiceAgreementQuantity>1</NS8:activeDutyServiceAgreementQuantity> </NS8:militaryServiceEpisodeData> </NS5:militaryServiceEpisode> <NS5:militaryServiceEpisode xmlns:NS5="http://viers.va.gov/cdi/eMIS/RequestResponse/v2"> <NS6:edipi xmlns:NS6="http://viers.va.gov/cdi/eMIS/commonService/v2">1007697216</NS6:edipi> <NS7:keyData xmlns:NS7="http://viers.va.gov/cdi/eMIS/commonService/v2"> <NS7:personnelOrganizationCode>51</NS7:personnelOrganizationCode> <NS7:personnelCategoryTypeCode>N</NS7:personnelCategoryTypeCode> <NS7:personnelSegmentIdentifier>1</NS7:personnelSegmentIdentifier> </NS7:keyData> <NS8:militaryServiceEpisodeData xmlns:NS8="http://viers.va.gov/cdi/eMIS/commonService/v2"> <NS8:serviceEpisodeStartDate>2002-02-02</NS8:serviceEpisodeStartDate> <NS8:serviceEpisodeTerminationReason>S</NS8:serviceEpisodeTerminationReason> <NS8:branchOfServiceCode>A</NS8:branchOfServiceCode> <NS8:dischargeCharacterOfServiceCode>B</NS8:dischargeCharacterOfServiceCode> <NS8:personnelStatusChangeTransactionTypeCode>343</NS8:personnelStatusChangeTransactionTypeCode> <NS8:narrativeReasonForSeparationCode>999</NS8:narrativeReasonForSeparationCode> <NS8:narrativeReasonForSeparationTxt>UNKNOWN</NS8:narrativeReasonForSeparationTxt> <NS8:mgadLossCategoryCode>11</NS8:mgadLossCategoryCode> <NS8:payPlanCode>MW</NS8:payPlanCode> <NS8:payGradeCode>04</NS8:payGradeCode> <NS8:serviceRankNameCode>CW4</NS8:serviceRankNameCode> <NS8:serviceRankNameTxt>Chief Warrant Officer</NS8:serviceRankNameTxt> <NS8:payGradeDate>2002-02-02</NS8:payGradeDate> <NS8:activeDutyServiceAgreementQuantity>1</NS8:activeDutyServiceAgreementQuantity> </NS8:militaryServiceEpisodeData> </NS5:militaryServiceEpisode> </NS4:eMISserviceEpisodeResponse> </NS1:Body> </NS1:Envelope>
+    http_version: 
+  recorded_at: Wed, 27 Nov 2019 19:29:59 GMT
+recorded_with: VCR 3.0.3
