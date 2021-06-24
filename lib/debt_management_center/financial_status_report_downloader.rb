@@ -5,7 +5,7 @@ require 'uri'
 
 module DebtManagementCenter
   class FinancialStatusReportDownloader
-    class FilenetIdNotProvided < StandardError; end
+    class FilenetIdNotPresent < StandardError; end
 
     def initialize(financial_status_report)
       @financial_status_report = financial_status_report
@@ -14,7 +14,7 @@ module DebtManagementCenter
     def download_pdf
       id = @financial_status_report.filenet_id
 
-      raise FilenetIdNotProvided if id.blank?
+      raise FilenetIdNotPresent if id.blank?
 
       uri = URI.parse(
         "#{Settings.dmc.url}financial-status-report/documentstream?objectId=#{id}"

@@ -17,7 +17,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportDownloader do
       it 'raises an error' do
         subject = described_class.new(fsr)
         expect { subject.download_pdf }.to raise_error do |error|
-          expect(error).to be_instance_of(described_class::FilenetIdNotProvided)
+          expect(error).to be_instance_of(described_class::FilenetIdNotPresent)
         end
       end
     end
@@ -27,7 +27,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportDownloader do
 
       it 'raises an error' do
         expect { subject.download_pdf }.to raise_error do |error|
-          expect(error).to be_instance_of(described_class::FilenetIdNotProvided)
+          expect(error).to be_instance_of(described_class::FilenetIdNotPresent)
         end
       end
     end
@@ -38,7 +38,7 @@ RSpec.describe DebtManagementCenter::FinancialStatusReportDownloader do
       it 'raises an error' do
         subject = described_class.new(fsr)
         expect { subject.download_pdf }.to raise_error do |error|
-          expect(error).to be_instance_of(described_class::FilenetIdNotProvided)
+          expect(error).to be_instance_of(described_class::FilenetIdNotPresent)
         end
       end
     end
