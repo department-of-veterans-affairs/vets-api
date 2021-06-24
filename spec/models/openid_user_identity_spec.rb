@@ -28,7 +28,7 @@ RSpec.describe OpenidUserIdentity, type: :model do
         okta_response = okta_service.user('00u1zlqhuo3yLa2Xs2p7')
         profile = Okta::UserProfile.new(okta_response.body['profile'])
         identity = OpenidUserIdentity.build_from_okta_profile(uuid: 'abc123', profile: profile, ttl: some_ttl)
-        expect(identity.uuid).to eq('ae9ff5f4e4b741389904087d94cd19b2')
+        expect(identity.uuid).to eq('abc123')
         expect(identity.first_name).to eq('KELLY')
         expect(identity.last_name).to eq('CARROLL')
         expect(identity.middle_name).to eq('D')

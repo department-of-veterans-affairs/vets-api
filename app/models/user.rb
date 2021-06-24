@@ -230,21 +230,6 @@ class User < Common::RedisStore
     mpi_profile != nil
   end
 
-  def va_profile
-    mpi.profile
-  end
-  deprecate :va_profile, :none, 2021, 5
-
-  def va_profile_error
-    mpi.error
-  end
-  deprecate :va_profile_error, :mpi_error, 2021, 5
-
-  def va_profile_status
-    mpi.status
-  end
-  deprecate :va_profile_status, :mpi_status, 2021, 5
-
   # MPI setter methods
 
   def set_mhv_ids(mhv_id)

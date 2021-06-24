@@ -106,9 +106,35 @@ RSpec.configure do |config|
         securitySchemes: {
           bearer_token: {
             type: :http,
-            name: :token,
-            scheme: :bearer,
-            bearer_format: :JWT
+            scheme: :bearer
+          },
+          productionOauth: {
+            type: :oauth2,
+            description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://api.va.gov/oauth2/authorization',
+                tokenUrl: 'https://api.va.gov/oauth2/token',
+                scopes: {
+                  'claim.read': 'Retrieve claim data',
+                  'claim.write': 'Submit claim data'
+                }
+              }
+            }
+          },
+          sandboxOauth: {
+            type: :oauth2,
+            description: 'This API uses OAuth 2 with the authorization code grant flow. [More info](https://developer.va.gov/explore/authorization?api=claims)',
+            flows: {
+              authorizationCode: {
+                authorizationUrl: 'https://sandbox-api.va.gov/oauth2/authorization',
+                tokenUrl: 'https://sandbox-api.va.gov/oauth2/token',
+                scopes: {
+                  'claim.read': 'Retrieve claim data',
+                  'claim.write': 'Submit claim data'
+                }
+              }
+            }
           }
         }
       },

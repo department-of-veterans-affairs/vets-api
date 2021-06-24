@@ -172,10 +172,12 @@ components:
       properties:
         id:
           description: JSON API identifier
+          nullable: false
           type: string
           example: 12303
         type:
           description: JSON API type specification
+          nullable: false
           type: string
           example: 'disability-rating'
         attributes:
@@ -191,14 +193,17 @@ components:
       properties:
         combined_disability_rating:
           description: Overall severity rating determined by VA calculation of each service related conditions. Used to help determine disability compensation (pay) and related benefits.
+          nullable: true
           type: integer
           example: 100
         combined_effective_date:
           description: The effective date of the latest combined disability rating for the Veteran
+          nullable: true
           type: datetime
           example: "2018-03-27T21:00:41.000+0000"
         legal_effective_date:
           description: When the Veteran could begin claiming benefits for combined disability rating
+          nullable: true
           type: datetime
           example: "2018-03-27T21:00:41.000+0000"
         individual_ratings:
@@ -215,15 +220,18 @@ components:
       properties:
         decision:
           description: Whether the disability is service connected or not.
+          nullable: true
           type: string
           example: 'Service Connected'
         effective_date:
           description: When the Veteran could begin claiming benefits related to this disability
+          nullable: true
           type: string
           format: datetime
           example: "2018-03-27T21:00:41.000+0000"
         rating_percentage:
           description: Severity rating determined by VA that indicates how disabling an illness or injury is for the Veteran. Used to help determine disability compensation (pay) and related benefits.
+          nullable: true
           type: number
           example: 50
     DisabilityRatingToken:
@@ -256,10 +264,14 @@ components:
     ServiceHistoryEpisode:
       description: |
         Service History for authorized Veteran
+      required:
+        - id
+        - attributes
       type: object
       properties:
         id:
           type: string
+          nullable: false
           description: Service History Episode ID
           example: "12312AASDf"
         type:
@@ -267,31 +279,47 @@ components:
           example: service-history-episodes
         attributes:
           type: object
+          required:
+            - first_name
+            - last_name
+            - start_date
+            - end_date
+            - branch_of_service
+            - pay_grade
+            - discharge_status
+            - separation_reason
+            - deployments
           properties:
             first_name:
               type: string
+              nullable: false
               description: Veteran first name
               example: "Abraham"
             last_name:
               type: string
+              nullable: false
               description: Veteran last name
               example: "Lincoln"
             start_date:
               type: string
+              nullable: true
               format: date
               description: start date of a service history episode (YYYY-mm-dd)
               example: '1948-04-08'
             end_date:
               type: string
+              nullable: true
               format: date
               description: end date of a service history episode (YYYY-mm-dd)
               example: '1950-05-10'
-            branch:
+            branch_of_service:
               type: string
+              nullable: false
               description: Branch of military including National Guard or Reserve status
               example: "Air Force"
             pay_grade:
               type: string
+              nullable: false
               description: |
                 Defines the level of compensation for a position, normalized across military branches
 
@@ -308,6 +336,7 @@ components:
               example: "W01"
             discharge_status:
               type: string
+              nullable: true
               description: |
                 Character of discharge from service episode. Possible values are:
 
@@ -326,6 +355,7 @@ components:
               example: honorable
             separation_reason:
               type: string
+              nullable: false
               description: Additional text description for separation reason beyond discharge_status value
               example: "SUFFICIENT SERVICE FOR RETIREMENT"
             deployments:
@@ -336,19 +366,26 @@ components:
       description: |
         Deployment during a service history episode
       type: object
+      required:
+        - start_date
+        - end_date
+        - location
       properties:
         start_date:
           type: string
+          nullable: true
           format: date
           description: beginning of deployment (YYYY-mm-dd)
           example: '1948-10-10'
         end_date:
           type: string
+          nullable: true
           format: date
           description: end of deployment (YYYY-mm-dd)
           example: '1949-10-09'
         location:
           type: string
+          nullable: true
           description: Three letter ISO country code of deployment location
           example: KOR
     ServiceHistoryToken:
