@@ -226,6 +226,16 @@ class User < Common::RedisStore
 
   # MPI setter methods
 
+  def mpi_add_person
+    add_person_identity = identity
+    add_person_identity.edipi = edipi
+    add_person_identity.ssn = ssn
+    add_person_identity.icn_with_aaid = icn_with_aaid
+    add_person_identity.search_token = search_token
+    mpi.user_identity = add_person_identity
+    mpi.add_person
+  end
+
   def set_mhv_ids(mhv_id)
     mpi_profile.mhv_ids = [mhv_id] + mhv_ids
     mpi_profile.active_mhv_ids = [mhv_id] + active_mhv_ids
@@ -382,10 +392,6 @@ class User < Common::RedisStore
     false
   end
 
-  def mpi
-    @mpi ||= MPIData.for_user(identity)
-  end
-
   # A user can have served in the military without being a veteran.  For example,
   # someone can be ex-military by having a discharge status higher than
   # 'Other Than Honorable'.
@@ -411,7 +417,7 @@ class User < Common::RedisStore
   private
 
   def mpi
-    @mpi ||= MPIData.for_user(self)
+    @mpi ||= MPIData.for_user(identity)
   end
 
   def mpi_profile
