@@ -6,7 +6,7 @@ module PagerDuty
   class PollMaintenanceWindows
     include Sidekiq::Worker
     include SentryLogging
-    sidekiq_options retry: 1
+    sidekiq_options retry: 1, queue: 'critical'
 
     MESSAGE_INDICATOR = 'USER_MESSAGE:'
 
