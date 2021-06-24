@@ -296,11 +296,15 @@ class User < Common::RedisStore
   # User's profile contains a list of VHA facility-specific identifiers.
   # Facilities in the defined range are treating facilities
   def va_treatment_facility_ids
-    facilities = mpi_profile&.vha_facility_ids
-    facilities.to_a.select do |f|
+    facilities = vha_facility_ids
+    facilities.select do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
         Settings.mhv.facility_specific.include?(f)
     end
+  end
+
+  def vha_facility_ids
+    mpi_profile&.vha_facility_ids || []
   end
 
   def can_access_id_card?

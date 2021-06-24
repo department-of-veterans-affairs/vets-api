@@ -25,7 +25,7 @@ module HealthQuest
           user_uuid: current_user&.uuid,
           user_icn: current_user&.icn,
           loa: current_user&.loa,
-          facilities: current_user&.mpi_profile&.vha_facility_ids || [],
+          facilities: current_user&.vha_facility_ids,
           controller_name: controller_name,
           controller_action: action_name,
           request_info: {

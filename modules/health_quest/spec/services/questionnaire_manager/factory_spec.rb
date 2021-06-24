@@ -14,7 +14,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
       account_uuid: 'abc123',
       uuid: '789defg',
       loa: 3,
-      mpi_profile: double('Facility', vha_facility_ids: ['1'])
+      vha_facility_ids: ['1']
     )
   end
   let(:session_store) { double('SessionStore', token: '123abc') }
