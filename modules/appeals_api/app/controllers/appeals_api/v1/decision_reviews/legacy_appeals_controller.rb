@@ -13,8 +13,6 @@ class AppealsApi::V1::DecisionReviews::LegacyAppealsController < AppealsApi::App
 
   def index
     get_legacy_appeals_from_caseflow
-
-    render_response(caseflow_response)
   end
 
   private
@@ -51,5 +49,9 @@ class AppealsApi::V1::DecisionReviews::LegacyAppealsController < AppealsApi::App
     return if validation_errors.empty?
 
     render json: { errors: validation_errors }, status: :unprocessable_entity unless validation_errors.empty?
+  end
+
+  def render_unusable_response_error
+    render json: { error: {title: 'Bad Gateway', detail: I18n.t('appeals_api.errors.caseflow_bad_gateway'), status: 502} }
   end
 end
