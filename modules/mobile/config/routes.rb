@@ -51,6 +51,11 @@ Mobile::Engine.routes.draw do
           post :reply, on: :member
           resources :attachments, only: [:show], defaults: { format: :json }
         end
+
+        resources :message_drafts, only: %i[create update], defaults: { format: :json } do
+          post ':reply_id/replydraft', on: :collection, action: :create_reply_draft, as: :create_reply
+          put ':reply_id/replydraft/:draft_id', on: :collection, action: :update_reply_draft, as: :update_reply
+        end
       end
     end
   end
