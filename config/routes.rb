@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'flipper/admin_user_constraint'
-require 'github_authentication/sidekiq_web'
 
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
@@ -392,13 +391,14 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   # End Modules
 
-  if Rails.env.development? || Settings.sidekiq_admin_panel
-    require 'sidekiq/web'
-    require 'sidekiq-scheduler/web'
-    require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
-    require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
-    mount Sidekiq::Web, at: '/sidekiq'
+  require 'sidekiq/web'
+  require 'sidekiq-scheduler/web'
+  require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
+  require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
+  require 'github_authentication/sidekiq_web'
+  mount Sidekiq::Web, at: '/sidekiq'
 
+  unless Rails.env.development? || Settings.sidekiq_admin_panel
     Sidekiq::Web.register GithubAuthentication::SidekiqWeb
 
     Sidekiq::Web.use Warden::Manager do |config|
