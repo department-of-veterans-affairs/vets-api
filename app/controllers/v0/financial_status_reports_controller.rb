@@ -6,6 +6,8 @@ module V0
   class FinancialStatusReportsController < ApplicationController
     before_action { authorize :debt, :access? }
 
+    rescue_from ::DebtManagementCenter::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found
+
     def create
       render(
         json: service.submit_financial_status_report(
@@ -24,6 +26,10 @@ module V0
     end
 
     private
+
+    def render_not_found
+      render json: nil, status: :not_found
+    end
 
     def full_name
       %i[first middle last]
