@@ -25,8 +25,8 @@ module GithubAuthentication
         next if current_path == 'unauthenticated'
 
         warden.authenticate!
-        github_organization_authenticate! Settings.sidekiq_github_organization
-        github_team_authenticate! Settings.sidekiq_github_team if Settings.sidekiq_github_team.present?
+        github_organization_authenticate! Settings.sidekiq.github_organization
+        github_team_authenticate! Settings.sidekiq.github_team
       end
 
       app.get('/unauthenticated') { [403, {}, [warden.message || '']] }
