@@ -3,7 +3,7 @@ require 'json_schemer'
 require 'uri'
 
 module VBADocuments
-  module LoacationValidations
+  module LocationValidations
     SUPPORTED_EVENTS = %w(gov.va.developer.benefits.status_change)
 
     # perhaps we should consider a json validator?

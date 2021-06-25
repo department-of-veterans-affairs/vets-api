@@ -14,7 +14,7 @@ module VBADocuments
   module V2
     class UploadsController < ApplicationController
       include VBADocuments::UploadValidations
-      include VBADocuments::LoacationValidations
+      include VBADocuments::LocationValidations
       skip_before_action(:authenticate)
       before_action :verify_settings, only: [:download]
 
