@@ -7,6 +7,7 @@ module DebtManagementCenter
     redis_key :uuid
 
     validates :uuid, presence: true
+    validates :filenet_id, presence: true
 
     attribute :uuid
     attribute :filenet_id
