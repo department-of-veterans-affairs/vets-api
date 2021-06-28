@@ -1034,3 +1034,11 @@ github_cvu:
 pg_hero:
   username: ~
   password: ~
+
+check_in:
+  chip_api:
+    url: ~
+    host: ~
+    mock: false
+    key_path: ~
+    timeout: 30

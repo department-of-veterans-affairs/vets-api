@@ -151,3 +151,11 @@ hqva_mobile:
       - "patient/Location.read"
       - "patient/Organization.read"
       - "patient/Patient.read"
+
+check_in:
+  chip_api:
+    url: ~
+    host: ~
+    mock: false
+    key_path: ~
+    timeout: 30
