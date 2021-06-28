@@ -404,7 +404,7 @@ Rails.application.routes.draw do
     config.failure_app = Sidekiq::Web
     config.default_strategies :github
     config.scope_defaults :default, config: {
-      client_id: Settings.sidekiq.oauth_github_key,
+      client_id: Settings.sidekiq.github_oauth_key,
       client_secret: Settings.sidekiq.github_oauth_secret,
       scope: 'read:org',
       redirect_uri: 'sidekiq/auth/github/callback'
