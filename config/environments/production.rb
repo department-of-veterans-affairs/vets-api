@@ -77,22 +77,7 @@ Rails.application.configure do
                                        end
 
   # Use a different cache store in production.
-  if Rails.env.production? && Settings.vsp_environment == 'production' && Settings.hostname == 'api.va.gov'
-    config.cache_store = :redis_cache_store, { url: Settings.redis.rails_cache.url, expires_in: 30.minutes }
-  else
-    config.cache_store = :redis_cache_store, { url: Settings.redis.rails_cache.url,
-                                               read_timeout: 0.2,
-                                               write_timeout: 0.2,
-                                               reconnect_attempts: 1,
-                                               expires_in: 30.minutes,
-                                               error_handler: ->(method:, returning:, exception:) { # rubocop:disable Style/Lambda
-                                                 Raven.capture_exception(
-                                                   exception,
-                                                   level: 'warning',
-                                                   tags: { method: method, returning: returning }
-                                                 )
-                                               } }
-  end
+  config.cache_store = :redis_cache_store, { url: Settings.redis.rails_cache.url, expires_in: 30.minutes }
 
   config.action_mailer.perform_caching = false
 
