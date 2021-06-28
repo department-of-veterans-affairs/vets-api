@@ -17,7 +17,8 @@ module ClaimsApi
         user_is_a_veteran_rep = current_user_is_a_veteran_representative?(@current_user)
         raise ::Common::Exceptions::Forbidden unless user_is_the_veteran || user_is_a_veteran_rep
 
-        render partial: 'find', locals: { id: veteran.mpi.icn }
+        render json: { id: veteran.mpi.icn }
+        # render partial: 'find', locals: { id: veteran.mpi.icn }
       end
 
       private
