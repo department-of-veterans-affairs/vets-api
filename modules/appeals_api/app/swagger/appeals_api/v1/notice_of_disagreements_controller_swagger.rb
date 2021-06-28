@@ -25,7 +25,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     status: 500
   }.freeze
 
-  nod_json_schema = AppealsApi::V1::NodJsonSchemaHelper.new
+  nod_json_schema = AppealsApi::V1::NodJsonSchemaSwaggerHelper.new
 
   swagger_path '/notice_of_disagreements' do
     operation :post, tags: NOD_TAG do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AppealsApi::V1::NodJsonSchemaHelper
+class AppealsApi::V1::NodJsonSchemaSwaggerHelper
   def params
     headers_swagger = AppealsApi::JsonSchemaToSwaggerConverter.new(headers_json_schema).to_swagger
     header_schemas = headers_swagger['components']['schemas']
