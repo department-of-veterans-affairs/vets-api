@@ -46,7 +46,7 @@ This job failed at: #{Time.zone.at(params['failed_at'])}, and #{retried_at(param
       end
 
       def slack_api_token
-        Settings.modules_appeals_api.slack.api_token
+        Settings.modules_appeals_api.slack.api_key
       end
     end
   end
