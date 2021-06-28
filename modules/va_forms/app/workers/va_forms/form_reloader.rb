@@ -22,8 +22,7 @@ module VAForms
         build_and_save_form(form)
       rescue => e
         log_message_to_sentry(
-          "#{form['fieldVaFormNumber']} failed to import into forms database",
-          :error, body: e.message
+          "#{form['fieldVaFormNumber']} failed to import into forms database", :error, body: e.message
         )
         next
       end
@@ -60,11 +59,15 @@ module VAForms
       attrs = init_attributes(form)
       new_url = form['fieldVaFormUrl']['uri']
       stored_url = VAForms::Form.where(row_id: form['fieldVaFormRowId']).select('url').first&.url
-      notify_slack(new_url, stored_url, form['fieldVaFormNumber']) if stored_url != new_url
       va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
+      normalized_url = Addressable::URI.parse(va_form_url).normalize.to_s
+      if stored_url != normalized_url && stored_url.present?
+        notify_slack(normalized_url,
+                     stored_url, form['fieldVaFormNumber'])
+      end
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
-      attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
+      attrs[:url] = normalized_url
       attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
       attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
       va_form.assign_attributes(attrs)

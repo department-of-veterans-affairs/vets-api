@@ -37,7 +37,7 @@ gem 'sass-rails', '>= 6'
 # Anchored versions, do not change
 gem 'puma', '~> 5.3.2'
 gem 'puma-plugin-statsd', '~> 1.2.1'
-gem 'rails', '~> 6.0.3'
+gem 'rails', '~> 6.1.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', git: 'https://github.com/department-of-veterans-affairs/active_model_serializers', branch: 'master'
@@ -45,7 +45,7 @@ gem 'sidekiq-scheduler', '~> 3.1' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
-gem 'activerecord-postgis-adapter', '~> 6.0.0'
+gem 'activerecord-postgis-adapter'
 gem 'addressable'
 gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
@@ -53,6 +53,7 @@ gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
 gem 'breakers'
+gem 'bootsnap', require: false
 gem 'carrierwave'
 gem 'carrierwave-aws'
 gem 'clam_scan'
@@ -117,12 +118,13 @@ gem 'rack'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
 gem 'rails-session_cookie'
-gem 'rails_semantic_logger', '~> 4.5'
+gem 'rails_semantic_logger', '~> 4.6'
 gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
+gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
@@ -173,7 +175,6 @@ end
 # rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
-  gem 'bootsnap', require: false
   gem 'brakeman', '~> 5.0'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -196,7 +197,7 @@ group :development, :test do
   gem 'rspec-instrumentation-matcher'
   gem 'rspec-its'
   gem 'rspec-rails'
-  gem 'rswag'
+  gem 'rswag-specs'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
