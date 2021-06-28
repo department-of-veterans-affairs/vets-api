@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require 'claims_api/v2/veteran_identifier/params_validation/veteran_info'
+require 'claims_api/v2/params_validation/veteran_identifier/veteran_info'
+require 'claims_api/v2/params_validation/base'
 
 module ClaimsApi
   module V2
-    module VeteranIdentifier
-      module ParamsValidation
+    module ParamsValidation
+      module VeteranIdentifier
         class Main < Base
           validate :validate_veteran_info
 

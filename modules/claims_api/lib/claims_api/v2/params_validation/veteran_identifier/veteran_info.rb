@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'claims_api/v2/veteran_identifier/params_validation/base'
+require 'claims_api/v2/params_validation/base'
 
 module ClaimsApi
   module V2
-    module VeteranIdentifier
-      module ParamsValidation
+    module ParamsValidation
+      module VeteranIdentifier
         class VeteranInfo < Base
           class BirthdateValidator < ActiveModel::EachValidator
             def validate_each(record, attribute, value)

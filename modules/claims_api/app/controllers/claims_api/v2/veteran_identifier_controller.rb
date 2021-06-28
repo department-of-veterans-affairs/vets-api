@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'evss/error_middleware'
-require 'claims_api/v2/veteran_identifier/params_validation'
+require 'claims_api/v2/params_validation/veteran_identifier'
 
 module ClaimsApi
   module V2
@@ -23,7 +23,7 @@ module ClaimsApi
       private
 
       def validate_params
-        validator = ClaimsApi::V2::VeteranIdentifier::ParamsValidation.validator(params)
+        validator = ClaimsApi::V2::ParamsValidation::VeteranIdentifier.validator(params)
 
         return if validator.valid?
 
