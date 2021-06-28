@@ -39,10 +39,12 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
     EXPECTED_HEADERS.index_with { |key| request.headers[key] }.compact
   end
 
-  def get_contestable_issues_from_caseflow
-    @caseflow_response = Caseflow::Service.new.get_contestable_issues headers: request_headers,
-                                                                      benefit_type: benefit_type,
-                                                                      decision_review_type: decision_review_type
+  def get_contestable_issues_from_caseflow(filter: true)
+    caseflow_response = Caseflow::Service.new.get_contestable_issues headers: request_headers,
+                                                                     benefit_type: benefit_type,
+                                                                     decision_review_type: decision_review_type
+
+    @caseflow_response = filtered_caseflow_response(decision_review_type, caseflow_response, filter)
   rescue Common::Exceptions::BackendServiceException => @backend_service_exception # rubocop:disable Naming/RescuedExceptionsVariableName
     raise unless caseflow_returned_a_4xx?
 
@@ -60,6 +62,18 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
   #
   def decision_review_type
     raise NotImplementedError, 'Subclass of BaseContestableIssuesController must implement decision_review_type method'
+  end
+
+  def filtered_caseflow_response(decision_review_type, caseflow_response, filter)
+    return caseflow_response unless filter
+    return caseflow_response unless decision_review_type == 'appeals' # NOD requires this filtering step, HLR does not
+    return caseflow_response if caseflow_response.body['data'].nil?
+
+    caseflow_response.body['data'].reject! do |issue|
+      issue['attributes']['ratingIssueSubjectText'].nil?
+    end
+
+    caseflow_response
   end
 
   def caseflow_response_has_a_body_and_a_status?

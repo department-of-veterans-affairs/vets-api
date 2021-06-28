@@ -1,10 +1,15 @@
-= CheckIn
-TODO: Short description and motivation.
+# What is vets-api CheckIn?
 
-== Installation
-Ensure the following line is in the root project's Gemfile:
+The CheckIn module is a pass through API to the chip-api, which is a specialized service that orchestrates the Check-In process by coordinating with the VEText, VistA, and LoROTA services.
 
-  gem 'checkin', path: 'modules/checkin'
+## The CheckIn module exposes two endpoints: 
 
-== License
-This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+- The `GET /v0/patient_check_ins/:id` route accepts a LoROTA `id` and returns the data which is relevant to a patient's check-in at a given location and time.
+
+- The `POST /v0/patient_check_ins` route accepts POST data from an upstream client and submits it to the relevant chip-api endpoint. A success or fail message will be sent back to the client depending on the chip-api response.
+
+## The CheckIn modules chip-api Integration:
+
+- TODO: How the CheckIn module authenticates with the chip-api
+
+- TODO: Which chip-api endpoints that the CheckIn module interacts with
