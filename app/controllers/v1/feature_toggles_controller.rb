@@ -6,19 +6,19 @@ module V1
     before_action :load_user
 
     def index
-      render json: {
-        data: {
-          type: 'feature_toggles',
-          features: factory.list
-        }
-      }
+      list =
+        Rails.cache.fetch(bundle.redis_key, expires_in: 5.minutes, skip_nil: true) do
+          bundle.fetch
+        end
+
+      render json: { data: { type: 'feature_toggles', features: list } }
     end
 
     private
 
-    def factory
-      @factory ||=
-        FeatureToggles::Factory.build(
+    def bundle
+      @bundle ||=
+        FeatureToggles::Bundle.build(
           user: @current_user,
           cookie_id: params[:cookie_id],
           features: params[:features]

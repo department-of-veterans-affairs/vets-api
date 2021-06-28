@@ -3,7 +3,7 @@
 require 'flipper'
 require 'flipper/adapters/active_record'
 require 'active_support/cache'
-require 'flipper/adapters/redis_cache'
+# require 'flipper/adapters/redis_cache'
 require 'flipper/action_patch'
 require 'flipper/configuration_patch'
 require 'flipper/instrumentation/event_subscriber'
@@ -19,10 +19,7 @@ Flipper.configure do |config|
   config.default do
     activerecord_adapter = Flipper::Adapters::ActiveRecord.new
 
-    if Rails.env.development? || %w[development sandbox staging].include?(Settings.vsp_environment)
-      redis_cache = Flipper::Adapters::RedisCache.new(activerecord_adapter, Redis.current, 360)
-      instrumented = Flipper::Adapters::Instrumented.new(redis_cache, instrumenter: ActiveSupport::Notifications)
-    elsif Rails.env.test?
+    if Rails.env.development? || Rails.env.test? || %w[development sandbox staging].include?(Settings.vsp_environment)
       instrumented =
         Flipper::Adapters::Instrumented.new(activerecord_adapter, instrumenter: ActiveSupport::Notifications)
     else
