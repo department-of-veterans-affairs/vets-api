@@ -18,7 +18,6 @@ module ClaimsApi
         raise ::Common::Exceptions::Forbidden unless user_is_the_veteran || user_is_a_veteran_rep
 
         render json: { id: veteran.mpi.icn }
-        # render partial: 'find', locals: { id: veteran.mpi.icn }
       end
 
       private
