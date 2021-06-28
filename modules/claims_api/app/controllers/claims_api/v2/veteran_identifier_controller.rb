@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require 'evss/error_middleware'
+require 'claims_api/v2/veteran_identifier/params_validation'
 
 module ClaimsApi
   module V2
     class VeteranIdentifierController < ClaimsApi::V2::ApplicationController
+      before_action :validate_params
+
       def find
-        validate_request
         veteran = find_veteran(params)
 
         raise ::Common::Exceptions::ResourceNotFound unless veteran_icn_found?(veteran)
@@ -20,20 +22,13 @@ module ClaimsApi
 
       private
 
-      def validate_request
-        params.require(:ssn)
-        params.require(:birthdate)
-        params.require(:firstName)
-        params.require(:lastName)
+      def validate_params
+        validator = ClaimsApi::V2::VeteranIdentifier::ParamsValidation.validator(params)
 
-        validate_ssn!(params[:ssn])
-        validate_birthdate!(params[:birthdate])
-      end
+        return if validator.valid?
 
-      def validate_ssn!(ssn)
-        return if ssn.match?(/^\d{9}$/)
-
-        raise ::Common::Exceptions::InvalidFieldValue.new('ssn', ssn)
+        validation_error = validator.errors.first
+        raise ::Common::Exceptions::InvalidFieldValue.new(validation_error.attribute, validation_error.type)
       end
 
       def validate_birthdate!(date_str)

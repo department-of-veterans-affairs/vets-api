@@ -387,9 +387,9 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Missing parameter",
-                      "detail": "The required parameter \"ssn\", is missing",
-                      "code": "108",
+                      "title": "Invalid field value",
+                      "detail": "\"blank\" is not a valid value for \"ssn\"",
+                      "code": "103",
                       "status": "400"
                     }
                   ]
