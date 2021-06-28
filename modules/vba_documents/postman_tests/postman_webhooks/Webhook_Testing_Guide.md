@@ -25,13 +25,13 @@ will use to send to our Benefits Intake API.
 
 ![GitHub Logo](../images/run-webhook-collection.png)
 
-![GitHub Logo](../images/run-webhook-collection2.png)
+![GitHub Logo](../images/run-webhook-collection2.PNG)
 
 ### 5. Verify the Monitors were created
 Close and re-open Postman to refresh. Then check Monitors; there should be 5. 
 These are essentially http servers that will be receiving the webhook responses.
 
-![GitHub Logo](../images/monitors.png)
+![GitHub Logo](../images/monitors.PNG)
 
 ### 6. Send a Benefits Intake request
 First, we have to set some variables. Set the number of webhook urls you 
