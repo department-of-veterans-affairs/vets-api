@@ -7,7 +7,7 @@ module VBADocuments
   class UploadRemover
     include Sidekiq::Worker
 
-    EXPIRATION_TIME = 10.days
+    EXPIRATION_TIME = 1.second
 
     REMOVAL_QUERY = <<-SQL
         status IN ('received', 'processing', 'error', 'success')
@@ -16,12 +16,16 @@ module VBADocuments
     SQL
 
     def perform
+      puts "KevinsTesting Inside perform"
       return unless Settings.vba_documents.s3.enabled
 
-      VBADocuments::UploadSubmission.where(REMOVAL_QUERY, EXPIRATION_TIME.ago).find_each do |upload|
+      #VBADocuments::UploadSubmission.where(REMOVAL_QUERY, EXPIRATION_TIME.ago).find_each do |upload|
+      VBADocuments::UploadSubmission.all.each do |upload|
         Rails.logger.info('VBADocuments: Cleaning up s3: ' + upload.inspect)
-        break unless store.object(upload.guid).exists?
+        puts "\n\n\n\nbefore break #{upload.guid}\n\n\n"
+        next unless store.object(upload.guid).exists?
 
+        puts "About to delete"
         store.delete(upload.guid)
         upload.update(s3_deleted: true)
       end

@@ -43,6 +43,7 @@ module VBADocuments
       end
 
       def download
+        begin
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
 
         zip_file_name = VBADocuments::PayloadManager.zip(submission)
@@ -52,6 +53,9 @@ module VBADocuments
         end
 
         File.delete(zip_file_name)
+        rescue => ex
+          Rails.logger.info("yucky #{ex.message}")
+        end
       end
 
       private
