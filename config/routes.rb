@@ -391,11 +391,11 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   # End Modules
 
+  require 'github_authentication/sidekiq_web'
   require 'sidekiq/web'
   require 'sidekiq-scheduler/web'
   require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
   require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
-  require 'github_authentication/sidekiq_web'
   mount Sidekiq::Web, at: '/sidekiq'
 
   Sidekiq::Web.register GithubAuthentication::SidekiqWeb
