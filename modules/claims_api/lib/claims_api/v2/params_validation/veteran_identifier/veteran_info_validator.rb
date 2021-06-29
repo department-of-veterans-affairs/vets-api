@@ -26,7 +26,10 @@ module ClaimsApi
 
           def validate_ssn(record)
             value = record.data[:ssn]
-            record.errors.add :ssn, 'blank' if value.blank?
+            if value.blank?
+              record.errors.add :ssn, 'blank'
+              return
+            end
             record.errors.add :ssn, value unless value =~ /\A\d{9}\z/
           end
 

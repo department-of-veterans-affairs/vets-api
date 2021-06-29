@@ -27,8 +27,7 @@ module ClaimsApi
 
         return if validator.valid?
 
-        validation_error = validator.errors.first
-        raise ::Common::Exceptions::InvalidFieldValue.new(validation_error.attribute, validation_error.type)
+        raise ::Common::Exceptions::ValidationErrorsBadRequest.new(validator) # rubocop:disable Style/RaiseArgs
       end
 
       def validate_birthdate!(date_str)

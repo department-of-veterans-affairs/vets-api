@@ -276,6 +276,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -330,6 +341,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -387,9 +409,12 @@
                 "example": {
                   "errors": [
                     {
-                      "title": "Invalid field value",
-                      "detail": "\"blank\" is not a valid value for \"ssn\"",
-                      "code": "103",
+                      "title": "invalid value for ssn",
+                      "detail": "blank is not valid for ssn",
+                      "code": "100",
+                      "source": {
+                        "pointer": "ssn"
+                      },
                       "status": "400"
                     }
                   ]
@@ -425,6 +450,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -479,6 +515,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -533,6 +580,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -587,6 +645,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
