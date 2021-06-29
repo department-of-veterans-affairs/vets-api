@@ -13,12 +13,13 @@ module VRE
       SavedClaim::VeteranReadinessEmploymentClaim.where(
         updated_at: updated_at_range
       )
+
+      # .sort_by{ |claim| claim.parsed_form['veteranInformation']['regionalOffice'] }
     end
 
     def perform
       @time = Time.zone.now
       submitted_claims = get_claims_submitted_in_range
-
       Ch31SubmissionsReportMailer.build(submitted_claims).deliver_now
     end
   end
