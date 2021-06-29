@@ -138,7 +138,7 @@ StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.data, 0)
 StatsD.increment(Form1010cg::Auditor.metrics.submission.failure.client.qualification, 0)
 StatsD.increment(Form1010cg::Auditor.metrics.pdf_download, 0)
 
-# init form 526 - disability compenstation
+# init form 526 - disability compensation
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.total", 0)
 StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.submit_form526.fail", 0)
 
@@ -168,6 +168,14 @@ ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_
           "status:#{payload[:status]}"]
   StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
   StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
+end
+
+# Flipper features cache stats
+Flipper.adapter.instrumenter.subscribe(/cache_.*\.active_support/) do |name, start, finish, id, payload|
+  hit_or_miss = payload[:hit] ? 'cache_hit' : 'cache_miss'
+
+  StatsD.increment("cache.#{hit_or_miss}.#{id}", 1)
+  StatsD.measure(name, finish - start)
 end
 
 # init gibft
