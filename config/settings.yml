@@ -61,7 +61,6 @@ test_database_url: postgis:///vets-api-test
 
 relative_url_root: /
 
-secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 # This is a fake secret key base... not used in any envs
 secret_key_base: 5488ba7311d29287718c9a0dda605ac6cc486d033a30a693ee9c02534148ce15c16edd246f65666f57c410d6728da0a01f8204885319ae8d0b88ab450testing
 old_secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
