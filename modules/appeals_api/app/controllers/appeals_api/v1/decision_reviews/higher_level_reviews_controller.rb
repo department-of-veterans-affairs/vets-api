@@ -23,7 +23,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   )['definitions']['hlrCreateParameters']['properties'].keys
 
   def create
-    deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK, sunset: sunset_date)
+    deprecate_headers
 
     @higher_level_review.save
     AppealsApi::HigherLevelReviewPdfSubmitJob.perform_async(@higher_level_review.id)
@@ -31,19 +31,19 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def validate
-    deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK, sunset: sunset_date)
+    deprecate_headers
     render json: validation_success
   end
 
   def schema
-    deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK, sunset: sunset_date)
+    deprecate_headers
     render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(
       AppealsApi::FormSchemas.new.schema(self.class::FORM_NUMBER)
     )
   end
 
   def show
-    deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK, sunset: sunset_date)
+    deprecate_headers
     @higher_level_review = with_status_simulation(@higher_level_review) if status_requested_and_allowed?
     render_higher_level_review
   end
@@ -131,5 +131,12 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def sunset_date
     Date.new(2022, 1, 31)
+  end
+
+  def deprecate_headers
+    if Settings.modules_appeals_api.documentation.path_enabled_flag
+      # used in swagger to denote deprecation, should be replaced when we go live
+      deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK, sunset: sunset_date)
+    end
   end
 end
