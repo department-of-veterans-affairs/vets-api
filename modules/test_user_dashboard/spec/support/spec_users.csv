@@ -1,2 +1,2 @@
-first_name,middle_name,last_name,gender,birth_date,ssn,phone,email,password,idme_uuid
-MARK,,WEBB,M,1950-10-04,796104437,800-827-1000,vets.gov.user+228@gmail.com,testpass,2693564c-8e76-4733-a382-2f2c6ffe0ba8:wq
+first_name,middle_name,last_name,gender,birth_date,ssn,phone,email,password,idme_uuid,services
+MARK,,WEBB,M,1950-10-04,796104437,800-827-1000,vets.gov.user+228@gmail.com,testpass,2693564c-8e76-4733-a382-2f2c6ffe0ba8,"facilities,hca,edu_benefits,form-save-in-progress,form-prefill,user-profile,appeals-status,identity-proofed,vet360,claim_increase"
