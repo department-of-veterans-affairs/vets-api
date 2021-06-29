@@ -23,8 +23,8 @@ RSpec.describe 'FeatureToggles', type: :request do
           'data' => {
             'type' => 'feature_toggles',
             'features' => [
-              { 'name' => 'foo_bar_feature', 'value' => true },
-              { 'name' => 'my_new_feature', 'value' => true }
+              { 'name' => 'fooBarFeature', 'value' => true },
+              { 'name' => 'myNewFeature', 'value' => true }
             ]
           }
         }
@@ -34,6 +34,27 @@ RSpec.describe 'FeatureToggles', type: :request do
         get '/v1/feature_toggles?features=foo_bar_feature,my_new_feature'
 
         expect(JSON.parse(response.body)).to eq(select_features)
+      end
+    end
+
+    context 'without feature params' do
+      let(:all_features) do
+        {
+          'data' => {
+            'type' => 'feature_toggles',
+            'features' => [
+              { 'name' => 'fooBarFeature', 'value' => true },
+              { 'name' => 'myNewFeature', 'value' => true },
+              { 'name' => 'anotherGreatFeature', 'value' => true },
+            ]
+          }
+        }
+      end
+
+      it 'returns all features' do
+        get '/v1/feature_toggles'
+
+        expect(JSON.parse(response.body)).to eq(all_features)
       end
     end
   end

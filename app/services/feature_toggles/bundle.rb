@@ -43,29 +43,37 @@ module FeatureToggles
     # @return [Array]
     #
     def fetch
-      return nil if features.blank?
+      features.blank? ? all : subset
+    end
 
-      features.each_with_object([]) do |name, acc|
-        type = features_hash.dig(name, 'actor_type')
+    ##
+    # Return an array of all va.gov features
+    #
+    # @return [Array]
+    #
+    def all
+      features_hash.each_with_object([]) do |(name, values), acc|
+        type = values.fetch('actor_type')
         status = enabled?(name, type)
 
-        acc << body(name, status)
+        acc << body(name.camelize(:lower), status)
       end
     end
 
     ##
-    # Return a hexdigest of the combined features
-    # so that our Redis key remains short and unique
+    # Return a subset of va.gov features based
+    # on the features params that was passed
+    # to the API from the UI
     #
-    # @return [String]
+    # @return [Array]
     #
-    def redis_key
-      return if features.blank?
+    def subset
+      features.collect do |name|
+        type = features_hash.dig(name.underscore, 'actor_type')
+        status = enabled?(name, type)
 
-      joined = features&.sort&.join('_')
-      suffix = Digest::SHA1.hexdigest(joined)
-
-      "#{KEY_PREFIX}/#{suffix}"
+        body(name.camelize(:lower), status)
+      end
     end
 
     ##

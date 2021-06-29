@@ -34,51 +34,83 @@ describe FeatureToggles::Bundle do
     before do
       allow_any_instance_of(described_class).to receive(:features).and_return(params_features)
       allow_any_instance_of(described_class).to receive(:features_hash).and_return(all_hash)
+      allow_any_instance_of(described_class).to receive(:enabled?).and_return(true)
     end
 
     context 'with features' do
       let(:features_response) do
         [
-          { name: 'foo_bar_feature', value: true },
-          { name: 'cool_feature', value: true }
+          { name: 'fooBarFeature', value: true },
+          { name: 'coolFeature', value: true }
         ]
       end
-      let(:params_features) { %w[foo_bar_feature cool_feature] }
+      let(:params_features) { %w[fooBarFeature coolFeature] }
 
       it 'builds the feature hash for a subset of features' do
-        allow_any_instance_of(described_class).to receive(:enabled?).and_return(true)
-
         expect(described_class.build({}).fetch).to eq(features_response)
       end
     end
 
     context 'without features' do
+      let(:features_response) do
+        [
+          { name: 'fooBarFeature', value: true },
+          { name: 'myNewFeature', value: true },
+          { name: 'coolFeature', value: true }
+        ]
+      end
       let(:params_features) { [] }
 
-      it 'returns nil' do
-        expect(described_class.build({}).fetch).to eq(nil)
+      it 'returns all features' do
+        expect(described_class.build({}).fetch).to eq(features_response)
       end
     end
   end
 
-  describe '#redis_key' do
-    before do
-      allow_any_instance_of(described_class).to receive(:features).and_return(params_features)
+  describe '#all' do
+    let(:features_response) do
+      [
+        { name: 'fooBarFeature', value: true },
+        { name: 'myNewFeature', value: true },
+        { name: 'coolFeature', value: true }
+      ]
     end
 
-    context 'when features' do
-      let(:params_features) { %w[foo_bar_feature cool_feature] }
+    before do
+      allow_any_instance_of(described_class).to receive(:features).and_return([])
+      allow_any_instance_of(described_class).to receive(:features_hash).and_return(all_hash)
+      allow_any_instance_of(described_class).to receive(:enabled?).and_return(true)
+    end
 
-      it 'returns a shorted key' do
-        expect(described_class.build({}).redis_key).to eq('flippers/281b8123f3f8af1826b8ed07c3e184c66a658554')
+    it 'builds the feature hash for all available features' do
+      expect(described_class.build({}).all).to eq(features_response)
+    end
+  end
+
+  describe '#subset' do
+    let(:features_response) do
+      [{ name: 'fooBarFeature', value: true }]
+    end
+
+    before do
+      allow_any_instance_of(described_class).to receive(:features).and_return(params_features)
+      allow_any_instance_of(described_class).to receive(:features_hash).and_return(all_hash)
+      allow_any_instance_of(described_class).to receive(:enabled?).and_return(true)
+    end
+
+    context 'when features param is camel cased' do
+      let(:params_features) { ['fooBarFeature'] }
+
+      it 'builds the feature hash for a subset of features' do
+        expect(described_class.build({}).subset).to eq(features_response)
       end
     end
 
-    context 'when no features' do
-      let(:params_features) { [] }
+    context 'when features param is snake cased' do
+      let(:params_features) { ['foo_bar_feature'] }
 
-      it 'returns nil' do
-        expect(described_class.build({}).redis_key).to eq(nil)
+      it 'builds the feature hash for a subset of features' do
+        expect(described_class.build({}).subset).to eq(features_response)
       end
     end
   end
