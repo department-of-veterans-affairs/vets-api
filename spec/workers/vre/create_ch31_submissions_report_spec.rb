@@ -10,8 +10,8 @@ describe VRE::CreateCh31SubmissionsReport do
 
     it 'sorts them by Regional Office' do
       expected = [vre_claim2.id, vre_claim3.id, vre_claim1.id]
-      result = described_class.new.get_claims_submitted_in_range.ids
-      expect(result).to contain_exactly(expected)
+      result = described_class.new.get_claims_submitted_in_range.map(&:id)
+      expect(result).to eq(expected)
     end
   end
 end

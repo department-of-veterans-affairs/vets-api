@@ -16,9 +16,7 @@ module VRE
     def get_claims_submitted_in_range
       SavedClaim::VeteranReadinessEmploymentClaim.where(
         updated_at: updated_at_range
-      )
-
-      # .sort_by{ |claim| claim.parsed_form['veteranInformation']['regionalOffice'] }
+      ).sort_by { |claim| claim.parsed_form['veteranInformation']['regionalOffice'] }
     end
 
     def perform
