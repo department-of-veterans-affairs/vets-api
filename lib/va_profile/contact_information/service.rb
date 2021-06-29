@@ -10,6 +10,13 @@ require_relative 'transaction_response'
 module VAProfile
   module ContactInformation
     class Service < VAProfile::Service
+      CONTACT_INFO_CHANGE_TEMPLATE = Settings.vanotify.services.va_gov.template_id.contact_info_change
+      EMAIL_PERSONALISATIONS = {
+        address: 'Address',
+        email: 'Email address',
+        phone: 'Phone number'
+      }.freeze
+
       include Common::Client::Concerns::Monitoring
 
       configuration VAProfile::ContactInformation::Configuration
@@ -61,7 +68,11 @@ module VAProfile
       # @return [VAProfile::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def get_address_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/addresses/status/#{transaction_id}"
-        get_transaction_status(route, AddressTransactionResponse)
+        transaction_status = get_transaction_status(route, AddressTransactionResponse)
+
+        send_contact_change_notification(transaction_status, :address)
+
+        transaction_status
       end
 
       # POSTs a new address to the VAProfile API
@@ -75,7 +86,19 @@ module VAProfile
       # @param email [VAProfile::Models::Email] the email to update
       # @return [VAProfile::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def put_email(email)
-        post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
+        old_email =
+          begin
+            @user.va_profile_email
+          rescue
+            nil
+          end
+
+        response = post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
+
+        transaction = response.transaction
+        OldEmail.create(transaction_id: transaction.id, email: old_email) if transaction.received? && old_email.present?
+
+        response
       end
 
       # GET's the status of an email transaction from the VAProfile api
@@ -83,7 +106,11 @@ module VAProfile
       # @return [VAProfile::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def get_email_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/emails/status/#{transaction_id}"
-        get_transaction_status(route, EmailTransactionResponse)
+        transaction_status = get_transaction_status(route, EmailTransactionResponse)
+
+        send_email_change_notification(transaction_status)
+
+        transaction_status
       end
 
       # POSTs a new telephone to the VAProfile API
@@ -106,7 +133,10 @@ module VAProfile
       #   a transaction object
       def get_telephone_transaction_status(transaction_id)
         route = "#{@user.vet360_id}/telephones/status/#{transaction_id}"
-        get_transaction_status(route, TelephoneTransactionResponse)
+        transaction_status = get_transaction_status(route, TelephoneTransactionResponse)
+        send_contact_change_notification(transaction_status, :phone)
+
+        transaction_status
       end
 
       # POSTs a new permission to the VAProfile API
@@ -150,6 +180,53 @@ module VAProfile
       end
 
       private
+
+      def get_email_personalisation(type)
+        { 'contact_info' => EMAIL_PERSONALISATIONS[type] }
+      end
+
+      def send_contact_change_notification(transaction_status, personalisation)
+        return unless Flipper.enabled?(:contact_info_change_email, @user)
+
+        transaction = transaction_status.transaction
+
+        if transaction.completed_success?
+          transaction_id = transaction.id
+          return if TransactionNotification.find(transaction_id).present?
+
+          VANotifyEmailJob.perform_async(
+            @user.va_profile_email,
+            CONTACT_INFO_CHANGE_TEMPLATE,
+            get_email_personalisation(personalisation)
+          )
+
+          TransactionNotification.create(transaction_id: transaction_id)
+        end
+      end
+
+      def send_email_change_notification(transaction_status)
+        return unless Flipper.enabled?(:contact_info_change_email, @user)
+
+        transaction = transaction_status.transaction
+
+        if transaction.completed_success?
+          old_email = OldEmail.find(transaction.id)
+          return if old_email.nil?
+
+          personalisation = get_email_personalisation(:email)
+
+          VANotifyEmailJob.perform_async(old_email.email, CONTACT_INFO_CHANGE_TEMPLATE, personalisation)
+          if transaction_status.new_email.present?
+            VANotifyEmailJob.perform_async(
+              transaction_status.new_email,
+              CONTACT_INFO_CHANGE_TEMPLATE,
+              personalisation
+            )
+          end
+
+          old_email.destroy
+        end
+      end
 
       def vet360_id_present!
         raise 'User does not have a vet360_id' if @user&.vet360_id.blank?

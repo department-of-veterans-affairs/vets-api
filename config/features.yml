@@ -46,6 +46,9 @@ features:
     actor_type: user
     description: Feature gates the certificate of eligibility application
     enable_in_development: true
+  contact_info_change_email:
+    actor_type: user
+    description: Send user a notification email when their contact info changes.
   covid_vaccine_registration:
     actor_type: user
     description: Toggles availability of covid vaccine form API.

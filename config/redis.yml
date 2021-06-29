@@ -138,6 +138,12 @@ development: &defaults
   secure_messaging_store:
     namespace: secure_messaging_store
     each_ttl: 1800
+  old_email:
+    namespace: old_email
+    each_ttl: 604800
+  transaction_notification:
+    namespace: transaction_notification
+    each_ttl: 2592000
 test:
   <<: *defaults
   redis:
