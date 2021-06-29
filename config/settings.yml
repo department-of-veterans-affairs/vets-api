@@ -61,6 +61,8 @@ test_database_url: postgis:///vets-api-test
 
 relative_url_root: /
 
+# Testing sign in on review instance
+# for key rotation
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
 dmc:
