@@ -355,15 +355,19 @@ class User < Common::RedisStore
     @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
   end
 
+  def va_profile_email
+    vet360_contact_info&.email&.email_address
+  end
+
   def all_emails
-    vet360_email =
+    the_va_profile_email =
       begin
-        vet360_contact_info&.email&.email_address
+        va_profile_email
       rescue
         nil
       end
 
-    [vet360_email, email]
+    [the_va_profile_email, email]
       .reject(&:blank?)
       .map(&:downcase)
       .uniq
