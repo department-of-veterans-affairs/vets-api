@@ -117,7 +117,9 @@ module BGS
     end
 
     def child_event_type(event_type)
-      return BGSDependents::ChildMarriage.new(@dependents_application['child_marriage']) if event_type == 'child_marriage'
+      if event_type == 'child_marriage'
+        return BGSDependents::ChildMarriage.new(@dependents_application['child_marriage'])
+      end
 
       BGSDependents::ChildStoppedAttendingSchool.new(@dependents_application['child_stopped_attending_school'])
     end

@@ -603,7 +603,8 @@ module PdfFill
       end
 
       def expand_employment_disability_dates(unemployability)
-        @form_data['disabilityAffectEmployFTDate'] = split_date(unemployability['disabilityAffectedEmploymentFullTimeDate'])
+        @form_data['disabilityAffectEmployFTDate'] =
+          split_date(unemployability['disabilityAffectedEmploymentFullTimeDate'])
         @form_data['lastWorkedFullTimeDate'] = split_date(unemployability['lastWorkedFullTimeDate'])
         @form_data['becameTooDisabledToWorkDate'] = split_date(unemployability['becameTooDisabledToWorkDate'])
       end

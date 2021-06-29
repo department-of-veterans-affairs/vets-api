@@ -235,7 +235,8 @@ Rails.application.reloader.to_prepare do
   StatsD.increment('iam_ssoe_oauth.inactive_session', 0)
 
   %w[IDME MHV DSL].each do |cred|
-    StatsD.increment(IAMSSOeOAuth::SessionManager::STATSD_OAUTH_SESSION_KEY, 0, tags: ['type:new', "credential:#{cred}"])
+    StatsD.increment(IAMSSOeOAuth::SessionManager::STATSD_OAUTH_SESSION_KEY, 0,
+                     tags: ['type:new', "credential:#{cred}"])
     StatsD.increment(IAMSSOeOAuth::SessionManager::STATSD_OAUTH_SESSION_KEY, 0,
                      tags: ['type:refresh', "credential:#{cred}"])
   end

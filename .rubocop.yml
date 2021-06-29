@@ -87,9 +87,13 @@ Style/ZeroLengthPredicate:
   Enabled: false
 
 Layout/LineLength:
-  Max: 125
+  Max: 120
   Exclude:
     - 'Gemfile'
+    - 'app/swagger/swagger/schemas/evss_auth_error.rb'
+    - 'config/initializers/statsd.rb'
+    - 'lib/pdf_fill/forms/va21p527ez.rb'
+    - 'spec/lib/pdf_fill/forms/common_ptsd_spec.rb'
 
 Rails:
   Enabled: true
