@@ -47,6 +47,13 @@ AppealsApi::Engine.routes.draw do
           post 'validate'
         end
       end
+
+      resources :notice_of_disagreements, only: %i[create show] do
+        collection do
+          get 'schema'
+          post 'validate'
+        end
+      end
     end
   end
 
