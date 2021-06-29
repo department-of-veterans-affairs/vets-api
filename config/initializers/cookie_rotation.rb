@@ -7,8 +7,6 @@ Rails.application.config.action_dispatch.cookies_rotations.tap do |cookies|
 
   key_generator = ActiveSupport::KeyGenerator.new(Settings.old_secret_key_base, iterations: 1000)
 
-  puts key_generator
-
   key_len = ActiveSupport::MessageEncryptor.key_len(encrypted_cookie_cipher)
   secret = key_generator.generate_key(salt, key_len)
   cookies.rotate :encrypted, secret
