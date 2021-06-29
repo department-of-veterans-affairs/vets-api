@@ -21,9 +21,10 @@ module V0
 
         # returning both camel and snakecase for uniformity on FE
         FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
+          flipper_enabled = Flipper.enabled?(feature_name, actor(values['actor_type']))
           features << { name: feature_name.camelize(:lower),
-                        value: Flipper.enabled?(feature_name, actor(values['actor_type'])) }
-          features << { name: feature_name, value: Flipper.enabled?(feature_name, actor(values['actor_type'])) }
+                        value: flipper_enabled }
+          features << { name: feature_name, value: flipper_enabled }
         end
       end
 
