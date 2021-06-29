@@ -1,0 +1,16 @@
+# frozen_string_literal: true
+
+module AppealsApi
+  module HigherLevelReviews
+    class V1Validator
+      def initialize(request_body, request_headers)
+        @request_body = request_body
+        @request_headers = request_headers
+      end
+
+      private
+
+      attr_accessor :request_body, :request_headers
+    end
+  end
+end

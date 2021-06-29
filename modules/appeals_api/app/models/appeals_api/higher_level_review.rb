@@ -28,7 +28,6 @@ module AppealsApi
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
     validate(
-      :veteran_phone_is_not_too_long,
       :informal_conference_rep_name_and_phone_number_is_not_too_long,
       :birth_date_is_a_date,
       :birth_date_is_in_the_past,
@@ -278,11 +277,6 @@ module AppealsApi
 
     def veterans_timezone
       veteran&.dig('timezone').presence&.strip
-    end
-
-    # validation
-    def veteran_phone_is_not_too_long
-      add_error(veteran_phone.too_long_error_message) if veteran_phone.too_long?
     end
 
     # validation

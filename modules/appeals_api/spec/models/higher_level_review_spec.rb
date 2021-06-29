@@ -200,32 +200,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
   context 'validations' do
     let(:higher_level_review) { described_class.new(form_data: form_data, auth_headers: auth_headers) }
 
-    context 'veteran phone number is too long' do
-      let(:form_data) do
-        {
-          'data' => {
-            'type' => default_form_data['data']['type'],
-            'attributes' => default_form_data['data']['attributes'].merge(veteran)
-          },
-          'included' => default_form_data['included']
-        }
-      end
-
-      let(:veteran) do
-        {
-          veteran: {
-            phone: { areaCode: '999', phoneNumber: '1234567890', phoneNumberExt: '1234567890' }
-          }
-        }.as_json
-      end
-
-      it 'a phone number that\'s too long creates an invalid record (b/c won\'t fit on the form)' do
-        expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.to_a.length).to eq 1
-        expect(higher_level_review.errors.to_a.first.downcase).to include 'phone'
-      end
-    end
-
     context 'informal conference rep info is too long' do
       let(:form_data) do
         {
