@@ -7,7 +7,7 @@ describe AppealsApi::ApplicationController, type: :controller do
     skip_before_action :authenticate
 
     def index
-      render json: { message: 'Hello World!'}, status: :ok
+      render json: { message: 'Hello World!' }, status: :ok
     end
   end
 
@@ -29,7 +29,3 @@ describe AppealsApi::ApplicationController, type: :controller do
     end
   end
 end
-
-
-
-
