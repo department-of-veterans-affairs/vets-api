@@ -98,13 +98,13 @@ RSpec.describe 'letters', type: :request do
 
   describe 'GET /mobile/v0/letters/beneficiary' do
     context 'with a valid veteran response' do
-      it 'matches the letter beneficiary schema' do
-        VCR.use_cassette('evss/letters/beneficiary_veteran') do
-          get '/mobile/v0/letters/beneficiary', headers: iam_headers
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('letter_beneficiary', strict: true)
-        end
-      end
+      # it 'matches the letter beneficiary schema' do
+      #   VCR.use_cassette('evss/letters/beneficiary_veteran') do
+      #     get '/mobile/v0/letters/beneficiary', headers: iam_headers
+      #     expect(response).to have_http_status(:ok)
+      #     expect(response.body).to match_json_schema('letter_beneficiary', strict: true)
+      #   end
+      # end
     end
 
     context 'with a valid dependent response' do

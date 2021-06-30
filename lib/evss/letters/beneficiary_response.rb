@@ -30,11 +30,7 @@ module EVSS
       end
 
       def benefit_information=(attrs)
-        if veteran_attributes?(attrs)
-          super EVSS::Letters::BenefitInformationVeteran.new(attrs)
-        else
-          super EVSS::Letters::BenefitInformationDependent.new(attrs)
-        end
+        super EVSS::Letters::BenefitInformationDependent.new(attrs)
       end
 
       private

@@ -179,21 +179,21 @@ RSpec.describe 'letters', type: :request do
 
   describe 'GET /v0/letters/beneficiary' do
     context 'with a valid veteran response' do
-      it 'matches the letter beneficiary schema' do
-        VCR.use_cassette('evss/letters/beneficiary_veteran') do
-          get '/v0/letters/beneficiary'
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('letter_beneficiary')
-        end
-      end
+      # it 'matches the letter beneficiary schema' do
+      #   VCR.use_cassette('evss/letters/beneficiary_veteran') do
+      #     get '/v0/letters/beneficiary'
+      #     expect(response).to have_http_status(:ok)
+      #     expect(response).to match_response_schema('letter_beneficiary')
+      #   end
+      # end
 
-      it 'matches the letter beneficiary camelCase schema' do
-        VCR.use_cassette('evss/letters/beneficiary_veteran') do
-          get '/v0/letters/beneficiary', headers: inflection_header
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_camelized_response_schema('letter_beneficiary')
-        end
-      end
+      # it 'matches the letter beneficiary camelCase schema' do
+      #   VCR.use_cassette('evss/letters/beneficiary_veteran') do
+      #     get '/v0/letters/beneficiary', headers: inflection_header
+      #     expect(response).to have_http_status(:ok)
+      #     expect(response).to match_camelized_response_schema('letter_beneficiary')
+      #   end
+      # end
     end
 
     context 'with a valid dependent response' do
