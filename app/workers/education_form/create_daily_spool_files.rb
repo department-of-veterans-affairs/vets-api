@@ -88,28 +88,32 @@ module EducationForm
         filename = "#{region_id}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
         spool_file_event = SpoolFileEvent.build_event(region_id, filename)
 
-        log_submissions(records, filename)
-        # create the single textual spool file
-        contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
+        if spool_file_event.successful_at.present?
+          log_info("A spool file for #{region_id} on #{Time.zone.now.strftime('%m%d%Y')} was already created")
+        else
+          log_submissions(records, filename)
+          # create the single textual spool file
+          contents = records.map(&:text).join(EducationForm::WINDOWS_NOTEPAD_LINEBREAK)
 
-        begin
-          writer.write(contents, filename)
+          begin
+            writer.write(contents, filename)
 
-          # track and update the records as processed once the file has been successfully written
-          track_submissions(region_id)
+            # track and update the records as processed once the file has been successfully written
+            track_submissions(region_id)
 
-          records.each { |r| r.record.update(processed_at: Time.zone.now) }
-          spool_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
-        rescue => e
-          StatsD.increment("#{STATSD_FAILURE_METRIC}.#{region_id}")
-          attempt_msg = if spool_file_event.retry_attempt.zero?
-                          'initial attempt'
-                        else
-                          "attempt #{spool_file_event.retry_attempt}"
-                        end
-          exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
-          log_exception(exception, region)
-          next
+            records.each { |r| r.record.update(processed_at: Time.zone.now) }
+            spool_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
+          rescue => e
+            StatsD.increment("#{STATSD_FAILURE_METRIC}.#{region_id}")
+            attempt_msg = if spool_file_event.retry_attempt.zero?
+                            'initial attempt'
+                          else
+                            "attempt #{spool_file_event.retry_attempt}"
+                          end
+            exception = DailySpoolFileError.new("Error creating #{filename} during #{attempt_msg}.\n\n#{e}")
+            log_exception(exception, region)
+            next
+          end
         end
       end
     ensure
