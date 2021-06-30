@@ -44,9 +44,9 @@ module VBADocuments
 
       def download
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
-
-        return render plain: "File removed after age exceeded #{UploadRemover::EXPIRATION_TIME}ms.", status: :not_found unless !submission.s3_deleted
-
+        if submission.nil?
+          raise Common::Exceptions::RecordNotFound, params[:id]
+        end
         zip_file_name = VBADocuments::PayloadManager.zip(submission)
 
         File.open(zip_file_name, 'r') do |f|

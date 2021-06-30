@@ -192,9 +192,14 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     it 'returns a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)
       version = instance_double(Aws::S3::ObjectVersion)
+      bucket = instance_double(Aws::S3::Bucket)
+      obj = instance_double(Aws::S3::Object)
       allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
       allow(objstore).to receive(:first_version).and_return(version)
       allow(objstore).to receive(:download)
+      allow(objstore).to receive(:bucket).and_return(bucket)
+      allow(bucket).to receive(:object).and_return(obj)
+      allow(obj).to receive(:exists?).and_return(true)
       allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
 
@@ -208,6 +213,24 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
       expect(response.status).to eq(200)
       expect(response.headers['Content-Type']).to eq('application/zip')
+    end
+
+    it 'returns a 404 if deleted from s3' do
+      objstore = instance_double(VBADocuments::ObjectStore)
+      version = instance_double(Aws::S3::ObjectVersion)
+      bucket = instance_double(Aws::S3::Bucket)
+      obj = instance_double(Aws::S3::Object)
+      allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
+      allow(objstore).to receive(:first_version).and_return(version)
+      allow(objstore).to receive(:download)
+      allow(objstore).to receive(:bucket).and_return(bucket)
+      allow(bucket).to receive(:object).and_return(obj)
+      allow(obj).to receive(:exists?).and_return(false)
+      allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+
+      get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
+      expect(response.status).to eq(404)
     end
   end
 end
