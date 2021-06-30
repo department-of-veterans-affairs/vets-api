@@ -31,7 +31,7 @@ module VBADocuments
 
     def self.download_raw_file(guid)
       store = VBADocuments::ObjectStore.new
-      if true#store.bucket.object(guid).exists?
+      if store.bucket.object(guid).exists?
         tempfile = Tempfile.new(guid)
         version = store.first_version(guid)
         store.download(version, tempfile.path)
