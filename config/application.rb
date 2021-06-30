@@ -66,7 +66,7 @@ module VetsAPI
       end
     end
 
-    # combats the Flipper::Middleware::Memoizer appears to be running twice error
+    # combats the "Flipper::Middleware::Memoizer appears to be running twice" error
     # followed suggestions to disable memoize config
     config.flipper.memoize = false
 
