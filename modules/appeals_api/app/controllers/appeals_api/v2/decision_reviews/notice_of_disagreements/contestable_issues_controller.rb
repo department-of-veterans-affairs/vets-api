@@ -4,6 +4,6 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreements::ContestableIssuesC
   private
 
   def decision_review_type
-    'higher_level_reviews'
+    'appeals' # notice of disagreement is `appeals` inside of Caseflow
   end
 end
