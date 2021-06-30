@@ -37,7 +37,7 @@ module VBADocuments
         store.download(version, tempfile.path)
         [tempfile, version.last_modified]
       else
-        raise Common::Exceptions::ResourceNotFound.new(detail: "File no longer stored.")
+        raise Common::Exceptions::ResourceNotFound.new(detail: 'File no longer stored.')
       end
     end
 
