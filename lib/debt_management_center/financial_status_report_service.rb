@@ -12,6 +12,8 @@ module DebtManagementCenter
   # Allows users to submit financial status reports, and download copies of completed reports.
   #
   class FinancialStatusReportService < DebtManagementCenter::BaseService
+    include SentryLogging
+
     class FSRNotFoundInRedis < StandardError; end
 
     configuration DebtManagementCenter::FinancialStatusReportConfiguration
@@ -32,7 +34,7 @@ module DebtManagementCenter
         response = DebtManagementCenter::FinancialStatusReportResponse.new(
           perform(:post, 'financial-status-report/formtopdf', form).body
         )
-        update_filenet_id(response.filenet_id)
+        update_filenet_id(response)
         { status: response.status }
       end
     end
@@ -49,29 +51,26 @@ module DebtManagementCenter
 
       downloader = DebtManagementCenter::FinancialStatusReportDownloader.new(financial_status_report)
       downloader.download_pdf
-    rescue FSRNotFoundInRedis
-      raise_user_not_found_error
     end
 
     private
 
     def raise_client_error
-      raise Common::Client::Errors::ClientError.new(
-        'malformed request',
-        400
-      )
+      raise Common::Client::Errors::ClientError.new('malformed request', 400)
     end
 
-    def raise_user_not_found_error
-      raise Common::Exceptions::RecordNotFound.new(
-        @user.uuid, detail: "Could not find the FSR for user #{@user.uuid} in the Redis Store."
-      )
-    end
-
-    def update_filenet_id(filenet_id)
+    def update_filenet_id(response)
       fsr_params = { REDIS_CONFIG[:financial_status_report][:namespace] => @user.uuid }
-      pdf = DebtManagementCenter::FinancialStatusReport.new(fsr_params)
-      pdf.update(filenet_id: filenet_id, uuid: @user.uuid)
+      fsr = DebtManagementCenter::FinancialStatusReport.new(fsr_params)
+      fsr.update(filenet_id: response.filenet_id, uuid: @user.uuid)
+
+      begin
+        # Calling #update! will not raise a proper AR validation error
+        # Instead use #validate! to raise an ActiveModel::ValidationError error which contains a more detailed message
+        fsr.validate!
+      rescue ActiveModel::ValidationError => e
+        log_exception_to_sentry(e, { fsr_attributes: fsr.attributes, fsr_response: response.to_h })
+      end
     end
 
     def camelize(hash)
