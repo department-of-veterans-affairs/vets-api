@@ -12,6 +12,7 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
   before do
     allow(user).to receive(:vet360_id).and_return(vet360_id)
     allow(user).to receive(:icn).and_return('1234')
+    Flipper.enable(:contact_info_change_email)
   end
 
   describe '#get_person' do
@@ -94,13 +95,29 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#put_email' do
-    let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
+    let(:email) do
+      build(
+        :email, id: 8087, email_address: 'person42@example.com',
+                vet360_id: user.vet360_id, source_system_user: user.icn
+      )
+    end
 
     context 'when successful' do
+      it 'creates an old_email record' do
+        VCR.use_cassette('va_profile/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
+          VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+            old_email = user.vet360_contact_info.email.email_address
+            expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
+
+            response = subject.put_email(email)
+            expect(OldEmail.find(response.transaction.id).email).to eq(old_email)
+          end
+        end
+      end
+
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-          email.id = 8087
-          email.email_address = 'person42@example.com'
           response = subject.put_email(email)
           expect(response.transaction.id).to eq('7d1667a5-df5f-4559-be35-b36042c61187')
           expect(response).to be_ok
@@ -271,6 +288,8 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
 
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
+          expect_any_instance_of(described_class).to receive(:send_contact_change_notification)
+
           response = subject.get_telephone_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(VAProfile::Models::Transaction)
@@ -306,6 +325,31 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
           expect(response.transaction.id).to eq(transaction_id)
         end
       end
+
+      context 'with an old_email record' do
+        before do
+          OldEmail.create(email: 'email@email.com', transaction_id: transaction_id)
+        end
+
+        it 'calls send_email_change_notification' do
+          VCR.use_cassette('va_profile/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
+            expect(VANotifyEmailJob).to receive(:perform_async).with(
+              'email@email.com',
+              described_class::CONTACT_INFO_CHANGE_TEMPLATE,
+              'contact_info' => 'Email address'
+            )
+            expect(VANotifyEmailJob).to receive(:perform_async).with(
+              'person43@example.com',
+              described_class::CONTACT_INFO_CHANGE_TEMPLATE,
+              'contact_info' => 'Email address'
+            )
+
+            subject.get_email_transaction_status(transaction_id)
+
+            expect(OldEmail.find(transaction_id)).to eq(nil)
+          end
+        end
+      end
     end
 
     context 'when not successful' do
@@ -335,12 +379,69 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
     end
   end
 
+  describe '#send_contact_change_notification' do
+    let(:transaction) { double }
+    let(:transaction_status) do
+      OpenStruct.new(
+        transaction: transaction
+      )
+    end
+    let(:transaction_id) { '123' }
+
+    context 'transaction completed success' do
+      before do
+        expect(transaction).to receive(:completed_success?).and_return(true)
+        expect(transaction).to receive(:id).and_return(transaction_id)
+      end
+
+      context 'transaction notification already exists' do
+        before do
+          TransactionNotification.create(transaction_id: transaction_id)
+        end
+
+        it 'doesnt send an email' do
+          expect(VANotifyEmailJob).not_to receive(:perform_async)
+          subject.send(:send_contact_change_notification, transaction_status, :address)
+        end
+      end
+
+      context 'transaction notification doesnt exist' do
+        it 'sends an email' do
+          VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+
+            expect(VANotifyEmailJob).to receive(:perform_async).with(
+              user.va_profile_email,
+              described_class::CONTACT_INFO_CHANGE_TEMPLATE,
+              'contact_info' => 'Email address'
+            )
+
+            subject.send(:send_contact_change_notification, transaction_status, :email)
+
+            expect(TransactionNotification.find(transaction_id).present?).to eq(true)
+          end
+        end
+      end
+    end
+
+    context 'if transaction does not have completed success status' do
+      it 'doesnt send an email' do
+        expect(transaction).to receive(:completed_success?).and_return(false)
+
+        expect(VANotifyEmailJob).not_to receive(:perform_async)
+        subject.send(:send_contact_change_notification, transaction_status, :address)
+      end
+    end
+  end
+
   describe '#get_address_transaction_status' do
     context 'when successful' do
       let(:transaction_id) { 'a030185b-e88b-4e0d-a043-93e4f34c60d6' }
 
       it 'returns a status of 200' do
         VCR.use_cassette('va_profile/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
+          expect_any_instance_of(described_class).to receive(:send_contact_change_notification)
+
           response = subject.get_address_transaction_status(transaction_id)
           expect(response).to be_ok
           expect(response.transaction).to be_a(VAProfile::Models::Transaction)
@@ -526,6 +627,8 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
           transaction_id = 'a2af8cd1-472c-4e6f-bd5a-f95e31e351b7'
 
           VCR.use_cassette('va_profile/contact_information/telephone_transaction_status') do
+            expect_any_instance_of(described_class).to receive(:send_contact_change_notification)
+
             expect { subject.get_telephone_transaction_status(transaction_id) }.to trigger_statsd_increment(
               "#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
             )
@@ -538,6 +641,8 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
           transaction_id = 'a030185b-e88b-4e0d-a043-93e4f34c60d6'
 
           VCR.use_cassette('va_profile/contact_information/address_transaction_status') do
+            expect_any_instance_of(described_class).to receive(:send_contact_change_notification)
+
             expect { subject.get_address_transaction_status(transaction_id) }.to trigger_statsd_increment(
               "#{VAProfile::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
             )

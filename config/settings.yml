@@ -772,6 +772,7 @@ flipper:
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
+    - zachary.morel@gcio.com
 
 bgs:
   application: ~
@@ -899,6 +900,7 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        contact_info_change: fake_template_id
         form526_confirmation_email: fake_template_id
         covid_vaccine_registration: fake_template_id
         covid_vaccine_expanded_registration: fake_template_id
