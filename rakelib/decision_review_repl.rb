@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# run this with:  bin/rails runner rakelib/decision_review_repl.rb
+# run this by starting a rails console and running: require_relative 'rakelib/decision_review_repl'
 
 # rubocop:disable Lint/ShadowingOuterLocalVariable
 # rubocop:disable Style/MultilineBlockChain
@@ -429,7 +429,6 @@ end
 
 Q = PersonalInformationLogQueryBuilder
 puts recipes
-pry
 
 # rubocop:enable Lint/ShadowingOuterLocalVariable
 # rubocop:enable Style/MultilineBlockChain
