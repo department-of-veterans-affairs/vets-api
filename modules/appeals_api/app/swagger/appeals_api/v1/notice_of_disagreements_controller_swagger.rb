@@ -25,6 +25,8 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
     status: 500
   }.freeze
 
+  nod_json_schema = AppealsApi::V1::NodJsonSchemaSwaggerHelper.new
+
   swagger_path '/notice_of_disagreements' do
     operation :post, tags: NOD_TAG do
       key :summary, 'Creates a new Notice of Disagreement.'
@@ -36,122 +38,11 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
 
       key :operationId, 'nodCreateRoot'
 
+      key :parameters, nod_json_schema.params
+      key :requestBody, nod_json_schema.request_body
+      key :responses, nod_json_schema.responses
       security do
         key :apikey, []
-      end
-
-      parameter do
-        key :name, 'X-VA-First-Name'
-        key :in, :header
-        key :description, 'First Name of Veteran referenced in Notice of Disagreement'
-        key :required, true
-        key :type, :string
-        key :maxLength, 16
-
-        # The total amount of characters available for the First Name, Middle Name,
-        # Last Name is 52 characters. 16, allowing 4 for middle initial and
-        # whitespace, and then 36 is an acceptable distribution, but not set in
-        # stone.
-      end
-
-      parameter do
-        key :name, 'X-VA-Last-Name'
-        key :in, :header
-        key :description, 'Last Name of Veteran referenced in Notice of Disagreement'
-        key :required, true
-        key :type, :string
-        key :maxLength, 36
-      end
-
-      parameter do
-        key :name, 'X-VA-SSN'
-        key :in, :header
-        key :description, 'SSN of Veteran referenced in Notice of Disagreement'
-        key :required, true
-        key :type, :string
-        key :maxLength, 9
-      end
-
-      parameter do
-        key :name, 'X-VA-Birth-Date'
-        key :in, :header
-        key :description, 'Birth Date of Veteran referenced in Notice of Disagreement'
-        key :required, true
-        key :type, :string
-        key :maxLength, 10
-      end
-
-      parameter do
-        key :name, 'X-VA-File-Number'
-        key :in, :header
-        key :required, false
-        key :description, 'VA file number'
-        key :maxLength, 9
-      end
-
-      parameter do
-        key :name, 'X-VA-Birth-Date'
-        key :in, :header
-        key :required, false
-        key :description, 'The birth date of the Veteran referenced in the Notice of Disagreement.'
-        key :maxLength, 10
-      end
-
-      request_body do
-        key :required, true
-        content 'application/json' do
-          schema do
-            key :$ref, :nodCreateInput
-          end
-        end
-      end
-
-      response 200 do
-        key :description, '10182 success response'
-        content 'application/json' do
-          schema do
-            key :$ref, :nodCreateResponse
-          end
-        end
-      end
-
-      response 422 do
-        key :description, '10182 validation errors'
-        content 'application/json' do
-          schema do
-            key :type, :object
-            property :errors do
-              key :type, :array
-
-              items do
-                key :$ref, :errorModel
-              end
-            end
-
-            property :status do
-              key :type, :integer
-              key :description, 'Standard HTTP error response code.'
-              key :example, 422
-            end
-          end
-        end
-      end
-
-      response 500 do
-        key :description, 'Unknown Error'
-
-        content 'application/json' do
-          schema do
-            key :type, :object
-            key :example, ERROR_500_EXAMPLE
-            property :errors do
-              key :type, :array
-              items do
-                key :$ref, :errorModel
-              end
-            end
-          end
-        end
       end
     end
   end

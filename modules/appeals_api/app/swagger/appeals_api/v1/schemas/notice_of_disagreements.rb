@@ -5,6 +5,26 @@ module AppealsApi::V1
     class NoticeOfDisagreements
       include Swagger::Blocks
 
+      def self.nod_json_schemas
+        read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
+
+        read_json_schema = ->(filename) { JSON.parse read_file[['config', 'schemas', 'v1', filename]] }
+
+        nod_create_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
+          read_json_schema['10182.json']
+        ).to_swagger['components']['schemas']
+
+        nod_create_header_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
+          read_json_schema['10182_headers.json']
+        ).to_swagger['components']['schemas']
+
+        {
+          components: {
+            schemas: nod_create_schemas.merge(nod_create_header_schemas)
+          }
+        }
+      end
+
       swagger_component do
         schema :nodStatus do
           key :type, :string
