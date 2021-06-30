@@ -5,7 +5,11 @@ module Mobile
     class DiscoverySerializer
       include FastJsonapi::ObjectSerializer
 
-      attributes :webviews, :endpoints, :display_message, :app_access, :auth_base_url, :api_root_url
+      attributes :auth_base_url,
+                 :api_root_url,
+                 :minimum_version,
+                 :maintenance_windows,
+                 :web_views
     end
   end
 end

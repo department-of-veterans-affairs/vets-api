@@ -17,75 +17,6 @@ RSpec.describe 'discovery', type: :request do
           }
         }
       end
-
-      let(:header) do
-        { 'X-Key-Inflection' => 'camel' }
-      end
-
-      let(:auth_map) do
-        {
-          dev: 'https://sqa.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/',
-          staging: 'https://int.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/',
-          prod: 'https://fed.eauth.va.gov/oauthe/sps/oauth/oauth20/'
-        }
-      end
-
-      let(:api_root_map) do
-        {
-          dev: 'https://staging-api.va.gov/mobile',
-          staging: 'https://staging-api.va.gov/mobile',
-          prod: 'https://api.va.gov/mobile'
-        }
-      end
-
-      it 'returns the welcome message' do
-        get '/mobile'
-
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)).to eq(expected_body)
-      end
-
-      it 'returns API 1.0 response with dev oauth url' do
-        params = { environment: 'dev', buildNumber: '22', os: 'android' }
-        post '/mobile', params: params, headers: header
-        expect(response.body).to match_json_schema('discovery')
-        expect(response.parsed_body.dig('data', 'attributes', 'authBaseUrl')).to eq(auth_map[:dev])
-        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:dev])
-        expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'returns API 1.0 response with staging oauth url' do
-        params = { environment: 'staging', buildNumber: '27', os: 'ios' }
-        post '/mobile', params: params, headers: header
-        expect(response.body).to match_json_schema('discovery')
-        expect(response.parsed_body.dig('data', 'attributes', 'authBaseUrl')).to eq(auth_map[:staging])
-        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:staging])
-        expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'returns API 1.0 response with prod oauth url' do
-        params = { environment: 'prod', buildNumber: '55', os: 'android' }
-        post '/mobile', params: params, headers: header
-        expect(response.body).to match_json_schema('discovery')
-        expect(response.parsed_body.dig('data', 'attributes', 'authBaseUrl')).to eq(auth_map[:prod])
-        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq(api_root_map[:prod])
-        expect(response.parsed_body.dig('data', 'id')).to eq('1.0')
-        expect(response).to have_http_status(:ok)
-      end
-
-      it 'returns deprecated app version response' do
-        params = { environment: 'prod', buildNumber: '10', os: 'ios' }
-        post '/mobile', params: params, headers: header
-        expect(response.body).to match_json_schema('discovery')
-        expect(response.parsed_body.dig('data', 'attributes', 'authBaseUrl')).to eq('')
-        expect(response.parsed_body.dig('data', 'attributes', 'apiRootUrl')).to eq('')
-        expect(response.parsed_body.dig('data', 'attributes', 'appAccess')).to be(false)
-        expect(response.parsed_body.dig('data', 'attributes', 'displayMessage')).to eq('Please update the app.')
-        expect(response.parsed_body.dig('data', 'id')).to eq('deprecated')
-        expect(response).to have_http_status(:ok)
-      end
     end
 
     context 'when the mobile_api flipper feature is disabled' do
@@ -95,6 +26,99 @@ RSpec.describe 'discovery', type: :request do
         get '/mobile'
 
         expect(response).to have_http_status(:not_found)
+      end
+    end
+  end
+
+  describe 'GET /discovery' do
+    let(:response_attributes) { response.parsed_body.dig('data', 'attributes') }
+
+    context 'when no maintenance windows are active' do
+      before { get '/mobile/discovery', headers: { 'X-Key-Inflection' => 'camel' } }
+
+      it 'has a auth_base_url' do
+        expect(response_attributes['authBaseUrl']).to eq('https://sqa.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/')
+      end
+
+      it 'has a api_root_url' do
+        expect(response_attributes['apiRootUrl']).to eq('https://dev.va.gov/mobile')
+      end
+
+      it 'lets the app know the minimum_version supported' do
+        expect(response_attributes['minimumVersion']).to eq('1.0.0')
+      end
+
+      it 'has the expected web views' do
+        expect(response_attributes['webViews']).to eq(
+          {
+            'coronaFaq' => 'https://www.va.gov/coronavirus-veteran-frequently-asked-questions',
+            'facilityLocator' => 'https://www.va.gov/find-locations'
+          }
+        )
+      end
+
+      it 'matches the expected schema' do
+        expect(response.body).to match_json_schema('discovery')
+      end
+
+      it 'returns an empty array of affected services' do
+        expect(response_attributes['maintenanceWindows']).to eq([])
+      end
+    end
+
+    context 'when a maintenance with many dependent services is active' do
+      before do
+        Timecop.freeze('2021-05-25T23:33:39Z')
+        FactoryBot.create(:mobile_maintenance_evss)
+        FactoryBot.create(:mobile_maintenance_mpi)
+        get '/mobile/discovery', headers: { 'X-Key-Inflection' => 'camel' }
+      end
+
+      after { Timecop.return }
+
+      it 'matches the expected schema' do
+        expect(response.body).to match_json_schema('discovery')
+      end
+
+      it 'returns an array of the affected services' do
+        expect(response_attributes['maintenanceWindows']).to eq([
+                                                                  {
+                                                                    'service' => 'claims',
+                                                                    'startTime' => '2021-05-25T21:33:39.000Z',
+                                                                    'endTime' => '2021-05-26T01:45:00.000Z',
+                                                                    'description' => 'evss is down, mpi is down'
+                                                                  },
+                                                                  {
+                                                                    'service' => 'direct_deposit_benefits',
+                                                                    'startTime' => '2021-05-25T21:33:39.000Z',
+                                                                    'endTime' => '2021-05-26T01:45:00.000Z',
+                                                                    'description' => 'evss is down, mpi is down'
+                                                                  },
+                                                                  {
+                                                                    'service' => 'letters_and_documents',
+                                                                    'startTime' => '2021-05-25T21:33:39.000Z',
+                                                                    'endTime' => '2021-05-26T01:45:00.000Z',
+                                                                    'description' => 'evss is down, mpi is down'
+                                                                  },
+                                                                  {
+                                                                    'service' => 'auth_dslogon',
+                                                                    'startTime' => '2021-05-25T23:33:39.000Z',
+                                                                    'endTime' => '2021-05-26T01:45:00.000Z',
+                                                                    'description' => 'mpi is down'
+                                                                  },
+                                                                  {
+                                                                    'service' => 'auth_idme',
+                                                                    'startTime' => '2021-05-25T23:33:39.000Z',
+                                                                    'endTime' => '2021-05-26T01:45:00.000Z',
+                                                                    'description' => 'mpi is down'
+                                                                  },
+                                                                  {
+                                                                    'service' => 'auth_mhv',
+                                                                    'startTime' => '2021-05-25T23:33:39.000Z',
+                                                                    'endTime' => '2021-05-26T01:45:00.000Z',
+                                                                    'description' => 'mpi is down'
+                                                                  }
+                                                                ])
       end
     end
   end

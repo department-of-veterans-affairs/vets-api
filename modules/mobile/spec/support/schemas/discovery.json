@@ -1,42 +1,87 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "definitions": {
-  },
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "type": "object",
+  "required": [
+    "data"
+  ],
   "properties": {
     "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
       "properties": {
-        "attributes": {
-          "properties": {
-            "webviews": {
-              "type": "object"
-            },
-            "endpoints": {
-              "type": "object"
-            },
-            "displayMessage": {
-              "type": "string"
-            },
-            "appAccess": {
-              "type": "boolean"
-            },
-            "oauthBaseUrl": {
-              "type": "string"
-            },
-            "apiRootUrl": {
-              "type": "string"
-            }
-          },
-          "type": "object"
-        },
         "id": {
           "type": "string"
         },
         "type": {
           "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "authBaseUrl",
+            "apiRootUrl",
+            "minimumVersion",
+            "maintenanceWindows",
+            "webViews"
+          ],
+          "properties": {
+            "authBaseUrl": {
+              "type": "string"
+            },
+            "apiRootUrl": {
+              "type": "string"
+            },
+            "minimumVersion": {
+              "type": "string"
+            },
+            "maintenanceWindows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "service",
+                  "startTime",
+                  "endTime",
+                  "description"
+                ],
+                "properties": {
+                  "service": {
+                    "type": "string"
+                  },
+                  "startTime": {
+                    "type": "string"
+                  },
+                  "endTime": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "web_views": {
+              "type": "object",
+              "required": [
+                "coronaFaq",
+                "facilityLocator"
+              ],
+              "properties": {
+                "coronaFaq": {
+                  "type": "string"
+                },
+                "facilityLocator": {
+                  "type": "string"
+                }
+              }
+            }
+          }
         }
-      },
-      "type": "object"
+      }
     }
-  },
-  "type": "object"
+  }
 }

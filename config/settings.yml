@@ -1034,3 +1034,12 @@ github_cvu:
 pg_hero:
   username: ~
   password: ~
+
+mobile_api:
+  auth_base_url: 'https://sqa.fed.eauth.va.gov/oauthe/sps/oauth/oauth20/'
+  api_root_url: 'https://dev.va.gov/mobile'
+  minimum_version: 1.0.0
+  web_views:
+    corona_faq: 'https://www.va.gov/coronavirus-veteran-frequently-asked-questions'
+    facility_locator: 'https://www.va.gov/find-locations'
+
