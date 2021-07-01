@@ -17,8 +17,7 @@ namespace :vba_documents do
     raise ArgumentError, NO_PDF_DIR unless pdf_test_dir
 
     unless Dir.exist?(pdf_test_dir)
-      raise ArgumentError,
-            "The PDF directory, #{pdf_test_dir} is not a valid directory path"
+      raise ArgumentError, "The PDF directory, #{pdf_test_dir} is not a valid directory path"
     end
 
     files = Dir["#{pdf_test_dir}/*"]

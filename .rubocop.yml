@@ -90,10 +90,6 @@ Layout/LineLength:
   Max: 120
   Exclude:
     - 'Gemfile'
-    - 'app/swagger/swagger/schemas/evss_auth_error.rb'
-    - 'config/initializers/statsd.rb'
-    - 'lib/pdf_fill/forms/va21p527ez.rb'
-    - 'spec/lib/pdf_fill/forms/common_ptsd_spec.rb'
 
 Rails:
   Enabled: true
@@ -133,7 +129,6 @@ Metrics/BlockLength:
     - 'modules/*/spec/**/*.rb'
     - 'modules/*/app/swagger/**/*.rb'
     - 'modules/*/config/routes.rb'
-    - 'modules/*/config/initializers/*.rb'
 
 # Don't worry about ambiguous blocks in RSpec
 # Official recommendation from rubocop team is to disable this rule for specs.

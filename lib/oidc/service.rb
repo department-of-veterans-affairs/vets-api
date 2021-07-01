@@ -33,8 +33,7 @@ module OIDC
     def oidc_jwks_keys(iss)
       url = metadata(iss).body['jwks_uri']
       if url.nil?
-        raise Common::Exceptions::OpenIdServiceError.new(detail: 'Issuer keys not found', code: 404,
-                                                         status: 404)
+        raise Common::Exceptions::OpenIdServiceError.new(detail: 'Issuer keys not found', code: 404, status: 404)
       end
 
       with_monitoring do

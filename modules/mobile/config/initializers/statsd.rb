@@ -7,6 +7,7 @@
 # Authentication #-------------------------------------------------------------
 Rails.application.reloader.to_prepare do
   # Appointments #---------------------------------------------------------------
+
   # meta binding
   Mobile::ApplicationController.extend StatsD::Instrument
   Mobile::ApplicationController.statsd_count_success :authenticate,

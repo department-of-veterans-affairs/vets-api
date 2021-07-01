@@ -164,8 +164,7 @@ module Common
       if defined?(::WillPaginate::Collection)
         WillPaginate::Collection.create(page, per_page, @data.length) do |pager|
           if pager.out_of_bounds?
-            raise Common::Exceptions::InvalidPaginationParams.new({ page: page,
-                                                                    per_page: per_page })
+            raise Common::Exceptions::InvalidPaginationParams.new({ page: page, per_page: per_page })
           end
           pager.replace @data[pager.offset, pager.per_page]
         end

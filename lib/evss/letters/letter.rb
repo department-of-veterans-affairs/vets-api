@@ -36,8 +36,7 @@ module EVSS
         raise ArgumentError, 'name and letter_type are required' if args.values.any?(&:nil?)
 
         unless LETTER_TYPES.include? args['letter_type']
-          raise ArgumentError,
-                "invalid letter type: #{args['letter_type']}"
+          raise ArgumentError, "invalid letter type: #{args['letter_type']}"
         end
 
         super({ name: args['letter_name'], letter_type: args['letter_type'] })

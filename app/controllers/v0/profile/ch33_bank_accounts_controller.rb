@@ -19,8 +19,7 @@ module V0
         ).body
 
         unless res[:update_ch33_dd_eft_response][:return][:return_code] == 'S'
-          return render(json: res,
-                        status: :bad_request)
+          return render(json: res, status: :bad_request)
         end
 
         if Flipper.enabled?(:direct_deposit_vanotify, current_user)
