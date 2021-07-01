@@ -174,11 +174,7 @@ module AppealsApi
 
     # 15. YOU MUST INDICATE BELOW EACH ISSUE...
     def contestable_issues
-      issues = form_data.dig('included') || []
-
-      issues.map do |issue|
-        AppealsApi::ContestableIssue.new(issue)
-      end
+      form_data&.dig('included')
     end
 
     # 16B. DATE SIGNED
@@ -269,25 +265,30 @@ module AppealsApi
       add_error("Veteran birth date isn't in the past: #{birth_date}") unless self.class.past? birth_date
     end
 
+    # validation
     def contestable_issue_dates_are_valid_dates
-      return if contestable_issues.blank?
+      return unless contestable_issues
 
-      contestable_issues.each_with_index do |issue, index|
-        decision_date_invalid(issue, index)
-        decision_date_not_in_past(issue, index)
+      contestable_issues.each_with_index do |ci, index|
+        decision_date_is_valid(ci&.dig('attributes', 'decisionDate').to_s, index)
       end
     end
 
-    def decision_date_invalid(issue, issue_index)
-      return if issue.decision_date
-
-      add_decision_date_error "isn't a valid date: #{issue.decision_date_string.inspect}", issue_index
+    def decision_date_is_valid(string, issue_index)
+      date = self.class.date_from_string(string)
+      unless date
+        add_error_decision_date_string_could_not_be_parsed(string, issue_index)
+        return
+      end
+      add_error_decision_date_is_not_in_the_past(date, issue_index) unless self.class.past? date
     end
 
-    def decision_date_not_in_past(issue, issue_index)
-      return if issue.decision_date.nil? || issue.decision_date_past?
+    def add_error_decision_date_string_could_not_be_parsed(decision_date_string, issue_index)
+      add_decision_date_error "isn't a valid date: #{decision_date_string.inspect}", issue_index
+    end
 
-      add_decision_date_error "isn't in the past: #{issue.decision_date_string.inspect}", issue_index
+    def add_error_decision_date_is_not_in_the_past(decision_date, issue_index)
+      add_decision_date_error "isn't in the past: #{decision_date}", issue_index
     end
 
     def add_decision_date_error(string, issue_index)

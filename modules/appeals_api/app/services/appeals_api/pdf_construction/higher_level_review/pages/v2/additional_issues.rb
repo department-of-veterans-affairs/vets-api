@@ -40,7 +40,7 @@ module AppealsApi
               header = ['A. Specific Issue(s)', 'B. Date of Decision', 'C. SOC/SSOC Date']
 
               data = form_data.contestable_issues.drop(max_issues_on_form).map do |issue|
-                [issue.text, issue.decision_date, issue.soc_date_formatted]
+                [issue['attributes']['issue'], issue['attributes']['decisionDate'], form_data.soc_date_formatted(issue)]
               end
 
               data.unshift(header)

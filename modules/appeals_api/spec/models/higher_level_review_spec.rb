@@ -158,13 +158,9 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   describe '#contestable_issues' do
-    subject { higher_level_review.contestable_issues.to_json }
+    subject { higher_level_review.contestable_issues }
 
-    it 'matches json' do
-      issues = form_data['included'].map { |issue| AppealsApi::ContestableIssue.new(issue) }.to_json
-
-      expect(subject).to eq(issues)
-    end
+    it('matches json') { is_expected.to eq form_data['included'] }
   end
 
   describe '#date_signed' do
