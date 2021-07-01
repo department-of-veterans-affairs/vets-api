@@ -4,9 +4,8 @@
 # and set initial values for increments to 0 (does not reset values, ensures counts carry over server instances)
 # statsd_count_success automatically appends .success or .failure
 
-# Authentication #-------------------------------------------------------------
 Rails.application.reloader.to_prepare do
-  # Appointments #---------------------------------------------------------------
+  # Authentication #-------------------------------------------------------------
 
   # meta binding
   Mobile::ApplicationController.extend StatsD::Instrument
@@ -16,6 +15,8 @@ Rails.application.reloader.to_prepare do
   # failure rate for authentication
   StatsD.increment('mobile.authentication.success', 0)
   StatsD.increment('mobile.authentication.failure', 0)
+
+  # Appointments #---------------------------------------------------------------
 
   # meta binding
   Mobile::V0::Appointments::Proxy.extend StatsD::Instrument
@@ -29,6 +30,25 @@ Rails.application.reloader.to_prepare do
   # service failure rate for the appointments list
   StatsD.increment('mobile.appointments.get_appointments.success', 0)
   StatsD.increment('mobile.appointments.get_appointments.failure', 0)
+
+  # service failure rate for cancelling appointments
+  StatsD.increment('mobile.appointments.put_cancel_appointment.success', 0)
+  StatsD.increment('mobile.appointments.put_cancel_appointment.failure', 0)
+
+  # which facilities most often appear in the list (tags:["facility_id:#{facility_id}"])
+  StatsD.increment('mobile.appointments.facilities', 0)
+  # which appointment types most often appear in the list (tags:["type:#{type}"])
+  StatsD.increment('mobile.appointments.type', 0)
+
+  # Letters #--------------------------------------------------------------------
+
+  # which letters are most often downloaded
+  StatsD.increment('mobile.letters.download.type', 0)
+
+  # Claims and Appeals #---------------------------------------------------------
+
+  # which claim types are most often viewed
+  StatsD.increment('mobile.claims_and_appeals.claim.type', 0)
 
   # Payment Information #--------------------------------------------------------
 
@@ -58,6 +78,17 @@ Rails.application.reloader.to_prepare do
   Mobile::V0::Profile::SyncUpdateService.statsd_measure :save_and_await_response,
                                                         'mobile.profile.link_account.measure'
 
+  # service failure rate for updating profile information
+  StatsD.increment('mobile.profile.update.success', 0)
+  StatsD.increment('mobile.profile.update.failure', 0)
+
+  # which profile data types are most often updated (tags:["type:#{type}"])
+  StatsD.increment('mobile.profile.update.type', 0)
+
+  # service failure rate for linking Vet360 accounts (generating an id)
+  StatsD.increment('mobile.profile.link_account.success', 0)
+  StatsD.increment('mobile.profile.link_account.failure', 0)
+
   # Push Notifications #------------------------------------------------------------
   Mobile::V0::PushNotificationsController.extend StatsD::Instrument
   Mobile::V0::PushNotificationsController.statsd_count_success :register,
@@ -68,52 +99,22 @@ Rails.application.reloader.to_prepare do
                                                                'mobile.push.set_pref'
   Mobile::V0::PushNotificationsController.statsd_count_success :send_notification,
                                                                'mobile.push.send_notification'
+
+  StatsD.increment('mobile.push.registration.success', 0)
+  StatsD.increment('mobile.push.registration.failure', 0)
+
+  StatsD.increment('mobile.push.get_prefs.success', 0)
+  StatsD.increment('mobile.push.get_prefs.failure', 0)
+
+  StatsD.increment('mobile.push.set_pref.success', 0)
+  StatsD.increment('mobile.push.set_pref.failure', 0)
+
+  StatsD.increment('mobile.push.send_notification.success', 0)
+  StatsD.increment('mobile.push.send_notification.failure', 0)
+
+  # Secure messaging #------------------------------------------------------------
+
+  # SM cache hit ratio
+  StatsD.increment('mobile.sm.cache.hit', 0)
+  StatsD.increment('mobile.sm.cache.miss', 0)
 end
-
-# service failure rate for cancelling appointments
-StatsD.increment('mobile.appointments.put_cancel_appointment.success', 0)
-StatsD.increment('mobile.appointments.put_cancel_appointment.failure', 0)
-
-# which facilities most often appear in the list (tags:["facility_id:#{facility_id}"])
-StatsD.increment('mobile.appointments.facilities', 0)
-# which appointment types most often appear in the list (tags:["type:#{type}"])
-StatsD.increment('mobile.appointments.type', 0)
-
-# Letters #--------------------------------------------------------------------
-
-# which letters are most often downloaded
-StatsD.increment('mobile.letters.download.type', 0)
-
-# Claims and Appeals #---------------------------------------------------------
-
-# which claim types are most often viewed
-StatsD.increment('mobile.claims_and_appeals.claim.type', 0)
-
-# service failure rate for updating profile information
-StatsD.increment('mobile.profile.update.success', 0)
-StatsD.increment('mobile.profile.update.failure', 0)
-
-# which profile data types are most often updated (tags:["type:#{type}"])
-StatsD.increment('mobile.profile.update.type', 0)
-
-# service failure rate for linking Vet360 accounts (generating an id)
-StatsD.increment('mobile.profile.link_account.success', 0)
-StatsD.increment('mobile.profile.link_account.failure', 0)
-
-StatsD.increment('mobile.push.registration.success', 0)
-StatsD.increment('mobile.push.registration.failure', 0)
-
-StatsD.increment('mobile.push.get_prefs.success', 0)
-StatsD.increment('mobile.push.get_prefs.failure', 0)
-
-StatsD.increment('mobile.push.set_pref.success', 0)
-StatsD.increment('mobile.push.set_pref.failure', 0)
-
-StatsD.increment('mobile.push.send_notification.success', 0)
-StatsD.increment('mobile.push.send_notification.failure', 0)
-
-# Secure messaging #------------------------------------------------------------
-
-# SM cache hit ratio
-StatsD.increment('mobile.sm.cache.hit', 0)
-StatsD.increment('mobile.sm.cache.miss', 0)
