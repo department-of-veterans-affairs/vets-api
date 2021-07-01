@@ -183,7 +183,9 @@ Rails.application.reloader.to_prepare do
   # init Facilities Jobs
   StatsD.increment('shared.sidekiq.default.Facilities_InitializingErrorMetric.error', 0)
 
-  ActiveSupport::Notifications.subscribe('facilities.ppms.request.faraday') do |_name, start_time, end_time, _id, payload|
+  ActiveSupport::Notifications.subscribe(
+    'facilities.ppms.request.faraday'
+  ) do |_name, start_time, end_time, _id, payload|
     payload_statuses = ["http_status:#{payload.status}"]
     StatsD.increment('facilities.ppms.response.failures', tags: payload_statuses) unless payload.success?
     StatsD.increment('facilities.ppms.response.total', tags: payload_statuses)
@@ -213,7 +215,9 @@ Rails.application.reloader.to_prepare do
     end
   end
 
-  ActiveSupport::Notifications.subscribe('lighthouse.facilities.request.faraday') do |_, start_time, end_time, _, payload|
+  ActiveSupport::Notifications.subscribe(
+    'lighthouse.facilities.request.faraday'
+  ) do |_, start_time, end_time, _, payload|
     payload_statuses = ["http_status:#{payload.status}"]
     StatsD.increment('facilities.lighthouse.response.failures', tags: payload_statuses) unless payload.success?
     StatsD.increment('facilities.lighthouse.response.total', tags: payload_statuses)

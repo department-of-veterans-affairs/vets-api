@@ -163,7 +163,8 @@ module PdfFill
               limit: 46,
               question_num: 10,
               question_suffix: 'A',
-              question_text: 'LIST ANY VA MEDICAL CENTERS WHERE YOU RECEIVED TREATMENT FOR YOUR CLAIMED DISABILITY(IES)',
+              question_text: \
+                'LIST ANY VA MEDICAL CENTERS WHERE YOU RECEIVED TREATMENT FOR YOUR CLAIMED DISABILITY(IES)',
               key: "vaHospitalTreatments.nameAndLocation[#{ITERATOR}]"
             }
           },

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 namespace :va_forms do
   QUERY = File.read(Rails.root.join('modules', 'va_forms', 'config', 'graphql_query.txt'))
   SOCKS_URL = Settings.docker_debugging&.socks_url ? Settings.docker_debugging.socks_url : 'socks://localhost:2001'
@@ -50,4 +49,3 @@ namespace :va_forms do
     fetch_all_forms
   end
 end
-# rubocop:enable Metrics/BlockLength

@@ -65,7 +65,8 @@ describe PdfFill::Forms::CommonPtsd do
 
     it 'ignores more than 90 characters' do
       expect(JSON.parse(including_class.new.expand_incident_location(
-        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+        'incidentLocation' =>
+          'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
       ).to_json)).to eq(
         'row0' => 'abcdefghijklmno',
         'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
