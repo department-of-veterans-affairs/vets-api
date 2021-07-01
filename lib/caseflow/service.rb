@@ -19,7 +19,8 @@ module Caseflow
     STATSD_KEY_PREFIX = 'api.appeals'
     CASEFLOW_V2_API_PATH = '/api/v2/appeals'
     CASEFLOW_V3_API_PATH = '/api/v3/decision_reviews'
-    DEFAULT_HEADERS = { 'Authorization' => "Token token=#{Settings.caseflow.app_token}" }.freeze
+    DEFAULT_HEADERS = { 'Authorization' => 'Token token=super_secure_key_string'}.freeze
+    # DEFAULT_HEADERS = { 'Authorization' => "Token token=#{Settings.caseflow.app_token}" }.freeze
 
     ##
     # Returns caseflow data for a user by their SSN.
@@ -44,7 +45,8 @@ module Caseflow
       with_monitoring do
         authorized_perform(
           :get,
-          "#{CASEFLOW_V3_API_PATH}/legacy_appeals".chomp('/'),
+          "http://localhost:3000/api/v3/decision_reviews/legacy_appeals",
+          # "#{CASEFLOW_V3_API_PATH}/legacy_appeals".chomp('/'),
           {},
           headers
         )

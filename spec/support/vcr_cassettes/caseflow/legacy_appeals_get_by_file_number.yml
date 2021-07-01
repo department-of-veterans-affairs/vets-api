@@ -45,9 +45,9 @@ http_interactions:
       X-Meta-Request-Version:
       - 0.7.2
       X-Request-Id:
-      - ca55d4e9-29a1-4e24-be64-b239aeaf1618
+      - 1279a432-8adc-40e1-8b5f-ee63e7415ab0
       X-Runtime:
-      - '2.901585'
+      - '3.482954'
       Transfer-Encoding:
       - chunked
     body:
@@ -60,6 +60,6 @@ http_interactions:
         sapiente nostrum aliquid voluptas.","vacols_sequence_id":2,"labels":["Compensation","Service
         connection","All Others","Field vision, impairment of"],"readjudication":false,"remand_reasons":[]}],"hearings":[],"completedHearingOnPreviousAppeal?":false,"appellantIsNotVeteran":false,"appellantFullName":null,"appellantAddress":{"address_line_1":"9999
         MISSION ST","address_line_2":"UBER","address_line_3":"APT 2","city":"SAN FRANCISCO","zip":"94103","country":"USA","state":"CA"},"appellantTz":"America/Los_Angeles","appellantRelationship":"","assignedToLocation":"97","vbmsId":"239120550","veteranFullName":"Junior
-        L Fritsch","veteranDeathDate":null,"veteranAppellantDeceased":false,"veteranFileNumber":"239120550","externalId":"3085659","type":"Original","aod":true,"docketNumber":"5800366","docketRangeDate":"2019-05-29","status":"Remand","decisionDate":"2021-06-14T00:00:00.000Z","form9Date":"2019-05-29T00:00:00.000Z","nodDate":"2018-09-27T00:00:00.000Z","certificationDate":"2019-10-09","paperCase":false,"overtime":false,"caseflowVeteranId":1888,"socDate":"2019-05-10T00:00:00.000Z","closestRegionalOffice":null,"closestRegionalOfficeLabel":null,"availableHearingLocations":[],"docketName":"legacy","regionalOffice":{"key":"RO40","city":"Albuquerque","state":"NM"},"documentId":"172361129.1806","canEditDocumentId":false,"attorneyCaseReviewId":"3085659"}}]}'
-  recorded_at: Thu, 24 Jun 2021 18:38:06 GMT
+        L Fritsch","veteranDeathDate":null,"veteranAppellantDeceased":false,"veteranFileNumber":"239120550","externalId":"3085659","type":"Original","aod":true,"docketNumber":"5800366","docketRangeDate":"2019-05-29","status":"Active","decisionDate":"2021-06-14T00:00:00.000Z","form9Date":"2019-05-29T00:00:00.000Z","nodDate":"2018-09-27T00:00:00.000Z","certificationDate":"2019-10-09","paperCase":false,"overtime":false,"caseflowVeteranId":1888,"socDate":"2019-05-10T00:00:00.000Z","closestRegionalOffice":null,"closestRegionalOfficeLabel":null,"availableHearingLocations":[],"docketName":"legacy","regionalOffice":{"key":"RO40","city":"Albuquerque","state":"NM"},"documentId":"172361129.1806","canEditDocumentId":false,"attorneyCaseReviewId":"3085659"}}]}'
+  recorded_at: Thu, 01 Jul 2021 15:35:28 GMT
 recorded_with: VCR 6.0.0

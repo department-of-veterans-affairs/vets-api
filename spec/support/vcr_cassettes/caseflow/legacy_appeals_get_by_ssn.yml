@@ -47,10 +47,10 @@ http_interactions:
         `block in hearings_for''\n  /Users/lauratrager/dev/caseflow/app/repositories/hearing_repository.rb:110:in
         `map''\n  /Users/lauratrager/dev/caseflow/app/repositories/hearing_repository.rb:110:in
         `hearings_for''\n  /Users/lauratrager/dev/caseflow/app/repositories/hearing_repository.rb:25:in
-        `hearings_for_appeal''\n  /Users/lauratrager/dev/caseflow/app/models/legacy_appeal.rb:354:in
+        `hearings_for_appeal''\n  /Users/lauratrager/dev/caseflow/app/models/legacy_appeal.rb:349:in
         `hearings''\n  /Users/lauratrager/dev/caseflow/app/serializers/helpers/appeal_hearing_helper.rb:11:in
         `hearings''\n  /Users/lauratrager/dev/caseflow/app/serializers/api/v3/legacy_appeal_serializer.rb:23:in
-        `block in \u003cclass:LegacyAppealSerializer\u003e''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:80:in
+        `block in \u003cclass:LegacyAppealSerializer\u003e''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:83:in
         `serialized_legacy_appeals''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:15:in
         `index''\n\n","user: lauratrager\nUSE eager loading detected\n  LegacyHearing
         =\u003e [:virtual_hearing]\n  Add to your finder: :includes =\u003e [:virtual_hearing]\nCall
@@ -59,7 +59,7 @@ http_interactions:
         `block in hearings''\n  /Users/lauratrager/dev/caseflow/app/serializers/helpers/appeal_hearing_helper.rb:11:in
         `map''\n  /Users/lauratrager/dev/caseflow/app/serializers/helpers/appeal_hearing_helper.rb:11:in
         `hearings''\n  /Users/lauratrager/dev/caseflow/app/serializers/api/v3/legacy_appeal_serializer.rb:23:in
-        `block in \u003cclass:LegacyAppealSerializer\u003e''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:80:in
+        `block in \u003cclass:LegacyAppealSerializer\u003e''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:83:in
         `serialized_legacy_appeals''\n  /Users/lauratrager/dev/caseflow/app/controllers/api/v3/decision_reviews/legacy_appeals_controller.rb:15:in
         `index''\n\n"]'
       Etag:
@@ -69,9 +69,9 @@ http_interactions:
       X-Meta-Request-Version:
       - 0.7.2
       X-Request-Id:
-      - 6b9042ad-70c4-47da-bc31-782c33150ff3
+      - 514e7a8a-9d14-4f94-a0d4-344b720f786c
       X-Runtime:
-      - '0.865875'
+      - '0.519872'
       Transfer-Encoding:
       - chunked
     body:
@@ -96,7 +96,7 @@ http_interactions:
         connection","New and material","Hearing loss"],"readjudication":false,"remand_reasons":[]}],"hearings":[{"date":"2021-01-29T11:30:00.000-05:00","disposition":"postponed","external_id":"404651","held_by":"","is_virtual":false,"notes":null,"type":"Travel","viewed_by_judge":false,"created_at":"2021-06-24T17:54:24.295Z"},{"date":"2021-06-11T11:30:00.000-04:00","disposition":"held","external_id":"404667","held_by":"","is_virtual":false,"notes":"Rerum
         autem nesciunt eveniet vero iure repellendus et.","type":"Travel","viewed_by_judge":false,"created_at":"2021-06-24T17:54:24.328Z"}],"completedHearingOnPreviousAppeal?":false,"appellantIsNotVeteran":false,"appellantFullName":null,"appellantAddress":{"address_line_1":"9999
         MISSION ST","address_line_2":"UBER","address_line_3":"APT 2","city":"SAN FRANCISCO","zip":"94103","country":"USA","state":"CA"},"appellantTz":"America/Los_Angeles","appellantRelationship":"","assignedToLocation":"99","vbmsId":"228081153","veteranFullName":"Reina
-        M Schamberger","veteranDeathDate":null,"veteranAppellantDeceased":false,"veteranFileNumber":"228081153","externalId":"2096907","type":"Original","aod":false,"docketNumber":"3411177","docketRangeDate":"2017-01-04","status":"Complete","decisionDate":"2021-06-14T00:00:00.000Z","form9Date":"2017-01-04T00:00:00.000Z","nodDate":"2012-11-29T00:00:00.000Z","certificationDate":"2018-02-17","paperCase":false,"overtime":false,"caseflowVeteranId":20,"socDate":"2016-12-08T00:00:00.000Z","closestRegionalOffice":null,"closestRegionalOfficeLabel":null,"availableHearingLocations":[],"docketName":"legacy","regionalOffice":{"key":"RO44","city":"Los
+        M Schamberger","veteranDeathDate":null,"veteranAppellantDeceased":false,"veteranFileNumber":"228081153","externalId":"2096907","type":"Original","aod":false,"docketNumber":"3411177","docketRangeDate":"2017-01-04","status":"Active","decisionDate":"2021-06-14T00:00:00.000Z","form9Date":"2017-01-04T00:00:00.000Z","nodDate":"2012-11-29T00:00:00.000Z","certificationDate":"2018-02-17","paperCase":false,"overtime":false,"caseflowVeteranId":20,"socDate":"2016-12-08T00:00:00.000Z","closestRegionalOffice":null,"closestRegionalOfficeLabel":null,"availableHearingLocations":[],"docketName":"legacy","regionalOffice":{"key":"RO44","city":"Los
         Angeles","state":"CA"},"documentId":"173171523.1860","canEditDocumentId":false,"attorneyCaseReviewId":"2096907"}}]}'
-  recorded_at: Thu, 24 Jun 2021 18:38:03 GMT
+  recorded_at: Thu, 01 Jul 2021 15:58:09 GMT
 recorded_with: VCR 6.0.0
