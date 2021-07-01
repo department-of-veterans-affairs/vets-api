@@ -66,11 +66,11 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it 'posts a 403 when a representative who doesn\'t have an MPI account tries to post type "burial"' do
+    it "returns a 403 when veteran is submitting for 'burial'" do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
           data[:data][:attributes] = { type: 'burial' }
-          post path, params: data.to_json, headers: headers.merge(auth_header)
+          post path, params: data.to_json, headers: auth_header
           expect(response.status).to eq(403)
         end
       end

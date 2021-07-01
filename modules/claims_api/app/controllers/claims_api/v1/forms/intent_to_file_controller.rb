@@ -63,10 +63,10 @@ module ClaimsApi
         private
 
         def participant_claimant_id
-          return target_veteran.participant_id unless form_type == 'burial'
-          return target_veteran.participant_id unless header_request?
+          error_detail = "Veteran cannot file for type 'burial'"
+          raise ::Common::Exceptions::Forbidden, detail: error_detail if veteran_submitting_burial_itf?
 
-          raise ::Common::Exceptions::Forbidden, detail: "Representative cannot file for type 'burial'"
+          target_veteran.participant_id
         end
 
         def intent_to_file_options
@@ -108,6 +108,10 @@ module ClaimsApi
               }
             }
           }
+        end
+
+        def veteran_submitting_burial_itf?
+          form_type == 'burial' && !header_request?
         end
       end
     end
