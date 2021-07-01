@@ -21,6 +21,9 @@ en:
         title: Validation error
         code: 100
         status: 422
+      validation_errors_bad_request:
+        <<: *validation_errors
+        status: 400
       invalid_resource:
         <<: *defaults
         title: Invalid resource

@@ -18,7 +18,7 @@ module AppealsApi
       end
 
       it 'sends a network request' do
-        with_settings(Settings.modules_appeals_api.slack, api_token: 'api token',
+        with_settings(Settings.modules_appeals_api.slack, api_key: 'api token',
                                                           appeals_channel_id: 'slack channel id') do
           body = {
             text: SidekiqRetryNotifier.message_text(params),
