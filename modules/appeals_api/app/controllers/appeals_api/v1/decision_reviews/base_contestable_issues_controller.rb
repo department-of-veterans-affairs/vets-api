@@ -73,6 +73,12 @@ class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < Appeals
       issue['attributes']['ratingIssueSubjectText'].nil?
     end
 
+    caseflow_response.body['data'].sort_by! do |issue|
+      Date.strptime(issue['attributes']['approxDecisionDate'], '%Y-%m-%d')
+    end
+
+    caseflow_response.body['data'].reverse!
+
     caseflow_response
   end
 

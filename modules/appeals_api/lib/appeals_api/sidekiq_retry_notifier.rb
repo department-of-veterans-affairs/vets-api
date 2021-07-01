@@ -13,7 +13,8 @@ module AppealsApi
 
       def message_text(params)
         "
-        The sidekiq job #{params['class']} has hit #{params['retry_count']} retries.
+        ENVIRONMENT: #{Settings.vsp_environment} \n
+        The sidekiq job #{params['class']} has hit #{params['retry_count'] + 1} retries.
         \nError Type: #{params['error_class']} \n Error Message: \n #{params['error_message']} \n\n
 This job failed at: #{Time.zone.at(params['failed_at'])}, and #{retried_at(params['retried_at'])}
         "
@@ -46,7 +47,7 @@ This job failed at: #{Time.zone.at(params['failed_at'])}, and #{retried_at(param
       end
 
       def slack_api_token
-        Settings.modules_appeals_api.slack.api_token
+        Settings.modules_appeals_api.slack.api_key
       end
     end
   end
