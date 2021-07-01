@@ -171,9 +171,9 @@ ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_
 end
 
 # Flipper features cache stats
-ActiveSupport::Notifications.subscribe('cache_read.active_support') do |name, _start, _finish, _id, payload|
+ActiveSupport::Notifications.subscribe('cache_read.active_support') do |_name, _start, _finish, _id, payload|
   if payload[:key][/flipper/]
-    tags = [ 'flipper', payload[:key] ]
+    tags = ['flipper', payload[:key]]
     StatsD.increment('active_support.cache_read.attempt', tags: tags)
     StatsD.increment('active_support.cache_read.miss', tags: tags) unless payload[:hit]
   end

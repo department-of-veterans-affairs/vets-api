@@ -1,7 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe StatsD do
-
   context 'Monitoring Flippers Cache hit/miss rate' do
     before do
       allow(StatsD).to receive(:increment)
