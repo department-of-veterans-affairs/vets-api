@@ -111,6 +111,10 @@ features:
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
+  facility_locator_covid_vaccine_walk_in_availability_text_frontend:
+    actor_type: user
+    description: Enable covid vaccine walk-in availability text within covid vaccine related search results
+    enable_in_development: true
   facility_locator_lighthouse_covid_vaccine_query:
     actor_type: user
     description: enable covid search/display
