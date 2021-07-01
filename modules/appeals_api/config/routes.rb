@@ -48,7 +48,8 @@ AppealsApi::Engine.routes.draw do
         end
       end
 
-      resources :notice_of_disagreements, only: %i[create show] do
+      resources :notice_of_disagreements, only: %i[create show],
+                                          controller: '/appeals_api/v1/decision_reviews/notice_of_disagreements' do
         collection do
           get 'schema'
           post 'validate'
