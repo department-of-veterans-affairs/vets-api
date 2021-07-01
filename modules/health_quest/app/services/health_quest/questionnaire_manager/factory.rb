@@ -425,7 +425,7 @@ module HealthQuest
           user_uuid: user&.uuid,
           user_icn: user&.icn,
           loa: user&.loa,
-          facilities: user&.mpi_profile&.vha_facility_ids || []
+          facilities: user&.vha_facility_ids
         }
       end
 
