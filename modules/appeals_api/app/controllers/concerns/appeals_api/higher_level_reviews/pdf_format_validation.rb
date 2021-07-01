@@ -12,7 +12,11 @@ module AppealsApi
       end
 
       def validate!
-        return error(422, phone_length_error) if veteran_phone.too_long?
+        return error(422, veteran_phone.too_long_error_message) if veteran_phone.too_long?
+
+        valid, version_error = version_validator.validate!
+
+        return error(422, version_error) unless valid
       end
 
       private
@@ -27,21 +31,17 @@ module AppealsApi
         request_body.dig('data', 'attributes', 'veteran', 'phone')
       end
 
-      def phone_length_error
-        {
-          errors: [
-            {
-              status: 422,
-              detail: veteran_phone.too_long_error_message
-            }
-          ]
-        }
-      end
-
-      def error(status, error)
+      def error(status, message)
         [
           status,
-          error
+          {
+            errors: [
+              {
+                status: 422,
+                detail: message
+              }
+            ]
+          }
         ]
       end
     end

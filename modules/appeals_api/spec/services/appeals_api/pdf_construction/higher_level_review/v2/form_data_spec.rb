@@ -24,8 +24,10 @@ module AppealsApi
             it 'defaults to 1 if countryCode is blank' do
               higher_level_review = build_stubbed(:higher_level_review)
               form_data = described_class.new(higher_level_review)
-              allow(higher_level_review).to receive(:rep_phone_data).and_return(
-                { 'areaCode' => '555', 'phoneNumber' => '8001111', 'phoneNumberExt' => '2' }
+              allow(higher_level_review).to receive(:informal_conference_rep_phone).and_return(
+                AppealsApi::HigherLevelReview::Phone.new(
+                  { 'areaCode' => '555', 'phoneNumber' => '8001111', 'phoneNumberExt' => '2' }
+                )
               )
 
               expect(form_data.rep_country_code).to eq('1')

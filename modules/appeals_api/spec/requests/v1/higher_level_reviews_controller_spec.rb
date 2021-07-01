@@ -57,6 +57,17 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
           }
         )
       end
+
+      it 'fails when the informal conference rep data is too long' do
+        data = JSON.parse(@data)
+        data['data']['attributes']['informalConferenceRep'].merge!(
+          { 'name' => 'x' * 1000 }
+        )
+
+        post(path, params: data.to_json, headers: @minimum_required_headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors'][0]['detail']).to include('Informal conference rep will not fit on form')
+      end
     end
 
     it 'create the job to build the PDF' do

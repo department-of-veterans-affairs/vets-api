@@ -8,6 +8,10 @@ module AppealsApi
         @request_headers = request_headers
       end
 
+      def validate!
+        [true, nil] # valid, error_message
+      end
+
       private
 
       attr_accessor :request_body, :request_headers
