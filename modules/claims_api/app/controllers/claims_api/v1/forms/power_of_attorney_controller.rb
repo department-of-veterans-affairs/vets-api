@@ -34,6 +34,7 @@ module ClaimsApi
               auth_headers: auth_headers,
               form_data: form_attributes,
               source_data: source_data,
+              consent_limits: consent_limits
               current_poa: current_poa_code,
               header_md5: header_md5
             )
@@ -132,6 +133,13 @@ module ClaimsApi
 
         def enable_vbms_access?
           form_attributes['recordConsent'] && form_attributes['consentLimits'].blank?
+        end
+
+        def consent_limits
+          if form_attributes['recordConsent'] == true
+            return form_attributes['consentLimits']
+          else
+            return nil
         end
 
         def current_poa_begin_date
