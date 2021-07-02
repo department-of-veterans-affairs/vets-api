@@ -52,7 +52,7 @@ module V0
         return @token_uri if @token_uri.present?
 
         token_endpoint = "https://#{Settings.coronavirus_chatbot.directline_uri || 'directline.botframework.com'}" \
-          '/v3/directline/tokens/generate'
+                         '/v3/directline/tokens/generate'
         @token_uri = URI(token_endpoint)
       end
 
