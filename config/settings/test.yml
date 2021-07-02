@@ -151,3 +151,10 @@ hqva_mobile:
       - "patient/Location.read"
       - "patient/Organization.read"
       - "patient/Patient.read"
+
+sidekiq:
+  github_organization: "organization"
+  github_team: 0000000
+  github_oauth_key: xxx000
+  github_oauth_secret: 000xxx
+
