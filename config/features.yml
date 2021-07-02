@@ -286,9 +286,6 @@ features:
   show_new_view_test_lab_results_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
-  spool_testing_error_1:
-    actor_type: user
-    description: Enables spool_file_events tracking rows to be used to prevent multiple spool files per RPO per date
   spool_testing_error_2:
     actor_type: user
     description: Enables Slack notifications for CreateDailySpoolFiles
