@@ -47,7 +47,7 @@ module VBADocuments
         raise Common::Exceptions::RecordNotFound, params[:id] if submission.nil?
 
         zip_file_name = VBADocuments::PayloadManager.zip(submission)
-        
+
         File.open(zip_file_name, 'r') do |f|
           send_data f.read, filename: "#{submission.guid}.zip", type: 'application/zip'
         end
