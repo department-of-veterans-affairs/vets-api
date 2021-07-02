@@ -78,7 +78,7 @@ describe BGS::PowerOfAttorneyVerifier do
       expect do
         BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
       end.to raise_error(Common::Exceptions::Unauthorized)
-    end    
+    end
   end
 
   it 'raises an exception if representative not found' do
