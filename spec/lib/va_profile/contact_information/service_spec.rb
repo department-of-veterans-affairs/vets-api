@@ -406,19 +406,30 @@ describe VAProfile::ContactInformation::Service, skip_vet360: true do
       end
 
       context 'transaction notification doesnt exist' do
-        it 'sends an email' do
-          VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
-            allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+        context 'users email is blank' do
+          it 'doesnt send an email' do
+            expect(user).to receive(:va_profile_email).and_return(nil)
 
-            expect(VANotifyEmailJob).to receive(:perform_async).with(
-              user.va_profile_email,
-              described_class::CONTACT_INFO_CHANGE_TEMPLATE,
-              'contact_info' => 'Email address'
-            )
-
+            expect(VANotifyEmailJob).not_to receive(:perform_async)
             subject.send(:send_contact_change_notification, transaction_status, :email)
+          end
+        end
 
-            expect(TransactionNotification.find(transaction_id).present?).to eq(true)
+        context 'users email exists' do
+          it 'sends an email' do
+            VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+              allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+
+              expect(VANotifyEmailJob).to receive(:perform_async).with(
+                user.va_profile_email,
+                described_class::CONTACT_INFO_CHANGE_TEMPLATE,
+                'contact_info' => 'Email address'
+              )
+
+              subject.send(:send_contact_change_notification, transaction_status, :email)
+
+              expect(TransactionNotification.find(transaction_id).present?).to eq(true)
+            end
           end
         end
       end
