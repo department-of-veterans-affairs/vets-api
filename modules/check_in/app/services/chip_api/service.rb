@@ -31,9 +31,17 @@ module ChipApi
     # @return [Hash]
     #
     def get_check_in(id)
-      resp = request.get(id)
-
-      { data: resp.body }
+      # resp = request.get(id)
+      # { data: resp.body }
+      {
+        data: {
+          uuid: id,
+          appointment_time: Time.zone.now.to_s,
+          facility_name: 'Acme VA',
+          clinic_name: 'Green Team Clinic1',
+          clinic_phone: '555-555-5555'
+        }
+      }
     end
 
     ##
@@ -42,10 +50,10 @@ module ChipApi
     # @param data [Hash] data submitted by the user.
     # @return [Hash]
     #
-    def create_check_in(data)
-      resp = request.post(data)
-
-      { data: resp.body }
+    def create_check_in(_data)
+      # resp = request.post(data)
+      # { data: resp.body }
+      { data: { check_in_status: 'completed' } }
     end
   end
 end
