@@ -19,26 +19,39 @@ module Veteran
 
       validates :poa_codes, presence: true
 
-      # rubocop:disable Lint/DuplicateBranch
-      def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)
+      def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, poa_code: nil)
         reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
-        reps.each do |rep|
-          if matching_ssn(rep, ssn) && matching_date_of_birth(rep, dob)
-            return rep
-          elsif rep.ssn.blank? && rep.dob.blank?
-            return rep
-          end
+
+        reps.select do |rep|
+          matching_ssn(rep, ssn) &&
+            matching_date_of_birth(rep, dob) &&
+            matching_poa_code(rep, poa_code)
         end
-        nil
       end
-      # rubocop:enable Lint/DuplicateBranch
+
+      def self.for_user(first_name:, last_name:, ssn: nil, dob: nil, poa_code: nil)
+        reps = all_for_user(first_name: first_name, last_name: last_name, ssn: ssn, dob: dob, poa_code: poa_code)
+        return nil if reps.blank?
+
+        reps.first
+      end
 
       def self.matching_ssn(rep, ssn)
+        return true if ssn.blank?
+
         rep.ssn.present? && rep.ssn == ssn
       end
 
       def self.matching_date_of_birth(rep, birth_date)
+        return true if birth_date.blank?
+
         rep.dob.present? && rep.dob == birth_date
+      end
+
+      def self.matching_poa_code(rep, poa_code)
+        return true if poa_code.blank?
+
+        rep.poa_codes.present? && rep.poa_codes.include?(poa_code)
       end
     end
   end

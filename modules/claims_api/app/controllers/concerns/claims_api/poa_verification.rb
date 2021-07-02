@@ -55,10 +55,9 @@ module ClaimsApi
       # @return [Boolean] True if valid poa code, False if not
       def valid_poa_code_for_current_user?(poa_code)
         representative = ::Veteran::Service::Representative.for_user(first_name: @current_user.first_name,
-                                                                     last_name: @current_user.last_name)
-        return false if representative.blank?
-
-        representative.poa_codes.include?(poa_code)
+                                                                     last_name: @current_user.last_name,
+                                                                     poa_code: poa_code)
+        representative.present?
       end
 
       #
