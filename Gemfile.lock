@@ -927,6 +927,12 @@ GEM
       axiom-types (~> 0.1)
       coercible (~> 1.0)
       descendants_tracker (~> 0.0, >= 0.0.3)
+    warden (1.2.9)
+      rack (>= 2.0.9)
+    warden-github (1.3.2)
+      activesupport (> 3.0)
+      octokit (> 2.1.0)
+      warden (> 1.0)
     wasabi (3.6.1)
       addressable
       httpi (~> 2.0)
@@ -1131,6 +1137,7 @@ DEPENDENCIES
   veteran_verification!
   vets_json_schema!
   virtus
+  warden-github
   web-console
   webmock
   webrick (>= 1.6.1)
