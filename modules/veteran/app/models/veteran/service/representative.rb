@@ -19,6 +19,15 @@ module Veteran
 
       validates :poa_codes, presence: true
 
+      #
+      # Find all representatives that matches the provided search criteria
+      # @param first_name: [String] First name to search for, ignoring case
+      # @param last_name: [String] Last name to search for, ignoring case
+      # @param ssn: nil [String] SSN to search for
+      # @param dob: nil [String] Date of birth to search for
+      # @param poa_code: nil [String] POA code to search for
+      #
+      # @return [Array(Veteran::Service::Representative)] All representatives found using the submitted search criteria
       def self.all_for_user(first_name:, last_name:, ssn: nil, dob: nil, poa_code: nil)
         reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
 
@@ -29,6 +38,15 @@ module Veteran
         end
       end
 
+      #
+      # Find first representative that matches the provided search criteria
+      # @param first_name: [String] First name to search for, ignoring case
+      # @param last_name: [String] Last name to search for, ignoring case
+      # @param ssn: nil [String] SSN to search for
+      # @param dob: nil [String] Date of birth to search for
+      # @param poa_code: nil [String] POA code to search for
+      #
+      # @return [Veteran::Service::Representative] First representative record found using the submitted search criteria
       def self.for_user(first_name:, last_name:, ssn: nil, dob: nil, poa_code: nil)
         reps = all_for_user(first_name: first_name, last_name: last_name, ssn: ssn, dob: dob, poa_code: poa_code)
         return nil if reps.blank?
@@ -36,18 +54,39 @@ module Veteran
         reps.first
       end
 
+      #
+      # Determine if representative ssn matches submitted ssn search query
+      # @note Assumes that the consumer did not submit an ssn value if the value is blank
+      # @param rep [Veteran::Service::Representative] Representative to match soon with
+      # @param ssn [String] Submitted ssn to match against representative
+      #
+      # @return [Boolean] True if matches, false if not
       def self.matching_ssn(rep, ssn)
         return true if ssn.blank?
 
         rep.ssn.present? && rep.ssn == ssn
       end
 
+      #
+      # Determine if representative dob matches submitted birth_date search query
+      # @note Assumes that the consumer did not submit a birth_date value if the value is blank
+      # @param rep [Veteran::Service::Representative] Representative to match soon with
+      # @param birth_date [String] Submitted birth_date to match against representative
+      #
+      # @return [Boolean] True if matches, false if not
       def self.matching_date_of_birth(rep, birth_date)
         return true if birth_date.blank?
 
         rep.dob.present? && rep.dob == birth_date
       end
 
+      #
+      # Determine if representative poa_codes contains submitted poa_code search query
+      # @note Assumes that the consumer did not submit a poa_code value if the value is blank
+      # @param rep [Veteran::Service::Representative] Representative to match soon with
+      # @param poa_code [String] Submitted poa_code to match against representative
+      #
+      # @return [Boolean] True if matches, false if not
       def self.matching_poa_code(rep, poa_code)
         return true if poa_code.blank?
 
