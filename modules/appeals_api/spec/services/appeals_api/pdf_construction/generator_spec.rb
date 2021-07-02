@@ -41,6 +41,31 @@ describe AppealsApi::PdfConstruction::Generator do
           Timecop.return
         end
       end
+
+      context 'extra long preferred email verification' do
+        let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+        let(:new_email) { Faker::Lorem.characters(number: 255 - 6) + '@a.com' }
+
+        before do
+          notice_of_disagreement.form_data['data']['attributes']['veteran']['emailAddressText'] = new_email
+          notice_of_disagreement.save!
+        end
+
+        it 'places long email addresses onto additional page' do
+          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+          generated_pdf = described_class.new(notice_of_disagreement).generate
+          reader = PDF::Reader.new(generated_pdf)
+          # Character representation of pdf can be hard to test against, since its layout is converted to line breaks,
+          # whitespace, & other special characters in non-intuitive ways. We do our best to work with it, below.
+          pages_text = reader.pages.map(&:text)
+          expect(pages_text[0]).not_to include new_email[0..40]
+          expect(pages_text[0]).to include 'See attached page'
+          expect(pages_text[1]).to include 'Preferred Email'
+          expect(pages_text[1]).to include new_email[0..40]
+          File.delete(generated_pdf) if File.exist?(generated_pdf)
+          Timecop.return
+        end
+      end
     end
 
     context 'Higher Level Review' do
