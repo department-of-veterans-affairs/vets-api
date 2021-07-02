@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_28_151724) do
+ActiveRecord::Schema.define(version: 2021_07_01_173435) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -746,6 +746,7 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.string "account_type"
     t.text "services"
     t.uuid "idme_uuid"
+    t.text "notes"
   end
 
   create_table "user_preferences", id: :serial, force: :cascade do |t|

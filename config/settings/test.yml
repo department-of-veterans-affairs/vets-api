@@ -158,3 +158,10 @@ sidekiq:
   github_oauth_key: xxx000
   github_oauth_secret: 000xxx
 
+check_in:
+  chip_api:
+    url: ~
+    host: ~
+    mock: false
+    key_path: ~
+    timeout: 30
