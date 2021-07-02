@@ -129,7 +129,6 @@ Metrics/BlockLength:
     - 'modules/*/spec/**/*.rb'
     - 'modules/*/app/swagger/**/*.rb'
     - 'modules/*/config/routes.rb'
-    - 'modules/mobile/config/initializers/statsd.rb'
 
 # Don't worry about ambiguous blocks in RSpec
 # Official recommendation from rubocop team is to disable this rule for specs.

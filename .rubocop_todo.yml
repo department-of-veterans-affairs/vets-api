@@ -147,6 +147,8 @@ Metrics/AbcSize:
 # IgnoredMethods: refine
 Metrics/BlockLength:
   Max: 41
+  Exclude:
+    - 'modules/mobile/config/initializers/statsd.rb'
 
 # Offense count: 62
 # Configuration parameters: IgnoredMethods.
