@@ -332,7 +332,7 @@ RSpec.describe Form1010cg::DeliverAttachmentsJob do
         let(:form_data)           { build_claim_data { |d| d['poaAttachmentId'] = poa_attachment_guid }.to_json }
         let(:claim_guid)          { SecureRandom.uuid }
         let(:claim)               { build(:caregivers_assistance_claim, guid: claim_guid, form: form_data) }
-        let(:submission)          { build(:form1010cg_submission, claim_guid: claim_guid, carma_case_id: carma_case_id) } # rubocop:disable Layout/LineLength
+        let(:submission)          { build :form1010cg_submission, claim_guid: claim_guid, carma_case_id: carma_case_id }
 
         before do
           VCR.use_cassette("s3/object/put/#{poa_attachment_guid}/doctors-note.jpg", vcr_options[:aws]) do
