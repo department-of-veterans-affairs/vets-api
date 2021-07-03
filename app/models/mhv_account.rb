@@ -38,7 +38,6 @@ class MHVAccount < ApplicationRecord
   ELIGIBLE_STATES = %i[existing eligible no_account].freeze
   ALL_STATES = (%i[unknown] + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
 
-  # rubocop:disable Metrics/BlockLength
   aasm(:account_state) do
     state :unknown, initial: true
     state(*(INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES))
@@ -87,8 +86,6 @@ class MHVAccount < ApplicationRecord
       transitions from: %i[registered existing], to: :upgrade_failed
     end
   end
-  # rubocop:enable Metrics/BlockLength
-
   ##
   # @return [Boolean] is the MHV Account creatable?
   #
