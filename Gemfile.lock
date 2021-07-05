@@ -805,7 +805,7 @@ GEM
       rexml
     ruby-vips (2.1.2)
       ffi (~> 1.12)
-    rubyzip (2.3.0)
+    rubyzip (2.3.1)
     rufus-scheduler (3.7.0)
       fugit (~> 1.1, >= 1.1.6)
     safe_shell (1.1.0)
