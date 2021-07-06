@@ -20,14 +20,13 @@ module BGS
     end
 
     def verify(user)
-      veteran_poa_code = current_poa_code
       reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
-                                                           last_name: user.last_name,
-                                                           poa_code: veteran_poa_code)
+                                                           last_name: user.last_name)
       raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
       raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
 
       rep = reps.first
+      veteran_poa_code = current_poa_code
       unless matches(veteran_poa_code, rep)
         Rails.logger.info("POA code of #{rep.poa_codes.join(', ')} not valid for veteran code #{veteran_poa_code}")
         raise ::Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"

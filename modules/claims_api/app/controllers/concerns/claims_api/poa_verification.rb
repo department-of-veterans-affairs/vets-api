@@ -54,10 +54,12 @@ module ClaimsApi
       #
       # @return [Boolean] True if valid poa code, False if not
       def valid_poa_code_for_current_user?(poa_code)
-        representative = ::Veteran::Service::Representative.for_user(first_name: @current_user.first_name,
-                                                                     last_name: @current_user.last_name,
-                                                                     poa_code: poa_code)
-        representative.present?
+        reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
+                                                               last_name: @current_user.last_name)
+        return false if reps.blank?
+        raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
+
+        reps.first.poa_codes.include?(poa_code)
       end
 
       #

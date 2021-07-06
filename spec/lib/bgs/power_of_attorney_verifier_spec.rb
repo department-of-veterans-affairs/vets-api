@@ -40,7 +40,7 @@ describe BGS::PowerOfAttorneyVerifier do
   end
 
   context 'when multiple representatives have the same name' do
-    it 'does not raise an exception if poa matches' do
+    it 'raises an exception if poa matches' do
       FactoryBot.create(
         :representative,
         representative_id: '1234',
@@ -57,7 +57,7 @@ describe BGS::PowerOfAttorneyVerifier do
       )
       expect do
         BGS::PowerOfAttorneyVerifier.new(user).verify(identity)
-      end.not_to raise_error
+      end.to raise_error(Common::Exceptions::Unauthorized)
     end
 
     it 'raises an exception if poa does not matches' do
