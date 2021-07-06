@@ -1,5 +1,4 @@
 web: bundle exec puma -p 3000 -C ./config/puma.rb
-critical_job: bundle exec sidekiq -q critical,2 -q tasker,1
-default_job: bundle exec sidekiq -q default,2 -q low,1
+job: bundle exec sidekiq -q critical,4 -q tasker,3 default,2 -q low,1
 freshclam: /usr/bin/freshclam -d --config-file=config/freshclam.conf
 clamd: /usr/sbin/clamd -c config/clamd.conf
