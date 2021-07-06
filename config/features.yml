@@ -196,10 +196,6 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
-  new_va_forms_search:
-    actor_type: user
-    description: Uses the new search algorithm
-    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
