@@ -32,7 +32,6 @@ module AppealsApi
         end
 
         # rubocop:disable Metrics/MethodLength
-        # rubocop:disable Metrics/BlockLength
         def insert_overlaid_pages(form_fill_path)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
           temp_path = "/#{::Common::FileHelpers.random_file_path}.pdf"
@@ -87,9 +86,8 @@ module AppealsApi
 
           output_path
         end
-        # rubocop:enable Metrics/MethodLength
-        # rubocop:enable Metrics/BlockLength
 
+        # rubocop:enable Metrics/MethodLength
         def add_additional_pages
           return unless additional_pages?
 

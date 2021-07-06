@@ -17,8 +17,12 @@ module ClaimsApi
         participant_id: participant_id,
         poa_code: poa_form.form_data.dig('serviceOrganization', 'poaCode'),
         allow_poa_access: 'y',
-        allow_poa_c_add: 'y'
+        allow_poa_c_add: allow_address_change?(poa_form) ? 'y' : 'n'
       )
+    end
+
+    def allow_address_change?(poa_form)
+      poa_form.form_data['consentAddressChange']
     end
   end
 end

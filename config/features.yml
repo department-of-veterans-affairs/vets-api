@@ -111,6 +111,10 @@ features:
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
+  facility_locator_covid_vaccine_walk_in_availability_text_frontend:
+    actor_type: user
+    description: Enable covid vaccine walk-in availability text within covid vaccine related search results
+    enable_in_development: true
   facility_locator_lighthouse_covid_vaccine_query:
     actor_type: user
     description: enable covid search/display
@@ -192,10 +196,6 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
-  new_va_forms_search:
-    actor_type: user
-    description: Uses the new search algorithm
-    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -282,9 +282,6 @@ features:
   show_new_view_test_lab_results_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
-  spool_testing_error_1:
-    actor_type: user
-    description: Enables spool_file_events tracking rows to be used to prevent multiple spool files per RPO per date
   spool_testing_error_2:
     actor_type: user
     description: Enables Slack notifications for CreateDailySpoolFiles

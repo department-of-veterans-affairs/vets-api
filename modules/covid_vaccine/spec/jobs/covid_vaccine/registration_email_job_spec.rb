@@ -48,6 +48,9 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
           }
         )
       described_class.perform_async(email, date, confirmation_id)
+      expect(Rails.logger).to receive(:info).with(
+        '[StatsD] increment worker.covid_vaccine_registration_email.success:1'
+      ).once
       expect { described_class.perform_one }.to change(described_class.jobs, :size).from(1).to(0)
     end
 
@@ -57,6 +60,9 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
       described_class.perform_async(email, date, confirmation_id)
       expect(Raven).to receive(:capture_exception).with(StandardError, { level: 'error' })
       expect(Raven).to receive(:extra_context).with(sid: 'confirmation_id_uuid')
+      expect(Rails.logger).to receive(:info).with(
+        '[StatsD] increment worker.covid_vaccine_registration_email.error:1'
+      ).once
 
       with_settings(Settings.sentry, dsn: 'T') do
         expect { described_class.perform_one }.to raise_error(StandardError)

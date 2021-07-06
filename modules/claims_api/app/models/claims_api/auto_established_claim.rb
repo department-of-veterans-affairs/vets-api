@@ -137,10 +137,8 @@ module ClaimsApi
       service_periods = form_data.dig('serviceInformation', 'servicePeriods')
 
       service_periods.each do |service_period|
-        start_date = if service_period['activeDutyBeginDate'].present?
-                       Date.parse(service_period['activeDutyBeginDate'])
-                     end
-        end_date = (Date.parse(service_period['activeDutyEndDate']) if service_period['activeDutyEndDate'].present?)
+        start_date = Date.parse(service_period['activeDutyBeginDate']) if service_period['activeDutyBeginDate'].present?
+        end_date = Date.parse(service_period['activeDutyEndDate']) if service_period['activeDutyEndDate'].present?
 
         if start_date.present? && end_date.blank?
           next

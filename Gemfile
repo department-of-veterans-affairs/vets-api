@@ -68,10 +68,10 @@ gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'fhir_client', '~> 4.0.6'
-gem 'flipper', '~> 0.21.0'
-gem 'flipper-active_record', '~> 0.21.0'
-gem 'flipper-active_support_cache_store', '~> 0.21.0'
-gem 'flipper-ui', '~> 0.21.0'
+gem 'flipper', '~> 0.20.4'
+gem 'flipper-active_record', '~> 0.20.4'
+gem 'flipper-active_support_cache_store', '~> 0.20.4'
+gem 'flipper-ui', '~> 0.20.4'
 gem 'foreman'
 gem 'google-api-client'
 gem 'google-apis-core'
@@ -139,6 +139,7 @@ gem 'typhoeus'
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
+gem 'warden-github'
 gem 'will_paginate'
 gem 'with_advisory_lock'
 
@@ -172,7 +173,6 @@ group :test do
   gem 'webrick', '>= 1.6.1'
 end
 
-# rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'brakeman', '~> 5.0'
@@ -207,8 +207,6 @@ group :development, :test do
   gem 'webmock'
   gem 'yard'
 end
-# rubocop:enable Metrics/BlockLength
-
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
 if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
     Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&
