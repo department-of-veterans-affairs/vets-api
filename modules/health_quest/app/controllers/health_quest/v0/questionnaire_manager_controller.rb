@@ -3,8 +3,6 @@
 module HealthQuest
   module V0
     class QuestionnaireManagerController < HealthQuest::V0::BaseController
-      before_action :log_info
-
       def index
         data = factory.all
 

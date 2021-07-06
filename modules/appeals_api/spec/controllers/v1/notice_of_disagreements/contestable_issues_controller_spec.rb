@@ -11,11 +11,21 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::ContestableIssu
       allow_any_instance_of(described_class).to receive(:benefit_type).and_return('')
     end
 
+    it 'sorts by approxDecisionDate' do
+      VCR.use_cassette('caseflow/notice_of_disagreements/contestable_issues') do
+        filtered = described_class.new.send(:get_contestable_issues_from_caseflow).body
+
+        expect(filtered['data'][0]['attributes']['approxDecisionDate']).to eq('2019-02-26')
+        expect(filtered['data'][1]['attributes']['approxDecisionDate']).to eq('2019-02-25')
+        expect(filtered['data'][2]['attributes']['approxDecisionDate']).to eq('2019-02-24')
+      end
+    end
+
     it 'filters out any ratingIssueSubjectText that is nil' do
       VCR.use_cassette('caseflow/notice_of_disagreements/contestable_issues') do
         filtered = described_class.new.send(:get_contestable_issues_from_caseflow).body
 
-        expect(filtered['data'].count).to eq(1)
+        expect(filtered['data'].count).to eq(3)
       end
     end
 

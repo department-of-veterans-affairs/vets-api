@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Layout/LineLength
 module Swagger
   module Schemas
     class EVSSAuthError
@@ -16,7 +15,8 @@ module Swagger
             property :title, type: :string, example: 'Forbidden'
             property :detail,
                      type: :string,
-                     example: 'User does not have access to the requested resource due to missing values: corp_id, edipi'
+                     example: \
+                       'User does not have access to the requested resource due to missing values: corp_id, edipi'
             property :code, type: :string, example: '403'
             property :status, type: :string, example: '403'
           end
@@ -25,4 +25,3 @@ module Swagger
     end
   end
 end
-# rubocop:enable Layout/LineLength
