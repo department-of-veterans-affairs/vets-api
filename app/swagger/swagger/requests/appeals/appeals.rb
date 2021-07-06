@@ -108,9 +108,9 @@ module Swagger
 
         swagger_path '/v0/higher_level_reviews/contestable_issues/{benefit_type}' do
           operation :get do
-            description = 'For the logged-in veteran,' \
-                   ' returns a list of issues that could be contested in a Higher-Level Review' \
-                   ' for the specified benefit type.'
+            description =
+              'For the logged-in veteran, returns a list of issues that could be contested in a Higher-Level Review ' \
+              'for the specified benefit type.'
             key :description, description
             key :operationId, 'getContestableIssues'
             key :tags, %w[higher_level_reviews]
@@ -199,8 +199,8 @@ module Swagger
 
         swagger_path '/v0/notice_of_disagreements/contestable_issues' do
           operation :get do
-            description = 'For the logged-in veteran,' \
-                   ' returns a list of issues that could be contested in a Notice of Disagreement'
+            description =
+              'For the logged-in veteran, returns a list of issues that could be contested in a Notice of Disagreement'
             key :description, description
             key :operationId, 'getContestableIssues'
             key :tags, %w[notice_of_disagreements]
