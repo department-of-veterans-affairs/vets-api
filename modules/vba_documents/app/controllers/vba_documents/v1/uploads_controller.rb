@@ -43,8 +43,8 @@ module VBADocuments
       end
 
       def download
-        submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
-        raise Common::Exceptions::RecordNotFound, params[:id] if submission.nil?
+        submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
+        raise Common::Exceptions::RecordNotFound, params[:upload_id] if submission.nil?
 
         zip_file_name = VBADocuments::PayloadManager.zip(submission)
 
