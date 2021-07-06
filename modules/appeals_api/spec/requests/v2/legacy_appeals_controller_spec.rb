@@ -6,7 +6,6 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
   describe '#index' do
     context 'when only ssn provided' do
       it 'GETs legacy appeals from Caseflow successfully' do
-        # temporary cassette until caseflow endpoint complete and merged
         VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
           get_legacy_appeals(ssn: '242292129', file_number: nil)
 
@@ -19,7 +18,6 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
 
       context 'when ssn formatted incorrectly' do
         it 'returns a 422 error with details' do
-          # temporary cassette until caseflow endpoint complete and merged
           VCR.use_cassette('caseflow/legacy_appeals_get_by_ssn') do
             get_legacy_appeals(ssn: '24-2921hw', file_number: nil)
 
@@ -33,7 +31,6 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
 
     context 'when only file_number provided' do
       it 'GETs legacy appeals from Caseflow successfully' do
-        # temporary cassette until caseflow endpoint complete and merged
         VCR.use_cassette('caseflow/legacy_appeals_get_by_file_number') do
           get_legacy_appeals(ssn: nil, file_number: '239120550')
 
@@ -41,6 +38,20 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
           json = JSON.parse(response.body)
           expect(json['data']).not_to be nil
           expect(json['data'][0]['attributes']).to include 'socDate'
+        end
+      end
+    end
+
+    context 'when veteran does not exist' do
+      let(:no_record_ssn) { '234840293' }
+
+      it 'ERROR' do
+        VCR.use_cassette('caseflow/legacy_appeals_no_veteran_record') do
+          get_legacy_appeals(ssn: no_record_ssn, file_number: nil)
+
+          errors = JSON.parse(response.body)['errors'][0]
+          expect(response).to have_http_status :not_found
+          expect(errors['title']).to eq 'Veteran Not Found'
         end
       end
     end
