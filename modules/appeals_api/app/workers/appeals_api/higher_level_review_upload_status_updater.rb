@@ -23,7 +23,7 @@ module AppealsApi
       if Settings.vsp_environment == 'production'
         [2, 4]
       else
-        [3]
+        [5]
       end
     end
 
