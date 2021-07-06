@@ -27,6 +27,20 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
           end
         end
       end
+
+      context 'when veteran record does not exist' do
+        let(:no_record_ssn) { '234840293' }
+
+        it 'returns a 404' do
+          VCR.use_cassette('caseflow/legacy_appeals_no_veteran_record') do
+            get_legacy_appeals(ssn: no_record_ssn, file_number: nil)
+
+            errors = JSON.parse(response.body)['errors'][0]
+            expect(response).to have_http_status :not_found
+            expect(errors['title']).to eq 'Veteran Not Found'
+          end
+        end
+      end
     end
 
     context 'when only file_number provided' do
@@ -40,18 +54,18 @@ describe AppealsApi::V2::DecisionReviews::LegacyAppealsController, type: :reques
           expect(json['data'][0]['attributes']).to include 'socDate'
         end
       end
-    end
 
-    context 'when veteran does not exist' do
-      let(:no_record_ssn) { '234840293' }
+      context 'when veteran record does not exist' do
+        let(:no_record_file_number) { '010101010' }
 
-      it 'ERROR' do
-        VCR.use_cassette('caseflow/legacy_appeals_no_veteran_record') do
-          get_legacy_appeals(ssn: no_record_ssn, file_number: nil)
+        it 'returns a 404' do
+          VCR.use_cassette('caseflow/legacy_appeals_no_veteran_record_from_file_number') do
+            get_legacy_appeals(ssn: nil, file_number: no_record_file_number)
 
-          errors = JSON.parse(response.body)['errors'][0]
-          expect(response).to have_http_status :not_found
-          expect(errors['title']).to eq 'Veteran Not Found'
+            errors = JSON.parse(response.body)['errors'][0]
+            expect(response).to have_http_status :not_found
+            expect(errors['title']).to eq 'Veteran Not Found'
+          end
         end
       end
     end
