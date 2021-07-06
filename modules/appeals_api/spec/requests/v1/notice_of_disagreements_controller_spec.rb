@@ -50,6 +50,26 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
         change(AppealsApi::NoticeOfDisagreementPdfSubmitJob.jobs, :size).by(1)
       )
     end
+
+    context 'keeps track of which version of the api it is serving' do
+      it 'V1' do
+        path = base_path('notice_of_disagreements')
+
+        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.api_version).to eq('V1')
+      end
+
+      it 'V2' do
+        path = '/services/appeals/v2/decision_reviews/notice_of_disagreements'
+
+        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.api_version).to eq('V2')
+      end
+    end
   end
 
   describe '#validate' do
