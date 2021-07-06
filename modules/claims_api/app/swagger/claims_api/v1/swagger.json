@@ -329,6 +329,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -383,6 +394,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -474,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f2a1eedf-e037-496f-a13e-96c62f847f9c",
+                    "id": "06dc7a0d-e389-41de-ad7d-68afb0534941",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -523,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "166a083f-34ed-44ed-a337-f329ab53f2e8",
+                          "id": "abda5cda-4da2-47ca-83c0-0c8815b5d3c3",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-06-16T15:51:28.649Z"
+                          "uploaded_at": "2021-06-29T22:13:49.692Z"
                         }
                       ]
                     }
@@ -813,6 +835,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -867,6 +900,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -2218,7 +2262,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0db4fcbe-7881-4cc2-93c5-cd62c6fef1c0",
+                    "id": "9a40794e-e02a-4ca2-9421-aede38fc1be1",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2236,13 +2280,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-16T15:51:28.971Z",
+                      "updated_at": "2021-06-29T22:13:50.108Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "0db4fcbe-7881-4cc2-93c5-cd62c6fef1c0",
+                      "token": "9a40794e-e02a-4ca2-9421-aede38fc1be1",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -2427,6 +2471,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -3908,7 +3963,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "45c18f76-794d-4a7e-88f2-e07ff45c48a9",
+                    "id": "47c5692e-907b-42ec-93b8-4b35891d7ff8",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3926,13 +3981,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-16T15:51:29.276Z",
+                      "updated_at": "2021-06-29T22:13:50.569Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "45c18f76-794d-4a7e-88f2-e07ff45c48a9",
+                      "token": "47c5692e-907b-42ec-93b8-4b35891d7ff8",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -4169,6 +4224,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -4223,6 +4289,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -4277,6 +4354,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -4470,6 +4558,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -5966,7 +6065,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "94d8eb96-7987-4b16-8ae6-ce220bf8d2e9",
+                    "id": "132c8138-c135-4c79-ac45-2ac00c3197c3",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -5980,7 +6079,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-06-16T15:51:29.919Z",
+                      "updated_at": "2021-06-29T22:13:51.349Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -5989,7 +6088,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "cc9f9267-e5f2-4d59-9ed5-36726e2e1190",
+                          "id": "787ad6c6-3546-490d-9fbd-e8e64933ea98",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6253,6 +6352,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -6307,6 +6417,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -6588,6 +6709,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -6642,6 +6774,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -6971,6 +7114,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -7025,6 +7179,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -7079,6 +7244,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -7254,6 +7430,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -7858,11 +8045,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "dbe2409f-f48f-4ab5-b7a9-fda0fdff34e9",
+                    "id": "1d4e2532-778a-4316-a603-50012cd75a06",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-06-16",
+                      "date_request_accepted": "2021-06-29",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8002,6 +8189,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -8560,11 +8758,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8e700d7b-6e93-4478-8bb4-e1a3e1434fa4",
+                    "id": "40e0e88d-fd02-4b75-a3d5-da05cb419b24",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-16",
+                      "date_request_accepted": "2021-06-29",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8704,6 +8902,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -8758,6 +8967,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -8863,11 +9083,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "53868f9a-ea44-4ede-ae5b-b145018ca138",
+                    "id": "2658068a-3eec-4640-9f5f-9eff677cbc20",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-06-16",
+                      "date_request_accepted": "2021-06-29",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9007,6 +9227,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -9061,6 +9292,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -9322,6 +9564,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -9376,6 +9629,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
@@ -9553,6 +9817,17 @@
                           "status": {
                             "type": "string",
                             "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
                           }
                         }
                       }
