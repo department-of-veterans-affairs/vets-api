@@ -7,16 +7,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
 
   subject { described_class }
 
-  let(:user) do
-    double(
-      'User',
-      icn: '1008596379V859838',
-      account_uuid: 'abc123',
-      uuid: '789defg',
-      loa: 3,
-      mpi_profile: double('Facility', vha_facility_ids: ['1'])
-    )
-  end
+  let(:user) { double('User', icn: '1008596379V859838', account_uuid: 'abc123', uuid: '789defg') }
   let(:session_store) { double('SessionStore', token: '123abc') }
   let(:session_service) do
     double('HealthQuest::Lighthouse::Session', user: user, api: 'pgd_api', retrieve: session_store)
@@ -140,7 +131,7 @@ describe HealthQuest::QuestionnaireManager::Factory do
     end
 
     context 'when appointments and patient and questionnaire_responses and sip and no questionnaires' do
-      let(:fhir_patient) { double('FHIR::Patient', loa: 3) }
+      let(:fhir_patient) { double('FHIR::Patient') }
       let(:client_reply) { double('FHIR::ClientReply', resource: fhir_patient) }
       let(:questionnaire_client_reply) { double('FHIR::ClientReply', resource: double('FHIR::ClientReply', entry: [])) }
 
