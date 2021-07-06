@@ -1,25 +1,24 @@
 # frozen_string_literal: true
 
-require 'evss/error_middleware'
-
 module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController
-        # TODO: REMOVE BEFORE IMPLEMENTATION
-        skip_before_action :authenticate, only: %i[index]
-        ICN_FOR_TEST_USER = '1012667145V762142'
-        # TODO: REMOVE BEFORE IMPLEMENTATION
-
         def index
-          raise ::Common::Exceptions::Unauthorized if request.headers['Authorization'].blank?
-          unless params[:veteranId] == ICN_FOR_TEST_USER
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-          end
-
-          render json: JSON.parse(
-            File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'usability_testing_claims.json'))
+          vet = ClaimsApi::Veteran.new(
+            mhv_icn: params[:veteranId],
+            loa: @current_user.loa
           )
+          vet.mpi
+
+          service = BGS::Services.new(
+            external_uid: vet.participant_id,
+            external_key: vet.participant_id
+          )
+
+          response = service.ClaimsService.read_available_claims(params[:veteranId])
+
+          render json: { message: response }
         end
       end
     end

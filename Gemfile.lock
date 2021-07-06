@@ -41,15 +41,6 @@ GIT
       faraday (>= 0.7.4, < 2.0)
 
 GIT
-  remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 2b6dd9454241cf395af7d42b7f36449522c0a109
-  specs:
-    bgs_ext (0.21.0)
-      httpclient
-      nokogiri (>= 1.8.5)
-      savon (~> 2.12)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
   revision: 049b3c5068fa6c6d1cae0b58654529316b84be57
   branch: master
@@ -71,6 +62,14 @@ GIT
     vets_json_schema (20.6.5)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
+
+PATH
+  remote: /Users/jeffreywallace/CODE/oddball/bgs-ext
+  specs:
+    bgs_ext (0.21.0)
+      httpclient
+      nokogiri (>= 1.8.5)
+      savon (~> 2.12)
 
 PATH
   remote: modules
