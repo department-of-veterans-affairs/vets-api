@@ -1,7 +1,22 @@
 {
   "subscriptions": [
     {
-      "event": "gov.va.developer.benefits.status_change",
+      "event": "gov.va.developer.benefits-intake.status_change4",
+      "urls": [
+        "https://benefits.consumer.com/i/am/listening",
+        "https://benefits.consumer.com/i/am/also/listening"
+      ],
+      "ignored" : "yes"
+    },
+    {
+      "event": "gov.va.developer.benefits-intake.status_change2",
+      "urls": [
+        "https://benefits.consumer.com/i/am/listening",
+        "https://benefits.consumer.com/i/am/also/listening"
+      ]
+    },
+    {
+      "event": "gov.va.developer.benefits-intake.status_change3",
       "urls": [
         "https://benefits.consumer.com/i/am/listening",
         "https://benefits.consumer.com/i/am/also/listening"

@@ -9,23 +9,41 @@ require_dependency 'vba_documents/upload_validator'
 require_dependency 'vba_documents/location_validator'
 require_dependency 'vba_documents/multipart_parser'
 require 'common/exceptions'
+require './lib/webhooks/utilities'
+load './lib/webhooks/utilities.rb'
 
 module VBADocuments
   module V2
     class UploadsController < ApplicationController
       include VBADocuments::UploadValidations
-      include VBADocuments::LocationValidations
+      include Webhooks::Utilities
       skip_before_action(:authenticate)
       before_action :verify_settings, only: [:download]
 
+      register_events("gov.va.developer.benefits-intake.status_change", "gov.va.developer.benefits-intake.status_change2")
+      p '+++++++++++++++++++++++++++++++++++++++++++++++++'
+      p Webhooks::Utilities.supported_events
+      p '+++++++++++++++++++++++++++++++++++++++++++++++++'
       def create
-        load('./modules/vba_documents/lib/vba_documents/location_validator.rb') #allows changes (remove) todo
+        load './lib/webhooks/utilities.rb'
+        # load('./modules/vba_documents/lib/vba_documents/location_validator.rb') #allows changes (remove) todo
         submission = nil
         VBADocuments::UploadSubmission.transaction do
+          p ':::::::::::::::::::::::::::::::::::::::'
+          p params['subscriptions']
+          p '--'
+          p params.keys
+          p ':::::::::::::::::::::::::::::::::::::::'
           if params[:subscriptions].is_a?(ActionDispatch::Http::UploadedFile)
             subscriptions = validate_subscription(JSON.load(params[:subscriptions].open))
+            p '++++-------++++++++'
+            p subscriptions
+            p '++++-------++++++++'
           elsif params[:subscriptions]
             subscriptions = validate_subscription(JSON.parse(params[:subscriptions]))
+            p '++++-------++++++++2'
+            p subscriptions
+            p '++++-------++++++++2'
           end
           submission = VBADocuments::UploadSubmission.create(
             consumer_name: request.headers['X-Consumer-Username'],

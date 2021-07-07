@@ -6,6 +6,7 @@
   "properties": {
     "subscriptions": {
       "type": "array",
+      "format": "valid_events",
       "contains": {
         "type": "object",
         "required": [
