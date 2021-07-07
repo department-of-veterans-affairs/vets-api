@@ -4,6 +4,7 @@ require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
+require './lib/webhooks/webhook_validator'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
@@ -11,9 +12,12 @@ module VBADocuments
     include SentryLogging
     extend SQLSupport
     send(:validates_uniqueness_of, :guid)
+    # before_save :record_status_change_notification, if: :status_changed?
     before_save :capture_status_time, if: :status_changed?
     after_find :set_initial_status
     attr_reader :current_status
+
+    WEBHOOK_STATUS_CHANGE_EVENT = 'gov.va.developer.benefits-intake.status_change'
 
     # We don't want to check successes before
     # this date as it used to be the endpoint
@@ -21,6 +25,7 @@ module VBADocuments
     FINAL_SUCCESS_STATUS_KEY = 'final_success_status'
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
     ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
+    NOTIFY_STATUSES = IN_FLIGHT_STATUSES + %w[uploaded vbms error].freeze
     RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
@@ -33,32 +38,6 @@ module VBADocuments
         .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
       # lambda above stops security scan from finding false positive sql injection!
     }
-
-    scope :has_web_hook_url, -> { where("metadata -> 'web_hook' -> 'url' is not null") }
-    scope :web_hook_status_notified, -> (status, bool) {
-      where("(metadata -> 'web_hook' -> ? -> 'success')::BOOLEAN = ?", status, bool) }
-
-    # load './modules/vba_documents/app/models/vba_documents/upload_submission.rb'
-    # metadata: {web_hook: {url: 'http...', uploaded: {success: false, attempts: {1 => 11254254}}}
-    #
-    # 	"web_hook": {
-    # 		"url": "https://gregger.com",
-    # 		"uploaded": {"success": true, "attempts": {"1": 11254254}},
-    # 		"received": {"success": false, "attempts": {}},
-    # 		"error": {"success": false, "attempts": {}},
-    # 		"processing": {"success": false, "attempts": {}},
-    # 		"success": {"success": false, "attempts": {}},
-    # 		"vbms": {"success": false, "attempts": {}}
-    # 	}
-    #
-    def self.get_web_hook_notifications
-      statuses = %w(uploaded received error processing success vbms)
-      guids = []
-      statuses.each do |status|
-        guids << where(status: status).has_web_hook_url.web_hook_status_notified(status, false).pluck(:guid)
-      end
-      guids.flatten
-    end
 
     after_save :report_errors
 
@@ -232,7 +211,37 @@ module VBADocuments
       metadata['status'] ||= {}
       metadata['status'][to] ||= {}
       metadata['status'][to]['start'] = time
+      record_status_change_notification(WEBHOOK_STATUS_CHANGE_EVENT, from, to)
       @current_status = to
+    end
+
+    def record_status_change_notification(event, from_status, to_status)
+      if event.eql? WEBHOOK_STATUS_CHANGE_EVENT #&& NOTIFY_STATUSES.include?(to_status)
+        api = Webhooks::Validator.app_name(event)
+        c_uuid = consumer_id
+        c_name = consumer_name
+        g = guid
+        webhook_urls = WebhookSubscription.get_notification_urls(api_name: api, consumer_id: c_uuid, event: event, api_guid: g)
+
+        notifications = []
+        webhook_urls.each do |url|
+          wh_notify = WebhookNotification.new
+          wh_notify.api_name = api
+          wh_notify.consumer_id = c_uuid
+          wh_notify.consumer_name = c_name
+          wh_notify.api_guid = g
+          wh_notify.event = event
+          wh_notify.callback_url = url
+          wh_notify.msg = format_msg(event, from_status, to_status, g)
+          notifications << wh_notify
+        end
+        ActiveRecord::Base.transaction { notifications.each(&:save!) }
+      end
+    end
+
+    def format_msg(event, from_status, to_status, guid)
+      api = Webhooks::Validator.app_name(event)
+      {api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status, ts: Time.now.to_s }
     end
   end
 end

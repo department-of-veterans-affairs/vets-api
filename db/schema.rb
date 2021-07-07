@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_28_151724) do
+ActiveRecord::Schema.define(version: 2021_06_24_194646) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -502,6 +502,16 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.index ["edipi"], name: "index_gibs_not_found_users_on_edipi"
   end
 
+  create_table "gpb_departments", id: :integer, default: nil, force: :cascade do |t|
+    t.string "dept_name", limit: 255, null: false
+  end
+
+  create_table "gpb_employees", id: :integer, default: nil, force: :cascade do |t|
+    t.string "emp_name", limit: 255, null: false
+    t.integer "dept_id", null: false
+    t.integer "salary", null: false
+  end
+
   create_table "health_care_applications", id: :serial, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -741,10 +751,10 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
   end
 
@@ -821,6 +831,7 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.string "whodunnit"
     t.text "object"
     t.datetime "created_at"
+    t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
@@ -860,6 +871,33 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
   end
 
+  create_table "webhook_notifications", force: :cascade do |t|
+    t.string "api_name", null: false
+    t.string "consumer_name", null: false
+    t.uuid "consumer_id", null: false
+    t.uuid "api_guid", null: false
+    t.string "event", null: false
+    t.string "callback_url", null: false
+    t.jsonb "msg", null: false
+    t.jsonb "attempts", default: [], null: false
+    t.boolean "complete", default: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["api_name", "consumer_id", "api_guid", "event", "complete"], name: "index_webhook_notification"
+  end
+
+  create_table "webhook_subscriptions", force: :cascade do |t|
+    t.string "api_name", null: false
+    t.string "consumer_name", null: false
+    t.uuid "consumer_id", null: false
+    t.uuid "api_guid"
+    t.jsonb "events", default: []
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhook_subscription", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "gpb_employees", "gpb_departments", column: "dept_id", name: "fk_gpb_department"
 end
