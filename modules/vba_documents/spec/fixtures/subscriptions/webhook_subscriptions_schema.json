@@ -1,0 +1,30 @@
+{
+  "type": "object",
+  "required": [
+    "subscriptions"
+  ],
+  "properties": {
+    "subscriptions": {
+      "type": "array",
+      "contains": {
+        "type": "object",
+        "required": [
+          "event",
+          "urls"
+        ],
+        "properties": {
+          "event": {
+            "type": "string"
+          },
+          "urls": {
+            "type": "array",
+            "format": "valid_urls",
+            "contains": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
