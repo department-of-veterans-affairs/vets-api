@@ -5,8 +5,7 @@
       "urls": [
         "https://benefits.consumer.com/i/am/listening",
         "https://benefits.consumer.com/i/am/also/listening"
-      ],
-      "ignored" : "yes"
+      ]
     },
     {
       "event": "gov.va.developer.benefits-intake.status_change2",

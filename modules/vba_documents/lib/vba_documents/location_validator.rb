@@ -13,7 +13,7 @@ module VBADocuments
       }
       schemer = JSONSchemer.schema(schema_path, formats: schemer_formats)
       unless schemer.valid?(subscriptions)
-        example_data = JSON.parse(File.read('./modules/vba_documents/spec/fixtures/subscriptions/subscription.json'))
+        example_data = JSON.parse(File.read('./modules/vba_documents/spec/fixtures/subscriptions/subscriptions.json'))
         raise ArgumentError.new({
                                   'Error' => 'Invalid subscription! Body must match the included example',
                                   'Example' => example_data
