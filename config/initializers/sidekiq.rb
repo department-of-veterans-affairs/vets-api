@@ -7,8 +7,12 @@ require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
+require 'sidekiq/web'
 
 Rails.application.reloader.to_prepare do
+  # Turn off Sidekiq's sessions, which overwrite the main Rails app's session
+  # after the first request
+  Sidekiq::Web.disable(:sessions)
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
   Sidekiq.configure_server do |config|
