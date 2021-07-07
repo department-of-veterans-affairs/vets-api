@@ -7,7 +7,6 @@ require 'sidekiq/error_tag'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
-require 'sidekiq/web'
 
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
