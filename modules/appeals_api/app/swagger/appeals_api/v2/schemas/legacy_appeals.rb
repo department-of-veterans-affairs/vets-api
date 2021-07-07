@@ -8,7 +8,6 @@ module AppealsApi
 
         swagger_component do
           schema :legacyAppeal do
-
             property :assignedAttorney do
               key :type, :string
             end
