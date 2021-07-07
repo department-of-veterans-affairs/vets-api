@@ -398,6 +398,7 @@ Rails.application.routes.draw do
   require 'github_authentication/sidekiq_web'
 
   mount Sidekiq::Web, at: '/sidekiq'
+  Sidekiq::Web.use Rack::Session::Cookie, key: 'rack.session', secret: Settings.rack.cookie_secret
 
   unless Rails.env.development? || Settings.sidekiq_admin_panel
     Sidekiq::Web.register GithubAuthentication::SidekiqWeb
