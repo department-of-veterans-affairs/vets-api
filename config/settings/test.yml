@@ -165,6 +165,3 @@ check_in:
     mock: false
     key_path: ~
     timeout: 30
-
-rack:
-  cookie_secret: "xxxxx"
