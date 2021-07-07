@@ -4,7 +4,7 @@
       "event": "gov.va.developer.benefits.status_change",
       "urls": [
         "https://benefits.consumer.com/i/am/listening",
-        "https://benefits.consumer.com/i/am/also/listening"
+        "http://benefits.consumer.com/i/am/also/listening"
       ]
     }
   ]

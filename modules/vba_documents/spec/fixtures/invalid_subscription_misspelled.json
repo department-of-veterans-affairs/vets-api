@@ -1,5 +1,5 @@
 {
-  "subscriptions": [
+  "subscription": [
     {
       "event": "gov.va.developer.benefits.status_change",
       "urls": [

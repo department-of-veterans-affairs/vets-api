@@ -22,20 +22,24 @@ module VBADocuments
         load('./modules/vba_documents/lib/vba_documents/location_validator.rb') #allows changes (remove) todo
         submission = nil
         VBADocuments::UploadSubmission.transaction do
-          subscriptions = validate_subscription(params[:subscriptions]) if params[:subscriptions]
+          if params[:subscriptions].is_a?(ActionDispatch::Http::UploadedFile)
+            subscriptions = validate_subscription(JSON.load(params[:subscriptions].open))
+          elsif params[:subscriptions]
+            subscriptions = validate_subscription(JSON.parse(params[:subscriptions]))
+          end
           submission = VBADocuments::UploadSubmission.create(
-              consumer_name: request.headers['X-Consumer-Username'],
-              consumer_id: request.headers['X-Consumer-ID']
+            consumer_name: request.headers['X-Consumer-Username'],
+            consumer_id: request.headers['X-Consumer-ID']
           )
           # greg_model.create_from_subscriptions(subscriptions, guid)
         end
         render status: :accepted,
                json: submission,
-               serializer: VBADocuments::V1::UploadSerializer, # todo v2 validator
+               serializer: VBADocuments::V1::UploadSerializer, # TODO: v2 validator
                render_location: true
-      rescue => ex
-        # todo handle exception convert 500 error to 400 return appropriate json (returned from validator above)
-        raise ex
+      rescue ArgumentError => e
+        render status: :bad_request,
+               json: JSON.parse(e.message.gsub('=>', ':'))
       end
 
       def show
@@ -95,7 +99,6 @@ module VBADocuments
       def verify_settings
         render plain: 'Not found', status: :not_found unless Settings.vba_documents.enable_download_endpoint
       end
-
     end
   end
 end

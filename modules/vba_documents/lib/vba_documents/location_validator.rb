@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 require 'json_schemer'
 require 'uri'
 
@@ -6,41 +5,43 @@ module VBADocuments
   module LocationValidations
     SUPPORTED_EVENTS = %w(gov.va.developer.benefits.status_change)
 
-    # perhaps we should consider a json validator?
-    # Validates a subscription request for an upload submission.  Returns an array representing the subscription
-    def validate_subscription(subscription)
-      subscription = subscription.read if subscription.respond_to? :read
-      subscription_array = JSON.parse(subscription)
-      unless subscription_array.is_a? Array
-        raise ArgumentError.new("Invalid Subscription! Subscription should be an Array!")
+    # Validates a subscription request for an upload submission.  Returns an object representing the subscription
+    def validate_subscription(subscriptions)
+      schema_path = Pathname.new('modules/vba_documents/spec/fixtures/webhook_subscriptions_schema.json')
+      schemer_formats = {
+        'valid_urls' => lambda { |urls, _schema_info| validate_urls(urls) }
+      }
+      schemer = JSONSchemer.schema(schema_path, formats: schemer_formats)
+      unless schemer.valid?(subscriptions)
+        example_data = JSON.parse(File.read('./modules/vba_documents/spec/fixtures/subscription2.json'))
+        raise ArgumentError.new({
+                                  'Error' => 'Invalid subscription! Body must match the included example',
+                                  'Example' => example_data
+                                })
       end
-      subscription_array.each do |e|
-        raise ArgumentError.new("Invalid Subscription! Subscription items should be Objects!") unless e.is_a? Hash
-        raise ArgumentError.new("Invalid Subscription! Subscription item needs a url!") unless e.has_key?('url')
-        validate_url(e['url'])
-        unless e.has_key?('events')
-          raise ArgumentError.new("Invalid Subscription! Subscription item needs an array of events!")
-        end
-        e['events'].each do |event|
-          unless SUPPORTED_EVENTS.include?(event)
-            raise ArgumentError.new("Invalid Subscription! event type #{event} is not supported!")
-          end
-        end
-      end
-      subscription_array
+      subscriptions
     end
 
     def validate_url(url)
-      uri = URI(url) # raises URI::InvalidURIError if URI doesn't parse
-      https = uri.scheme.eql? 'https'
-      if (!https && Settings.vba_documents.websockets.require_https)
-        raise ArgumentError.new("URL #{url} must be https!")
+      begin
+        uri = URI(url)
+      rescue URI::InvalidURIError
+        raise ArgumentError.new({ 'Error' => "Invalid subscription! URI does not parse: #{url}" })
       end
+      https = uri.scheme.eql? 'https'
+      if !https && Settings.vba_documents.websockets.require_https
+        raise ArgumentError.new({ 'Error' => "Invalid subscription! URL #{url} must be https!" })
+      end
+
+      true
     end
 
+    def validate_urls(urls)
+      valid = true
+      urls.each do |url|
+        valid &= validate_url(url)
+      end
+      valid
+    end
   end
 end
-=begin
-load('./modules/vba_documents/lib/vba_documents/location_validator.rb')
-json = File.read('./modules/vba_documents/spec/fixtures/subscriptions.json')
-=end
