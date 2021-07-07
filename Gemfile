@@ -83,7 +83,6 @@ gem 'holidays'
 gem 'httpclient'
 gem 'ice_nine'
 gem 'iso_country_codes'
-gem 'jbuilder', require: false
 gem 'json', '>= 2.3.0'
 gem 'json-schema'
 gem 'json_schemer'
