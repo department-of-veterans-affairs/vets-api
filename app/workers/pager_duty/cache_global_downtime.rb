@@ -7,7 +7,7 @@ module PagerDuty
   class CacheGlobalDowntime
     include Sidekiq::Worker
     include SentryLogging
-    sidekiq_options retry: 1
+    sidekiq_options retry: 1, queue: 'critical'
 
     def perform
       client = PagerDuty::MaintenanceClient.new
