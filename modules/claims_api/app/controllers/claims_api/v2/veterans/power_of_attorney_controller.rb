@@ -15,7 +15,7 @@ module ClaimsApi
           render json: {
             code: poa_code,
             name: representative[:name],
-            type: '',
+            type: representative[:type],
             phone: {
               number: representative[:phone_number]
             }
@@ -26,7 +26,13 @@ module ClaimsApi
 
         def representative(poa_code)
           organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
-          return { name: organization.name, phone_number: organization.phone } if organization.present?
+          if organization.present?
+            return {
+              name: organization.name,
+              phone_number: organization.phone,
+              type: 'organization'
+            }
+          end
 
           individuals = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code)
           raise 'Ambiguous representative results' if individuals.count > 1
@@ -34,7 +40,8 @@ module ClaimsApi
           individual = individuals.first
           {
             name: "#{individual.first_name} #{individual.last_name}",
-            phone_number: individual.phone
+            phone_number: individual.phone,
+            type: 'individual'
           }
         end
       end
