@@ -7,13 +7,13 @@ module VBADocuments
 
     # Validates a subscription request for an upload submission.  Returns an object representing the subscription
     def validate_subscription(subscriptions)
-      schema_path = Pathname.new('modules/vba_documents/spec/fixtures/webhook_subscriptions_schema.json')
+      schema_path = Pathname.new('modules/vba_documents/spec/fixtures/subscriptions/webhook_subscriptions_schema.json')
       schemer_formats = {
         'valid_urls' => lambda { |urls, _schema_info| validate_urls(urls) }
       }
       schemer = JSONSchemer.schema(schema_path, formats: schemer_formats)
       unless schemer.valid?(subscriptions)
-        example_data = JSON.parse(File.read('./modules/vba_documents/spec/fixtures/subscription2.json'))
+        example_data = JSON.parse(File.read('./modules/vba_documents/spec/fixtures/subscriptions/subscription.json'))
         raise ArgumentError.new({
                                   'Error' => 'Invalid subscription! Body must match the included example',
                                   'Example' => example_data
