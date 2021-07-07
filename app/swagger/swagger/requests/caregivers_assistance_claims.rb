@@ -9,8 +9,8 @@ module Swagger
         operation :post do
           extend Swagger::Responses::ValidationError
 
-          key :description, 'Submit a 10-10CG form\\
-                             (Application for the Program of Comprehensive Assistance for Family Caregivers)'
+          key :description,
+              'Submit a 10-10CG form (Application for the Program of Comprehensive Assistance for Family Caregivers)'
 
           key :tags, %w[benefits_forms]
 
