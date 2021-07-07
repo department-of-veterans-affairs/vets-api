@@ -500,6 +500,8 @@ GEM
       ruby-vips (>= 2.0.17, < 3)
     iniparse (1.5.0)
     iso_country_codes (0.7.8)
+    jbuilder (2.11.2)
+      activesupport (>= 5.0.0)
     jmespath (1.4.0)
     json (2.5.1)
     json-schema (2.8.1)
@@ -1035,6 +1037,7 @@ DEPENDENCIES
   ice_nine
   identity!
   iso_country_codes
+  jbuilder
   json (>= 2.3.0)
   json-schema
   json_schemer
