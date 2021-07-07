@@ -16,9 +16,9 @@ module ClaimsApi
             external_key: vet.participant_id
           )
 
-          response = service.ClaimsService.read_available_claims(params[:veteranId])
+          response = service.benefit_claims.find_claims_details_by_participant_id(participant_id: vet.participant_id)
 
-          render json: { message: response }
+          render json: response
         end
       end
     end
