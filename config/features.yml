@@ -86,6 +86,9 @@ features:
   debt_letters_show_letters:
     actor_type: user
     description: Enables debt letters
+  decision_review_hlr_email:
+    actor_type: user
+    description: Send email notification for successful HLR submission
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
