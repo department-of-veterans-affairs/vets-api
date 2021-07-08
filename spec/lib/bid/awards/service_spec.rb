@@ -23,6 +23,7 @@ RSpec.describe BID::Awards::Service do
           expect(response.status).to eq(200)
           expect(response.body['awards_pension']['is_eligible_for_pension']).to eq(true)
           expect(response.body['awards_pension']['is_in_receipt_of_pension']).to eq(true)
+          expect(response.body['awards_pension']['net_worth_limit']).to eq(129094)
         end
       end
     end
