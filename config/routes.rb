@@ -397,14 +397,9 @@ Rails.application.routes.draw do
   require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
   require 'github_authentication/sidekiq_web'
 
-  unless Rails.env.test?
-    # Configure Sidekiq-specific session middleware
-    Sidekiq::Web.use ActionDispatch::Cookies
-    Sidekiq::Web.use Rails.application.config.session_store, Rails.application.config.session_options
-  end
-
   mount Sidekiq::Web, at: '/sidekiq'
-
+  Sidekiq::Web.use Rack::Session::Cookie, key: 'rack.session', secret: Settings.rack.cookie_secret,
+                                          expire_after: 2_592_000, path: '/'
   unless Rails.env.development? || Settings.sidekiq_admin_panel
     Sidekiq::Web.register GithubAuthentication::SidekiqWeb
 
