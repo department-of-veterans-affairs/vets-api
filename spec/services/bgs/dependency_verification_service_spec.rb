@@ -6,7 +6,7 @@ RSpec.describe BGS::DependencyVerificationService do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
 
   describe '#read_diaries' do
-    xit 'returns dependency decisions that all contain :award_effective_date key' do
+    it 'returns dependency decisions that all contain :award_effective_date key' do
       VCR.use_cassette('bgs/diaries_service/read_diaries') do
         allow(user).to receive(:participant_id).and_return('13014883')
         service = BGS::DependencyVerificationService.new(user)
