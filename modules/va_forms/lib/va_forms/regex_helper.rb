@@ -14,9 +14,6 @@ module VAForms
       elsif search_term.match(/21[pP]/).present?
         search_term = search_term.sub(/^21[pP]/, '21P%')
         search_term = search_term.sub(/\s/, '%')
-      # Add a wildcard to DDD forms to make it DD-D
-      elsif search_term.match(/^\d\d\d/).present?
-        search_term = search_term.sub(/\d\d/, '\0%')
       end
       search_term
     end
