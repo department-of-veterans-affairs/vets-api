@@ -32,5 +32,4 @@ context 'When a form number is passed' do
     result = helper.scrub_query('GSA1010')
     expect(result).to eq('GSA%1010')
   end
-
 end
