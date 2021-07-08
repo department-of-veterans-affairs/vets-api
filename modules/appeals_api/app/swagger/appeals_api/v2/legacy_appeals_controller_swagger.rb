@@ -60,20 +60,22 @@ module AppealsApi
 
             content 'application/json' do
               schema do
-                key :type, :object
-
                 property :data do
-                  property :id do
-                    key :'$ref', :uuid
-                  end
+                  key :type, :array
 
-                  property :type do
-                    key :type, :string
-                    key :example, 'LegacyAppeal'
-                  end
+                  items do
+                    property :id do
+                      key :'$ref', :uuid
+                    end
 
-                  property :attributes do
-                    key :$ref, '#/components/schemas/legacyAppeal'
+                    property :type do
+                      key :type, :string
+                      key :example, 'LegacyAppeal'
+                    end
+
+                    property :attributes do
+                      key :$ref, '#/components/schemas/legacyAppeal'
+                    end
                   end
                 end
               end

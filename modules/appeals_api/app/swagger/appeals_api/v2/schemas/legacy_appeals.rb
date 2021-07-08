@@ -25,7 +25,38 @@ module AppealsApi
             end
 
             property :issues do
-              key :type, :string
+              key :type, :array
+              items do
+                property :levels do
+                  key :type, :array
+                  items do
+                    key :type, :string
+                    key :example, 'Schedular'
+                  end
+                end
+
+                property :program, type: :string, example: '02'
+                property :type, type: :string, example: '12'
+                property :codes do
+                  items do
+                    key :type, :string
+                    key :example, '04'
+                  end
+                end
+                property :disposition, type: :string, example: 'F'
+                property :close_date, type: :date
+                property :note, type: :string, example: 'Aut temporibus non sit eum.'
+                property :vacols_sequence_id, type: :integer, example: 7
+                property :labels do
+                  key :type, :array
+                  items do
+                    key :type, :string
+                    key :example, 'Compensation'
+                  end
+                end
+                property :readjudication, type: :boolean, example: false
+                property :reasons, type: :array, example: []
+              end
             end
 
             property :hearings do
