@@ -40,6 +40,8 @@ module BGS
     def normalize_dependency_decisions(diaries)
       diaries[:dependency_decs][:dependency_dec].delete_if do |dep_dec|
         !dep_dec.has_key?(:award_effective_date)
+        # dep_dec[:award_effective_date].future?
+        # || dep_dec[:dependency_status_type] == 'NAWDDEP'
       end
     end
   end
