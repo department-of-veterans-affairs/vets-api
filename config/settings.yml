@@ -1047,3 +1047,10 @@ check_in:
     mock: false
     key_path: ~
     timeout: 30
+
+# Settings for BID Services
+bid:
+  awards:
+    base_url: ~
+    credentials: ~
+    mock: true

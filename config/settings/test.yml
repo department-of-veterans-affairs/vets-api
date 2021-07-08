@@ -165,3 +165,8 @@ check_in:
     mock: false
     key_path: ~
     timeout: 30
+
+bid:
+  awards:
+    base_url: https://fake_url.com
+    credentials: fake_auth
