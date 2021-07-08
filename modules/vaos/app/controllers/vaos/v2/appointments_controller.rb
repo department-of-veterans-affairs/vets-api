@@ -61,6 +61,8 @@ module VAOS
         params.permit(:kind,
                       :status,
                       :location_id,
+                      :practitioner_ids,
+                      :Practitioner_ids,
                       :clinic,
                       :reason,
                       :service_type,
