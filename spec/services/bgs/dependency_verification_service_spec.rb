@@ -56,6 +56,33 @@ RSpec.describe BGS::DependencyVerificationService do
       end
     end
 
+    xit 'should not include any dependency decisions that are in the future' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries') do
+        allow(user).to receive(:participant_id).and_return('13014883')
+        service = BGS::DependencyVerificationService.new(user)
+
+        Timecop.freeze(Time.now - 50.years)
+
+        dependency_decisions = service.read_diaries[:dependency_decs]
+
+        result = dependency_decisions.all? do |dependency_decision|
+          dependency_decision[:award_effective_date]&.past?
+        end
+
+        expected = true
+
+        expect(result).to eq expected
+
+        Timecop.return
+      end
+    end
+
+    xit 'should not include more than one dependecy decision per person_id' do
+    end
+
+    xit 'should not include any dependency decisions that are NAWDDEP' do
+    end
+
     it 'returns an empty response when it cannot find records' do
       VCR.use_cassette('bgs/diaries_service/read_empty_diaries') do
         allow(user).to receive(:participant_id).and_return('123')
