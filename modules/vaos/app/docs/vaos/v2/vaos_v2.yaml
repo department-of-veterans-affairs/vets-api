@@ -830,6 +830,11 @@ components:
         locationId:
           description: The sta6aid for the VAfacility where the appointment is registered.
           type: string
+        practitionerIds:
+          description: A list of practitioner ids.
+          type: array
+          items:
+            "$ref": "#/components/schemas/PractitionerId"
         clinic:
           description: The clinic ID for the Appointment
           type: string
