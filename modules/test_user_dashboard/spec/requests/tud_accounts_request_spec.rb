@@ -32,4 +32,26 @@ RSpec.describe 'Test User Dashboard', type: :request do
       end
     end
   end
+
+  describe '#update' do
+    let(:tud_account) { create(:tud_account, id: '123') }
+
+    it 'sanitizes the submitted notes' do
+      allow(TestUserDashboard::TudAccount).to receive(:find).and_return(tud_account)
+
+      rsa_private = OpenSSL::PKey::RSA.new 2048
+      rsa_public = rsa_private.public_key
+      pub_key = Base64.encode64(rsa_public.to_der)
+      token = JWT.encode 'test', rsa_private, 'RS256'
+
+      post('/test_user_dashboard/tud_accounts/123',
+           params: { notes: 'DROP TABLE test_user_dashboard_tud_accounts;' },
+           headers: {
+             'JWT' => token,
+             'PK' => pub_key
+           })
+
+      expect(response.status).to eq 200
+    end
+  end
 end
