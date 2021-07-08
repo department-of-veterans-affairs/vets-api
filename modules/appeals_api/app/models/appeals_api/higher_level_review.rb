@@ -195,7 +195,7 @@ module AppealsApi
     def contestable_issues
       issues = form_data.dig('included') || []
 
-      issues.map do |issue|
+      @contestable_issues ||= issues.map do |issue|
         AppealsApi::ContestableIssue.new(issue)
       end
     end

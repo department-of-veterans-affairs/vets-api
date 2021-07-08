@@ -15,6 +15,10 @@ class AppealsApi::ContestableIssue
     issue.dig('attributes', 'decisionDate')
   end
 
+  def decision_date_past?
+    in_the_past?(decision_date)
+  end
+
   def soc_date
     return unless soc_date_string
 
@@ -25,27 +29,23 @@ class AppealsApi::ContestableIssue
     issue.dig('attributes', 'socDate')
   end
 
-  def text
-    issue.dig('attributes', 'issue')
-  end
-
-  delegate :[], to: :issue
-
-  def text_exists?
-    text.present?
+  def soc_date_formatted
+    soc_date&.strftime('%m-%d-%Y')
   end
 
   def soc_date_past?
     in_the_past?(soc_date)
   end
 
-  def decision_date_past?
-    in_the_past?(decision_date)
+  def text
+    issue.dig('attributes', 'issue')
   end
 
-  def soc_date_formatted
-    soc_date&.strftime('%m-%d-%Y')
+  def text_exists?
+    text.present?
   end
+
+  delegate :[], to: :issue
 
   private
 
