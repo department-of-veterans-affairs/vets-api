@@ -16,7 +16,10 @@ module AppealsApi
 
         vanotify_service.send_email(
         email_address: email,
-          template_id: template_id
+          template_id: template_id,
+          personalisation: {
+            'email' => opts[:email]
+          }
         )
       end
 
