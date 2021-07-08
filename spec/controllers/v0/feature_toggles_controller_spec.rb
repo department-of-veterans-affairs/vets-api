@@ -59,18 +59,20 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
       json_data = JSON.parse(response.body)
 
       expect(json_data['data']['features'].first['value']).to be true
-      expect(json_data['data']['features'].first['name']).to eq(@feature_name)
-      expect(json_data['data']['features'].count).to eq(1)
+      expect(json_data['data']['features'].first['name']).to eq(@feature_name.camelize(:lower))
+      expect(json_data['data']['features'].second['name']).to eq(@feature_name)
+      expect(json_data['data']['features'].count).to eq(2)
     end
 
-    it 'keeps flags in format recieved' do
+    it 'returns both camelized and snake-case feature names' do
       get :index, params: { features: @feature_name.camelize }
       expect(response).to have_http_status(:ok)
       json_data = JSON.parse(response.body)
 
       expect(json_data['data']['features'].first['value']).to be true
-      expect(json_data['data']['features'].first['name']).to eq(@feature_name.camelize)
-      expect(json_data['data']['features'].count).to eq(1)
+      expect(json_data['data']['features'].first['name']).to eq(@feature_name.camelize(:lower))
+      expect(json_data['data']['features'].second['name']).to eq(@feature_name.snakecase)
+      expect(json_data['data']['features'].count).to eq(2)
     end
 
     it 'returns false for nonexistant flags' do
@@ -98,7 +100,7 @@ RSpec.describe V0::FeatureTogglesController, type: :controller do
 
       expect(json_data['data']['features'].first['name']).to eq(@feature_name)
       expect(json_data['data']['features'].first['value']).to be true
-      expect(json_data['data']['features'].count).to eq(1)
+      expect(json_data['data']['features'].count).to eq(2)
     end
   end
 end

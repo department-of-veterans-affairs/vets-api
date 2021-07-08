@@ -7,29 +7,28 @@ module V0
     before_action :load_user
 
     def index
+      features_array = []
+
       if params[:features].present?
         features_params = params[:features].split(',')
 
-        features = features_params.collect do |feature_name|
+        features_params.each do |feature_name|
           underscored_feature_name = feature_name.underscore
           actor_type = FLIPPER_FEATURE_CONFIG['features'].dig(feature_name, 'actor_type')
-
-          { name: feature_name, value: Flipper.enabled?(underscored_feature_name, actor(actor_type)) }
+          feature_enabled = Flipper.enabled?(underscored_feature_name, actor(actor_type))
+          add_feature_to_features_array(features_array, feature_name, feature_enabled)
         end
       else
-        features = []
-
-        # returning both camel and snakecase for uniformity on FE
         FLIPPER_FEATURE_CONFIG['features'].collect do |feature_name, values|
-          flipper_enabled = Flipper.enabled?(feature_name, actor(values['actor_type']))
-          features << { name: feature_name.camelize(:lower),
-                        value: flipper_enabled }
-          features << { name: feature_name, value: flipper_enabled }
+          feature_enabled = Flipper.enabled?(feature_name, actor(values['actor_type']))
+          add_feature_to_features_array(features_array, feature_name, feature_enabled)
         end
       end
 
-      render json: { data: { type: 'feature_toggles', features: features } }
+      render json: { data: { type: 'feature_toggles', features: features_array } }
     end
+
+    private
 
     def actor(actor_type)
       if actor_type == FLIPPER_ACTOR_STRING
@@ -37,6 +36,12 @@ module V0
       else
         @current_user
       end
+    end
+
+    # returning both camel and snakecase for uniformity on FE
+    def add_feature_to_features_array(features_array, feature, value)
+      features_array << { name: feature.camelize(:lower), value: value }
+      features_array << { name: feature.snakecase, value: value }
     end
   end
 end
