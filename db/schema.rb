@@ -881,9 +881,11 @@ ActiveRecord::Schema.define(version: 2021_06_24_194646) do
     t.jsonb "msg", null: false
     t.jsonb "attempts", default: [], null: false
     t.boolean "complete", default: false
+    t.integer "processing"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["api_name", "consumer_id", "api_guid", "event", "complete"], name: "index_webhook_notification"
+    t.index ["api_name", "consumer_id", "api_guid", "event", "complete"], name: "index_wh_notify"
+    t.index ["complete", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
   end
 
   create_table "webhook_subscriptions", force: :cascade do |t|
@@ -891,7 +893,7 @@ ActiveRecord::Schema.define(version: 2021_06_24_194646) do
     t.string "consumer_name", null: false
     t.uuid "consumer_id", null: false
     t.uuid "api_guid"
-    t.jsonb "events", default: []
+    t.jsonb "events", default: {"subscriptions"=>[]}
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhook_subscription", unique: true
