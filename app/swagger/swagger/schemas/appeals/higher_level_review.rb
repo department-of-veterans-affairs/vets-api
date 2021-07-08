@@ -7,9 +7,18 @@ module Swagger
         include Swagger::Blocks
 
         VetsJsonSchema::SCHEMAS.fetch('HLR-CREATE-REQUEST-BODY')['definitions'].each do |k, v|
+          v.delete('$comment')
           if k == 'hlrCreateDataAttributes'
+            v['oneOf'][1].delete('$comment')
             schema = { description: v['description'] }.merge v['oneOf'][1]
+
             swagger_schema 'hlrCreateDataAttributes', schema
+            next
+          end
+
+          if k == 'hlrCreateVeteran'
+            v['properties']['timezone'].delete('$comment')
+            swagger_schema 'hlrCreateVeteran', v
             next
           end
 
@@ -20,6 +29,7 @@ module Swagger
         end
 
         VetsJsonSchema::SCHEMAS.fetch('HLR-SHOW-RESPONSE-200')['definitions'].each do |k, v|
+          v.delete('$comment')
           swagger_schema(k == 'root' ? 'hlrShowRoot' : k, v) {}
         end
         swagger_schema 'hlrShowRoot' do
