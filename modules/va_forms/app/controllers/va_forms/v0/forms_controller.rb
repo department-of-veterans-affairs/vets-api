@@ -18,7 +18,6 @@ module VAForms
             params[:query].gsub!(/-/, '%')
             return search_by_form_number
           end
-          return search_by_text(params[:query]) if params[:query] == '10-10'
           return search_by_form_number if params[:query].match(valid_search_regex).present?
 
           return search_by_text(VAForms::RegexHelper.new.scrub_query(params[:query]))
