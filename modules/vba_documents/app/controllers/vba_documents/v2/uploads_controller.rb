@@ -9,37 +9,54 @@ require_dependency 'vba_documents/upload_validator'
 require_dependency 'vba_documents/location_validator'
 require_dependency 'vba_documents/multipart_parser'
 require 'common/exceptions'
+require './lib/webhooks/utilities'
+load './lib/webhooks/utilities.rb'
 
 module VBADocuments
   module V2
     class UploadsController < ApplicationController
       include VBADocuments::UploadValidations
-      include VBADocuments::LocationValidations
+      include Webhooks::Utilities
       skip_before_action(:authenticate)
       before_action :verify_settings, only: [:download]
 
-      def create
-        load('./modules/vba_documents/lib/vba_documents/location_validator.rb') #allows changes (remove) todo
-        submission = nil
-        VBADocuments::UploadSubmission.transaction do
-          if params[:subscriptions].is_a?(ActionDispatch::Http::UploadedFile)
-            subscriptions = validate_subscription(JSON.load(params[:subscriptions].open))
-          elsif params[:subscriptions]
-            subscriptions = validate_subscription(JSON.parse(params[:subscriptions]))
+        register_events("gov.va.developer.benefits-intake.status_change",
+                        "gov.va.developer.benefits-intake.status_change2", api_name: "KMA_API") do |last_time_run|
+          next_run = nil
+          if last_time_run.nil?
+            next_run = 0.seconds.from_now
+          else
+            next_run = 30.seconds.from_now
           end
+          next_run
+        end
+
+      def create
+        load './lib/webhooks/utilities.rb'
+        submission, subscriptions = nil, nil
+        VBADocuments::UploadSubmission.transaction do
           submission = VBADocuments::UploadSubmission.create(
-            consumer_name: request.headers['X-Consumer-Username'],
-            consumer_id: request.headers['X-Consumer-ID']
+              consumer_name: request.headers['X-Consumer-Username'],
+              consumer_id: request.headers['X-Consumer-ID']
           )
-          # greg_model.create_from_subscriptions(subscriptions, guid)
+          observers = params[:observers]
+          if observers.respond_to? :read
+            subscriptions = validate_subscription(JSON.load(observers.read))
+          elsif observers
+            subscriptions = validate_subscription(JSON.parse(observers))
+          end
+
+          if subscriptions
+            wh = Webhooks::Utilities.register_webhook(
+                submission.consumer_id, submission.consumer_name, subscriptions, submission.guid)
+          end
         end
         render status: :accepted,
                json: submission,
                serializer: VBADocuments::V1::UploadSerializer, # TODO: v2 validator
                render_location: true
-      rescue ArgumentError => e
-        render status: :bad_request,
-               json: JSON.parse(e.message.gsub('=>', ':'))
+      rescue JSON::ParserError => e
+        raise Common::Exceptions::SchemaValidationErrors, ["invalid JSON. #{e.message}"] if e.is_a? JSON::ParserError
       end
 
       def show

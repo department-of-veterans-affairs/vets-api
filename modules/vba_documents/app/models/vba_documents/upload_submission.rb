@@ -4,7 +4,7 @@ require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
-require './lib/webhooks/webhook_validator'
+require './lib/webhooks/utilities'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
