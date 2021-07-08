@@ -52,14 +52,16 @@ module AppealsApi
                 height: 16
               )
             )
+
             pdf.text_box(
-              form_data.preferred_email,
+              preferred_email_field_text,
               text_opts.merge(
                 at: [145, 514],
                 width: 195,
                 height: 24
               )
             )
+
             pdf.text_box(
               form_data.representatives_name,
               text_opts.merge(
@@ -164,7 +166,8 @@ module AppealsApi
 
         def additional_pages?
           form_data.hearing_type_preference.present? ||
-            form_data.contestable_issues.count > 5
+            form_data.contestable_issues.count > 5 ||
+            !short_preferred_email?
         end
 
         # rubocop:disable Metrics/MethodLength
@@ -194,6 +197,15 @@ module AppealsApi
             end
         end
         # rubocop:enable Metrics/MethodLength
+
+        def short_preferred_email?
+          # preferred email will be present since it's required & has minLength set
+          form_data.preferred_email.length <= 120
+        end
+
+        def preferred_email_field_text
+          short_preferred_email? ? form_data.preferred_email : 'See attached page for preferred email'
+        end
       end
     end
   end
