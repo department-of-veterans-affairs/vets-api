@@ -37,11 +37,11 @@ module BGS
       }
     end
 
-    def normalize_dependency_decisions(diaries)
-      diaries[:dependency_decs][:dependency_dec].delete_if do |dep_dec|
-        !dep_dec.has_key?(:award_effective_date)
-        # dep_dec[:award_effective_date].future?
-        # || dep_dec[:dependency_status_type] == 'NAWDDEP'
+    def normalize_dependency_decisions(dependency_decisions)
+      dependency_decisions.delete_if do |dependency_decision|
+        !dependency_decision.has_key?(:award_effective_date)
+        # dependency_decision[:award_effective_date].future?
+        # || dependency_decision[:dependency_status_type] == 'NAWDDEP'
       end
     end
   end
