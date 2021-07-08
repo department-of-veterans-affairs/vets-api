@@ -59,7 +59,7 @@ RSpec.describe BGS::DependencyVerificationService do
       end
     end
 
-    xit 'should not include more than one dependecy decision per person_id' do
+    fit 'should not include more than one dependecy decision per person_id' do
     end
 
     it 'returns an empty response when it cannot find records' do
