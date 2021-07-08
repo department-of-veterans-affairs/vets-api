@@ -40,6 +40,22 @@ RSpec.describe BGS::DependencyVerificationService do
       end
     end
 
+    it 'returns dependency decisions that all contain :award_effective_date key' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries') do
+        allow(user).to receive(:participant_id).and_return('13014883')
+        service = BGS::DependencyVerificationService.new(user)
+        dependency_decisions = service.read_diaries[:dependency_decs]
+
+        result = dependency_decisions.all? do |dependency_decision|
+          dependency_decision.has_key?(:award_effective_date)
+        end
+
+        expected = true
+
+        expect(result).to eq expected
+      end
+    end
+
     it 'returns an empty response when it cannot find records' do
       VCR.use_cassette('bgs/diaries_service/read_empty_diaries') do
         allow(user).to receive(:participant_id).and_return('123')

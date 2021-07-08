@@ -12,6 +12,8 @@ module BGS
         }
       )
 
+      diaries[:dependency_decs][:dependency_dec] = normalize_dependency_decisions(diaries)
+
       return empty_response(diaries) if diaries[:diaries].blank?
 
       standard_response(diaries)
@@ -33,6 +35,12 @@ module BGS
         dependency_decs: diaries.dig(:dependency_decs, :dependency_dec),
         diaries: diaries.dig(:diaries, :diary)
       }
+    end
+
+    def normalize_dependency_decisions(diaries)
+      diaries[:dependency_decs][:dependency_dec].delete_if do |dep_dec|
+        !dep_dec.has_key?(:award_effective_date)
+      end
     end
   end
 end
