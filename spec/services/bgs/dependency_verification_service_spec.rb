@@ -22,12 +22,12 @@ RSpec.describe BGS::DependencyVerificationService do
       end
     end
 
-    xit 'should not include any dependency decisions that are in the future' do
+    it 'should not include any dependency decisions that are in the future' do
       VCR.use_cassette('bgs/diaries_service/read_diaries') do
         allow(user).to receive(:participant_id).and_return('13014883')
         service = BGS::DependencyVerificationService.new(user)
 
-        Timecop.freeze(Time.now - 50.years)
+        Timecop.freeze(Time.local(1990))
 
         dependency_decisions = service.read_diaries[:dependency_decs]
 
