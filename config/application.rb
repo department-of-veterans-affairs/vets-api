@@ -71,6 +71,7 @@ module VetsAPI
     config.middleware.use StatsdMiddleware
     config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies
+
     config.middleware.use ActionDispatch::Flash
     # config.middleware.insert_after ActionDispatch::Cookies,
     #                                ActionDispatch::Session::CookieStore,
