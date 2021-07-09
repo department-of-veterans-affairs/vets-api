@@ -18,7 +18,8 @@ module AppealsApi
         email_address: email,
           template_id: template_id,
           personalisation: {
-            'email' => opts[:email]
+            'veteran_name' => opts['veteran_name'],
+            'date_submitted' => opts['date_submitted']
           }
         )
       end
@@ -48,7 +49,7 @@ module AppealsApi
       end
 
       def required_keys
-        %w[email]
+        %w[email date_submitted veteran_name]
       end
     end
 
