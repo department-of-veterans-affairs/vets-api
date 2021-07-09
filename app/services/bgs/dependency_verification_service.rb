@@ -38,11 +38,21 @@ module BGS
     end
 
     def normalize_dependency_decisions(dependency_decisions)
-      dependency_decisions.delete_if do |dependency_decision|
+      set1 = dependency_decisions.delete_if do |dependency_decision|
         !dependency_decision.has_key?(:award_effective_date) ||
-        dependency_decision[:award_effective_date].future? ||
-        dependency_decision[:dependency_status_type] == 'NAWDDEP'
+        dependency_decision[:award_effective_date].future?
       end
+
+      set2 = set1.group_by { |dependency_decision| dependency_decision[:person_id] }
+
+      final = []
+
+      set2.each_value do |array|
+        latest = array.max_by { |dd| dd[:award_effective_date] }
+        final << latest if latest[:dependency_status_type] != 'NAWDDEP'
+      end
+
+      final
     end
   end
 end

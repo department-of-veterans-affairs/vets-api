@@ -59,7 +59,19 @@ RSpec.describe BGS::DependencyVerificationService do
       end
     end
 
-    fit 'should not include more than one dependecy decision per person_id' do
+    it 'should not include more than one dependecy decision per person_id' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries') do
+        allow(user).to receive(:participant_id).and_return('13014883')
+        service = BGS::DependencyVerificationService.new(user)
+        dependency_decisions = service.read_diaries[:dependency_decs]
+
+        person_ids = dependency_decisions.map{ |e| e[:person_id] }
+        result = person_ids == person_ids.uniq
+
+        expected = true
+
+        expect(result).to eq expected
+      end
     end
 
     it 'returns an empty response when it cannot find records' do
