@@ -13,7 +13,7 @@ RSpec.describe BGS::DependencyVerificationService do
         dependency_decisions = service.read_diaries[:dependency_decs]
 
         result = dependency_decisions.all? do |dependency_decision|
-          dependency_decision.has_key?(:award_effective_date)
+          dependency_decision.key?(:award_effective_date)
         end
 
         expected = true
