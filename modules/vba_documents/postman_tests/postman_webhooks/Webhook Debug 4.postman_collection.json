@@ -13,17 +13,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"let jsonData = pm.response.json()",
-							"",
-							"console.log(\"DATA SENT to DESTINATION\")",
-							"console.log(\"Response is:\")",
-							"console.log(jsonData)",
-							"",
-							"pm.test(\"Payload is \\\"This is kevins test\\\"\", function () {",
-							"    pm.expect(jsonData.data.message).to.eql(\"This is kevins test4\");",
-							"});",
-							"",
-							"console.log(\"End of response\")"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -33,13 +23,9 @@
 					"script": {
 						"exec": [
 							"var previousRequest = JSON.parse(globals.previousRequest),",
-							"    webhookRequestData = previousRequest.data;",
+							"    webhookRequestData = previousRequest;",
 							"",
-							"console.log(webhookRequestData)",
-							"",
-							"// extract things from webhook and save them in variables",
-							"pm.variables.set('awesome_key_example', Object.keys(webhookRequestData)[0])",
-							"pm.variables.set('awesome_value_example', webhookRequestData[Object.keys(webhookRequestData)[0]])"
+							"console.log(webhookRequestData)"
 						],
 						"type": "text/javascript"
 					}
@@ -50,7 +36,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"example\": \"HERE SHOULD GO THE THINGS YOU WANT TO SEND TO DESTINATION URL\",\n    \"{{awesome_key_example}}\":\"{{awesome_value_example}}\"\n}",
+					"raw": "",
 					"options": {
 						"raw": {
 							"language": "json"

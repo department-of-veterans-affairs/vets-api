@@ -48,7 +48,7 @@
 							"    webhook_array_string = webhook_array_string + \"]\";\r",
 							"\r",
 							"\r",
-							"    pm.environment.set(\"webhooks\", webhook_array_string);\r",
+							"    pm.environment.set(\"urls\", webhook_array_string);\r",
 							"}"
 						],
 						"type": "text/javascript"
@@ -77,11 +77,27 @@
 						"key": "apikey",
 						"value": "{{apikey}}",
 						"type": "text"
+					},
+					{
+						"key": "X-Consumer-Username",
+						"value": "Development",
+						"type": "text"
+					},
+					{
+						"key": "X-Consumer-ID",
+						"value": "59ac8ab0-1f28-43bd-8099-23adb561815d",
+						"type": "text"
 					}
 				],
 				"body": {
-					"mode": "raw",
-					"raw": "{\r\n    \"webhook_urls\": [\r\n        {{webhooks}}\r\n    ]\r\n}"
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "observers",
+							"value": "{\n  \"subscriptions\": [\n    {\n      \"event\": \"gov.va.developer.benefits-intake.status_change\",\n      \"urls\": {{urls}}\n    }\n  ]\n}",
+							"type": "text"
+						}
+					]
 				},
 				"url": {
 					"raw": "{{host}}/services/vba_documents/{{version}}/uploads",
