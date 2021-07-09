@@ -12,7 +12,7 @@ require 'sidekiq/web'
 Rails.application.reloader.to_prepare do
   # Turn off Sidekiq's sessions, which overwrite the main Rails app's session
   # after the first request
-  Sidekiq::Web.disable(:sessions)
+  Sidekiq::Web.set :sessions, false
   Sidekiq::Enterprise.unique! if Rails.env.production?
 
   Sidekiq.configure_server do |config|

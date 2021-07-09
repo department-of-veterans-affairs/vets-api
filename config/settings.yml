@@ -1048,6 +1048,9 @@ check_in:
     key_path: ~
     timeout: 30
 
+rack:
+  cookie_secret: ~
+
 # Settings for BID Services
 bid:
   awards:
