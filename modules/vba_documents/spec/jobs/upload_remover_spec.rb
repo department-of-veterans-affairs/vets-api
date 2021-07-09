@@ -60,7 +60,10 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
     end
 
     describe 'when a record was manually removed from s3' do
-      let(:upload_manually_removed) { FactoryBot.create(:upload_submission_manually_removed, status: 'received', s3_deleted: nil, created_at: 11.days.ago) }
+      let(:upload_manually_removed) do
+        FactoryBot.create(:upload_submission_manually_removed, status: 'received', s3_deleted: nil,
+                                                               created_at: 11.days.ago)
+      end
       let(:upload_old) { FactoryBot.create(:upload_submission, status: 'received', created_at: 12.days.ago) }
 
       it 'still removes other records older than 10 days' do
@@ -72,7 +75,7 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
           allow(@objstore).to receive(:object).with(upload_old.guid).and_return(s3_object_old)
           allow(s3_object_old).to receive(:exists?).and_return(true)
           expect(@objstore).to receive(:delete).with(upload_old.guid)
-          expect(@objstore).to_not receive(:delete).with(upload_manually_removed.guid)
+          expect(@objstore).not_to receive(:delete).with(upload_manually_removed.guid)
           described_class.new.perform
           upload_old.reload
           expect(upload_old.s3_deleted).to be_truthy
