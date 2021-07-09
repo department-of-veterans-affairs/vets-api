@@ -203,7 +203,7 @@ group :development, :test do
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
   gem 'rubocop-thread_safety'
-  gem 'sidekiq', '< 7'
+  gem "sidekiq", github: "mperham/sidekiq"
   gem 'timecop'
   gem 'webmock'
   gem 'yard'

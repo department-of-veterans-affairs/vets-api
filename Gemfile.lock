@@ -1,4 +1,13 @@
 GIT
+  remote: git://github.com/mperham/sidekiq.git
+  revision: 9a44071af1ba2b2a155dd3f3e607d6aec24af6ae
+  specs:
+    sidekiq (6.2.1)
+      connection_pool (>= 2.2.2)
+      rack (~> 2.0)
+      redis (>= 4.2.0)
+
+GIT
   remote: https://github.com/corgibytes/ruby-debug-ide
   revision: 4869a6721579a7d88b7d105929c27325e184a5dd
   branch: feature-add-fixed-port-range
@@ -848,10 +857,6 @@ GEM
     shrine (3.4.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
-    sidekiq (6.1.3)
-      connection_pool (>= 2.2.2)
-      rack (~> 2.0)
-      redis (>= 4.2.0)
     sidekiq-ent (2.2.2)
       einhorn (>= 0.7.4)
       sidekiq (>= 6.1.1)
@@ -1117,7 +1122,7 @@ DEPENDENCIES
   seedbank
   sentry-raven
   shrine
-  sidekiq (< 7)
+  sidekiq!
   sidekiq-ent!
   sidekiq-pro!
   sidekiq-scheduler (~> 3.1)
