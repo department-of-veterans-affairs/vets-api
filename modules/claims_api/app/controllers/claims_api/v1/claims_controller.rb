@@ -22,6 +22,8 @@ module ClaimsApi
       end
 
       def show
+        verify_consent_limitations!
+
         claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
         if claim && claim.status == 'errored'
@@ -42,7 +44,7 @@ module ClaimsApi
         log_message_to_sentry('Error in claims show',
                               :warning,
                               body: e.message)
-        raise if e.is_a?(::Common::Exceptions::UnprocessableEntity)
+        raise if e.is_a?(::Common::Exceptions::UnprocessableEntity) || e.is_a?(::Common::Exceptions::Forbidden)
 
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
       end

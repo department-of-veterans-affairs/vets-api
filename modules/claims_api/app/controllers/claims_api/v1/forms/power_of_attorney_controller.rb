@@ -34,7 +34,6 @@ module ClaimsApi
               auth_headers: auth_headers,
               form_data: form_attributes,
               source_data: source_data,
-              consent_limits: consent_limits
               current_poa: current_poa_code,
               header_md5: header_md5
             )

@@ -72,13 +72,6 @@ module ClaimsApi
                                                  tempfile: temp_file)
         end
 
-        def bgs_service
-          BGS::Services.new(
-            external_uid: target_veteran.participant_id,
-            external_key: target_veteran.participant_id
-          )
-        end
-
         def received_date
           form_attributes['received_date']
         end
