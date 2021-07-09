@@ -43,12 +43,10 @@ module ClaimsApi
       #
       # @return [boolean] True if the current user is the Veteran being acted on, false otherwise
       def user_is_target_veteran?
-        return false unless @current_user.first_name.casecmp?(target_veteran.first_name)
-        return false unless @current_user.last_name.casecmp?(target_veteran.last_name)
-        return false unless @current_user.ssn == target_veteran.ssn
-        return false unless Date.parse(@current_user.birth_date) == Date.parse(target_veteran.birth_date)
+        return false if @current_user.icn.blank?
+        return false if target_veteran&.mpi&.icn.blank?
 
-        true
+        @current_user.icn == target_veteran.mpi.icn
       end
     end
   end

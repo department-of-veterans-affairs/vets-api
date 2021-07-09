@@ -25,6 +25,15 @@ module ClaimsApi
           loa: @current_user.loa
         )
       end
+
+      def user_is_target_veteran?
+        return false unless @current_user.first_name.casecmp?(target_veteran.first_name)
+        return false unless @current_user.last_name.casecmp?(target_veteran.last_name)
+        return false unless @current_user.ssn == target_veteran.ssn
+        return false unless Date.parse(@current_user.birth_date) == Date.parse(target_veteran.birth_date)
+
+        true
+      end
     end
   end
 end
