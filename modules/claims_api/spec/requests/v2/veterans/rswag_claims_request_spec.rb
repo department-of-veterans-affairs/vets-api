@@ -26,11 +26,23 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
 
       describe 'Getting a successful response' do
         response '200', 'claim response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'claims.json')))
+          schema JSON.parse(
+            File.read(
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans', 'claims', 'claims.json')
+            )
+          )
 
           let(:veteran) { OpenStruct.new(mpi: nil, participant_id: 1) }
           let(:base_service) { OpenStruct.new(benefit_claims: nil) }
           let(:benefit_claims_service) { OpenStruct.new(find_claims_details_by_participant_id: nil) }
+          let(:bgs_response) do
+            JSON.parse(
+              File.read(
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'claims', 'index.json')
+              ),
+              symbolize_names: true
+            )
+          end
           let(:scopes) { %w[claim.read] }
 
           before do |example|
@@ -39,7 +51,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
               expect(BGS::Services).to receive(:new).and_return(base_service)
               expect(base_service).to receive(:benefit_claims).and_return(benefit_claims_service)
               expect(benefit_claims_service)
-                .to receive(:find_claims_details_by_participant_id).and_return({ bnft_claim_detail: [] })
+                .to receive(:find_claims_details_by_participant_id).and_return(bgs_response)
 
               submit_request(example.metadata)
             end
