@@ -27,7 +27,7 @@ RSpec.describe BGS::DependencyVerificationService do
         allow(user).to receive(:participant_id).and_return('13014883')
         service = BGS::DependencyVerificationService.new(user)
 
-        Timecop.freeze(Time.local(1990))
+        Timecop.freeze(Time.zone.local(1990))
 
         dependency_decisions = service.read_diaries[:dependency_decs]
 
