@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_01_173435) do
+ActiveRecord::Schema.define(version: 2021_07_09_004658) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -691,6 +691,15 @@ ActiveRecord::Schema.define(version: 2021_07_01_173435) do
     t.index ["name"], name: "index_session_activities_on_name"
     t.index ["status"], name: "index_session_activities_on_status"
     t.index ["user_uuid"], name: "index_session_activities_on_user_uuid"
+  end
+
+  create_table "sessions", force: :cascade do |t|
+    t.string "session_id", null: false
+    t.text "data"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["session_id"], name: "index_sessions_on_session_id", unique: true
+    t.index ["updated_at"], name: "index_sessions_on_updated_at"
   end
 
   create_table "spool_file_events", force: :cascade do |t|
