@@ -40,7 +40,7 @@ module BGS
     def normalize_dependency_decisions(dependency_decisions)
       set1 = dependency_decisions.delete_if do |dependency_decision|
         !dependency_decision.key?(:award_effective_date) ||
-        dependency_decision[:award_effective_date].future?
+          dependency_decision[:award_effective_date].future?
       end
 
       set2 = set1.group_by { |dependency_decision| dependency_decision[:person_id] }
