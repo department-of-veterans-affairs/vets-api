@@ -4,7 +4,7 @@ require 'appeals_api/higher_level_review/phone'
 
 module AppealsApi
   module HigherLevelReviews
-    class PdfFormatValidation
+    class PdfFormFieldValidation
       def initialize(request_body, request_headers, version_validator:)
         @request_body = request_body
         @request_headers = request_headers

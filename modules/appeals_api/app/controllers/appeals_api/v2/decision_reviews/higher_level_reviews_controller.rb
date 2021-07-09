@@ -71,7 +71,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def validate_json_schema_for_pdf_fit
-    status, error = AppealsApi::HigherLevelReviews::PdfFormatValidation.new(
+    status, error = AppealsApi::HigherLevelReviews::PdfFormFieldValidation.new(
       @json_body,
       headers,
       version_validator: AppealsApi::HigherLevelReviews::V2Validator
