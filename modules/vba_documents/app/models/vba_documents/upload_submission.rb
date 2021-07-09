@@ -5,17 +5,32 @@ require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
 require './lib/webhooks/utilities'
+load './lib/webhooks/utilities.rb'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
+    include Webhooks::Utilities
     extend SQLSupport
     send(:validates_uniqueness_of, :guid)
     # before_save :record_status_change_notification, if: :status_changed?
     before_save :capture_status_time, if: :status_changed?
     after_find :set_initial_status
     attr_reader :current_status
+
+    # register_events("gov.va.developer.benefits-intake.status_change",
+    #                 "gov.va.developer.benefits-intake.status_change2", api_name: "PLAY_API") do |last_time_async_scheduled|
+    #   next_run = nil
+    #   if last_time_async_scheduled.nil?
+    #     next_run = 0.seconds.from_now
+    #   else
+    #     next_run = 5.seconds.from_now
+    #   end
+    #   next_run
+    # rescue
+    #   5.seconds.from_now
+    # end
 
     WEBHOOK_STATUS_CHANGE_EVENT = 'gov.va.developer.benefits-intake.status_change'
 
@@ -33,9 +48,9 @@ module VBADocuments
     # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
     scope :aged_processing, lambda { |look_back, unit_of_measure, status|
       where(status: status)
-        .where("(metadata -> 'status' -> ? -> 'start')::bigint < ?", status,
-               look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
-        .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
+          .where("(metadata -> 'status' -> ? -> 'start')::bigint < ?", status,
+                 look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
+          .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
       # lambda above stops security scan from finding false positive sql injection!
     }
 
@@ -44,7 +59,7 @@ module VBADocuments
     def initialize(attributes = nil)
       super
       @current_status = status
-      self.metadata = { 'status' => { @current_status => { 'start' => Time.now.to_i } } }
+      self.metadata = {'status' => {@current_status => {'start' => Time.now.to_i}}}
     end
 
     def self.fake_status(guid)
@@ -53,9 +68,11 @@ module VBADocuments
                                         code: 'DOC105',
                                         detail: VBADocuments::UploadError::DOC105,
                                         location: nil)
+
       def empty_submission.read_attribute_for_serialization(attr)
         send(attr)
       end
+
       empty_submission
     end
 
@@ -149,7 +166,7 @@ module VBADocuments
       save!
     end
 
-    private
+    # private
 
     def rewrite_url(url)
       rewritten = url.sub!(Settings.vba_documents.location.prefix, Settings.vba_documents.location.replacement)
@@ -202,22 +219,27 @@ module VBADocuments
     end
 
     def capture_status_time
+      # puts "I am here KMA1"
       from = @current_status
       to = status
       time = Time.now.to_i
       # ensure that we have a current status. Old upload submissions may not have been run through the initializer
       # so we are checking that here
+      #puts "I am here KMA zzz #{from}"
       metadata['status'][from]['end'] = time if metadata.key? 'status'
+      # puts "I am here KMA A"
       metadata['status'] ||= {}
       metadata['status'][to] ||= {}
+      # puts "I am here KMA BB"
       metadata['status'][to]['start'] = time
       record_status_change_notification(WEBHOOK_STATUS_CHANGE_EVENT, from, to)
       @current_status = to
     end
 
     def record_status_change_notification(event, from_status, to_status)
+      #  puts "I am here KMA2"
       if event.eql? WEBHOOK_STATUS_CHANGE_EVENT #&& NOTIFY_STATUSES.include?(to_status)
-        api = Webhooks::Validator.app_name(event)
+        api = Webhooks::Utilities.event_to_api_name[event]
         c_uuid = consumer_id
         c_name = consumer_name
         g = guid
@@ -240,8 +262,8 @@ module VBADocuments
     end
 
     def format_msg(event, from_status, to_status, guid)
-      api = Webhooks::Validator.app_name(event)
-      {api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status, ts: Time.now.to_s }
+      api = Webhooks::Utilities.event_to_api_name[event]
+      {api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status, ts: Time.now.to_i}
     end
   end
 end

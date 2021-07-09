@@ -11,7 +11,9 @@ module Webhooks
         msg['batch'] << notification.msg
       end
 
-      Rails.logger.info "Notifying on callback url #{url} for ids #{ids} with msg #{msg}"
+      Rails.logger.info "CRIS Notifying on callback url #{url} for ids #{ids} with msg #{msg}"
+    rescue => e
+      Rails.logger.error("CRIS Error in CallbackUrlJob #{e.message}", e)
     end
   end
 end

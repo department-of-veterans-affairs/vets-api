@@ -6,11 +6,11 @@ require_dependency 'vba_documents/application_controller'
 require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/payload_manager'
 require_dependency 'vba_documents/upload_validator'
-require_dependency 'vba_documents/location_validator'
 require_dependency 'vba_documents/multipart_parser'
 require 'common/exceptions'
 require './lib/webhooks/utilities'
 load './lib/webhooks/utilities.rb'
+require './modules/vba_documents/lib/vba_documents/webhooks_registrations'
 
 module VBADocuments
   module V2
@@ -20,19 +20,22 @@ module VBADocuments
       skip_before_action(:authenticate)
       before_action :verify_settings, only: [:download]
 
-        register_events("gov.va.developer.benefits-intake.status_change",
-                        "gov.va.developer.benefits-intake.status_change2", api_name: "KMA_API") do |last_time_run|
-          next_run = nil
-          if last_time_run.nil?
-            next_run = 0.seconds.from_now
-          else
-            next_run = 30.seconds.from_now
-          end
-          next_run
-        end
+      # register_events("gov.va.developer.benefits-intake.status_change",
+      #                 "gov.va.developer.benefits-intake.status_change2", api_name: "PLAY_API") do |last_time_async_scheduled|
+      #   next_run = nil
+      #   if last_time_async_scheduled.nil?
+      #     next_run = 0.seconds.from_now
+      #   else
+      #     next_run = 5.seconds.from_now
+      #   end
+      #   next_run
+      # rescue
+      #   5.seconds.from_now
+      # end
 
       def create
         load './lib/webhooks/utilities.rb'
+        load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
         submission, subscriptions = nil, nil
         VBADocuments::UploadSubmission.transaction do
           submission = VBADocuments::UploadSubmission.create(

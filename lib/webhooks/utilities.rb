@@ -21,8 +21,8 @@ module Webhooks
       end
 
       def register_name_to_time_block(name, block)
-        api_name_to_time_block ||={}
-        api_name_to_time_block[name] = block
+        @api_name_to_time_block ||={}
+        @api_name_to_time_block[name] = block
       end
 
       def register_event(event)
