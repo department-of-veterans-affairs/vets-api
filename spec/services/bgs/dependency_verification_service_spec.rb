@@ -22,7 +22,7 @@ RSpec.describe BGS::DependencyVerificationService do
       end
     end
 
-    it 'should not include any dependency decisions that are in the future' do
+    it 'does not include any dependency decisions that are in the future' do
       VCR.use_cassette('bgs/diaries_service/read_diaries') do
         allow(user).to receive(:participant_id).and_return('13014883')
         service = BGS::DependencyVerificationService.new(user)
