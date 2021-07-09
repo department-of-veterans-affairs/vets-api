@@ -5,7 +5,6 @@ require 'appeals_api/higher_level_review/phone'
 module AppealsApi
   module HigherLevelReviews
     class PdfFormFieldV2Validator
-
       def initialize(request_body, request_headers)
         @request_body = request_body
         @request_headers = request_headers
@@ -14,7 +13,7 @@ module AppealsApi
       def validate!
         return error(422, veteran_phone.too_long_error_message) if veteran_phone.too_long?
 
-        [nil, nil] #status, error
+        [nil, nil] # status, error
       end
 
       private

@@ -16,7 +16,7 @@ module AppealsApi
         return error(422, length_error) if icr_name_phone_too_long?
         return error(422, veteran_phone.too_long_error_message) if veteran_phone.too_long?
 
-        [nil, nil] #status, error
+        [nil, nil] # status, error
       end
 
       private
