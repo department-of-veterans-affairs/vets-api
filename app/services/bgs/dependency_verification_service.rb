@@ -11,10 +11,10 @@ module BGS
           award_type: 'CPL'
         }
       )
+      return empty_response(diaries) if diaries[:diaries].blank?
+
       dependency_decisions = diaries[:dependency_decs][:dependency_dec]
       diaries[:dependency_decs][:dependency_dec] = normalize_dependency_decisions(dependency_decisions)
-
-      return empty_response(diaries) if diaries[:diaries].blank?
 
       standard_response(diaries)
     rescue => e
