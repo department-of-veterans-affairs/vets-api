@@ -8,10 +8,7 @@ end
 
 Warden::GitHub::Strategy.module_eval do
   def authenticate!
-    if session[:user].present?
-      success!(session[:user])
-      redirect!(custom_session['return_to'])
-    end
+    success!(session[:user]) if session[:user].present?
     if in_flow?
       continue_flow!
     else
