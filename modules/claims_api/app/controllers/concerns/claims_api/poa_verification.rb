@@ -91,27 +91,24 @@ module ClaimsApi
       def verify_consent_limitations!
         poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
 
-        form_code = if poa_code_in_organization?(poa_code)
-                      '21-22'
-                    else
-                      '21-22A'
-                    end
-        representatives = bgs_service.veteran_representative.read_all_veteran_representatives(
-          form_type_code: form_code, veteran_corp_ptcpnt_id: target_veteran.participant_id
-        )
+        if poa_code_in_organization?(poa_code)
+          form_code = '21-22'
+        else
+          form_code = '21-22A'
+        end
+        representatives = bgs_service.veteran_representative.read_all_veteran_representatives(form_type_code: form_code, veteran_corp_ptcpnt_id: target_veteran.participant_id)
         # 2, possibly 3, scenarios to account for (are they naturally occurring or just a result of bad data in lower environments?):
         # - what if it returns nil? (ie, no result for that form + id combo)
         #     - e.g. Jesse Gray currently has this scenario
         # - what if it returns content but none of it matches with the current POA code?
         #     - e.g. Ralph E Lee and Greg Anderson have this situation
-        # - what if the form_code is a false positive?
+        # - what if the form_code is a false positive? 
         #     - i.e., poa_code_in_organization? says it should be 21-22 but it's actually 21-22A
         #     - Idk if this one actually happens or not
-        rep_poa_codes = representatives.pluck(:poa_code)
-
-        unless rep_poa_codes.include?(poa_code)
-          raise ::Common::Exceptions::Forbidden,
-                detail: 'Veteran has not granted access to records protected by Section 7332, Title 38, U.S.C.'
+        rep_poa_codes = representatives.map { |rep| rep[:poa_code] }
+        
+        if !rep_poa_codes.include?(poa_code)
+          raise ::Common::Exceptions::Forbidden, detail: "Veteran has not granted access to records protected by Section 7332, Title 38, U.S.C."
         end
       end
     end

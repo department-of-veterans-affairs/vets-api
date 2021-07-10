@@ -42,8 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: dc702106b1956c1431aa545589a9cb3032fb49da
-  branch: dh-api-6774
+  revision: 2b6dd9454241cf395af7d42b7f36449522c0a109
   specs:
     bgs_ext (0.21.0)
       httpclient
@@ -181,7 +180,7 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
-    addressable (2.8.0)
+    addressable (2.7.0)
       public_suffix (>= 2.0.2, < 5.0)
     adler32 (0.0.2)
     afm (0.2.2)

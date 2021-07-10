@@ -51,7 +51,7 @@ gem 'attr_encrypted', '3.1.0'
 gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
-gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', branch: 'dh-api-6774', require: 'bgs'
+gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
 gem 'breakers'
 gem 'bootsnap', require: false
 gem 'carrierwave'
