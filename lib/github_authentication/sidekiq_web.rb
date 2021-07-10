@@ -25,6 +25,7 @@ module GithubAuthentication
         next if current_path == 'unauthenticated'
 
         warden.authenticate!
+        session[:user] = warden.user
         github_organization_authenticate! Settings.sidekiq.github_organization
         github_team_authenticate! Settings.sidekiq.github_team
       end

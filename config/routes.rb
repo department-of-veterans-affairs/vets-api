@@ -397,6 +397,7 @@ Rails.application.routes.draw do
   require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
   require 'github_authentication/sidekiq_web'
 
+  Sidekiq::Web.enable :sessions
   mount Sidekiq::Web, at: '/sidekiq'
 
   unless Rails.env.development? || Settings.sidekiq_admin_panel
