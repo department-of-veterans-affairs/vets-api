@@ -134,13 +134,6 @@ module ClaimsApi
           form_attributes['recordConsent'] && form_attributes['consentLimits'].blank?
         end
 
-        def consent_limits
-          if form_attributes['recordConsent'] == true
-            return form_attributes['consentLimits']
-          else
-            return nil
-        end
-
         def current_poa_begin_date
           return nil if current_poa.try(:begin_date).blank?
 
