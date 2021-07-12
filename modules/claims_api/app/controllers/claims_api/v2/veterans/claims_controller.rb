@@ -5,12 +5,10 @@ module ClaimsApi
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController
         def index
-          veteran = build_veteran(veteran_id: params[:veteranId], loa: @current_user.loa)
-          detail  = 'Veteran not found'
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: detail) unless veteran_found?(veteran: veteran)
+          raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
 
-          service   = bgs_service(veteran_participant_id: veteran.participant_id)
-          params    = { participant_id: veteran.participant_id }
+          service   = bgs_service(veteran_participant_id: target_veteran.participant_id)
+          params    = { participant_id: target_veteran.participant_id }
           response  = service.benefit_claims.find_claims_details_by_participant_id(params)
           claims    = transform_response(response: response)
 
@@ -18,16 +16,6 @@ module ClaimsApi
         end
 
         private
-
-        def build_veteran(veteran_id:, loa:)
-          veteran = ClaimsApi::Veteran.new(mhv_icn: veteran_id, loa: loa)
-          veteran.mpi
-          veteran
-        end
-
-        def veteran_found?(veteran:)
-          veteran.participant_id.present?
-        end
 
         def bgs_service(veteran_participant_id:)
           BGS::Services.new(external_uid: veteran_participant_id, external_key: veteran_participant_id)

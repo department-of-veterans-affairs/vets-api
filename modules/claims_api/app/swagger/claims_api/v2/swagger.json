@@ -529,17 +529,17 @@
               }
             }
           },
-          "404": {
+          "403": {
             "description": "Resource Not Found",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
-                      "detail": "Veteran not found",
-                      "code": "404",
-                      "status": "404"
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
                     }
                   ]
                 },

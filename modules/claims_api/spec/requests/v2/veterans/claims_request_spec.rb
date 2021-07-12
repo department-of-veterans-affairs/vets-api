@@ -3,11 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Claims', type: :request do
-  let(:veteran_id) { '1' }
+  let(:veteran_id) { '1013062086V794840' }
   let(:path) { "/services/benefits/v2/veterans/#{veteran_id}/claims" }
-  let(:veteran) { OpenStruct.new(mpi: nil, participant_id: 1) }
-  let(:base_service) { OpenStruct.new(benefit_claims: nil) }
-  let(:benefit_claims_service) { OpenStruct.new(find_claims_details_by_participant_id: nil) }
   let(:scopes) { %w[claim.read] }
 
   describe 'Claims' do
@@ -15,10 +12,7 @@ RSpec.describe 'Claims', type: :request do
       context 'when provided' do
         it 'returns a 200' do
           with_okta_user(scopes) do |auth_header|
-            expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
-            expect(BGS::Services).to receive(:new).and_return(base_service)
-            expect(base_service).to receive(:benefit_claims).and_return(benefit_claims_service)
-            expect(benefit_claims_service)
+            expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
               .to receive(:find_claims_details_by_participant_id).and_return({ bnft_claim_detail: [] })
 
             get path, headers: auth_header
@@ -52,10 +46,7 @@ RSpec.describe 'Claims', type: :request do
       context 'when known veteran_id is provided' do
         it 'returns a 200' do
           with_okta_user(scopes) do |auth_header|
-            expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
-            expect(BGS::Services).to receive(:new).and_return(base_service)
-            expect(base_service).to receive(:benefit_claims).and_return(benefit_claims_service)
-            expect(benefit_claims_service)
+            expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
               .to receive(:find_claims_details_by_participant_id).and_return({ bnft_claim_detail: [] })
 
             get path, headers: auth_header
@@ -67,12 +58,12 @@ RSpec.describe 'Claims', type: :request do
       context 'when unknown veteran_id is provided' do
         let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
 
-        it 'returns a 404 error code' do
+        it 'returns a 403 error code' do
           with_okta_user(scopes) do |auth_header|
             expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
 
             get path, headers: auth_header
-            expect(response.status).to eq(404)
+            expect(response.status).to eq(403)
           end
         end
       end

@@ -21,7 +21,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
                 required: true,
                 type: :string,
                 description: 'ID of Veteran'
-      let(:veteranId) { '1' } # rubocop:disable RSpec/VariableName
+      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
 
       describe 'Getting a successful response' do
@@ -32,9 +32,6 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
             )
           )
 
-          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: 1) }
-          let(:base_service) { OpenStruct.new(benefit_claims: nil) }
-          let(:benefit_claims_service) { OpenStruct.new(find_claims_details_by_participant_id: nil) }
           let(:bgs_response) do
             JSON.parse(
               File.read(
@@ -46,11 +43,9 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
           let(:scopes) { %w[claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do
-              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
-              expect(BGS::Services).to receive(:new).and_return(base_service)
-              expect(base_service).to receive(:benefit_claims).and_return(benefit_claims_service)
-              expect(benefit_claims_service)
+            with_okta_user(scopes) do |auth_header|
+              Authorization = auth_header # rubocop:disable Naming/ConstantName
+              expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
                 .to receive(:find_claims_details_by_participant_id).and_return(bgs_response)
 
               submit_request(example.metadata)
@@ -99,8 +94,8 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
         end
       end
 
-      describe 'Getting a 404 response' do
-        response '404', 'Resource Not Found' do
+      describe 'Getting a 403 response' do
+        response '403', 'Resource Not Found' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default.json')))
 
@@ -123,7 +118,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
             }
           end
 
-          it 'returns a 404 response' do |example|
+          it 'returns a 403 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
