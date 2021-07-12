@@ -16,7 +16,7 @@ RSpec.describe 'individual claim', type: :request do
 
     context 'when the claim is found' do
       it 'matches our schema is successfully returned with the 200 status ',
-        run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+         run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim_with_docs') do
           get '/mobile/v0/claim/600117255', headers: iam_headers
           expect(response).to have_http_status(:ok)
@@ -26,7 +26,7 @@ RSpec.describe 'individual claim', type: :request do
 
     context 'with a non-existent claim' do
       it 'returns a 404 with an error ',
-        run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+         run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim_with_docs') do
           get '/mobile/v0/claim/2222222', headers: iam_headers
           expect(response).to have_http_status(:not_found)
@@ -37,7 +37,7 @@ RSpec.describe 'individual claim', type: :request do
 
     context 'when attempting to access another users claim' do
       it 'returns a 404 with an error ',
-        run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+         run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim_with_docs') do
           get '/mobile/v0/claim/111222333', headers: iam_headers
           expect(response).to have_http_status(:not_found)
@@ -45,7 +45,7 @@ RSpec.describe 'individual claim', type: :request do
         end
       end
     end
-    
+
     context 'when evss returns a failure message' do
       it 'returns a 502 response', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim_doc_with_errors') do
