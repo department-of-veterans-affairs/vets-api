@@ -97,15 +97,18 @@ module BGS
       'Started'
     end
 
+    # the default claim type code is 130DPNEBNADJ (eBenefits Dependency Adjustment)
     # if we are setting the claim to be manually reviewed
     # and the Veteran is currently receiving pension benefits
     # set the claim type code to 130DAEBNPMCR (PMC eBenefits Dependency Adjustment Reject)
-    # else use 130DPNEBNADJ (eBenefits Dependency Adjustment)
+    # else use 130DPEBNAJRE (eBenefits Dependency Adjustment Reject)
     def get_claim_type(proc_state)
       if proc_state == 'MANUAL_VAGOV'
         pension_response = bid_service.get_awards_pension
         receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
-        return '130DAEBNPMCR' if receiving_pension
+
+        claim_type = receiving_pension ? '130DAEBNPMCR' : '130DPEBNAJRE'
+        return claim_type
       end
 
       '130DPNEBNADJ'
