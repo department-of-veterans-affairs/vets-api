@@ -28,7 +28,7 @@ describe 'PowerOfAttorney', swagger_doc: 'v2/swagger.json' do
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
       describe 'Getting a successful response' do
-        response '200', 'POA response' do
+        response '200', 'Successful response with a current Power of Attorney' do
           schema JSON.parse(File.read(Rails.root.join('spec',
                                                       'support',
                                                       'schemas',
@@ -42,8 +42,9 @@ describe 'PowerOfAttorney', swagger_doc: 'v2/swagger.json' do
             allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             Veteran::Service::Representative.new(poa_codes: [poa_code],
-                                                 first_name: 'Abraham',
-                                                 last_name: 'Lincoln').save!
+                                                 first_name: 'Firstname',
+                                                 last_name: 'Lastname',
+                                                 phone: '555-555-5555').save!
             with_okta_user(scopes) do |auth_header|
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               submit_request(example.metadata)
@@ -67,7 +68,7 @@ describe 'PowerOfAttorney', swagger_doc: 'v2/swagger.json' do
       describe 'No POA assigned to Veteran' do
         let(:bgs_poa) { { person_org_name: nil } }
 
-        response '204', 'No POA Found' do
+        response '204', 'Successful response with no current Power of Attorney' do
           before do |example|
             expect_any_instance_of(BGS::ClaimantWebService).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id)

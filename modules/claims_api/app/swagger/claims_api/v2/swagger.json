@@ -770,15 +770,15 @@
         ],
         "responses": {
           "200": {
-            "description": "POA response",
+            "description": "Successful response with a current Power of Attorney",
             "content": {
               "application/json": {
                 "example": {
                   "code": "A1Q",
-                  "name": "Abraham Lincoln",
+                  "name": "Firstname Lastname",
                   "type": "individual",
                   "phone": {
-                    "number": null
+                    "number": "555-555-5555"
                   }
                 },
                 "schema": {
@@ -828,7 +828,7 @@
             }
           },
           "204": {
-            "description": "No POA Found",
+            "description": "Successful response with no current Power of Attorney",
             "content": {
               "application/json": {
                 "example": ""
