@@ -8,7 +8,7 @@ module AppealsApi
         raise InvalidKeys unless required_keys?
       end
 
-      def higher_level_review
+      def hlr_received
         log_error unless email
 
         template_type = 'higher_level_review_received'
@@ -18,7 +18,8 @@ module AppealsApi
         email_address: email,
           template_id: template_id,
           personalisation: {
-            'veteran_name' => opts['veteran_name'],
+            'veteran_first_name' => opts['veteran_first_name'],
+            'veteran_last_name' => opts['veteran_last_name'],
             'date_submitted' => opts['date_submitted']
           }
         )
@@ -49,7 +50,7 @@ module AppealsApi
       end
 
       def required_keys
-        %w[email date_submitted veteran_name]
+        %w[email date_submitted veteran_first_name veteran_last_name]
       end
     end
 
