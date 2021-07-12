@@ -93,7 +93,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
         'edipi' => user.edipi,
         'vet360ID' => user.vet360_id,
         'dob' => user.birth_date,
-        'ssn' => user.ssn,
+        'ssn' => user.ssn
       }
     ).except!('vaFileNumber')
   end
