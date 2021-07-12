@@ -3,6 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe 'Test User Dashboard', type: :request do
+  around do |example|
+    with_settings(Settings.test_user_dashboard, env: 'staging') do
+      example.run
+    end
+  end
+
   describe '#index' do
     context 'without any authentication headers' do
       it 'refuses the request' do
