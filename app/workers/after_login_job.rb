@@ -4,7 +4,7 @@ class AfterLoginJob
   include Sidekiq::Worker
   include Accountable
 
-  sidekiq_options(retry: false)
+  sidekiq_options retry: false, queue: 'critical'
 
   def evss_create_account
     if @current_user.authorize(:evss, :access?)

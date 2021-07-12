@@ -22,6 +22,17 @@
           "status": {
             "type": "string",
             "description": "HTTP error code"
+          },
+          "source": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Source of error",
+            "properties": {
+              "pointer": {
+                "type": "string",
+                "description": "Pointer to source of error"
+              }
+            }
           }
         }
       }

@@ -6,10 +6,14 @@ module DebtManagementCenter
   class FinancialStatusReportResponse
     attr_reader :status, :filenet_id
 
-    def initialize(res)
-      @res = res
-      @status = @res['status']
-      @filenet_id = @res['identifier']
+    def initialize(response_body)
+      @response_body = response_body
+      @status = @response_body['status']
+      @filenet_id = @response_body['identifier']
+    end
+
+    def to_h
+      { response_body: @response_body }
     end
   end
 end

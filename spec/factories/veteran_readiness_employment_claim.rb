@@ -4,6 +4,10 @@ FactoryBot.define do
   factory :veteran_readiness_employment_claim, class: SavedClaim::VeteranReadinessEmploymentClaim do
     form_id { '28-1900' }
 
+    transient do
+      regional_office { '317 - St. Petersburg' }
+    end
+
     form {
       {
         'useEva' => true,
@@ -43,7 +47,7 @@ FactoryBot.define do
           'pid' => '600036503',
           'edipi' => '1005354478',
           'vet360ID' => nil,
-          'regionalOffice' => '317 - St. Petersburg'
+          'regionalOffice' => regional_office
         }
       }.to_json
     }

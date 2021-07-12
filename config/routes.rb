@@ -391,12 +391,30 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   # End Modules
 
-  if Rails.env.development? || Settings.sidekiq_admin_panel
-    require 'sidekiq/web'
-    require 'sidekiq-scheduler/web'
-    require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
-    require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
-    mount Sidekiq::Web, at: '/sidekiq'
+  require 'sidekiq/web'
+  require 'sidekiq-scheduler/web'
+  require 'sidekiq/pro/web' if Gem.loaded_specs.key?('sidekiq-pro')
+  require 'sidekiq-ent/web' if Gem.loaded_specs.key?('sidekiq-ent')
+  require 'github_authentication/sidekiq_web'
+
+  mount Sidekiq::Web, at: '/sidekiq'
+
+  unless Rails.env.development? || Settings.sidekiq_admin_panel
+    Sidekiq::Web.register GithubAuthentication::SidekiqWeb
+
+    Sidekiq::Web.use Warden::Manager do |config|
+      config.failure_app = Sidekiq::Web
+      config.default_strategies :github
+      config.scope_defaults :default, config: {
+        client_id: Settings.sidekiq.github_oauth_key,
+        client_secret: Settings.sidekiq.github_oauth_secret,
+        scope: 'read:org',
+        redirect_uri: 'sidekiq/auth/github/callback'
+      }
+
+      config.serialize_from_session { |key| Warden::GitHub::Verifier.load(key) }
+      config.serialize_into_session { |user| Warden::GitHub::Verifier.dump(user) }
+    end
   end
 
   mount PgHero::Engine, at: 'pghero'

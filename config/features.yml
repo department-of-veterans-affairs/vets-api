@@ -46,6 +46,9 @@ features:
     actor_type: user
     description: Feature gates the certificate of eligibility application
     enable_in_development: true
+  contact_info_change_email:
+    actor_type: user
+    description: Send user a notification email when their contact info changes.
   covid_vaccine_registration:
     actor_type: user
     description: Toggles availability of covid vaccine form API.
@@ -83,6 +86,9 @@ features:
   debt_letters_show_letters:
     actor_type: user
     description: Enables debt letters
+  decision_review_hlr_email:
+    actor_type: user
+    description: Send email notification for successful HLR submission
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -108,6 +114,10 @@ features:
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
+  facility_locator_covid_vaccine_walk_in_availability_text_frontend:
+    actor_type: user
+    description: Enable covid vaccine walk-in availability text within covid vaccine related search results
+    enable_in_development: true
   facility_locator_lighthouse_covid_vaccine_query:
     actor_type: user
     description: enable covid search/display
@@ -189,16 +199,16 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
-  new_va_forms_search:
-    actor_type: user
-    description: Uses the new search algorithm
-    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
+  profile_notification_settings:
+    actor_type: user
+    description: Turns on the Notification Settings section of the VA.gov Profile
+    enable_in_development: true
   profile_schema_forms:
     actor_type: user
     description: Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
@@ -279,9 +289,6 @@ features:
   show_new_view_test_lab_results_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
-  spool_testing_error_1:
-    actor_type: user
-    description: Enables spool_file_events tracking rows to be used to prevent multiple spool files per RPO per date
   spool_testing_error_2:
     actor_type: user
     description: Enables Slack notifications for CreateDailySpoolFiles

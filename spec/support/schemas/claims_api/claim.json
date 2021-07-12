@@ -67,6 +67,7 @@
               "type": "string",
               "description": "Current status of the claim",
               "enum": [
+                "pending",
                 "Claim received",
                 "Initial review",
                 "Evidence gathering, review, and decision",
