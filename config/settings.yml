@@ -1050,3 +1050,10 @@ check_in:
 
 rack:
   cookie_secret: ~
+
+# Settings for BID Services
+bid:
+  awards:
+    base_url: ~
+    credentials: ~
+    mock: true
