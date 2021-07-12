@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'bgs/form674'
+require 'bid/awards/service'
 
 RSpec.describe BGS::Form674 do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
@@ -10,8 +11,10 @@ RSpec.describe BGS::Form674 do
   # @TODO: may want to return something else
   it 'returns a hash with proc information' do
     VCR.use_cassette('bgs/form674/submit') do
-      modify_dependents = BGS::Form674.new(user_object).submit(all_flows_payload)
+      claim = BGS::Form674.new(user_object)
+      expect(claim).to receive(:get_claim_type).and_return '130SCHATTEBN'
 
+      modify_dependents = claim.submit(all_flows_payload)
       expect(modify_dependents).to include(
         :jrn_dt,
         :jrn_lctn_id,
@@ -25,6 +28,9 @@ RSpec.describe BGS::Form674 do
 
   it 'calls all methods in flow' do
     VCR.use_cassette('bgs/form674/submit') do
+      claim = BGS::Form674.new(user_object)
+
+      expect(claim).to receive(:get_claim_type).and_return '130SCHATTEBN'
       expect_any_instance_of(BGS::Service).to receive(:create_proc).and_call_original
       expect_any_instance_of(BGS::Service).to receive(:create_proc_form).and_call_original
       expect_any_instance_of(BGS::VnpVeteran).to receive(:create).and_call_original
@@ -34,7 +40,7 @@ RSpec.describe BGS::Form674 do
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
       expect_any_instance_of(BGS::VnpRelationships).to receive(:create_all).and_call_original
 
-      BGS::Form674.new(user_object).submit(all_flows_payload)
+      claim.submit(all_flows_payload)
     end
   end
 end
