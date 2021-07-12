@@ -8,7 +8,7 @@ module Mobile
       class Proxy
         STATSD_UPLOAD_LATENCY = 'mobile.api.claims.upload.latency'
 
-        def initialize(user)
+        def initialize(user)individual_claim_request_spec.rb:53
           @user = user
         end
 

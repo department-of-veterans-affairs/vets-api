@@ -50,7 +50,6 @@ RSpec.describe 'individual claim', type: :request do
       it 'returns a 502 response', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
         VCR.use_cassette('evss/claims/claim_doc_with_errors') do
           get '/mobile/v0/claim/600117255', headers: iam_headers
-          binding.pry
           expect(response).to have_http_status(:bad_gateway)
           expect(response.body).to match_json_schema('errors')
         end
