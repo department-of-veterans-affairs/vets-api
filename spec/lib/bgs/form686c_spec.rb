@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'bgs/form686c'
+require 'bid/awards/service'
 
 RSpec.describe BGS::Form686c do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
@@ -10,8 +11,10 @@ RSpec.describe BGS::Form686c do
   # @TODO: may want to return something else
   it 'returns a hash with proc information' do
     VCR.use_cassette('bgs/form686c/submit') do
-      modify_dependents = BGS::Form686c.new(user_object).submit(all_flows_payload)
+      claim = BGS::Form686c.new(user_object)
+      expect(claim).to receive(:get_claim_type).and_return '130DPNEBNADJ'
 
+      modify_dependents = claim.submit(all_flows_payload)
       expect(modify_dependents).to include(
         :jrn_dt,
         :jrn_lctn_id,
@@ -25,6 +28,9 @@ RSpec.describe BGS::Form686c do
 
   it 'calls all methods in flow' do
     VCR.use_cassette('bgs/form686c/submit') do
+      claim = BGS::Form686c.new(user_object)
+
+      expect(claim).to receive(:get_claim_type).and_return '130DAEBNPMCR'
       expect_any_instance_of(BGS::Service).to receive(:create_proc).and_call_original
       expect_any_instance_of(BGS::Service).to receive(:create_proc_form).and_call_original
       expect_any_instance_of(BGS::VnpVeteran).to receive(:create).and_call_original
@@ -35,7 +41,7 @@ RSpec.describe BGS::Form686c do
       expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
       expect_any_instance_of(BGS::Service).to receive(:update_proc).with('3831475', { proc_state: 'MANUAL_VAGOV' })
 
-      BGS::Form686c.new(user_object).submit(all_flows_payload)
+      claim.submit(all_flows_payload)
     end
   end
 
@@ -44,6 +50,7 @@ RSpec.describe BGS::Form686c do
       claim = BGS::Form686c.new(user_object)
 
       expect(claim).to receive(:get_state_type).and_return 'Started'
+      expect(claim).to receive(:get_claim_type).and_return '130DPNEBNADJ'
       expect_any_instance_of(BGS::Service).to receive(:update_proc).with('3831475', { proc_state: 'Ready' })
 
       claim.submit(all_flows_payload)
