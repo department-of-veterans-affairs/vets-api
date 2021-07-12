@@ -43,8 +43,10 @@ module ClaimsApi
       #
       # @return [boolean] True if the current user is the Veteran being acted on, false otherwise
       def user_is_target_veteran?
+        return false if params[:veteranId].blank?
         return false if @current_user.icn.blank?
         return false if target_veteran&.mpi&.icn.blank?
+        return false unless params[:veteranId] == target_veteran.mpi.icn
 
         @current_user.icn == target_veteran.mpi.icn
       end

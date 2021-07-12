@@ -9,15 +9,16 @@ module ClaimsApi
         def show
           raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
 
-          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa.try(:code)
+          poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
           head(:no_content) && return if poa_code.blank?
 
+          representative_cached = representative(poa_code)
           render json: {
             code: poa_code,
-            name: representative[:name],
-            type: representative[:type],
+            name: representative_cached[:name],
+            type: representative_cached[:type],
             phone: {
-              number: representative[:phone_number]
+              number: representative_cached[:phone_number]
             }
           }
         end
@@ -25,23 +26,21 @@ module ClaimsApi
         private
 
         def representative(poa_code)
-          return @representative if @representative.present?
-
           organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
           if organization.present?
-            @representative = {
+            return {
               name: organization.name,
               phone_number: organization.phone,
               type: 'organization'
             }
-            return @representative
           end
 
           individuals = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code)
           raise 'Ambiguous representative results' if individuals.count > 1
+          return {} if individuals.blank?
 
           individual = individuals.first
-          @representative = {
+          {
             name: "#{individual.first_name} #{individual.last_name}",
             phone_number: individual.phone,
             type: 'individual'
