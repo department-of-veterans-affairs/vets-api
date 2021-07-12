@@ -7,7 +7,7 @@
     <th style="white-space:nowrap; text-align:left; width:15%">Type of Form</th>
     <th style="white-space:nowrap; text-align:left; width:5%">Total</th>
   </tr>
-  <% @submitted_claims.find_each.with_index do |claim, index|
+  <% @submitted_claims.each.with_index do |claim, index|
         parsed_form = claim.parsed_form
   %>
   <tr>
