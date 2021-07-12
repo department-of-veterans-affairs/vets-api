@@ -69,7 +69,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   def validate_json_schema_for_pdf_fit
     status, error = AppealsApi::HigherLevelReviews::PdfFormFieldV1Validator.new(
       @json_body,
-      headers,
+      headers
     ).validate!
 
     return if error.blank?
