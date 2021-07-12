@@ -11,3 +11,4 @@ Rails.application.config.action_dispatch.cookies_rotations.tap do |cookies|
   secret = key_generator.generate_key(salt, key_len)
   cookies.rotate :encrypted, secret
 end
+
