@@ -697,6 +697,7 @@ search_click_tracking:
 
 flipper:
   admin_user_emails:
+    - adam.whitlock@adhocteam.us # Adam Whitlock # Ad Hoc
     - adewitt@thoughtworks.com
     - agarcia@clarityinnovates.com
     - alastair@adhocteam.us
