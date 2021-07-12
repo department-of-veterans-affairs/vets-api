@@ -21,8 +21,9 @@ module BGS
 
       process_relationships(proc_id, veteran, payload)
 
+      claim_type_code = get_claim_type('MANUAL_VAGOV')
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
-      vnp_benefit_claim_record = vnp_benefit_claim.create
+      vnp_benefit_claim_record = vnp_benefit_claim.create(claim_type: claim_type_code)
 
       benefit_claim_record = BenefitClaim.new(
         args: {
@@ -74,8 +75,29 @@ module BGS
       vnp_response[:vnp_proc_id]
     end
 
+    # the default claim type code is 130SCHATTEBN (eBenefits School Attendance)
+    # if we are setting the claim to be manually reviewed (currently we are doing this for all submissions)
+    # and the Veteran is currently receiving pension benefits
+    # set the claim type code to 130SCAEBPMCR (PMC eBenefits School Attendance Reject)
+    # else use 130SCHEBNREJ (eBenefits School Attendance Reject)
+    def get_claim_type(proc_state)
+      if proc_state == 'MANUAL_VAGOV'
+        pension_response = bid_service.get_awards_pension
+        receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
+
+        claim_type = receiving_pension ? '130SCAEBPMCR' : '130SCHEBNREJ'
+        return claim_type
+      end
+
+      '130SCHATTEBN'
+    end
+
     def bgs_service
       BGS::Service.new(@user)
+    end
+
+    def bid_service
+      BID::Awards::Service.new(@user)
     end
   end
 end
