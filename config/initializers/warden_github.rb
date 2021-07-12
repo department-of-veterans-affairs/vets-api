@@ -8,8 +8,9 @@ end
 
 Warden::GitHub::Strategy.module_eval do
   def authenticate!
-    success!(session[:user]) if session[:user].present?
-    if in_flow?
+    if session[:user].present?
+      success!(session[:user])
+    elsif in_flow?
       continue_flow!
     else
       begin_flow!
