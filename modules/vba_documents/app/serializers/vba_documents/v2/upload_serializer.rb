@@ -6,7 +6,9 @@ module VBADocuments
     class UploadSerializer < VBADocuments::UploadSerializer
       delegate :status, to: :object
 
-      attribute :observers
+      attribute :observers, if: :observing
+
+      @observers
 
       def attributes(fields)
         attrs = super
@@ -14,10 +16,15 @@ module VBADocuments
         attrs
       end
 
+      def observing
+        @observers = WebhookSubscription.get_observers_by_guid(api_name: 'PLAY_API',
+                                                              consumer_id: object.consumer_id,
+                                                              api_guid: object.guid)
+        @observers.any?
+      end
+
       def observers
-        WebhookSubscription.get_observers_by_guid(api_name: 'PLAY_API',
-                                                  consumer_id: object.consumer_id,
-                                                  api_guid: object.guid)
+        @observers
       end
     end
   end

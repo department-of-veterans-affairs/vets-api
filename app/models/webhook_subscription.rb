@@ -52,8 +52,12 @@ class WebhookSubscription < ApplicationRecord
       c.raw_connection.exec_params(sql, args).to_a
     end
 
-    observers = result.first['api_consumer_subscriptions'] ||= "{}"
-    JSON.parse(observers)
+    if result.any?
+      observers = result.first['api_consumer_subscriptions']
+      JSON.parse(observers)
+    else
+      []
+    end
   end
 
 end
