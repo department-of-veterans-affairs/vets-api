@@ -208,24 +208,23 @@ module AppealsApi
 
     def update_status!(status:, code: nil, detail: nil)
       update_handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
-                                      from: self.status,
-                                      to: status,
-                                      status_update_time: Time.zone.now,
-                                      statusable_id: id
-                                    })
+                                             from: self.status,
+                                             to: status,
+                                             status_update_time: Time.zone.now,
+                                             statusable_id: id
+                                           })
 
       email_handler = Events::Handler.new(event_type: :hlr_received, opts: {
-                                      email: email_v2,
-                                      veteran_first_name: first_name,
-                                      veteran_last_name: last_name,
-                                      date_submitted: date_signed,
-                                    })
-
+                                            email: email_v2,
+                                            veteran_first_name: first_name,
+                                            veteran_last_name: last_name,
+                                            date_submitted: date_signed
+                                          })
 
       update!(status: status, code: code, detail: detail)
 
       update_handler.handle!
-      email_handler.handle! if (able_to_send_email? && status == 'submitted')
+      email_handler.handle! if able_to_send_email? && status == 'submitted'
     end
 
     def informal_conference_rep
