@@ -27,8 +27,9 @@ module BGS
 
       process_relationships(proc_id, veteran, payload)
 
+      claim_type_code = get_claim_type(vnp_proc_state_type_cd)
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
-      vnp_benefit_claim_record = vnp_benefit_claim.create
+      vnp_benefit_claim_record = vnp_benefit_claim.create(claim_type: claim_type_code)
 
       benefit_claim_record = BenefitClaim.new(
         args: {
@@ -96,8 +97,26 @@ module BGS
       'Started'
     end
 
+    # if we are setting the claim to be manually reviewed
+    # and the Veteran is currently receiving pension benefits
+    # set the claim type code to 130DAEBNPMCR (PMC eBenefits Dependency Adjustment Reject)
+    # else use 130DPNEBNADJ (eBenefits Dependency Adjustment)
+    def get_claim_type(proc_state)
+      if proc_state == 'MANUAL_VAGOV'
+        pension_response = bid_service.get_awards_pension
+        receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
+        return '130DAEBNPMCR' if receiving_pension
+      end
+
+      '130DPNEBNADJ'
+    end
+
     def bgs_service
       BGS::Service.new(@user)
+    end
+
+    def bid_service
+      BID::Awards::Service.new(@user)
     end
   end
 end

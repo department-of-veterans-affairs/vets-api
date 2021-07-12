@@ -10,9 +10,9 @@ module BGS
       @proc_id = proc_id
     end
 
-    def create
+    def create(claim_type: '130DPNEBNADJ')
       vnp_benefit_claim = bgs_service.vnp_create_benefit_claim(
-        bgs_vnp_benefit_claim.create_params_for_686c
+        bgs_vnp_benefit_claim.create_params_for_686c(claim_type_code: claim_type)
       )
 
       bgs_vnp_benefit_claim.vnp_benefit_claim_response(vnp_benefit_claim)
