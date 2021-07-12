@@ -9,6 +9,8 @@ describe VAOS::V2::MobileFacilityService do
 
   before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
 
+  #TODO: verify vcr recordings
+
   describe '#configuration' do
     context 'with a single facility id arg' do
       it 'returns a scheduling configuration' do
