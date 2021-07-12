@@ -12,13 +12,12 @@ module ClaimsApi
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa.try(:code)
           head(:no_content) && return if poa_code.blank?
 
-          representative_cache = representative(poa_code)
           render json: {
             code: poa_code,
-            name: representative_cache[:name],
-            type: representative_cache[:type],
+            name: representative[:name],
+            type: representative[:type],
             phone: {
-              number: representative_cache[:phone_number]
+              number: representative[:phone_number]
             }
           }
         end
@@ -26,20 +25,23 @@ module ClaimsApi
         private
 
         def representative(poa_code)
+          return @representative if @representative.present?
+
           organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
           if organization.present?
-            return {
+            @representative = {
               name: organization.name,
               phone_number: organization.phone,
               type: 'organization'
             }
+            return @representative
           end
 
           individuals = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code)
           raise 'Ambiguous representative results' if individuals.count > 1
 
           individual = individuals.first
-          {
+          @representative = {
             name: "#{individual.first_name} #{individual.last_name}",
             phone_number: individual.phone,
             type: 'individual'

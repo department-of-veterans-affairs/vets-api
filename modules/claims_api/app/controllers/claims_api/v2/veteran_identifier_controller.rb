@@ -16,7 +16,7 @@ module ClaimsApi
       protected
 
       def target_veteran
-        ClaimsApi::Veteran.new(
+        @target_veteran ||= ClaimsApi::Veteran.new(
           uuid: params[:ssn],
           ssn: params[:ssn],
           first_name: params[:firstName],

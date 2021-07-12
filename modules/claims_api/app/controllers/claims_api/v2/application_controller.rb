@@ -21,7 +21,7 @@ module ClaimsApi
       #
       # @return [ClaimsApi::Veteran] Veteran to act on
       def target_veteran
-        ClaimsApi::Veteran.new(
+        @target_veteran ||= ClaimsApi::Veteran.new(
           mhv_icn: params[:veteranId],
           loa: @current_user.loa
         )
