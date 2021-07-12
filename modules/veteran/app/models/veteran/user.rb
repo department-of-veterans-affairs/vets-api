@@ -44,7 +44,7 @@ module Veteran
       external_key = "#{@user.first_name} #{@user.last_name}"
       @bgs_service ||= BGS::Services.new(
         external_uid: @user.mpi_icn,
-        external_key: external_key.present? ? external_key : @user.mpi_icn
+        external_key: external_key.presence || @user.mpi_icn
       )
     end
   end
