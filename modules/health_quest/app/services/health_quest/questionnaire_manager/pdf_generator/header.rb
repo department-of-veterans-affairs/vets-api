@@ -27,13 +27,12 @@ module HealthQuest
         end
 
         def draw
-          composer.bounding_box([0, composer.bounds.top], width: composer.bounds.width, height: 148) do
-            composer.stroke_bounds
-            composer.text_box today, at: [20, 128], height: 9, width: 150, size: 9, style: :normal
-            composer.text_box VA_URL, at: [525, 128], height: 9, width: 150, size: 9, style: :normal
-            composer.image VA_LOGO, scale: 0.25, padding: 0, at: [18, 118]
-            composer.text_box qr_data.dig('questionnaire', 'title'), at: [20, 62], size: 20, style: :bold
-            composer.text_box org_name, at: [20, 28], size: 12, style: :normal
+          composer.bounding_box([0, composer.bounds.top], width: composer.bounds.width, height: 178) do
+            composer.text_box today, at: [30, 153], height: 9, width: 150, size: 9, style: :normal
+            composer.text_box VA_URL, at: [515, 153], height: 9, width: 150, size: 9, style: :normal
+            composer.image VA_LOGO, scale: 0.25, padding: 0, at: [28, 128]
+            composer.text_box qr_data.dig('questionnaire', 'title'), at: [30, 62], size: 20, style: :bold if qr_data
+            composer.text_box org_name, at: [30, 23], size: 12, style: :normal if org_name
           end
         end
 

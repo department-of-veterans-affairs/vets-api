@@ -44,9 +44,9 @@ module HealthQuest
             Footer.build(opts: opts, composer: self).draw
           end
 
-          BasicAppointmentInfo.build(opts: opts, composer: self).draw
-          bounding_box([0, bounds.top - 148], width: bounds.width, height: 670) do
-            stroke_bounds
+          bounding_box([0, bounds.top - 178], width: bounds.width - 20, height: 670) do
+            BasicAppointmentInfo.build(opts: opts, composer: self).draw
+            # stroke_bounds
           end
 
           3.times { start_new_page }

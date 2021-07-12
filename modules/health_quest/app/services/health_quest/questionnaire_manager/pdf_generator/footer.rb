@@ -26,7 +26,6 @@ module HealthQuest
 
         def draw
           composer.bounding_box([0, composer.bounds.bottom + 24], width: composer.bounds.width, height: 24) do
-            composer.stroke_bounds
             composer.text_box(
               footer_text,
               at: [0, 24],
@@ -44,11 +43,13 @@ module HealthQuest
         end
 
         def full_name
-          "#{user_data['first_name']&.downcase&.capitalize} #{user_data['last_name']&.downcase&.capitalize}"
+          if user_data
+            "#{user_data['first_name']&.downcase&.capitalize} #{user_data['last_name']&.downcase&.capitalize}"
+          end
         end
 
         def date_of_birth
-          DateTime.parse(user_data['date_of_birth']).strftime(FOOTER_DATE_FORMAT)
+          DateTime.parse(user_data['date_of_birth']).strftime(FOOTER_DATE_FORMAT) if user_data
         end
 
         def user_data
