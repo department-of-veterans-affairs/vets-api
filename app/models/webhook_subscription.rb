@@ -32,6 +32,30 @@ class WebhookSubscription < ApplicationRecord
     event_urls = result.first['event_urls'] ||= "[]"
     JSON.parse(event_urls).flatten.uniq
   end
+
+  def self.get_observers_by_guid(api_name:, consumer_id:, api_guid: nil) #remove api_name and infer it from the event
+    sql = "
+      select a.events -> 'subscriptions' as api_consumer_subscriptions
+      from webhook_subscriptions a
+      where a.api_name = $1
+      and a.consumer_id = $2
+      and a.events -> 'subscriptions' is not null
+      and ( a.api_guid is null or a.api_guid = $3 )
+    "
+    retrieve_observers_by_guid(sql, api_name, consumer_id, api_guid)
+  end
+
+  private
+
+  def self.retrieve_observers_by_guid(sql, *args)
+    result = ActiveRecord::Base.connection_pool.with_connection do |c|
+      c.raw_connection.exec_params(sql, args).to_a
+    end
+
+    observers = result.first['api_consumer_subscriptions'] ||= "{}"
+    JSON.parse(observers)
+  end
+
 end
 
 # load './app/models/webhook_subscription'

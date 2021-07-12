@@ -56,7 +56,7 @@ module VBADocuments
         end
         render status: :accepted,
                json: submission,
-               serializer: VBADocuments::V1::UploadSerializer, # TODO: v2 validator
+               serializer: VBADocuments::V2::UploadSerializer,
                render_location: true
       rescue JSON::ParserError => e
         raise Common::Exceptions::SchemaValidationErrors, ["invalid JSON. #{e.message}"] if e.is_a? JSON::ParserError
