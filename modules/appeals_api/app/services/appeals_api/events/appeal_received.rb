@@ -15,7 +15,7 @@ module AppealsApi
         template_id = template_id(template_type)
 
         vanotify_service.send_email(
-        email_address: email,
+          email_address: email,
           template_id: template_id,
           personalisation: {
             'veteran_first_name' => opts['veteran_first_name'],

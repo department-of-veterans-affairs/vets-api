@@ -17,14 +17,12 @@ module AppealsApi
           allow(VaNotify::Service).to receive(:new).and_return(client)
           allow(client).to receive(:send_email)
 
-
           opts = {
             'email' => 'fake_email@email.com',
             'veteran_first_name' => 'first name',
             'veteran_last_name' => 'last name',
             'date_submitted' => Time.zone.now.to_date
           }
-
 
           AppealsApi::Events::AppealReceived.new(opts).hlr_received
 
