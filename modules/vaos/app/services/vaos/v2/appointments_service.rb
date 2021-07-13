@@ -32,6 +32,9 @@ module VAOS
 
       def post_appointment(request_object_body)
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
+        # TODO: remove after VAMF makes the following fix:
+        # https://issues.mobilehealth.va.gov/browse/VAOSR-2049
+        params[:_practitioner_ids] = params.delete(:practitioner_ids)
         with_monitoring do
           response = perform(:post, appointments_base_url, params, headers)
           OpenStruct.new(response.body)
