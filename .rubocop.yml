@@ -23,6 +23,7 @@ AllCops:
     - db/migrate/*.rb
     - 'script/**/*'
     - 'vendor/**/*'
+    - app/controllers/v0/feature_toggles_controller.rb
     - modules/**/db/migrate/*.rb
 
 # This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
