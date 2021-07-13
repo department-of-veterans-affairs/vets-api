@@ -31,11 +31,11 @@ RSpec.describe 'Test User Dashboard', type: :request do
 
   describe '#update' do
     let(:tud_account) { create(:tud_account, id: '123') }
-    let(:bad_notes) { 'Test note string goes here.' }
+    let(:notes) { 'Test note string goes here.' }
 
     it 'updates the tud account notes field' do
       allow(TestUserDashboard::TudAccount).to receive(:find).and_return(tud_account)
-      put('/test_user_dashboard/tud_accounts/123', params: { notes: bad_notes }, headers: headers)
+      put('/test_user_dashboard/tud_accounts/123', params: { notes: notes }, headers: headers)
 
       expect(response).to have_http_status(:ok)
       expect(tud_account.notes).to eq('Test note string goes here.')
