@@ -416,7 +416,7 @@ Rails.application.routes.draw do
 
   mount PgHero::Engine, at: 'pghero'
 
-  mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
+  mount TestUserDashboard::Engine, at: '/test_user_dashboard' if Settings.test_user_dashboard.env == 'staging'
 
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 
