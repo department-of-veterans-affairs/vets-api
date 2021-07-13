@@ -8,6 +8,7 @@ module ClaimsApi
       include ClaimsApi::PoaVerification
       before_action { permit_scopes %w[claim.read] }
       before_action :verify_power_of_attorney!, if: :header_request?
+      before_action :verify_consent_limitations!, if: :header_request?
 
       def index
         claims = claims_service.all
@@ -22,8 +23,6 @@ module ClaimsApi
       end
 
       def show
-        verify_consent_limitations!
-
         claim = ClaimsApi::AutoEstablishedClaim.find_by(id: params[:id], source: source_name)
 
         if claim && claim.status == 'errored'
