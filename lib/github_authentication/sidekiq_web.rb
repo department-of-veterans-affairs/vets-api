@@ -39,7 +39,6 @@ module GithubAuthentication
           redirect '/unauthenticated'
         else
           warden.authenticate!
-          session[:user] = warden.user
           redirect root_path
         end
       end
