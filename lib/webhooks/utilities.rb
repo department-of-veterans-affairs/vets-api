@@ -71,6 +71,26 @@ module Webhooks
         end
         registrations
       end
+
+      def record_notification(consumer_id:, consumer_name:, event:, api_guid:, msg:)
+        api = Webhooks::Utilities.event_to_api_name[event]
+        webhook_urls = WebhookSubscription.get_notification_urls(
+            api_name: api, consumer_id: consumer_id, event: event, api_guid: api_guid)
+
+        notifications = []
+        webhook_urls.each do |url|
+          wh_notify = WebhookNotification.new
+          wh_notify.api_name = api
+          wh_notify.consumer_id = consumer_id
+          wh_notify.consumer_name = consumer_name
+          wh_notify.api_guid = api_guid
+          wh_notify.event = event
+          wh_notify.callback_url = url
+          wh_notify.msg = msg
+          notifications << wh_notify
+        end
+        ActiveRecord::Base.transaction { notifications.each(&:save!) }
+      end
     end
     extend ClassMethods
 
