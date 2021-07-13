@@ -19,7 +19,7 @@ RSpec.describe 'facilities', type: :request do
     describe 'GET facilities' do
       context 'on successful query for a facility' do
         it 'returns facility details' do
-          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200', match_requests_on: %i[method uri]) do
             get '/vaos/v2/facilities?ids=688', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
