@@ -6,6 +6,10 @@ module HealthQuest
       #
       # Object for defining the PDF header layout
       #
+      # @!attribute opts
+      #   @return [Hash]
+      # @!attribute composer
+      #   @return [HealthQuest::QuestionnaireManager::PdfGenerator::Composer]
       class Header
         HEADER_DATE_FORMAT = '%m/%d/%Y'
         VA_LOGO = 'modules/health_quest/app/assets/images/va_logo.png'

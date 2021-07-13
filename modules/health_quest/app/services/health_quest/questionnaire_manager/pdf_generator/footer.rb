@@ -6,6 +6,10 @@ module HealthQuest
       #
       # Object for defining the PDF footer layout
       #
+      # @!attribute opts
+      #   @return [Hash]
+      # @!attribute composer
+      #   @return [HealthQuest::QuestionnaireManager::PdfGenerator::Composer]
       class Footer
         FOOTER_DATE_FORMAT = '%m/%d/%Y'
 

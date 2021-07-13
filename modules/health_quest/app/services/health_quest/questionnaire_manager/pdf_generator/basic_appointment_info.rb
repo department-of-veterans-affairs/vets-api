@@ -4,8 +4,12 @@ module HealthQuest
   module QuestionnaireManager
     module PdfGenerator
       #
-      # Object for defining the PDF footer layout
+      # Object for defining the basic appointment body
       #
+      # @!attribute opts
+      #   @return [Hash]
+      # @!attribute composer
+      #   @return [HealthQuest::QuestionnaireManager::PdfGenerator::Composer]
       class BasicAppointmentInfo
         DATE_FORMAT = '%A, %B %d, %Y'
         DEFAULT_TIME_ZONE = 'Pacific Time (US & Canada)'
@@ -37,8 +41,10 @@ module HealthQuest
 
           composer.text_box 'Date:', at: [30, composer.bounds.top - 90], size: 12
           composer.text_box appointment_date, at: [90, composer.bounds.top - 90], size: 12, style: :medium
+
           composer.text_box 'Time:', at: [30, composer.bounds.top - 115], size: 12
           composer.text_box appointment_time, at: [90, composer.bounds.top - 115], size: 12, style: :medium
+
           composer.text_box 'Location:', at: [30, composer.bounds.top - 135], size: 12
           composer.text_box appointment_destination, at: [90, composer.bounds.top - 135], size: 12, style: :medium
         end
