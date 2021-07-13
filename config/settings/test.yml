@@ -173,3 +173,6 @@ bid:
   awards:
     base_url: https://fake_url.com
     credentials: fake_auth
+
+test_user_dashboard:
+  env: staging
