@@ -25,9 +25,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   describe 'perform' do
     let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
     let(:document_data) { double(:document_data, valid?: true) }
-    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
 
     context 'when file_data exists' do
+      let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
       let!(:attachment) do
         sea = SupportingEvidenceAttachment.new(guid: upload_data.first['confirmationCode'])
         sea.set_file_data!(file)
@@ -40,7 +40,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             .to receive(:new)
             .with(
               evss_claim_id: submission.submitted_claim_id,
-              file_name: upload_data.first['name'],
+              file_name: 'sm_file1.jpg',
               tracked_item_id: nil,
               document_type: upload_data.first['attachmentId']
             )

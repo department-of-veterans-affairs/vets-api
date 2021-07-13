@@ -2,7 +2,11 @@
 
 # Files uploaded as part of a form526 submission that will be sent to EVSS upon form submission.
 class SupportingEvidenceAttachmentUploader < EVSSClaimDocumentUploaderBase
-  def initialize(guid)
+  def initialize(guid, _unused = nil)
+    # carrierwave allows only 2 arguments, which they will pass onto
+    # different versions by calling the initialize function again
+    # so the _unused argument is necessary
+
     super
     @guid = guid
 

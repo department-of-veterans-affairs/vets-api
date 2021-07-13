@@ -24,11 +24,16 @@ class FormAttachment < ApplicationRecord
     @parsed_file_data ||= JSON.parse(file_data)
   end
 
-  def get_file
+  def fetch_file
     attachment_uploader = get_attachment_uploader
     attachment_uploader.retrieve_from_store!(
       parsed_file_data['filename']
     )
+    attachment_uploader
+  end
+
+  def get_file
+    attachment_uploader = fetch_file
     attachment_uploader.file
   end
 
