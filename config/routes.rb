@@ -223,7 +223,6 @@ Rails.application.routes.draw do
       resources :discharge_types, only: :index, defaults: { format: :json }
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :branches_of_service, only: :index, defaults: { format: :json }
-      resources :burial_forms, only: %i[new create], defaults: { format: :json }
       resources :preneed_attachments, only: :create
     end
 
