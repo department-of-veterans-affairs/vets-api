@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_01_173435) do
+ActiveRecord::Schema.define(version: 2021_07_13_192552) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -229,6 +229,7 @@ ActiveRecord::Schema.define(version: 2021_07_01_173435) do
     t.jsonb "special_issues", default: []
     t.string "encrypted_bgs_special_issue_responses"
     t.string "encrypted_bgs_special_issue_responses_iv"
+    t.string "veteran_icn"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -741,10 +742,10 @@ ActiveRecord::Schema.define(version: 2021_07_01_173435) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
     t.text "notes"
   end
@@ -822,6 +823,7 @@ ActiveRecord::Schema.define(version: 2021_07_01_173435) do
     t.string "whodunnit"
     t.text "object"
     t.datetime "created_at"
+    t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
