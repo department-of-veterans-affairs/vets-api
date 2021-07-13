@@ -25,7 +25,7 @@ describe VAOS::Middleware::VAOSLogging do
 
     context 'with a succesful response' do
       # Line 38 fails Jenkins but would fail locally if removed.
-      xit 'increments statsd and logs additional details in a success line' do
+      it 'increments statsd and logs additional details in a success line' do
         VCR.use_cassette('vaos/appointments/get_appointments', match_requests_on: %i[method uri]) do
           expect(Rails.logger).to receive(:info).with(
             '[StatsD] increment api.vaos.va_mobile.response.total:1 #method:GET ' \
@@ -58,7 +58,7 @@ describe VAOS::Middleware::VAOSLogging do
     end
 
     context 'with a failed response' do
-      xit 'increments statsd and logs additional details in a failure line' do
+      it 'increments statsd and logs additional details in a failure line' do
         VCR.use_cassette('vaos/appointments/get_appointments_500', match_requests_on: %i[method uri]) do
           expect(Rails.logger).to receive(:info).with(
             '[StatsD] increment api.vaos.va_mobile.response.total:1 #method:GET ' \
@@ -101,7 +101,7 @@ describe VAOS::Middleware::VAOSLogging do
       end
 
       context 'with a timeout' do
-        xit 'increments statsd and logs additional details' do
+        it 'increments statsd and logs additional details' do
           allow_any_instance_of(Faraday::Adapter::NetHttp).to receive(:perform_request).and_raise(Timeout::Error)
           expect(Rails.logger).to receive(:info).with(
             '[StatsD] increment api.vaos.get_appointments.total:1'
@@ -145,7 +145,7 @@ describe VAOS::Middleware::VAOSLogging do
       end
 
       context 'with a failed connection' do
-        xit 'increments statsd and logs additional details' do
+        it 'increments statsd and logs additional details' do
           allow_any_instance_of(Faraday::Adapter::NetHttp).to receive(:perform_request).and_raise(Errno::ECONNREFUSED)
           expect(Rails.logger).to receive(:info).with(
             '[StatsD] increment api.vaos.get_appointments.total:1'
