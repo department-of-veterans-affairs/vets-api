@@ -29,19 +29,6 @@ module Swagger
                    pattern: Swagger::Schemas::Form526::Form526SubmitV2::DATE_PATTERN,
                    example: 'XXXX-12-31'
         end
-
-        swagger_schema :DateRangeFromRequired do
-          key :required, [:from]
-
-          property :from,
-                   type: :string,
-                   pattern: Swagger::Schemas::Form526::Form526SubmitV2::DATE_PATTERN,
-                   example: '2019-10-XX'
-          property :to,
-                   type: :string,
-                   pattern: Swagger::Schemas::Form526::Form526SubmitV2::DATE_PATTERN,
-                   example: 'XXXX-12-31'
-        end
       end
     end
   end

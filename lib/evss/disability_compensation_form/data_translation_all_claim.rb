@@ -432,7 +432,6 @@ module EVSS
         treatments = input_form['vaTreatmentFacilities'].map do |treatment|
           {
             'startDate' => approximate_date(treatment['treatmentDateRange']['from']),
-            'endDate' => approximate_date(treatment['treatmentDateRange']['to']),
             'treatedDisabilityNames' => treatment['treatedDisabilityNames'],
             'center' => {
               'name' => treatment['treatmentCenterName'].gsub(/[^a-zA-Z0-9 .()#&'"-]+/, '').gsub(/\s\s+/, ' ').strip
