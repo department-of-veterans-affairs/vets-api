@@ -4,7 +4,7 @@ require 'swagger_helper'
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components'
 
-describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/forms/526' do
     get 'Get a 526 schema for a claim.' do
       deprecated true

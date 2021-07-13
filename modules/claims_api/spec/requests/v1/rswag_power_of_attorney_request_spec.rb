@@ -4,7 +4,7 @@ require 'swagger_helper'
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components'
 
-describe 'Power of Attorney', swagger_doc: 'v1/swagger.json' do  # rubocop:disable RSpec/DescribeClass
+describe 'Power of Attorney', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do  # rubocop:disable RSpec/DescribeClass
   path '/forms/2122' do
     get 'Gets schema for POA form.' do
       deprecated true
