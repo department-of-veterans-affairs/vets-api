@@ -28,9 +28,9 @@ class AppealsApi::HigherLevelReview::Phone
     "Phone number will not fit on form (#{MAX_LENGTH} char limit): #{self}" if too_long?
   end
 
-  private
-
   attr_reader :country_code, :area_code, :phone_number, :phone_number_ext
+
+  private
 
   def blank?
     [country_code, area_code, phone_number, phone_number_ext].all? :blank?
