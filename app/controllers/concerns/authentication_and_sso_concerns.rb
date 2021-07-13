@@ -10,6 +10,7 @@ module AuthenticationAndSSOConcerns
   included do
     before_action :authenticate
     before_action :set_session_expiration_header
+    before_action session.delete :value
   end
 
   protected
@@ -90,7 +91,6 @@ module AuthenticationAndSSOConcerns
     return unless @session_object
 
     @session_object.to_hash.each { |k, v| session[k] = v }
-    @session_object.delete :value
   end
 
   # Sets a cookie used by MHV for SSO
