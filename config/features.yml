@@ -400,3 +400,6 @@ features:
     actor_type: user
     description: Enables the health care check-in experiences
     enable_in_development: true
+  ezcg_use_facility_api:
+    actor_type: user
+    description: Enables 1010EZ & 1010CG to use the Facility API instead of JSON schema
