@@ -11,7 +11,7 @@ module EVSS
       RETRY = 15
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
-      sidekiq_options retry: RETRY
+      sidekiq_options retry: RETRY, queue: 'low'
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       # :nocov:

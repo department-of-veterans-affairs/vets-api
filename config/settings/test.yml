@@ -152,6 +152,12 @@ hqva_mobile:
       - "patient/Organization.read"
       - "patient/Patient.read"
 
+sidekiq:
+  github_organization: "organization"
+  github_team: 0000000
+  github_oauth_key: xxx000
+  github_oauth_secret: 000xxx
+
 check_in:
   chip_api:
     url: ~
@@ -159,3 +165,14 @@ check_in:
     mock: false
     key_path: ~
     timeout: 30
+
+rack:
+  cookie_secret: "xxxxx"
+
+bid:
+  awards:
+    base_url: https://fake_url.com
+    credentials: fake_auth
+
+test_user_dashboard:
+  env: staging

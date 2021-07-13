@@ -18,6 +18,7 @@ module AppealsApi
             pdf.start_new_page
 
             pdf.text(hearing_type_text, inline_format: true)
+            pdf.text(preferred_email_text, inline_format: true)
 
             return pdf unless extra_issues?
 
@@ -32,7 +33,7 @@ module AppealsApi
           attr_accessor :pdf, :form_data
 
           def no_content
-            !extra_issues? && no_hearing_type?
+            !extra_issues? && no_hearing_type? && short_preferred_email?
           end
 
           def no_hearing_type?
@@ -43,10 +44,20 @@ module AppealsApi
             form_data.contestable_issues.count > MAX_ISSUES_ON_FIRST_PAGE
           end
 
+          def short_preferred_email?
+            form_data.preferred_email.length <= 120
+          end
+
           def hearing_type_text
             return if no_hearing_type?
 
             "\n<b>Hearing Type Preference:</b>\n#{form_data.hearing_type_preference.humanize}\n"
+          end
+
+          def preferred_email_text
+            return if short_preferred_email?
+
+            "\n<b>Preferred Email:</b>\n#{form_data.preferred_email}\n"
           end
 
           def extra_issues_table_data

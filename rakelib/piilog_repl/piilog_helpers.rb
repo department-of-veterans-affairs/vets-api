@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 # rubocop:disable Metrics/BlockNesting
 
 TimeArg = Struct.new(:time, :type, keyword_init: true)
@@ -159,5 +158,4 @@ PersonalInformationLogQueryBuilder = lambda do |*args, **where_kwargs|
   query
 end
 
-# rubocop:enable Metrics/BlockLength
 # rubocop:enable Metrics/BlockNesting

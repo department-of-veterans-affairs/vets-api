@@ -194,8 +194,11 @@ module VAProfile
           transaction_id = transaction.id
           return if TransactionNotification.find(transaction_id).present?
 
+          email = @user.va_profile_email
+          return if email.blank?
+
           VANotifyEmailJob.perform_async(
-            @user.va_profile_email,
+            email,
             CONTACT_INFO_CHANGE_TEMPLATE,
             get_email_personalisation(personalisation)
           )

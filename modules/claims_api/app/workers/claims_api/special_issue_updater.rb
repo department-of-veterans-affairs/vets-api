@@ -87,6 +87,8 @@ module ClaimsApi
         contention = contentions.find { |c| matches_contention?(contention_id, c) }
         return claim if contention.present?
       end
+
+      nil
     end
 
     # Generate expected payload for updating special issues through BGS

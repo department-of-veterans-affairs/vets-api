@@ -86,7 +86,8 @@
         "email": {
           "type": "string",
           "format": "email",
-          "maxLength": 100
+          "minLength": 6,
+          "maxLength": 255
         }
       },
       "additionalProperties": false,
@@ -116,7 +117,8 @@
         "email": {
           "type": "string",
           "format": "email",
-          "maxLength": 100
+          "minLength": 6,
+          "maxLength": 255
         },
         "timezone": {
           "type": "string",

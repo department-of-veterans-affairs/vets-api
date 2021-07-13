@@ -73,4 +73,18 @@ RSpec.describe IAMUserIdentity, type: :model do
       expect(id.iam_mhv_id).to be_nil
     end
   end
+
+  context 'with a user who has a found EDIPI' do
+    it 'returns edipi number' do
+      id = described_class.build_from_iam_profile(idme_attrs)
+      expect(id.iam_edipi).to eq('1005079124')
+    end
+  end
+
+  context 'with a user who has a not found EDIPI' do
+    it 'returns nil' do
+      id = described_class.build_from_iam_profile(mhv_attrs)
+      expect(id.iam_edipi).to be_nil
+    end
+  end
 end

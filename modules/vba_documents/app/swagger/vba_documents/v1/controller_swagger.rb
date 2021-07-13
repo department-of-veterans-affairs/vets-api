@@ -127,7 +127,7 @@ module VBADocuments
           extend VBADocuments::V1::Responses::NotFoundError
           extend VBADocuments::V1::Responses::InternalServerError
           key :summary, 'Download zip of "what the server sees"'
-          key :description, 'An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Only available in sandbox'
+          key :description, 'An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Files are deleted after 10 days. Only available in testing environments, not production.'
           key :operationId, 'getBenefitsDocumentUploadDownload'
 
           key :tags, ['document_uploads']

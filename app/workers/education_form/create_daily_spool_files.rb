@@ -88,7 +88,7 @@ module EducationForm
         filename = "#{region_id}_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}_vetsgov.spl"
         spool_file_event = SpoolFileEvent.build_event(region_id, filename)
 
-        if Flipper.enabled?(:spool_testing_error_1) && spool_file_event.successful_at.present?
+        if spool_file_event.successful_at.present?
           log_info("A spool file for #{region_id} on #{Time.zone.now.strftime('%m%d%Y')} was already created")
         else
           log_submissions(records, filename)
