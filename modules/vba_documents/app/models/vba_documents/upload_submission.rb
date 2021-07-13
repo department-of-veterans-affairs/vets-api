@@ -4,8 +4,7 @@ require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
-require './lib/webhooks/utilities'
-load './lib/webhooks/utilities.rb'
+require_dependency './lib/webhooks/utilities'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
@@ -18,19 +17,6 @@ module VBADocuments
     before_save :capture_status_time, if: :status_changed?
     after_find :set_initial_status
     attr_reader :current_status
-
-    # register_events("gov.va.developer.benefits-intake.status_change",
-    #                 "gov.va.developer.benefits-intake.status_change2", api_name: "PLAY_API") do |last_time_async_scheduled|
-    #   next_run = nil
-    #   if last_time_async_scheduled.nil?
-    #     next_run = 0.seconds.from_now
-    #   else
-    #     next_run = 5.seconds.from_now
-    #   end
-    #   next_run
-    # rescue
-    #   5.seconds.from_now
-    # end
 
     WEBHOOK_STATUS_CHANGE_EVENT = 'gov.va.developer.benefits-intake.status_change'
 

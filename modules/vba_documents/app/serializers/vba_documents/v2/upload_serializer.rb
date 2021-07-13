@@ -12,7 +12,7 @@ module VBADocuments
 
       def attributes(fields)
         attrs = super
-        attrs.delete(:location)
+        attrs.delete(:location) if false # todo unless Settings.vba_documents.v2_upload_endpoint_enabled
         attrs
       end
 

@@ -123,3 +123,5 @@ module Webhooks
   end
 end
 
+require_dependency './lib/webhooks/registrations'
+
