@@ -250,7 +250,7 @@ module AppealsApi
     end
 
     def veterans_local_time
-      veterans_timezone ? Time.now.in_time_zone(veterans_timezone) : Time.now.utc
+      veterans_timezone ? created_at.in_time_zone(veterans_timezone) : created_at.utc
     end
 
     def veterans_timezone

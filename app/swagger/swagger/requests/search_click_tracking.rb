@@ -6,7 +6,7 @@ module Swagger
     class SearchClickTracking
       include Swagger::Blocks
 
-      swagger_path '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}' do
+      swagger_path '/v0/search_click_tracking/?position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}' do
         operation :post do
           key :description, 'Sends a Click Tracking event to Search.gov analytics'
           key :operationId, 'sendClickTrackingData'
@@ -36,14 +36,6 @@ module Swagger
             key :description, 'The position/rank of the result on your search results page. Was it the first result or the second?'
             key :required, true
             key :type, :integer
-          end
-
-          parameter do
-            key :name, 'client_ip'
-            key :in, :path
-            key :description, 'the IP address of the user who clicked'
-            key :required, true
-            key :type, :string
           end
 
           parameter do

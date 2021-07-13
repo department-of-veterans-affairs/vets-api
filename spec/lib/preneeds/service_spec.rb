@@ -40,17 +40,6 @@ describe Preneeds::Service do
     end
   end
 
-  describe 'get_attachment_types' do
-    it 'gets a collection of attachment_types' do
-      attachment_types = VCR.use_cassette('preneeds/attachment_types/gets_a_list_of_attachment_types') do
-        subject.get_attachment_types
-      end
-
-      expect(attachment_types).to be_a(Common::Collection)
-      expect(attachment_types.type).to eq(Preneeds::AttachmentType)
-    end
-  end
-
   describe 'get_branches_of_service' do
     it 'gets a collection of service branches' do
       branches = VCR.use_cassette('preneeds/branches_of_service/gets_a_list_of_service_branches') do
