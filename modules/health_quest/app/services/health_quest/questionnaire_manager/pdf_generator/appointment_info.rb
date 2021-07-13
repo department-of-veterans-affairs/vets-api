@@ -10,7 +10,7 @@ module HealthQuest
       #   @return [Hash]
       # @!attribute composer
       #   @return [HealthQuest::QuestionnaireManager::PdfGenerator::Composer]
-      class BasicAppointmentInfo
+      class AppointmentInfo
         DATE_FORMAT = '%A, %B %d, %Y'
         DEFAULT_TIME_ZONE = 'Pacific Time (US & Canada)'
         FOOTER_DATE_FORMAT = '%m/%d/%Y'
@@ -21,8 +21,8 @@ module HealthQuest
         attr_reader :opts, :composer
 
         ##
-        # A method to create an instance of {HealthQuest::QuestionnaireManager::PdfGenerator::Footer}
-        # @return [HealthQuest::QuestionnaireManager::PdfGenerator::Footer]
+        # A method to create an instance of {HealthQuest::QuestionnaireManager::PdfGenerator::AppointmentInfo}
+        # @return [HealthQuest::QuestionnaireManager::PdfGenerator::AppointmentInfo]
         #
         def self.build(args = {})
           new(args)
@@ -34,19 +34,32 @@ module HealthQuest
         end
 
         def draw
+          provider_text
+          appointment_date
+          appointment_time
+          appointment_destination
+        end
+
+        def provider_text
           composer.text_box "Your questionnaire was sent to your provider on #{qr_submitted_time}",
                             at: [30, composer.bounds.top - 10], size: 16, style: :bold
           composer.text_box 'Your provider will discuss the information on your questionnaire during your appointment:',
                             at: [30, composer.bounds.top - 41], size: 12, style: :bold
+        end
 
+        def appointment_date
           composer.text_box 'Date:', at: [30, composer.bounds.top - 90], size: 12
-          composer.text_box appointment_date, at: [90, composer.bounds.top - 90], size: 12, style: :medium
+          composer.text_box formatted_date, at: [85, composer.bounds.top - 90], size: 12, style: :medium
+        end
 
+        def appointment_time
           composer.text_box 'Time:', at: [30, composer.bounds.top - 115], size: 12
-          composer.text_box appointment_time, at: [90, composer.bounds.top - 115], size: 12, style: :medium
+          composer.text_box formatted_time, at: [85, composer.bounds.top - 115], size: 12, style: :medium
+        end
 
+        def appointment_destination
           composer.text_box 'Location:', at: [30, composer.bounds.top - 135], size: 12
-          composer.text_box appointment_destination, at: [90, composer.bounds.top - 135], size: 12, style: :medium
+          composer.text_box formatted_destination, at: [85, composer.bounds.top - 135], size: 12, style: :medium
         end
 
         def qr_submitted_time
@@ -57,23 +70,20 @@ module HealthQuest
             &.strftime(QR_DATE_FORMAT)
         end
 
-        def appointment_date
-          appt_utc_time = opts[:appointment]&.resource&.start
-          time = DateTime.strptime(appt_utc_time)&.in_time_zone(DEFAULT_TIME_ZONE)
+        def formatted_date
+          utc = opts[:appointment]&.resource&.start
 
-          time.strftime(DATE_FORMAT)
+          DateTime.strptime(utc)&.in_time_zone(DEFAULT_TIME_ZONE)&.strftime(DATE_FORMAT)
         end
 
-        def appointment_time
-          appt_utc_time = opts[:appointment]&.resource&.start
-          time = DateTime.strptime(appt_utc_time).in_time_zone(DEFAULT_TIME_ZONE)
-          local_time = time.strftime(TIME_FORMAT)
-          local_time_zone = time.strftime(TIME_ZONE_FORMAT)
+        def formatted_time
+          utc = opts[:appointment]&.resource&.start
+          time = DateTime.strptime(utc).in_time_zone(DEFAULT_TIME_ZONE)
 
-          "#{local_time} #{local_time_zone}"
+          "#{time.strftime(TIME_FORMAT)} #{time.strftime(TIME_ZONE_FORMAT)}"
         end
 
-        def appointment_destination
+        def formatted_destination
           "#{opts[:location]&.resource&.name}, #{opts[:org]&.resource&.name}"
         end
 

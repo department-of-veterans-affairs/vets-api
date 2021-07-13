@@ -44,12 +44,11 @@ module HealthQuest
             Footer.build(opts: opts, composer: self).draw
           end
 
-          bounding_box([0, bounds.top - 178], width: bounds.width - 20, height: 670) do
-            BasicAppointmentInfo.build(opts: opts, composer: self).draw
-            # stroke_bounds
+          bounding_box([0, bounds.top - 178], width: bounds.width - 20, height: 560) do
+            AppointmentInfo.build(opts: opts, composer: self).draw
+            Demographics.build(opts: opts, composer: self).draw
+            QuestionnaireResponseInfo.build(opts: opts, composer: self).draw
           end
-
-          3.times { start_new_page }
         end
 
         ## Overriding #document allows you to set document options
