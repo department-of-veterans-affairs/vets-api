@@ -46,7 +46,7 @@ http_interactions:
         encoding: UTF-8
         string: |-
             {
-              "id": "need to record vcr cassette",
+              "id": "need torecord vcr cassette",
               "kind": "clinic",
               "status": "cancelled",
               "serviceType": "need to record vcr cassette",

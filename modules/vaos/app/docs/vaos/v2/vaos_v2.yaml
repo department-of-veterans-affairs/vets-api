@@ -72,7 +72,18 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AppointmentsResponse"
+                      required:
+                        - id
+                        - type
+                        - attributes
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          example: appointments
+                        attributes:
+                          $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -115,7 +126,18 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/AppointmentResponse"
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -160,7 +182,18 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/AppointmentResponse"
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -216,17 +249,22 @@ paths:
             application/json:
               schema:
                 required:
-                  - id
-                  - type
-                  - attributes
+                  - data
                 properties:
-                  id:
-                    type: string
-                  type:
-                    type: string
-                    example: appointments
-                  attributes:
-                    $ref: "#/components/schemas/Appointment"
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        example: appointments
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -709,12 +747,6 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/Appointment"
-    AppointmentResponse:
-      description: A single appointment
-      type: object
-      properties:
-        data:
-          "$ref": "#/components/schemas/Appointment"
     AppointmentStatus:
       type: string
       enum:
