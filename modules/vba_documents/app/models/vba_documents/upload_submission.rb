@@ -4,8 +4,7 @@ require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
-require './lib/webhooks/utilities'
-load './lib/webhooks/utilities.rb'
+require_dependency './lib/webhooks/utilities'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
@@ -14,23 +13,9 @@ module VBADocuments
     include Webhooks::Utilities
     extend SQLSupport
     send(:validates_uniqueness_of, :guid)
-    # before_save :record_status_change_notification, if: :status_changed?
-    before_save :capture_status_time, if: :status_changed?
+    before_save :record_status_change, if: :status_changed?
     after_find :set_initial_status
     attr_reader :current_status
-
-    # register_events("gov.va.developer.benefits-intake.status_change",
-    #                 "gov.va.developer.benefits-intake.status_change2", api_name: "PLAY_API") do |last_time_async_scheduled|
-    #   next_run = nil
-    #   if last_time_async_scheduled.nil?
-    #     next_run = 0.seconds.from_now
-    #   else
-    #     next_run = 5.seconds.from_now
-    #   end
-    #   next_run
-    # rescue
-    #   5.seconds.from_now
-    # end
 
     WEBHOOK_STATUS_CHANGE_EVENT = 'gov.va.developer.benefits-intake.status_change'
 
@@ -166,7 +151,7 @@ module VBADocuments
       save!
     end
 
-    # private
+    private
 
     def rewrite_url(url)
       rewritten = url.sub!(Settings.vba_documents.location.prefix, Settings.vba_documents.location.replacement)
@@ -218,52 +203,33 @@ module VBADocuments
       @current_status = status
     end
 
-    def capture_status_time
-      # puts "I am here KMA1"
+    def record_status_change
       from = @current_status
       to = status
       time = Time.now.to_i
       # ensure that we have a current status. Old upload submissions may not have been run through the initializer
       # so we are checking that here
-      #puts "I am here KMA zzz #{from}"
       metadata['status'][from]['end'] = time if metadata.key? 'status'
-      # puts "I am here KMA A"
       metadata['status'] ||= {}
       metadata['status'][to] ||= {}
-      # puts "I am here KMA BB"
       metadata['status'][to]['start'] = time
-      record_status_change_notification(WEBHOOK_STATUS_CHANGE_EVENT, from, to)
+
+      # get the message to record the status change web hook
+      msg = format_msg(WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
+      Webhooks::Utilities.record_notification(
+        consumer_id: consumer_id,
+        consumer_name: consumer_name,
+        event: WEBHOOK_STATUS_CHANGE_EVENT,
+        api_guid: guid,
+        msg: msg)
+
+      # set new current status
       @current_status = to
-    end
-
-    def record_status_change_notification(event, from_status, to_status)
-      #  puts "I am here KMA2"
-      if event.eql? WEBHOOK_STATUS_CHANGE_EVENT #&& NOTIFY_STATUSES.include?(to_status)
-        api = Webhooks::Utilities.event_to_api_name[event]
-        c_uuid = consumer_id
-        c_name = consumer_name
-        g = guid
-        webhook_urls = WebhookSubscription.get_notification_urls(api_name: api, consumer_id: c_uuid, event: event, api_guid: g)
-
-        notifications = []
-        webhook_urls.each do |url|
-          wh_notify = WebhookNotification.new
-          wh_notify.api_name = api
-          wh_notify.consumer_id = c_uuid
-          wh_notify.consumer_name = c_name
-          wh_notify.api_guid = g
-          wh_notify.event = event
-          wh_notify.callback_url = url
-          wh_notify.msg = format_msg(event, from_status, to_status, g)
-          notifications << wh_notify
-        end
-        ActiveRecord::Base.transaction { notifications.each(&:save!) }
-      end
     end
 
     def format_msg(event, from_status, to_status, guid)
       api = Webhooks::Utilities.event_to_api_name[event]
-      {api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status, ts: Time.now.to_i}
+      {api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status, epoch_time: Time.now.to_i}
     end
   end
 end

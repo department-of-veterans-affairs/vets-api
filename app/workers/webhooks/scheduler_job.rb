@@ -1,9 +1,6 @@
 # frozen_string_literal: true
-require './lib/webhooks/utilities'
-require './app/workers/webhooks/notifications_job'
-# load './app/workers/webhooks/scheduler.rb'
-require './modules/vba_documents/lib/vba_documents/webhooks_registrations'
-# load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
+require_dependency './lib/webhooks/utilities'
+require_dependency './app/workers/webhooks/notifications_job'
 
 module Webhooks
   class SchedulerJob

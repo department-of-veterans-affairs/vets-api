@@ -13,6 +13,9 @@ module VBADocuments
         processed = process(upload)
         expire(upload) unless processed
       end
+    rescue => e
+      #todo get rid of me.
+      Rails.logger.error("I have a booboo #{e.message}", e)
     end
 
     private
