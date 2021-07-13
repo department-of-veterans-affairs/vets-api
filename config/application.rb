@@ -66,6 +66,10 @@ module VetsAPI
       end
     end
 
+    # combats the "Flipper::Middleware::Memoizer appears to be running twice" error
+    # followed suggestions to disable memoize config
+    config.flipper.memoize = false
+
     config.middleware.insert_before(0, HttpMethodNotAllowed)
     config.middleware.use OliveBranch::Middleware, inflection_header: 'X-Key-Inflection'
     config.middleware.use StatsdMiddleware
