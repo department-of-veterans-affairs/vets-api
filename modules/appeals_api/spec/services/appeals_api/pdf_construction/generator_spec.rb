@@ -11,113 +11,96 @@ describe AppealsApi::PdfConstruction::Generator do
   describe '#generate' do
     it 'returns a pdf path' do
       result = described_class.new(appeal).generate
-
       expect(result[-4..]).to eq('.pdf')
     end
 
     context 'Notice Of Disagreement' do
       context 'pdf minimum content verification' do
-        let(:notice_of_disagreement) { create(:minimal_notice_of_disagreement) }
+        let(:notice_of_disagreement) { create(:minimal_notice_of_disagreement, created_at: '2021-02-03T14:15:16Z') }
 
         it 'generates the expected pdf' do
-          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
           generated_pdf = described_class.new(notice_of_disagreement).generate
           expected_pdf = fixture_filepath('expected_10182_minimum.pdf')
           expect(generated_pdf).to match_pdf expected_pdf
           File.delete(generated_pdf) if File.exist?(generated_pdf)
-          Timecop.return
         end
       end
 
       context 'pdf extra content verification' do
-        let(:notice_of_disagreement) { create(:notice_of_disagreement) }
+        let(:notice_of_disagreement) { create(:notice_of_disagreement, created_at: '2021-02-03T14:15:16Z') }
 
         it 'generates the expected pdf' do
-          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
           generated_pdf = described_class.new(notice_of_disagreement).generate
           expected_pdf = fixture_filepath('expected_10182_extra.pdf')
           expect(generated_pdf).to match_pdf expected_pdf
           File.delete(generated_pdf) if File.exist?(generated_pdf)
-          Timecop.return
         end
       end
     end
 
     context 'Higher Level Review' do
-      let(:higher_level_review) { create(:higher_level_review) }
-      let(:extra_higher_level_review) { create(:extra_higher_level_review) }
-      let(:minimal_higher_level_review) { create(:minimal_higher_level_review) }
+      let(:higher_level_review) { create(:higher_level_review, created_at: '2021-02-03T14:15:16Z') }
+      let(:extra_higher_level_review) { create(:extra_higher_level_review, created_at: '2021-02-03T14:15:16Z') }
+      let(:minimal_higher_level_review) { create(:minimal_higher_level_review, created_at: '2021-02-03T14:15:16Z') }
 
       context 'pdf content verification' do
         it 'generates the expected pdf' do
-          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
           generated_pdf = described_class.new(higher_level_review).generate
           expected_pdf = fixture_filepath('expected_200996.pdf')
           expect(generated_pdf).to match_pdf expected_pdf
           File.delete(generated_pdf) if File.exist?(generated_pdf)
-          Timecop.return
         end
       end
 
       context 'pdf extra content verification' do
         it 'generates the expected pdf' do
-          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
           generated_pdf = described_class.new(extra_higher_level_review).generate
           expected_pdf = fixture_filepath('expected_200996_extra.pdf')
           expect(generated_pdf).to match_pdf expected_pdf
           File.delete(generated_pdf) if File.exist?(generated_pdf)
-          Timecop.return
         end
       end
 
       context 'pdf minimum content verification' do
         it 'generates the expected pdf' do
-          Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
           generated_pdf = described_class.new(minimal_higher_level_review).generate
           expected_pdf = fixture_filepath('expected_200996_minimum.pdf')
           expect(generated_pdf).to match_pdf(expected_pdf)
           File.delete(generated_pdf) if File.exist?(generated_pdf)
-          Timecop.return
         end
       end
 
       context 'v2' do
         context 'pdf verification' do
-          let(:higher_level_review_v2) { create(:higher_level_review_v2) }
+          let(:higher_level_review_v2) { create(:higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
-            Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
             generated_pdf = described_class.new(higher_level_review_v2, version: 'V2').generate
             expected_pdf = fixture_filepath('expected_200996_v2.pdf')
             expect(generated_pdf).to match_pdf(expected_pdf)
             File.delete(generated_pdf) if File.exist?(generated_pdf)
-            Timecop.return
           end
         end
 
         context 'pdf extra content verification' do
-          let(:extra_higher_level_review_v2) { create(:extra_higher_level_review_v2) }
+          let(:extra_hlr_v2) { create(:extra_higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it 'generates the expected pdf' do
-            Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-            generated_pdf = described_class.new(extra_higher_level_review_v2, version: 'V2').generate
+            generated_pdf = described_class.new(extra_hlr_v2, version: 'V2').generate
             expected_pdf = fixture_filepath('expected_200996_v2_extra.pdf')
             expect(generated_pdf).to match_pdf(expected_pdf)
             File.delete(generated_pdf) if File.exist?(generated_pdf)
-            Timecop.return
           end
         end
 
         context 'pdf minimum content verification' do
-          let(:minimal_higher_level_review_v2) { create(:minimal_higher_level_review_v2) }
+          let(:minimal_hlr_v2) { create(:minimal_higher_level_review_v2, created_at: '2021-02-03T14:15:16Z') }
 
           it "generates a pdf and prints 'USE ADDRESS ON FILE'" do
-            Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
-            generated_pdf = described_class.new(minimal_higher_level_review_v2, version: 'V2').generate
+            generated_pdf = described_class.new(minimal_hlr_v2, version: 'V2').generate
             expected_pdf = fixture_filepath('expected_200996_minimum_v2.pdf')
             expect(generated_pdf).to match_pdf(expected_pdf)
             File.delete(generated_pdf) if File.exist?(generated_pdf)
-            Timecop.return
           end
         end
       end
