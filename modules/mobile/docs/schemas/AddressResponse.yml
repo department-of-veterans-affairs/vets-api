@@ -24,10 +24,10 @@ properties:
             type: string
             example: "51 W Weber Rd"
           addressLine2:
-            type: [ string, null ]
+            type: string
             example: null
           addressLine3:
-            type: [ string, null ]
+            type: string
             example: null
           addressPou:
             type: string
@@ -42,10 +42,10 @@ properties:
             type: string
             example: "USA"
           internationalPostalCode:
-            type: [ string, null ]
+            type: string
             example: null
           province:
-            type: [ string, null ]
+            type: string
             example: null
           stateCode:
             type: string
@@ -65,15 +65,15 @@ properties:
               confidenceScore:
                 type: float
                 example: 100.0
-                addressType:
-                  type: string
-                  example: "Domestic"
-                deliveryPointValidation:
-                  type: string
-                  example: "CONFIRMED"
-                residentialDeliveryIndicator:
-                  type: string
-                  example: "RESIDENTIAL"
+              addressType:
+                type: string
+                example: "Domestic"
+              deliveryPointValidation:
+                type: string
+                example: "CONFIRMED"
+              residentialDeliveryIndicator:
+                type: string
+                example: "RESIDENTIAL"
           validationKey:
             type: integer
             example: -1398777841

@@ -58,7 +58,6 @@ properties:
           description:
             type: string
           docket:
-            type: object, null
             $ref: "./AppealDocket.yml"
           events:
             type: array

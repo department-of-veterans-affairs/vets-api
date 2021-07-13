@@ -37,4 +37,6 @@ properties:
             example: "AsyncTransaction::VAProfile::EmailTransaction"
           metadata:
             type: array
+            items:
+              type: string
             example: [ ]

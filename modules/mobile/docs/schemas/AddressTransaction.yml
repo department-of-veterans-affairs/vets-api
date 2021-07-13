@@ -38,4 +38,6 @@ properties:
             example: "AsyncTransaction::VAProfile::AddressTransaction"
           metadata:
             type: array
+            items:
+              type: string
             example: []

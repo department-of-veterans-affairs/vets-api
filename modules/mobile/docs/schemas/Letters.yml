@@ -23,5 +23,4 @@ properties:
           letters:
             type: array
             items:
-              type: object
               $ref: "./LettersInfo.yml"

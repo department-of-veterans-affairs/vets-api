@@ -14,7 +14,9 @@ properties:
       - errors
     properties:
       errors:
-        type: [array, null]
+        type: array
+        items:
+          type: string
   links:
     type: object
     required:
@@ -31,10 +33,10 @@ properties:
         type: string
         example: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=1&page[size]=10"
       prev:
-        type: [string, null]
+        type: string
         example: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=2&page[size]=10"
       next:
-        type: [string, null]
+        type: string
         example: "https://api.va.gov/mobile/v0/appointments?startDate=2020-04-13T00:00:00+00:00&endDate=2022-04-13T00:00:00+00:00&useCache=true&page[number]=4&page[size]=10"
       last:
         type: string

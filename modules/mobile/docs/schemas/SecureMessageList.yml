@@ -36,7 +36,8 @@ properties:
     properties:
       sort:
         type: object
-        required: sentDate
+        required: 
+          - sentDate
         properties:
           sentDate:
             type: string
