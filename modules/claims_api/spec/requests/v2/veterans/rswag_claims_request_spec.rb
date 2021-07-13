@@ -8,7 +8,11 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
     get 'Find all benefits claims for a Veteran.' do
       tags 'Claims'
       operationId 'findClaims'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read'] },
+        { sandboxOauth: ['claim.read'] },
+        { bearer_token: [] }
+      ]
       produces 'application/json'
       description 'Retrieves all claims for Veteran.'
 

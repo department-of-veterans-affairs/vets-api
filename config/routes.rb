@@ -219,7 +219,6 @@ Rails.application.routes.draw do
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
       resources :states, only: :index, defaults: { format: :json }
-      resources :attachment_types, only: :index, defaults: { format: :json }
       resources :discharge_types, only: :index, defaults: { format: :json }
       resources :military_ranks, only: :index, defaults: { format: :json }
       resources :burial_forms, only: %i[new create], defaults: { format: :json }
@@ -295,9 +294,6 @@ Rails.application.routes.draw do
       resources :dismissed_statuses, only: %i[show create update], param: :subject
     end
 
-    resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code
-    resources :user_preferences, only: %i[create index], path: 'user/preferences', param: :code
-    delete 'user/preferences/:code/delete_all', to: 'user_preferences#delete_all'
     get 'feature_toggles', to: 'feature_toggles#index'
 
     [
@@ -418,7 +414,7 @@ Rails.application.routes.draw do
 
   mount PgHero::Engine, at: 'pghero'
 
-  mount TestUserDashboard::Engine, at: '/test_user_dashboard' unless Rails.env.production?
+  mount TestUserDashboard::Engine, at: '/test_user_dashboard' if Settings.test_user_dashboard.env == 'staging'
 
   mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint.new
 

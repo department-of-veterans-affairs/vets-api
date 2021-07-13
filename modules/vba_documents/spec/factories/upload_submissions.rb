@@ -42,4 +42,11 @@ FactoryBot.define do
     detail { 'abc' * 500 }
     guid { '60719ee0-44fe-40ca-9b03-755fdb8c7884' }
   end
+
+  factory :upload_submission_manually_removed, class: 'VBADocuments::UploadSubmission' do
+    guid { 'f7027a14-6abd-4087-b397-3d84d445f4c2' }
+    status { 'received' }
+    consumer_id { 'f7027a14-6abd-4087-b397-3d84d445f4c2' }
+    consumer_name { 'adhoc' }
+  end
 end
