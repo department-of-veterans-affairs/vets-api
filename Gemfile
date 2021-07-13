@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.6.6'
+ruby '~> 2.6.6'
 
 # temp fix for security vulnerability, hopefulle we can remove this line with the next rails patch
 # https://blog.jcoglan.com/2020/06/02/redos-vulnerability-in-websocket-extensions/
