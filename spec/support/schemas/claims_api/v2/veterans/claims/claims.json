@@ -1,0 +1,21 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type" : "array",
+  "items": {
+    "required": ["id", "type"],
+    "additionalProperties": false,
+    "description": "Claim details.",
+    "properties": {
+      "id": {
+        "type": "string",
+        "description": "Claim ID",
+        "example": "600131328"
+      },
+      "type": {
+        "type": "string",
+        "description": "Name of Claim type",
+        "example": "Appeals Control"
+      }
+    }
+  }
+}
