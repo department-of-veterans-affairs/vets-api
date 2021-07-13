@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/form_base'
+require 'pcafc/facilities'
 
 # rubocop:disable Metrics/ClassLength
 
@@ -572,10 +573,20 @@ module PdfFill
 
       def merge_planned_facility_label_helper
         target_facility_code = @form_data.dig 'veteran', 'plannedClinic'
-        caregiver_facilities = VetsJsonSchema::CONSTANTS['caregiverProgramFacilities'].values.flatten
+
+        if Flipper.enabled?(:ezcg_use_facility_api)
+          caregiver_facilities = filter_facility_response(PCAFC::Facilities.get_facilities).sort_by { |hsh|  hsh[:code] }
+        else
+          caregiver_facilities = VetsJsonSchema::CONSTANTS['caregiverProgramFacilities'].values.flatten.sort_by { |hsh|  hsh[:code] }
+        end
+
         selected_facility = caregiver_facilities.find { |facility| facility['code'] == target_facility_code }
         display_value = selected_facility.nil? ? nil : "#{selected_facility['code']} - #{selected_facility['label']}"
         @form_data['helpers']['veteran']['plannedClinic'] = display_value
+      end
+
+      def filter_facility_response(response)
+        response.collect{ |facility| { "code" => facility.unique_id, "label" => facility.name} }
       end
 
       def generate_signiture_timestamp
