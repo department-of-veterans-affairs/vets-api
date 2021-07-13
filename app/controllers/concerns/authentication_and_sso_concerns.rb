@@ -10,7 +10,6 @@ module AuthenticationAndSSOConcerns
   included do
     before_action :authenticate
     before_action :set_session_expiration_header
-    before_action session.delete :value
   end
 
   protected
@@ -90,6 +89,7 @@ module AuthenticationAndSSOConcerns
   def set_api_cookie!
     return unless @session_object
 
+    session.delete :value
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
