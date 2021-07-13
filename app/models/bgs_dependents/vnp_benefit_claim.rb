@@ -6,7 +6,6 @@ module BGSDependents
       status_type_cd: 'CURR',
       svc_type_cd: 'CP',
       pgm_type_cd: 'COMP',
-      bnft_claim_type_cd: '130DPNEBNADJ',
       atchms_ind: 'N'
     }.freeze
 
@@ -15,7 +14,7 @@ module BGSDependents
       @proc_id = proc_id
     end
 
-    def create_params_for_686c
+    def create_params_for_686c(claim_type_code: '130DPNEBNADJ')
       {
         vnp_proc_id: @proc_id,
         claim_rcvd_dt: Time.current.iso8601,
@@ -24,7 +23,8 @@ module BGSDependents
         vnp_ptcpnt_vet_id: @veteran[:vnp_participant_id],
         claim_jrsdtn_lctn_id: @veteran[:location_id],
         intake_jrsdtn_lctn_id: @veteran[:location_id],
-        net_worth_over_limit_ind: @veteran[:net_worth_over_limit_ind]
+        net_worth_over_limit_ind: @veteran[:net_worth_over_limit_ind],
+        bnft_claim_type_cd: claim_type_code
       }.merge(VNP_BENEFIT_CREATE_PARAMS)
     end
 

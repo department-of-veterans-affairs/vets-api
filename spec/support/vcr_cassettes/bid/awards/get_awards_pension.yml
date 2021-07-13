@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://fake_url.com/api/v1/awards/pension/32436649
+    uri: https://fake_url.com/api/v1/awards/pension/600061742
     body:
       encoding: US-ASCII
       string: ''
@@ -55,7 +55,7 @@ http_interactions:
       string: |-
         {
           "awardsPension" : {
-            "veteranId" : 32436649,
+            "veteranId" : 600061742,
             "isEligibleForPension" : true,
             "isInReceiptOfPension" : true,
             "netWorthLimit" : 129094

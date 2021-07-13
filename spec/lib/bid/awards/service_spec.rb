@@ -17,7 +17,6 @@ RSpec.describe BID::Awards::Service do
     context 'with a successful submission' do
       it 'successfully receives an Award Pension object' do
         VCR.use_cassette('bid/awards/get_awards_pension') do
-          allow(user).to receive(:participant_id).and_return('32436649')
           response = service.get_awards_pension
 
           expect(response.status).to eq(200)
