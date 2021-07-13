@@ -10,6 +10,7 @@ Warden::GitHub::Strategy.module_eval do
   def authenticate!
     if session[:user].present?
       success!(session[:user])
+      redirect!(request.url)
     elsif in_flow?
       continue_flow!
     else
