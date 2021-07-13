@@ -89,8 +89,8 @@ module AuthenticationAndSSOConcerns
   def set_api_cookie!
     return unless @session_object
 
-    @session_object.delete :value
     @session_object.to_hash.each { |k, v| session[k] = v }
+    @session_object.delete :value
   end
 
   # Sets a cookie used by MHV for SSO
