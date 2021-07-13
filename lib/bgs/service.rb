@@ -225,6 +225,23 @@ module BGS
       notify_of_service_exception(e, __method__, 1, :warn)
     end
 
+    def create_note(claim_id, reason_text)
+      # @TODO put this back in before merging!
+      # commented out for now because this will fail until the BGS gem gets updated
+      # option_hash = {
+      #   note: {
+      #     jrn_stt_tc: 'I',
+      #     name: 'Claim rejected by VA.gov',
+      #     bnft_clm_note_tc: 'CLMDVLNOTE',
+      #     clm_id: claim_id,
+      #     ptcpnt_id: @user.participant_id,
+      #     txt: reason_text
+      #   }.merge!(bgs_auth).except!(:jrn_status_type_cd)
+      # }
+      #
+      # service.notes.create_note(option_hash)
+    end
+
     private
 
     def service

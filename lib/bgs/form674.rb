@@ -36,6 +36,10 @@ module BGS
       ).create
 
       vnp_benefit_claim.update(benefit_claim_record, vnp_benefit_claim_record)
+
+      reason_text = 'Claim rejected by VA.gov: This application needs manual review because a 674 was submitted.'
+      bgs_service.create_note(benefit_claim_record[:benefit_claim_id], reason_text)
+
       bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
     end
 
