@@ -106,9 +106,8 @@ module ClaimsApi
         #     - e.g. Ralph E Lee and Greg Anderson have this situation
         # - what if the form_code is a false positive?
         #     - i.e., poa_code_in_organization? says it should be 21-22 but it's actually 21-22A
-        #     - Idk if this one actually happens or not
-        rep_poa_codes = representatives.pluck(:poa_code)
-
+        #     - Idk if this one actually happens or not, but it did occur for at least one test user
+        rep_poa_codes = representatives.nil? ? [] : representatives.pluck(:poa_code)
         unless rep_poa_codes.include?(poa_code)
           raise ::Common::Exceptions::Forbidden,
                 detail: 'Veteran has not granted access to records protected by Section 7332, Title 38, U.S.C.'
