@@ -238,7 +238,7 @@ module AppealsApi
     private
 
     def able_to_send_email?
-      api_version.upcase == 'V2' && email_v2.present?
+      api_version&.upcase == 'V2' && email_v2.present?
     end
 
     def data_attributes
