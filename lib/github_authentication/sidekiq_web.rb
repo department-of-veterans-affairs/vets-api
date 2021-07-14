@@ -23,10 +23,15 @@ module GithubAuthentication
 
       app.before do
         next if current_path == 'unauthenticated'
+        next if current_path == 'auth/github/callback'
 
-        warden.authenticate!
-        github_organization_authenticate! Settings.sidekiq.github_organization
-        github_team_authenticate! Settings.sidekiq.github_team
+        session[:user] = warden.user if warden.user.present?
+        unless warden.authenticated? || session[:user]
+          warden.authenticate!
+          session[:user] = warden.user
+          github_organization_authenticate! Settings.sidekiq.github_organization
+          github_team_authenticate! Settings.sidekiq.github_team
+        end
       end
 
       app.get('/unauthenticated') { [403, {}, [warden.message || '']] }
@@ -36,7 +41,6 @@ module GithubAuthentication
           redirect '/unauthenticated'
         else
           warden.authenticate!
-
           redirect root_path
         end
       end
