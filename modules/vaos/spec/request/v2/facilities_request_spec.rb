@@ -46,6 +46,7 @@ RSpec.describe 'facilities', type: :request do
             get '/vaos/v2/facilities?ids=688&children=true', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].size).to eq(8)
             expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
           end
         end
