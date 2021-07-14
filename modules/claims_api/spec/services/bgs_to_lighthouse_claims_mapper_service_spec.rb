@@ -24,7 +24,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
         it 'returns a collection that contains the claim with the Lighthouse id and BGS type' do
           claims = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
-            bgs_claims: bgs_claims, internal_claims: lighthouse_claims
+            bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims
           )
 
           expect(claims.count).to eq(1)
@@ -53,7 +53,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
         it 'returns a collection that contains both claims' do
           claims = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
-            bgs_claims: bgs_claims, internal_claims: lighthouse_claims
+            bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims
           )
 
           expect(claims.count).to eq(2)
@@ -78,7 +78,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
       it 'returns a collection that contains the BGS claims' do
         claims = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
-          bgs_claims: bgs_claims, internal_claims: lighthouse_claims
+          bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims
         )
 
         expect(claims.count).to eq(1)
@@ -102,7 +102,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
       it 'returns a collection that contains the Lighthouse claims' do
         claims = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
-          bgs_claims: bgs_claims, internal_claims: lighthouse_claims
+          bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims
         )
 
         expect(claims.count).to eq(1)
@@ -122,7 +122,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
       it 'returns an empty collection' do
         claims = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
-          bgs_claims: bgs_claims, internal_claims: lighthouse_claims
+          bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims
         )
 
         expect(claims.count).to eq(0)
