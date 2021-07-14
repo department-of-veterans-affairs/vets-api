@@ -856,9 +856,9 @@ GEM
       einhorn (>= 0.7.4)
       sidekiq (>= 6.1.1)
       sidekiq-pro (>= 5.1.1)
-    sidekiq-pro (5.2.1)
+    sidekiq-pro (5.2.2)
       connection_pool (>= 2.2.3)
-      sidekiq (>= 6.1.0)
+      sidekiq (>= 6.2.0)
     sidekiq-scheduler (3.1.0)
       e2mmap
       redis (>= 3, < 5)

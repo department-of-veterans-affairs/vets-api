@@ -12,12 +12,12 @@ module GithubAuthentication
 
         def github_organization_authenticate!(name)
           unless warden.user.organization_member?(name)
-            halt [401, {}, ["You don't have access to organization #{name}"]]
+            throw :halt, [401, {}, ["You don't have access to organization #{name}"]]
           end
         end
 
         def github_team_authenticate!(id)
-          halt [401, {}, ["You don't have access to team #{id}"]] unless warden.user.team_member?(id)
+          throw :halt, [401, {}, ["You don't have access to team #{id}"]] unless warden.user.team_member?(id)
         end
       end
 
@@ -26,11 +26,12 @@ module GithubAuthentication
         next if current_path == 'auth/github/callback'
 
         session[:user] = warden.user if warden.user.present?
+        github_organization_authenticate! Settings.sidekiq.github_organization
+        github_team_authenticate! Settings.sidekiq.github_team
+
         unless warden.authenticated? || session[:user]
           warden.authenticate!
           session[:user] = warden.user
-          github_organization_authenticate! Settings.sidekiq.github_organization
-          github_team_authenticate! Settings.sidekiq.github_team
         end
       end
 
