@@ -33,7 +33,7 @@ module Webhooks
           1.hour.from_now
         end
         Webhooks::NotificationsJob.perform_in(time_to_start, api_name)
-        Rails.logger.info "Webhooks::SchedulerJob kicked off #{api_name} at time #{time_to_start}, current time is #{Time.now}"
+        Rails.logger.info "Webhooks::SchedulerJob kicked off #{api_name} at time #{time_to_start}"
       rescue => e
         Rails.logger.error("Webhooks::SchedulerJob Failed to kick of jobs for api_name #{api_name}", e)
       end
