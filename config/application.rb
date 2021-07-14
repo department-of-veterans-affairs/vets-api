@@ -77,7 +77,7 @@ module VetsAPI
                                    ActionDispatch::Session::CookieStore,
                                    key: 'api_session',
                                    secure: Settings.session_cookie.secure,
-                                   http_only: true
+                                   http_only: true, expires: 1.month
 
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/workers/education_form/forms/base.rb
