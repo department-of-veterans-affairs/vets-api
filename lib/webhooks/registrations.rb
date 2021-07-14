@@ -5,7 +5,8 @@ require_dependency './modules/vba_documents/lib/vba_documents/webhooks_registrat
 
 =begin
 Sample registration:
-Make sure all exceptions are handled.  The do..end block is run over and over to determine the next run.
+Make sure all exceptions are handled (This is critical). If you let it leak, we default to one hour from now.
+ The do..end block is run over and over to determine the next run.
 last_time_async_scheduled is the last time the async call was made to do the batch notification.
 last_time_async_scheduled always reverts to nil with each deploy.
 

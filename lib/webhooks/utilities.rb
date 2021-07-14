@@ -144,4 +144,6 @@ module Webhooks
 end
 
 require_dependency './lib/webhooks/registrations'
-
+Webhooks::Utilities.supported_events.freeze
+Webhooks::Utilities.event_to_api_name.freeze
+Webhooks::Utilities.api_name_to_time_block.freeze

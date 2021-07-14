@@ -11,7 +11,7 @@ module Webhooks
         msg['notifications'] << notification.msg
       end
 
-      Rails.logger.info "CRIS Notifying on callback url #{url} for ids #{ids} with msg #{msg}"
+      Rails.logger.info "Webhooks::CallbackUrlJob Notifying on callback url #{url} for ids #{ids} with msg #{msg}"
       notify(url, msg.to_json)
     end
 
@@ -19,13 +19,15 @@ module Webhooks
 
     def notify(url, msg)
       response = Faraday.post(url, msg, 'Content-Type' => 'application/json')
-      # if (response.success?)
-      #
-      # else
-      #
-      # end
+      if (response.success?)
+        Rails.logger.info("Webhooks::CallbackUrlJob response was succesful!! #{response.status}")
+        Rails.logger.info("Webhooks::CallbackUrlJob response was succesful!! #{response.body}")
+      else
+        Rails.logger.info("Webhooks::CallbackUrlJob response was ****NOT**** succesful!! #{response.status}")
+        Rails.logger.info("Webhooks::CallbackUrlJob response was ****NOT**** succesful!! #{response.body}")
+      end
     rescue Faraday::ClientError, Faraday::Error => e
-      Rails.logger.error("CRIS Error in CallbackUrlJob #{e.message}", e)
+      Rails.logger.error("Webhooks::CallbackUrlJob Error in CallbackUrlJob #{e.message}", e)
     end
   end
 end

@@ -14,8 +14,7 @@ module VBADocuments
         expire(upload) unless processed
       end
     rescue => e
-      #todo get rid of me.
-      Rails.logger.error("I have a booboo #{e.message}", e)
+      Rails.logger.error("Error in upload scanner #{e.message}", e)
     end
 
     private
