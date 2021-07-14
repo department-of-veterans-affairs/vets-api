@@ -165,3 +165,14 @@ check_in:
     mock: false
     key_path: ~
     timeout: 30
+
+rack:
+  cookie_secret: "xxxxx"
+
+bid:
+  awards:
+    base_url: https://fake_url.com
+    credentials: fake_auth
+
+test_user_dashboard:
+  env: staging

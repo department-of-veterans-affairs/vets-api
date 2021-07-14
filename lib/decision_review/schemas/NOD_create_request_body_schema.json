@@ -68,7 +68,7 @@
         "homeless":            { "type": "boolean" },
         "address":             { "$ref": "#/definitions/nodCreateAddress" },
         "phone":               { "$ref": "#/definitions/nodCreatePhone" },
-        "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail", "minLength": 5, "maxLength": 120 },
+        "emailAddressText":    { "$ref": "#/definitions/nodCreateEmail"},
         "representativesName": { "type": "string", "maxLength": 120 }
       },
       "required": ["homeless",  "phone", "emailAddressText"],
@@ -110,6 +110,8 @@
 
     "nodCreateEmail": {
       "type": "string",
+      "minLength": 6,
+      "maxLength": 255,
       "format": "email"
     },
 

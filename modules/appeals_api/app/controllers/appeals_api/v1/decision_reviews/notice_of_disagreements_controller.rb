@@ -83,9 +83,17 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
       form_data: @json_body,
       source: request_headers['X-Consumer-Username'],
       board_review_option: @json_body['data']['attributes']['boardReviewOption'],
-      api_version: 'V1'
+      api_version: api_version
     )
     render_model_errors unless @notice_of_disagreement.validate
+  end
+
+  def api_version
+    if request.fullpath.include?('v1')
+      'V1'
+    elsif request.fullpath.include?('v2')
+      'V2'
+    end
   end
 
   # Follows JSON API v1.0 error object standard (https://jsonapi.org/format/1.0/#error-objects)
