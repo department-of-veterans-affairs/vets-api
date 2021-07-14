@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# delete me
+
 require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
@@ -33,9 +33,9 @@ module VBADocuments
     # look_back is an int and unit of measure is a string or symbol (hours, days, minutes, etc)
     scope :aged_processing, lambda { |look_back, unit_of_measure, status|
       where(status: status)
-          .where("(metadata -> 'status' -> ? -> 'start')::bigint < ?", status,
-                 look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
-          .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
+        .where("(metadata -> 'status' -> ? -> 'start')::bigint < ?", status,
+               look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
+        .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
       # lambda above stops security scan from finding false positive sql injection!
     }
 
@@ -44,7 +44,7 @@ module VBADocuments
     def initialize(attributes = nil)
       super
       @current_status = status
-      self.metadata = {'status' => {@current_status => {'start' => Time.now.to_i}}}
+      self.metadata = { 'status' => { @current_status => { 'start' => Time.now.to_i } } }
     end
 
     def self.fake_status(guid)
@@ -221,7 +221,8 @@ module VBADocuments
         consumer_name: consumer_name,
         event: WEBHOOK_STATUS_CHANGE_EVENT,
         api_guid: guid,
-        msg: msg)
+        msg: msg
+      )
 
       # set new current status
       @current_status = to
@@ -229,7 +230,8 @@ module VBADocuments
 
     def format_msg(event, from_status, to_status, guid)
       api = Webhooks::Utilities.event_to_api_name[event]
-      {api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status, epoch_time: Time.now.to_i}
+      { api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status,
+        epoch_time: Time.now.to_i }
     end
   end
 end

@@ -1,6 +1,8 @@
 # frozen_string_literal: true
+
 class WebhookSubscription < ApplicationRecord
-  def self.get_notification_urls(api_name:, consumer_id:, event:, api_guid: nil) #remove api_name and infer it from the event
+  # remove api_name and infer it from the event
+  def self.get_notification_urls(api_name:, consumer_id:, event:, api_guid: nil)
     sql = "
       select json_agg(agg.urls)::jsonb as event_urls
       from (
@@ -22,18 +24,17 @@ class WebhookSubscription < ApplicationRecord
     retrieve_event_urls(sql, api_name, consumer_id, event, api_guid)
   end
 
-  private
-
   def self.retrieve_event_urls(sql, *args)
     result = ActiveRecord::Base.connection_pool.with_connection do |c|
       c.raw_connection.exec_params(sql, args).to_a
     end
 
-    event_urls = result.first['event_urls'] ||= "[]"
+    event_urls = result.first['event_urls'] ||= '[]'
     JSON.parse(event_urls).flatten.uniq
   end
 
-  def self.get_observers_by_guid(api_name:, consumer_id:, api_guid: nil) #remove api_name and infer it from the event
+  # remove api_name and infer it from the event
+  def self.get_observers_by_guid(api_name:, consumer_id:, api_guid: nil)
     sql = "
       select a.events -> 'subscriptions' as api_consumer_subscriptions
       from webhook_subscriptions a
@@ -44,8 +45,6 @@ class WebhookSubscription < ApplicationRecord
     "
     retrieve_observers_by_guid(sql, api_name, consumer_id, api_guid)
   end
-
-  private
 
   def self.retrieve_observers_by_guid(sql, *args)
     result = ActiveRecord::Base.connection_pool.with_connection do |c|
@@ -59,7 +58,6 @@ class WebhookSubscription < ApplicationRecord
       []
     end
   end
-
 end
 
 # load './app/models/webhook_subscription'

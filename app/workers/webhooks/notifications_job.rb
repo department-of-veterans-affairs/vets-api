@@ -8,10 +8,11 @@ module Webhooks
     # load './app/workers/webhooks/notifications_job.rb'
 
     def perform(api_name)
-      processing_time = Time.now
+      processing_time = Time.current
       Rails.logger.info "Webhooks::NotificationsJob on api_name  #{api_name}"
       # lock the rows that will be updated in this job run. The update releases the lock.
-      ids = WebhookNotification.lock('FOR UPDATE').where(complete: false, processing: nil, api_name: api_name).pluck(:id)
+      ids = WebhookNotification.lock('FOR UPDATE').where(complete: false, processing: nil,
+                                                         api_name: api_name).pluck(:id)
       WebhookNotification.where(id: ids).update_all(processing: processing_time.to_i)
 
       # group the notifications by url

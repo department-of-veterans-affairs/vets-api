@@ -6,7 +6,7 @@ module Webhooks
 
     def perform(url, ids)
       r = WebhookNotification.where(id: ids)
-      msg = {'notifications' => []}
+      msg = { 'notifications' => [] }
       r.each do |notification|
         msg['notifications'] << notification.msg
       end
@@ -19,7 +19,7 @@ module Webhooks
 
     def notify(url, msg)
       response = Faraday.post(url, msg, 'Content-Type' => 'application/json')
-      if (response.success?)
+      if response.success?
         Rails.logger.info("Webhooks::CallbackUrlJob response was succesful!! #{response.status}")
         Rails.logger.info("Webhooks::CallbackUrlJob response was succesful!! #{response.body}")
       else

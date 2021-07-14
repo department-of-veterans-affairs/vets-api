@@ -36,8 +36,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
       it 'returns a UUID and location' do
         with_settings(Settings.vba_documents.location,
-                       prefix: 'https://fake.s3.url/foo/',
-                       replacement: 'https://api.vets.gov/proxy/') do
+                      prefix: 'https://fake.s3.url/foo/',
+                      replacement: 'https://api.vets.gov/proxy/') do
           post vba_documents.v2_uploads_path
           expect(response).to have_http_status(:accepted)
           json = JSON.parse(response.body)
@@ -48,7 +48,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       end
 
       it 'sets consumer name from X-Consumer-Username header' do
-        post vba_documents.v2_uploads_path , params: nil, headers: { 'X-Consumer-Username': 'test consumer' }
+        post vba_documents.v2_uploads_path, params: nil, headers: { 'X-Consumer-Username': 'test consumer' }
         upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
         expect(upload.consumer_name).to eq('test consumer')
       end
@@ -221,9 +221,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       ) do
         starting_status = upload.status
         get(vba_documents.v2_upload_path(upload.guid),
-          params: nil,
-          headers: { 'Status-Override' => 'vbms' }
-        )
+            params: nil,
+            headers: { 'Status-Override' => 'vbms' })
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
       end

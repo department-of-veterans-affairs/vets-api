@@ -11,14 +11,14 @@ VBADocuments::Engine.routes.draw do
 
   match '/v2/uploads/submit', to: 'v2/uploads#submit', via: [:post] if Settings.vba_documents.v2_upload_endpoint_enabled
 
-  namespace :internal, defaults: {format: 'json'} do
+  namespace :internal, defaults: { format: 'json' } do
     namespace :v0 do
       resources :upload_complete, only: [:create]
     end
   end
 
   if Settings.vba_documents.v2_enabled
-    namespace :v2, defaults: {format: 'json'} do
+    namespace :v2, defaults: { format: 'json' } do
       resources :uploads, only: %i[create show] do
         get 'download', to: 'uploads#download'
         collection do
@@ -28,7 +28,7 @@ VBADocuments::Engine.routes.draw do
     end
   end
 
-  namespace :v1, defaults: {format: 'json'} do
+  namespace :v1, defaults: { format: 'json' } do
     resources :uploads, only: %i[create show] do
       get 'download', to: 'uploads#download'
       collection do

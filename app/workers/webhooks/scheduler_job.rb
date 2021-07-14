@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_dependency './lib/webhooks/utilities'
 require_dependency './app/workers/webhooks/notifications_job'
 
@@ -8,7 +9,7 @@ module Webhooks
 
     def perform(api_name = nil, processing_time = nil)
       Rails.logger.info "Webhooks::SchedulerJob SchedulerJob.perform #{api_name} at time #{processing_time}"
-      if (api_name.nil?)
+      if api_name.nil?
         Webhooks::Utilities.api_name_to_time_block.each_pair do |name, block|
           go(name, processing_time, block)
         end
@@ -26,7 +27,11 @@ module Webhooks
     def go(api_name, last_run, block)
       Rails.logger.info "Webhooks::SchedulerJob SchedulerJob.go  #{api_name} at time #{last_run}"
       begin
-        time_to_start = block.call(last_run) rescue 1.hour.from_now
+        time_to_start = begin
+          block.call(last_run)
+        rescue
+          1.hour.from_now
+        end
         Webhooks::NotificationsJob.perform_in(time_to_start, api_name)
         Rails.logger.info "Webhooks::SchedulerJob kicked off #{api_name} at time #{time_to_start}, current time is #{Time.now}"
       rescue => e
