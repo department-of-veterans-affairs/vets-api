@@ -18,6 +18,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   let(:scopes) { %w[claim.read] }
 
   before do
+    # TODO add a test when :read_all_veteran_representatives returns nil instead
     Veteran::Service::Representative.new(poa_codes: ['A01'], first_name: 'Abraham', last_name: 'Lincoln').save!
     allow_any_instance_of(BGS::VeteranRepresentativeService).to receive(:read_all_veteran_representatives).and_return([{ :poa_code => 'A01'}])
     stub_poa_verification
@@ -56,14 +57,9 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   context 'for a single claim' do
-    # before do
-    #   Veteran::Service::Representative.new(poa_codes: ['A01'], first_name: 'Abraham', last_name: 'Lincoln').save!
-    # end
-
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claim') do
-          # expect_any_instance_of(BGS::VeteranRepresentativeService).to receive(:read_all_veteran_representatives).and_return([{ :poa_code => 'A01'}])
           get '/services/claims/v1/claims/600118851', params: nil, headers: request_headers.merge(auth_header)
           expect(response).to match_response_schema('claims_api/claim')
         end
