@@ -1,6 +1,6 @@
 # frozen_string_literal: true
-class WebhookNotification < ApplicationRecord
-  # belongs_to WebhookSubscription
-end
 
-# load './app/models/webhook_notification'
+class WebhookNotification < ApplicationRecord
+  has_many :webhook_notification_attempt_assocs
+  has_many :webhook_notification_attempts, through: :webhook_notification_attempt_assocs
+end

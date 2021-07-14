@@ -23,22 +23,24 @@ module VBADocuments
       def create
         # load './lib/webhooks/utilities.rb'
         # load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
-        submission, subscriptions = nil, nil
+        submission = nil
+        subscriptions = nil
         VBADocuments::UploadSubmission.transaction do
           submission = VBADocuments::UploadSubmission.create(
-              consumer_name: request.headers['X-Consumer-Username'],
-              consumer_id: request.headers['X-Consumer-ID']
+            consumer_name: request.headers['X-Consumer-Username'],
+            consumer_id: request.headers['X-Consumer-ID']
           )
           observers = params[:observers]
           if observers.respond_to? :read
-            subscriptions = validate_subscription(JSON.load(observers.read))
+            subscriptions = validate_subscription(JSON.parse(observers.read))
           elsif observers
             subscriptions = validate_subscription(JSON.parse(observers))
           end
 
           if subscriptions
-            wh = Webhooks::Utilities.register_webhook(
-                submission.consumer_id, submission.consumer_name, subscriptions, submission.guid)
+            Webhooks::Utilities.register_webhook(
+              submission.consumer_id, submission.consumer_name, subscriptions, submission.guid
+            )
           end
         end
         render status: :accepted,

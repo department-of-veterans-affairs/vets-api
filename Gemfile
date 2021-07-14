@@ -140,7 +140,6 @@ gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/
 gem 'virtus'
 gem 'will_paginate'
 gem 'with_advisory_lock'
-gem 'json_schemer'
 
 group :development do
   gem 'guard-rubocop'

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_dependency './lib/webhooks/utilities'
 require_dependency './app/workers/webhooks/notifications_job'
 
@@ -7,8 +8,8 @@ module Webhooks
     include Sidekiq::Worker
 
     def perform(api_name = nil, processing_time = nil)
-      Rails.logger.info "CRIS SchedulerJob.perform #{api_name} at time #{processing_time}"
-      if (api_name.nil?)
+      Rails.logger.info "Webhooks::SchedulerJob SchedulerJob.perform #{api_name} at time #{processing_time}"
+      if api_name.nil?
         Webhooks::Utilities.api_name_to_time_block.each_pair do |name, block|
           go(name, processing_time, block)
         end
@@ -16,19 +17,25 @@ module Webhooks
         go(api_name, processing_time, Webhooks::Utilities.api_name_to_time_block[api_name])
       end
     rescue => e
-      Rails.logger.error("CRIS Error in SchedulerJob #{e.message}", e)
+      Rails.logger.error("Webhooks::SchedulerJob Error in SchedulerJob #{e.message}", e)
+      # we try again in 5 minutes
+      Webhooks::SchedulerJob.new.perform_in(5.minutes.from_now, api_name)
     end
 
     private
 
     def go(api_name, last_run, block)
-      Rails.logger.info "CRIS SchedulerJob.go  #{api_name} at time #{last_run}"
+      Rails.logger.info "Webhooks::SchedulerJob SchedulerJob.go  #{api_name} at time #{last_run}"
       begin
-        time_to_start = block.call(last_run)
+        time_to_start = begin
+          block.call(last_run)
+        rescue
+          1.hour.from_now
+        end
         Webhooks::NotificationsJob.perform_in(time_to_start, api_name)
-        Rails.logger.info "CRIS kicked off #{api_name} at time #{time_to_start}, current time is #{Time.now}"
+        Rails.logger.info "Webhooks::SchedulerJob kicked off #{api_name} at time #{time_to_start}"
       rescue => e
-        Rails.logger.error("CRIS Failed to kick of jobs for api_name #{api_name}", e)
+        Rails.logger.error("Webhooks::SchedulerJob Failed to kick of jobs for api_name #{api_name}", e)
       end
     end
   end

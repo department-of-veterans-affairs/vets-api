@@ -8,11 +8,14 @@ module Webhooks
     # load './app/workers/webhooks/notifications_job.rb'
 
     def perform(api_name)
-      Rails.logger.info "CRIS NotificationsJob on api_name  #{api_name}"
+      processing_time = Time.current
+      Rails.logger.info "Webhooks::NotificationsJob on api_name  #{api_name}"
       # lock the rows that will be updated in this job run. The update releases the lock.
-      ids = WebhookNotification.lock('FOR UPDATE').where(complete: false, processing: nil, api_name: api_name).pluck(:id)
-      processing_time = Time.now
+      # rubocop:disable Rails/SkipsModelValidations
+      ids = WebhookNotification.lock('FOR UPDATE').where(complete: false, processing: nil,
+                                                         api_name: api_name).pluck(:id)
       WebhookNotification.where(id: ids).update_all(processing: processing_time.to_i)
+      # rubocop:enable Rails/SkipsModelValidations
 
       # group the notifications by url
       callback_urls = {}
@@ -22,14 +25,15 @@ module Webhooks
         callback_urls[notify.callback_url] << notify.id
       end
 
-      callback_urls.each_pair do |url, ids|
-        Rails.logger.info "CRIS NotificationsJob on async call  #{url} for #{ids}"
-        CallbackUrlJob.perform_async(url, ids)
+      callback_urls.each_pair do |url, notify_ids|
+        Rails.logger.info "Webhooks::NotificationsJob on async call  #{url} for #{notify_ids}"
+        CallbackUrlJob.perform_async(url, notify_ids)
       end
-      Rails.logger.info "CRIS  Webhooks::StartupJob.new.perform  #{processing_time} for #{api_name}"
-      Webhooks::SchedulerJob.new.perform(api_name, processing_time) # todo should we put the time in reddis?
+      Rails.logger.info "Webhooks::NotificationsJob Webhooks::StartupJob.new.perform #{processing_time} for #{api_name}"
     rescue => e
-      Rails.logger.error("CRIS Error in NotificationsJob #{e.message}", e)
+      Rails.logger.error("Webhooks::NotificationsJob Error in NotificationsJob #{e.message}", e)
+    ensure
+      Webhooks::SchedulerJob.new.perform(api_name, processing_time) # should we put the time in reddis?
     end
   end
 end

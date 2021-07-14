@@ -19,13 +19,24 @@ class CreateWebhookTables < ActiveRecord::Migration[6.1]
       t.string :event, null: false
       t.string :callback_url, null: false
       t.jsonb :msg, null: false
-      t.jsonb :attempts, null: false, default: []  # [[654456456, {response_code: 200, wn_ids: [444,555,111]}]]
-      t.boolean :complete, default: false # response.success?, response.status_code, *ids
+      t.integer :success_attempt_id, null: true, default: nil
       t.integer :processing, default: nil # this is used with the processing job to lock the records. Valid values are null or an epoch timestamp
       t.timestamps
 
-      t.index %i[ api_name consumer_id api_guid event complete ], name: "index_wh_notify"
-      t.index %i[ complete api_name event api_guid ], name: "index_wk_notify_processing"
+      t.index %i[ api_name consumer_id api_guid event success_attempt_id ], name: "index_wh_notify"
+      t.index %i[ success_attempt_id api_name event api_guid ], name: "index_wk_notify_processing"
     end
+
+    create_table :webhook_notification_attempts do |t|
+      t.boolean :success, default: false
+      t.jsonb :response, null: false
+      t.timestamps
+    end
+
+    create_join_table(:webhook_notifications, :webhook_notification_attempts, table_name: "webhook_notification_attempt_assocs") do |t|
+      t.index :webhook_notification_attempt_id, name: 'index_wh_assoc_attempt_id'
+      t.index :webhook_notification_id, name: 'index_wh_assoc_notification_id'
+    end
+
   end
 end
