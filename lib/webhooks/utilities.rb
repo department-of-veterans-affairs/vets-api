@@ -116,7 +116,7 @@ module Webhooks
     def validate_events(subscriptions)
       events = subscriptions.map { |s| s['event'] }
       unsupported_events = events - Webhooks::Utilities.supported_events
-      if unsupported_events.positive?
+      if unsupported_events.length.positive?
         raise SchemaValidationErrors, ["Invalid Event(s) submitted! #{unsupported_events}"]
       end
 
