@@ -9,6 +9,8 @@ module AppealsApi
       end
 
       def hlr_received
+        return unless Flipper.enabled?(:decision_review_hlr_email)
+
         log_error(guid, 'HLR') unless email
 
         template_type = 'higher_level_review_received'
