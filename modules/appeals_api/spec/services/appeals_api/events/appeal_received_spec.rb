@@ -21,7 +21,8 @@ module AppealsApi
             'email' => 'fake_email@email.com',
             'veteran_first_name' => 'first name',
             'veteran_last_name' => 'last name',
-            'date_submitted' => Time.zone.now.to_date
+            'date_submitted' => Time.zone.now.to_date,
+            'guid' => '1234556'
           }
 
           AppealsApi::Events::AppealReceived.new(opts).hlr_received
