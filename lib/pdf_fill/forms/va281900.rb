@@ -57,7 +57,7 @@ module PdfFill
           },
           'VAFileNumber' => {
             key: 'VBA281900[0].#subform[0].VAFileNumber[0]',
-            limit: 9,
+            limit: 8,
             question_num: 3,
             question_suffix: 'A',
             question_text: 'VA FILE NUMBER'
