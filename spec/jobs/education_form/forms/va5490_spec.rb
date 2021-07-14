@@ -70,9 +70,6 @@ RSpec.describe EducationForm::Forms::VA5490 do
   end
 
   context 'spool_file tests' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:edu_form5490_updates).and_return(false)
-    end
 
     Flipper.disable(:edu_form5490_updates)
     %w[
@@ -87,9 +84,6 @@ RSpec.describe EducationForm::Forms::VA5490 do
   end
 
   context 'spool_file tests with pow/mia labels' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:edu_form5490_updates).and_return(true)
-    end
 
     %w[
       kitchen_sink_chapter_33_died_on_duty

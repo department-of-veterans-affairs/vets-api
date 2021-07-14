@@ -388,10 +388,6 @@ features:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
     enable_in_development: true
-  edu_form5490_updates:
-    actor_type: user
-    description: Form 5490 updates in support of Isakson and Roe legislation
-    enable_in_development: true
   edu_form10203_updates:
     actor_type: user
     description: Form 10203 updates in support of Isakson and Roe legislation

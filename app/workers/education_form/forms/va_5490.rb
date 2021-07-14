@@ -67,7 +67,7 @@ module EducationForm::Forms
     end
 
     def veteran_date_of_death_label
-      if @applicant.benefit != 'chapter33' || !Flipper.enabled?(:edu_form5490_updates) || @applicant.sponsorStatus.nil?
+      if @applicant.benefit != 'chapter33' || @applicant.sponsorStatus.nil?
         return 'Date of death or MIA/POW:'
       end
 
