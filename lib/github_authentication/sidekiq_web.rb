@@ -25,6 +25,7 @@ module GithubAuthentication
         next if current_path == 'unauthenticated'
         next if current_path == 'auth/github/callback'
 
+        session[:user] = warden.user if warden.user.present?
         unless warden.authenticated? || session[:user]
           warden.authenticate!
           session[:user] = warden.user
