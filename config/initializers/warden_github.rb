@@ -17,4 +17,11 @@ Warden::GitHub::Strategy.module_eval do
       begin_flow!
     end
   end
+
+  def finalize_flow!
+    session[:user] = load_user
+    redirect!(custom_session['return_to'])
+    teardown_flow
+    throw(:warden)
+  end
 end
