@@ -32,13 +32,13 @@ module VBADocuments
           )
           observers = params[:observers]
           if observers.respond_to? :read
-            subscriptions = validate_subscription(JSON.load(observers.read))
+            subscriptions = validate_subscription(JSON.parse(observers.read))
           elsif observers
             subscriptions = validate_subscription(JSON.parse(observers))
           end
 
           if subscriptions
-            wh = Webhooks::Utilities.register_webhook(
+            Webhooks::Utilities.register_webhook(
               submission.consumer_id, submission.consumer_name, subscriptions, submission.guid
             )
           end

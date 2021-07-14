@@ -11,9 +11,11 @@ module Webhooks
       processing_time = Time.current
       Rails.logger.info "Webhooks::NotificationsJob on api_name  #{api_name}"
       # lock the rows that will be updated in this job run. The update releases the lock.
+      # rubocop:disable Rails/SkipsModelValidations
       ids = WebhookNotification.lock('FOR UPDATE').where(complete: false, processing: nil,
                                                          api_name: api_name).pluck(:id)
       WebhookNotification.where(id: ids).update_all(processing: processing_time.to_i)
+      # rubocop:enable Rails/SkipsModelValidations
 
       # group the notifications by url
       callback_urls = {}
@@ -23,11 +25,11 @@ module Webhooks
         callback_urls[notify.callback_url] << notify.id
       end
 
-      callback_urls.each_pair do |url, ids|
-        Rails.logger.info "Webhooks::NotificationsJob on async call  #{url} for #{ids}"
-        CallbackUrlJob.perform_async(url, ids)
+      callback_urls.each_pair do |url, notify_ids|
+        Rails.logger.info "Webhooks::NotificationsJob on async call  #{url} for #{notify_ids}"
+        CallbackUrlJob.perform_async(url, notify_ids)
       end
-      Rails.logger.info "Webhooks::NotificationsJob Webhooks::StartupJob.new.perform  #{processing_time} for #{api_name}"
+      Rails.logger.info "Webhooks::NotificationsJob Webhooks::StartupJob.new.perform #{processing_time} for #{api_name}"
     rescue => e
       Rails.logger.error("Webhooks::NotificationsJob Error in NotificationsJob #{e.message}", e)
     ensure

@@ -3,6 +3,8 @@
 require 'json_schemer'
 require 'uri'
 
+# data structures built up at class load time then frozen.  This is threadsafe.
+# rubocop:disable ThreadSafety/InstanceVariableInClassMethod
 module Webhooks
   module Utilities
     include Common::Exceptions
@@ -34,7 +36,7 @@ module Webhooks
     module ClassMethods
       def register_events(*event, **keyword_args, &block)
         raise ArgumentError, 'Block required to yield next exectution time!' unless block_given?
-        raise ArgumentError, 'api_name argument required' unless keyword_args.has_key? :api_name
+        raise ArgumentError, 'api_name argument required' unless keyword_args.key? :api_name
 
         api_name = keyword_args[:api_name]
         event.each do |e|
@@ -114,7 +116,7 @@ module Webhooks
     def validate_events(subscriptions)
       events = subscriptions.map { |s| s['event'] }
       unsupported_events = events - Webhooks::Utilities.supported_events
-      if unsupported_events.length > 0
+      if unsupported_events.positive?
         raise SchemaValidationErrors, ["Invalid Event(s) submitted! #{unsupported_events}"]
       end
 
@@ -144,6 +146,7 @@ module Webhooks
     end
   end
 end
+# rubocop:enable ThreadSafety/InstanceVariableInClassMethod
 
 require_dependency './lib/webhooks/registrations'
 Webhooks::Utilities.supported_events.freeze

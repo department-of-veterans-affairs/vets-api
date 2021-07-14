@@ -84,7 +84,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       end
 
       it 'returns error with invalid observers' do
-        observers = File.read('./modules/vba_documents/spec/fixtures/subscriptions/invalid_subscription_missing_event.json')
+        path = './modules/vba_documents/spec/fixtures/subscriptions/invalid_subscription_missing_event.json'
+        observers = File.read(path)
         post vba_documents.v2_uploads_path,
              params: {
                'observers': observers
@@ -246,10 +247,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         expect(response.status).to eq(404)
       end
     end
-    # v2_upload_download GET     /v2/uploads/:upload_id/download(.:format) vba_documents/v2/uploads#download {:format=>"json"}
-    # v2_report POST    /v2/uploads/report(.:format)              vba_documents/v2/reports#create {:format=>"json"}
-    # v2_uploads POST    /v2/uploads(.:format)                     vba_documents/v2/uploads#create {:format=>"json"}
-    # v2_upload GET     /v2/uploads/:id(.:format)                 vba_documents/v2/uploads#show {:format=>"json"}
 
     it 'returns a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)
