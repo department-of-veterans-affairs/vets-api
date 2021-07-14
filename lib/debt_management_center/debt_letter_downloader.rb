@@ -31,6 +31,10 @@ module DebtManagementCenter
       ).content
     end
 
+    def delete_letter(document_id)
+          #deletes letter
+    end
+
     def file_name(document_id)
       verify_letter_in_folder(document_id)
 

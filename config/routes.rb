@@ -29,7 +29,7 @@ Rails.application.routes.draw do
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
     resources :debts, only: :index
-    resources :debt_letters, only: %i[index show]
+    resources :debt_letters, only: %i[index show delete]
     resources :education_career_counseling_claims, only: :create
     resources :veteran_readiness_employment_claims, only: :create
     resource :virtual_agent_token, only: [:create], controller: :virtual_agent_token

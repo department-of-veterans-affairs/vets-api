@@ -21,5 +21,9 @@ module V0
     def service
       @service ||= DebtManagementCenter::DebtLetterDownloader.new(@current_user)
     end
+
+    def delete
+      service.delete_letter(params[:id])
+    end
   end
 end
