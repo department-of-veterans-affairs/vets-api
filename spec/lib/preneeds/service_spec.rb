@@ -40,17 +40,6 @@ describe Preneeds::Service do
     end
   end
 
-  describe 'get_branches_of_service' do
-    it 'gets a collection of service branches' do
-      branches = VCR.use_cassette('preneeds/branches_of_service/gets_a_list_of_service_branches') do
-        subject.get_branches_of_service
-      end
-
-      expect(branches).to be_a(Common::Collection)
-      expect(branches.type).to eq(Preneeds::BranchesOfService)
-    end
-  end
-
   describe 'get_military_rank_for_branch_of_service' do
     let(:params) do
       { branch_of_service: 'AC', start_date: '1926-07-02', end_date: '1926-07-02' }
