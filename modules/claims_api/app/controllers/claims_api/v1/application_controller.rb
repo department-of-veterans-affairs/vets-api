@@ -73,6 +73,13 @@ module ClaimsApi
         vet
       end
 
+      def bgs_service
+        BGS::Services.new(
+          external_uid: target_veteran.participant_id,
+          external_key: target_veteran.participant_id
+        )
+      end
+
       def authenticate_token
         super
       rescue => e

@@ -7,4 +7,5 @@ def stub_poa_verification
   allow(BGS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
   allow(verifier_stub).to receive(:verify)
   allow(verifier_stub).to receive(:current_poa).and_return('A01')
+  allow(verifier_stub).to receive(:current_poa_code).and_return('A01')
 end

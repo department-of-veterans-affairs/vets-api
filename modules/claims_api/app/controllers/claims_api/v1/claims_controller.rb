@@ -8,6 +8,7 @@ module ClaimsApi
       include ClaimsApi::PoaVerification
       before_action { permit_scopes %w[claim.read] }
       before_action :verify_power_of_attorney!, if: :header_request?
+      before_action :verify_consent_limitations!, if: :header_request?
 
       def index
         claims = claims_service.all
@@ -42,7 +43,7 @@ module ClaimsApi
         log_message_to_sentry('Error in claims show',
                               :warning,
                               body: e.message)
-        raise if e.is_a?(::Common::Exceptions::UnprocessableEntity)
+        raise if e.is_a?(::Common::Exceptions::UnprocessableEntity) || e.is_a?(::Common::Exceptions::Forbidden)
 
         raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
       end
