@@ -63,8 +63,7 @@ module VAForms
       va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
       normalized_url = Addressable::URI.parse(va_form_url).normalize.to_s
       if stored_url != normalized_url && stored_url.present?
-        notify_slack(normalized_url,
-                     stored_url, form['fieldVaFormNumber'])
+        notify_slack(normalized_url, stored_url, form['fieldVaFormNumber'])
       end
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
