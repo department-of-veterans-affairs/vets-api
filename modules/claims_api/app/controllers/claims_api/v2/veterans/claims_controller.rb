@@ -8,12 +8,14 @@ module ClaimsApi
           raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
 
           service           = bgs_service(veteran_participant_id: target_veteran.participant_id)
-          params            = { participant_id: target_veteran.participant_id }
-          bgs_claims        = service.benefit_claims.find_claims_details_by_participant_id(params)
-          lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
-          claims            = BGSToLighthouseClaimsMapperService.process(
-            bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims
-          )
+          service_params    = { participant_id: target_veteran.participant_id }
+          bgs_claims        = service.benefit_claims.find_claims_details_by_participant_id(service_params)
+
+          query_params      = { veteran_icn: target_veteran.mpi.icn, status: %w[pending errored] }
+          lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(query_params)
+
+          mapper_params     = { bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims }
+          claims            = BGSToLighthouseClaimsMapperService.process(mapper_params)
 
           render json: claims
         end
