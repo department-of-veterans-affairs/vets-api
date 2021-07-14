@@ -73,11 +73,11 @@ module VetsAPI
     config.middleware.use ActionDispatch::Cookies
 
     config.middleware.use ActionDispatch::Flash
-    config.middleware.insert_after ActionDispatch::Cookies,
-                                   ActionDispatch::Session::CookieStore,
-                                   key: 'api_session',
-                                   secure: Settings.session_cookie.secure,
-                                   http_only: true, expires: 1.month
+    # config.middleware.insert_after ActionDispatch::Cookies,
+    #                                ActionDispatch::Session::CookieStore,
+    #                                key: 'api_session',
+    #                                secure: Settings.session_cookie.secure,
+    #                                http_only: true
 
     # These files do not contain auto-loaded ruby classes,
     #   they are loaded through app/workers/education_form/forms/base.rb
