@@ -8,8 +8,6 @@ module VBADocuments
 
       attribute :observers, if: :observing
 
-      @observers
-
       def attributes(fields)
         attrs = super
         attrs.delete(:location) if Settings.vba_documents.v2_upload_endpoint_enabled
@@ -18,14 +16,12 @@ module VBADocuments
 
       def observing
         @observers = WebhookSubscription.get_observers_by_guid(api_name: Webhooks::Utilities.event_to_api_name['gov.va.developer.benefits-intake.status_change'],
-                                                              consumer_id: object.consumer_id,
-                                                              api_guid: object.guid)
+                                                               consumer_id: object.consumer_id,
+                                                               api_guid: object.guid)
         @observers.any?
       end
 
-      def observers
-        @observers
-      end
+      attr_reader :observers
     end
   end
 end
