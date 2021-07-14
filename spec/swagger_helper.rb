@@ -237,6 +237,10 @@ RSpec.configure do |config|
           description: <<~VERBIAGE
             Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.
           VERBIAGE
+        },
+        {
+          name: 'Power of Attorney',
+          description: 'Used for 21-22 and 21-22a form submissions.'
         }
       ],
       components: {

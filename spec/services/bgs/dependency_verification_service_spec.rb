@@ -4,39 +4,73 @@ require 'rails_helper'
 
 RSpec.describe BGS::DependencyVerificationService do
   let(:user) { FactoryBot.create(:evss_user, :loa3) }
-  let(:payload_keys) do
-    %i[
-      award_event_id
-      award_type
-      begin_award_event_id
-      beneficiary_id
-      decision_id
-      dependency_decision_id
-      first_name
-      full_name
-      last_name
-      modified_action
-      modified_by
-      modified_location
-      modified_process
-      person_id
-      social_security_number
-      sort_date
-      sort_order_number
-      veteran_id
-      veteran_indicator
-    ]
-  end
 
   describe '#read_diaries' do
-    it 'returns diary information given a user\'s participant_id' do
+    it 'returns dependency decisions that all contain :award_effective_date key' do
       VCR.use_cassette('bgs/diaries_service/read_diaries') do
         allow(user).to receive(:participant_id).and_return('13014883')
         service = BGS::DependencyVerificationService.new(user)
-        diaries = service.read_diaries
+        dependency_decisions = service.read_diaries[:dependency_decs]
 
-        expect(diaries[:dependency_decs].size).to be > 2
-        expect(diaries[:dependency_decs].first.keys).to eq(payload_keys)
+        result = dependency_decisions.all? do |dependency_decision|
+          dependency_decision.key?(:award_effective_date)
+        end
+
+        expected = true
+
+        expect(result).to eq expected
+      end
+    end
+
+    it 'does not include any dependency decisions that are in the future' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries') do
+        allow(user).to receive(:participant_id).and_return('13014883')
+        service = BGS::DependencyVerificationService.new(user)
+
+        Timecop.freeze(Time.zone.local(1990))
+
+        dependency_decisions = service.read_diaries[:dependency_decs]
+
+        result = dependency_decisions.all? do |dependency_decision|
+          dependency_decision[:award_effective_date]&.past?
+        end
+
+        expected = true
+
+        expect(result).to eq expected
+
+        Timecop.return
+      end
+    end
+
+    it 'does not include any dependency decisions that are NAWDDEP' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries') do
+        allow(user).to receive(:participant_id).and_return('13014883')
+        service = BGS::DependencyVerificationService.new(user)
+        dependency_decisions = service.read_diaries[:dependency_decs]
+
+        result = dependency_decisions.none? do |dependency_decision|
+          dependency_decision[:dependency_status_type] == 'NAWDDEP'
+        end
+
+        expected = true
+
+        expect(result).to eq expected
+      end
+    end
+
+    it 'does not include more than one dependecy decision per person_id' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries') do
+        allow(user).to receive(:participant_id).and_return('13014883')
+        service = BGS::DependencyVerificationService.new(user)
+        dependency_decisions = service.read_diaries[:dependency_decs]
+
+        person_ids = dependency_decisions.pluck(:person_id)
+        result = person_ids == person_ids.uniq
+
+        expected = true
+
+        expect(result).to eq expected
       end
     end
 

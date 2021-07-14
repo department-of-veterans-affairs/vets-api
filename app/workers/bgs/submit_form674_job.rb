@@ -23,6 +23,13 @@ module BGS
     rescue
       salvage_save_in_progress_form(FORM_ID, user_uuid, in_progress_copy)
       DependentsApplicationFailureMailer.build(user).deliver_later if user.present?
+    else
+      VBMS::SubmitDependentsPdfJob.perform_async(
+        saved_claim_id,
+        vet_info,
+        @submittable_686,
+        @submittable_674
+      )
     end
 
     private
@@ -34,6 +41,8 @@ module BGS
 
       raise Invalid674Claim unless claim.valid?(:run_686_form_jobs)
 
+      @submittable_686 = claim.submittable_686?
+      @submittable_674 = claim.submittable_674?
       claim.formatted_674_data(vet_info)
     end
   end
