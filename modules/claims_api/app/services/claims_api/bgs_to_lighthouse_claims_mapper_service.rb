@@ -10,23 +10,57 @@ module ClaimsApi
     end
 
     def process
-      return [] unless bgs_claims.key?(:bnft_claim_detail) || lighthouse_claims.present?
+      return [] unless claims_exist?
 
-      mapped_claims = bgs_claims[:bnft_claim_detail].map do |external_claim|
-        match = lighthouse_claims.find { |internal_claim| internal_claim.evss_id == external_claim[:bnft_claim_id] }
+      mapped_claims = map_claims
+      mapped_claims = append_remaining_lighthouse_claims(mapped_claims: mapped_claims) if lighthouse_claims.present?
+      mapped_claims
+    end
 
-        if match
-          lighthouse_claims.delete(match)
-          { id: match.id, type: external_claim[:bnft_claim_type_nm] }
+    private
+
+    def claims_exist?
+      return true if bgs_claims.key?(:bnft_claim_detail) || lighthouse_claims.present?
+
+      false
+    end
+
+    def map_claims
+      bgs_claims[:bnft_claim_detail].map do |bgs_claim|
+        if find_bgs_claim_in_lighthouse_collection(claim: bgs_claim)
+          matching_claim = find_bgs_claim_in_lighthouse_collection(claim: bgs_claim)
+          remove_bgs_claim_from_lighthouse_collection(claim: matching_claim)
+          build_matched_claim(matching_claim: matching_claim, bgs_claim: bgs_claim)
         else
-          { id: external_claim[:bnft_claim_id], type: external_claim[:bnft_claim_type_nm] }
+          build_unmatched_bgs_claim(bgs_claim: bgs_claim)
         end
       end
+    end
 
-      if lighthouse_claims.present?
-        lighthouse_claims.each do |remaining_claim|
-          mapped_claims.push({ id: remaining_claim.id, type: remaining_claim.claim_type })
-        end
+    def find_bgs_claim_in_lighthouse_collection(claim:)
+      lighthouse_claims.find { |internal_claim| internal_claim.evss_id == claim[:bnft_claim_id] }
+    end
+
+    def remove_bgs_claim_from_lighthouse_collection(claim:)
+      lighthouse_claims.delete(claim)
+    end
+
+    def build_matched_claim(matching_claim:, bgs_claim:)
+      # this claim was submitted via Lighthouse, so use the 'id' the user is most likely to know
+      { id: matching_claim.id, type: bgs_claim[:bnft_claim_type_nm] }
+    end
+
+    def build_unmatched_bgs_claim(bgs_claim:)
+      { id: bgs_claim[:bnft_claim_id], type: bgs_claim[:bnft_claim_type_nm] }
+    end
+
+    def build_unmatched_lighthouse_claim(lighthouse_claim:)
+      { id: lighthouse_claim.id, type: lighthouse_claim.claim_type }
+    end
+
+    def append_remaining_lighthouse_claims(mapped_claims:)
+      lighthouse_claims.each do |remaining_claim|
+        mapped_claims.push(build_unmatched_lighthouse_claim(lighthouse_claim: remaining_claim))
       end
 
       mapped_claims
