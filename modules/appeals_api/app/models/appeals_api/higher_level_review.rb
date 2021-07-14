@@ -218,7 +218,8 @@ module AppealsApi
                                             email: email_v2,
                                             veteran_first_name: first_name,
                                             veteran_last_name: last_name,
-                                            date_submitted: date_signed
+                                            date_submitted: date_signed,
+                                            guid: id
                                           })
 
       update!(status: status, code: code, detail: detail)

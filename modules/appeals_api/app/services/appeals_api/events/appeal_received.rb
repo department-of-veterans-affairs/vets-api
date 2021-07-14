@@ -9,7 +9,7 @@ module AppealsApi
       end
 
       def hlr_received
-        log_error unless email
+        log_error(guid, 'HLR') unless email
 
         template_type = 'higher_level_review_received'
         template_id = template_id(template_type)
@@ -37,8 +37,12 @@ module AppealsApi
         Settings.vanotify.services.va_gov.template_id.public_send(template)
       end
 
-      def log_error
-        Rails.logger.error 'No email present for AppealsApi::AppealReceived notification'
+      def log_error(guid, type)
+        Rails.logger.error "No email present for AppealsApi::AppealReceived notification #{type} - GUID: #{guid}"
+      end
+
+      def guid
+        opts['guid']
       end
 
       def email
@@ -50,7 +54,7 @@ module AppealsApi
       end
 
       def required_keys
-        %w[email date_submitted veteran_first_name veteran_last_name]
+        %w[guid email date_submitted veteran_first_name veteran_last_name]
       end
     end
 
