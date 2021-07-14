@@ -47,6 +47,8 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
               Authorization = auth_header # rubocop:disable Naming/ConstantName
               expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
                 .to receive(:find_claims_details_by_participant_id).and_return(bgs_response)
+              expect(ClaimsApi::AutoEstablishedClaim)
+                .to receive(:where).and_return([])
 
               submit_request(example.metadata)
             end
