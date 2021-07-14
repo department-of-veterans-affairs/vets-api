@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'va_forms/regex_helper'
 
 module VAForms
   class FormReloader
@@ -72,6 +73,8 @@ module VAForms
       attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
       va_form.assign_attributes(attrs)
       va_form = update_sha256(va_form)
+      number_tag = VAForms::RegexHelper.new.strip_va(form['fieldVaFormNumber'])
+      va_form.tags = va_form.tags.presence || number_tag
       va_form.save
       va_form
     end
