@@ -27,8 +27,8 @@ module ClaimsApi
 
     def map_claims
       bgs_claims[:bnft_claim_detail].map do |bgs_claim|
-        if find_bgs_claim_in_lighthouse_collection(claim: bgs_claim)
-          matching_claim = find_bgs_claim_in_lighthouse_collection(claim: bgs_claim)
+        matching_claim = find_bgs_claim_in_lighthouse_collection(claim: bgs_claim)
+        if matching_claim
           remove_bgs_claim_from_lighthouse_collection(claim: matching_claim)
           build_matched_claim(matching_claim: matching_claim, bgs_claim: bgs_claim)
         else
