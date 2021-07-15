@@ -11,7 +11,7 @@ module PdfFill
         'veteranInformation' => {
           'fullName' => {
             'first' => {
-              key: 'VBA281900[0].#subform[0].VeteransFirstName[0]',
+              key: 'VBA281900[0].#subform[0].Claimants_First_Name[0]',
               limit: 12,
               question_num: 1,
               question_suffix: 'A',
