@@ -186,7 +186,7 @@ module PdfFill
           }
         }, # end new_address
         'yearsOfEducation' => {
-          key: 'VBA281900[0].#subform[0].EducationYR[0]',
+          key: 'VBA281900[0].#subform[0].Number_Of_Years_Of_Education[0]',
           limit: 2,
           question_num: 10,
           question_suffix: 'A',
