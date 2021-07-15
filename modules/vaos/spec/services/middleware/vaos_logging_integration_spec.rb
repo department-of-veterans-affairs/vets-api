@@ -2,11 +2,6 @@
 
 require 'rails_helper'
 
-#
-# TODO: tests skipped to allow upgrading of flipper gem. The flipper upgrade changes the way StatsD is
-# initialized and no longer calls the Rails.logger when running in the test Rails environment.
-# Will rewrite these test under a new VAOS ticket.
-#
 describe VAOS::Middleware::VAOSLogging do
   let(:user) { build(:user, :vaos) }
   let(:service) { VAOS::AppointmentService.new(user) }
