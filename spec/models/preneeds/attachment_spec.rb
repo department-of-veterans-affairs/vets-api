@@ -15,7 +15,6 @@ RSpec.describe Preneeds::Attachment do
       allow(SecureRandom).to receive(:hex).and_return(hex)
 
       expect(attachment.as_eoas).to eq(
-        attachmentType: { attachmentTypeId: 1 },
         dataHandler: {
           "inc:Include": '',
           attributes!: {

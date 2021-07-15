@@ -3,8 +3,6 @@
 module Preneeds
   # Models a {Preneeds::BurialForm} form attachment
   #
-  # @!attribute attachment_type
-  #   @return [Preneeds::AttachmentType] {Preneeds::AttachmentType} object
   # @!attribute sending_source
   #   @return [String] sending source; currently hard coded
   # @!attribute file
@@ -21,7 +19,6 @@ module Preneeds
     #
     VETS_GOV = 'vets.gov'
 
-    attribute :attachment_type, Preneeds::AttachmentType
     attribute :sending_source, String, default: VETS_GOV
     attribute :file, (Rails.env.production? ? CarrierWave::Storage::AWSFile : CarrierWave::SanitizedFile)
     attribute :name, String
@@ -41,9 +38,6 @@ module Preneeds
     #
     def as_eoas
       {
-        attachmentType: {
-          attachmentTypeId: attachment_type.attachment_type_id
-        },
         dataHandler: {
           'inc:Include': '',
           attributes!: {

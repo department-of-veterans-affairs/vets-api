@@ -32,9 +32,6 @@ module Preneeds
     #
     def to_attachment
       Preneeds::Attachment.new(
-        attachment_type: AttachmentType.new(
-          attachment_type_id: attachment_id
-        ),
         file: get_file,
         name: name
       )
