@@ -171,14 +171,14 @@ module PdfFill
             question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
           },
           'addressLine2' => {
-            key: 'VBA281900[0].#subform[0].Address2[0]',
+            key: 'VBA281900[0].#subform[0].Address1[1]',
             limit: 30,
             question_num: 9,
             question_suffix: 'B',
             question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
           },
           'addressLine3' => {
-            key: 'VBA281900[0].#subform[0].Address3[0]',
+            key: 'VBA281900[0].#subform[0].Address1[2]',
             limit: 30,
             question_num: 9,
             question_suffix: 'C',
