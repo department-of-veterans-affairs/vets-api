@@ -47,15 +47,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
     let(:bad_with_funky_characters_last) do
       { metadata: build_fixture('bad_with_funky_characters_last_metadata.json', true) }
     end
-    let(:bad_with_blank_lob) do
-      { metadata: build_fixture('./LOB/bad_with_blank_lob_metadata.json', true) }
-    end
-    let(:bad_with_invalid_lob) do
-      { metadata: build_fixture('./LOB/bad_with_invalid_lob_metadata.json', true) }
-    end
-    let(:bad_with_no_lob) do
-      { metadata: build_fixture('./LOB/bad_with_no_lob_metadata.json', true) }
-    end
     let(:dashes_slashes_first_last) do
       { metadata: build_fixture('dashes_slashes_first_last_metadata.json', true) }
     end
@@ -165,19 +156,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       end
     end
 
-    %i[bad_with_blank_lob bad_with_no_lob bad_with_invalid_lob].each do |bad|
-      it "returns an error if the LOB field #{bad} is missing or has bad characters" do
-        post SUBMIT_ENDPOINT,
-             params: {}.merge(send(bad)).merge(valid_content)
-        expect(response).to have_http_status(:bad_request)
-        json = JSON.parse(response.body)
-        @attributes = json['data']['attributes']
-        expect(@attributes['status']).to eq('error')
-        expect(@attributes['code']).to eq('DOC102')
-        expect(@attributes['detail']).to include(/^Invalid businessLine provided/)
-      end
-    end
-
     it 'returns an error when a content is missing' do
       post SUBMIT_ENDPOINT,
            params: {}.merge(valid_metadata).merge(invalid_content_missing).merge(valid_attachments)
@@ -237,39 +215,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         expect(@attributes['code']).to eq('DOC102')
         expect(@attributes['detail']).to start_with('Invalid businessLine provided')
         expect(@attributes['detail']).to match(/BAD_STATUS/)
-      end
-
-      it 'Returns a 400 error when an empty line of business is submitted' do
-        fixture = get_fixture('valid_metadata.json')
-        metadata = JSON.parse(File.read(fixture))
-        metadata['businessLine'] = ''
-        metadata_file = { metadata: Rack::Test::UploadedFile.new(
-          StringIO.new(metadata.to_json), 'application/json', false,
-          original_filename: 'metadata.json'
-        ) }
-        post SUBMIT_ENDPOINT, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
-        expect(response).to have_http_status(:bad_request)
-        json = JSON.parse(response.body)
-        @attributes = json['data']['attributes']
-        expect(@attributes['status']).to eq('error')
-        expect(@attributes['code']).to eq('DOC102')
-        expect(@attributes['detail']).to match('The businessLine metadata field is missing or empty - {}, valid values are: CMP,PMC,INS,EDU,VRE,BVA,FID,LOG,MED,BUR,OTH,DROC')
-      end
-
-      it 'Returns a 400 error when line of business is missing' do
-        fixture = get_fixture('bad_with_no_lob_metadata.json')
-        metadata = JSON.parse(File.read(fixture))
-        metadata_file = { metadata: Rack::Test::UploadedFile.new(
-          StringIO.new(metadata.to_json), 'application/json', false,
-          original_filename: 'metadata.json'
-        ) }
-        post SUBMIT_ENDPOINT, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
-        expect(response).to have_http_status(:bad_request)
-        json = JSON.parse(response.body)
-        @attributes = json['data']['attributes']
-        expect(@attributes['status']).to eq('error')
-        expect(@attributes['code']).to eq('DOC102')
-        expect(@attributes['detail']).to match('The businessLine metadata field is missing or empty - {}, valid values are: CMP,PMC,INS,EDU,VRE,BVA,FID,LOG,MED,BUR,OTH,DROC')
       end
 
       %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|
