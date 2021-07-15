@@ -56,7 +56,7 @@ module PdfFill
             }
           },
           'VAFileNumber' => {
-            key: 'VBA281900[0].#subform[0].VAFileNumber[0]',
+            key: 'VBA281900[0].#subform[0].VA_File_Number[0]',
             limit: 8,
             question_num: 3,
             question_suffix: 'A',
