@@ -8,8 +8,6 @@ module VBADocuments
 
       attribute :observers, if: :observing
 
-      @observers
-
       def attributes(fields)
         attrs = super
         attrs.delete(:location) if Settings.vba_documents.v2_upload_endpoint_enabled

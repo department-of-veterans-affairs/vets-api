@@ -17,21 +17,24 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
   let(:valid_doc) { get_fixture('valid_doc.pdf') }
+  let(:dev_headers) do
+    {
+      'X-Consumer-ID': '59ac8ab0-1f28-43bd-8099-23adb561815d',
+      'X-Consumer-Username': 'Development'
+    }
+  end
+  let(:fixture_path) { './modules/vba_documents/spec/fixtures/subscriptions/' }
 
   describe '#create /v2/uploads' do
     context 'uploads' do
       before do
-        with_settings(Settings.vba_documents.location,
-                      prefix: 'https://fake.s3.url/foo/',
-                      replacement: 'https://api.vets.gov/proxy/') do
-          s3_client = instance_double(Aws::S3::Resource)
-          allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
-          s3_bucket = instance_double(Aws::S3::Bucket)
-          s3_object = instance_double(Aws::S3::Object)
-          allow(s3_client).to receive(:bucket).and_return(s3_bucket)
-          allow(s3_bucket).to receive(:object).and_return(s3_object)
-          allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/guid')
-        end
+        s3_client = instance_double(Aws::S3::Resource)
+        allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+        s3_bucket = instance_double(Aws::S3::Bucket)
+        s3_object = instance_double(Aws::S3::Object)
+        allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+        allow(s3_bucket).to receive(:object).and_return(s3_object)
+        allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/guid')
       end
 
       it 'returns a UUID and location' do
@@ -61,53 +64,47 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         expect(upload.consumer_id).to eq('29090360-72a8-4b77-b5ea-6ea1c69c7d89')
       end
 
-      it 'returns a UUID, location and observers when included' do
-        with_settings(Settings.vba_documents.location,
-                      prefix: 'https://fake.s3.url/foo/',
-                      replacement: 'https://api.vets.gov/proxy/') do
-          observers = File.read('./modules/vba_documents/spec/fixtures/subscriptions/subscriptions.json')
-          post vba_documents.v2_uploads_path,
-               params: {
-                 'observers': observers
-               },
-               headers: {
-                 'X-Consumer-ID': '59ac8ab0-1f28-43bd-8099-23adb561815d',
-                 'X-Consumer-Username': 'Development'
-               }
-          expect(response).to have_http_status(:accepted)
-          json = JSON.parse(response.body)
-          expect(json['data']['attributes']).to have_key('guid')
-          expect(json['data']['attributes']['status']).to eq('pending')
-          expect(json['data']['attributes']['location']).to eq('https://api.vets.gov/proxy/guid')
-          expect(json['data']['attributes']['observers']).to eq(JSON.parse(observers)['subscriptions'])
+      %i[file text].each do |multipart_fashion|
+        it "returns a UUID, location and observers when valid observers #{multipart_fashion} included" do
+          with_settings(Settings.vba_documents.location,
+                        prefix: 'https://fake.s3.url/foo/',
+                        replacement: 'https://api.vets.gov/proxy/') do
+            observers_json = File.read(fixture_path + 'subscriptions.json')
+            observers = Rack::Test::UploadedFile.new("#{fixture_path}subscriptions.json", 'application/json')
+            observers = observers_json if multipart_fashion == :text
+            post vba_documents.v2_uploads_path,
+                 params: {
+                   'observers': observers
+                 },
+                 headers: dev_headers
+            expect(response).to have_http_status(:accepted)
+            json = JSON.parse(response.body)
+            expect(json['data']['attributes']).to have_key('guid')
+            expect(json['data']['attributes']['status']).to eq('pending')
+            expect(json['data']['attributes']['location']).to eq('https://api.vets.gov/proxy/guid')
+            expect(json['data']['attributes']['observers']).to eq(JSON.parse(observers_json)['subscriptions'])
+          end
         end
       end
 
-      it 'returns error with invalid observers' do
-        path = './modules/vba_documents/spec/fixtures/subscriptions/invalid_subscription_missing_event.json'
-        observers = File.read(path)
-        post vba_documents.v2_uploads_path,
-             params: {
-               'observers': observers
-             },
-             headers: {
-               'X-Consumer-ID': '59ac8ab0-1f28-43bd-8099-23adb561815d',
-               'X-Consumer-Username': 'Development'
-             }
-        expect(response).to have_http_status(:unprocessable_entity)
-      end
+      %i[missing_event bad_URL unknown_event].each do |test_case|
+        %i[file text].each do |multipart_fashion|
+          it "returns error with invalid #{test_case} observers #{multipart_fashion}" do
+            observers = if multipart_fashion == :file
+                          Rack::Test::UploadedFile.new("#{fixture_path}invalid_subscription_#{test_case}.json",
+                                                       'application/json')
+                        else
+                          File.read("#{fixture_path}invalid_subscription_#{test_case}.json")
+                        end
 
-      it 'returns error with invalid observer url' do
-        observers = File.read('./modules/vba_documents/spec/fixtures/subscriptions/invalid_subscription_bad_URL.json')
-        post vba_documents.v2_uploads_path,
-             params: {
-               'observers': observers
-             },
-             headers: {
-               'X-Consumer-ID': '59ac8ab0-1f28-43bd-8099-23adb561815d',
-               'X-Consumer-Username': 'Development'
-             }
-        expect(response).to have_http_status(:unprocessable_entity)
+            post vba_documents.v2_uploads_path,
+                 params: {
+                   'observers': observers
+                 },
+                 headers: dev_headers
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
       end
     end
   end
@@ -222,8 +219,9 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       ) do
         starting_status = upload.status
         get(vba_documents.v2_upload_path(upload.guid),
-            params: nil,
-            headers: { 'Status-Override' => 'vbms' })
+          params: nil,
+          headers: { 'Status-Override' => 'vbms' }
+        )
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
       end
@@ -247,6 +245,10 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         expect(response.status).to eq(404)
       end
     end
+    # v2_upload_download GET     /v2/uploads/:upload_id/download(.:format) vba_documents/v2/uploads#download {:format=>"json"}
+    # v2_report POST    /v2/uploads/report(.:format)              vba_documents/v2/reports#create {:format=>"json"}
+    # v2_uploads POST    /v2/uploads(.:format)                     vba_documents/v2/uploads#create {:format=>"json"}
+    # v2_upload GET     /v2/uploads/:id(.:format)                 vba_documents/v2/uploads#show {:format=>"json"}
 
     it 'returns a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)
