@@ -64,7 +64,7 @@ module PdfFill
           },
           'dob' => {
             'month' => {
-              key: 'VBA281900[0].#subform[0].DOBmonth[0]',
+              key: 'VBA281900[0].#subform[0].DOB_Month[0]',
               limit: 2,
               question_num: 4,
               question_suffix: 'A',
