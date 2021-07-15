@@ -20,7 +20,6 @@ module AppealsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
 
-    INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH = 100
     NO_ADDRESS_PROVIDED_SENTENCE = 'USE ADDRESS ON FILE'
     NO_EMAIL_PROVIDED_SENTENCE = 'USE EMAIL ON FILE'
     NO_PHONE_PROVIDED_SENTENCE = 'USE PHONE ON FILE'
@@ -28,8 +27,6 @@ module AppealsApi
     # the controller applies the JSON Schemas in modules/appeals_api/config/schemas/
     # further validations:
     validate(
-      :veteran_phone_is_not_too_long,
-      :informal_conference_rep_name_and_phone_number_is_not_too_long,
       :birth_date_is_a_date,
       :birth_date_is_in_the_past,
       :contestable_issue_dates_are_valid_dates,
@@ -162,18 +159,6 @@ module AppealsApi
       data_attributes&.dig('informalConferenceTimes') || []
     end
 
-    def informal_conference_rep_name_and_phone_number
-      "#{informal_conference_rep_name} #{informal_conference_rep_phone}"
-    end
-
-    def informal_conference_rep_phone_number
-      informal_conference_rep_phone.to_s
-    end
-
-    def informal_conference_rep_ext
-      informal_conference_rep&.dig('phone', 'phoneNumberExt')
-    end
-
     def informal_conference_contact
       data_attributes&.dig('informalConferenceContact')
     end
@@ -181,10 +166,6 @@ module AppealsApi
     # V2 only allows one choice of conference time
     def informal_conference_time
       data_attributes&.dig('informalConferenceTime')
-    end
-
-    def rep_phone_data
-      informal_conference_rep&.dig('phone')
     end
 
     def soc_opt_in
@@ -226,23 +207,40 @@ module AppealsApi
     end
 
     def update_status!(status:, code: nil, detail: nil)
-      handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
-                                      from: self.status,
-                                      to: status,
-                                      status_update_time: Time.zone.now,
-                                      statusable_id: id
-                                    })
+      update_handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
+                                             from: self.status,
+                                             to: status,
+                                             status_update_time: Time.zone.now,
+                                             statusable_id: id
+                                           })
+
+      email_handler = Events::Handler.new(event_type: :hlr_received, opts: {
+                                            email: email_v2,
+                                            veteran_first_name: first_name,
+                                            veteran_last_name: last_name,
+                                            date_submitted: date_signed,
+                                            guid: id
+                                          })
 
       update!(status: status, code: code, detail: detail)
 
-      handler.handle!
+      update_handler.handle!
+      email_handler.handle! if able_to_send_email? && status == 'submitted'
     end
 
     def informal_conference_rep
       data_attributes&.dig('informalConferenceRep')
     end
 
+    def informal_conference_rep_phone
+      AppealsApi::HigherLevelReview::Phone.new informal_conference_rep&.dig('phone')
+    end
+
     private
+
+    def able_to_send_email?
+      api_version&.upcase == 'V2' && email_v2.present?
+    end
 
     def data_attributes
       form_data&.dig('data', 'attributes')
@@ -264,45 +262,12 @@ module AppealsApi
       AppealsApi::HigherLevelReview::Phone.new veteran&.dig('phone')
     end
 
-    def informal_conference_rep_name
-      informal_conference_rep&.dig('name')
-    end
-
-    def informal_conference_rep_phone
-      AppealsApi::HigherLevelReview::Phone.new informal_conference_rep&.dig('phone')
-    end
-
     def veterans_local_time
-      veterans_timezone ? Time.now.in_time_zone(veterans_timezone) : Time.now.utc
+      veterans_timezone ? created_at.in_time_zone(veterans_timezone) : created_at.utc
     end
 
     def veterans_timezone
       veteran&.dig('timezone').presence&.strip
-    end
-
-    # validation
-    def veteran_phone_is_not_too_long
-      add_error(veteran_phone.too_long_error_message) if veteran_phone.too_long?
-    end
-
-    # validation
-    def informal_conference_rep_name_and_phone_number_is_not_too_long
-      return unless informal_conference_rep_name_and_phone_number_is_too_long?
-
-      add_error_informal_conference_rep_will_not_fit_on_form
-    end
-
-    def informal_conference_rep_name_and_phone_number_is_too_long?
-      informal_conference_rep_name_and_phone_number.length >
-        INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH
-    end
-
-    def add_error_informal_conference_rep_will_not_fit_on_form
-      add_error [
-        'Informal conference rep will not fit on form',
-        "(#{INFORMAL_CONFERENCE_REP_NAME_AND_PHONE_NUMBER_MAX_LENGTH} char limit):",
-        informal_conference_rep_name_and_phone_number
-      ].join(' ')
     end
 
     # validation (header)

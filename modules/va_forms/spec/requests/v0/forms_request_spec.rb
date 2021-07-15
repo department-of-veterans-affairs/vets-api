@@ -72,16 +72,6 @@ RSpec.describe 'VA Forms', type: :request do
       expect(VAForms::Form).to receive(:search_by_form_number).with('21-2001')
       get "#{base_url}?query=21-2001"
     end
-
-    it 'correctly passes the regex test for Form Number SF-XX' do
-      expect(VAForms::Form).to receive(:search_by_form_number).with('SF%%50')
-      get "#{base_url}?query=SF-50"
-    end
-
-    it 'correctly passes the regex test for Form Number SFXX' do
-      expect(VAForms::Form).to receive(:search_by_form_number).with('SF%50')
-      get "#{base_url}?query=SF50"
-    end
   end
 
   describe 'GET :show' do
