@@ -70,7 +70,6 @@ module VetsAPI
     config.middleware.use OliveBranch::Middleware, inflection_header: 'X-Key-Inflection'
     config.middleware.use StatsdMiddleware
     config.middleware.use Rack::Attack
-    config.middleware.use Rack::Session::Cookie, key: 'rack.session', secret: Settings.rack.cookie_secret
     config.middleware.use ActionDispatch::Cookies
     config.middleware.use ActionDispatch::Flash
     config.middleware.insert_after ActionDispatch::Cookies,

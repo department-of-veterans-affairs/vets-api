@@ -12,7 +12,6 @@ describe 'search_click_tracking', type: :request do
       let(:query_params) do
         URI.encode_www_form(
           {
-            client_ip: 'testIP',
             position: 0,
             query: 'testQuery',
             url: 'https://www.testurl.com',
@@ -35,7 +34,6 @@ describe 'search_click_tracking', type: :request do
       let(:query_params) do
         URI.encode_www_form(
           {
-            client_ip: 'testIP',
             position: 0,
             query: '',
             url: 'https://www.testurl.com',
