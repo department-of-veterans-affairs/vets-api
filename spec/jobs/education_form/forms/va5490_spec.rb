@@ -70,7 +70,6 @@ RSpec.describe EducationForm::Forms::VA5490 do
   end
 
   context 'spool_file tests' do
-
     Flipper.disable(:edu_form5490_updates)
     %w[
       simple_chapter_33_child
@@ -84,7 +83,6 @@ RSpec.describe EducationForm::Forms::VA5490 do
   end
 
   context 'spool_file tests with pow/mia labels' do
-
     %w[
       kitchen_sink_chapter_33_died_on_duty
       kitchen_sink_chapter_33_died_non_duty
