@@ -197,13 +197,13 @@ module PdfFill
         },
         'date_signed' => {
           'month' => {
-            key: 'VBA281900[0].#subform[0].DOBmonth[1]'
+            key: 'VBA281900[0].#subform[0].Date_Signed_Month[0]'
           },
           'day' => {
-            key: 'VBA281900[0].#subform[0].DOBday[1]'
+            key: 'VBA281900[0].#subform[0].Date_Signed_Day[0]'
           },
           'year' => {
-            key: 'VBA281900[0].#subform[0].DOByear[1]'
+            key: 'VBA281900[0].#subform[0].Date_Signed_Year[0]'
           }
         }, # end date_signed
         'useEva' => {
