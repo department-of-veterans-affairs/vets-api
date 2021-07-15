@@ -41,7 +41,7 @@ module PdfFill
               question_text: 'SOCIAL SECURITY NUMBER'
             },
             'second' => {
-              key: 'VBA281900[0].#subform[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]',
+              key: 'VBA281900[0].#subform[0].SocialSecurityNumber_SecondTwoNumbers[0]',
               limit: 2,
               question_num: 2,
               question_suffix: 'B',
