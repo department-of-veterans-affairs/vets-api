@@ -88,21 +88,21 @@ module PdfFill
         }, # end veteran_information
         'veteranAddress' => {
           'addressLine1' => {
-            key: 'VBA281900[0].#subform[0].Address1[1]',
+            key: 'VBA281900[0].#subform[0].Mailing_Address1[0]',
             limit: 30,
             question_num: 5,
             question_suffix: 'A',
             question_text: 'MAILING ADDRESS'
           },
           'addressLine2' => {
-            key: 'VBA281900[0].#subform[0].Address2[1]',
+            key: 'VBA281900[0].#subform[0].Mailing_Address1[1]',
             limit: 30,
             question_num: 5,
             question_suffix: 'B',
             question_text: 'MAILING ADDRESS'
           },
           'addressLine3' => {
-            key: 'VBA281900[0].#subform[0].Address3[1]',
+            key: 'VBA281900[0].#subform[0].Mailing_Address1[2]',
             limit: 30,
             question_num: 5,
             question_suffix: 'C',
