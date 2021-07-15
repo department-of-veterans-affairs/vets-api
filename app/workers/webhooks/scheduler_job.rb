@@ -19,7 +19,7 @@ module Webhooks
     rescue => e
       Rails.logger.error("Webhooks::SchedulerJob Error in SchedulerJob #{e.message}", e)
       # we try again in 5 minutes
-      Webhooks::SchedulerJob.new.perform_in(5.minutes.from_now, api_name)
+      Webhooks::SchedulerJob.perform_in(5.minutes.from_now, api_name)
     end
 
     private

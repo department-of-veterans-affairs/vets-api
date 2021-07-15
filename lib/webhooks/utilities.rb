@@ -10,10 +10,15 @@ module Webhooks
     include Common::Exceptions
 
     class << self
-      attr_reader :supported_events, :event_to_api_name, :api_name_to_time_block
+      attr_reader :supported_events, :event_to_api_name, :api_name_to_time_block, :api_name_to_retries
 
       def included(base)
         base.extend ClassMethods
+      end
+
+      def register_name_to_retries(name, retries)
+        @api_name_to_retries ||= {}
+        @api_name_to_retries[name] = retries.to_i
       end
 
       def register_name_to_event(name, event)
@@ -39,9 +44,11 @@ module Webhooks
         raise ArgumentError, 'api_name argument required' unless keyword_args.key? :api_name
 
         api_name = keyword_args[:api_name]
+        max_retries = keyword_args[:max_retries]
         event.each do |e|
           Webhooks::Utilities.register_event(e)
           Webhooks::Utilities.register_name_to_event(api_name, e)
+          Webhooks::Utilities.register_name_to_retries(api_name, max_retries)
           Webhooks::Utilities.register_name_to_time_block(api_name, block)
         end
       end
@@ -116,7 +123,7 @@ module Webhooks
     def validate_events(subscriptions)
       events = subscriptions.map { |s| s['event'] }
       unsupported_events = events - Webhooks::Utilities.supported_events
-      if unsupported_events.positive?
+      if unsupported_events.length.positive?
         raise SchemaValidationErrors, ["Invalid Event(s) submitted! #{unsupported_events}"]
       end
 
@@ -152,3 +159,4 @@ require_dependency './lib/webhooks/registrations'
 Webhooks::Utilities.supported_events.freeze
 Webhooks::Utilities.event_to_api_name.freeze
 Webhooks::Utilities.api_name_to_time_block.freeze
+Webhooks::Utilities.api_name_to_retries.freeze

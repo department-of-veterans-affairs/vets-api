@@ -17,6 +17,7 @@ module VBADocuments
     after_find :set_initial_status
     attr_reader :current_status
 
+    # todo move this constant to registration library
     WEBHOOK_STATUS_CHANGE_EVENT = 'gov.va.developer.benefits-intake.status_change'
 
     # We don't want to check successes before

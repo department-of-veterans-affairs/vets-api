@@ -9,10 +9,11 @@ module Webhooks
 
     def perform(api_name)
       processing_time = Time.current
+      max_retries = Webhooks::Utilities.api_name_to_retries[api_name]
       Rails.logger.info "Webhooks::NotificationsJob on api_name  #{api_name}"
       # lock the rows that will be updated in this job run. The update releases the lock.
       # rubocop:disable Rails/SkipsModelValidations
-      ids = WebhookNotification.lock('FOR UPDATE').where(complete: false, processing: nil,
+      ids = WebhookNotification.lock('FOR UPDATE').where(final_attempt_id: nil, processing: nil,
                                                          api_name: api_name).pluck(:id)
       WebhookNotification.where(id: ids).update_all(processing: processing_time.to_i)
       # rubocop:enable Rails/SkipsModelValidations
@@ -27,7 +28,8 @@ module Webhooks
 
       callback_urls.each_pair do |url, notify_ids|
         Rails.logger.info "Webhooks::NotificationsJob on async call  #{url} for #{notify_ids}"
-        CallbackUrlJob.perform_async(url, notify_ids)
+
+        CallbackUrlJob.perform_async(url, notify_ids, max_retries)
       end
       Rails.logger.info "Webhooks::NotificationsJob Webhooks::StartupJob.new.perform #{processing_time} for #{api_name}"
     rescue => e

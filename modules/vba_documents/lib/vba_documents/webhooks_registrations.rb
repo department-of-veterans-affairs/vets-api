@@ -7,7 +7,7 @@ module VBADocuments
     include Webhooks::Utilities
 
     register_events('gov.va.developer.benefits-intake.status_change',
-                    api_name: 'PLAY_API') do |last_time_async_scheduled|
+                    api_name: 'PLAY_API', max_retries: 3) do |last_time_async_scheduled|
       next_run = if last_time_async_scheduled.nil?
                    0.seconds.from_now
                  else

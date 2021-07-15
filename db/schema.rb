@@ -893,12 +893,12 @@ ActiveRecord::Schema.define(version: 2021_06_24_194646) do
     t.string "event", null: false
     t.string "callback_url", null: false
     t.jsonb "msg", null: false
-    t.integer "success_attempt_id"
+    t.integer "final_attempt_id"
     t.integer "processing"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["api_name", "consumer_id", "api_guid", "event", "success_attempt_id"], name: "index_wh_notify"
-    t.index ["success_attempt_id", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
+    t.index ["api_name", "consumer_id", "api_guid", "event", "final_attempt_id"], name: "index_wh_notify"
+    t.index ["final_attempt_id", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
   end
 
   create_table "webhook_subscriptions", force: :cascade do |t|

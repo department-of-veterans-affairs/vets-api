@@ -4,51 +4,59 @@ module Webhooks
   class CallbackUrlJob
     include Sidekiq::Worker
 
-    def perform(url, ids)
-      r = WebhookNotification.where(id: ids)
-      msg = { 'notifications' => [] }
-      r.each do |notification|
-        msg['notifications'] << notification.msg
-      end
+    MAX_BODY_LENGTH = 500
 
-      Rails.logger.info "Webhooks::CallbackUrlJob Notifying on callback url #{url} for ids #{ids} with msg #{msg}"
-      notify(url, msg.to_json)
+    def perform(url, ids, max_retries)
+      @url = url
+      @ids = ids
+      @max_retries = max_retries
+      r = WebhookNotification.where(id: ids)
+      @msg = { 'notifications' => [] }
+      r.each do |notification|
+        @msg['notifications'] << notification.msg
+      end
+      Rails.logger.info "Webhooks::CallbackUrlJob Notifying on callback url #{url} for ids #{ids} with msg #{@msg}"
+      notify
     end
 
     private
 
-    def notify(url, msg)
-      response = Faraday.post(url, msg, 'Content-Type' => 'application/json')
-      record_attempt(response, ids)
+    def notify()
+      @response = Faraday.post(@url, @msg.to_json, 'Content-Type' => 'application/json')
     rescue Faraday::ClientError, Faraday::Error => e
       Rails.logger.error("Webhooks::CallbackUrlJob Error in CallbackUrlJob #{e.message}", e)
-      record_attempt(e, ids)
+      @response = e
+    rescue StandardError => e
+      Rails.logger.error("Webhooks::CallbackUrlJob unexpected Error in CallbackUrlJob #{e.message}", e)
+      @response = e
+    ensure
+      record_attempt
     end
 
-    def record_attempt(response, ids)
+    def record_attempt
       ActiveRecord::Base.transaction do
         attempt = WebhookNotificationAttempt.new
-
-        if response.is_a? Exception
-          attempt.success = false
-          attempt.response = {'exception' => response.message}
+        successful = false
+        if @response.respond_to? :success?
+          successful = @response.success?
+          attempt_response = {'status' => @response.status, 'body' => @response.body[0...MAX_BODY_LENGTH]}
         else
-          attempt.success = response.success?
-          attempt.response = {} #todo set response.body
+          attempt_response = {'exception' => @response.message}
         end
 
-        # all in a transaction!
+        attempt.success = successful
+        attempt.response = attempt_response
         attempt.save!
         attempt_id = attempt.id
 
-        WebhookNotification.where(id: ids).each do |notification|
-          a = WebhookNotificationAttemptAssoc.new
-          a.webhook_notification_id = notification.id
-          a.webhook_notification_attempt_id = attempt_id
-          a.save!
+        WebhookNotification.where(id: @ids).each do |notification|
+          wnaa = WebhookNotificationAttemptAssoc.new
+          wnaa.webhook_notification_id = notification.id
+          wnaa.webhook_notification_attempt_id = attempt_id
+          wnaa.save!
 
-          if attempt.success?
-            notification.success_attempt_id = attempt_id
+          if attempt.success? || notification.webhook_notification_attempts.count > @max_retries
+            notification.final_attempt_id = attempt_id
           end
 
           notification.processing = nil
