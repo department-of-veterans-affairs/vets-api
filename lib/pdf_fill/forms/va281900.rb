@@ -141,21 +141,21 @@ module PdfFill
         },
         'cellPhone' => {
           'phone_area_code' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[0]',
+            key: 'VBA281900[0].#subform[0].Cell_Phone_Number_AreaCode[0]',
             limit: 3,
             question_num: 8,
             question_suffix: 'A',
             question_text: 'CELL PHONE NUMBER'
           },
           'phone_first_three_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_FirstThreeNumbers[0]',
+            key: 'VBA281900[0].#subform[0].Cell_Phone_Number_FirstThreeNumbers[0]',
             limit: 3,
             question_num: 8,
             question_suffix: 'B',
             question_text: 'CELL PHONE NUMBER'
           },
           'phone_last_four_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_LastFourNumbers[0]',
+            key: 'VBA281900[0].#subform[0].Cell_PhoneNumber_LastFourNumbers[0]',
             limit: 4,
             question_num: 8,
             question_suffix: 'C',
