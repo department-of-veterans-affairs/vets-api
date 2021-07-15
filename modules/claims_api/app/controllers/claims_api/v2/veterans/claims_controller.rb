@@ -4,9 +4,9 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController
-        def index
-          raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
+        before_action :verify_access!
 
+        def index
           service           = bgs_service(veteran_participant_id: target_veteran.participant_id)
           service_params    = { participant_id: target_veteran.participant_id }
           bgs_claims        = service.benefit_claims.find_claims_details_by_participant_id(service_params)
