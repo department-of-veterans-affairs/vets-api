@@ -25,7 +25,7 @@ module PdfFill
               question_text: 'NAME OF CLAIMANT'
             },
             'last' => {
-              key: 'VBA281900[0].#subform[0].VeteransLastName[0]',
+              key: 'VBA281900[0].#subform[0].Last_Name[0]',
               limit: 18,
               question_num: 1,
               question_suffix: 'C',
