@@ -111,21 +111,21 @@ module PdfFill
         }, # end veteran_address
         'mainPhone' => {
           'phone_area_code' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[1]',
+            key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[0]',
             limit: 3,
             question_num: 6,
             question_suffix: 'A',
             question_text: 'MAIN TELEPHONE NUMBER'
           },
           'phone_first_three_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_FirstThreeNumbers[1]',
+            key: 'VBA281900[0].#subform[0].TelephoneNumber_FirstThreeNumbers[0]',
             limit: 3,
             question_num: 6,
             question_suffix: 'B',
             question_text: 'MAIN TELEPHONE NUMBER'
           },
           'phone_last_four_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_LastFourNumbers[1]',
+            key: 'VBA281900[0].#subform[0].TelephoneNumber_LastFourNumbers[0]',
             limit: 4,
             question_num: 6,
             question_suffix: 'C',
