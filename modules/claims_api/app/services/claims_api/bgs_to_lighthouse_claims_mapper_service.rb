@@ -60,6 +60,11 @@ module ClaimsApi
 
     def append_remaining_lighthouse_claims(mapped_claims:)
       lighthouse_claims.each do |remaining_claim|
+        # if claim wasn't matched earlier, then this claim is in a weird state where
+        #  it's 'established' in Lighthouse, but unknown to BGS.
+        #  shouldn't really ever happen, but if it does, skip it.
+        next if remaining_claim.status.casecmp?('established')
+
         mapped_claims.push(build_unmatched_lighthouse_claim(lighthouse_claim: remaining_claim))
       end
 

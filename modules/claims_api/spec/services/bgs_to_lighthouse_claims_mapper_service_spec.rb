@@ -18,7 +18,12 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
         end
         let(:lighthouse_claims) do
           [
-            OpenStruct.new(id: '0958d973-36fb-43ef-8801-2718bd33c825', evss_id: '111111111', claim_type: 'Compensation')
+            OpenStruct.new(
+              id: '0958d973-36fb-43ef-8801-2718bd33c825',
+              evss_id: '111111111',
+              claim_type: 'Compensation',
+              status: 'pending'
+            )
           ]
         end
 
@@ -47,7 +52,12 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
         end
         let(:lighthouse_claims) do
           [
-            OpenStruct.new(id: '0958d973-36fb-43ef-8801-2718bd33c825', evss_id: '1', claim_type: 'Compensation')
+            OpenStruct.new(
+              id: '0958d973-36fb-43ef-8801-2718bd33c825',
+              evss_id: '1',
+              claim_type: 'Compensation',
+              status: 'pending'
+            )
           ]
         end
 
@@ -96,7 +106,12 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
       let(:lighthouse_claims) do
         [
-          OpenStruct.new(id: '0958d973-36fb-43ef-8801-2718bd33c825', evss_id: '1', claim_type: 'Compensation')
+          OpenStruct.new(
+            id: '0958d973-36fb-43ef-8801-2718bd33c825',
+            evss_id: '1',
+            claim_type: 'Compensation',
+            status: 'pending'
+          )
         ]
       end
 
@@ -126,6 +141,48 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
         )
 
         expect(claims.count).to eq(0)
+      end
+    end
+
+    context "'established' Lighthouse claims" do
+      context "when an 'established' Lighthouse claim is unknown to BGS" do
+        let(:bgs_claims) do
+          {
+            bnft_claim_detail: [
+              {
+                bnft_claim_id: '111111111',
+                bnft_claim_type_nm: 'Appeals Control'
+              }
+            ]
+          }
+        end
+        let(:lighthouse_claims) do
+          [
+            OpenStruct.new(
+              id: '0958d973-36fb-43ef-8801-2718bd33c825',
+              evss_id: '111111111',
+              claim_type: 'Compensation',
+              status: 'established'
+            ),
+            OpenStruct.new(
+              id: '55555555-5555-5555-5555-555555555555',
+              evss_id: '1',
+              claim_type: 'Compensation',
+              status: 'established'
+            )
+          ]
+        end
+
+        it "returns a collection that does not contain the 'established' Lighthouse claim" do
+          claims = ClaimsApi::BGSToLighthouseClaimsMapperService.process(
+            bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims
+          )
+
+          expect(claims.count).to eq(1)
+          expect(claims.first[:id]).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+          expect(claims.first[:type]).to eq('Appeals Control')
+          expect(claims.any? { |claim| claim[:id] == '55555555-5555-5555-5555-555555555555' }).to be false
+        end
       end
     end
   end
