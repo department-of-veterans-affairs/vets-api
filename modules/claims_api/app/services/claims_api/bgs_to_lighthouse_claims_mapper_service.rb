@@ -20,9 +20,7 @@ module ClaimsApi
     private
 
     def claims_exist?
-      return true if bgs_claims.key?(:bnft_claim_detail) || lighthouse_claims.present?
-
-      false
+      bgs_claims.key?(:bnft_claim_detail) || lighthouse_claims.present?
     end
 
     def map_claims
