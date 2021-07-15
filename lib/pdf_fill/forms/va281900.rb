@@ -78,7 +78,7 @@ module PdfFill
               question_text: 'DATE OF BIRTH'
             },
             'year' => {
-              key: 'VBA281900[0].#subform[0].DOByear[0]',
+              key: 'VBA281900[0].#subform[0].DOB_Year[0]',
               limit: 4,
               question_num: 4,
               question_suffix: 'C',
