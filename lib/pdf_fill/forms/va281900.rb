@@ -48,7 +48,7 @@ module PdfFill
               question_text: 'SOCIAL SECURITY NUMBER'
             },
             'third' => {
-              key: 'VBA281900[0].#subform[0].VeteransSocialSecurityNumber_LastFourNumbers[0]',
+              key: 'VBA281900[0].#subform[0].SocialSecurityNumber_LastFourNumbers[0]',
               limit: 4,
               question_num: 2,
               question_suffix: 'C',
