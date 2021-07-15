@@ -71,7 +71,7 @@ module PdfFill
               question_text: 'DATE OF BIRTH'
             },
             'day' => {
-              key: 'VBA281900[0].#subform[0].DOBday[0]',
+              key: 'VBA281900[0].#subform[0].DOB_Day[0]',
               limit: 2,
               question_num: 4,
               question_suffix: 'B',
