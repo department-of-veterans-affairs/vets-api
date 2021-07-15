@@ -18,7 +18,7 @@ module PdfFill
               question_text: 'NAME OF CLAIMANT'
             },
             'middleInitial' => {
-              key: 'VBA281900[0].#subform[0].VeteransMiddleInitial1[0]',
+              key: 'VBA281900[0].#subform[0].Middle_Initial1[0]',
               limit: 1,
               question_num: 1,
               question_suffix: 'B',
