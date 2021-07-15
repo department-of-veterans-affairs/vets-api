@@ -133,7 +133,7 @@ module PdfFill
           }
         },
         'email' => {
-          key: 'VBA281900[0].#subform[0].EmailAddress[0]',
+          key: 'VBA281900[0].#subform[0].Email_Address[0]',
           limit: 30,
           question_num: 7,
           question_suffix: 'A',
