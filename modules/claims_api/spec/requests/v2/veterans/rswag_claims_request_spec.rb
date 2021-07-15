@@ -97,7 +97,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
       end
 
       describe 'Getting a 403 response' do
-        response '403', 'Resource Not Found' do
+        response '403', 'Forbidden' do
           schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
                                                       'default.json')))
 

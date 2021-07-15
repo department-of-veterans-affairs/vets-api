@@ -530,7 +530,7 @@
             }
           },
           "403": {
-            "description": "Resource Not Found",
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "example": {
