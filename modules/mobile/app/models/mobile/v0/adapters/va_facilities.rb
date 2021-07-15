@@ -35,6 +35,9 @@ module Mobile
         end
 
         def phone_from_facility(facility)
+          phone = facility.phone['main']
+          return nil unless phone
+
           # captures area code (\d{3}) number \s(\d{3}-\d{4})
           # and extension (until the end of the string) (\S*)\z
           phone_captures = facility.phone['main'].match(/(\d{3})-(\d{3}-\d{4})(\S*)\z/)
