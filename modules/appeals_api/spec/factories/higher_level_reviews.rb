@@ -3,6 +3,7 @@
 FactoryBot.define do
   factory :higher_level_review, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
+    api_version { 'V1' }
     auth_headers do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers.json"
     end
@@ -23,6 +24,7 @@ FactoryBot.define do
 
   factory :extra_higher_level_review, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
+    api_version { 'V1' }
     auth_headers do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers.json"
     end
@@ -36,6 +38,7 @@ FactoryBot.define do
 
   factory :minimal_higher_level_review, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
+    api_version { 'V1' }
     auth_headers do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers.json"
     end
@@ -49,6 +52,7 @@ FactoryBot.define do
 
   factory :higher_level_review_v2, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
+    api_version { 'V2' }
     auth_headers do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers_v2.json"
     end
@@ -59,6 +63,7 @@ FactoryBot.define do
 
   factory :extra_higher_level_review_v2, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
+    api_version { 'V2' }
     auth_headers do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers_v2.json"
     end
@@ -69,6 +74,7 @@ FactoryBot.define do
 
   factory :minimal_higher_level_review_v2, class: 'AppealsApi::HigherLevelReview' do
     id { SecureRandom.uuid }
+    api_version { 'V2' }
     auth_headers do
       JSON.parse File.read "#{::Rails.root}/modules/appeals_api/spec/fixtures/valid_200996_headers_minimum.json"
     end

@@ -25,7 +25,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     it 'adds veteran information' do
       VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
         claim.add_claimant_info(user_object)
-        claimant_keys = %w[fullName ssn dob VAFileNumber pid edipi vet360ID regionalOffice]
+        claimant_keys = %w[fullName dob pid edipi vet360ID regionalOffice VAFileNumber ssn]
         expect(claim.parsed_form['veteranInformation']).to include(
           {
             'fullName' => {
