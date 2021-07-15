@@ -72,7 +72,10 @@ module VBADocuments
     end
 
     def validate_line_of_business(lob)
-      return if lob.to_s.empty?
+      if lob.to_s.empty?
+        msg = "The businessLine metadata field is missing or empty - {#{lob}}, valid values are: #{VALID_LOB.keys.join(',')}"
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
+      end
 
       unless VALID_LOB.keys.include?(lob)
         msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{VALID_LOB.keys.join(',')}"
