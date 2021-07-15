@@ -70,7 +70,6 @@ RSpec.describe EducationForm::Forms::VA5490 do
   end
 
   context 'spool_file tests' do
-    Flipper.disable(:edu_form5490_updates)
     %w[
       simple_chapter_33_child
       kitchen_sink_chapter_33_spouse
