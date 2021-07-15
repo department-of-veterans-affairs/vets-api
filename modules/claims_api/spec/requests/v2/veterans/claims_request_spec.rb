@@ -41,7 +41,7 @@ RSpec.describe 'Claims', type: :request do
               expect_any_instance_of(ClaimsApi::V2::ApplicationController)
                 .to receive(:user_is_target_veteran?).and_return(false)
               expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                .to receive(:current_user_represents_veteran?).and_return(false)
+                .to receive(:user_represents_veteran?).and_return(false)
 
               get path, headers: auth_header
               expect(response.status).to eq(403)

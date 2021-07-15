@@ -59,7 +59,7 @@ module ClaimsApi
       # raise if current authenticated user is neither the target veteran, nor target veteran representative
       def verify_access!
         return if user_is_target_veteran?
-        return if current_user_represents_veteran?
+        return if user_represents_veteran?
 
         raise ::Common::Exceptions::Forbidden
       end
@@ -68,7 +68,7 @@ module ClaimsApi
       # Determine if the current authenticated user is the target veteran's representative
       #
       # @return [boolean] True if the current authenticated user is the target veteran's representative
-      def current_user_represents_veteran?
+      def user_represents_veteran?
         reps = ::Veteran::Service::Representative.all_for_user(
           first_name: @current_user.first_name,
           last_name: @current_user.last_name
