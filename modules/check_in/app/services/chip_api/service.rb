@@ -38,7 +38,7 @@ module ChipApi
       token = session.retrieve
       resp = request.get(path: "/dev/appointments/#{id}", access_token: token)
 
-      { data: Oj.load(resp.body) }
+      handle_response(resp)
     end
 
     ##
@@ -51,7 +51,34 @@ module ChipApi
       token = session.retrieve
       resp = request.post(path: "/dev/actions/check-in/#{id}", access_token: token)
 
-      { data: Oj.load(resp.body) }
+      handle_response(resp)
+    end
+
+    ##
+    # Handle and format the response for the UI
+    #
+    # @param resp [Faraday::Response]
+    # @return [Hash]
+    #
+    def handle_response(resp)
+      body = resp&.body
+      value = begin
+        Oj.load(body)
+      rescue
+        body
+      end
+      status = resp&.status
+
+      case status
+      when 200
+        { data: value, status: resp.status }
+      when 404
+        { data: { error: true, message: 'We could not find that UUID' }, status: resp.status }
+      when 403
+        { data: { error: true, message: 'Unauthorized access' }, status: resp.status }
+      else
+        { data: { error: true, message: 'Something went wrong' }, status: resp.status }
+      end
     end
   end
 end
