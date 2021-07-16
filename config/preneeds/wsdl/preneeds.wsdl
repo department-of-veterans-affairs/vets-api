@@ -53,6 +53,12 @@
     <message name="getCemeteriesResponse">
         <part name="parameters" element="tns:getCemeteriesResponse" />
     </message>
+    <message name="getDischargeTypes">
+        <part name="parameters" element="tns:getDischargeTypes" />
+    </message>
+    <message name="getDischargeTypesResponse">
+        <part name="parameters" element="tns:getDischargeTypesResponse" />
+    </message>
     <message name="getBranchesOfService">
         <part name="parameters" element="tns:getBranchesOfService" />
     </message>
