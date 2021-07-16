@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'bgs/power_of_attorney_verifier'
-
 module ClaimsApi
   module V2
     class ApplicationController < ::OpenidApplicationController
