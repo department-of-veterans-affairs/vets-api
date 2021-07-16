@@ -7,11 +7,7 @@
     <p>Dear VA School Certifying Official,</p>
 
     <p>
-    <% if(Flipper.enabled?(:edu_form10203_updates, @current_user)) %>
     A student enrolled at your school or training facility has applied for the Edith Nourse Rogers STEM Scholarship. The student will also receive a copy of this letter. We can't make a formal determination on the student's eligibility for the STEM Scholarship until we receive the following information from you.
-    <% else %>  
-    A student enrolled at your school has applied for the Edith Nourse Rogers STEM Scholarship. The student will also receive a copy of this letter. We can't make a formal determination on the student’s eligibility for the STEM Scholarship until we receive the following information from you.
-    <% end %>
     </p>
 
     <p>
@@ -40,12 +36,10 @@
       </ul>
     </p>
     <p>
-    <% if(Flipper.enabled?(:edu_form10203_updates, @current_user)) %>
-    Note: If the student is enrolled in a dual degree program, at least one of the degrees must 
-      include an undergraduate degree in an approved STEM field. For dual degree programs, please provide 
-      the total credit hours required for the dual degree program as well as the credits completed toward 
+    Note: If the student is enrolled in a dual degree program, at least one of the degrees must
+      include an undergraduate degree in an approved STEM field. For dual degree programs, please provide
+      the total credit hours required for the dual degree program as well as the credits completed toward
       the dual degree program when responding above.
-    <% end %>  
     </p>
 
     <p>
@@ -60,28 +54,26 @@
         <li>Name of STEM program of degree conferred:</li>
         <li>6-digit CIP Code of degree conferred:</li>
         <li>Is the student currently enrolled in a program leading to a teaching certification?</li>
-        </ul>  
+        </ul>
     </p>
-    <% if(Flipper.enabled?(:edu_form10203_updates, @current_user)) %>
     <p>
-    <b>If the applicant is in a clinical training program for health care professionals</b>
-    </br>
-    If the student already has a bachelor's or graduate degree and is pursuing a clinical training program, please provide the following:
-    <ul>
-      <li>   
-        Has the student earned a bachelor’s or graduate degree in an approved STEM program?
-        (<a href="https://benefits.va.gov/gibill/docs/fgib/STEM_Program_List.pdf?utm_source=confirmation_email&utm_medium=email&utm_campaign=stem_approved_programs">Programs approved for the Rogers STEM Scholarship</a>)
-      </li>
-      <li>Name of STEM program of degree conferred:</li>
-      <li>
-        Is the student currently pursuing a covered clinical training program for health care professionals? 
-        (<a href="https://benefits.va.gov/gibill/docs/fgib/STEM_Program_List.pdf?utm_source=confirmation_email&utm_medium=email&utm_campaign=stem_approved_programs">Programs approved for the Rogers STEM Scholarship</a>)
-      </li>
-      <li>Total length of clinical training program (in months or years):</li>
-      <li>Amount of clinical training program completed to date (in months or years):</li>
-    </ul>
+      <b>If the applicant is in a clinical training program for health care professionals</b>
+      </br>
+      If the student already has a bachelor's or graduate degree and is pursuing a clinical training program, please provide the following:
+      <ul>
+        <li>
+          Has the student earned a bachelor’s or graduate degree in an approved STEM program?
+          (<a href="https://benefits.va.gov/gibill/docs/fgib/STEM_Program_List.pdf?utm_source=confirmation_email&utm_medium=email&utm_campaign=stem_approved_programs">Programs approved for the Rogers STEM Scholarship</a>)
+        </li>
+        <li>Name of STEM program of degree conferred:</li>
+        <li>
+          Is the student currently pursuing a covered clinical training program for health care professionals?
+          (<a href="https://benefits.va.gov/gibill/docs/fgib/STEM_Program_List.pdf?utm_source=confirmation_email&utm_medium=email&utm_campaign=stem_approved_programs">Programs approved for the Rogers STEM Scholarship</a>)
+        </li>
+        <li>Total length of clinical training program (in months or years):</li>
+        <li>Amount of clinical training program completed to date (in months or years):</li>
+      </ul>
     </p>
-    <% end %>
 
     <p>
       <b>A reply is requested as soon as possible, preferably within 14 days.</b>

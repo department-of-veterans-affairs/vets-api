@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: post
-      uri: https://api.gsa.gov/technology/searchgov/v2/clicks/?access_key=TESTKEY&affiliate=va&client_ip=testIP&module_code=I14Y&position=0&query=&url=https://www.testurl.com&user_agent=testUserAgent
+      uri: https://api.gsa.gov/technology/searchgov/v2/clicks/?access_key=TESTKEY&affiliate=va&module_code=I14Y&position=0&query=&url=https://www.testurl.com&user_agent=testUserAgent
       body:
         encoding: UTF-8
         string: ""

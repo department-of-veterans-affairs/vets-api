@@ -2,126 +2,6 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/facilities/v2/facilities?ids=688&pageSize=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Referer:
-      - https://review-instance.va.gov
-      X-Vamf-Jwt:
-      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMTU0NDExNCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMTU0NTAxNCwianRpIjoiNDMxMjU2NDctNWQ2MC00MTg0LWFlZjAtOTQ0NzIyMjdmNzdkIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIxNTQzOTM0LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.v0FUrD56-Ldop5FPbAKNP1Lxhc0_2tMkIK2c1uJsQs3O8_8040uYnQQTQVrzl52cJZZHZKMcB9rzR6OTwArL-c_Hlq53pMXPBH8X47V-tjR_I8V21KFWc7ICxIN8yvVJhOXpbsCTZjJ9UAlsC4sPXRuuPp-4QdcZ9qQ5ztJjplgx-YsDvbx_5CK3cGwDhDKmTvTy7dnFe2rCKuMYiDhirr2b55HjKvFGEkOx1ny8tE1kYTwJJMferBk0DkdqQ4EWHGKj89YTE1EPMYprNMwKV-MigtDTLTLT6WMMofYZBycXtMm0FASBe6xsfpOqJpNho0J_TnFr1CZmXTaXAzInvg
-      X-Request-Id:
-      - ''
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Thu, 20 May 2021 20:55:14 GMT
-      Content-Type:
-      - application/json
-      Content-Length:
-      - '1684'
-      Server:
-      - openresty
-      X-Vamf-Version:
-      - 2.4.1
-      B3:
-      - c547e1931e42aba5-0f43a94aeee85e22-0
-      Access-Control-Allow-Headers:
-      - x-vamf-jwt
-      X-Vamf-Build:
-      - 3c19730
-      X-Vamf-Timestamp:
-      - '2021-04-07T15:14:08+0000'
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET,OPTIONS
-      Access-Control-Max-Age:
-      - '3600'
-      Strict-Transport-Security:
-      - max-age=63072000; includeSubDomains; preload
-    body:
-      encoding: UTF-8
-      string: |-
-        {
-          "data" : [ {
-            "id" : "688",
-            "vistaSite" : "688",
-            "vastParent" : "688",
-            "type" : "va_health_facility",
-            "name" : "Washington VA Medical Center",
-            "classification" : "VA Medical Center (VAMC)",
-            "website" : "https://www.washingtondc.va.gov/locations/directions.asp",
-            "phone" : {
-              "main" : "202-745-8000",
-              "fax" : "202-745-8530",
-              "pharmacy" : "202-745-8235",
-              "afterHours" : "202-745-8000",
-              "patientAdvocate" : "202-745-8588",
-              "mentalHealthClinic" : "202-745-8000 x 58127",
-              "enrollmentCoordinator" : "202-745-8000 x56333"
-            },
-            "hoursOfOperation" : [ {
-              "daysOfWeek" : "sun",
-              "openingTime" : "24/7",
-              "closingTime" : "24/7"
-            }, {
-              "daysOfWeek" : "mon",
-              "openingTime" : "24/7",
-              "closingTime" : "24/7"
-            }, {
-              "daysOfWeek" : "tue",
-              "openingTime" : "24/7",
-              "closingTime" : "24/7"
-            }, {
-              "daysOfWeek" : "wed",
-              "openingTime" : "24/7",
-              "closingTime" : "24/7"
-            }, {
-              "daysOfWeek" : "thu",
-              "openingTime" : "24/7",
-              "closingTime" : "24/7"
-            }, {
-              "daysOfWeek" : "fri",
-              "openingTime" : "24/7",
-              "closingTime" : "24/7"
-            }, {
-              "daysOfWeek" : "sat",
-              "openingTime" : "24/7",
-              "closingTime" : "24/7"
-            } ],
-            "mailingAddress" : {
-              "type" : "postal",
-              "line" : [ null, null, null ]
-            },
-            "physicalAddress" : {
-              "type" : "physical",
-              "line" : [ "50 Irving Street, Northwest", null, null ],
-              "city" : "Washington",
-              "state" : "DC",
-              "postalCode" : "20422-0001"
-            },
-            "mobile" : false,
-            "operatingStatus" : {
-              "code" : "NORMAL"
-            }
-          } ]
-        }
-  recorded_at: Thu, 20 May 2021 20:55:14 GMT
-- request:
-    method: get
     uri: https://veteran.apps.va.gov/facilities/v2/facilities?ids=983,984&pageSize=0
     body:
       encoding: US-ASCII
@@ -138,7 +18,7 @@ http_interactions:
       X-Vamf-Jwt:
       - stubbed_token
       X-Request-Id:
-      - ca5fd0d6-3fd7-4025-b1cc-c4953c6c45a8
+      - ''
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -147,23 +27,23 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 16 Jun 2021 22:19:12 GMT
+      - Tue, 13 Jul 2021 20:11:33 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '2065'
+      - '1975'
       Server:
       - openresty
       X-Vamf-Version:
-      - 2.5.2
+      - 2.8.0
       B3:
-      - 5669b658c1627ca2-b1e66bdcd2127f66-0
+      - d4826c514488fbd0-1742ce55cf76f7d6-0
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - cc1bce1
+      - '6026315'
       X-Vamf-Timestamp:
-      - '2021-05-30T22:09:53+0000'
+      - '2021-07-06T17:59:37+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
@@ -183,10 +63,6 @@ http_interactions:
             "type" : "va_facilities",
             "name" : "Cheyenne VA Medical Center",
             "classification" : "VA Medical Center (VAMC)",
-            "timezone" : {
-              "zoneId" : "America/Denver",
-              "abbreviation" : "MDT"
-            },
             "lat" : 39.744507,
             "long" : -104.830956,
             "website" : "https://www.denver.va.gov/locations/directions.asp",
@@ -232,5 +108,5 @@ http_interactions:
             "healthService" : [ "Audiology", "Cardiology", "DentalServices", "Dermatology", "Gastroenterology", "Gynecology", "MentalHealthCare", "Nutrition", "Ophthalmology", "Optometry", "Orthopedics", "Podiatry", "PrimaryCare", "SpecialtyCare", "Urology", "WomensHealth" ]
           } ]
         }
-  recorded_at: Wed, 16 Jun 2021 22:19:12 GMT
+  recorded_at: Tue, 13 Jul 2021 20:11:33 GMT
 recorded_with: VCR 6.0.0

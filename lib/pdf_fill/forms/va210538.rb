@@ -56,6 +56,17 @@ module PdfFill
                 question_text: 'SOCIAL SECURITY NUMBER'
               }
             },
+            'ssn2' => {
+              'first' => {
+                key: 'Social_Security_Number_FirstThreeNumbers[1]'
+              },
+              'second' => {
+                key: 'Social_Security_Number_SecondTwoNumbers[1]'
+              },
+              'third' => {
+                key: 'Social_Security_Number_LastFourNumbers[1]'
+              }
+            },
             'VAFileNumber' => {
               key: 'form1[0].#subform[0].VA_File_Number[0]',
               limit: 9,
@@ -102,8 +113,8 @@ module PdfFill
             question_text: 'E-MAIL ADDRESS OF CLAIMANT'
           },
           'updateDiaries' => {
-            'update_diaries_yes' => { key: 'form1[0].#subform[0].YES_CHECKBOX1[0]' },
-            'update_diaries_no' => { key: 'form1[0].#subform[0].NO_CHECKBOX1[0]' }
+            'status_changed_yes' => { key: 'form1[0].#subform[0].YES_CHECKBOX1[0]' },
+            'status_changed_no' => { key: 'form1[0].#subform[0].NO_CHECKBOX1[0]' }
           }
         },
         'signature' => {
@@ -139,6 +150,7 @@ module PdfFill
         # extract ssn
         ssn = veteran_information['ssn']
         veteran_information['ssn'] = split_ssn(ssn.delete('-')) if ssn.present?
+        veteran_information['ssn2'] = split_ssn(ssn.delete('-')) if ssn.present?
 
         # extract birth date
         veteran_information['dateOfBirth'] = split_date(veteran_information['dateOfBirth'])
@@ -146,10 +158,12 @@ module PdfFill
         # extract email address
         extract_email
 
+        # this is confusing but if updateDiaries is set to true
+        # that means the status of the dependents has NOT changed
         update_diaries = @form_data['dependencyVerification']['updateDiaries']
         @form_data['dependencyVerification']['updateDiaries'] = {
-          'update_diaries_yes' => select_checkbox(update_diaries),
-          'update_diaries_no' => select_checkbox(!update_diaries)
+          'status_changed_yes' => select_checkbox(!update_diaries),
+          'status_changed_no' => select_checkbox(update_diaries)
         }
       end
 
