@@ -171,15 +171,6 @@ Rails.application.reloader.to_prepare do
     StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
   end
 
-  # Flipper features cache stats
-  ActiveSupport::Notifications.subscribe('cache_read.active_support') do |_name, _start, _finish, _id, payload|
-    if payload[:key][/flipper/]
-      tags = ['flipper', payload[:key]]
-      StatsD.increment('active_support.cache_read.attempt', tags: tags)
-      StatsD.increment('active_support.cache_read.miss', tags: tags) unless payload[:hit]
-    end
-  end
-
   # init gibft
   StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.total", 0)
   StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.fail", 0)
