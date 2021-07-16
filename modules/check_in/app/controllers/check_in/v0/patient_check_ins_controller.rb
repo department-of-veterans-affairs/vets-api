@@ -6,13 +6,13 @@ module CheckIn
       def show
         data = service.get_check_in(params[:id])
 
-        render json: Oj.dump(data)
+        render json: data
       end
 
       def create
-        data = service.create_check_in(patient_check_in_params.to_h)
+        data = service.create_check_in(patient_check_in_params[:id])
 
-        render json: Oj.dump(data)
+        render json: data
       end
 
       private
