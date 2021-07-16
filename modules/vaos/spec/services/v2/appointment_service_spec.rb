@@ -75,10 +75,10 @@ describe VAOS::V2::AppointmentsService do
     # should be able to handle multiple statuses in a csv list (VAOSR-2005). Implement rspec
     # when VAOS Service can handle multiple statuses.
     context 'when requesting a list of appointments given a date range and multiple statuses' do
-      xit 'returns a 200 status with list of appointments' do
+      it 'returns a 200 status with list of appointments' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes,
                                                                       tag: :force_utf8) do
-          # response = subject.get_appointments(start_date, end_date, 'proposed,booked')
+          response = subject.get_appointments(start_date, end_date, 'proposed,booked')
         end
       end
     end
