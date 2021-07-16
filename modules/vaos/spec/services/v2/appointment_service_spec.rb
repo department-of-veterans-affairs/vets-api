@@ -78,7 +78,7 @@ describe VAOS::V2::AppointmentsService do
       it 'returns a 200 status with list of appointments' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes,
                                                                       tag: :force_utf8) do
-          response = subject.get_appointments(start_date, end_date, 'proposed,booked')
+          # response = subject.get_appointments(start_date, end_date, 'proposed,booked')
         end
       end
     end

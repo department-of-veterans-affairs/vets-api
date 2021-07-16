@@ -121,3 +121,75 @@ http_interactions:
       encoding: UTF-8
       string: '{"data":[{"id":"23952","kind":"cc","status":"proposed","patientIcn":"1012845331V153043","locationId":"983","practitioners":[],"requestedPeriods":[{"start":"2021-05-26T15:12:00Z"}],"contact":{"telecom":[{"type":"phone","value":"123-123-1234"},{"type":"email","value":"foo@foo.com"}]}},{"id":"24955","kind":"cc","status":"proposed","patientIcn":"1012845331V153043","locationId":"983","practitioners":[],"requestedPeriods":[{"start":"2021-06-15T16:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]}},{"id":"25954","kind":"cc","status":"proposed","patientIcn":"1012845331V153043","locationId":"983","practitioners":[],"requestedPeriods":[{"start":"2021-06-09T16:16:00Z"}],"contact":{"telecom":[{"type":"phone","value":"5555555555"},{"type":"email","value":"test@va.gov"}]}},{"id":"25955","kind":"cc","status":"proposed","patientIcn":"1012845331V153043","locationId":"983","practitioners":[],"requestedPeriods":[{"start":"2021-06-15T16:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125551212"},{"type":"email","value":"person@example.com"}]}},{"id":"27009","kind":"cc","status":"proposed","patientIcn":"1012845331V153043","locationId":"983","practitioners":[],"requestedPeriods":[{"start":"2021-06-15T12:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]}},{"id":"25956","kind":"cc","status":"proposed","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"id":{"value":"1346206547"}},{"id":{"value":"1013006766"}},{"id":{"value":"1992707525"}}],"requestedPeriods":[{"start":"2021-12-16T01:30:00Z"},{"start":"2021-12-17T04:00:00Z"},{"start":"2021-12-17T07:00:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125551212"},{"type":"email","value":"veteranemailtest@gmail.com"}]}},{"id":"28003","kind":"cc","status":"proposed","patientIcn":"1012845331V153043","locationId":"983","practitioners":[],"requestedPeriods":[{"start":"2021-06-09T15:48:00Z"}],"contact":{"telecom":[{"type":"phone","value":""},{"type":"email","value":"foo@foo.com"}]}}]}'
   recorded_at: Tue, 08 Jun 2021 19:29:50 GMT
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments?end=2022-07-03T04:00:00Z&pageSize=0&start=2021-05-04T04:00:00Z&statuses=proposed,booked
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed_token
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 502
+      message: Bad Gateway
+    headers:
+      Date:
+      - Fri, 16 Jul 2021 20:09:02 GMT
+      Content-Type:
+      - text/html
+      Content-Length:
+      - '982'
+      Connection:
+      - keep-alive
+      Etag:
+      - '"5fa5087d-3d6"'
+      Set-Cookie:
+      - TS016f4012=01c16e2d816f78a3a82c675c7bd5f379780c9f420f5871400939e79fb3396f33bbe96bb2d9e925da0a009ca367877c2715f893e89b;
+        Max-Age=900; Path=/
+      - vamfjwtv3=eyJ6aXAiOiJERUYiLCJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2Q0JDLUhTNTEyIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.U0xdW7swil8je7LSE-jazWYEnH5KsXF-j8gQblGcz63iEU5fNJ1VqlKFoKdQ1GHExP3tcr_mYLGxEB-iruBdDHahFWxaXwEoyEgZ7SvgrHXZCkVPL6_kbD9TccftGT4XHp1wurjtAF8CfeDcgwG9j_aCiSXpL6l7Aa6ySIDHZwVwHkAWPHPw9nFdS0vmsr9EgXm8MoG6qRk7nQ9TdZ31a06hNO_nXauJbvKZJmsviyxTOZWWZvf1J0jTkFolxJm9lrO1dYzAdtclrSSnx9NhEsIXq6CU1VO0WWVMHYzwWOaFaoHHlIvZ3tghBxQqdzMmT2Sbc84p94cFFxLDkdGHbA.IWLmgUNKd_ZFLYLUb5w65w.rMFexAEn8Vfmv4tJ9dahnsT64N3nK1wpn4vEwPxalazhOK66gp7--mle42SYRZSArN-MwdLxeCVAiLjM8GPkMp8vOKE1Ko9UOdjDIzSTSSrr90coxIvqtnUXG1helN9G0QdLJ4cF9vjbCZs_KKLvdckYKFnCRG8yUUUEUN3CeAR5QyJrRWe4KL02Ae1l1c_vmkQroL7HBWPP4tVXi7sW7oAA6314fgQ_m_N2B2npF8jmJTBZxpd7VJDfgwZxhfXqVCTSWQ3cxVp8kVmEwXXawxQxxLJPMgBtQNHS1IgCLhqBU5QiHWaD4zAqcsHVOd1Bpc17ZjkxG4FlVBqCAZQBVWppOoFI2vXjdzTbpooVB-t4yzAUYLBbYFyp6-VrIPGGPqJNCXNwyF_dVDUoAV4ZQhw3TzGIoT4qDcjq5rWkORHDFTCjhMeLlAjC3ZNGb5JALoPtXJzKwDZqaa5WTDFA7UBjt_JNI6h3Vc3wr86f4gdFT6GqYZfPyuUAPD_Ge5Ab4fSvXQq7_rTV6lkuwVx5eqdT9IF0tyENcNneb9zRaLivjarXG10m3Qy7jtkNHXF5bPVLGAyLgHOPw6Y7--BM0Bzz4B1xRoeDtWM-SVp4AQMvN3QEoJaFxbODYMYGsGrxOzQ2Y7qzFBkAOgjrjTdhF8IyyYeKnDgkrNpK9uLV7H1ylRC7VFFRwnXKdLefmylHIQ1DF-JQahYSFDg6HNhfGA.tzrTHqjbCTrEgrKz7EteeDNuQOI--zm-bLANem36NpM;
+        path=/; SameSite=Lax; HttpOnly
+      - vamftimeoutv1=1626467042; SameSite=Lax; path=/
+    body:
+      encoding: UTF-8
+      string: |
+        <!DOCTYPE html>
+        <html>
+        <head>
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+        <title>Error</title>
+        <style>
+            body {
+                width: 35em;
+                margin: 0 auto;
+                font-family: Tahoma, Verdana, Arial, sans-serif;
+            }
+        </style>
+        </head>
+        <body>
+        <h1>An error occurred.</h1>
+        <p>Sorry, the page you are looking for is currently unavailable.<br/>
+        Please try again later.</p>
+        <p>If you are the system administrator of this resource then you should check
+        the <a href="http://nginx.org/r/error_log">error log</a> for details.</p>
+        <p>We have articles on troubleshooting issues like <a href="https://blog.openresty.com/en/lua-cpu-flame-graph/?src=wb">high CPU usage</a> and
+        <a href="https://blog.openresty.com/en/how-or-alloc-mem/">large memory usage</a> on <a href="https://blog.openresty.com/">our official blog site</a>.
+        <p><em>Faithfully yours, <a href="https://openresty.org/">OpenResty</a>.</em></p>
+        </body>
+        </html>
+  recorded_at: Fri, 16 Jul 2021 20:09:02 GMT
+recorded_with: VCR 6.0.0
