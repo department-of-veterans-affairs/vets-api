@@ -4,12 +4,11 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController
-        def index
-          raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
+        before_action :verify_target_user
 
-          service           = bgs_service(veteran_participant_id: target_veteran.participant_id)
+        def index
           service_params    = { participant_id: target_veteran.participant_id }
-          bgs_claims        = service.benefit_claims.find_claims_details_by_participant_id(service_params)
+          bgs_claims        = bgs_service.benefit_claims.find_claims_details_by_participant_id(service_params)
 
           query_params      = { veteran_icn: target_veteran.mpi.icn }
           lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(query_params)
@@ -20,10 +19,21 @@ module ClaimsApi
           render json: claims
         end
 
+        def show
+          bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
+
+          render json: bgs_claim
+        end
+
         private
 
-        def bgs_service(veteran_participant_id:)
-          BGS::Services.new(external_uid: veteran_participant_id, external_key: veteran_participant_id)
+        def verify_target_user
+          raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
+        end
+
+        def bgs_service
+          BGS::Services.new(external_uid: target_veteran.veteran_participant_id,
+                            external_key: target_veteran.veteran_participant_id)
         end
       end
     end
