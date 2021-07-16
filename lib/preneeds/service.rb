@@ -20,28 +20,6 @@ module Preneeds
     # Used in building SOAP request
     STARTING_CID = '<soap-request-body@soap>'
 
-    # POST to retrieve list of valid attachment types.
-    #
-    # @return [Common::Collection<Preneeds::AttachmentType>] collection of attachment types
-    #
-    def get_attachment_types
-      soap = savon_client.build_request(:get_attachment_types, message: {})
-      json = with_monitoring { perform(:post, '', soap.body).body }
-
-      Common::Collection.new(AttachmentType, json)
-    end
-
-    # POST to retreive valid military branches of service
-    #
-    # @return [Common::Collection<Preneeds::BranchesOfService>] collection of military branches of service
-    #
-    def get_branches_of_service
-      soap = savon_client.build_request(:get_branches_of_service, message: {})
-      json = with_monitoring { perform(:post, '', soap.body).body }
-
-      Common::Collection.new(BranchesOfService, json)
-    end
-
     # POST to retrieve military cemeteries
     #
     # @return [Common::Collection<Preneeds::Cemetery>] collection of military cemeteries
