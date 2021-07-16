@@ -193,7 +193,7 @@ module PdfFill
           question_text: 'NUMBER OF YEARS OF EDUCATION'
         },
         'signature' => {
-          key: 'VBA281900[0].#subform[0].SignatureField1[0]'
+          key: 'SignatureField'
         },
         'date_signed' => {
           'month' => {
