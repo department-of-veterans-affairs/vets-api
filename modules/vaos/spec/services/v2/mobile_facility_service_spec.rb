@@ -51,10 +51,20 @@ describe VAOS::V2::MobileFacilityService do
   describe '#facilities' do
     context 'with a facility id' do
       it 'returns a configuration' do
-        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200',
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                          match_requests_on: %i[method uri]) do
           response = subject.get_facilities(ids: '688')
           expect(response[:data].size).to eq(1)
+        end
+      end
+    end
+
+    context 'with multiple facility ids' do
+      it 'returns a configuration' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200',
+                         match_requests_on: %i[method uri]) do
+          response = subject.get_facilities(ids: '983,984')
+          expect(response[:data].size).to eq(2)
         end
       end
     end
@@ -63,7 +73,7 @@ describe VAOS::V2::MobileFacilityService do
       it 'returns a configuration' do
         VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_200',
                          match_requests_on: %i[method uri]) do
-          response = subject.get_facilities(ids: '688', children: true)
+          response = subject.get_facilities(children: true, ids: '688')
           expect(response[:data].size).to eq(8)
         end
       end

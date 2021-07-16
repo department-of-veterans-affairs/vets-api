@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'va_forms/regex_helper'
 
 module VAForms
   class FormReloader
@@ -62,8 +63,7 @@ module VAForms
       va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
       normalized_url = Addressable::URI.parse(va_form_url).normalize.to_s
       if stored_url != normalized_url && stored_url.present?
-        notify_slack(normalized_url,
-                     stored_url, form['fieldVaFormNumber'])
+        notify_slack(normalized_url, stored_url, form['fieldVaFormNumber'])
       end
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
@@ -72,6 +72,8 @@ module VAForms
       attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
       va_form.assign_attributes(attrs)
       va_form = update_sha256(va_form)
+      number_tag = VAForms::RegexHelper.new.strip_va(form['fieldVaFormNumber'])
+      va_form.tags = va_form.tags.presence || number_tag
       va_form.save
       va_form
     end
