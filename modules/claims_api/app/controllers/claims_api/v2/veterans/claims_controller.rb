@@ -21,9 +21,9 @@ module ClaimsApi
 
         def show
           bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
-          claim_details = bgs_service.dig(:bnft_claim_detail)
-          
-          if claim.present?
+          claim_details = bgs_claim.dig(:bnft_claim_detail)
+
+          if claim_details.present?
             claim = { id: claim_details[:bnft_claim_id], type: claim_details[:bnft_claim_type_nm] }
             render json: claim
           else
@@ -38,8 +38,8 @@ module ClaimsApi
         end
 
         def bgs_service
-          BGS::Services.new(external_uid: target_veteran.veteran_participant_id,
-                            external_key: target_veteran.veteran_participant_id)
+          BGS::Services.new(external_uid: target_veteran.participant_id,
+                            external_key: target_veteran.participant_id)
         end
       end
     end
