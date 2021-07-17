@@ -47,12 +47,12 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
   header_schemas = headers_swagger['components']['schemas']
   headers = header_schemas['hlrCreateParameters']['properties'].keys
   hlr_create_parameters = headers.map do |header|
+    header_def = header_schemas['hlrCreateParameters']['properties'][header]
     {
       name: header,
       in: 'header',
-      description: header_schemas[header]['allOf'][0]['description'],
-      required: header_schemas['hlrCreateParameters']['required'].include?(header),
-      schema: { '$ref': "#/components/schemas/#{header}" }
+      description: header_def['description'] || header_def&.dig('allOf')&.send(:[], 0)&.dig('description'),
+      required: header_schemas['hlrCreateParameters']['required'].include?(header)
     }
   end
 
