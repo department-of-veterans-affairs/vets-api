@@ -16,31 +16,39 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
 
   example_all_fields_used = read_json[['spec', 'fixtures', 'valid_200996_v2.json']]
 
+  hlrShow_properties = {
+    status: { type: 'string', enum: AppealsApi::HlrStatus::V2_STATUSES },
+    updatedAt: { '$ref': '#/components/schemas/timeStamp' },
+    createdAt: { '$ref': '#/components/schemas/timeStamp' },
+    formData: { '$ref': '#/components/schemas/hlrCreate' }
+  }
+  hlrShow_type = :higherLevelReview
+  hlrShow_schema = {
+    type: OBJ,
+    properties: {
+      id: { '$ref': '#/components/schemas/uuid' },
+      type: { type: :string, enum: [hlrShow_type] },
+      attributes: { type: OBJ, properties: hlrShow_properties }
+    }
+  }
+
   response_hlr_show_success = lambda do
-    properties = {
-      status: { '$ref': '#/components/schemas/hlrStatus' },
-      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
-      createdAt: { '$ref': '#/components/schemas/timeStamp' },
-      formData: { '$ref': '#/components/schemas/hlrCreate' }
-    }
-    type = :higherLevelReview
-    schema = {
-      type: OBJ,
-      properties: {
-        id: { '$ref': '#/components/schemas/uuid' },
-        type: { type: :string, enum: [type] },
-        attributes: { type: OBJ, properties: properties }
-      }
-    }
     time = '2020-04-23T21:06:12.531Z'
     attrs = { status: :processing, updatedAt: time, createdAt: time, formData: example_all_fields_used }
-    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
+    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: hlrShow_type, attributes: attrs } }
 
     {
       description: 'Info about a single Higher-Level Review',
-      content: { 'application/json': { schema: schema, examples: { HlrFound: { value: example } } } }
+      content: { 'application/json': { schema: hlrShow_schema, examples: { HlrFound: { value: example } } } }
     }
   end.call
+
+  swagger_component do
+    schema :hlrShow do
+      key :type, hlrShow_schema[:type]
+      key :properties, hlrShow_schema[:properties]
+    end
+  end
 
   headers_json_schema = read_json[['config', 'schemas', 'v2', '200996_headers.json']]
   headers_swagger = AppealsApi::JsonSchemaToSwaggerConverter.new(headers_json_schema).to_swagger
