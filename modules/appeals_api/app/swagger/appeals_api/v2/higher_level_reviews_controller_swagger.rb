@@ -66,6 +66,8 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
     'all fields used': { value: example_all_fields_used }
   }
 
+  responses_hlr_contestable_issues = read_json_from_same_dir['responses_contestable_issues.json']
+
   swagger_path '/higher_level_reviews' do
     operation :post, tags: HLR_TAG do
       key :operationId, 'postHigherLevelReviews'
@@ -105,6 +107,10 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
         'Review as of the `receiptDate` and bound by `benefitType`. Not all issues returned are guaranteed to be ' \
         'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       key :description, desc
+      key :responses, '200': responses_hlr_contestable_issues['200'],
+          '404': responses_hlr_contestable_issues['404'],
+          '422': responses_hlr_contestable_issues['422'],
+          '500': responses_hlr_contestable_issues['500']
     end
   end
 
