@@ -44,7 +44,7 @@
           { "$ref": "#/definitions/nonBlankString" }
         ] },
         "X-VA-Insurance-Policy-Number": { "allOf": [
-          { "description": "veteran's insurance policy number", "maxLength": 18 },
+          { "description": "Veteran's insurance policy number", "maxLength": 18 },
           { "$ref": "#/definitions/nonBlankString" }
         ] },
         "X-Consumer-Username": {
