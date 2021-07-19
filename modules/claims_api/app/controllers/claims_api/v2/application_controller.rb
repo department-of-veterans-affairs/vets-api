@@ -50,6 +50,38 @@ module ClaimsApi
 
         @current_user.icn == target_veteran.mpi.icn
       end
+
+      #
+      # Determine if the current authenticated user is allowed access
+      #
+      # raise if current authenticated user is neither the target veteran, nor target veteran representative
+      def verify_access!
+        return if user_is_target_veteran?
+        return if user_represents_veteran?
+
+        raise ::Common::Exceptions::Forbidden
+      end
+
+      #
+      # Determine if the current authenticated user is the target veteran's representative
+      #
+      # @return [boolean] True if the current authenticated user is the target veteran's representative
+      def user_represents_veteran?
+        reps = ::Veteran::Service::Representative.all_for_user(
+          first_name: @current_user.first_name,
+          last_name: @current_user.last_name
+        )
+
+        return false if reps.blank?
+        return false if reps.count > 1
+
+        rep = reps.first
+        veteran_poa_code = ::Veteran::User.new(target_veteran)&.power_of_attorney&.code
+
+        return false if veteran_poa_code.blank?
+
+        rep.poa_codes.include?(veteran_poa_code)
+      end
     end
   end
 end

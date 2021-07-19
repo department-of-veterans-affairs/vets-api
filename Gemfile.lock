@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 2b6dd9454241cf395af7d42b7f36449522c0a109
+  revision: 897815201f79667e72f9dc6bb743873ac7fb306c
   specs:
     bgs_ext (0.21.0)
       httpclient
@@ -162,7 +162,7 @@ GEM
     activerecord (6.1.3.2)
       activemodel (= 6.1.3.2)
       activesupport (= 6.1.3.2)
-    activerecord-import (1.0.8)
+    activerecord-import (1.2.0)
       activerecord (>= 3.2)
     activerecord-postgis-adapter (7.1.0)
       activerecord (~> 6.1)
@@ -287,7 +287,7 @@ GEM
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
     date_time_precision (0.8.1)
-    date_validator (0.11.0)
+    date_validator (0.12.0)
       activemodel (>= 3)
       activesupport (>= 3)
     debase (0.2.4.1)
@@ -777,7 +777,7 @@ GEM
     rswag-ui (2.4.0)
       actionpack (>= 3.1, < 7.0)
       railties (>= 3.1, < 7.0)
-    rubocop (1.18.1)
+    rubocop (1.18.3)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)

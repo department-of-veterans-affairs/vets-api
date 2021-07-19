@@ -156,9 +156,13 @@ features:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
     enable_in_development: true
-  find_forms_mvp_enhancement:
+  find_forms_first_flag:
     actor_type: user
-    description: Enhances Find A Forms MVP.
+    description: Enhances Find A Forms Flag 1.
+    enable_in_development: true
+  find_forms_second_flag:
+    actor_type: user
+    description: Enhances Find A Forms Flag 2.
     enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
@@ -391,10 +395,6 @@ features:
   edu_form5490_updates:
     actor_type: user
     description: Form 5490 updates in support of Isakson and Roe legislation
-    enable_in_development: true
-  edu_form10203_updates:
-    actor_type: user
-    description: Form 10203 updates in support of Isakson and Roe legislation
     enable_in_development: true
   check_in_experience_enabled:
     actor_type: user

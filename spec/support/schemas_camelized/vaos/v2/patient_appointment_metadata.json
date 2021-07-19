@@ -1,6 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
+  "required": ["data"],
   "properties": {
     "data": {
       "type": "object",
@@ -18,6 +19,10 @@
         },
         "attributes": {
           "type": "object",
+          "required": [
+            "hasRequiredAppointmentHistory",
+            "isEligibleForNewAppointmentRequest"
+          ],
           "properties": {
             "hasRequiredAppointmentHistory": {
               "type": "boolean"

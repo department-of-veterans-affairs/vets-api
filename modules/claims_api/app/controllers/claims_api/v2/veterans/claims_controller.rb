@@ -1,25 +1,29 @@
 # frozen_string_literal: true
 
-require 'evss/error_middleware'
-
 module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController
-        # TODO: REMOVE BEFORE IMPLEMENTATION
-        skip_before_action :authenticate, only: %i[index]
-        ICN_FOR_TEST_USER = '1012667145V762142'
-        # TODO: REMOVE BEFORE IMPLEMENTATION
+        before_action :verify_access!
 
         def index
-          raise ::Common::Exceptions::Unauthorized if request.headers['Authorization'].blank?
-          unless params[:veteranId] == ICN_FOR_TEST_USER
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-          end
+          service           = bgs_service(veteran_participant_id: target_veteran.participant_id)
+          service_params    = { participant_id: target_veteran.participant_id }
+          bgs_claims        = service.benefit_claims.find_claims_details_by_participant_id(service_params)
 
-          render json: JSON.parse(
-            File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'usability_testing_claims.json'))
-          )
+          query_params      = { veteran_icn: target_veteran.mpi.icn }
+          lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(query_params)
+
+          mapper_params     = { bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims }
+          claims            = BGSToLighthouseClaimsMapperService.process(mapper_params)
+
+          render json: claims
+        end
+
+        private
+
+        def bgs_service(veteran_participant_id:)
+          BGS::Services.new(external_uid: veteran_participant_id, external_key: veteran_participant_id)
         end
       end
     end
