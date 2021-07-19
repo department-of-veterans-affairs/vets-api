@@ -22,10 +22,10 @@
           "attributes": {
             "type": "object",
             "required": [
-              "facility_id"
+              "facilityId"
             ],
             "properties": {
-              "facility_id": {
+              "facilityId": {
                 "type": "string"
               },
               "services": {
@@ -39,7 +39,7 @@
                     "name": {
                       "type": "string"
                     },
-                    "stop_codes": {
+                    "stopCodes": {
                       "type": "array",
                       "items": {
                         "type": "object",
@@ -59,13 +59,13 @@
                     "direct": {
                       "type": "object",
                       "properties": {
-                        "patient_history_required": {
+                        "patientHistoryRequired": {
                           "type": "boolean"
                         },
-                        "patient_history_duration": {
+                        "patientHistoryDuration": {
                           "type": "integer"
                         },
-                        "can_cancel": {
+                        "canCancel": {
                           "type": "boolean"
                         },
                         "enabled": {
@@ -76,25 +76,25 @@
                     "request": {
                       "type": "object",
                       "properties": {
-                        "patient_history_required": {
+                        "patientHistoryRequired": {
                           "type": "boolean"
                         },
-                        "patient_history_duration": {
+                        "patientHistoryDuration": {
                           "type": "integer"
                         },
-                        "can_cancel": {
+                        "canCancel": {
                           "type": "boolean"
                         },
-                        "submitted_request_limit": {
+                        "submittedRequestLimit": {
                           "type": "integer"
                         },
-                        "enterprise_submitted_request_limit": {
+                        "enterpriseSubmittedRequestLimit": {
                           "type": "integer"
                         },
                         "supported": {
                           "type": "boolean"
                         },
-                        "scheduling_days": {
+                        "schedulingDays": {
                           "type": "array",
                           "items": {
                             "type": "object",
@@ -102,13 +102,13 @@
                               "day": {
                                 "type": "string"
                               },
-                              "can_schedule": {
+                              "canSchedule": {
                                 "type": "boolean"
                               },
-                              "start_time": {
+                              "startTime": {
                                 "type": "string"
                               },
-                              "end_time": {
+                              "endTime": {
                                 "type": "string"
                               }
                             }
@@ -119,7 +119,7 @@
                   }
                 }
               },
-              "community_care": {
+              "communityCare": {
                 "type": "boolean"
               }
             }

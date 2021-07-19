@@ -423,173 +423,40 @@
             "description": "claim response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": [
-                    {
-                      "id": "600098193",
-                      "type": "evss_claims",
-                      "attributes": {
-                        "evss_id": 600098193,
-                        "date_filed": "2017-05-02",
-                        "min_est_date": null,
-                        "max_est_date": null,
-                        "open": false,
-                        "waiver_submitted": false,
-                        "documents_needed": false,
-                        "development_letter_sent": false,
-                        "decision_letter_sent": false,
-                        "requested_decision": false,
-                        "claim_type": "Compensation",
-                        "status": "Complete"
-                      }
-                    },
-                    {
-                      "id": "600098200",
-                      "type": "evss_claims",
-                      "attributes": {
-                        "evss_id": 600098200,
-                        "date_filed": "2017-05-02",
-                        "min_est_date": null,
-                        "max_est_date": null,
-                        "open": false,
-                        "waiver_submitted": false,
-                        "documents_needed": false,
-                        "development_letter_sent": false,
-                        "decision_letter_sent": false,
-                        "requested_decision": false,
-                        "claim_type": "Compensation",
-                        "status": "Complete"
-                      }
-                    }
-                  ]
-                },
+                "example": [
+                  {
+                    "id": "111111111",
+                    "type": "Appeals Control"
+                  },
+                  {
+                    "id": "222222222",
+                    "type": "Claim for Increase"
+                  },
+                  {
+                    "id": "333333333",
+                    "type": "Rating Control"
+                  }
+                ],
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
-                  "type": "object",
-                  "required": [
-                    "data"
-                  ],
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "required": [
-                          "id",
-                          "type",
-                          "attributes"
-                        ],
-                        "additionalProperties": false,
-                        "description": "Claim with some details for the given Veteran info",
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "description": "Claim ID from EVSS",
-                            "example": "8347210"
-                          },
-                          "type": {
-                            "type": "string",
-                            "example": "evss_claims"
-                          },
-                          "attributes": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "evss_id",
-                              "date_filed",
-                              "max_est_date",
-                              "open",
-                              "waiver_submitted",
-                              "documents_needed",
-                              "development_letter_sent",
-                              "status",
-                              "requested_decision",
-                              "claim_type"
-                            ],
-                            "properties": {
-                              "evss_id": {
-                                "type": "integer",
-                                "description": "Upstream service identifier"
-                              },
-                              "date_filed": {
-                                "type": "string",
-                                "format": "date",
-                                "description": "Date in YYYY-MM-DD the claim was first filed",
-                                "example": "2018-06-04"
-                              },
-                              "min_est_date": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ],
-                                "format": "date",
-                                "description": "Minimum Estimated Claim Completion Date",
-                                "example": "2019-06-04"
-                              },
-                              "max_est_date": {
-                                "type": [
-                                  "string",
-                                  "null"
-                                ],
-                                "format": "date",
-                                "description": "Maximum Estimated Claim Completion Date",
-                                "example": "2019-09-04"
-                              },
-                              "open": {
-                                "type": "boolean",
-                                "description": "Has the claim been resolved",
-                                "example": "true"
-                              },
-                              "waiver_submitted": {
-                                "type": "boolean",
-                                "description": "Requested Decision or Waiver 5103 Submitted",
-                                "example": "false"
-                              },
-                              "documents_needed": {
-                                "type": "boolean",
-                                "description": "Does the claim require additional documents to be submitted",
-                                "example": "false"
-                              },
-                              "development_letter_sent": {
-                                "type": "boolean",
-                                "description": "Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim",
-                                "example": "false"
-                              },
-                              "decision_letter_sent": {
-                                "type": "boolean",
-                                "description": "Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim",
-                                "example": "false"
-                              },
-                              "status": {
-                                "type": "string",
-                                "description": "Current status of the claim",
-                                "enum": [
-                                  "Claim received",
-                                  "Initial review",
-                                  "Evidence gathering, review, and decision",
-                                  "Preparation for notification",
-                                  "Complete"
-                                ],
-                                "example": "Claim received"
-                              },
-                              "requested_decision": {
-                                "type": "boolean",
-                                "description": "The claim filer has requested a claim decision be made",
-                                "example": "false"
-                              },
-                              "claim_type": {
-                                "type": "string",
-                                "description": "The type of claim originally submitted",
-                                "enum": [
-                                  "Compensation",
-                                  "Compensation and Pension",
-                                  "Dependency",
-                                  "Administrative Review"
-                                ],
-                                "example": "Compensation"
-                              }
-                            }
-                          }
-                        }
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "type"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Claim details.",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Claim ID",
+                        "example": "600131328"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Name of Claim type",
+                        "example": "Appeals Control"
                       }
                     }
                   }
@@ -662,17 +529,17 @@
               }
             }
           },
-          "404": {
-            "description": "Resource Not Found",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Resource not found",
-                      "detail": "Resource not found",
-                      "code": "404",
-                      "status": "404"
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
                     }
                   ]
                 },
