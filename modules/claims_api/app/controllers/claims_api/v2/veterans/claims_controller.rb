@@ -20,8 +20,10 @@ module ClaimsApi
         end
 
         def show
-          bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
+          bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id]) || {}
           claim_details = bgs_claim.dig(:bnft_claim_detail)
+
+          # TODO: do we need to compare BGS vs Lighthouse claims like in claims#index?
 
           if claim_details.present?
             claim = { id: claim_details[:bnft_claim_id], type: claim_details[:bnft_claim_type_nm] }
