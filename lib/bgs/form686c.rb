@@ -18,6 +18,8 @@ module BGS
 
     def initialize(user)
       @user = user
+      @end_product_name = '130 - Automated Dependency 686c'
+      @end_product_code = '130DPNEBNADJ'
     end
 
     def submit(payload)
@@ -30,14 +32,15 @@ module BGS
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
+      set_claim_type(vnp_proc_state_type_cd)
       benefit_claim_record = BenefitClaim.new(
         args: {
           vnp_benefit_claim: vnp_benefit_claim_record,
           veteran: veteran,
           user: @user,
           proc_id: proc_id,
-          end_product_name: '130 - Automated Dependency 686c',
-          end_product_code: '130DPNEBNADJ'
+          end_product_name: @end_product_name,
+          end_product_code: @end_product_code
         }
       ).create
 
@@ -96,8 +99,32 @@ module BGS
       'Started'
     end
 
+    # the default claim type is 130DPNEBNADJ (eBenefits Dependency Adjustment)
+    # if we are setting the claim to be manually reviewed
+    # and the Veteran is currently receiving pension benefits
+    # set the claim type to 130DAEBNPMCR (PMC eBenefits Dependency Adjustment Reject)
+    # else use 130DPEBNAJRE (eBenefits Dependency Adjustment Reject)
+    def set_claim_type(proc_state)
+      if proc_state == 'MANUAL_VAGOV'
+        pension_response = bid_service.get_awards_pension
+        receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
+
+        if receiving_pension
+          @end_product_name = 'PMC eBenefits Dependency Adjustment Reject'
+          @end_product_code = '130DAEBNPMCR'
+        else
+          @end_product_name = 'eBenefits Dependency Adjustment Reject'
+          @end_product_code = '130DPEBNAJRE'
+        end
+      end
+    end
+
     def bgs_service
       BGS::Service.new(@user)
+    end
+
+    def bid_service
+      BID::Awards::Service.new(@user)
     end
   end
 end
