@@ -89,6 +89,7 @@ module AuthenticationAndSSOConcerns
   def set_api_cookie!
     return unless @session_object
 
+    session.delete :value
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
