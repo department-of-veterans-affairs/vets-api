@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+# kevin
+# todo move to webhook directory
+# todo Wrap in module Webhooks. See scheduler_job.rb
+# todo rename as Subscription
+# todo same with other webhook models
 class WebhookSubscription < ApplicationRecord
   # remove api_name and infer it from the event
   def self.get_notification_urls(api_name:, consumer_id:, event:, api_guid: nil)

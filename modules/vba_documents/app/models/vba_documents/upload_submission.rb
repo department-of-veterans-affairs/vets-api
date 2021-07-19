@@ -17,9 +17,6 @@ module VBADocuments
     after_find :set_initial_status
     attr_reader :current_status
 
-    # todo move this constant to registration library
-    WEBHOOK_STATUS_CHANGE_EVENT = 'gov.va.developer.benefits-intake.status_change'
-
     # We don't want to check successes before
     # this date as it used to be the endpoint
     VBMS_IMPLEMENTATION_DATE = Date.parse('28-06-2019')
@@ -216,11 +213,11 @@ module VBADocuments
       metadata['status'][to]['start'] = time
 
       # get the message to record the status change web hook
-      msg = format_msg(WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
+      msg = format_msg(VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
       Webhooks::Utilities.record_notification(
         consumer_id: consumer_id,
         consumer_name: consumer_name,
-        event: WEBHOOK_STATUS_CHANGE_EVENT,
+        event: VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT,
         api_guid: guid,
         msg: msg
       )

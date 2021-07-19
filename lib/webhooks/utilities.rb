@@ -59,13 +59,14 @@ module Webhooks
         end.uniq
       end
 
+      # todo exercise having an event span multiple api_names
       def register_webhook(consumer_id, consumer_name, subscription, api_guid)
         seen_api = []
         registrations = []
         Webhooks::Utilities.fetch_events(subscription).each do |event|
           api_name = Webhooks::Utilities.event_to_api_name[event]
           seen_api << api_name
-          if seen_api.length > 1 && api_guid
+          if seen_api.length > 1 && api_guid #todo do we want to eliminate && api_guid?
             raise ArgumentError, 'This registration is tied to an api guid. At most one api name allowed!'
           end
 

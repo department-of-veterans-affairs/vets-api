@@ -1,3 +1,4 @@
+# kevin todo add 's' to webhook everywhere (to match module as in shceduler_job.rb, (don't change name of class))
 class CreateWebhookTables < ActiveRecord::Migration[6.1]
   def change
     create_table :webhook_subscriptions do |t|
