@@ -4,7 +4,7 @@ module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController
-        before_action :verify_target_user
+        before_action :verify_access!
 
         def index
           service_params    = { participant_id: target_veteran.participant_id }
@@ -34,10 +34,6 @@ module ClaimsApi
         end
 
         private
-
-        def verify_target_user
-          raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
-        end
 
         def bgs_service
           BGS::Services.new(external_uid: target_veteran.participant_id,
