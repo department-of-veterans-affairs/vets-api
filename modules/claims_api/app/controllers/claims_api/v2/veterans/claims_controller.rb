@@ -20,15 +20,19 @@ module ClaimsApi
         end
 
         def show
-          bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id]) || {}
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
 
-          claim_details = bgs_claim.dig(:bnft_claim_detail)
+          if claim.present?
+            render json:  { id: claim[:id], type: claim[:claim_type]}
+          else
+            # If we don't have it, it might still be in BGS, so check there
+            bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
+            claim_details = bgs_claim.dig(:bnft_claim_detail)
 
-          # TODO: do we need to compare BGS vs Lighthouse claims like in claims#index?
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if claim_details.blank?
 
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if claim_details.blank?
-
-          render json: { id: claim_details[:bnft_claim_id], type: claim_details[:bnft_claim_type_nm] }
+            render json: { id: claim_details[:bnft_claim_id], type: claim_details[:bnft_claim_type_nm] }
+          end
         end
 
         private
