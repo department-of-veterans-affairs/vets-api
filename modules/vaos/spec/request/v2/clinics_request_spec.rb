@@ -20,14 +20,14 @@ RSpec.describe 'clinics', type: :request do
       context 'on successful query for clinics given service type' do
         it 'returns a list of clinics' do
           VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinical_service=audiology'
+            get '/vaos/v2/locations/983/clinics?clinical_service=audiology', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
+            expect(response.body).to match_camelized_schema('vaos/v2/clinics', { strict: false })
             x = JSON.parse(response.body)
             expect(x['data'].size).to eq(7)
             expect(x['data'][0]['id']).to eq('570')
             expect(x['data'][0]['type']).to eq('clinics')
-            expect(x['data'][0]['attributes']['service_name']).to eq('CHY C&P AUDIO')
+            expect(x['data'][0]['attributes']['serviceName']).to eq('CHY C&P AUDIO')
           end
         end
       end
@@ -35,14 +35,14 @@ RSpec.describe 'clinics', type: :request do
       context 'on successful query for clinics given csv clinic ids' do
         it 'returns a list of clinics' do
           VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinic_ids=570,945'
+            get '/vaos/v2/locations/983/clinics?clinic_ids=570,945', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
+            expect(response.body).to match_camelized_schema('vaos/v2/clinics', { strict: false })
             x = JSON.parse(response.body)
             expect(x['data'].size).to eq(2)
             expect(x['data'][1]['id']).to eq('945')
             expect(x['data'][1]['type']).to eq('clinics')
-            expect(x['data'][1]['attributes']['service_name']).to eq('FTC C&P AUDIO BEV')
+            expect(x['data'][1]['attributes']['serviceName']).to eq('FTC C&P AUDIO BEV')
           end
         end
       end
@@ -50,9 +50,9 @@ RSpec.describe 'clinics', type: :request do
       context 'on successful query for clinics given array clinic ids' do
         it 'returns a list of clinics' do
           VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570&clinic_ids[]=945'
+            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570&clinic_ids[]=945', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
+            expect(response.body).to match_camelized_schema('vaos/v2/clinics', { strict: false })
             expect(JSON.parse(response.body)['data'].size).to eq(2)
           end
         end
@@ -61,9 +61,9 @@ RSpec.describe 'clinics', type: :request do
       context 'on successful query for clinics given an array with a single clinic id' do
         it 'returns a single clinic' do
           VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570'
+            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
+            expect(response.body).to match_camelized_schema('vaos/v2/clinics', { strict: false })
             expect(JSON.parse(response.body)['data'].size).to eq(1)
           end
         end
@@ -75,7 +75,7 @@ RSpec.describe 'clinics', type: :request do
             get '/vaos/v2/locations/983/clinics?clinic_ids[]=570', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)['data'].size).to eq(1)
-            expect(response).to match_camelized_response_schema('vaos/v2/clinics')
+            expect(response.body).to match_camelized_schema('vaos/v2/clinics')
           end
         end
       end
