@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 2b6dd9454241cf395af7d42b7f36449522c0a109
+  revision: ca2f5c7e0c2eac6c8ddfc86c6ab7eda163f44011
   specs:
     bgs_ext (0.21.0)
       httpclient
