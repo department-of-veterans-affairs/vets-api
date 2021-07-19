@@ -14,7 +14,7 @@ module Mobile
       attribute :address, AppointmentAddress
       attribute :lat, Types::Float.optional
       attribute :long, Types::Float.optional
-      attribute :phone, AppointmentPhone
+      attribute :phone, AppointmentPhone.optional
       attribute :url, Types::String.optional
       attribute :code, Types::String.optional
     end

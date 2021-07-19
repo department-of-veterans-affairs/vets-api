@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.name        = 'check_in'
   spec.version     = CheckIn::VERSION
   spec.authors     = ['Dillo Raju']
-  spec.email       = ['draju@governmentcio.com']
+  spec.email       = ['dillo.raju@gcio.com']
   spec.homepage    = 'https://api.va.gov'
   spec.summary     = 'An api.va.gov module'
   spec.description = 'This module was auto-generated please update this description'

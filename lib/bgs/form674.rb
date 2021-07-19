@@ -13,6 +13,8 @@ module BGS
   class Form674
     def initialize(user)
       @user = user
+      @end_product_name = '130 - Automated School Attendance 674'
+      @end_product_code = '130SCHATTEBN'
     end
 
     def submit(payload)
@@ -24,14 +26,15 @@ module BGS
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id: proc_id, veteran: veteran, user: @user)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
+      set_claim_type('MANUAL_VAGOV') # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
       benefit_claim_record = BenefitClaim.new(
         args: {
           vnp_benefit_claim: vnp_benefit_claim_record,
           veteran: veteran,
           user: @user,
           proc_id: proc_id,
-          end_product_name: '130 - Automated School Attendance 674',
-          end_product_code: '130SCHATTEBN'
+          end_product_name: @end_product_name,
+          end_product_code: @end_product_code
         }
       ).create
 
@@ -74,8 +77,32 @@ module BGS
       vnp_response[:vnp_proc_id]
     end
 
+    # the default claim type is 130SCHATTEBN (eBenefits School Attendance)
+    # if we are setting the claim to be manually reviewed (we are temporarily doing this for all submissions)
+    # and the Veteran is currently receiving pension benefits
+    # set the claim type to 130SCAEBPMCR (PMC eBenefits School Attendance Reject)
+    # else use 130SCHEBNREJ (eBenefits School Attendance Reject)
+    def set_claim_type(proc_state)
+      if proc_state == 'MANUAL_VAGOV'
+        pension_response = bid_service.get_awards_pension
+        receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
+
+        if receiving_pension
+          @end_product_name = 'PMC eBenefits School Attendance Reject'
+          @end_product_code = '130SCAEBPMCR'
+        else
+          @end_product_name = 'eBenefits School Attendance Reject'
+          @end_product_code = '130SCHEBNREJ'
+        end
+      end
+    end
+
     def bgs_service
       BGS::Service.new(@user)
+    end
+
+    def bid_service
+      BID::Awards::Service.new(@user)
     end
   end
 end

@@ -5,22 +5,22 @@
     "pagination": {
       "type": "object",
       "required": [
-        "current_page",
-        "per_page",
-        "total_pages",
-        "total_entries"
+        "currentPage",
+        "perPage",
+        "totalPages",
+        "totalEntries"
       ],
       "properties": {
-        "current_page": {
+        "currentPage": {
           "type": "integer"
         },
-        "per_page": {
+        "perPage": {
           "type": "integer"
         },
-        "total_pages": {
+        "totalPages": {
           "type": "integer"
         },
-        "total_entries": {
+        "totalEntries": {
           "type": "integer"
         }
 

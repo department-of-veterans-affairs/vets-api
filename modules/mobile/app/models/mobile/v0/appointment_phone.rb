@@ -10,8 +10,8 @@ module Mobile
     #   Mobile::V0::Adapters::AppointmentPhone.new(phone_hash)
     #
     class AppointmentPhone < Common::Resource
-      attribute :area_code, Types::String
-      attribute :number, Types::String
+      attribute :area_code, Types::String.optional
+      attribute :number, Types::String.optional
       attribute :extension, Types::String.optional
     end
   end
