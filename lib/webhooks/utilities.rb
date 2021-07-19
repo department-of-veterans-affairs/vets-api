@@ -121,6 +121,7 @@ module Webhooks
       subscriptions
     end
 
+    # todo ensure the same event doesn't occur twice kevin, add test to controller spec
     def validate_events(subscriptions)
       events = subscriptions.map { |s| s['event'] }
       unsupported_events = events - Webhooks::Utilities.supported_events
