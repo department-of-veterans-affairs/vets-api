@@ -6,7 +6,7 @@ require 'vbs/requests/base'
 # rubocop:disable RSpec/SubjectStub
 describe VBS::Requests::Base do
   class VBS::Requests::TestRequestModel < VBS::Requests::Base
-    HTTP_METHOD = 'POST'
+    HTTP_METHOD = :post
     PATH = '/books'
 
     def self.schema

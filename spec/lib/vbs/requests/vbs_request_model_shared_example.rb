@@ -3,13 +3,17 @@
 require 'rails_helper'
 
 RSpec.shared_examples 'a VBS request model' do
+  it 'inherits from VBS::Requests::Base' do
+    expect(described_class.ancestors).to include(VBS::Requests::Base)
+  end
+
   describe '::HTTP_METHOD' do
     it 'is defined' do
       expect(described_class).to have_constant(:HTTP_METHOD)
     end
 
     it 'is an http verb' do
-      expect(%w[GET POST PUT PATCH DELETE]).to include(described_class::HTTP_METHOD) # rubocop:disable RSpec/ExpectActual
+      expect(%i[get post put patch delete]).to include(described_class::HTTP_METHOD) # rubocop:disable RSpec/ExpectActual
     end
   end
 
