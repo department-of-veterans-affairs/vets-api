@@ -111,7 +111,6 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       with_s3_settings do
         notice_of_disagreement.update(board_review_option: 'evidence_submission')
         post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
-
         data = JSON.parse(response.body)['data']
         record = AppealsApi::EvidenceSubmission.find_by(guid: data['id'])
         expect(record.source).to eq headers['X-Consumer-Username']
