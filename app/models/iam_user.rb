@@ -70,12 +70,10 @@ class IAMUser < ::User
   end
 
   def vet360_contact_info
-    begin
-      super
-    rescue Faraday::ResourceNotFound
-      raise Common::Exceptions::RecordNotFound.new(id: vet360_id)
-    rescue StandardError
-      raise Common::Exceptions::BadGateway.new(id: vet360_id)
-    end
+    super
+  rescue Faraday::ResourceNotFound
+    raise Common::Exceptions::RecordNotFound.new(id: vet360_id)
+  rescue
+    raise Common::Exceptions::BadGateway.new(id: vet360_id)
   end
 end
