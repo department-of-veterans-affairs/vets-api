@@ -23,7 +23,7 @@ module ClaimsApi
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
 
           if claim.present?
-            render json:  { id: claim[:id], type: claim[:claim_type]}
+            render json: { id: claim[:id], type: claim[:claim_type] }
           else
             # If we don't have it, it might still be in BGS, so check there
             bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
