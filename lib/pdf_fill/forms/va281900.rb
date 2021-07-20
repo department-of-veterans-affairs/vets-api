@@ -11,21 +11,21 @@ module PdfFill
         'veteranInformation' => {
           'fullName' => {
             'first' => {
-              key: 'VBA281900[0].#subform[0].VeteransFirstName[0]',
+              key: 'VBA281900[0].#subform[0].Claimants_First_Name[0]',
               limit: 12,
               question_num: 1,
               question_suffix: 'A',
               question_text: 'NAME OF CLAIMANT'
             },
             'middleInitial' => {
-              key: 'VBA281900[0].#subform[0].VeteransMiddleInitial1[0]',
+              key: 'VBA281900[0].#subform[0].Middle_Initial1[0]',
               limit: 1,
               question_num: 1,
               question_suffix: 'B',
               question_text: 'NAME OF CLAIMANT'
             },
             'last' => {
-              key: 'VBA281900[0].#subform[0].VeteransLastName[0]',
+              key: 'VBA281900[0].#subform[0].Last_Name[0]',
               limit: 18,
               question_num: 1,
               question_suffix: 'C',
@@ -34,21 +34,21 @@ module PdfFill
           }, # end fullName
           'ssn' => {
             'first' => {
-              key: 'VBA281900[0].#subform[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]',
+              key: 'VBA281900[0].#subform[0].SocialSecurityNumber_FirstThreeNumbers[0]',
               limit: 3,
               question_num: 2,
               question_suffix: 'A',
               question_text: 'SOCIAL SECURITY NUMBER'
             },
             'second' => {
-              key: 'VBA281900[0].#subform[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]',
+              key: 'VBA281900[0].#subform[0].SocialSecurityNumber_SecondTwoNumbers[0]',
               limit: 2,
               question_num: 2,
               question_suffix: 'B',
               question_text: 'SOCIAL SECURITY NUMBER'
             },
             'third' => {
-              key: 'VBA281900[0].#subform[0].VeteransSocialSecurityNumber_LastFourNumbers[0]',
+              key: 'VBA281900[0].#subform[0].SocialSecurityNumber_LastFourNumbers[0]',
               limit: 4,
               question_num: 2,
               question_suffix: 'C',
@@ -56,29 +56,29 @@ module PdfFill
             }
           },
           'VAFileNumber' => {
-            key: 'VBA281900[0].#subform[0].VAFileNumber[0]',
-            limit: 8,
+            key: 'VBA281900[0].#subform[0].VA_File_Number[0]',
+            limit: 9,
             question_num: 3,
             question_suffix: 'A',
             question_text: 'VA FILE NUMBER'
           },
           'dob' => {
             'month' => {
-              key: 'VBA281900[0].#subform[0].DOBmonth[0]',
+              key: 'VBA281900[0].#subform[0].DOB_Month[0]',
               limit: 2,
               question_num: 4,
               question_suffix: 'A',
               question_text: 'DATE OF BIRTH'
             },
             'day' => {
-              key: 'VBA281900[0].#subform[0].DOBday[0]',
+              key: 'VBA281900[0].#subform[0].DOB_Day[0]',
               limit: 2,
               question_num: 4,
               question_suffix: 'B',
               question_text: 'DATE OF BIRTH'
             },
             'year' => {
-              key: 'VBA281900[0].#subform[0].DOByear[0]',
+              key: 'VBA281900[0].#subform[0].DOB_Year[0]',
               limit: 4,
               question_num: 4,
               question_suffix: 'C',
@@ -88,21 +88,21 @@ module PdfFill
         }, # end veteran_information
         'veteranAddress' => {
           'addressLine1' => {
-            key: 'VBA281900[0].#subform[0].Address1[1]',
+            key: 'VBA281900[0].#subform[0].Mailing_Address1[0]',
             limit: 30,
             question_num: 5,
             question_suffix: 'A',
             question_text: 'MAILING ADDRESS'
           },
           'addressLine2' => {
-            key: 'VBA281900[0].#subform[0].Address2[1]',
+            key: 'VBA281900[0].#subform[0].Mailing_Address1[1]',
             limit: 30,
             question_num: 5,
             question_suffix: 'B',
             question_text: 'MAILING ADDRESS'
           },
           'addressLine3' => {
-            key: 'VBA281900[0].#subform[0].Address3[1]',
+            key: 'VBA281900[0].#subform[0].Mailing_Address1[2]',
             limit: 30,
             question_num: 5,
             question_suffix: 'C',
@@ -111,21 +111,21 @@ module PdfFill
         }, # end veteran_address
         'mainPhone' => {
           'phone_area_code' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[1]',
+            key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[0]',
             limit: 3,
             question_num: 6,
             question_suffix: 'A',
             question_text: 'MAIN TELEPHONE NUMBER'
           },
           'phone_first_three_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_FirstThreeNumbers[1]',
+            key: 'VBA281900[0].#subform[0].TelephoneNumber_FirstThreeNumbers[0]',
             limit: 3,
             question_num: 6,
             question_suffix: 'B',
             question_text: 'MAIN TELEPHONE NUMBER'
           },
           'phone_last_four_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_LastFourNumbers[1]',
+            key: 'VBA281900[0].#subform[0].TelephoneNumber_LastFourNumbers[0]',
             limit: 4,
             question_num: 6,
             question_suffix: 'C',
@@ -133,7 +133,7 @@ module PdfFill
           }
         },
         'email' => {
-          key: 'VBA281900[0].#subform[0].EmailAddress[0]',
+          key: 'VBA281900[0].#subform[0].Email_Address[0]',
           limit: 30,
           question_num: 7,
           question_suffix: 'A',
@@ -141,21 +141,21 @@ module PdfFill
         },
         'cellPhone' => {
           'phone_area_code' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_AreaCode[0]',
+            key: 'VBA281900[0].#subform[0].Cell_Phone_Number_AreaCode[0]',
             limit: 3,
             question_num: 8,
             question_suffix: 'A',
             question_text: 'CELL PHONE NUMBER'
           },
           'phone_first_three_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_FirstThreeNumbers[0]',
+            key: 'VBA281900[0].#subform[0].Cell_Phone_Number_FirstThreeNumbers[0]',
             limit: 3,
             question_num: 8,
             question_suffix: 'B',
             question_text: 'CELL PHONE NUMBER'
           },
           'phone_last_four_numbers' => {
-            key: 'VBA281900[0].#subform[0].TelephoneNumber_LastFourNumbers[0]',
+            key: 'VBA281900[0].#subform[0].Cell_PhoneNumber_LastFourNumbers[0]',
             limit: 4,
             question_num: 8,
             question_suffix: 'C',
@@ -171,14 +171,14 @@ module PdfFill
             question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
           },
           'addressLine2' => {
-            key: 'VBA281900[0].#subform[0].Address2[0]',
+            key: 'VBA281900[0].#subform[0].Address1[1]',
             limit: 30,
             question_num: 9,
             question_suffix: 'B',
             question_text: 'NEW ADDRESS IF MOVING WITHIN THE NEXT 30 DAYS'
           },
           'addressLine3' => {
-            key: 'VBA281900[0].#subform[0].Address3[0]',
+            key: 'VBA281900[0].#subform[0].Address1[2]',
             limit: 30,
             question_num: 9,
             question_suffix: 'C',
@@ -186,24 +186,24 @@ module PdfFill
           }
         }, # end new_address
         'yearsOfEducation' => {
-          key: 'VBA281900[0].#subform[0].EducationYR[0]',
+          key: 'VBA281900[0].#subform[0].Number_Of_Years_Of_Education[0]',
           limit: 2,
           question_num: 10,
           question_suffix: 'A',
           question_text: 'NUMBER OF YEARS OF EDUCATION'
         },
         'signature' => {
-          key: 'signature'
+          key: 'SignatureField'
         },
         'date_signed' => {
           'month' => {
-            key: 'VBA281900[0].#subform[0].DOBmonth[1]'
+            key: 'VBA281900[0].#subform[0].Date_Signed_Month[0]'
           },
           'day' => {
-            key: 'VBA281900[0].#subform[0].DOBday[1]'
+            key: 'VBA281900[0].#subform[0].Date_Signed_Day[0]'
           },
           'year' => {
-            key: 'VBA281900[0].#subform[0].DOByear[1]'
+            key: 'VBA281900[0].#subform[0].Date_Signed_Year[0]'
           }
         }, # end date_signed
         'useEva' => {
