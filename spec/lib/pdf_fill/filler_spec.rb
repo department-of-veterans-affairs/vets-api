@@ -59,7 +59,8 @@ describe PdfFill::Filler, type: :model do
         input_data_fixture_dir: 'pdf_fill/10-10CG',
         output_pdf_fixture_dir: 'pdf_fill/10-10CG/unsigned',
         fill_options: {
-          sign: false
+          sign: false,
+          facility_label: '740 - Harlingen VA Clinic'
         }
       },
       {
@@ -68,7 +69,8 @@ describe PdfFill::Filler, type: :model do
         input_data_fixture_dir: 'pdf_fill/10-10CG',
         output_pdf_fixture_dir: 'pdf_fill/10-10CG/signed',
         fill_options: {
-          sign: true
+          sign: true,
+          facility_label: '740 - Harlingen VA Clinic'
         }
       },
       {
