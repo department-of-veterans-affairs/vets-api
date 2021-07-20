@@ -51,4 +51,10 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
     expect(results.first.to_i).to be >= 1.hour.from_now.to_i
     expect(results.last).to eq Thread.current['job_ids'].first
   end
+
+  it 'logs if sidekiq can not schedule the notification job' do
+    allow(Webhooks::NotificationsJob).to receive(:perform_in).and_raise('busted')
+    results = Webhooks::SchedulerJob.new.perform
+    expect(results.flatten.include?(nil)).to be true
+  end
 end

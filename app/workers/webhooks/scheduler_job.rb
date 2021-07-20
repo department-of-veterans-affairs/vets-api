@@ -40,6 +40,7 @@ module Webhooks
         Rails.logger.info "Webhooks::SchedulerJob kicked off #{api_name} at time #{time_to_start}"
       rescue => e
         Rails.logger.error("Webhooks::SchedulerJob Failed to kick of jobs for api_name #{api_name}", e)
+        result = nil
       end
       result
     end
