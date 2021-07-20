@@ -175,7 +175,7 @@ end
 
 group :development, :test do
   gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
-  gem 'brakeman', '~> 5.0'
+  gem 'brakeman', '~> 5.1'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
