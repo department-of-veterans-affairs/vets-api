@@ -238,9 +238,10 @@ module PdfFill
         if ssn.present?
           ssn = ssn.delete('-')
           veteran_information['ssn'] = split_ssn(ssn)
+          va_file_number = veteran_information['VAFileNumber']
+
+          veteran_information['VAFileNumber'] = '' if ssn == va_file_number
         end
-        va_file_number = veteran_information['VAFileNumber']
-        veteran_information['VAFileNumber'] = '' if ssn == va_file_number
 
         # extract birth date
         veteran_information['dob'] = split_date(veteran_information['dob'])
