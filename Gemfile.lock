@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: ca2f5c7e0c2eac6c8ddfc86c6ab7eda163f44011
+  revision: 897815201f79667e72f9dc6bb743873ac7fb306c
   specs:
     bgs_ext (0.21.0)
       httpclient
@@ -162,7 +162,7 @@ GEM
     activerecord (6.1.3.2)
       activemodel (= 6.1.3.2)
       activesupport (= 6.1.3.2)
-    activerecord-import (1.1.0)
+    activerecord-import (1.2.0)
       activerecord (>= 3.2)
     activerecord-postgis-adapter (7.1.0)
       activerecord (~> 6.1)
