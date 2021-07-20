@@ -45,7 +45,6 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
 
           before do |example|
             with_okta_user(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
               expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
                 .to receive(:find_claims_details_by_participant_id).and_return(bgs_response)
               expect(ClaimsApi::AutoEstablishedClaim)
@@ -177,12 +176,9 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
 
           before do |example|
             with_okta_user(scopes) do |auth_header|
-              Authorization = auth_header # rubocop:disable Naming/ConstantName
+              expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
               expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
                 .to receive(:find_claim_details_by_claim_id).and_return(bgs_response)
-              # TODO: add in lookup for lighthouse claims, too, not just BGS
-              # expect(ClaimsApi::AutoEstablishedClaim)
-              #   .to receive(:where).and_return([])
 
               submit_request(example.metadata)
             end
@@ -202,13 +198,97 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
         end
       end
 
-      # describe 'Getting a 401 response' do
-      # TODO:
-      # end
+      describe 'Getting a 401 response' do
+        response '401', 'Unauthorized' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
 
-      # describe 'Getting a 404 response' do
-      # TODO:
-      # end
+          let(:Authorization) { nil }
+          let(:scopes) { %w[claim.read] }
+
+          before do |example|
+            with_okta_user(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 403 response' do
+        response '403', 'Forbidden' do
+          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors',
+                                                      'default.json')))
+
+          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
+          let(:scopes) { %w[claim.read] }
+
+          before do |example|
+            with_okta_user(scopes) do
+              expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 403 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 404 response' do
+        response '404', 'Resource not found' do
+          schema JSON.parse(
+            File.read(
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'errors', 'default.json')
+            )
+          )
+          let(:veteran) { OpenStruct.new(mpi: nil, participant_id: nil) }
+          let(:scopes) { %w[claim.read] }
+
+          before do |example|
+            with_okta_user(scopes) do |auth_header|
+              expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
+              expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
+                .to receive(:find_claim_details_by_claim_id).and_return({})
+
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 404 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
     end
   end
 end
