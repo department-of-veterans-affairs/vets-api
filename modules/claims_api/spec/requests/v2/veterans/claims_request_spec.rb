@@ -79,13 +79,24 @@ RSpec.describe 'Claims', type: :request do
       context 'when a known claimId is provided' do
         it 'returns a 200' do
           with_okta_user(scopes) do |auth_header|
+            expect(ClaimsApi::AutoEstablishedClaim)
+              .to receive(:get_by_id_or_evss_id).and_return({ id: '1111', claim_type: 'Appeals Control'})
+
+            get claim_by_id_path, headers: auth_header
+            expect(response.status).to eq(200)
+          end
+        end
+      end
+
+      context 'when a known BGS claimId is provided' do
+        it 'returns a 200' do
+          with_okta_user(scopes) do |auth_header|
+            expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
             expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
               .to receive(:find_claim_details_by_claim_id).and_return({ bnft_claim_detail: {
                                                                         bnft_claim_id: '1111',
                                                                         bnft_claim_type_nm: 'Appeals Control'
                                                                       } })
-            # expect(ClaimsApi::AutoEstablishedClaim)
-            #   .to receive(:where).and_return([])
 
             get claim_by_id_path, headers: auth_header
             expect(response.status).to eq(200)
@@ -96,8 +107,9 @@ RSpec.describe 'Claims', type: :request do
       context 'when an unknown claim_id is provided' do
         it 'returns a 404' do
           with_okta_user(scopes) do |auth_header|
+            expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
             expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
-              .to receive(:find_claim_details_by_claim_id).and_return(nil)
+              .to receive(:find_claim_details_by_claim_id).and_return({}})
 
             get claim_by_id_path, headers: auth_header
 
