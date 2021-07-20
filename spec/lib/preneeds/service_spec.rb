@@ -18,17 +18,6 @@ describe Preneeds::Service do
     end
   end
 
-  describe 'get_states' do
-    it 'gets a collection of states' do
-      states = VCR.use_cassette('preneeds/states/gets_a_list_of_states') do
-        subject.get_states
-      end
-
-      expect(states).to be_a(Common::Collection)
-      expect(states.type).to eq(Preneeds::State)
-    end
-  end
-
   describe 'get_discharge_types' do
     it 'gets a collection of discharge_types' do
       discharge_types = VCR.use_cassette('preneeds/discharge_types/gets_a_list_of_discharge_types') do
