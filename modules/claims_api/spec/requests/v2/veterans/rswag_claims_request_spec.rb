@@ -44,7 +44,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
           let(:scopes) { %w[claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do |auth_header|
+            with_okta_user(scopes) do
               expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
                 .to receive(:find_claims_details_by_participant_id).and_return(bgs_response)
               expect(ClaimsApi::AutoEstablishedClaim)
@@ -175,7 +175,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
           let(:scopes) { %w[claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do |auth_header|
+            with_okta_user(scopes) do
               expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
               expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
                 .to receive(:find_claim_details_by_claim_id).and_return(bgs_response)
@@ -267,7 +267,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
           let(:scopes) { %w[claim.read] }
 
           before do |example|
-            with_okta_user(scopes) do |auth_header|
+            with_okta_user(scopes) do
               expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
               expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
                 .to receive(:find_claim_details_by_claim_id).and_return({})
