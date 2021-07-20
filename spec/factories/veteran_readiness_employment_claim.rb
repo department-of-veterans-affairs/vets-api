@@ -41,9 +41,7 @@ FactoryBot.define do
             'middle' => 'John',
             'last' => 'Simpson'
           },
-          'ssn' => '987456457',
           'dob' => '1998-01-02',
-          'VAFileNumber' => '88776655',
           'pid' => '600036503',
           'edipi' => '1005354478',
           'vet360ID' => nil,

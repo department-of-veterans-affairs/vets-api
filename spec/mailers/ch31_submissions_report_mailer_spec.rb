@@ -16,9 +16,7 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
       let(:time) { Time.zone.now }
 
       let(:submitted_claims) do
-        SavedClaim::VeteranReadinessEmploymentClaim.where(
-          updated_at: (time - 24.hours)..(time - 1.second)
-        )
+        VRE::CreateCh31SubmissionsReport.new.get_claims_submitted_in_range
       end
 
       let(:mail) { described_class.build(submitted_claims).deliver_now }

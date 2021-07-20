@@ -34,7 +34,7 @@ module AppealsApi
             issues = []
 
             form_data.contestable_issues.drop(MAX_ISSUES_ON_FIRST_PAGE).map do |issue|
-              issues << "Issue: #{issue['attributes']['issue']} - Decision Date: #{issue['attributes']['decisionDate']}"
+              issues << "Issue: #{issue.text} - Decision Date: #{issue.decision_date}"
             end
 
             # keep parity between original HLR and new generator

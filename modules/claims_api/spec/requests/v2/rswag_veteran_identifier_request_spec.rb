@@ -9,7 +9,11 @@ describe 'Veteran Identifier', swagger_doc: 'v2/swagger.json' do # rubocop:disab
     post 'Retrieve id of Veteran.' do
       tags 'Veteran Identifier'
       operationId 'postVeteranId'
-      security [bearer_token: []]
+      security [
+        { productionOauth: ['claim.read'] },
+        { sandboxOauth: ['claim.read'] },
+        { bearer_token: [] }
+      ]
       consumes 'application/json'
       produces 'application/json'
       description "Allows authenticated Veterans and Veteran representatives to retrieve a Veteran's id."

@@ -119,7 +119,7 @@ module AppealsApi
           stamper = CentralMail::DatestampPdf.new(stamped_pdf_path)
 
           bottom_stamped_path = stamper.run(
-            text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
+            text: "API.VA.GOV #{higher_level_review.created_at.utc.strftime('%Y-%m-%d %H:%M%Z')}",
             x: 5,
             y: 775,
             text_only: true
@@ -194,7 +194,7 @@ module AppealsApi
           form_issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
           form_issues.each_with_index do |issue, index|
             date_fields = form_fields.issue_decision_date_fields(index)
-            date = Date.parse(issue['attributes']['decisionDate'])
+            date = issue.decision_date
             options[date_fields[:month]] = date.strftime '%m'
             options[date_fields[:day]] = date.strftime '%d'
             options[date_fields[:year]] = date.strftime '%Y'
@@ -205,16 +205,16 @@ module AppealsApi
         def fill_contestable_issues_text(pdf)
           issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
           issues.first(NUMBER_OF_ISSUES_FIRST_PAGE).each_with_index do |issue, i|
-            if (text = issue.dig('attributes', 'issue')&.presence)
-              pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg1][i])
+            if issue.text_exists?
+              pdf.text_box issue.text, default_text_opts.merge(form_fields.boxes[:issues_pg1][i])
               pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg1][i])
             end
           end
           pdf.start_new_page # Always start a new page even if there are no issues so other text can insert properly
 
           issues.drop(NUMBER_OF_ISSUES_FIRST_PAGE).each_with_index do |issue, i|
-            if (text = issue.dig('attributes', 'issue')&.presence)
-              pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg2][i])
+            if issue.text_exists?
+              pdf.text_box issue.text, default_text_opts.merge(form_fields.boxes[:issues_pg2][i])
               pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg2][i])
             end
           end

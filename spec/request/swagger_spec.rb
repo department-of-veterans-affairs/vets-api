@@ -2069,131 +2069,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    describe 'preferences' do
-      let(:preference) { create(:preference) }
-      let(:route) { '/v0/user/preferences/choices' }
-      let(:choice) { create :preference_choice, preference: preference }
-      let(:request_body) do
-        [
-          {
-            preference: { code: preference.code },
-            user_preferences: [{ code: choice.code }]
-          }
-        ]
-      end
-
-      it 'supports getting preference data' do
-        expect(subject).to validate(:get, route, 200, headers)
-        expect(subject).to validate(:get, route, 401)
-        expect(subject).to validate(:get, "#{route}/{code}", 200, headers.merge('code' => preference.code))
-        expect(subject).to validate(:get, "#{route}/{code}", 401, 'code' => preference.code)
-        expect(subject).to validate(:get, "#{route}/{code}", 404, headers.merge('code' => 'wrong'))
-      end
-
-      it 'supports creating and/or updating UserPreferences for POST /v0/user/preferences' do
-        expect(subject).to validate(
-          :post,
-          '/v0/user/preferences',
-          200,
-          headers.merge('_data' => { '_json' => request_body.as_json })
-        )
-      end
-
-      it 'supports authorization validation for POST /v0/user/preferences' do
-        expect(subject).to validate(:post, '/v0/user/preferences', 401)
-      end
-
-      it 'supports 400 error reporting for POST /v0/user/preferences' do
-        bad_request_body = [
-          {
-            preference: { code: preference.code },
-            user_preferences: []
-          }
-        ]
-
-        expect(subject).to validate(
-          :post,
-          '/v0/user/preferences',
-          400,
-          headers.merge('_data' => { '_json' => bad_request_body.as_json })
-        )
-      end
-
-      it 'supports 404 error reporting for POST /v0/user/preferences' do
-        bad_request_body = [
-          {
-            preference: { code: 'code-not-in-db' },
-            user_preferences: [{ code: 'code-not-in-db' }]
-          }
-        ]
-
-        expect(subject).to validate(
-          :post,
-          '/v0/user/preferences',
-          404,
-          headers.merge('_data' => { '_json' => bad_request_body.as_json })
-        )
-      end
-
-      it 'supports 422 error reporting for POST /v0/user/preferences' do
-        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
-          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
-        )
-
-        expect(subject).to validate(
-          :post,
-          '/v0/user/preferences',
-          422,
-          headers.merge('_data' => { '_json' => request_body.as_json })
-        )
-      end
-    end
-
-    describe 'user preferences' do
-      let(:benefits) { create(:preference, :benefits) }
-      let(:account) { Account.first }
-
-      before do
-        create(
-          :user_preference,
-          account_id: account.id,
-          preference: benefits,
-          preference_choice: benefits.choices.first
-        )
-      end
-
-      it 'supports getting an index of a user\'s UserPreferences' do
-        expect(subject).to validate(:get, '/v0/user/preferences', 200, headers)
-        expect(subject).to validate(:get, '/v0/user/preferences', 401)
-      end
-
-      it 'supports deleting all of a user\'s UserPreferences' do
-        expect(subject).to validate(
-          :delete,
-          '/v0/user/preferences/{code}/delete_all',
-          200,
-          headers.merge('code' => benefits.code)
-        )
-        expect(subject).to validate(:delete, '/v0/user/preferences/{code}/delete_all', 401, 'code' => benefits.code)
-        expect(subject).to validate(
-          :delete,
-          '/v0/user/preferences/{code}/delete_all',
-          404,
-          headers.merge('code' => 'junk')
-        )
-
-        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
-          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
-        )
-        expect(subject).to validate(
-          :delete,
-          '/v0/user/preferences/{code}/delete_all',
-          422,
-          headers.merge('code' => benefits.code)
-        )
-      end
-    end
-
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
@@ -2841,21 +2716,21 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'search click tracking' do
       context 'when successful' do
         # rubocop:disable Layout/LineLength
-        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => 'testQuery', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent', 'module_code' => 'I14Y' } }
+        let(:params) { { 'position' => 0, 'query' => 'testQuery', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent', 'module_code' => 'I14Y' } }
 
         it 'sends data as query params' do
           VCR.use_cassette('search_click_tracking/success') do
-            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 204, params)
+            expect(subject).to validate(:post, '/v0/search_click_tracking/?position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 204, params)
           end
         end
       end
 
       context 'with an empty search query' do
-        let(:params) { { 'client_ip' => 'testIP', 'position' => 0, 'query' => '', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent', 'module_code' => 'I14Y' } }
+        let(:params) { { 'position' => 0, 'query' => '', 'url' => 'https%3A%2F%2Fwww.testurl.com', 'user_agent' => 'testUserAgent', 'module_code' => 'I14Y' } }
 
         it 'returns a 400 with error details' do
           VCR.use_cassette('search_click_tracking/missing_parameter') do
-            expect(subject).to validate(:post, '/v0/search_click_tracking/?client_ip={client_ip}&position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 400, params)
+            expect(subject).to validate(:post, '/v0/search_click_tracking/?position={position}&query={query}&url={url}&module_code={module_code}&user_agent={user_agent}', 400, params)
           end
           # rubocop:enable Layout/LineLength
         end
