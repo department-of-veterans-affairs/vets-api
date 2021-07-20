@@ -8,6 +8,7 @@ module Webhooks
     # load './app/workers/webhooks/notifications_job.rb'
 
     def perform(api_name)
+      job_id = nil
       processing_time = Time.current
       max_retries = Webhooks::Utilities.api_name_to_retries[api_name]
       Rails.logger.info "Webhooks::NotificationsJob on api_name  #{api_name}"
@@ -32,10 +33,11 @@ module Webhooks
         CallbackUrlJob.perform_async(url, notify_ids, max_retries)
       end
       Rails.logger.info "Webhooks::NotificationsJob Webhooks::StartupJob.new.perform #{processing_time} for #{api_name}"
+      return ->{job_id} # Used under test
     rescue => e
       Rails.logger.error("Webhooks::NotificationsJob Error in NotificationsJob #{e.message}", e)
     ensure
-      Webhooks::SchedulerJob.new.perform(api_name, processing_time) # should we put the time in reddis?
+      job_id = Webhooks::SchedulerJob.new.perform(api_name, processing_time) # should we put the time in reddis?
     end
   end
 end

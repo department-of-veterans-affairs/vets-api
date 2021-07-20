@@ -1,17 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require './spec/workers/webhooks/job_tracking'
 
 Thread.current['under_test'] = true
 
 RSpec.describe Webhooks::SchedulerJob, type: :job do
 
-  SecureRandom.define_singleton_method(:hex) do |n|
-    s = super(n)
-    Thread.current['job_ids'] ||= []
-    Thread.current['job_ids'] << s
-    s
-  end
 
   after do
     Thread.current['job_ids'] = []
