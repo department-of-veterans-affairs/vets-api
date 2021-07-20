@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 
+# TODO: investigate specs
+
 RSpec.describe 'vaos scheduling/configurations', type: :request, skip_mvi: true do
   include SchemaMatchers
 
