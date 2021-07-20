@@ -279,10 +279,10 @@ RSpec.describe 'user', type: :request do
         )
       end
 
-      it 'returns an internal service error' do
+      it 'returns a bad gateway error' do
         get '/mobile/v0/user', headers: iam_headers
 
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:bad_gateway)
         expect(response.body).to match_json_schema('errors')
       end
     end
