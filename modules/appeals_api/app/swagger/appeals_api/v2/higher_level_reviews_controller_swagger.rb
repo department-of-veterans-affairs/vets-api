@@ -43,10 +43,17 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
     }
   end.call
 
+  hlr_contestable_issues_responses = read_json_from_v1_dir['responses_contestable_issues.json']
+
   swagger_component do
     schema :hlrShow do
       key :type, hlrShow_schema[:type]
       key :properties, hlrShow_schema[:properties]
+    end
+
+    schema :hlrContestableIssuesShow do
+      key :type, OBJ
+      key :properties, hlr_contestable_issues_responses['200']['content']['application/vnd.api+json']['schema']['properties']
     end
   end
 
@@ -133,15 +140,14 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
         schema '$ref': 'hlrCreateBenefitType'
       end
 
-      responses = read_json_from_v1_dir['responses_contestable_issues.json']
-      responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
+      hlr_contestable_issues_responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
         value: {
           errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type',
                      detail: 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
               '"fiduciary", "insurance", "education", "voc_rehab", "loan_guaranty", "vha", "nca"]' }]
         }
       }
-      key :responses, responses
+      key :responses, hlr_contestable_issues_responses
 
       security do
         key :apikey, []
