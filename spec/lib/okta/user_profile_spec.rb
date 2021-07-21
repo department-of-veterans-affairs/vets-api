@@ -3,7 +3,6 @@
 require 'okta/user_profile.rb'
 
 RSpec.describe Okta::UserProfile do
-  
   describe '#initialize' do
     let(:user_profile_json) do
       {
@@ -17,7 +16,7 @@ RSpec.describe Okta::UserProfile do
     end
 
     let(:user_profile_struct) { OpenStruct.new(user_profile_json) }
-    let(:user_profile) { described_class.new(user_profile_struct)}
+    let(:user_profile) { described_class.new(user_profile_struct) }
 
     it 'creates the okta service correctly' do
       expect(user_profile).to be_instance_of(Okta::UserProfile)
@@ -36,7 +35,7 @@ RSpec.describe Okta::UserProfile do
       }
     end
     let(:user_profile_struct) { OpenStruct.new(user_profile_json) }
-    let(:user_profile) { described_class.new(user_profile_struct)}
+    let(:user_profile) { described_class.new(user_profile_struct) }
 
     it 'derives saml proxy mhv premium loa' do
       response = user_profile.derived_loa
@@ -58,7 +57,7 @@ RSpec.describe Okta::UserProfile do
     end
 
     let(:user_profile_struct) { OpenStruct.new(user_profile_json) }
-    let(:user_profile) { described_class.new(user_profile_struct)}
+    let(:user_profile) { described_class.new(user_profile_struct) }
 
     it 'derives saml proxy mhv basic loa' do
       response = user_profile.derived_loa
@@ -67,7 +66,7 @@ RSpec.describe Okta::UserProfile do
     end
   end
 
-  describe '#confirm loa mappings saml proxy dslogon' do
+  describe '#confirm loa mappings saml proxy dslogon premium' do
     let(:user_profile_json) do
       {
         'email': 'john.doe@va.gov',
@@ -80,7 +79,7 @@ RSpec.describe Okta::UserProfile do
     end
 
     let(:user_profile_struct) { OpenStruct.new(user_profile_json) }
-    let(:user_profile) { described_class.new(user_profile_struct)}
+    let(:user_profile) { described_class.new(user_profile_struct) }
 
     it 'derives saml proxy dslogon premium loa' do
       response = user_profile.derived_loa
@@ -89,7 +88,7 @@ RSpec.describe Okta::UserProfile do
     end
   end
 
-  describe '#confirm loa mappings saml proxy dslogon' do
+  describe '#confirm loa mappings saml proxy dslogon basic' do
     let(:user_profile_json) do
       {
         'email': 'john.doe@va.gov',
@@ -102,7 +101,7 @@ RSpec.describe Okta::UserProfile do
     end
 
     let(:user_profile_struct) { OpenStruct.new(user_profile_json) }
-    let(:user_profile) { described_class.new(user_profile_struct)}
+    let(:user_profile) { described_class.new(user_profile_struct) }
 
     it 'derives saml proxy dslogon basic loa' do
       response = user_profile.derived_loa
@@ -124,7 +123,7 @@ RSpec.describe Okta::UserProfile do
     end
 
     let(:user_profile_struct) { OpenStruct.new(user_profile_json) }
-    let(:user_profile) { described_class.new(user_profile_struct)}
+    let(:user_profile) { described_class.new(user_profile_struct) }
 
     it 'derives saml proxy idme loa' do
       response = user_profile.derived_loa
@@ -146,7 +145,7 @@ RSpec.describe Okta::UserProfile do
     end
 
     let(:user_profile_struct) { OpenStruct.new(user_profile_json) }
-    let(:user_profile) { described_class.new(user_profile_struct)}
+    let(:user_profile) { described_class.new(user_profile_struct) }
 
     it 'derives ssoe idme loa' do
       response = user_profile.derived_loa
@@ -167,7 +166,7 @@ RSpec.describe Okta::UserProfile do
     end
 
     let(:user_profile_struct) { OpenStruct.new(user_profile_json) }
-    let(:user_profile) { described_class.new(user_profile_struct)}
+    let(:user_profile) { described_class.new(user_profile_struct) }
 
     it 'derives last_login_type based loa' do
       response = user_profile.derived_loa
