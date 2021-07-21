@@ -1,0 +1,72 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require './spec/workers/webhooks/job_tracking'
+Thread.current['under_test'] = true
+require_dependency './lib/webhooks/utilities'
+require_relative 'registrations'
+
+RSpec.describe Webhooks::NotificationsJob, type: :job do
+
+  let(:consumer_id) do 'f7d83733-a047-413b-9cce-e89269dcb5b1' end
+  let(:consumer_name) do 'tester' end
+  let(:api_id) do '43581f6f-448c-4ed3-846a-68a004c9b78b' end
+  let(:msg) do
+    {'msg' => 'the message'}
+  end
+  let(:observers_json) {
+    {
+        "subscriptions" => [
+            {
+                "event" => Registrations::TEST_EVENT,
+                "urls" => [
+                    "https://i/am/listening",
+                    "https://i/am/also/listening"
+                ]
+            }
+        ]
+    }
+  }
+
+  before do
+    @subscription = Webhooks::Utilities.register_webhook(consumer_id, consumer_name, observers_json, api_id)
+    @notifications = Webhooks::Utilities.record_notification(
+        consumer_id: consumer_id,
+        consumer_name: consumer_name,
+        event: 'test_event',
+        api_guid: api_id,
+        msg: msg
+    )
+    Thread.current['job_ids'] = []
+  end
+
+  it 'schedules the scheduler job' do
+    job_id = Webhooks::NotificationsJob.new.perform('test_api').call
+    expect(job_id.flatten.last).to eq Thread.current['job_ids'].last
+  end
+
+  it 'it logs when an unexpected exception occurs' do
+    allow(Webhooks::CallbackUrlJob).to receive(:perform_async).and_raise('busted')
+    job_id = Webhooks::NotificationsJob.new.perform('test_api')
+    expect(job_id).to be true
+  end
+
+  it 'scheduled three jobs total' do
+    described_class.new.perform('test_api')
+    # first two jobs will be url callback jobs (note two urls in observable json map above)
+    # third job is the next notification job kicked off via the scheduler job
+    expect(Thread.current['job_ids'].length).to eq 3
+  end
+
+  it 'records processing time before publication attempt' do
+    t = Time.zone.now
+    Timecop.freeze(Time.zone.now)
+    described_class.new.perform('test_api')
+    @notifications.each do |n|
+      n.reload
+      expect(n.processing).to be t.to_i
+    end
+    Timecop.return
+  end
+
+end

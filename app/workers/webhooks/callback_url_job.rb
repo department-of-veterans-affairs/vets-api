@@ -4,7 +4,7 @@ module Webhooks
   class CallbackUrlJob
     include Sidekiq::Worker
 
-    MAX_BODY_LENGTH = 500
+    MAX_BODY_LENGTH = 500 # denotes the how large of a body from the client url we record in our db.
 
     def perform(url, ids, max_retries)
       @url = url
@@ -55,7 +55,7 @@ module Webhooks
           wnaa.webhook_notification_attempt_id = attempt_id
           wnaa.save!
 
-          if attempt.success? || notification.webhook_notification_attempts.count > @max_retries
+          if attempt.success? || notification.webhook_notification_attempts.count >= @max_retries
             notification.final_attempt_id = attempt_id
           end
 
