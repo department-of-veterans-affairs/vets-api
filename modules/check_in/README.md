@@ -34,7 +34,7 @@ check_in:
     tmp_api_id: CHIP API ID
     mock: false
     key_path: path
-    redis_session_prefix: prefix
+    redis_session_prefix: <prefix>
     timeout: Timeout in seconds
 ```
 
@@ -44,13 +44,11 @@ check_in:
 
 - The `GET /v0/patient_check_ins/:id` route accepts a LoROTA `uuid` and returns the data which is relevant to a patient's Check-in at a given location and time.
 
-- The `POST /v0/patient_check_ins` route accepts POST data from an upstream client with the LoROTA uuid in the request body and submits it to the relevant CHIP API endpoint. A success or fail message will be sent back to the client depending on the downstream servers       response.
+- The `POST /v0/patient_check_ins` route accepts POST data from an upstream client with the LoROTA uuid in the request body and submits it to the relevant CHIP API endpoint. A success or fail message will be sent back to the client depending on the downstream servers response.
 
-## The CheckIn modules chip-api Integration:
-
-- TODO: How the CheckIn module authenticates with the chip-api
-
-- TODO: Which chip-api endpoints that the CheckIn module interacts with
+## Sequence and Architecture Diagrams
+### Happy path sequence flow between the UI/vets-api/CHIP:
+![Diagram](https://raw.githubusercontent.com/department-of-veterans-affairs/va.gov-team/master/products/health-care/checkin/engineering/Check-In-Sequence.png)
 
 ## License
 This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
