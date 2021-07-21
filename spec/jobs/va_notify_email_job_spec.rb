@@ -30,7 +30,22 @@ RSpec.describe VANotifyEmailJob, type: :model do
     context 'when vanotify returns a 400 error' do
       it 'rescues and logs the error' do
         VCR.use_cassette('va_notify/bad_request') do
-          described_class.new.perform(email, template_id)
+          job = described_class.new
+          expect(job).to receive(:log_exception_to_sentry).with(
+            instance_of(Common::Exceptions::BackendServiceException),
+            {
+              args: {
+                email: email,
+                template_id: template_id,
+                personalisation: nil
+              }
+            },
+            {
+              error: :va_notify_email_job
+            }
+          )
+
+          job.perform(email, template_id)
         end
       end
     end
