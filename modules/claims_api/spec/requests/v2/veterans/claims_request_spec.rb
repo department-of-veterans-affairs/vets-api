@@ -94,6 +94,31 @@ RSpec.describe 'Claims', type: :request do
     end
 
     context 'for a single claim' do
+      context 'when no auth header provided' do
+        it 'returns a 401 error code' do
+          with_okta_user(scopes) do
+            get claim_by_id_path
+            expect(response.status).to eq(401)
+          end
+        end
+      end
+
+      context 'when current user is not the target veteran' do
+        context 'when current user is not a representative of the target veteran' do
+          it 'returns a 403' do
+            with_okta_user(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
+
+              get claim_by_id_path, headers: auth_header
+              expect(response.status).to eq(403)
+            end
+          end
+        end
+      end
+
       context 'when a known claimId is provided' do
         it 'returns a 200' do
           with_okta_user(scopes) do |auth_header|
