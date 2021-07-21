@@ -31,7 +31,7 @@ module ClaimsApi
 
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if claim_details.blank?
 
-            render json: { id: claim_details[:bnft_claim_id], type: claim_details[:bnft_claim_type_nm] }
+            render json: { id: parms[:id], type: claim_details[:bnft_claim_type_nm] }
           end
         end
 
