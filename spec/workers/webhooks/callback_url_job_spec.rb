@@ -47,6 +47,12 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
         api_guid: api_id,
         msg: msg
     )
+    @notification_by_url = -> (url) do
+        @notifications.select do |n|
+          n.callback_url.eql?(url)
+        end.map(&:id)
+      end
+
     Thread.current['job_ids'] = []
   end
 
@@ -60,15 +66,12 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
   it 'notifies the callback urls' do
     mock_faraday(200, '', true)
     urls.each { |url|
-      @notification_by_url = @notifications.select do |n|
-        n.callback_url.eql? url
-      end.map(&:id)
-      described_class.new.perform(url, @notification_by_url, Registrations::MAX_RETRIES)
+      described_class.new.perform(url, @notification_by_url.call(url), Registrations::MAX_RETRIES)
     }
     @notifications.each do |notification_row|
       notification_row.reload
       expect(notification_row.final_attempt_id).to be_an(Integer)
-      attempt = WebhookNotificationAttempt.find_by(id: notification_row.final_attempt_id)
+      attempt = notification_row.final_attempt
       expect(attempt.success).to be true
       expect(attempt.response['status']).to be 200
     end
@@ -80,38 +83,35 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
     it 'records failure attempts from a responsive callback url' do
       mock_faraday(400, '', false)
       urls.each { |url|
-        @notification_by_url = @notifications.select do |n|
-          n.callback_url.eql? url
-        end.map(&:id)
-        described_class.new.perform(url, @notification_by_url, Registrations::MAX_RETRIES)
+        described_class.new.perform(url, @notification_by_url.call(url), Registrations::MAX_RETRIES)
       }
       @notifications.each do |notification_row|
         notification_row.reload
         expect(notification_row.final_attempt_id).to be nil
-        wnaa = WebhookNotificationAttemptAssoc.where(webhook_notification_id: notification_row.id)
-        expect(wnaa.count).to be 1
-        wnaa.each do |w|
-          attempt = WebhookNotificationAttempt.find_by(id: w.webhook_notification_attempt_id)
-          expect(attempt.success).to be false
-          expect(attempt.response['status']).to be 400
-        end
+        expect(notification_row.final_attempt).to be nil
+        wna = notification_row.webhook_notification_attempts
+        expect(wna.count).to be 1
+        attempt = wna.first
+        expect(attempt.success).to be false
+        expect(attempt.response['status']).to be 400
       end
     end
 
     it 'the final attempt id is set if we fail max retries and we try max retries' do
       mock_faraday(400, '', false)
+      max_retries = Registrations::MAX_RETRIES
       urls.each { |url|
-        @notification_by_url = @notifications.select do |n|
-          n.callback_url.eql? url
-        end.map(&:id)
-        Registrations::MAX_RETRIES.times do
-          described_class.new.perform(url, @notification_by_url, Registrations::MAX_RETRIES)
+        max_retries.times do
+          described_class.new.perform(url, @notification_by_url.call(url), max_retries)
         end
       }
       @notifications.each do |notification_row|
         notification_row.reload
         expect(notification_row.final_attempt_id).to be_an(Integer)
-        expect(notification_row.webhook_notification_attempts.count).to be Registrations::MAX_RETRIES
+        expect(notification_row.webhook_notification_attempts.count).to be max_retries
+        attempt = notification_row.final_attempt
+        expect(attempt.success).to be false
+        expect(attempt.response['status']).to be 400
       end
     end
 
@@ -120,17 +120,13 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
         # standard error forces exercise of last exception block
         allow(Faraday).to receive(:post).and_raise(error)
         urls.each { |url|
-          @notification_by_url = @notifications.select do |n|
-            n.callback_url.eql? url
-          end.map(&:id)
-          described_class.new.perform(url, @notification_by_url, Registrations::MAX_RETRIES)
+          described_class.new.perform(url, @notification_by_url.call(url), Registrations::MAX_RETRIES)
         }
         @notifications.each do |notification_row|
           notification_row.reload
           expect(notification_row.final_attempt_id).to be nil
-          wnaa = WebhookNotificationAttemptAssoc.where(webhook_notification_id: notification_row.id)
-          wnaa.each do |w|
-            attempt = WebhookNotificationAttempt.find_by(id: w.webhook_notification_attempt_id)
+          wna = notification_row.webhook_notification_attempts
+          wna.each do |attempt|
             expect(attempt.success).to be false
             expect(attempt.response['exception'].eql? 'busted')
           end
