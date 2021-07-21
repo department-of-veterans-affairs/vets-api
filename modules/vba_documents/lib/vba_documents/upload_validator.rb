@@ -75,7 +75,7 @@ module VBADocuments
       return if lob.to_s.empty?
 
       unless VALID_LOB.keys.include?(lob)
-        msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{VALID_LOB.keys.join(',')}"
+        msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{VALID_LOB_MSG.keys.join(',')}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
       end
     end

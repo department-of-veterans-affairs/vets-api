@@ -15,7 +15,7 @@ class VetInfo
           'last' => @user.last_name
         },
         'ssn' => @user.ssn,
-        'va_file_number' => @bgs_person[:file_nbr],
+        'va_file_number' => @bgs_person[:file_nbr].to_s,
         'birth_date' => @user.birth_date
       }
     }

@@ -42,7 +42,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/bgs-ext.git
-  revision: 2b6dd9454241cf395af7d42b7f36449522c0a109
+  revision: 897815201f79667e72f9dc6bb743873ac7fb306c
   specs:
     bgs_ext (0.21.0)
       httpclient
@@ -65,10 +65,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: b1453427f44680302ab0d6161e7953218acba1b3
+  revision: d95589c438c1415f4ea8607e2f50ca82ea00b9c4
   branch: master
   specs:
-    vets_json_schema (20.6.6)
+    vets_json_schema (20.6.7)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -162,7 +162,7 @@ GEM
     activerecord (6.1.3.2)
       activemodel (= 6.1.3.2)
       activesupport (= 6.1.3.2)
-    activerecord-import (1.0.8)
+    activerecord-import (1.2.0)
       activerecord (>= 3.2)
     activerecord-postgis-adapter (7.1.0)
       activerecord (~> 6.1)
@@ -193,16 +193,16 @@ GEM
     attr_extras (6.2.4)
     awesome_print (1.9.2)
     aws-eventstream (1.1.1)
-    aws-partitions (1.478.0)
+    aws-partitions (1.479.0)
     aws-sdk-core (3.117.0)
       aws-eventstream (~> 1, >= 1.0.2)
       aws-partitions (~> 1, >= 1.239.0)
       aws-sigv4 (~> 1.1)
       jmespath (~> 1.0)
-    aws-sdk-kms (1.43.0)
+    aws-sdk-kms (1.44.0)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.96.1)
+    aws-sdk-s3 (1.96.2)
       aws-sdk-core (~> 3, >= 3.112.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.1)
@@ -220,7 +220,7 @@ GEM
     bindex (0.8.1)
     bootsnap (1.7.5)
       msgpack (~> 1.0)
-    brakeman (5.0.4)
+    brakeman (5.1.1)
     breakers (0.5.0)
       faraday (>= 0.7.4, < 2.0)
       multi_json (~> 1.0)
@@ -287,7 +287,7 @@ GEM
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
     date_time_precision (0.8.1)
-    date_validator (0.11.0)
+    date_validator (0.12.0)
       activemodel (>= 3)
       activesupport (>= 3)
     debase (0.2.4.1)
@@ -431,7 +431,7 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.4.0)
+    google-apis-core (0.4.1)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (>= 0.16.2, < 2.a)
       httpclient (>= 2.8.1, < 3.a)
@@ -777,7 +777,7 @@ GEM
     rswag-ui (2.4.0)
       actionpack (>= 3.1, < 7.0)
       railties (>= 3.1, < 7.0)
-    rubocop (1.18.1)
+    rubocop (1.18.3)
       parallel (~> 1.10)
       parser (>= 3.0.0.0)
       rainbow (>= 2.2.2, < 4.0)

@@ -55,17 +55,6 @@ module Preneeds
       Common::Collection.new(MilitaryRank, json)
     end
 
-    # POST to retrieve valid states
-    #
-    # @return [Common::Collection<Preneeds::State>] collection of valid states
-    #
-    def get_states
-      soap = savon_client.build_request(:get_states, message: {})
-      json = with_monitoring { perform(:post, '', soap.body).body }
-
-      Common::Collection.new(State, json)
-    end
-
     # POST to submit a {Preneeds::BurialForm}
     #
     # @param burial_form [Preneeds::BurialForm] a valid BurialForm object
