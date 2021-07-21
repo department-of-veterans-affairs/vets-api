@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'bgs/form686c'
-require 'bid/awards/service'
 
 RSpec.describe BGS::Form686c do
   let(:user_object) { FactoryBot.create(:evss_user, :loa3) }

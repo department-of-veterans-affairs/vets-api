@@ -5,5 +5,7 @@ CheckIn::Engine.routes.draw do
 
   namespace :v0, defaults: { format: :json } do
     resources :patient_check_ins, only: %i[show create]
+
+    get 'apidocs', to: 'apidocs#index'
   end
 end
