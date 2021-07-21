@@ -39,9 +39,9 @@ module Webhooks
         successful = false
         if @response.respond_to? :success?
           successful = @response.success?
-          attempt_response = {'status' => @response.status, 'body' => @response.body[0...MAX_BODY_LENGTH]}
+          attempt_response = { 'status' => @response.status, 'body' => @response.body[0...MAX_BODY_LENGTH] }
         else
-          attempt_response = {'exception' => @response.message}
+          attempt_response = { 'exception' => @response.message }
         end
 
         attempt.success = successful

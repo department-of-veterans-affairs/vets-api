@@ -89,7 +89,7 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
         notification_row.reload
         expect(notification_row.final_attempt_id).to be nil
         expect(notification_row.final_attempt).to be nil
-        wna = notification_row.webhook_notification_attempts
+        wna = notification_row.webhooks_notification_attempts
         expect(wna.count).to be 1
         attempt = wna.first
         expect(attempt.success).to be false
@@ -108,7 +108,7 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
       @notifications.each do |notification_row|
         notification_row.reload
         expect(notification_row.final_attempt_id).to be_an(Integer)
-        expect(notification_row.webhook_notification_attempts.count).to be max_retries
+        expect(notification_row.webhooks_notification_attempts.count).to be max_retries
         attempt = notification_row.final_attempt
         expect(attempt.success).to be false
         expect(attempt.response['status']).to be 400
@@ -125,7 +125,7 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
         @notifications.each do |notification_row|
           notification_row.reload
           expect(notification_row.final_attempt_id).to be nil
-          wna = notification_row.webhook_notification_attempts
+          wna = notification_row.webhooks_notification_attempts
           wna.each do |attempt|
             expect(attempt.success).to be false
             expect(attempt.response['exception'].eql? 'busted')

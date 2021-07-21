@@ -8,5 +8,10 @@ module Webhooks
     has_many :webhooks_notification_attempts,
              class_name: 'Webhooks::NotificationAttempt',
              through: :webhooks_notification_attempt_assocs
+
+    def final_attempt
+      return nil unless final_attempt_id
+      webhooks_notification_attempts.select { |a| a.id == final_attempt_id }.first
+    end
   end
 end
