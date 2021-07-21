@@ -9,6 +9,7 @@ module VBADocuments
         swagger_component do
           schema :ObserversObject do
             key :type, :object
+            key :in, :formData
             key :example, JSON.parse(File.read(EXAMPLE_PATH))
             property :subscriptions do
               key :description, 'An optional object that can be passed for notifications'

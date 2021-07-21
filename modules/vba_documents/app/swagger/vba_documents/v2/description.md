@@ -51,7 +51,8 @@ We use mock test data in the sandbox environment. Data is not sent upstream and 
 Allows a client to upload a multi-part document package (form + attachments + metadata).
 
 1. Client Request: POST https://dev-api.va.gov/services/vba_documents/v1/
-    * No request body or parameters required. An observers object is optional.
+    * Webhooks: pass the `observers` object to subscribe URL(s) that will receive status changes. This can be sent as a JSON file or as JSON text data.
+    * Polling: no request body or parameters required.
 
 2. Service Response: A JSON API object with the following attributes:
     * `guid`: An identifier used for subsequent status requests
@@ -65,37 +66,30 @@ Allows a client to upload a multi-part document package (form + attachments + me
 4. Service Response: The HTTP status indicates whether the upload was successful.
     * Additionally, the response includes an ETag header containing an MD5 hash of the submitted payload. This can be compared to the submitted payload to ensure data integrity of the upload.
 
-### Status caching
+### Status updates
 Once you submit a file upload, you may check its status using multiple methods.
 
-**Polling** makes continued requests to the endpoint to return statuses at regular intervals.
 
-**Webhooks** eliminate the need for repeated requests by allowing the API to return an updated status to a provided URL.
+* Polling: to check once or at regular intervals:
+    * For a single GUID, make repeated GET requests to the /uploads/{guid} endpoint.
+    * For multiple GUIDs, make repeated POST requests to the /uploads/report endpoint.
+* Webhooks: we return the status changes to your subscribed URL. No polling or additional action is needed.
 
-**Manual** makes a single request to the right POST or GET endpoint.
-
-#### Polling
-1. Make a POST request to the /uploads endpoint to retrieve a GUID and file upload location.
-2. Make a PUT request. Include the files in the body of the request and use the file upload location returned in step 1.
-3. Check the status of the file upload. This can be done for a single GUID or for multiple.
-      For a single GUID, make repeated GET requests to the /uploads/{guid} endpoint.
-      For multiple GUIDs, make repeated POST requests to the /uploads/report endpoint.
-#### Webhooks
-1. Make a POST request to the /uploads endpoint to retrieve a GUID and file upload location. Pass the observers object to subscribe URL(s) that will receive status changes. Example:
-2. Make a PUT request. Include the files in the body of the request and use the file upload location returned in step 1.
-3. The status of the file upload will be sent to the URL you subscribed in step 1.
-
-#### Manual
-1. Make a POST request to the /uploads endpoint to retrieve a GUID and file upload location.
-2. Make a PUT request. Include the files in the body of the request and use the file upload location returned in step 1.
-3. Check the status of the file upload. This can be done for a single GUID or for multiple.
-      For a single GUID, make a GET request to the /uploads/{guid} endpoint.
-      For multiple GUIDs, make a POST request to the /uploads/report endpoint.
-
-Due to current system limitations, data for the `/uploads/report` endpoint is cached for one hour.
-
-
-
+```
+{
+    notifications: [
+    {
+        guid: 'd6fa1319-e5ec-4fb9-9231-3a275a1233df',
+        event: 'gov.va.developer.benefits-intake.status_change',
+        api_name: 'vba_documents-v2',
+        status_to: 'uploaded',
+        epoch_time: 1626806219,
+        status_from: 'pending'
+    },
+    [length]: 1
+    ]
+}
+```
 
 ### Optional Base64 encoding
 

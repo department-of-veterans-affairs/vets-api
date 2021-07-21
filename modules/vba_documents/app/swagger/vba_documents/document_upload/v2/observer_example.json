@@ -2,7 +2,7 @@
   "subscriptions": [
     {
       "event": "gov.va.developer.benefits-intake.status_change",
-      "urls": "myurl.com"
+      "urls": "https://i/am/listening"
   }
   ]
 }
