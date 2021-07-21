@@ -128,7 +128,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
     end
   end
 
-  path '/veterans/{veteranId}/claims/{claimId}' do
+  path '/veterans/{veteranId}/claims/{id}' do
     get 'Find claim by ID' do
       tags 'Claims'
       operationId 'findClaimById'
@@ -138,6 +138,7 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
         { bearer_token: [] }
       ]
       produces 'application/json'
+      parameter name: :id, in: :path, type: :string, description: 'The ID of the claim being requested'
       description 'Retrieves a specific claim for a Veteran'
 
       parameter name: 'veteranId',
@@ -146,14 +147,8 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
                 type: :string,
                 description: 'ID of Veteran'
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-
-      parameter name: 'claimId',
-                in: :path,
-                required: true,
-                type: :string,
-                description: 'ID of Claim'
-      let(:claimId) { '600131328' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
+      let(:id) { '600131328' }
 
       describe 'Getting a successul response' do
         response '200', 'claim response' do

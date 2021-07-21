@@ -597,7 +597,7 @@
         }
       }
     },
-    "/veterans/{veteranId}/claims/{claimId}": {
+    "/veterans/{veteranId}/claims/{id}": {
       "get": {
         "summary": "Find claim by ID",
         "tags": [
@@ -621,8 +621,16 @@
             ]
           }
         ],
-        "description": "Retrieves a specific claim for a Veteran",
         "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the claim being requested",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "name": "veteranId",
             "in": "path",
@@ -631,17 +639,9 @@
             "schema": {
               "type": "string"
             }
-          },
-          {
-            "name": "claimId",
-            "in": "path",
-            "required": true,
-            "description": "ID of Claim",
-            "schema": {
-              "type": "string"
-            }
           }
         ],
+        "description": "Retrieves a specific claim for a Veteran",
         "responses": {
           "200": {
             "description": "claim response",
