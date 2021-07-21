@@ -23,6 +23,10 @@ module Okta
       # SSOe combines LOA into a single field for all 3 login types
       elsif %w[200DOD 200VIDM 200MHV].include?(@attrs['last_login_type'])
         { current: @attrs['loa']&.to_i, highest: @attrs['loa']&.to_i }
+      # Lighthouse SAML proxy and SSOe IA enforce LOA3 prior to login
+      # Other login types will be deprecated as each IDP is updated
+      elsif %w[saml-proxy ssoe].include?(@attrs['last_login_type'])
+        { current: 3, highest: 3 }
       else
         { current: @attrs['idme_loa']&.to_i, highest: @attrs['idme_loa']&.to_i }
       end
