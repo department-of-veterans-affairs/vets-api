@@ -43,7 +43,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
     }
   end.call
 
-  hlr_contestable_issues_responses = read_json_from_v1_dir['responses_contestable_issues.json']
+  hlr_ci_responses = read_json_from_v1_dir['responses_contestable_issues.json']
 
   swagger_component do
     schema :hlrShow do
@@ -53,7 +53,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
 
     schema :hlrContestableIssuesShow do
       key :type, OBJ
-      key :properties, hlr_contestable_issues_responses['200']['content']['application/vnd.api+json']['schema']['properties']
+      key :properties, hlr_ci_responses['200']['content']['application/vnd.api+json']['schema']['properties']
     end
   end
 
@@ -122,11 +122,11 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
         'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       key :description, desc
 
-      parameter name: 'X-VA-SSN', in: 'header', description: 'veteran\'s ssn' do
+      parameter name: 'X-VA-SSN', in: 'header', description: 'Veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
-        schema '$ref': 'X-VA-SSN'
+        schema type: :string, format: '^[0-9]{9}$'
       end
-      parameter name: 'X-VA-File-Number', in: 'header', description: 'veteran\'s file number' do
+      parameter name: 'X-VA-File-Number', in: 'header', description: 'Veteran\'s file number' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema type: :string
       end
@@ -136,15 +136,15 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
         key :description, desc
         schema type: :string, format: :date
       end
-      parameter name: 'benefit_type', in: 'path', required: true, description: 'benefit type' do
-        schema '$ref': 'hlrCreateBenefitType'
+      parameter name: 'benefit_type', in: 'path', required: true, description: 'Benefit Type' do
+        schema type: :string, enum: ['compensation']
       end
 
-      hlr_contestable_issues_responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
+      # All types, for reference: %w[compensation pension fudiciary insurance education voc_rehab loan_guaranty vha nca]
+      detail = 'Benefit type nil is invalid. Must be one of: ["compensation"]'
+      hlr_ci_responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
         value: {
-          errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type',
-                     detail: 'Benefit type nil is invalid. Must be one of: ["compensation", "pension",' \
-              '"fiduciary", "insurance", "education", "voc_rehab", "loan_guaranty", "vha", "nca"]' }]
+          errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type', detail: detail }]
         }
       }
       key :responses, hlr_contestable_issues_responses
