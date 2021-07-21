@@ -37,7 +37,7 @@ RSpec.describe 'PatientCheckIns', type: :request do
   describe 'POST `create`' do
     let(:post_params) { { params: { patient_check_ins: { id: '123aBc' } } } }
     let(:resp) do
-      { 'data' => { 'check_in_status' => 'completed' } }
+      { 'data' => 'Successful checkin', 'status' => 200 }
     end
 
     before do
