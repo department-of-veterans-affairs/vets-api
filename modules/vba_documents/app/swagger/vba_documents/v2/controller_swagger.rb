@@ -44,6 +44,19 @@ module VBADocuments
               end
             end
           end
+
+          response 202 do
+            key :description, 'Webhooks: Accepted. Location generated'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, %i[data]
+                property :data do
+                  key :$ref, :DocumentUploadPath
+                end
+              end
+            end
+          end
         end
       end
 
