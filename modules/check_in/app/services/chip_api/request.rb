@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+##
+# Registering middleware needed by Faraday for logging and error reporting
+#
 Faraday::Middleware.register_middleware(check_in_logging: Middleware::CheckInLogging)
 Faraday::Response.register_middleware(check_in_errors: Middleware::Errors)
 
