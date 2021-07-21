@@ -51,11 +51,11 @@ module Webhooks
 
         Webhooks::Notification.where(id: @ids).each do |notification|
           wnaa = Webhooks::NotificationAttemptAssoc.new
-          wnaa.webhook_notification_id = notification.id
-          wnaa.webhook_notification_attempt_id = attempt_id
+          wnaa.webhooks_notification_id = notification.id
+          wnaa.webhooks_notification_attempt_id = attempt_id
           wnaa.save!
 
-          if attempt.success? || notification.webhook_notification_attempts.count >= @max_retries
+          if attempt.success? || notification.webhooks_notification_attempts.count >= @max_retries
             notification.final_attempt_id = attempt_id
           end
 
