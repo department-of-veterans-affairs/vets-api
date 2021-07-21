@@ -10,7 +10,7 @@ module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
-    include Webhooks::Utilities
+    include Webhooks
     extend SQLSupport
     send(:validates_uniqueness_of, :guid)
     before_save :record_status_change, if: :status_changed?

@@ -15,9 +15,12 @@ module VBADocuments
       end
 
       def observing
-        @observers = WebhookSubscription.get_observers_by_guid(api_name: Webhooks::Utilities.event_to_api_name['gov.va.developer.benefits-intake.status_change'],
-                                                               consumer_id: object.consumer_id,
-                                                               api_guid: object.guid)
+        @observers = Webhooks::Subscription.get_observers_by_guid(
+          api_name: Webhooks::Utilities.event_to_api_name[VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT],
+          consumer_id: object.consumer_id,
+          api_guid: object.guid
+        )
+
         @observers.any?
       end
 

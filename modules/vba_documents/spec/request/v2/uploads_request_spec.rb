@@ -87,7 +87,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         end
       end
 
-      %i[missing_event bad_URL unknown_event].each do |test_case|
+      %i[missing_event bad_URL unknown_event not_https duplicate_events].each do |test_case|
         %i[file text].each do |multipart_fashion|
           it "returns error with invalid #{test_case} observers #{multipart_fashion}" do
             observers = if multipart_fashion == :file
@@ -105,6 +105,17 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
+      end
+
+      it 'returns error if spanning multiple api names' do
+        observers = File.read("#{fixture_path}subscriptions_multiple.json")
+
+        post vba_documents.v2_uploads_path,
+             params: {
+               'observers': observers
+             },
+             headers: dev_headers
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end

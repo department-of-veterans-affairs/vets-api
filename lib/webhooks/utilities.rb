@@ -70,7 +70,7 @@ module Webhooks
             raise ArgumentError, 'This registration is tied to an api guid. At most one api name allowed!'
           end
 
-          wh = WebhookSubscription.new
+          wh = Webhooks::Subscription.new
           wh.api_name = api_name
           wh.consumer_id = consumer_id
           wh.consumer_name = consumer_name
@@ -84,13 +84,13 @@ module Webhooks
 
       def record_notification(consumer_id:, consumer_name:, event:, api_guid:, msg:)
         api = Webhooks::Utilities.event_to_api_name[event]
-        webhook_urls = WebhookSubscription.get_notification_urls(
+        webhook_urls = Webhooks::Subscription.get_notification_urls(
           api_name: api, consumer_id: consumer_id, event: event, api_guid: api_guid
         )
 
         notifications = []
         webhook_urls.each do |url|
-          wh_notify = WebhookNotification.new
+          wh_notify = Webhooks::Notification.new
           wh_notify.api_name = api
           wh_notify.consumer_id = consumer_id
           wh_notify.consumer_name = consumer_name
@@ -121,11 +121,18 @@ module Webhooks
       subscriptions
     end
 
-    # todo ensure the same event doesn't occur twice kevin, add test to controller spec
     def validate_events(subscriptions)
-      events = subscriptions.map { |s| s['event'] }
+      events = subscriptions.select{ |s| s.key?('event') }.map { |s| s['event'] }
+      if Set.new(events).size != events.length
+        puts "I DID THROW THE DUPLICATE EVENT ERROR"
+        raise SchemaValidationErrors, ["Duplicate Event(s) submitted! #{events}"]
+      end
       unsupported_events = events - Webhooks::Utilities.supported_events
+      puts "\n\n-------------EVENTS:----------------\n#{events}\n------------------------------------\n\n\n"
+      puts "--------------SUPPORTED---------------\n#{Webhooks::Utilities.supported_events}\n------------------------------------"
+      puts "--------------EVENTS - SUPPORTED---------------\n#{unsupported_events}\n------------------------------------\n\n"
       if unsupported_events.length.positive?
+        puts "I DID THROW THE UNSUPPORTED EVENT ERROR"
         raise SchemaValidationErrors, ["Invalid Event(s) submitted! #{unsupported_events}"]
       end
 
@@ -158,7 +165,7 @@ end
 # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
 
 require_dependency './lib/webhooks/registrations'
-Webhooks::Utilities.supported_events.freeze
-Webhooks::Utilities.event_to_api_name.freeze
-Webhooks::Utilities.api_name_to_time_block.freeze
-Webhooks::Utilities.api_name_to_retries.freeze
+# Webhooks::Utilities.supported_events.freeze
+# Webhooks::Utilities.event_to_api_name.freeze
+# Webhooks::Utilities.api_name_to_time_block.freeze
+# Webhooks::Utilities.api_name_to_retries.freeze

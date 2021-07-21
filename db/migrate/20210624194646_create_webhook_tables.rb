@@ -1,7 +1,6 @@
-# kevin todo add 's' to webhook everywhere (to match module as in shceduler_job.rb, (don't change name of class))
 class CreateWebhookTables < ActiveRecord::Migration[6.1]
   def change
-    create_table :webhook_subscriptions do |t|
+    create_table :webhooks_subscriptions do |t|
       t.string :api_name, null: false
       t.string :consumer_name, null: false
       t.uuid :consumer_id, null: false
@@ -9,10 +8,10 @@ class CreateWebhookTables < ActiveRecord::Migration[6.1]
       t.jsonb :events, default: { subscriptions: [] }
       t.timestamps
 
-      t.index %i[ api_name consumer_id api_guid ], name: "index_webhook_subscription", unique: true
+      t.index %i[ api_name consumer_id api_guid ], name: "index_webhooks_subscription", unique: true
     end
 
-    create_table :webhook_notifications do |t|
+    create_table :webhooks_notifications do |t|
       t.string :api_name, null: false
       t.string :consumer_name, null: false
       t.uuid :consumer_id, null: false
@@ -28,15 +27,15 @@ class CreateWebhookTables < ActiveRecord::Migration[6.1]
       t.index %i[ final_attempt_id api_name event api_guid ], name: "index_wk_notify_processing"
     end
 
-    create_table :webhook_notification_attempts do |t|
+    create_table :webhooks_notification_attempts do |t|
       t.boolean :success, default: false
       t.jsonb :response, null: false
       t.timestamps
     end
 
-    create_join_table(:webhook_notifications, :webhook_notification_attempts, table_name: "webhook_notification_attempt_assocs") do |t|
-      t.index :webhook_notification_attempt_id, name: 'index_wh_assoc_attempt_id'
-      t.index :webhook_notification_id, name: 'index_wh_assoc_notification_id'
+    create_join_table(:webhooks_notifications, :webhooks_notification_attempts, table_name: "webhooks_notification_attempt_assocs") do |t|
+      t.index :webhooks_notification_attempt_id, name: 'index_wh_assoc_attempt_id'
+      t.index :webhooks_notification_id, name: 'index_wh_assoc_notification_id'
     end
 
   end

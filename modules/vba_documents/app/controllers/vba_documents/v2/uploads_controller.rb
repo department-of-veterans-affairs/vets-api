@@ -9,6 +9,9 @@ require_dependency 'vba_documents/upload_validator'
 require_dependency 'vba_documents/multipart_parser'
 require 'common/exceptions'
 require_dependency './modules/vba_documents/lib/vba_documents/webhooks_registrations'
+load './lib/webhooks/utilities.rb'
+load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
+load './app/models/webhooks/subscription.rb'
 
 module VBADocuments
   module V2
@@ -19,8 +22,9 @@ module VBADocuments
       before_action :verify_settings, only: [:download]
 
       def create
-        # load './lib/webhooks/utilities.rb'
-        # load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
+        load './lib/webhooks/utilities.rb'
+        load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
+        load './app/models/webhooks/subscription.rb'
         submission = nil
         subscriptions = nil
         VBADocuments::UploadSubmission.transaction do
@@ -46,6 +50,7 @@ module VBADocuments
                serializer: VBADocuments::V2::UploadSerializer,
                render_location: true
       rescue JSON::ParserError => e
+        puts "\n\n\nINVALID JSON ERROR HIT\n\n\n"
         raise Common::Exceptions::SchemaValidationErrors, ["invalid JSON. #{e.message}"] if e.is_a? JSON::ParserError
       end
 

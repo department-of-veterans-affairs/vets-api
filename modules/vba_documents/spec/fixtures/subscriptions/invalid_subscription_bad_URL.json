@@ -1,7 +1,7 @@
 {
   "subscriptions": [
     {
-      "event": "gov.va.developer.benefits.status_change",
+      "event": "gov.va.developer.benefits-intake.status_change",
       "urls": [
         "https://benefits.cons umer.com/i/am/listening",
         "https://benefits.consumer.com/i/am/also/listening"

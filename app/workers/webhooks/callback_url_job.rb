@@ -10,7 +10,7 @@ module Webhooks
       @url = url
       @ids = ids
       @max_retries = max_retries
-      r = WebhookNotification.where(id: ids)
+      r = Webhooks::Notification.where(id: ids)
       @msg = { 'notifications' => [] }
       r.each do |notification|
         @msg['notifications'] << notification.msg
@@ -35,7 +35,7 @@ module Webhooks
 
     def record_attempt
       ActiveRecord::Base.transaction do
-        attempt = WebhookNotificationAttempt.new
+        attempt = Webhooks::NotificationAttempt.new
         successful = false
         if @response.respond_to? :success?
           successful = @response.success?
@@ -49,8 +49,8 @@ module Webhooks
         attempt.save!
         attempt_id = attempt.id
 
-        WebhookNotification.where(id: @ids).each do |notification|
-          wnaa = WebhookNotificationAttemptAssoc.new
+        Webhooks::Notification.where(id: @ids).each do |notification|
+          wnaa = Webhooks::NotificationAttemptAssoc.new
           wnaa.webhook_notification_id = notification.id
           wnaa.webhook_notification_attempt_id = attempt_id
           wnaa.save!
