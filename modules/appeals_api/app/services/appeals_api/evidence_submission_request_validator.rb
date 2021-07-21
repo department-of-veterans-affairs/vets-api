@@ -3,9 +3,9 @@
 module AppealsApi
   class EvidenceSubmissionRequestValidator
     EVIDENCE_SUBMISSION_DAYS_WINDOW = 91
-    ACCEPTED_APPEAL_TYPES = [
-      'NoticeOfDisagreement',
-      'SupplementalClaim'
+    ACCEPTED_APPEAL_TYPES = %w[
+      NoticeOfDisagreement
+      SupplementalClaim
     ].freeze
 
     def initialize(appeal_uuid, request_ssn, appeal_type)
@@ -74,7 +74,7 @@ module AppealsApi
     end
 
     def raise_unacceptable_appeal_type?
-      raise UnacceptableAppealType if !@appeal_type.in?(ACCEPTED_APPEAL_TYPES)
+      raise UnacceptableAppealType unless @appeal_type.in?(ACCEPTED_APPEAL_TYPES)
     end
   end
 end

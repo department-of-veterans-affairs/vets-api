@@ -15,8 +15,7 @@ module AppealsApi::V1
         def create
           status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(params[:nod_uuid],
                                                                              request.headers['X-VA-SSN'],
-                                                                             'notice_of_disagreement'
-                                                                            ).call
+                                                                             'notice_of_disagreement').call
 
           if status == :ok
             upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'

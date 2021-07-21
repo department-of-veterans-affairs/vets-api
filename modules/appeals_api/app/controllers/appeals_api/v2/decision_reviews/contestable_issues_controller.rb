@@ -14,7 +14,7 @@ module AppealsApi::V2
 
       EXPECTED_HEADERS = %w[X-VA-SSN X-VA-Receipt-Date X-VA-File-Number].freeze
 
-      VALID_DECISION_REVIEW_TYPES = %w[higher_level_reviews notice_of_disagreements supplemental_claims]
+      VALID_DECISION_REVIEW_TYPES = %w[higher_level_reviews notice_of_disagreements supplemental_claims].freeze
 
       UNUSABLE_RESPONSE_ERROR = {
         errors: [
@@ -43,8 +43,8 @@ module AppealsApi::V2
 
       def get_contestable_issues_from_caseflow(filter: true)
         caseflow_response = Caseflow::Service.new.get_contestable_issues headers: request_headers,
-          benefit_type: benefit_type,
-          decision_review_type: decision_review_type
+                                                                         benefit_type: benefit_type,
+                                                                         decision_review_type: decision_review_type
 
         @caseflow_response = filtered_caseflow_response(decision_review_type, caseflow_response, filter)
       rescue Common::Exceptions::BackendServiceException => @backend_service_exception # rubocop:disable Naming/RescuedExceptionsVariableName
@@ -55,7 +55,7 @@ module AppealsApi::V2
 
       def filtered_caseflow_response(decision_review_type, caseflow_response, filter)
         return caseflow_response unless filter
-        return caseflow_response unless decision_review_type == 'appeals' # NOD requires this filtering step, HLR does not
+        return caseflow_response unless decision_review_type == 'appeals'
         return caseflow_response if caseflow_response.body['data'].nil?
 
         caseflow_response.body['data'].reject! do |issue|
@@ -100,13 +100,17 @@ module AppealsApi::V2
       end
 
       def validate_params
-        render_unprocessable_entity(
-          "decision_review_type must be one of: #{VALID_DECISION_REVIEW_TYPES.join(', ')}"
-        ) if invalid_decision_review_type?
+        if invalid_decision_review_type?
+          render_unprocessable_entity(
+            "decision_review_type must be one of: #{VALID_DECISION_REVIEW_TYPES.join(', ')}"
+          )
+        end
 
-        render_unprocessable_entity(
-          'benefit_type required for Higher Level Review'
-        ) if benefit_type_needed_and_missing?
+        if benefit_type_needed_and_missing?
+          render_unprocessable_entity(
+            'benefit_type required for Higher Level Review'
+          )
+        end
       end
 
       def invalid_decision_review_type?
@@ -134,7 +138,6 @@ module AppealsApi::V2
         EXPECTED_HEADERS.index_with { |key| request.headers[key] }.compact
       end
 
-
       def validate_headers
         validation_errors = []
         ssn = request.headers['X-VA-SSN']
@@ -158,6 +161,5 @@ module AppealsApi::V2
         render json: { errors: validation_errors }, status: :unprocessable_entity unless validation_errors.empty?
       end
     end
-
   end
 end
