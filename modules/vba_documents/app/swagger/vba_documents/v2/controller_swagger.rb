@@ -4,6 +4,7 @@ module VBADocuments
   module V2
     class ControllerSwagger
       include Swagger::Blocks
+      EXAMPLE_PATH = VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'v2', 'observer_example.json')
 
       swagger_path '/uploads' do
         operation :post do
@@ -17,6 +18,16 @@ module VBADocuments
           security do
             key :apikey, []
           end
+          request_body do
+            key :description, 'Pass an optional observers object for notifications'
+            key :example, JSON.parse(File.read(EXAMPLE_PATH))
+            content 'application/json' do
+              schema do
+                key :$ref, :ObserversObject
+              end
+            end
+          end
+
           key :tags, [
             'document_uploads'
           ]
