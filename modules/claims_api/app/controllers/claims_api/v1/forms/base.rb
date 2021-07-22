@@ -20,6 +20,17 @@ module ClaimsApi
           render json: { data: [ClaimsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
         end
 
+        protected
+
+        def validate_veteran_identifiers
+          return if target_veteran.participant_id.present?
+          return unless header_request?
+
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail: 'Submitting an original claim requires Veteran to be authenticated with an ID.me account'
+          )
+        end
+
         private
 
         def validate_json_schema

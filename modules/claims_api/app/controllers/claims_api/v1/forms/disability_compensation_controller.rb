@@ -29,6 +29,7 @@ module ClaimsApi
         def submit_form_526 # rubocop:disable Metrics/MethodLength
           validate_json_schema
           validate_initial_claim
+          validate_veteran_identifiers
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
