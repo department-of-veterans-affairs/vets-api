@@ -82,6 +82,8 @@ module ClaimsApi
           validate_documents_page_size
 
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless claim
+
           documents.each do |document|
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, params[:doc_type], params[:description])
