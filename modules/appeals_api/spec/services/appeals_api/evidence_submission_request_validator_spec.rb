@@ -7,7 +7,7 @@ module AppealsApi
     describe '#call' do
       it 'returns an error if the NOD does not exist' do
         result = described_class.new(
-          'fake_id', 'irrelevant_ssn', 'notice_of_disagreement'
+          'fake_id', 'irrelevant_ssn', 'NoticeOfDisagreement'
         ).call
 
         expect(result[0]).to eq(:error)
@@ -18,7 +18,7 @@ module AppealsApi
         notice_of_disagreement = create(:notice_of_disagreement, board_review_option: 'hearing')
 
         result = described_class.new(
-          notice_of_disagreement.id, 'irrelevant_ssn', 'notice_of_disagreement'
+          notice_of_disagreement.id, 'irrelevant_ssn', 'NoticeOfDisagreement'
         ).call
 
         expect(result[0]).to eq(:error)
@@ -38,7 +38,7 @@ module AppealsApi
                statusable: notice_of_disagreement)
 
         result = described_class.new(
-          notice_of_disagreement.id, 'irrelevant_ssn', 'notice_of_disagreement'
+          notice_of_disagreement.id, 'irrelevant_ssn', 'NoticeOfDisagreement'
         ).call
 
         expect(result[0]).to eq(:error)
@@ -54,7 +54,7 @@ module AppealsApi
         notice_of_disagreement = create(:notice_of_disagreement, board_review_option: 'evidence_submission')
 
         result = described_class.new(
-          notice_of_disagreement.id, 'fake_ssn', 'notice_of_disagreement'
+          notice_of_disagreement.id, 'fake_ssn', 'NoticeOfDisagreement'
         ).call
 
         expect(result[0]).to eq(:error)
@@ -70,7 +70,7 @@ module AppealsApi
         notice_of_disagreement = create(:notice_of_disagreement, board_review_option: 'evidence_submission')
 
         result = described_class.new(
-          notice_of_disagreement.id, notice_of_disagreement.auth_headers['X-VA-SSN'], 'notice_of_disagreement'
+          notice_of_disagreement.id, notice_of_disagreement.auth_headers['X-VA-SSN'], 'NoticeOfDisagreement'
         ).call
 
         expect(result[0]).to eq(:ok)
