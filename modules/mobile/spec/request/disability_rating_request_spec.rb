@@ -16,7 +16,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
     it 'returns all the current user disability ratings and overall service connected combined degree' do
       with_okta_configured do
         VCR.use_cassette('bgs/rating_web_service/rating_data') do
-          get '/mobile/v0/disability_rating', params: nil, headers: iam_headers
+          get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_json_schema('disability_rating_response')
@@ -29,7 +29,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
     it 'returns all the current user disability ratings and overall service connected combined degree' do
       with_okta_configured do
         VCR.use_cassette('bgs/rating_web_service/rating_data_not_found') do
-          get '/mobile/v0/disability_rating', params: nil, headers: iam_headers
+          get '/mobile/v0/disability-rating', params: nil, headers: iam_headers
           expect(response).to have_http_status(:internal_server_error)
         end
       end
