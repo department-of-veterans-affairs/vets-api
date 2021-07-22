@@ -2,6 +2,7 @@
 
 require 'digest'
 require 'active_support/core_ext/digest/uuid'
+require 'common/client/errors'
 
 # Subclasses the `User` model. Adds a unique redis namespace for IAM users.
 # Adds IAM sourced versions of ICN, EDIPI, and SEC ID and methods to use them
@@ -73,5 +74,7 @@ class IAMUser < ::User
     super
   rescue Faraday::ResourceNotFound
     raise Common::Exceptions::RecordNotFound.new(id: vet360_id)
+  rescue Common::Client::Errors::ClientError
+    raise Common::Exceptions::BadGateway.new(id: vet360_id)
   end
 end

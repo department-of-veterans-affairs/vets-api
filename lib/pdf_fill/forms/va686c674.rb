@@ -1520,7 +1520,7 @@ module PdfFill
         veteran_contact_information = @form_data['dependents_application']['veteran_contact_information']
 
         # extract middle initial
-        veteran_information['full_name']['middle'] = extract_middle_i(veteran_information, 'full_name')
+        veteran_information['full_name'] = extract_middle_i(veteran_information, 'full_name')
 
         # extract birth date
         veteran_information['birth_date'] = split_date(veteran_information.dig('birth_date'))
@@ -1543,7 +1543,7 @@ module PdfFill
         return if spouse.blank?
 
         # extract middle initial
-        spouse['full_name']['middle'] = extract_middle_i(spouse, 'full_name')
+        spouse['full_name'] = extract_middle_i(spouse, 'full_name')
 
         # extract birth date
         spouse['birth_date'] = split_date(spouse.dig('birth_date'))

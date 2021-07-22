@@ -21,7 +21,7 @@ http_interactions:
         AM","year":"1999","resaleValue":"200000"}],"trailersBoatsCampers":"400","usSavingsBonds":"","stocksAndOtherBonds":"10000000","realEstateOwned":"25000000","otherAssets":[{"name":"gold","amount":"150000"}],"totalAssets":"39000000"},"installmentContractsAndOtherDebts":[{"creditorName":"Faker
         Bank","creditorAddress":{"addresslineOne":"555 Bogus Street","addresslineTwo":"","addresslineThree":"","city":"Fakerville","stateORProvince":"CO","zipORPostalCode":"11111","countryName":"USA"},"dateStarted":"06/28/2020","purpose":"debt
         consolidation loan","originalAmount":"1500000","unpaidBalance":"100000","amountDueMonthly":"50000","amountPastDue":"0"}],"totalOfInstallmentContractsAndOtherDebts":{"originalAmount":"4500000","unpaidBalance":"300000","amountDueMonthly":"80000","amountPastDue":"0"},"additionalData":{"bankruptcy":{"hasBeenAdjudicatedBankrupt":false,"dateDischarged":"","courtLocation":"","docketNumber":""},"additionalComments":"No
-        comments"}}'
+        comments"},"applicationCertifications":{"veteranSignature":"Greg A Anderson","veteranDateSigned":"07/20/21"}}'
     headers:
       Accept:
       - application/json

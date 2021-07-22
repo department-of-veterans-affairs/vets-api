@@ -207,16 +207,25 @@ module AppealsApi
     end
 
     def update_status!(status:, code: nil, detail: nil)
-      handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
-                                      from: self.status,
-                                      to: status,
-                                      status_update_time: Time.zone.now,
-                                      statusable_id: id
-                                    })
+      update_handler = Events::Handler.new(event_type: :hlr_status_updated, opts: {
+                                             from: self.status,
+                                             to: status,
+                                             status_update_time: Time.zone.now,
+                                             statusable_id: id
+                                           })
+
+      email_handler = Events::Handler.new(event_type: :hlr_received, opts: {
+                                            email: email_v2,
+                                            veteran_first_name: first_name,
+                                            veteran_last_name: last_name,
+                                            date_submitted: date_signed,
+                                            guid: id
+                                          })
 
       update!(status: status, code: code, detail: detail)
 
-      handler.handle!
+      update_handler.handle!
+      email_handler.handle! if able_to_send_email? && status == 'submitted'
     end
 
     def informal_conference_rep
@@ -228,6 +237,10 @@ module AppealsApi
     end
 
     private
+
+    def able_to_send_email?
+      api_version&.upcase == 'V2' && email_v2.present?
+    end
 
     def data_attributes
       form_data&.dig('data', 'attributes')

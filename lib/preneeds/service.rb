@@ -20,17 +20,6 @@ module Preneeds
     # Used in building SOAP request
     STARTING_CID = '<soap-request-body@soap>'
 
-    # POST to retreive valid military branches of service
-    #
-    # @return [Common::Collection<Preneeds::BranchesOfService>] collection of military branches of service
-    #
-    def get_branches_of_service
-      soap = savon_client.build_request(:get_branches_of_service, message: {})
-      json = with_monitoring { perform(:post, '', soap.body).body }
-
-      Common::Collection.new(BranchesOfService, json)
-    end
-
     # POST to retrieve military cemeteries
     #
     # @return [Common::Collection<Preneeds::Cemetery>] collection of military cemeteries
@@ -64,17 +53,6 @@ module Preneeds
       json = with_monitoring { perform(:post, '', soap.body).body }
 
       Common::Collection.new(MilitaryRank, json)
-    end
-
-    # POST to retrieve valid states
-    #
-    # @return [Common::Collection<Preneeds::State>] collection of valid states
-    #
-    def get_states
-      soap = savon_client.build_request(:get_states, message: {})
-      json = with_monitoring { perform(:post, '', soap.body).body }
-
-      Common::Collection.new(State, json)
     end
 
     # POST to submit a {Preneeds::BurialForm}

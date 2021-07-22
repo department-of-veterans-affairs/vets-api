@@ -12,12 +12,6 @@ module VAForms
           # Checks to see if a form follows the SF/VA DD(p)-DDDD format
           params[:query].strip!
           valid_search_regex = /^\d{2}[pP]?-\d+(?:-)?[a-zA-Z]{0,2}(?:-.)?$/
-          sf_form_regex = /^[sS][fF][\-\s\d]?\d+\s?[a-zA-Z]?$/
-          if params[:query].match(sf_form_regex).present?
-            params[:query].sub!(/[sS][fF]/, '\0%')
-            params[:query].gsub!(/-/, '%')
-            return search_by_form_number
-          end
           return search_by_form_number if params[:query].match(valid_search_regex).present?
 
           return search_by_text(VAForms::RegexHelper.new.scrub_query(params[:query]))

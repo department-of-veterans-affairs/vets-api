@@ -100,6 +100,9 @@ form_10_10cg:
       enabled: true
       region: us-gov-west-1
 
+vbs:
+  url: https://vbs.example.com/api/v1
+
 # Settings for Education Benefits
 edu:
   prefill: true
@@ -705,7 +708,7 @@ flipper:
     - clark@governmentcio.com # Designer on GCIO
     - cameron@oddball.io
     - cory.trimm@va.gov
-    - cwheeler@governmentcio.com
+    - craig.wheeler@gcio.com
     - dan.hinze@adhocteam.us
     - dat.tran@gcio.com
     - delli-gatti_michael@bah.com
@@ -1044,10 +1047,13 @@ pg_hero:
 
 check_in:
   chip_api:
-    url: ~
-    host: ~
+    url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+    tmp_api_id: 2dcdrrn5zc
     mock: false
     key_path: ~
+    redis_session_prefix: check_in
     timeout: 30
 
 rack:
