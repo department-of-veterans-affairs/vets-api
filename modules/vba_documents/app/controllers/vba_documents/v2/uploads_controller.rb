@@ -9,6 +9,8 @@ require_dependency 'vba_documents/upload_validator'
 require_dependency 'vba_documents/multipart_parser'
 require 'common/exceptions'
 require_dependency './modules/vba_documents/lib/vba_documents/webhooks_registrations'
+
+# todo clean loads out of this file
 load './lib/webhooks/utilities.rb'
 load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
 load './app/models/webhooks/subscription.rb'
@@ -22,6 +24,7 @@ module VBADocuments
       before_action :verify_settings, only: [:download]
 
       def create
+        # todo clean loads out of file
         load './lib/webhooks/utilities.rb'
         load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
         load './app/models/webhooks/subscription.rb'
