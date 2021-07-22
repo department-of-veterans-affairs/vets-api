@@ -21,6 +21,7 @@ module VBADocuments
           end
           request_body do
             key :description, 'Pass an optional observers object for notifications'
+            key :in, :formData
             key :example, JSON.parse(File.read(EXAMPLE_PATH))
             content 'application/json' do
               schema do

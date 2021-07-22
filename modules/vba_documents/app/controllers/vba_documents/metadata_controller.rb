@@ -14,19 +14,6 @@ module VBADocuments
           versions: benefits_versions
         }
       }
-      # render json: {
-      #   meta: {
-      #     versions: [
-      #       {
-      #         version: '1.0.0',
-      #         internal_only: false,
-      #         status: VERSION_STATUS[:current],
-      #         path: '/services/vba_documents/docs/v1/api',
-      #         healthcheck: '/services/vba_documents/v1/healthcheck'
-      #       }
-      #     ]
-      #   }
-      # }
     end
 
     def benefits_intake
