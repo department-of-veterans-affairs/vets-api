@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # add registrations here:
-require_dependency './modules/vba_documents/lib/vba_documents/webhooks_registrations'
+require './modules/vba_documents/lib/vba_documents/webhooks_registrations'
 
 # Sample registration:
 # Make sure all exceptions are handled (This is critical). If you let it leak, we default to one hour from now.

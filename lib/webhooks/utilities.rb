@@ -2,12 +2,15 @@
 
 require 'json_schemer'
 require 'uri'
+require './app/models/webhooks/utilities'
 
 # data structures built up at class load time then frozen.  This is threadsafe.
 # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
 module Webhooks
   module Utilities
     include Common::Exceptions
+
+    SUBSCRIPTION_EX = JSON.parse(File.read('./modules/vba_documents/spec/fixtures/subscriptions/subscriptions.json'))
 
     class << self
       attr_reader :supported_events, :event_to_api_name, :api_name_to_time_block, :api_name_to_retries
@@ -19,6 +22,10 @@ module Webhooks
       def register_name_to_retries(name, retries)
         @api_name_to_retries ||= {}
         @api_name_to_retries[name] = retries.to_i
+      end
+
+      def api_registered?(api_name)
+        @event_to_api_name.values.include?(api_name) rescue false
       end
 
       def register_name_to_event(name, event)
@@ -33,6 +40,7 @@ module Webhooks
 
       def register_event(event)
         @supported_events ||= []
+        raise ArgumentError.new('Event previously registered!') if @supported_events.include?(event)
         @supported_events << event
         @supported_events.uniq!
       end
@@ -45,6 +53,8 @@ module Webhooks
 
         api_name = keyword_args[:api_name]
         max_retries = keyword_args[:max_retries]
+        raise ArgumentError.new('api name previously registered!') if Webhooks::Utilities.api_registered?(api_name)
+
         event.each do |e|
           Webhooks::Utilities.register_event(e)
           Webhooks::Utilities.register_name_to_event(api_name, e)
@@ -58,55 +68,12 @@ module Webhooks
           e['event']
         end.uniq
       end
-
-      # todo exercise having an event span multiple api_names
-      def register_webhook(consumer_id, consumer_name, subscription, api_guid)
-        seen_api = []
-        registrations = []
-        Webhooks::Utilities.fetch_events(subscription).each do |event|
-          api_name = Webhooks::Utilities.event_to_api_name[event]
-          seen_api << api_name
-          if seen_api.length > 1 && api_guid #todo do we want to eliminate && api_guid?
-            raise ArgumentError, 'This registration is tied to an api guid. At most one api name allowed!'
-          end
-
-          wh = Webhooks::Subscription.new
-          wh.api_name = api_name
-          wh.consumer_id = consumer_id
-          wh.consumer_name = consumer_name
-          wh.events = subscription
-          wh.api_guid = api_guid if api_guid
-          wh.save!
-          registrations << wh
-        end
-        registrations
-      end
-
-      def record_notification(consumer_id:, consumer_name:, event:, api_guid:, msg:)
-        api = Webhooks::Utilities.event_to_api_name[event]
-        webhook_urls = Webhooks::Subscription.get_notification_urls(
-          api_name: api, consumer_id: consumer_id, event: event, api_guid: api_guid
-        )
-
-        notifications = []
-        webhook_urls.each do |url|
-          wh_notify = Webhooks::Notification.new
-          wh_notify.api_name = api
-          wh_notify.consumer_id = consumer_id
-          wh_notify.consumer_name = consumer_name
-          wh_notify.api_guid = api_guid
-          wh_notify.event = event
-          wh_notify.callback_url = url
-          wh_notify.msg = msg
-          notifications << wh_notify
-        end
-        ActiveRecord::Base.transaction { notifications.each(&:save!) }
-      end
     end
     extend ClassMethods
 
     # Validates a subscription request for an upload submission.  Returns an object representing the subscription
     def validate_subscription(subscriptions)
+      # todo move out of vba documents
       schema_path = Pathname.new('modules/vba_documents/spec/fixtures/subscriptions/webhook_subscriptions_schema.json')
       schemer_formats = {
         'valid_urls' => ->(urls, _schema_info) { validate_urls(urls) },
@@ -115,8 +82,7 @@ module Webhooks
       }
       schemer = JSONSchemer.schema(schema_path, formats: schemer_formats)
       unless schemer.valid?(subscriptions)
-        example_data = JSON.parse(File.read('./modules/vba_documents/spec/fixtures/subscriptions/subscriptions.json'))
-        raise SchemaValidationErrors, ["Invalid subscription! Body must match the included example\n#{example_data}"]
+        raise SchemaValidationErrors, ["Invalid subscription! Body must match the included example\n#{SUBSCRIPTION_EX}"]
       end
       subscriptions
     end
@@ -124,15 +90,11 @@ module Webhooks
     def validate_events(subscriptions)
       events = subscriptions.select{ |s| s.key?('event') }.map { |s| s['event'] }
       if Set.new(events).size != events.length
-        puts "I DID THROW THE DUPLICATE EVENT ERROR"
         raise SchemaValidationErrors, ["Duplicate Event(s) submitted! #{events}"]
       end
       unsupported_events = events - Webhooks::Utilities.supported_events
-      puts "\n\n-------------EVENTS:----------------\n#{events}\n------------------------------------\n\n\n"
-      puts "--------------SUPPORTED---------------\n#{Webhooks::Utilities.supported_events}\n------------------------------------"
-      puts "--------------EVENTS - SUPPORTED---------------\n#{unsupported_events}\n------------------------------------\n\n"
+
       if unsupported_events.length.positive?
-        puts "I DID THROW THE UNSUPPORTED EVENT ERROR"
         raise SchemaValidationErrors, ["Invalid Event(s) submitted! #{unsupported_events}"]
       end
 
@@ -164,8 +126,8 @@ module Webhooks
 end
 # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
 
-require_dependency './lib/webhooks/registrations'
 unless Thread.current['under_test']
+  require './lib/webhooks/registrations'
   Webhooks::Utilities.supported_events.freeze
   Webhooks::Utilities.event_to_api_name.freeze
   Webhooks::Utilities.api_name_to_time_block.freeze
