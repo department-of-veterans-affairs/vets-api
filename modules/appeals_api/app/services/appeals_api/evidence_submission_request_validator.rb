@@ -11,7 +11,7 @@ module AppealsApi
     def initialize(appeal_uuid, request_ssn, appeal_type)
       @appeal_uuid = appeal_uuid
       @request_ssn = request_ssn
-      @appeal_type = appeal_type.camelize
+      @appeal_type = appeal_type
 
       raise_unacceptable_appeal_type?
     end
