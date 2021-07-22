@@ -31,6 +31,7 @@ module Search
     # @return [Search::ResultsResponse] wrapper around results data
     #
     def results
+      StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.total")
       with_monitoring do
         response = perform(:get, results_url, query_params)
         Search::ResultsResponse.from(response)
