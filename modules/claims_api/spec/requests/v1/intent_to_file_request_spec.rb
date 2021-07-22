@@ -148,10 +148,8 @@ RSpec.describe 'Intent to file', type: :request do
       context 'when consumer is representative' do
         it 'returns an unprocessible entity status' do
           with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              post path, params: data, headers: headers.merge(auth_header)
-              expect(response.status).to eq(422)
-            end
+            post path, params: data.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(422)
           end
         end
       end
