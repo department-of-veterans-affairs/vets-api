@@ -51,7 +51,7 @@ We use mock test data in the sandbox environment. Data is not sent upstream and 
 Allows a client to upload a multi-part document package (form + attachments + metadata).
 
 1. Client Request: POST https://dev-api.va.gov/services/vba_documents/v2/
-    * Webhooks: pass the `observers` object to subscribe URL(s) that will receive status changes. This can be sent as a JSON file or as JSON text data.
+    * Webhooks: pass the `observers` object to subscribe URL(s) that will receive status changes. This can be sent as a JSON file or as JSON text data. Please refer to the endpoint Observers schema below for additional details.
     * Polling: no request body or parameters required.
 
 2. Service Response: A JSON API object with the following attributes:
@@ -71,8 +71,8 @@ Once you submit a file upload, you may check its status using multiple methods.
 
 
 * Polling: to check once or at regular intervals:
-    * For a single GUID, make repeated GET requests to the /uploads/{guid} endpoint.
-    * For multiple GUIDs, make repeated POST requests to the /uploads/report endpoint.
+    * For a single GUID, make GET requests to the /uploads/{guid} endpoint.
+    * For multiple GUIDs, make POST requests to the /uploads/report endpoint.
 * Webhooks: we return the status changes to your subscribed URL as shown below. No polling or additional action is needed.
 
 ```

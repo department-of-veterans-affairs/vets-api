@@ -17,9 +17,22 @@ module VBADocuments
             key :description, 'Standard HTTP Status returned with Error'
           end
 
+          property :code do
+            key :type, :integer
+            key :format, :int32
+            key :example, '109'
+            key :description, 'Error code'
+          end
+
+          property :title do
+            key :type, :string
+            key :example, 'Validation error'
+            key :description, 'The title of the error'
+          end
+
           property :detail do
             key :type, :string
-            key :example, 'DOC104 - Upload rejected by upstream system. Processing failed and upload must be resubmitted'
+            key :example, 'Invalid subscription!'
             key :description, 'A more detailed message about why an error occurred'
           end
         end

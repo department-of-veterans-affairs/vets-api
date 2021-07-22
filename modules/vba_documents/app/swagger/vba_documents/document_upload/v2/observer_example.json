@@ -1,8 +1,13 @@
 {
-  "subscriptions": [
-    {
-      "event": "gov.va.developer.benefits-intake.status_change",
-      "urls": "https://i/am/listening"
+  "observers": {
+    "subscriptions": [
+      {
+        "event": "gov.va.developer.benefits-intake.status_change",
+        "urls": [
+          "https://i/am/listening",
+          "https://i/am/also/listening"
+        ]
+      }
+    ]
   }
-  ]
 }

@@ -19,7 +19,7 @@ module VBADocuments
           VBADocuments::DocumentUpload::StatusSwagger,
           VBADocuments::DocumentUpload::StatusReportSwagger,
           VBADocuments::DocumentUpload::StatusGuidListSwagger,
-          VBADocuments::DocumentUpload::V2::ObserversObjectSwagger,
+          VBADocuments::DocumentUpload::V2::ObserversSwagger,
           VBADocuments::DocumentUpload::SubmissionSwagger,
           VBADocuments::DocumentUpload::UploadSwagger,
           VBADocuments::DocumentUpload::V1::PdfUploadAttributesSwagger,

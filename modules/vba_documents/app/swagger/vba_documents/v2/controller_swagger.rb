@@ -15,6 +15,7 @@ module VBADocuments
           extend VBADocuments::Responses::UnauthorizedError
           key :summary, 'Get a location for subsequent document upload PUT request'
           key :operationId, 'postBenefitsDocumentUpload'
+          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'v2', 'upload_description.md'))
           security do
             key :apikey, []
           end
@@ -23,7 +24,7 @@ module VBADocuments
             key :example, JSON.parse(File.read(EXAMPLE_PATH))
             content 'application/json' do
               schema do
-                key :$ref, :ObserversObject
+                key :$ref, :Observers
               end
             end
           end
