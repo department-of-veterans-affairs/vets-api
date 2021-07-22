@@ -125,7 +125,6 @@ Rails.application.reloader.to_prepare do
 
   # init Search
   StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
-  StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.total", 0)
 
   # init Search Typeahead
   StatsD.increment("#{SearchTypeahead::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:400'])
