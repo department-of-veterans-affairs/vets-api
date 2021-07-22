@@ -25,7 +25,7 @@ module Okta
         { current: @attrs['loa']&.to_i, highest: @attrs['loa']&.to_i }
       # Lighthouse SAML proxy and SSOe IA enforce LOA3 prior to login
       # Other login types will be deprecated as each IDP is updated
-      elsif %w[saml-proxy ssoe].include?(@attrs['last_login_type'])
+      elsif @attrs['last_login_type'] == 'ssoe-saml'
         { current: 3, highest: 3 }
       else
         { current: @attrs['idme_loa']&.to_i, highest: @attrs['idme_loa']&.to_i }

@@ -161,7 +161,7 @@ RSpec.describe Okta::UserProfile do
         'firstName': 'John',
         'lastName': 'Doe',
         'icn': '12345V67890',
-        'last_login_type': 'ssoe'
+        'last_login_type': 'ssoe-saml'
       }
     end
 
