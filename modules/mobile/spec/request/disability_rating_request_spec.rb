@@ -12,6 +12,42 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
     Settings.vet_verification.mock_bgs = false
   end
 
+  let(:expected_response) do
+    {
+        "data" => {
+            "id" => "0",
+            "type" => "disability_ratings",
+            "attributes" => {
+                "combinedDisabilityRating" => 100,
+                "combinedEffectiveDate" => "2019-01-01T00:00:00+00:00",
+                "legalEffectiveDate" => "2018-12-31T00:00:00+00:00",
+                "individualRatings" => [
+                    {
+                        "decision" => "Service Connected",
+                        "effectiveDate" => "2005-01-01T00:00:00.000+00:00",
+                        "ratingPercentage" => 100
+                    },
+                    {
+                        "decision" => "Service Connected",
+                        "effectiveDate" => "2018-12-21T00:00:00.000+00:00",
+                        "ratingPercentage" => 10
+                    },
+                    {
+                        "decision" => "Service Connected",
+                        "effectiveDate" => "2012-05-01T00:00:00.000+00:00",
+                        "ratingPercentage" => 10
+                    },
+                    {
+                        "decision" => "Service Connected",
+                        "effectiveDate" => "2018-08-01T00:00:00.000+00:00",
+                        "ratingPercentage" => 0
+                    }
+                ]
+            }
+        }
+    }
+  end
+
   context 'with valid bgs responses' do
     it 'returns all the current user disability ratings and overall service connected combined degree' do
       with_okta_configured do
@@ -20,6 +56,7 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_json_schema('disability_rating_response')
+          expect(JSON.parse(response.body)).to eq(expected_response)
         end
       end
     end
