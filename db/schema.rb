@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_08_221444) do
+ActiveRecord::Schema.define(version: 2021_07_22_175727) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -229,6 +229,7 @@ ActiveRecord::Schema.define(version: 2021_07_08_221444) do
     t.jsonb "special_issues", default: []
     t.string "encrypted_bgs_special_issue_responses"
     t.string "encrypted_bgs_special_issue_responses_iv"
+    t.string "veteran_icn"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -724,10 +725,10 @@ ActiveRecord::Schema.define(version: 2021_07_08_221444) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
     t.text "notes"
   end
@@ -794,6 +795,7 @@ ActiveRecord::Schema.define(version: 2021_07_08_221444) do
     t.string "whodunnit"
     t.text "object"
     t.datetime "created_at"
+    t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
@@ -831,6 +833,47 @@ ActiveRecord::Schema.define(version: 2021_07_08_221444) do
     t.uuid "guid", null: false
     t.json "response"
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
+  end
+
+  create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
+    t.bigint "webhooks_notification_id", null: false
+    t.bigint "webhooks_notification_attempt_id", null: false
+    t.index ["webhooks_notification_attempt_id"], name: "index_wh_assoc_attempt_id"
+    t.index ["webhooks_notification_id"], name: "index_wh_assoc_notification_id"
+  end
+
+  create_table "webhooks_notification_attempts", force: :cascade do |t|
+    t.boolean "success", default: false
+    t.jsonb "response", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "webhooks_notifications", force: :cascade do |t|
+    t.string "api_name", null: false
+    t.string "consumer_name", null: false
+    t.uuid "consumer_id", null: false
+    t.uuid "api_guid", null: false
+    t.string "event", null: false
+    t.string "callback_url", null: false
+    t.jsonb "msg", null: false
+    t.integer "final_attempt_id"
+    t.integer "processing"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["api_name", "consumer_id", "api_guid", "event", "final_attempt_id"], name: "index_wh_notify"
+    t.index ["final_attempt_id", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
+  end
+
+  create_table "webhooks_subscriptions", force: :cascade do |t|
+    t.string "api_name", null: false
+    t.string "consumer_name", null: false
+    t.uuid "consumer_id", null: false
+    t.uuid "api_guid"
+    t.jsonb "events", default: {"subscriptions"=>[]}
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhooks_subscription", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

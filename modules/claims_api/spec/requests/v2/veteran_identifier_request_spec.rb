@@ -56,7 +56,6 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
             expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
             allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
             allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
-            expect(::Veteran::Service::Representative).to receive(:find_by).and_return(nil)
             with_okta_user(scopes) do |auth_header|
               post path, params: data, headers: auth_header
               icn = JSON.parse(response.body)['id']

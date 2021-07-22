@@ -14,23 +14,25 @@ module AppealsApi
     include Sidekiq::MonitoredWorker
     include CentralMail::Utilities
 
-    def perform(id, retries = 0, version = 'V1')
-      @retries = retries
+    def perform(id, version = 'V1')
       notice_of_disagreement = NoticeOfDisagreement.find(id)
 
       begin
-        notice_of_disagreement.update_status!(status: 'submitting')
         stamped_pdf = PdfConstruction::Generator.new(notice_of_disagreement, version: version).generate
+        notice_of_disagreement.update_status!(status: 'submitting')
         upload_to_central_mail(notice_of_disagreement, stamped_pdf)
         File.delete(stamped_pdf) if File.exist?(stamped_pdf)
+      rescue AppealsApi::UploadError => e
+        handle_upload_error(notice_of_disagreement, e)
       rescue => e
         notice_of_disagreement.update_status!(status: 'error', code: e.class.to_s, detail: e.message)
+        Rails.logger.error("#{self.class} error: #{e}")
         raise
       end
     end
 
     def retry_limits_for_notification
-      [2, 5]
+      [2, 5, 6, 10, 14, 17, 20]
     end
 
     def notify(retry_params)
@@ -55,16 +57,13 @@ module AppealsApi
         'lob' => notice_of_disagreement.lob
       }
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '10182-document.pdf') }
-      process_response(CentralMail::Service.new.upload(body), notice_of_disagreement)
-      log_submission(notice_of_disagreement, metadata)
-    rescue AppealsApi::UploadError => e
-      e.detail = "#{e.detail} (retry attempt #{@retries})"
-      retry_errors(e, notice_of_disagreement)
+      process_response(CentralMail::Service.new.upload(body), notice_of_disagreement, metadata)
     end
 
-    def process_response(response, notice_of_disagreement)
+    def process_response(response, notice_of_disagreement, metadata)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         notice_of_disagreement.update_status!(status: 'submitted')
+        log_submission(notice_of_disagreement, metadata)
       else
         map_error(response.status, response.body, AppealsApi::UploadError)
       end
@@ -75,6 +74,36 @@ module AppealsApi
         .created_at
         .in_time_zone('Central Time (US & Canada)')
         .strftime('%Y-%m-%d %H:%M:%S')
+    end
+
+    def handle_upload_error(notice_of_disagreement, e)
+      log_upload_error(notice_of_disagreement, e)
+      notice_of_disagreement.update(status: 'error', code: e.code, detail: e.detail)
+
+      if e.code == 'DOC201' || e.code == 'DOC202'
+        notify(
+          {
+            'class' => self.class.name,
+            'args' => [notice_of_disagreement.id],
+            'error_class' => e.code,
+            'error_message' => e.detail,
+            'failed_at' => Time.zone.now
+          }
+        )
+      else
+        # allow sidekiq to retry immediately
+        raise
+      end
+    end
+
+    def log_upload_error(notice_of_disagreement, e)
+      Rails.logger.error("#{notice_of_disagreement.class.to_s.gsub('::', ' ')}: Submission failure",
+                         'source' => notice_of_disagreement.consumer_name,
+                         'consumer_id' => notice_of_disagreement.consumer_id,
+                         'consumer_username' => notice_of_disagreement.consumer_name,
+                         'uuid' => notice_of_disagreement.id,
+                         'code' => e.code,
+                         'detail' => e.detail)
     end
   end
 end
