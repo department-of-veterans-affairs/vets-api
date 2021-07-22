@@ -46,6 +46,9 @@ jobs:
       TERM: xterm-256color
     runs-on: asg
 
+    steps:
+      - uses: actions/checkout@v2
+
     services:
       postgres:
         image: postgis/postgis:11-2.5
