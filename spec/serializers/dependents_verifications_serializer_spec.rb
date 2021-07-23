@@ -39,7 +39,7 @@ describe DependentsVerificationsSerializer do
         end
       end
 
-      it "returns false when there are no diary entries" do
+      it "returns false" do
         expect(subject.prompt_renewal).to eq false
       end
     end
