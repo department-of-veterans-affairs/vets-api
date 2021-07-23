@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TrackingSerializer do
+RSpec.describe TrackingSerializer, type: :serializer do
   subject { serialize(tracking, serializer_class: described_class) }
 
   context 'delivery_service: UPS' do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationStemClaimStatusSerializer do
+RSpec.describe EducationStemClaimStatusSerializer, type: :serializer do
   context 'with unprocessed claim' do
     subject { serialize(education_benefits_claim, serializer_class: described_class) }
 

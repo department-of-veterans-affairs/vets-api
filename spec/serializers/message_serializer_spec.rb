@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe MessageSerializer do
+RSpec.describe MessageSerializer, type: :serializer do
   subject { serialize(message, serializer_class: described_class) }
 
   let(:message) { build :message }
