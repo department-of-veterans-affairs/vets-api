@@ -15,10 +15,10 @@ class DependentsVerificationsSerializer < ActiveModel::Serializer
   end
 
   def prompt_renewal
-    diaries.any? do |diary|
-      diary[:diary_lc_status_type] == "PEND" &&
-      diary[:diary_reason_type] == "24" &&
-      diary[:diary_due_date] < Time.now + 1.year
+    diary_entries.any? do |diary_entry|
+      diary_entry[:diary_lc_status_type] == "PEND" &&
+      diary_entry[:diary_reason_type] == "24" &&
+      diary_entry[:diary_due_date] < Time.now + 1.year
     end
   end
 
@@ -31,7 +31,7 @@ class DependentsVerificationsSerializer < ActiveModel::Serializer
     @formatted_payload ||= ensured_array.map { |hash| hash.except(:social_security_number) }
   end
 
-  def diaries
+  def diary_entries
     object[:diaries].is_a?(Hash) ? [object[:diaries]] : object[:diaries]
   end
 end
