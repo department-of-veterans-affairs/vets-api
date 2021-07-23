@@ -2,44 +2,39 @@
 
 module Middleware
   class Errors < Faraday::Response::Middleware
+    ##
+    # Faraday middleware method that runs when the response is finished
+    #
+    # @param env [Object]
+    # @return [Common::Exceptions::BackendServiceException]
+    #
     def on_complete(env)
       return if env.success?
 
       Raven.extra_context(message: env.body, url: env.url)
 
       case env.status
-      when 400, 409
-        error_400(env.body)
+      when 400
+        raise_exception('CHECK_IN_400')
       when 403
-        raise Common::Exceptions::BackendServiceException.new('CHECK_IN_403', source: self.class)
+        raise_exception('CHECK_IN_403')
       when 404
-        raise Common::Exceptions::BackendServiceException.new('CHECK_IN_404', source: self.class)
+        raise_exception('CHECK_IN_404')
       when 500..510
-        raise Common::Exceptions::BackendServiceException.new('CHECK_IN_502', source: self.class)
+        raise_exception('CHECK_IN_502')
       else
-        raise Common::Exceptions::BackendServiceException.new('VA900', source: self.class)
+        raise_exception('VA900')
       end
     end
 
-    def error_400(body)
-      raise Common::Exceptions::BackendServiceException.new(
-        'CHECK_IN_400',
-        title: 'Bad Request',
-        detail: parse_error(body),
-        source: self.class
-      )
-    end
-
-    def parse_error(body)
-      parsed ||= Oj.load(body)
-
-      if parsed['errors']
-        parsed['errors'].first['errorMessage']
-      else
-        parsed['message']
-      end
-    rescue
-      body
+    ##
+    # Helper method for the `on_complete` method
+    #
+    # @param title [String]
+    # @return [Common::Exceptions::BackendServiceException]
+    #
+    def raise_exception(title)
+      raise Common::Exceptions::BackendServiceException.new(title, source: self.class)
     end
   end
 end
