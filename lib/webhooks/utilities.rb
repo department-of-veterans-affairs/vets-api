@@ -108,7 +108,7 @@ module Webhooks
         raise SchemaValidationErrors, ["Invalid subscription! URI does not parse: #{url}"]
       end
       https = uri.scheme.eql? 'https'
-      if !https && Settings.vba_documents.websockets.require_https # TODO: move this setting outside of vba_documents
+      if !https && Settings.websockets.require_https
         raise SchemaValidationErrors, ["Invalid subscription! URL #{url} must be https!"]
       end
 

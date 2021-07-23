@@ -4,6 +4,12 @@ require 'rails_helper'
 
 RSpec.describe 'Webhooks::Utilities' do
 
+  let(:websocket_settings) do
+    {
+        require_https: false,
+    }
+  end
+
   let(:observers) {
     {
         "subscriptions" => [
@@ -18,25 +24,29 @@ RSpec.describe 'Webhooks::Utilities' do
     }
   }
 
-  let(:registration) {
-    ->() do
-      Webhooks::Utilities.register_events('test_event',
-                                          api_name: 'testing', max_retries: 3) do
-        'working!'
-      end
-    end
-  }
-
-  before do
+  before(:all) do
     Thread.current['under_test'] = true
     load './lib/webhooks/utilities.rb'
+
     class TestHelper
       include Webhooks::Utilities
     end
+    Webhooks::Utilities.register_events('test_event',
+                                        api_name: 'TEST_API', max_retries: 3) do
+      'working!'
+    end
   end
 
-  after do
-    Object.send(:remove_const, :Webhooks)
+  before do
+    Settings.websockets = Config::Options.new
+    websocket_settings.each_pair do |k, v|
+      Settings.websockets.send("#{k}=".to_sym, v)
+    end
+  end
+
+  after(:all) do
+    # object.send(:remove_const, :Webhooks)
+    # needed when running in the rails console
   end
 
   it 'registers events and blocks' do
@@ -44,21 +54,22 @@ RSpec.describe 'Webhooks::Utilities' do
       include Webhooks::Utilities
       EVENTS = %w(event1 event2 event3)
       register_events(*EVENTS,
-                      api_name: 'PLAY_API', max_retries: 3) do
+                      api_name: 'TEST_API2', max_retries: 3) do
         'working!'
       end
     end
-    expect(Webhooks::Utilities.supported_events.length).to be Testing::EVENTS.length
+    total_events = Testing::EVENTS.length + 1
+    # initial registration in before block adds one
+    expect(Webhooks::Utilities.supported_events.length).to be(total_events)
     Testing::EVENTS.each do |e|
       expect(Webhooks::Utilities.supported_events.include?(e)).to be true
-      expect(Webhooks::Utilities.event_to_api_name[e]).to be 'PLAY_API'
+      expect(Webhooks::Utilities.event_to_api_name[e]).to be 'TEST_API2'
     end
-    expect(Webhooks::Utilities.api_name_to_time_block['PLAY_API'].call).to be 'working!'
-    expect(Webhooks::Utilities.api_name_to_retries['PLAY_API']).to be 3
+    expect(Webhooks::Utilities.api_name_to_time_block['TEST_API2'].call).to be 'working!'
+    expect(Webhooks::Utilities.api_name_to_retries['TEST_API2']).to be 3
   end
 
   it 'does not allow over registration' do
-    registration.call
     event_spans_api = -> do
       Webhooks::Utilities.register_events('test_event',
                                           api_name: 'OTHER_API', max_retries: 3) do
@@ -67,7 +78,7 @@ RSpec.describe 'Webhooks::Utilities' do
     end
     api_duplicated = -> do
       Webhooks::Utilities.register_events('other_event',
-                                          api_name: 'PLAY_API', max_retries: 3) do
+                                          api_name: 'TEST_API', max_retries: 3) do
         'working!'
       end
     end
@@ -87,33 +98,51 @@ RSpec.describe 'Webhooks::Utilities' do
   end
 
   it 'allows valid subscriptions' do
-    registration.call
     subscription = TestHelper.new.validate_subscription(observers)
     expect(subscription).to be observers
   end
 
   it 'does not allow invalid subscriptions' do
-    registration.call
     expect do
       TestHelper.new.validate_subscription({invalid: :stuff})
     end.to raise_error
   end
 
   it 'detects invalid events' do
-    registration.call
     observers['subscriptions'].first['event'] = 'bad_event'
     expect do
-      TestHelper.new.validate_events(observers)
-    end.to raise_error(/Invalid/)
+      TestHelper.new.validate_events(observers['subscriptions'])
+    end.to raise_error do |e|
+      expect(e.errors.first.detail).to match(/^invalid/i)
+    end
   end
 
   it 'detects duplicate events' do
-    registration.call
     duplicate = observers['subscriptions'].first.deep_dup
     observers['subscriptions'] << duplicate
     expect do
-      TestHelper.new.validate_events(observers)
-    end.to raise_error(/Duplicate/)
+      TestHelper.new.validate_events(observers['subscriptions'])
+    end.to raise_error do |e|
+      expect(e.errors.first.detail).to match(/^duplicate/i)
+    end
   end
 
+  it 'validates urls' do
+    expect(TestHelper.new.validate_url('http://www.google.com')).to be true
+    expect do
+      TestHelper.new.validate_url('Not a good url')
+    end.to raise_error do |e|
+      expect(e.errors.first.detail).to match(/URI does not parse/)
+    end
+    with_settings(Settings.websockets, require_https: true) do
+      expect(TestHelper.new.validate_url('https://www.google.com')).to be true
+      expect do
+        TestHelper.new.validate_url('http://www.google.com')
+      end.to raise_error do |e|
+        expect(e.errors.first.detail).to match(/must be https/)
+      end
+    end
+    valids = ['http://www.google.com','https://www.google.com']
+    expect(TestHelper.new.validate_urls(valids)).to be true
+  end
 end
