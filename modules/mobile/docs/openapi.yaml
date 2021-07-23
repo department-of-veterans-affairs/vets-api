@@ -2353,6 +2353,7 @@ paths:
           <ul>
             <li>If a subject isn't included, default subject will be "{{Category}} Inquiry" (e.g. Medication Inquiry)</li>
             <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
+            <li>If sending a draft, include the draft's ID in the request body as `draft_id`. Draft will be deleted once sent. Any fields included in request body will overwrite original draft contents.
             <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
             <li>
               File attachment restrictions (as imposed by MHV):
@@ -2589,6 +2590,13 @@ paths:
       operationId: post_create_message_reply
       security:
         - Bearer: []
+      parameters:
+          - in: path
+            name: id
+            required: true
+            description: ID of the message that is being replied to
+            schema:
+              type: integer
       requestBody:
         description: Reply message body
         required: true
@@ -2646,6 +2654,13 @@ paths:
       operationId: get_attachment
       security:
         - Bearer: []
+      parameters:
+          - in: path
+            name: id
+            required: true
+            description: ID of the message that we are retrieving attachments of
+            schema:
+              type: integer
       responses:
         '200':
           description: OK
