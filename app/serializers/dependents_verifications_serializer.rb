@@ -15,8 +15,12 @@ class DependentsVerificationsSerializer < ActiveModel::Serializer
   end
 
   def prompt_renewal
-    formatted_payload.any? do |diary|
-      diary[:award_effective_date] + 1.year < Date.current if diary[:award_effective_date]
+    d = object[:diaries].select do |diary|
+      diary[:diary_lc_status_type] == "PEND" && diary[:diary_reason_type] == "24"
+    end
+
+    d.any? do |eligible_diary_entry|
+      eligible_diary_entry[:diary_due_date] < Time.now + 1.year
     end
   end
 
