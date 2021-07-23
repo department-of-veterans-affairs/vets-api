@@ -26,7 +26,7 @@ describe DependentsVerificationsSerializer do
         end
       end
 
-      it "returns true when at least one has a diary_reason_type of '24'
+      it "returns true when it has a diary_reason_type of '24'
       AND a diary_lc_status_type of 'PEND' AND the due_date is within a year" do
         expect(subject.prompt_renewal).to eq true
       end
