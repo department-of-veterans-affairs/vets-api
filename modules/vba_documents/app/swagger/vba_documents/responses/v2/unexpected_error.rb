@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module VBADocuments
-  module V1
-    module Responses
+  module Responses
+    module V2
       module UnexpectedError
         def self.extended(base)
           base.response 422 do
-            key :description, 'Forbidden'
+            key :description, 'Unprocessable Entity'
             content 'application/json' do
               schema do
                 key :type, :object
