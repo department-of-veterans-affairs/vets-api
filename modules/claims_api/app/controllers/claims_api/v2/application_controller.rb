@@ -56,8 +56,7 @@ module ClaimsApi
       #
       # raise if current authenticated user is neither the target veteran, nor target veteran representative
       def verify_access!
-        return if user_is_target_veteran?
-        return if user_represents_veteran?
+        return if user_is_target_veteran? || user_represents_veteran?
 
         raise ::Common::Exceptions::Forbidden
       end
