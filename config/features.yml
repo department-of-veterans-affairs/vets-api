@@ -187,6 +187,10 @@ features:
   gibct_school_ratings:
     actor_type: user
     description: Show/Hide the school ratings section of the Comparison Tool School Profile Page.
+  hlr_wizard_start:
+    actor_type: user
+    description: Move the Higher-Level Review wizard to the /start page
+    enable_in_development: true
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
