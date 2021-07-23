@@ -7,9 +7,10 @@ module ClaimsApi
         before_action :verify_access!
 
         def index
-          bgs_claims = bgs_service.benefit_claims.find_claims_details_by_participant_id(
+          bgs_claims = bgs_service.ebenefits_benefit_claims_status.find_benefit_claims_status_by_ptcpnt_id(
             participant_id: target_veteran.participant_id
           )
+
           lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
           merged_claims = BGSToLighthouseClaimsMapperService.process(bgs_claims: bgs_claims,
                                                                      lighthouse_claims: lighthouse_claims)
@@ -18,21 +19,32 @@ module ClaimsApi
         end
 
         def show
-          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
+          lighthouse_claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if lighthouse_claim.blank? && params[:id].to_s.include?('-')
 
-          if claim.present?
-            claim_details = { id: params[:id], type: claim[:claim_type] }
-          else
-            # If we don't have it, it might still be in BGS, so check there
-            bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
-            claim_details = bgs_claim.dig(:bnft_claim_detail)
+          bgs_claim = if lighthouse_claim.present?
+                        bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: lighthouse_claim.evss_id)
+                      else
+                        bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
+                      end
 
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if claim_details.blank?
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if lighthouse_claim.blank? && bgs_claim.blank?
 
-            claim_details = { id: params[:id], type: claim_details[:bnft_claim_type_nm] }
-          end
+          massaged_bgs_claim = {
+            benefit_claims_dto: {
+              benefit_claim: [
+                {
+                  benefit_claim_id: bgs_claim[:bnft_claim_detail][:bnft_claim_id],
+                  claim_status_type: bgs_claim[:bnft_claim_detail][:status_type_nm]
+                }
+              ]
+            }
+          }
+          lighthouse_claim = lighthouse_claim ? [lighthouse_claim] : []
 
-          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(claim_details, base_url: request.base_url)
+          claim = BGSToLighthouseClaimsMapperService.process(bgs_claims: massaged_bgs_claim, lighthouse_claims: lighthouse_claim)
+
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(claim, base_url: request.base_url)
         end
 
         private

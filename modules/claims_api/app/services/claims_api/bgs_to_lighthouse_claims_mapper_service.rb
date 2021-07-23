@@ -20,11 +20,11 @@ module ClaimsApi
     private
 
     def claims_exist?
-      bgs_claims.key?(:bnft_claim_detail) || lighthouse_claims.present?
+      bgs_claims.dig(:benefit_claims_dto, :benefit_claim).present? || lighthouse_claims.present?
     end
 
     def map_claims
-      bgs_claims[:bnft_claim_detail].map do |bgs_claim|
+      bgs_claims[:benefit_claims_dto][:benefit_claim].map do |bgs_claim|
         matching_claim = find_bgs_claim_in_lighthouse_collection(claim: bgs_claim)
         if matching_claim
           remove_bgs_claim_from_lighthouse_collection(claim: matching_claim)
@@ -36,7 +36,7 @@ module ClaimsApi
     end
 
     def find_bgs_claim_in_lighthouse_collection(claim:)
-      lighthouse_claims.find { |internal_claim| internal_claim.evss_id == claim[:bnft_claim_id] }
+      lighthouse_claims.find { |internal_claim| internal_claim.evss_id == claim[:benefit_claim_id] }
     end
 
     def remove_bgs_claim_from_lighthouse_collection(claim:)
@@ -45,11 +45,11 @@ module ClaimsApi
 
     def build_matched_claim(matching_claim:, bgs_claim:)
       # this claim was submitted via Lighthouse, so use the 'id' the user is most likely to know
-      { id: matching_claim.id, type: bgs_claim[:bnft_claim_type_nm] }
+      { id: matching_claim.id, type: bgs_claim[:claim_status_type] }
     end
 
     def build_unmatched_bgs_claim(bgs_claim:)
-      { id: bgs_claim[:bnft_claim_id], type: bgs_claim[:bnft_claim_type_nm] }
+      { id: bgs_claim[:benefit_claim_id], type: bgs_claim[:claim_status_type] }
     end
 
     def build_unmatched_lighthouse_claim(lighthouse_claim:)
