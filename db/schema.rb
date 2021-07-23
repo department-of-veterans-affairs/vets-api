@@ -147,7 +147,7 @@ ActiveRecord::Schema.define(version: 2021_07_23_134730) do
     t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
   end
 
-  create_table "appeals_api_supplemental_claims", force: :cascade do |t|
+  create_table "appeals_api_supplemental_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "encrypted_form_data"
     t.string "encrypted_form_data_iv"
     t.string "encrypted_auth_headers"
