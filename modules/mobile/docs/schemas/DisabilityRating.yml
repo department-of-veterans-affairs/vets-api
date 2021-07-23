@@ -11,7 +11,7 @@ properties:
     properties:
       type:
         type: string
-        example: "disability_rating"
+        example: "disabilityRating"
       id:
         type: string
         example: "0"

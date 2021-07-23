@@ -9,14 +9,13 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
 
   before do
     iam_sign_in
-    Settings.vet_verification.mock_bgs = false
   end
 
   let(:expected_response) do
     {
       'data' => {
         'id' => '0',
-        'type' => 'disability_ratings',
+        'type' => 'disabilityRating',
         'attributes' => {
           'combinedDisabilityRating' => 100,
           'combinedEffectiveDate' => '2019-01-01T00:00:00+00:00',
