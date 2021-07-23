@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+##
+# Registering middleware needed by Faraday for logging and error reporting
+#
 Faraday::Middleware.register_middleware(check_in_logging: Middleware::CheckInLogging)
 Faraday::Response.register_middleware(check_in_errors: Middleware::Errors)
 
@@ -8,6 +11,9 @@ module ChipApi
   # An object responsible for making HTTP calls to the Chip API
   #
   class Request
+    include Common::Client::Concerns::Monitoring
+
+    STATSD_KEY_PREFIX = 'api.check_in.chip_api.request'
     ##
     # Builds a ChipApi::Request instance
     #
@@ -25,8 +31,10 @@ module ChipApi
     # @return [Faraday::Response]
     #
     def get(opts = {})
-      connection.get(opts[:path]) do |req|
-        req.headers = headers.merge('Authorization' => "Bearer #{opts[:access_token]}")
+      with_monitoring do
+        connection.get(opts[:path]) do |req|
+          req.headers = headers.merge('Authorization' => "Bearer #{opts[:access_token]}")
+        end
       end
     end
 
@@ -38,10 +46,12 @@ module ChipApi
     # @return [Faraday::Response]
     #
     def post(opts = {})
-      connection.post(opts[:path]) do |req|
-        prefix = opts[:access_token] ? 'Bearer' : 'Basic'
-        suffix = opts[:access_token] || opts[:claims_token]
-        req.headers = headers.merge('Authorization' => "#{prefix} #{suffix}")
+      with_monitoring do
+        connection.post(opts[:path]) do |req|
+          prefix = opts[:access_token] ? 'Bearer' : 'Basic'
+          suffix = opts[:access_token] || opts[:claims_token]
+          req.headers = headers.merge('Authorization' => "#{prefix} #{suffix}")
+        end
       end
     end
 
