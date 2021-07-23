@@ -191,6 +191,17 @@ describe VAOS::AppointmentService do
       end
     end
 
+    context 'returns single appointment with dash in app id' do
+      let(:id) { '202006031600983000030800000000000000-aaaaaa' }
+
+      it 'with a 200 success' do
+        VCR.use_cassette('vaos/appointments/show_appointment_with_dash', match_requests_on: %i[method uri]) do
+          response = subject.get_appointment(id)
+          expect(response[:id]).to eq(id)
+        end
+      end
+    end
+
     context 'returns error status' do
       it 'with a 404 not found' do
         VCR.use_cassette('vaos/appointments/show_appointment_404', match_requests_on: %i[method uri]) do
