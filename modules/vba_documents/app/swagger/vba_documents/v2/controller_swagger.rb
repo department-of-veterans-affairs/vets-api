@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module VBADocuments
-  module V1
+  module V2
     class ControllerSwagger
       include Swagger::Blocks
+      EXAMPLE_PATH = VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'v2', 'observer_example.json')
 
       swagger_path '/uploads' do
         operation :post do
@@ -14,15 +15,40 @@ module VBADocuments
           extend VBADocuments::Responses::UnauthorizedError
           key :summary, 'Get a location for subsequent document upload PUT request'
           key :operationId, 'postBenefitsDocumentUpload'
+          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'v2', 'upload_description.md'))
           security do
             key :apikey, []
           end
+          request_body do
+            key :description, 'Pass an optional observers object for notifications'
+            key :in, :formData
+            key :example, JSON.parse(File.read(EXAMPLE_PATH))
+            content 'application/json' do
+              schema do
+                key :$ref, :Observers
+              end
+            end
+          end
+
           key :tags, [
             'document_uploads'
           ]
 
           response 202 do
             key :description, 'Accepted. Location generated'
+            content 'application/json' do
+              schema do
+                key :type, :object
+                key :required, %i[data]
+                property :data do
+                  key :$ref, :DocumentUploadPath
+                end
+              end
+            end
+          end
+
+          response 202 do
+            key :description, 'Webhooks: Accepted. Location generated'
             content 'application/json' do
               schema do
                 key :type, :object
