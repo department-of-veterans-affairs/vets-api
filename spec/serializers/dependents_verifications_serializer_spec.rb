@@ -31,5 +31,17 @@ describe DependentsVerificationsSerializer do
         expect(subject.prompt_renewal).to eq true
       end
     end
+
+    context 'when there are no entries in the diaries call' do
+      let(:diaries) do
+        VCR.use_cassette('bgs/diaries_service/read_diaries_no_entries') do
+          BGS::DependencyVerificationService.new(create(:evss_user, :loa3)).read_diaries
+        end
+      end
+
+      it "returns false when there are no diary entries" do
+        expect(subject.prompt_renewal).to eq false
+      end
+    end
   end
 end
