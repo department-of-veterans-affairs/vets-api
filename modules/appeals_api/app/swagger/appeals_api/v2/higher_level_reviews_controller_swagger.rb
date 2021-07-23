@@ -134,6 +134,10 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
         }
       }
       key :responses, responses
+
+      security do
+        key :apikey, []
+      end
     end
   end
 
