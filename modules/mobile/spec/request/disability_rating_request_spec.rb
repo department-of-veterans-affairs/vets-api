@@ -18,28 +18,36 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
         'type' => 'disabilityRating',
         'attributes' => {
           'combinedDisabilityRating' => 100,
-          'combinedEffectiveDate' => '2019-01-01T00:00:00+00:00',
-          'legalEffectiveDate' => '2018-12-31T00:00:00+00:00',
+          'combinedEffectiveDate' => '2019-01-01T00:00:00.000+00:00',
+          'legalEffectiveDate' => '2018-12-31T00:00:00.000+00:00',
           'individualRatings' => [
             {
               'decision' => 'Service Connected',
               'effectiveDate' => '2005-01-01T00:00:00.000+00:00',
-              'ratingPercentage' => 100
+              'ratingPercentage' => 100,
+              'diagnosticText' => 'Hearing Loss',
+              'type' => '6100-Hearing loss'
             },
             {
               'decision' => 'Service Connected',
               'effectiveDate' => '2018-12-21T00:00:00.000+00:00',
-              'ratingPercentage' => 10
+              'ratingPercentage' => 10,
+              'diagnosticText' => 'mental disorder',
+              'type' => 'Schizophrenia, disorganized type'
             },
             {
               'decision' => 'Service Connected',
               'effectiveDate' => '2012-05-01T00:00:00.000+00:00',
-              'ratingPercentage' => 10
+              'ratingPercentage' => 10,
+              'diagnosticText' => 'Allergies due to Hearing Loss',
+              'type' => 'Limitation of flexion, knee'
             },
             {
               'decision' => 'Service Connected',
               'effectiveDate' => '2018-08-01T00:00:00.000+00:00',
-              'ratingPercentage' => 0
+              'ratingPercentage' => 0,
+              'diagnosticText' => 'Sarcoma Soft-Tissue',
+              'type' => 'Soft tissue sarcoma (neurogenic origin)'
             }
           ]
         }
