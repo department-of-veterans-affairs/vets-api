@@ -39,7 +39,7 @@ describe DependentsVerificationsSerializer do
         end
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.prompt_renewal).to eq false
       end
     end
@@ -51,7 +51,7 @@ describe DependentsVerificationsSerializer do
         end
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.prompt_renewal).to eq false
       end
     end
