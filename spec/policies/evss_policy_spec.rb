@@ -67,6 +67,5 @@ describe EVSSPolicy do
         expect { EVSSPolicy.new(user, :evss).access_form526? }.to trigger_statsd_increment('api.evss.policy.failure')
       end
     end
-
   end
 end

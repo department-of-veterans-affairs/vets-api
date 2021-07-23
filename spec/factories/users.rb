@@ -234,10 +234,8 @@ FactoryBot.define do
       last_name { 'FORD' }
       last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
       ssn { '796043735' }
-      
 
       after(:build) do
-        
         stub_mpi(
           build(
             :mvi_profile,
@@ -245,7 +243,6 @@ FactoryBot.define do
             birls_id: '796043735',
             participant_id: '600061742',
             birth_date: nil
-            
           )
         )
       end
