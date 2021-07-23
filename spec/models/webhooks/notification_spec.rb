@@ -16,7 +16,7 @@ describe Webhooks::Notification, type: :model do
 
   before do
     @subscription = Webhooks::Utilities.register_webhook(consumer_id, consumer_name, observers, api_id)
-    @notifications = Webhooks::Utilities.record_notification(
+    @notifications = Webhooks::Utilities.record_notifications(
         consumer_id: consumer_id,
         consumer_name: consumer_name,
         event: event,

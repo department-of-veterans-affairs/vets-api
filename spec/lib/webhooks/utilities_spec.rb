@@ -21,7 +21,7 @@ RSpec.describe 'Webhooks::Utilities' do
   let(:registration) {
     ->() do
       Webhooks::Utilities.register_events('test_event',
-                                          api_name: 'PLAY_API', max_retries: 3) do
+                                          api_name: 'testing', max_retries: 3) do
         'working!'
       end
     end
