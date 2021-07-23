@@ -43,5 +43,17 @@ describe DependentsVerificationsSerializer do
         expect(subject.prompt_renewal).to eq false
       end
     end
+
+    context "when the entry has a staus of 'CXCL'" do
+      let(:diaries) do
+        VCR.use_cassette('bgs/diaries_service/read_diaries_one_entry_cxcl') do
+          BGS::DependencyVerificationService.new(create(:evss_user, :loa3)).read_diaries
+        end
+      end
+
+      it "returns false" do
+        expect(subject.prompt_renewal).to eq false
+      end
+    end
   end
 end
