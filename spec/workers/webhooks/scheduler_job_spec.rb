@@ -13,6 +13,11 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
   end
 
   it 'schedules notification jobs' do
+    Webhooks::Utilities
+        .register_events('gov.va.developer.SchedulerJobTEST1',
+                         api_name: 'SchedulerJobTEST1', max_retries: 1) do
+      future
+    end
     results = Webhooks::SchedulerJob.new.perform
     results.each_with_index do |r, i|
       expect(r.first.respond_to? :to_f).to be true # our callbacks are intervals (for sidekiq's perform_in)
@@ -21,6 +26,11 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
   end
 
   it 'reschedules itself when something goes wrong' do
+    Webhooks::Utilities
+        .register_events('gov.va.developer.SchedulerJobTEST2',
+                         api_name: 'SchedulerJobTEST2', max_retries: 1) do
+      future
+    end
     allow_any_instance_of(Webhooks::SchedulerJob).to receive(:go).and_raise('busted')
     results = Webhooks::SchedulerJob.new.perform
     expect(results).to eq Thread.current['job_ids'].first
@@ -29,20 +39,22 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
   it 'schedules the notification job correctly' do
     future = 10.minutes.from_now
     Webhooks::Utilities
-        .register_events('gov.va.developer.TEST', api_name: 'TEST', max_retries: 1) do |t|
+        .register_events('gov.va.developer.SchedulerJobTEST3',
+                         api_name: 'SchedulerJobTEST3', max_retries: 1) do
       future
     end
-    results = Webhooks::SchedulerJob.new.perform('TEST').first
+    results = Webhooks::SchedulerJob.new.perform('SchedulerJobTEST3').first
     expect(results.first).to eq(future)
     expect(results.last).to eq Thread.current['job_ids'].first
   end
 
   it 'schedules a notification job even if the registered block fails' do
     Webhooks::Utilities
-        .register_events('gov.va.developer.TEST2', api_name: 'TEST2', max_retries: 1) do |t|
+        .register_events('gov.va.developer.SchedulerJobTEST4',
+                         api_name: 'SchedulerJobTEST4', max_retries: 1) do
       raise "I am a naughty developer!"
     end
-    results = Webhooks::SchedulerJob.new.perform('TEST2').first
+    results = Webhooks::SchedulerJob.new.perform('SchedulerJobTEST4').first
     expect(results.first.to_i).to be >= 1.hour.from_now.to_i
     expect(results.last).to eq Thread.current['job_ids'].first
   end
