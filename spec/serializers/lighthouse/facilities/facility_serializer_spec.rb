@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Lighthouse::Facilities::FacilitySerializer, type: :serializer, team: :facilities do
+RSpec.describe Lighthouse::Facilities::FacilitySerializer, team: :facilities do
   # subject { serialize(facility, serializer_class: described_class) }
   subject { described_class.new(facility) }
 

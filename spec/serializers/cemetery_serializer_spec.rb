@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CemeterySerializer, type: :serializer do
+RSpec.describe CemeterySerializer do
   subject { serialize(cemetery, serializer_class: described_class) }
 
   let(:cemetery) { build :cemetery }

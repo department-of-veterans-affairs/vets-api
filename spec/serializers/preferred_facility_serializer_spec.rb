@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PreferredFacilitySerializer, type: :serializer do
+RSpec.describe PreferredFacilitySerializer do
   subject { serialize(create(:preferred_facility), serializer_class: described_class) }
 
   let(:data) { JSON.parse(subject)['data'] }

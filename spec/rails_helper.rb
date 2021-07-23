@@ -143,6 +143,11 @@ RSpec.configure do |config|
   # https://relishapp.com/rspec/rspec-rails/docs
   config.infer_spec_type_from_file_location!
 
+  # set `:type` for serializers directory
+  config.define_derived_metadata(file_path: Regexp.new('/spec/serializers/')) do |metadata|
+    metadata[:type] = :serializer
+  end
+
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
   # arbitrary gems may also be filtered via:

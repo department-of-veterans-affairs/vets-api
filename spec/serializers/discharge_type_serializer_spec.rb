@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DischargeTypeSerializer, type: :serializer do
+RSpec.describe DischargeTypeSerializer do
   subject { serialize(discharge_type, serializer_class: described_class) }
 
   let(:discharge_type) { build :discharge_type }

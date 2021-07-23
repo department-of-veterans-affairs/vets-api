@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe FolderSerializer, type: :serializer do
+RSpec.describe FolderSerializer do
   subject { serialize(folder, serializer_class: described_class) }
 
   let(:folder) { build :folder }
