@@ -147,7 +147,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
           errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type', detail: detail }]
         }
       }
-      key :responses, hlr_contestable_issues_responses
+      key :responses, hlr_ci_responses
 
       security do
         key :apikey, []
