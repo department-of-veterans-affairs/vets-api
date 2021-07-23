@@ -12,7 +12,7 @@ describe DependentsVerificationsSerializer do
   end
 
   describe '#prompt_renewal' do
-    it "returns true when there is a diary entry with a diary_reason_type of '24'
+    it "returns true when there are multiple diary entries with a diary_reason_type of '24'
       AND a diary_lc_status_type of 'PEND' AND the due_date is within a year" do
       expect(subject.prompt_renewal).to eq true
     end
