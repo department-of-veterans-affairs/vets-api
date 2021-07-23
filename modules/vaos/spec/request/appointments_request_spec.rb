@@ -193,6 +193,30 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
       end
 
+      context 'shows single appointment with dash in app id' do
+        it 'returns single appointment based on appointment id' do
+          VCR.use_cassette('vaos/appointments/show_appointment_with_dash', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments/va/202006031600983000030800000000000000-aaaaaa', params: params
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data']['id']).to eq('202006031600983000030800000000000000-aaaaaa')
+            expect(response).to match_response_schema('vaos/va_appointment')
+          end
+        end
+
+        it 'returns single appointment based on appointment id when camel-inflected' do
+          VCR.use_cassette('vaos/appointments/show_appointment_with_dash', match_requests_on: %i[method uri]) do
+            get '/vaos/v0/appointments/va/202006031600983000030800000000000000-aaaaaa',
+                params: params,
+                headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data']['id']).to eq('202006031600983000030800000000000000-aaaaaa')
+            expect(response).to match_camelized_response_schema('vaos/va_appointment')
+          end
+        end
+      end
+
       context 'cc appointments' do
         it 'has access and returns cc appointments' do
           VCR.use_cassette('vaos/appointments/get_cc_appointments', match_requests_on: %i[method uri]) do
