@@ -203,17 +203,19 @@ module BGS
     end
 
     def update_ch33_dd_eft(routing_number, acct_number, checking_acct)
-      service.claims.send(
-        :request,
-        :update_ch33_dd_eft,
-        ch33DdEftInput: {
-          dpositAcntNbr: acct_number,
-          dpositAcntTypeNm: checking_acct ? 'C' : 'S',
-          fileNumber: @user.ssn,
-          routngTrnsitNbr: routing_number,
-          tranCode: '2'
-        }
-      )
+      with_monitoring do
+        service.claims.send(
+          :request,
+          :update_ch33_dd_eft,
+          ch33DdEftInput: {
+            dpositAcntNbr: acct_number,
+            dpositAcntTypeNm: checking_acct ? 'C' : 'S',
+            fileNumber: @user.ssn,
+            routngTrnsitNbr: routing_number,
+            tranCode: '2'
+          }
+        )
+      end
     end
 
     def get_regional_office_by_zip_code(zip_code, country, province, lob, ssn)

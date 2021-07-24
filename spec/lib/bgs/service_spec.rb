@@ -85,6 +85,18 @@ RSpec.describe BGS::Service do
       end
     end
 
+    it 'updates increment statsd' do
+      VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
+        expect do
+          bgs_service.update_ch33_dd_eft(
+            '122239982',
+            '444',
+            true
+          )
+        end.to trigger_statsd_increment('api.bgs.update_ch33_dd_eft.total')
+      end
+    end
+
     it 'updates a users dd eft info' do
       VCR.use_cassette('bgs/service/update_ch33_dd_eft', VCR::MATCH_EVERYTHING) do
         response = bgs_service.update_ch33_dd_eft(
