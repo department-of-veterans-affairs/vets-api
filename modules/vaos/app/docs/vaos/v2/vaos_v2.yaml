@@ -72,7 +72,18 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AppointmentsResponse"
+                      required:
+                        - id
+                        - type
+                        - attributes
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          example: appointments
+                        attributes:
+                          $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -115,7 +126,18 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/AppointmentResponse"
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -160,7 +182,18 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/AppointmentResponse"
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -216,17 +249,22 @@ paths:
             application/json:
               schema:
                 required:
-                  - id
-                  - type
-                  - attributes
+                  - data
                 properties:
-                  id:
-                    type: string
-                  type:
-                    type: string
-                    example: appointments
-                  attributes:
-                    $ref: "#/components/schemas/Appointment"
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        example: appointments
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -255,7 +293,7 @@ paths:
       operationId: getFacilities
       parameters:
         - in: query
-          name: types
+          name: type
           schema:
             type: string
           description: Not implemented and will be ignored if present.
@@ -277,7 +315,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FacilitiesResponse'
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          example: appointments
+                        attributes:
+                          $ref: "#/components/schemas/Facility"   
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -482,26 +537,31 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves patient appointment metadata
           content:
             application/json:
               schema:
                 required:
-                  - id
-                  - type
-                  - attributes
+                  - data
                 properties:
-                  id:
-                    type: string
-                  type:
-                    type: string
-                  attributes:
+                  data:
                     type: object
+                    required:
+                      - id
+                      - type
+                      - attributes
                     properties:
-                      hasRequiredAppointmentHistory:
-                        type: boolean
-                      isEligibleForNewAppointmentRequest:
-                        type: boolean
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          hasRequiredAppointmentHistory:
+                            type: boolean
+                          isEligibleForNewAppointmentRequest:
+                            type: boolean
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -549,21 +609,12 @@ paths:
             application/json:
               schema:
                 required:
-                  - id
-                  - type
-                  - attributes
+                  - data
                 properties:
-                  id:
-                    type: string
-                  type:
-                    type: string
-                  attributes:
-                    type: object
-                    properties:
-                      hasRequiredAppointmentHistory:
-                        type: boolean
-                      isEligibleForNewAppointmentRequest:
-                        type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SchedulingConfiguration"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -718,12 +769,6 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/Appointment"
-    AppointmentResponse:
-      description: A single appointment
-      type: object
-      properties:
-        data:
-          "$ref": "#/components/schemas/Appointment"
     AppointmentStatus:
       type: string
       enum:
@@ -959,13 +1004,6 @@ components:
             type: string
         operatingStatus:
           $ref: '#/components/schemas/OperatingStatus'
-    FacilitiesResponse:
-      type: object
-      properties:
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/Facility'
     HoursOfOperation:
       type: object
       properties:
@@ -1066,21 +1104,85 @@ components:
         enrollmentCoordinator:
           type: string
           example: 202-555-1212
-    # Slot:
-    #   type: object
-    #   properties:
-    #     id:
-    #       description: The slot ID
-    #       type: string
-    #       pattern: "[A-Za-z0-9\\-\\.]{1,64}"
-    #     start:
-    #       description: Date/Time that the slot is to begin.
-    #       type: string
-    #       format: date-time
-    #     end:
-    #       description: Date/Time that the slot is to end.
-    #       type: string
-    #       format: date-time
+    SchedulingConfiguration:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          required: 
+            - facility_id
+          properties:
+            facility_id:
+              type: string
+            services:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  stop_codes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        primary:
+                          type: string
+                        secondary:
+                          type: string
+                  char4:
+                    type: string
+                  direct:
+                    type: object
+                    properties:
+                      patient_history_required:
+                        type: boolean
+                      patient_history_duration:
+                        type: integer
+                      can_cancel:
+                        type: boolean
+                      enabled:
+                        type: boolean
+                  request:
+                    type: object
+                    properties:
+                      patient_history_required:
+                        type: boolean
+                      patient_history_duration:
+                        type: integer
+                      can_cancel:
+                        type: boolean
+                      submitted_request_limit:
+                        type: integer
+                      enterprise_submitted_request_limit:
+                        type: integer
+                      supported:
+                        type: boolean
+                      scheduling_days:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day:
+                              type: string
+                            can_schedule:
+                              type: boolean
+                            start_time:
+                              type: string
+                            end_time:
+                              type: string
+            community_care:
+              type: boolean            
     TasAddress:
       type: object
       properties:

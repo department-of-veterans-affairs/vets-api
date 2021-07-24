@@ -100,7 +100,7 @@ module EducationForm
       num_form_types = FORM_TYPES.size
 
       @ranges = {
-        day: @date.beginning_of_day..@date.end_of_day,
+        day: @date.all_day,
         year: beginning_of_fiscal_year..@date.end_of_day
       }
 

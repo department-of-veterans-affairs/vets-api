@@ -17,6 +17,7 @@ properties:
       - completed
       - dateFiled
       - updatedAt
+      - displayTitle
     properties:
       subtype:
         type: string
@@ -30,5 +31,9 @@ properties:
         example: "2020-01-01"
       updatedAt:
         type: string
-        format: date-time
+        format: date
         example: "2020-01-01"
+      displayTitle:
+        type: string
+        description: Formatted title for display in mobile overview list
+        example: "disability compensation appeal"

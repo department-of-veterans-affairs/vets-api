@@ -12,7 +12,6 @@ module VAOS
       attribute :location_id, String
       attribute :clinic, String
       attribute :reason, String
-      attribute :patient_icn, String
       attribute :slot, Hash
       attribute :contact, Hash
       attribute :service_type, String
@@ -26,7 +25,7 @@ module VAOS
       def params
         raise Common::Exceptions::ValidationErrors, self unless valid?
 
-        attributes.compact
+        attributes.merge(patient_icn: @user.icn, slot: slot.empty? ? nil : slot).compact
       end
     end
   end

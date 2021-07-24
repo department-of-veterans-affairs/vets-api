@@ -73,11 +73,7 @@ module Mobile
           end
 
           facilities.each do |facility_id|
-            StatsD.increment(
-              'mobile.appointments.facilities',
-              tags: ["facility_id:#{facility_id}"],
-              sample_rate: 1.0
-            )
+            Rails.logger.info('metric.mobile.appointment.facility', facility_id: facility_id)
           end
 
           [appointments, facilities]
@@ -127,9 +123,7 @@ module Mobile
             vetext_id: vetext_id(appointment_hash, start_date_local)
           }
 
-          StatsD.increment(
-            'mobile.appointments.type', tags: ["type:#{type}"], sample_rate: 0.1
-          )
+          Rails.logger.info('metric.mobile.appointment.type', type: type)
 
           model = Mobile::V0::Appointment.new(adapted_hash)
           facilities.add(model.id_for_address)

@@ -37,7 +37,14 @@ rakelib/covid_vaccine.rake @department-of-veterans-affairs/va-cto-health-product
 modules/health_quest  @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
 spec/support/*/health_quest/ @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
 
+# check_in product
+modules/check_in  @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
+spec/support/*/check_in/ @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/backend-review-group
+
 # facilities product
 modules/facilities_api @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
 spec/support/*/facilities @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
 spec/support/*/lighthouse @department-of-veterans-affairs/vsa-facilities-backend @department-of-veterans-affairs/backend-review-group
+
+# test user dashboard product
+modules/test_user_dashboard @department-of-veterans-affairs/vsp-identity

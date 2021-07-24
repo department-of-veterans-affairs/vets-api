@@ -8,8 +8,11 @@ namespace :mvi do
   desc 'Given user attributes, run a find candidate query'
   task find: :environment do
     unless valid_user_vars
-      raise ArgumentError, 'Run the task with all required attributes: bundle exec rake mvi:find first_name="John"
-middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443333"'
+      raise(
+        ArgumentError,
+        'Run the task with all required attributes: bundle exec rake mvi:find first_name="John" middle_name="W" ' \
+        'last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443333"'
+      )
     end
 
     begin
@@ -38,7 +41,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
       )
 
       user.last_signed_in = Time.now.utc
-      pp user.mpi_profile
+      pp MPIData.for_user(user).profile
     rescue => e
       puts "User query failed: #{e.message}"
     end

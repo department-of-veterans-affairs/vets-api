@@ -24,6 +24,7 @@ module V1
     STATSD_LOGIN_STATUS_FAILURE = 'api.auth.login.failure'
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
     VERSION_TAG = 'version:v1'
+    FIM_INVALID_MESSAGE_TIMESTAMP = 'invalid_message_timestamp'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -32,7 +33,7 @@ module V1
       type = params[:type]
 
       if type == 'slo'
-        Rails.logger.info("LOGOUT of type #{type}", sso_logging_info)
+        Rails.logger.info("SessionsController version:v1 LOGOUT of type #{type}", sso_logging_info)
         reset_session
         url = url_service.ssoe_slo_url
         # due to shared url service implementation
@@ -46,6 +47,7 @@ module V1
     end
 
     def ssoe_slo_callback
+      Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
       redirect_to url_service.logout_redirect_url
     end
 
@@ -56,6 +58,7 @@ module V1
       raise_saml_error(saml_response) unless saml_response.valid?
       user_login(saml_response)
       callback_stats(:success, saml_response)
+      Rails.logger.info("SessionsController version:v1 saml_callback complete, user_uuid=#{@current_user&.uuid}")
     rescue SAML::SAMLError => e
       handle_callback_error(e, :failure, saml_response, e.level, e.context, e.code, e.tag)
     rescue => e
@@ -237,10 +240,10 @@ module V1
       if logout_request.present?
         logout_request.destroy
         Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id "\
-          "'#{originating_request_id}'")
+                          "'#{originating_request_id}'")
       else
         Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
-          "'#{originating_request_id}'")
+                          "'#{originating_request_id}'")
       end
     end
 
@@ -258,11 +261,13 @@ module V1
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags: tags)
         Rails.logger.info("LOGIN_STATUS_SUCCESS, tags: #{tags}")
+        Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user&.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags: tags)
       when :failure
         tags_and_error_code = tags << "error:#{error&.code || SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE}"
         StatsD.increment(STATSD_LOGIN_STATUS_FAILURE, tags: tags_and_error_code)
         Rails.logger.info("LOGIN_STATUS_FAILURE, tags: #{tags_and_error_code}")
+        Rails.logger.info("SessionsController version:v1 login failure, user_uuid=#{@current_user&.uuid}")
       end
     end
 
@@ -299,6 +304,7 @@ module V1
                   exc.message
                 end
       conditional_log_message_to_sentry(message, level, context, code)
+      Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
       redirect_to url_service.login_redirect_url(auth: 'fail', code: code) unless performed?
       login_stats(:failure, exc) unless response.nil?
       callback_stats(status, response, tag)
@@ -316,12 +322,18 @@ module V1
       # If our error is that we have multiple mhv ids, this is a case where we won't log in the user,
       # but we give them a path to resolve this. So we don't want to throw an error, and we don't want
       # to pollute Sentry with this condition, but we will still log in case we want metrics in
-      # Cloudwatch or any other log aggregator
-      if code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE
+      # Cloudwatch or any other log aggregator. Additionally, if the user has an invalid message timestamp
+      # error, this means they have waited too long in the log in page to progress, so it's not really an
+      # appropriate Sentry error
+      if code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE || invalid_message_timestamp_error?(message)
         Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
       else
         log_message_to_sentry(message, level, extra_context: context)
       end
+    end
+
+    def invalid_message_timestamp_error?(message)
+      message.match(FIM_INVALID_MESSAGE_TIMESTAMP)
     end
 
     def set_cookies

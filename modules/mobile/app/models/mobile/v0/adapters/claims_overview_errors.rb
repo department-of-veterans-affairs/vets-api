@@ -7,8 +7,20 @@ module Mobile
         def parse(error, failed_service)
           {
             service: failed_service,
-            error_details: defined?(error.details) ? error.details : error.errors.to_json
+            error_details: error_details(error)
           }
+        end
+
+        private
+
+        def error_details(error)
+          if error.respond_to?(:details)
+            error.details
+          elsif error.respond_to?(:errors)
+            error.errors.as_json
+          else
+            error.message
+          end
         end
       end
     end

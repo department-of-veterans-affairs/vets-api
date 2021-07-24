@@ -79,13 +79,15 @@ class SavedClaim < ApplicationRecord
   end
 
   def form_must_be_string
-    errors[:form] << 'must be a json string' unless form_is_string
+    errors.add(:form, :invalid_format, message: 'must be a json string') unless form_is_string
   end
 
   def form_matches_schema
     return unless form_is_string
 
-    errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form))
+    JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM], parsed_form).each do |v|
+      errors.add(:form, v.to_s)
+    end
   end
 
   def to_pdf(file_name = nil)

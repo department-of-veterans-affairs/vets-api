@@ -1,0 +1,1127 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API V2",
+    "version": "v2",
+    "description": "This API automatically establishes and submits these VA forms.\n| Form number       | Form name     | Description     |\n| :------------- | :----------: | -----------: |\n| [21-526EZ](https://www.va.gov/find-forms/about-form-21-526ez/) | Application for Disability Compensation and Related Compensation Benefits | Used to apply for VA disability compensation and related benefits. |\n| [21-0966](https://www.va.gov/find-forms/about-form-21-0966/) | Intent to File a Claim for Compensation and/or Pension, or Survivors Pension and/or DIC | Submits an intent to file to secure the earliest possible effective date for any retroactive payments. |\n| [21-22](https://www.va.gov/find-forms/about-form-21-22/) | Appointment of Veterans Service Organization as Claimant's Representative | Used to assign an individual or VSO as a POA to help a Veteran with benefits or claims. |\n| [21-22a](https://www.va.gov/find-forms/about-form-21-22a/) | Appointment of Individual As Claimant's Representative | |\n\nIt also lets Veterans or their authorized representatives:\n - Digitally submit supporting documentation for disability compensation claims\n - Retrieve information such as status for any claim, including pension and burial\n - Retrieve power of attorney (POA) status for individuals and Veterans Service Organizations (VSOs)\n - Retrieve intent to file status\n\n## Background\nThe Benefits Claims API offers faster establishment and enhanced reporting for several VA claims and forms. Using this API provides many benefits, such as:\n - Automatic claim and POA establishment\n - Direct establishment of disability compensation claims in Veterans Benefits Management System (VBMS) to avoid unnecessary manual processing and entry by Veteran Service Representatives (VSRs)\n - Faster claims processing by several days\n - End-to-end claims status and result tracking by claim ID\n\nForms not supported by the Benefits Claims API are submitted using the [Benefits Intake API](https://developer.va.gov/explore/benefits/docs/benefits?version=current), which places uploaded PDFs into the Centralized Mail Portal to be manually processed.\n\n## Technical Overview\nThis API accepts a payload of requests and responses on a per-form basis, with the payload identifying the form and Veteran. Trackable responses provide a unique ID which is used with the appropriate GET endpoint to track a submission’s processing status.\n\n### Attachment and file size limits\nThere is no limit on the number of files a payload can contain, but size limits do apply.\n - Uploaded documents cannot be larger than 11\" x 11\"\n - The entire payload cannot exceed 5 GB\n - No single file in a payload can exceed 100 MB\n\n### Authentication and authorization\nTo make an API request, follow our [authentication process](https://developer.va.gov/explore/authorization?api=claims) to receive an [OAuth token](https://oauth.net/2/).\n\n#### Representative authorization\nAccredited representatives may make requests to the Claims API on behalf of Veterans that they represent. To make API requests on behalf of a Veteran, representatives must:\n - be [accredited with the VA Office of the General Counsel](https://www.va.gov/ogc/apps/accreditation/index.asp)\n - be [authenticated](https://developer.va.gov/explore/authorization?api=claims) using an identity-proofed account\n - be the current Power of Attorney (POA) on record for the Veteran (accredited representatives can use the ‘/veterans/{veteranId}/power-of-attorney’ endpoint to check a Veteran’s current POA)\n\n#### Finding a Veteran's unique VA ID\nThe Claims API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by an authenticated Veteran or an accredited representative by passing name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\n*Note: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to retrieve the current identifier for each Veteran periodically.*\n\n### POA Codes\nVeteran representatives receive their organization’s POA code. If they are the assigned POA for a Veteran, that Veteran will have a matching POA code. When a claim is submitted, this API verifies that the representative and Veteran codes match against each other and the codes in the [Office of General Council (OGC) Database](https://www.va.gov/ogc/apps/accreditation/index.asp).\n\nUse the [Power of Attorney endpoint](#operations-Power_of_Attorney-post2122) to assign or update POA status. A newly appointed representative may not be able to submit forms for a Veteran until a day after their POA code is first associated with the OGC data set.\n\n### Test data for sandbox environment use\n[Test data](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md) is used for all forms in the sandbox environment and for 21-526 submissions in the staging environment.\n\n### Claim and form processing\nClaims and forms are first submitted by this API and then established in VBMS. A 200 response means only that your claim or form was submitted successfully. To see if your submission is processed or has reached VBMS, you must check its status using the appropriate GET endpoint and the ID returned with your submission response.\n\nA “claim established” status means the claim has reached VBMS. In sandbox, submissions can take over an hour to reach “claim established” status. In production, this may take over two days.\n"
+  },
+  "tags": [
+    {
+      "name": "Veteran Identifier",
+      "description": "Allows authenticated veterans and veteran representatives to retrieve a veteran's id."
+    },
+    {
+      "name": "Claims",
+      "description": "Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.\n"
+    },
+    {
+      "name": "Power of Attorney",
+      "description": "Used for 21-22 and 21-22a form submissions."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer_token": {
+        "type": "http",
+        "name": "token",
+        "scheme": "bearer",
+        "bearer_format": "JWT"
+      }
+    }
+  },
+  "paths": {
+    "/veteran-id:find": {
+      "post": {
+        "summary": "Retrieve id of Veteran.",
+        "tags": [
+          "Veteran Identifier"
+        ],
+        "operationId": "postVeteranId",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Allows authenticated Veterans and Veteran representatives to retrieve a Veteran's id.",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "Veteran's unique identifier",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "1012667145V762142"
+                },
+                "schema": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "1012667145V762142"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "invalid value for ssn",
+                      "detail": "blank is not valid for ssn",
+                      "code": "100",
+                      "source": {
+                        "pointer": "ssn"
+                      },
+                      "status": "400"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized",
+                      "code": "401",
+                      "status": "401"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Resource not found",
+                      "code": "404",
+                      "status": "404"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "ssn",
+                  "birthdate",
+                  "firstName",
+                  "lastName"
+                ],
+                "properties": {
+                  "ssn": {
+                    "type": "string",
+                    "example": "796130115",
+                    "description": "SSN of Veteran being represented"
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "example": "Tamara",
+                    "description": "First Name of Veteran being represented"
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "example": "Ellis",
+                    "description": "Last Name of Veteran being represented"
+                  },
+                  "birthdate": {
+                    "type": "string",
+                    "example": "1967-06-19",
+                    "description": "Date of Birth of Veteran being represented, in iso8601 format"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
+    "/veterans/{veteranId}/claims": {
+      "get": {
+        "summary": "Find all benefits claims for a Veteran.",
+        "tags": [
+          "Claims"
+        ],
+        "operationId": "findClaims",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Retrieves all claims for Veteran.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "claim response",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "id": "111111111",
+                    "type": "Appeals Control"
+                  },
+                  {
+                    "id": "222222222",
+                    "type": "Claim for Increase"
+                  },
+                  {
+                    "id": "333333333",
+                    "type": "Rating Control"
+                  }
+                ],
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "array",
+                  "items": {
+                    "required": [
+                      "id",
+                      "type"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Claim details.",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "description": "Claim ID",
+                        "example": "600131328"
+                      },
+                      "type": {
+                        "type": "string",
+                        "description": "Name of Claim type",
+                        "example": "Appeals Control"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized",
+                      "code": "401",
+                      "status": "401"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/claims/{id}": {
+      "get": {
+        "summary": "Find claim by ID",
+        "tags": [
+          "Claims"
+        ],
+        "operationId": "findClaimById",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the claim being requested",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Retrieves a specific claim for a Veteran",
+        "responses": {
+          "200": {
+            "description": "claim response",
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "600131328",
+                  "type": "Appeals Control"
+                },
+                "schema": {
+                  "$schema": "http://json-schema.org/draft-04/schema#",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "id",
+                    "type"
+                  ],
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "Claim ID",
+                      "example": "600131328"
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "Name of Claim type",
+                      "example": "Appeals Control"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized",
+                      "code": "401",
+                      "status": "401"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Resource not found",
+                      "detail": "Claim not found",
+                      "code": "404",
+                      "status": "404"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/veterans/{veteranId}/power-of-attorney": {
+      "get": {
+        "summary": "Find current Power of Attorney for a Veteran.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "findPowerOfAttorney",
+        "security": [
+          {
+            "productionOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "claim.read",
+              "claim.write"
+            ]
+          },
+          {
+            "bearer_token": [
+
+            ]
+          }
+        ],
+        "description": "Retrieves current Power of Attorney for Veteran.",
+        "parameters": [
+          {
+            "name": "veteranId",
+            "in": "path",
+            "required": true,
+            "description": "ID of Veteran",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with a current Power of Attorney",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": "A1Q",
+                  "name": "Firstname Lastname",
+                  "type": "individual",
+                  "phone": {
+                    "number": "555-555-5555"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "code"
+                  ],
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "description": "Power of Attorney Code currently assigned to Veteran"
+                    },
+                    "name": {
+                      "description": "Name of individual representative or organization",
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "example": "Jane Smith"
+                    },
+                    "type": {
+                      "description": "Type of representative, organization or individual",
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "example": "individual"
+                    },
+                    "phone": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "number": {
+                          "description": "Phone number of representative. Can be organization or individual phone number.",
+                          "type": [
+                            "string",
+                            "null"
+                          ],
+                          "example": "555-555-5555"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "204": {
+            "description": "Successful response with no current Power of Attorney",
+            "content": {
+              "application/json": {
+                "example": ""
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "detail": "Not authorized",
+                      "code": "401",
+                      "status": "401"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Forbidden",
+                      "detail": "Forbidden",
+                      "code": "403",
+                      "status": "403"
+                    }
+                  ]
+                },
+                "schema": {
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "description": "HTTP error title"
+                          },
+                          "detail": {
+                            "type": "string",
+                            "description": "HTTP error detail"
+                          },
+                          "code": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "status": {
+                            "type": "string",
+                            "description": "HTTP error code"
+                          },
+                          "source": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "Source of error",
+                            "properties": {
+                              "pointer": {
+                                "type": "string",
+                                "description": "Pointer to source of error"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/services/benefits/v2",
+  "servers": [
+    {
+      "url": "https://dev-api.va.gov/services/benefits/{version}",
+      "description": "VA.gov API development environment",
+      "variables": {
+        "version": {
+          "default": "v2"
+        }
+      }
+    }
+  ]
+}

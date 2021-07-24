@@ -9,11 +9,6 @@ FactoryBot.define do
     initialize_with { new(user, attributes) }
 
     trait :eligible do
-      bad_request_no_icn
-      patient_icn { '1012845331V153043' }
-    end
-
-    trait :bad_request_no_icn do
       kind { 'cc' }
       status { 'proposed' }
       location_id { '983' }
@@ -43,6 +38,11 @@ FactoryBot.define do
           }
         ]
       end
+    end
+
+    trait :with_empty_slot_hash do
+      eligible
+      slot { {} }
     end
   end
 end

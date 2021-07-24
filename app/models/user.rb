@@ -67,7 +67,7 @@ class User < Common::RedisStore
   # Identity getter methods
 
   def birls_id
-    identity&.birls_id || mpi&.birls_id
+    identity&.birls_id || mpi_birls_id
   end
 
   # Returns a Date string in iso8601 format, eg. '{year}-{month}-{day}'
@@ -141,12 +141,6 @@ class User < Common::RedisStore
   end
 
   # MPI getter methods
-
-  def mpi_profile
-    return nil unless mpi
-
-    mpi.profile
-  end
 
   def active_mhv_ids
     mpi_profile&.active_mhv_ids
@@ -230,27 +224,30 @@ class User < Common::RedisStore
     mpi_profile != nil
   end
 
-  def va_profile
-    mpi.profile
-  end
-  deprecate :va_profile, :none, 2021, 5
-
-  def va_profile_error
-    mpi.error
-  end
-  deprecate :va_profile_error, :mpi_error, 2021, 5
-
-  def va_profile_status
-    mpi.status
-  end
-  deprecate :va_profile_status, :mpi_status, 2021, 5
-
   # MPI setter methods
+
+  def mpi_add_person
+    add_person_identity = identity
+    add_person_identity.edipi = edipi
+    add_person_identity.ssn = ssn
+    add_person_identity.icn_with_aaid = icn_with_aaid
+    add_person_identity.search_token = search_token
+    mpi.user_identity = add_person_identity
+    mpi.add_person
+  end
 
   def set_mhv_ids(mhv_id)
     mpi_profile.mhv_ids = [mhv_id] + mhv_ids
     mpi_profile.active_mhv_ids = [mhv_id] + active_mhv_ids
     recache
+  end
+
+  # Other MPI
+
+  def invalidate_mpi_cache
+    mpi_cache = mpi
+    mpi_cache.mvi_response
+    mpi_cache.destroy
   end
 
   # identity attributes
@@ -262,6 +259,9 @@ class User < Common::RedisStore
   delegate :person_types, to: :identity, allow_nil: true
 
   # mpi attributes
+  delegate :birls_id, to: :mpi, prefix: true
+  delegate :cerner_id, to: :mpi
+  delegate :cerner_facility_ids, to: :mpi
   delegate :icn, to: :mpi, prefix: true
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
@@ -269,8 +269,6 @@ class User < Common::RedisStore
   delegate :id_theft_flag, to: :mpi
   delegate :status, to: :mpi, prefix: true
   delegate :error, to: :mpi, prefix: true
-  delegate :cerner_id, to: :mpi
-  delegate :cerner_facility_ids, to: :mpi
 
   # emis attributes
   delegate :military_person?, to: :veteran_status
@@ -298,11 +296,15 @@ class User < Common::RedisStore
   # User's profile contains a list of VHA facility-specific identifiers.
   # Facilities in the defined range are treating facilities
   def va_treatment_facility_ids
-    facilities = mpi_profile&.vha_facility_ids
-    facilities.to_a.select do |f|
+    facilities = vha_facility_ids
+    facilities.select do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
         Settings.mhv.facility_specific.include?(f)
     end
+  end
+
+  def vha_facility_ids
+    mpi_profile&.vha_facility_ids || []
   end
 
   def can_access_id_card?
@@ -370,15 +372,19 @@ class User < Common::RedisStore
     @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
   end
 
+  def va_profile_email
+    vet360_contact_info&.email&.email_address
+  end
+
   def all_emails
-    vet360_email =
+    the_va_profile_email =
       begin
-        vet360_contact_info&.email&.email_address
+        va_profile_email
       rescue
         nil
       end
 
-    [vet360_email, email]
+    [the_va_profile_email, email]
       .reject(&:blank?)
       .map(&:downcase)
       .uniq
@@ -388,10 +394,6 @@ class User < Common::RedisStore
     loa3? && icn.present? && vet360_id.present?
   rescue # Default to false for any error
     false
-  end
-
-  def mpi
-    @mpi ||= MPIData.for_user(identity)
   end
 
   # A user can have served in the military without being a veteran.  For example,
@@ -416,17 +418,17 @@ class User < Common::RedisStore
     @relationships ||= get_relationships_array
   end
 
-  def mpi_add_person
-    add_person_identity = identity
-    add_person_identity.edipi = edipi
-    add_person_identity.ssn = ssn
-    add_person_identity.icn_with_aaid = icn_with_aaid
-    add_person_identity.search_token = search_token
-    mpi.user_identity = add_person_identity
-    mpi.add_person
+  private
+
+  def mpi
+    @mpi ||= MPIData.for_user(identity)
   end
 
-  private
+  def mpi_profile
+    return nil unless mpi
+
+    mpi.profile
+  end
 
   def get_relationships_array
     return unless loa3?

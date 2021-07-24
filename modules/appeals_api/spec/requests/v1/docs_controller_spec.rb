@@ -34,7 +34,7 @@ describe AppealsApi::Docs::V1::DocsController, type: :request do
     end
 
     it 'HLR statuses match model (if this test fails, has there been a version change?)' do
-      expect(json['components']['schemas']['hlrStatus']['enum']).to eq AppealsApi::HigherLevelReview::STATUSES
+      expect(json['components']['schemas']['hlrStatus']['enum']).to eq AppealsApi::HigherLevelReview::V1_STATUSES
     end
   end
 end

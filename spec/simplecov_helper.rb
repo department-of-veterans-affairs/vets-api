@@ -61,6 +61,7 @@ class SimpleCovHelper
   def self.add_modules
     # Modules
     add_group 'AppealsApi', 'modules/appeals_api/'
+    add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'

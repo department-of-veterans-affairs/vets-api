@@ -18,7 +18,7 @@ module VAOS
       end
 
       def update
-        resp_appointment = appointments_service.update_appointment(appt_id: appt_id, status: status)
+        resp_appointment = appointments_service.update_appointment(appt_id: appt_id, status: status_update)
         render json: VAOS::V2::AppointmentsSerializer.new(resp_appointment)
       end
 
@@ -30,7 +30,7 @@ module VAOS
 
       def appointments
         @appointments ||=
-          appointments_service.get_appointments(start_date, end_date, pagination_params)
+          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params)
       end
 
       def appointment
@@ -42,7 +42,7 @@ module VAOS
         params.require(:id)
       end
 
-      def status
+      def status_update
         params.require(:status)
       end
 
@@ -58,8 +58,15 @@ module VAOS
       end
 
       def create_params
-        params.permit(:kind, :status, :location_id, :clinic, :reason, :slot, :contact,
-                      :service_type, :requested_periods)
+        params.permit(:kind,
+                      :status,
+                      :location_id,
+                      :clinic,
+                      :reason,
+                      :service_type,
+                      slot: %i[id start end],
+                      contact: [telecom: %i[type value]],
+                      requested_periods: %i[start end])
       end
 
       def start_date
@@ -72,6 +79,11 @@ module VAOS
         DateTime.parse(appointment_params[:end]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('end', params[:end])
+      end
+
+      def statuses
+        s = params[:statuses]
+        s.is_a?(Array) ? s.to_csv(row_sep: nil) : s
       end
 
       def appointment_id

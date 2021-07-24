@@ -4,7 +4,6 @@ module Mobile
   class ApplicationController < ActionController::API
     include ExceptionHandling
     include Headers
-    include Instrumentation
     include Pundit
     include SentryLogging
     include SentryControllerLogging
@@ -50,7 +49,7 @@ module Mobile
     end
 
     def access_token
-      @access_token ||= request.headers['Authorization'].gsub(ACCESS_TOKEN_REGEX, '')
+      @access_token ||= request.headers['Authorization']&.gsub(ACCESS_TOKEN_REGEX, '')
     end
 
     def raise_unauthorized(detail)
@@ -58,11 +57,11 @@ module Mobile
     end
 
     def link_user_with_vets360
-      account_uuid = @current_user.account_uuid
+      uuid = @current_user.uuid
 
-      unless vet360_linking_locked?(account_uuid)
-        lock_vets360_linking(account_uuid)
-        jid = Mobile::V0::Vet360LinkingJob.perform_async(@current_user)
+      unless vet360_linking_locked?(uuid)
+        lock_vets360_linking(uuid)
+        jid = Mobile::V0::Vet360LinkingJob.perform_async(uuid)
         Rails.logger.info('Mobile Vet360 account link job id', { job_id: jid })
       end
     end
@@ -78,6 +77,12 @@ module Mobile
 
     def vet360_linking_locked?(account_uuid)
       !vets360_link_redis_lock.get(account_uuid).nil?
+    end
+
+    def append_info_to_payload(payload)
+      super
+      payload[:session] = Session.obscure_token(access_token) if access_token.present?
+      payload[:user_uuid] = current_user.uuid if current_user.present?
     end
   end
 end

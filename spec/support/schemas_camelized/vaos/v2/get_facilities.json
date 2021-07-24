@@ -96,7 +96,7 @@
                 }
               },
               "hoursOfOperation": {
-                "type": "array",
+                "type": ["array", null],
                 "items": {
                   "type": "object",
                   "properties": {
@@ -191,7 +191,7 @@
                 ]
               },
               "operatingStatus": {
-                "type": "object",
+                "type": ["object", null],
                 "properties": {
                   "code": {
                     "type": ["string", null]

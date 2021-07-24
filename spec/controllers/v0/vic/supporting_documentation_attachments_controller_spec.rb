@@ -9,7 +9,7 @@ RSpec.describe V0::VIC::SupportingDocumentationAttachmentsController, type: :con
   describe '#create' do
     it 'uploads a supporting documentation attachment' do
       post(:create, params: { supporting_documentation_attachment: {
-             file_data: fixture_file_upload('files/sm_file1.jpg')
+             file_data: fixture_file_upload('sm_file1.jpg')
            } })
 
       expect(

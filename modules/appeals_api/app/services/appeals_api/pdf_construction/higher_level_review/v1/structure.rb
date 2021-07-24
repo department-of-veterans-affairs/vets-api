@@ -92,7 +92,7 @@ module AppealsApi
 
         def stamp(stamped_pdf_path)
           CentralMail::DatestampPdf.new(stamped_pdf_path).run(
-            text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
+            text: "API.VA.GOV #{higher_level_review.created_at.utc.strftime('%Y-%m-%d %H:%M%Z')}",
             x: 5,
             y: 5,
             text_only: true
@@ -118,8 +118,8 @@ module AppealsApi
         def fill_contestable_issues!(options)
           form_issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
           form_issues.each_with_index do |issue, index|
-            options[form_fields.contestable_issue_fields_array[index]] = issue['attributes']['issue']
-            options[form_fields.issue_decision_date_fields_array[index]] = issue['attributes']['decisionDate']
+            options[form_fields.contestable_issue_fields_array[index]] = issue.text
+            options[form_fields.issue_decision_date_fields_array[index]] = issue.decision_date
           end
 
           options

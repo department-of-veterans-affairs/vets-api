@@ -20,7 +20,7 @@
             "phoneNumber": "8001111",
             "phoneNumberExt": "2"
           },
-          "email": "josie@example.com",
+          "email": "123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789_12345678901234567890@bobbytablesemail.com",
           "timezone": "America/Chicago"
         },
         "socOptIn": true,
@@ -30,7 +30,7 @@
         "informalConferenceRep": {
           "firstName": "Helen",
           "lastName": "Holly",
-          "email": "hholly@example.com",
+          "email": "987654321098765432109876543210987654321098765432109876543210987654321098765432109876543210987654321_987654321098765432109876543210987654321098765432109876543210987654321098765432109876543210987654321_98765432109876543210@hellohellenholly.com",
           "phone": {
             "countryCode": "1",
             "areaCode": "555",
@@ -48,7 +48,8 @@
           "decisionDate": "1900-01-01",
           "decisionIssueId": 1,
           "ratingIssueReferenceId": "2",
-          "ratingDecisionReferenceId": "3"
+          "ratingDecisionReferenceId": "3",
+          "socDate": "2020-04-30"
         }
       },
       {
@@ -69,7 +70,8 @@
         "type": "contestableIssue",
         "attributes": {
           "issue": "left ear",
-          "decisionDate": "1900-01-04"
+          "decisionDate": "1900-01-04",
+          "socDate": "2019-05-15"
         }
       },
       {
@@ -111,7 +113,8 @@
         "type": "contestableIssue",
         "attributes": {
           "issue": "right foot",
-          "decisionDate": "1900-01-10"
+          "decisionDate": "1900-01-10",
+          "socDate": "2021-01-08"
         }
       },
       {
@@ -139,7 +142,8 @@
         "type": "contestableIssue",
         "attributes": {
           "issue": "lupus",
-          "decisionDate": "1900-01-14"
+          "decisionDate": "1900-01-14",
+          "socDate": "2020-09-23"
         }
       },
       {

@@ -50,13 +50,13 @@ class OpenidApplicationController < ApplicationController
     if token.client_credentials_token? || token.ssoi_token?
       populate_payload_for_launch_patient_scope if token.payload['scp'].include?('launch/patient')
       populate_payload_for_launch_scope if token.payload['scp'].include?('launch')
-
       return true
     end
 
     return false if @session.uuid.nil?
 
     @current_user = OpenidUser.find(@session.uuid)
+    confirm_icn_match(profile)
   end
 
   def populate_payload_for_launch_scope
@@ -137,15 +137,20 @@ class OpenidApplicationController < ApplicationController
     @session = build_session(ttl,
                              Okta::UserProfile.new({ 'last_login_type' => profile['last_login_type'],
                                                      'SecID' => profile['SecID'], 'VistaId' => profile['VistaId'],
-                                                     'npi' => profile['npi'], 'icn' => profile['icn'],
-                                                     'uuid' => uuid(profile) }))
+                                                     'npi' => profile['npi'], 'icn' => profile['icn'] }))
     @session.save && user_identity.save && @current_user.save
   end
 
-  # Helper method that uses the profile uuid set by SSOe since the sub == ICN in that scenario
-  # but falls back to the token.identifiers.uuid
-  def uuid(profile)
-    profile['uuid'] || token.identifiers.uuid
+  # Ensure the Okta profile ICN continues to match the MPI ICN
+  # If mismatched, revoke in Okta, set @session to nil, and return false
+  # POA support (profile['icn'].nil?)
+  def confirm_icn_match(profile)
+    # Temporarily log only to get an accurate count of this issue
+    # Okta::Service.new.clear_user_session(token.identifiers.okta_uid)
+    # @session = nil
+    log_message_to_sentry('Profile ICN mismatch detected.', :warn) unless
+        profile['icn'].nil? || @current_user&.icn == profile['icn']
+    true
   end
 
   def token
@@ -164,7 +169,7 @@ class OpenidApplicationController < ApplicationController
   end
 
   def build_session(ttl, profile)
-    session = Session.new(token: token.to_s, uuid: uuid(profile), profile: profile)
+    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid, profile: profile)
     session.expire(ttl)
     session
   end

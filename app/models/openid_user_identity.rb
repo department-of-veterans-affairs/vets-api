@@ -10,13 +10,12 @@ class OpenidUserIdentity < ::UserIdentity
   redis_key :uuid
 
   # @param uuid [String] the UUID of the user, as they are known to the upstream identity provider.
-  #   uses the profile uuid set by SSOe but falls back to the token identifier uuid if unset
   # @param profile [Okta::UserProfile] the profile of the user, as they are known to okta.
   # @param ttl [Integer] the time to store the identity in redis.
   # @return [OpenidUserIdentity]
   def self.build_from_okta_profile(uuid:, profile:, ttl:)
     identity = new(
-      uuid: profile['uuid'] || uuid,
+      uuid: uuid,
       email: profile['email'],
       first_name: profile['firstName'],
       middle_name: profile['middleName'],

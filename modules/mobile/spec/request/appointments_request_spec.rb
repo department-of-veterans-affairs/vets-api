@@ -612,6 +612,99 @@ RSpec.describe 'appointments', type: :request do
       end
     end
 
+    context "when a VA appointment's facility does not have a phone number" do
+      before do
+        Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+
+        VCR.use_cassette('appointments/get_facilities_phone_bug', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_address_bug', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_address_bug', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: nil
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:location) { response.parsed_body['data'].first.dig('attributes', 'location') }
+
+      it 'correctly parses the phone number as nil' do
+        expect(location).to eq(
+          {
+            'name' => 'Cheyenne VA Medical Center',
+            'address' => {
+              'street' => '2360 East Pershing Boulevard',
+              'city' => 'Cheyenne',
+              'state' => 'WY',
+              'zipCode' => '82001-5356'
+            },
+            'lat' => 41.148027,
+            'long' => -104.7862575,
+            'phone' => nil,
+            'url' => nil,
+            'code' => nil
+          }
+        )
+      end
+    end
+
+    context "when a VA appointment's facility phone number is malformed" do
+      before do
+        allow(Rails.logger).to receive(:warn)
+        Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+
+        VCR.use_cassette('appointments/get_facilities_phone_bug', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_address_bug', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_address_bug', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: nil
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:location) { response.parsed_body['data'][1].dig('attributes', 'location') }
+
+      it 'correctly parses the phone number as nil' do
+        expect(location).to eq(
+          {
+            'name' => 'Cheyenne VA Medical Center',
+            'address' => {
+              'street' => '2360 East Pershing Boulevard',
+              'city' => 'Cheyenne',
+              'state' => 'WY',
+              'zipCode' => '82001-5356'
+            },
+            'lat' => 41.148027,
+            'long' => -104.7862575,
+            'phone' => nil,
+            'url' => nil,
+            'code' => nil
+          }
+        )
+      end
+
+      it 'logs the facility phone number' do
+        expect(Rails.logger).to have_received(:warn).at_least(:once).with(
+          'mobile appointments failed to parse facility phone number',
+          {
+            facility_id: 'vha_442GC',
+            facility_phone: {
+              'fax' => '970-407-7440',
+              'main' => '970224-1550',
+              'pharmacy' => '866-420-6337',
+              'afterHours' => '307-778-7550',
+              'patientAdvocate' => '307-778-7550 x7517',
+              'mentalHealthClinic' => '307-778-7349',
+              'enrollmentCoordinator' => '307-778-7550 x7579'
+            }
+          }
+        )
+      end
+    end
+
     describe 'sorting' do
       before do
         Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))

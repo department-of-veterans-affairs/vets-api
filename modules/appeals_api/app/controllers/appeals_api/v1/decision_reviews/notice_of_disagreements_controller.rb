@@ -53,7 +53,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def validate_json_schema_for_headers
-    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!("#{FORM_NUMBER}_HEADERS", headers)
+    AppealsApi::FormSchemas.new(SCHEMA_ERROR_TYPE).validate!("#{FORM_NUMBER}_HEADERS", request_headers)
   end
 
   def validate_json_schema_for_body
@@ -71,7 +71,7 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
     }
   end
 
-  def headers
+  def request_headers
     HEADERS.reduce({}) do |hash, key|
       hash.merge(key => request.headers[key])
     end.compact
@@ -79,13 +79,21 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
 
   def new_notice_of_disagreement
     @notice_of_disagreement = AppealsApi::NoticeOfDisagreement.new(
-      auth_headers: headers,
+      auth_headers: request_headers,
       form_data: @json_body,
-      source: headers['X-Consumer-Username'],
+      source: request_headers['X-Consumer-Username'],
       board_review_option: @json_body['data']['attributes']['boardReviewOption'],
-      api_version: 'V1'
+      api_version: api_version
     )
     render_model_errors unless @notice_of_disagreement.validate
+  end
+
+  def api_version
+    if request.fullpath.include?('v1')
+      'V1'
+    elsif request.fullpath.include?('v2')
+      'V2'
+    end
   end
 
   # Follows JSON API v1.0 error object standard (https://jsonapi.org/format/1.0/#error-objects)
@@ -94,9 +102,9 @@ class AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController < Appeals
   end
 
   def model_errors_to_json_api
-    errors = @notice_of_disagreement.errors.to_h.map do |source, data|
-      data = I18n.t('common.exceptions.validation_errors').deep_merge data
-      data[:source] = { pointer: source.to_s }
+    errors = @notice_of_disagreement.errors.map do |error|
+      data = I18n.t('common.exceptions.validation_errors').deep_merge error.options
+      data[:source] = { pointer: error.attribute.to_s }
       data
     end
     { errors: errors }

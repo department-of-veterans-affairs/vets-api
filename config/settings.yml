@@ -25,7 +25,7 @@ saml_ssoe:
   key_path: ~
   issuer: https://ssoe-sp-localhost.va.gov
   callback_url: http://localhost:3000/v1/sessions/callback
-  logout_url: https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html
+  logout_url: https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov
   request_signing: false
   response_signing: false
   response_encryption: false
@@ -99,6 +99,9 @@ form_10_10cg:
       bucket: my-bucket
       enabled: true
       region: us-gov-west-1
+
+vbs:
+  url: https://vbs.example.com/api/v1
 
 # Settings for Education Benefits
 edu:
@@ -196,7 +199,15 @@ modules_appeals_api:
   notice_of_disagreement_pii_expunge_enabled: true
   notice_of_disagreement_updater_enabled: true
   reports:
-    decision_review:
+    daily_decision_review:
+      enabled: false
+      recipients:
+        - drew.fisher@adhocteam.us
+        - jack.schuss@oddball.io
+        - kelly@adhocteam.us
+        - laura.trager@adhocteam.us
+        - nathan.wright@oddball.io
+    weekly_decision_review:
       enabled: false
       recipients:
         - drew.fisher@adhocteam.us
@@ -321,6 +332,7 @@ ppms:
   url: https://some.fakesite.com
   open_timeout: 15
   read_timeout: 55
+  api_keys: fakekey
 
 # Settings for MyHealthEVet
 mhv:
@@ -410,7 +422,7 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  timeout: 40
+  timeout: 60
 
 vic:
   url: https://some.fakesite.com
@@ -429,6 +441,8 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  documentation:
+    path_enabled_flag: false
   report_enabled: false
   monthly_report: false
   location:
@@ -447,8 +461,6 @@ vba_documents:
 
 #Settings for Claims Api Module
 claims_api:
-  rswag_docs:
-    enabled: false
   report_enabled: false
   audit_enabled: false
   s3:
@@ -557,6 +569,7 @@ reports:
       - Brandon.Scott2@va.gov
       - Brian.Grubb@va.gov
       - Christina.DiTucci@va.gov
+      - Darla.vanNieukerk@va.gov
       - EDU.VBAMUS@va.gov
       - John.McNeal@va.gov
       - Joseph.Preisser@va.gov
@@ -671,7 +684,7 @@ betamocks:
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
-  mock_search: true
+  mock_search: false
   url: https://search.usa.gov/api/v2
 
 # Settings for search-typeahead
@@ -690,15 +703,19 @@ search_click_tracking:
 flipper:
   admin_user_emails:
     - adewitt@thoughtworks.com
+    - agarcia@clarityinnovates.com
     - alastair@adhocteam.us
     - anna@adhoc.team
     - bill.ryan@adhocteam.us
+    - clark@governmentcio.com # Designer on GCIO
     - cameron@oddball.io
     - cory.trimm@va.gov
-    - cwheeler@governmentcio.com
+    - craig.wheeler@gcio.com
     - dan.hinze@adhocteam.us
+    - dat.tran@gcio.com
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
+    - dnalbach@governmentcio.com
     - draju@governmentcio.com
     - dror@matal.com
     - elder_joseph@bah.com
@@ -706,20 +723,25 @@ flipper:
     - erik@adhocteam.us
     - filip.fafara@gmail.com
     - fahmed@governmentcio.com
+    - gescobar@governmentcio.com
     - grodriguez@governmentcio.com
     - hshin@thoughtworks.com
     - jacob.gacek@thoughtworks.com
     - jbalboni@gmail.com
+    - james.adams2@va.gov # Jim Adams designer on GCIO
     - jeff@adhocteam.us
     - jennie.mcgibney@va.gov
     - jesse.cohn@adhocteam.us
     - jlinn@governmentcio.com
     - joeyn414@gmail.com # Joe Niquette Oddball VSP Identity Team Sr Security Engineer
+    - john.bramley@adhocteam.us
+    - jwolf@governmentcio.com # Jason Wolf Product Manager for GCIO
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kam@adhocteam.us
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
+    - kevin.musiorski@gcio.com # Kevin Musiorski (GCIO), Engineer
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lauren.ernest@adhocteam.us
@@ -745,9 +767,11 @@ flipper:
     - regarr@gmail.com # Robin Garrison - AdHoc
     - riley.anderson@oddball.io
     - roth_matthew@bah.com
+    - ryan.leahy@adhocteam.us # Ryan Leahy - Adhoc
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
+    - scy0846@gmail.com # Taylor Mitchell - GCIO
     - shawkey_daniel@bah.com
     - shefai.nayak@thoughtworks.com
     - sonntag_adam@bah.com
@@ -755,10 +779,12 @@ flipper:
     - stephen.barrs@va.gov
     - tony.williams@va.gov
     - travis.hilton@oddball.io
+    - trevor.bosaw@oddball.io
     - turner_desiree@bah.com
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
+    - zach.morel@gcio.com
 
 bgs:
   application: ~
@@ -793,8 +819,8 @@ hqva_mobile:
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
   facilities:
-    url: "https://api.va.gov"
-    ids_path: "/v1/facilities/va"
+    url: "https://staging-api.va.gov"
+    ids_path: "/facilities_api/v1/va"
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"
@@ -804,7 +830,7 @@ hqva_mobile:
     host: "sandbox-api.va.gov"
     pgd_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8x27nv4g4BS01v2p7"
     health_aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7"
-    claim_common_id: "0oa9gvwf5mvxcX3zH2p7"
+    claim_common_id: "0oabja2lpllERXWxo2p7"
     grant_type: "client_credentials"
     client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     redis_session_prefix: "healthquest_lighthouse"
@@ -886,6 +912,7 @@ vanotify:
     va_gov:
       api_key: fake_secret
       template_id:
+        contact_info_change: fake_template_id
         form526_confirmation_email: fake_template_id
         covid_vaccine_registration: fake_template_id
         covid_vaccine_expanded_registration: fake_template_id
@@ -906,6 +933,11 @@ va_forms:
   drupal_username: ~
   drupal_password: ~
   drupal_url: http://internal-dsva-vagov-dev-cms-812329399.us-gov-west-1.elb.amazonaws.com
+  # A notification for when a forms url has changed
+  slack:
+    enabled: false
+    notification_url: ''
+    users: '<>'
 
 # Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
 genisis:
@@ -1014,3 +1046,28 @@ github_cvu:
 pg_hero:
   username: ~
   password: ~
+
+check_in:
+  chip_api:
+    url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+    tmp_api_id: 2dcdrrn5zc
+    mock: false
+    key_path: ~
+    redis_session_prefix: check_in
+    timeout: 30
+
+rack:
+  cookie_secret: ~
+
+# Settings for BID Services
+bid:
+  awards:
+    base_url: ~
+    credentials: ~
+    mock: true
+
+# Settings for Test User Dashboard modules
+test_user_dashboard:
+  env: dev

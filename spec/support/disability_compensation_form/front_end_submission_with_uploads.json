@@ -73,7 +73,6 @@
         "unitName": "string",
         "waiveVABenefitsToRetainTrainingPay": false
       },
-      "servedInCombatZone": true,
       "alternateNames": [
         {
           "first": "string",

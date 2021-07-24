@@ -1,45 +1,28 @@
 openapi: '3.0.0'
 info:
-  version: 0.0.1
-  title: Validation
+  title: Lighthouse Token Validation
   description: |
-    Oauth Validation for internal 3rd Party Services
+    Token validation for Lighthouse partners.
 
-    ## Background
-
-
-
-    ## Design
-
-    ### Authorization
-
-    API requests are authorized using a Bearer token issued through an OpenID
-    Connect service to allow third-party applications. The token should be
-    submitted as an `Authorization` header in the form `Bearer <token>`.
-
-    ### Token Validation Request
-
-    Allows a third-party application to request the validated token along with actor and launch characteristics:
-
-    1. Client Request: POST https://api.va.gov/internal/auth/v2/validation
-       * Provide the Bearer token as a header: `Authorization: Bearer <token>`
-       * Provide a body parameter for appropriate audience for validation can be a string or an array
-         aud: https://api.va.gov/services/fhir
-       * Provide a body parameter to specify if audience must match one provided by the user (defaults to false)
-         strict: true/false
-
-    2. Status Response: A JSON API object with the individual's validated token and VA identifier ICN
-
+    Allows a Lighthouse partner to validate a bearer token and retrieve actor and launch context, if applicable.
+    
+    1. Client Request:
+        * Provide an API key as header: `apikey: <apikey>`
+        * Provide the Bearer token as a header: `Authorization: Bearer <token>`
+        * Provide a body describing how to apply audience validation.
+    2. Status Response:
+       * A JSON object with the validated token and VA identifiers, if applicable.
+    
     ## Reference
-
     Raw Open API Spec: http://sandbox-api.va.gov/internal/auth/docs/v2/validation
-
-  termsOfService: ''
   contact:
-    name: VA.gov
+    name: VA Lighthouse
+    url: https://developer.va.gov
+    email: api@va.gov
+  version: v2
 tags:
   - name: validated_token
-    description: Oauth Validation for internal 3rd Party Services
+    description: Token validation for Lighthouse partners.
 servers:
   - url: https://sandbox-api.va.gov/internal/auth/{version}
     description: VA.gov API sandbox environment
@@ -56,13 +39,20 @@ paths:
     post:
       tags:
         - validated_token
-      summary: Get confirmation of a validated token and VA identifier ICN
+      summary: Validate a bearer token and retrieve actor and launch context, if applicable.
       operationId: getValidatedToken
       security:
-        - bearer_token: []
+        - bearerAuth: []
+          apiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/RequestBody"
       responses:
         '200':
-          description: Validated token successfully retrieved
+          description: Token is valid.
           content:
             application/json:
               schema:
@@ -72,78 +62,159 @@ paths:
                   data:
                     $ref: '#/components/schemas/ValidatedToken'
         '401':
-          description: Auth service responded that data for token was not authorized
+          description: Token is not authorized.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         '500':
-          description: Auth service responded with something other than the necessary information
+          description: Internal server error.
 components:
   securitySchemes:
-    bearer_token:
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: apikey
   schemas:
+    RequestBody:
+      description: "Request body."
+      type: object
+      properties:
+        aud:
+          type: string
+          description: The audience(s) to validate against.  A token must have this audience for a successful response.  This can be a string (single audience) or an array (multiple audiences).
+          example: "https://sandbox-api.va.gov/services/fhir"
+        strict:
+          type: boolean
+          description: Whether or not apply strict audience validation.  If false, tokens with the default (legacy) audience will pass validation.  Defaults to false.
+          enum: [false, true]
+          example: false
+      required: [aud]
+    Error:
+      description: "Error response."
+      type: object
+      properties:
+        errors:
+          type: array
+          description: "The error(s)."
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                description: "The error title."
+                example: "Not authorized"
+              detail:
+                type: string
+                description: "The error description."
+                example: "Not authorized"
+              code:
+                type: string
+                description: "The error code."
+                example: "401"
+              status:
+                type: string
+                description: "The error status."
+                example: "401"
     ValidatedToken:
-      description: |
-        Validated token for internal API providers
+      description: "Validated token for internal API providers."
       type: object
       properties:
         id:
           type: string
-          description: Valid token JTI
+          description: The unique token identifier.
           example: "AT.MAt1vXM4AsglMo7LvOwyQpoUbLWVQEk3Ab3bJfmb4c8"
         type:
           type: string
-          example: validated_token
+          description: The validation result.
+          enum: [validated_token]
+          example: "validated_token"
         attributes:
           type: object
           properties:
             ver:
               type: integer
-              description: |
-                Okta API version number.
+              description: "The token version number."
+              example: 1
             jti:
               type: string
-              description: |
-                JWT generated ID for the user.
+              description: "The unique token identifier."
+              example: "AT.MAt1vXM4AsglMo7LvOwyQpoUbLWVQEk3Ab3bJfmb4c8"
             iss:
               type: string
-              description: |
-                Matches the identifier of your Okta Authorization Server.
+              description: "The issuer of the token."
+              example: "https://www.example.com/oauth2"
             aud:
               type: string
-              description: |
-                Should match the Client ID that you used to request the ID Token
+              description: "The intended audience for the token."
+              example: "https://sandbox-api.va.gov/services/fhir"
             iat:
               type: integer
-              description: |
-                Indicates when this ID token was issued, expressed in Unix time.
+              description: "When the token was issued, expressed in Unix time."
+              example: 1617636934
             exp:
               type: integer
-              description: |
-                Is the time at which this token will expire., expressed in Unix time. You should make sure that this time has not already passed.
+              description: "When the token will expire, expressed in Unix time."
+              example: 1617640534
             cid:
               type: string
-              description: |
-                Consumer ID
+              description: "The unique client identifier who requested the token."
+              example: "0oa6l93ab2t"
             uid:
               type: string
-              description: |
-                User ID
+              description: "The unique end user or system identifier to whom the token was issued."
+              example: "00u3z5e6as6"
             scp:
               type: array
-              description: |
-                Includes the different scopes that the user has access to within the approved application.
+              description: "The scopes approved by the end user or system."
               items:
                 type: string
+              example: ["launch/patient", "patient/Medication.read"]
             sub:
               type: string
-              description: |
-                The subject ID from either a group or individual, can be an email address.
+              description: "The preferred subject identifier for the end user or system."
+              example: "b24346a788c04dfea5048d44ad0"
             act:
               type: object
-              description: |
-                Different VA Identifiers corresponding to acting user including ICN, SEC_ID, Type, etc.
+              description: "The actor, who may be acting on behalf of someone or something else."
+              properties:
+                icn:
+                  type: string
+                  description: "The actor's VA ICN, if applicable."
+                  example: "1012V142"
+                npi:
+                  type: string
+                  description: "The actor's NPI, if applicable."
+                  example: "826484022727"
+                sec_id:
+                  type: string
+                  description: "The actor's VA SecID, if applicable."
+                  example: "3472191033"
+                vista_id:
+                  type: string
+                  description: "The actor's VA VistaIDs, if applicable."
+                type:
+                  type: string
+                  enum: ["patient", "user", "system"]
+                  description: "The type of actor."
             launch:
               type: object
               description: |
-                Different VA Identifiers corresponding to the target user including ICN
+                The FHIR launch context.  This represents who the actor is acting on behalf of, which may or may not be the same entity.  This object schema is dynamic.
+              properties:
+                patient:
+                  type: string
+                  description: "The launch's VA ICN, if applicable."
+                  example: "1012V142"
+                duz:
+                  type: string
+                  description: "The launch's VA DUZ, if applicable."
+                  example: "73522934"
+                sta3n:
+                  type: string
+                  description: "The launch's sta3n, if applicable."
+                  example: "6000"

@@ -177,7 +177,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         context 'routes /v1/sessions/slo/new to SessionController#new' do
           it 'redirects' do
             expect(get(:new, params: { type: :slo }))
-              .to redirect_to('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+              .to redirect_to('https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov')
           end
         end
       end
@@ -365,7 +365,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).not_to be_nil
           get(:new, params: { type: 'slo' })
           expect(response.location)
-            .to eq('https://int.eauth.va.gov/pkmslogout?filename=vagov-logout.html')
+            .to eq('https://int.eauth.va.gov/slo/globallogout?appKey=https%253A%252F%252Fssoe-sp-dev.va.gov')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
@@ -716,6 +716,52 @@ RSpec.describe V1::SessionsController, type: :controller do
               ]
             )
           post(:saml_callback)
+        end
+      end
+
+      context 'when saml response error contains invalid_message_timestamp' do
+        let(:status_detail_xml) do
+          '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">'\
+          '</samlp:StatusCode>'\
+          '<samlp:StatusDetail>'\
+          '<fim:FIMStatusDetail MessageID="invalid_message_timestamp"></fim:FIMStatusDetail>'\
+          '</samlp:StatusDetail>'
+        end
+        let(:expected_error_message) { "<fim:FIMStatusDetail MessageID='invalid_message_timestamp'/>" }
+        let(:extra_content) do
+          [
+            { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+              tag: :unknown,
+              short_message: 'Other SAML Response Error(s)',
+              level: :error,
+              full_message: 'Test1' },
+            { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+              tag: :unknown,
+              short_message: 'Other SAML Response Error(s)',
+              level: :error,
+              full_message: 'Test2' },
+            { code: SAML::Responses::Base::UNKNOWN_OR_BLANK_ERROR_CODE,
+              tag: :unknown,
+              short_message: 'Other SAML Response Error(s)',
+              level: :error,
+              full_message: 'Test3' }
+          ]
+        end
+        let(:version) { 'v1' }
+        let(:expected_warn_message) do
+          "SessionsController version:#{version} context:#{extra_content} message:#{expected_error_message}"
+        end
+
+        before do
+          allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_detail_error(status_detail_xml))
+        end
+
+        it 'logs a generic user validation error', :aggregate_failures do
+          expect(Rails.logger).to receive(:warn).with(expected_warn_message)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
+
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
         end
       end
 

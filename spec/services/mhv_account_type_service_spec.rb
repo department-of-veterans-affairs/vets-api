@@ -5,12 +5,14 @@ require 'rails_helper'
 RSpec.describe MHVAccountTypeService do
   subject { described_class.new(user) }
 
+  let(:unknown_error) { 'BackendServiceException: {:status=>400, :detail=>nil, :code=>"VA900", :source=>nil}' }
   let(:sign_in) { { service_name: 'myhealthevet' } }
   let(:user_identity) { instance_double('UserIdentity', mhv_account_type: nil, sign_in: sign_in) }
+  let(:mhv_correlation_id) { '12210827' }
   let(:user) do
     instance_double(
       'User',
-      mhv_correlation_id: '12210827',
+      mhv_correlation_id: mhv_correlation_id,
       identity: user_identity,
       uuid: 1,
       authn_context: 'myhealthevet',
@@ -112,7 +114,7 @@ RSpec.describe MHVAccountTypeService do
 
       it '#mhv_account_type returns Unknown' do
         VCR.use_cassette('mhv_account_type_service/error') do
-          expect(Raven).to receive(:extra_context).with({ error_message: 'string not matched' }.merge(extra_context))
+          expect(Raven).to receive(:extra_context).with({ error_message: unknown_error }.merge(extra_context))
           expect(Raven).to receive(:tags_context).once.with(tags_context)
           expect(Raven).to receive(:tags_context).once.with(
             error: 'mhv_session'
@@ -136,6 +138,24 @@ RSpec.describe MHVAccountTypeService do
           )
           expect(Raven).to receive(:capture_message).with(error_message, level: level)
           expect(subject.mhv_account_type).to eq('Unknown')
+        end
+      end
+    end
+
+    context 'error establishing session due to unknown user' do
+      let(:error_message) { described_class::MHV_DOWN_MESSAGE }
+      let(:eligible_data_classes) { nil }
+      let(:mhv_correlation_id) { '5052774' }
+
+      it '#mhv_account_type returns Unknown' do
+        VCR.use_cassette('mhv_account_type_service/error_empty_body') do
+          expect(Raven).to receive(:extra_context).with({ error_message: unknown_error }.merge(extra_context))
+          expect(Raven).to receive(:tags_context).once.with(tags_context)
+          expect(Raven).to receive(:tags_context).once.with(
+            error: 'mhv_session'
+          )
+          expect(Raven).to receive(:capture_message).with(error_message, level: level)
+          expect(subject.mhv_account_type).to eq('Error')
         end
       end
     end

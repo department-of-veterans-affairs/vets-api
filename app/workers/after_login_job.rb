@@ -4,7 +4,7 @@ class AfterLoginJob
   include Sidekiq::Worker
   include Accountable
 
-  sidekiq_options(retry: false)
+  sidekiq_options retry: false, queue: 'critical'
 
   def evss_create_account
     if @current_user.authorize(:evss, :access?)
@@ -22,6 +22,8 @@ class AfterLoginJob
 
     evss_create_account
     create_user_account
-    TestUserDashboard::CheckoutUser.new(@current_user.account_uuid).call unless Rails.env.production?
+    if Settings.test_user_dashboard.env == 'staging'
+      TestUserDashboard::CheckoutUser.new(@current_user.account_uuid).call
+    end
   end
 end

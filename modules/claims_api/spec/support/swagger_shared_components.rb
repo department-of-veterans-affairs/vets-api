@@ -74,7 +74,24 @@ class SwaggerSharedComponents
   end
 
   def self.body_examples # rubocop:disable Metrics/MethodLength
+    veteran_identifier_json_schema = JSON.parse(
+      File.read(
+        Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'veteran_identifier.json')
+      )
+    )
+
     {
+      veteran_identifier: {
+        in: :body,
+        name: 'data',
+        required: true,
+        description: 'Unique attributes of veteran.',
+        schema: {
+          type: :object,
+          required: veteran_identifier_json_schema['required'],
+          properties: veteran_identifier_json_schema['properties']
+        }
+      },
       intent_to_file: {
         in: :body,
         name: 'data',

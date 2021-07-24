@@ -26,7 +26,7 @@ class PreferredFacility < ApplicationRecord
     return true if user.blank?
 
     unless user.va_treatment_facility_ids.include?(facility_code)
-      errors[:facility_code] << "must be included in user's va treatment facilities list"
+      errors.add(:facility_code, "must be included in user's va treatment facilities list")
     end
   end
 end

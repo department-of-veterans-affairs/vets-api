@@ -8,6 +8,7 @@ require 'sentry_logging'
 #
 class IAMUserIdentity < ::UserIdentity
   extend SentryLogging
+  extend Identity::Parsers::GCIdsHelper
 
   PREMIUM_LOAS = [2, 3].freeze
   UPGRADE_AUTH_TYPES = %w[DSL MHV].freeze
@@ -40,7 +41,7 @@ class IAMUserIdentity < ::UserIdentity
       expiration_timestamp: iam_profile[:exp],
       first_name: iam_profile[:given_name],
       icn: iam_profile[:fediam_mviicn],
-      iam_edipi: iam_profile[:fediam_do_dedipn_id],
+      iam_edipi: sanitize_edipi(iam_profile[:fediam_do_dedipn_id]),
       iam_sec_id: iam_profile[:fediamsecid],
       iam_mhv_id: valid_mhv_id(iam_profile[:fediam_mhv_ien]),
       last_name: iam_profile[:family_name],
@@ -49,8 +50,6 @@ class IAMUserIdentity < ::UserIdentity
       multifactor: multifactor?(loa_level, iam_auth_n_type),
       sign_in: { service_name: "oauth_#{iam_auth_n_type}", account_type: iam_profile[:fediamassur_level] }
     )
-
-    StatsD.increment('iam_ssoe_oauth.auth_type', tags: ["type:#{iam_auth_n_type}"])
 
     identity.set_expire
     identity
