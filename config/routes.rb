@@ -218,9 +218,7 @@ Rails.application.routes.draw do
 
     namespace :preneeds do
       resources :cemeteries, only: :index, defaults: { format: :json }
-      resources :states, only: :index, defaults: { format: :json }
-      resources :military_ranks, only: :index, defaults: { format: :json }
-      resources :burial_forms, only: %i[new create], defaults: { format: :json }
+      resources :burial_forms, only: :create, defaults: { format: :json }
       resources :preneed_attachments, only: :create
     end
 

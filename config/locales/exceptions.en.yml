@@ -1895,6 +1895,18 @@ en:
         detail: International numbers must have a valid country code that is not 1, and
           no area code.
         status: 400
+      VET360_PHON211:
+        <<: *external_defaults
+        title: Area Code Pattern
+        code: VET360_PHON211
+        detail: Area Codes do not end with the same two digits
+        status: 400
+      VET360_PHON213:
+        <<: *external_defaults
+        title: Area Code Pattern
+        code: VET360_PHON213
+        detail: Area Codes do not include 9 as the middle digit
+        status: 400
       VET360_PHON300:
         <<: *external_defaults
         title: Phone Inactive

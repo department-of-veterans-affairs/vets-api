@@ -38,6 +38,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'modules/appeals_api/app/swagger'
     add_filter 'modules/apps_api/app/controllers/apps_api/docs/v0/api_controller.rb'
     add_filter 'modules/apps_api/app/swagger'
+    add_filter 'modules/check_in/config/initializers/statsd.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'modules/claims_api/app/swagger/*'
