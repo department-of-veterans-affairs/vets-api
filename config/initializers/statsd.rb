@@ -19,15 +19,6 @@ require 'va_profile/service'
 require 'va_notify/service'
 
 Rails.application.reloader.to_prepare do
-  host = Settings.statsd.host
-  port = Settings.statsd.port
-
-  StatsD.backend = if host.present? && port.present?
-                     StatsD::Instrument::Backends::UDPBackend.new("#{host}:#{port}", :datadog)
-                   else
-                     StatsD::Instrument::Backends::LoggerBackend.new(Rails.logger)
-                   end
-
   # Initialize session controller metric counters at 0
   LOGIN_ERRORS = SAML::Responses::Base::ERRORS.values +
                  UserSessionForm::ERRORS.values +
