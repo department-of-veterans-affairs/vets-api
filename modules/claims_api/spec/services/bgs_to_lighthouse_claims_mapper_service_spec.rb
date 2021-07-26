@@ -8,12 +8,14 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
       context 'when a BGS claim is also in the Lighthouse collection' do
         let(:bgs_claims) do
           {
-            bnft_claim_detail: [
-              {
-                bnft_claim_id: '111111111',
-                bnft_claim_type_nm: 'Appeals Control'
-              }
-            ]
+            benefit_claims_dto: {
+              benefit_claim: [
+                {
+                  benefit_claim_id: '111111111',
+                  claim_status_type: 'Compensation'
+                }
+              ]
+            }
           }
         end
         let(:lighthouse_claims) do
@@ -34,7 +36,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
           expect(claims.count).to eq(1)
           expect(claims.first[:id]).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-          expect(claims.first[:type]).to eq('Appeals Control')
+          expect(claims.first[:type]).to eq('Compensation')
           expect(claims.any? { |claim| claim[:id] == '111111111' }).to be false
         end
       end
@@ -42,12 +44,14 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
       context 'when a BGS claim is NOT in the Lighthouse collection' do
         let(:bgs_claims) do
           {
-            bnft_claim_detail: [
-              {
-                bnft_claim_id: '111111111',
-                bnft_claim_type_nm: 'Appeals Control'
-              }
-            ]
+            benefit_claims_dto: {
+              benefit_claim: [
+                {
+                  benefit_claim_id: '111111111',
+                  claim_status_type: 'Compensation'
+                }
+              ]
+            }
           }
         end
         let(:lighthouse_claims) do
@@ -76,12 +80,14 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
     context 'when only BGS claims exist' do
       let(:bgs_claims) do
         {
-          bnft_claim_detail: [
-            {
-              bnft_claim_id: '111111111',
-              bnft_claim_type_nm: 'Appeals Control'
-            }
-          ]
+          benefit_claims_dto: {
+            benefit_claim: [
+              {
+                benefit_claim_id: '111111111',
+                claim_status_type: 'Compensation'
+              }
+            ]
+          }
         }
       end
       let(:lighthouse_claims) { [] }
@@ -93,14 +99,16 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
         expect(claims.count).to eq(1)
         expect(claims.first[:id]).to eq('111111111')
-        expect(claims.first[:type]).to eq('Appeals Control')
+        expect(claims.first[:type]).to eq('Compensation')
       end
     end
 
     context 'when only Lighthouse claims exist' do
       let(:bgs_claims) do
         {
-          bnft_claim_detail: []
+          benefit_claims_dto: {
+            benefit_claim: []
+          }
         }
       end
 
@@ -129,7 +137,9 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
     context 'when no Lighthouse claims exist and no BGS claims exist' do
       let(:bgs_claims) do
         {
-          bnft_claim_detail: []
+          benefit_claims_dto: {
+            benefit_claim: []
+          }
         }
       end
 
@@ -148,12 +158,14 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
       context "when an 'established' Lighthouse claim is unknown to BGS" do
         let(:bgs_claims) do
           {
-            bnft_claim_detail: [
-              {
-                bnft_claim_id: '111111111',
-                bnft_claim_type_nm: 'Appeals Control'
-              }
-            ]
+            benefit_claims_dto: {
+              benefit_claim: [
+                {
+                  benefit_claim_id: '111111111',
+                  claim_status_type: 'Compensation'
+                }
+              ]
+            }
           }
         end
         let(:lighthouse_claims) do
@@ -180,7 +192,7 @@ describe ClaimsApi::BGSToLighthouseClaimsMapperService do
 
           expect(claims.count).to eq(1)
           expect(claims.first[:id]).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
-          expect(claims.first[:type]).to eq('Appeals Control')
+          expect(claims.first[:type]).to eq('Compensation')
           expect(claims.any? { |claim| claim[:id] == '55555555-5555-5555-5555-555555555555' }).to be false
         end
       end
