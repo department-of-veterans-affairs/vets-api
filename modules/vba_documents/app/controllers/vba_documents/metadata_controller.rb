@@ -41,7 +41,7 @@ module VBADocuments
       {
         version: '1.0.0',
         internal_only: false,
-        status: VERSION_STATUS[:previous],
+        status: VERSION_STATUS[:current],
         path: '/services/vba_documents/docs/v1/api',
         healthcheck: '/services/vba_documents/v1/healthcheck'
       }
