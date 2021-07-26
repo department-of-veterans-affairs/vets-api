@@ -10,7 +10,7 @@ module Mobile
           @user = user
         end
 
-        def for_user
+        def get_disability_rating
           response = rating_service.rating.find_rating_data(@user.ssn)
           handle_errors!(response)
           Mobile::V0::Adapters::Rating.new.disability_ratings(response)

@@ -6,14 +6,14 @@ module Mobile
   module V0
     class DisabilityRatingController < ApplicationController
       def index
-        response = rating_proxy.for_user
+        response = rating_proxy.get_disability_rating
         render json: Mobile::V0::DisabilityRatingSerializer.new(response)
       end
 
       private
 
       def rating_proxy
-        @rating_proxy ||= Mobile::V0::DisabilityRating::Proxy.new(@current_user)
+        Mobile::V0::DisabilityRating::Proxy.new(@current_user)
       end
     end
   end
