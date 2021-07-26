@@ -218,6 +218,7 @@ GEM
     bcp47 (0.3.3)
       i18n
     bindex (0.8.1)
+    blueprinter (0.25.3)
     bootsnap (1.7.5)
       msgpack (~> 1.0)
     brakeman (5.1.1)
@@ -983,6 +984,7 @@ DEPENDENCIES
   aws-sdk-sns (~> 1)
   betamocks!
   bgs_ext!
+  blueprinter
   bootsnap
   brakeman (~> 5.0)
   breakers
