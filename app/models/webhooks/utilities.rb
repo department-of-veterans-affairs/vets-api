@@ -4,7 +4,6 @@ require 'json_schemer'
 require 'uri'
 
 # data structures built up at class load time then frozen.  This is threadsafe.
-# rubocop:disable ThreadSafety/InstanceVariableInClassMethod
 module Webhooks
   module Utilities
     module ClassMethods
@@ -24,7 +23,7 @@ module Webhooks
       def record_notifications(consumer_id:, consumer_name:, event:, api_guid:, msg:)
         api_name = Webhooks::Utilities.event_to_api_name[event]
         webhook_urls = Webhooks::Subscription.get_notification_urls(
-            api_name: api_name, consumer_id: consumer_id, event: event, api_guid: api_guid
+          api_name: api_name, consumer_id: consumer_id, event: event, api_guid: api_guid
         )
 
         notifications = []
@@ -46,7 +45,3 @@ module Webhooks
     extend ClassMethods
   end
 end
-# rubocop:enable ThreadSafety/InstanceVariableInClassMethod
-
-
-

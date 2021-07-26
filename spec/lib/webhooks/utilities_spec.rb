@@ -3,26 +3,25 @@
 require 'rails_helper'
 
 RSpec.describe 'Webhooks::Utilities' do
-
   let(:websocket_settings) do
     {
-        require_https: false,
+      require_https: false
     }
   end
 
-  let(:observers) {
+  let(:observers) do
     {
-        "subscriptions" => [
-            {
-                "event" => 'test_event',
-                "urls" => [
-                    "https://i/am/listening",
-                    "https://i/am/also/listening"
-                ]
-            }
-        ]
+      'subscriptions' => [
+        {
+          'event' => 'test_event',
+          'urls' => [
+            'https://i/am/listening',
+            'https://i/am/also/listening'
+          ]
+        }
+      ]
     }
-  }
+  end
 
   before(:all) do
     Thread.current['under_test'] = true
@@ -44,15 +43,10 @@ RSpec.describe 'Webhooks::Utilities' do
     end
   end
 
-  after(:all) do
-    # object.send(:remove_const, :Webhooks)
-    # needed when running in the rails console
-  end
-
   it 'registers events and blocks' do
     module Testing
       include Webhooks::Utilities
-      EVENTS = %w(event1 event2 event3)
+      EVENTS = %w[event1 event2 event3].freeze
       register_events(*EVENTS,
                       api_name: 'TEST_API2', max_retries: 3) do
         'working!'
@@ -70,24 +64,22 @@ RSpec.describe 'Webhooks::Utilities' do
   end
 
   it 'does not allow over registration' do
-    event_spans_api = -> do
-      Webhooks::Utilities.register_events('test_event',
-                                          api_name: 'OTHER_API', max_retries: 3) do
+    event_spans_api = lambda do
+      Webhooks::Utilities.register_events('test_event', api_name: 'OTHER_API', max_retries: 3) do
         'working!'
       end
     end
-    api_duplicated = -> do
-      Webhooks::Utilities.register_events('other_event',
-                                          api_name: 'TEST_API', max_retries: 3) do
+    api_duplicated = lambda do
+      Webhooks::Utilities.register_events('other_event', api_name: 'TEST_API', max_retries: 3) do
         'working!'
       end
     end
     expect do
       event_spans_api.call
-    end.to raise_error
+    end.to raise_error(ArgumentError)
     expect do
       api_duplicated.call
-    end.to raise_error
+    end.to raise_error(ArgumentError)
   end
 
   # assumes subscription has been validated
@@ -104,10 +96,11 @@ RSpec.describe 'Webhooks::Utilities' do
 
   it 'does not allow invalid subscriptions' do
     expect do
-      TestHelper.new.validate_subscription({invalid: :stuff})
-    end.to raise_error
+      TestHelper.new.validate_subscription({ invalid: :stuff })
+    end.to raise_error(StandardError)
   end
 
+  # rubocop:disable Style/MultilineBlockChain
   it 'detects invalid events' do
     observers['subscriptions'].first['event'] = 'bad_event'
     expect do
@@ -142,7 +135,8 @@ RSpec.describe 'Webhooks::Utilities' do
         expect(e.errors.first.detail).to match(/must be https/)
       end
     end
-    valids = ['http://www.google.com','https://www.google.com']
+    valids = ['http://www.google.com', 'https://www.google.com']
     expect(TestHelper.new.validate_urls(valids)).to be true
   end
+  # rubocop:enable Style/MultilineBlockChain
 end

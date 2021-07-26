@@ -230,9 +230,8 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       ) do
         starting_status = upload.status
         get(vba_documents.v2_upload_path(upload.guid),
-          params: nil,
-          headers: { 'Status-Override' => 'vbms' }
-        )
+            params: nil,
+            headers: { 'Status-Override' => 'vbms' })
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
       end
@@ -256,10 +255,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         expect(response.status).to eq(404)
       end
     end
-    # v2_upload_download GET     /v2/uploads/:upload_id/download(.:format) vba_documents/v2/uploads#download {:format=>"json"}
-    # v2_report POST    /v2/uploads/report(.:format)              vba_documents/v2/reports#create {:format=>"json"}
-    # v2_uploads POST    /v2/uploads(.:format)                     vba_documents/v2/uploads#create {:format=>"json"}
-    # v2_upload GET     /v2/uploads/:id(.:format)                 vba_documents/v2/uploads#show {:format=>"json"}
 
     it 'returns a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)

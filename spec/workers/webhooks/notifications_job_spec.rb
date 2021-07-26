@@ -7,35 +7,34 @@ require_dependency './lib/webhooks/utilities'
 require_relative 'registrations'
 
 RSpec.describe Webhooks::NotificationsJob, type: :job do
-
-  let(:consumer_id) do 'f7d83733-a047-413b-9cce-e89269dcb5b1' end
-  let(:consumer_name) do 'tester' end
-  let(:api_id) do '43581f6f-448c-4ed3-846a-68a004c9b78b' end
+  let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
+  let(:consumer_name) { 'tester' }
+  let(:api_id) { '43581f6f-448c-4ed3-846a-68a004c9b78b' }
   let(:msg) do
-    {'msg' => 'the message'}
+    { 'msg' => 'the message' }
   end
-  let(:observers_json) {
+  let(:observers_json) do
     {
-        "subscriptions" => [
-            {
-                "event" => Registrations::TEST_EVENT,
-                "urls" => [
-                    "https://i/am/listening",
-                    "https://i/am/also/listening"
-                ]
-            }
-        ]
+      'subscriptions' => [
+        {
+          'event' => Registrations::TEST_EVENT,
+          'urls' => [
+            'https://i/am/listening',
+            'https://i/am/also/listening'
+          ]
+        }
+      ]
     }
-  }
+  end
 
   before do
     @subscription = Webhooks::Utilities.register_webhook(consumer_id, consumer_name, observers_json, api_id)
     @notifications = Webhooks::Utilities.record_notifications(
-        consumer_id: consumer_id,
-        consumer_name: consumer_name,
-        event: 'test_event',
-        api_guid: api_id,
-        msg: msg
+      consumer_id: consumer_id,
+      consumer_name: consumer_name,
+      event: 'test_event',
+      api_guid: api_id,
+      msg: msg
     )
     Thread.current['job_ids'] = []
   end
@@ -45,7 +44,7 @@ RSpec.describe Webhooks::NotificationsJob, type: :job do
     expect(job_id.flatten.last).to eq Thread.current['job_ids'].last
   end
 
-  it 'it logs when an unexpected exception occurs' do
+  it 'logs when an unexpected exception occurs' do
     allow(Webhooks::CallbackUrlJob).to receive(:perform_async).and_raise('busted')
     job_id = Webhooks::NotificationsJob.new.perform('test_api')
     expect(job_id).to be true
@@ -68,5 +67,4 @@ RSpec.describe Webhooks::NotificationsJob, type: :job do
     end
     Timecop.return
   end
-
 end

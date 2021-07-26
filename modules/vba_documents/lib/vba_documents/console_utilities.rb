@@ -116,4 +116,3 @@ end
 # CLEANUP ALL FORENSICS
 # f = UploadFile.where(status: 'forensics')
 # f.each do |uf| cleanup(uf) end
-

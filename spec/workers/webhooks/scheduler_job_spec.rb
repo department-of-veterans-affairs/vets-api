@@ -6,8 +6,6 @@ require './spec/workers/webhooks/job_tracking'
 Thread.current['under_test'] = true
 
 RSpec.describe Webhooks::SchedulerJob, type: :job do
-
-
   after do
     Thread.current['job_ids'] = []
   end
@@ -15,7 +13,7 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
   it 'schedules notification jobs' do
     results = Webhooks::SchedulerJob.new.perform
     results.each_with_index do |r, i|
-      expect(r.first.respond_to? :to_f).to be true # our callbacks are intervals (for sidekiq's perform_in)
+      expect(r.first.respond_to?(:to_f)).to be true # our callbacks are intervals (for sidekiq's perform_in)
       expect(r.last).to eq Thread.current['job_ids'][i] # We get our job IDs back
     end
   end
@@ -29,7 +27,7 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
   it 'schedules the notification job correctly' do
     future = 10.minutes.from_now
     Webhooks::Utilities
-        .register_events('gov.va.developer.TEST', api_name: 'TEST', max_retries: 1) do |t|
+      .register_events('gov.va.developer.TEST', api_name: 'TEST', max_retries: 1) do |_t|
       future
     end
     results = Webhooks::SchedulerJob.new.perform('TEST').first
@@ -39,8 +37,8 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
 
   it 'schedules a notification job even if the registered block fails' do
     Webhooks::Utilities
-        .register_events('gov.va.developer.TEST2', api_name: 'TEST2', max_retries: 1) do |t|
-      raise "I am a naughty developer!"
+      .register_events('gov.va.developer.TEST2', api_name: 'TEST2', max_retries: 1) do |_t|
+      raise 'I am a naughty developer!'
     end
     results = Webhooks::SchedulerJob.new.perform('TEST2').first
     expect(results.first.to_i).to be >= 1.hour.from_now.to_i

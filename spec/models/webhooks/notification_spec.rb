@@ -4,29 +4,29 @@ require 'rails_helper'
 require_dependency './lib/webhooks/utilities'
 
 describe Webhooks::Notification, type: :model do
-  let(:consumer_id) do 'f7d83733-a047-413b-9cce-e89269dcb5b1' end
-  let(:consumer_name) do 'tester' end
-  let(:api_id) do '43581f6f-448c-4ed3-846a-68a004c9b78b' end
-  let(:event) do VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT end
+  let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
+  let(:consumer_name) { 'tester' }
+  let(:api_id) { '43581f6f-448c-4ed3-846a-68a004c9b78b' }
+  let(:event) { VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT }
   let(:msg) do
-    {'msg' => 'the message'}
+    { 'msg' => 'the message' }
   end
   let(:fixture_path) { './modules/vba_documents/spec/fixtures/subscriptions/' }
-  let(:observers) {JSON.parse File.read(fixture_path + 'subscriptions.json')}
+  let(:observers) { JSON.parse File.read(fixture_path + 'subscriptions.json') }
 
   before do
     @subscription = Webhooks::Utilities.register_webhook(consumer_id, consumer_name, observers, api_id)
     @notifications = Webhooks::Utilities.record_notifications(
-        consumer_id: consumer_id,
-        consumer_name: consumer_name,
-        event: event,
-        api_guid: api_id,
-        msg: msg
+      consumer_id: consumer_id,
+      consumer_name: consumer_name,
+      event: event,
+      api_guid: api_id,
+      msg: msg
     )
   end
 
   it 'returns a notification per url' do
-    urls = observers['subscriptions'].select do |s| s['event'].eql? event end.first['urls']
+    urls = observers['subscriptions'].select { |s| s['event'].eql? event }.first['urls']
     expect(@notifications.length).to eq(urls.length)
     expect(@notifications.map(&:callback_url) - urls).to eq([])
   end

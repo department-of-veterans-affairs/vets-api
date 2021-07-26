@@ -11,7 +11,7 @@ module VBADocuments
       next_run = if last_time_async_scheduled.nil?
                    0.seconds.from_now
                  else
-                   30.seconds.from_now # todo make 15.minutes.from_now
+                   30.seconds.from_now # TODO: make 15.minutes.from_now
                  end
       next_run
     rescue
