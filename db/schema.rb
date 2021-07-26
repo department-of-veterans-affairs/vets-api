@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_22_175727) do
+ActiveRecord::Schema.define(version: 2021_07_23_134730) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -145,6 +145,21 @@ ActiveRecord::Schema.define(version: 2021_07_22_175727) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
+  end
+
+  create_table "appeals_api_supplemental_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.string "encrypted_auth_headers"
+    t.string "encrypted_auth_headers_iv"
+    t.string "status", default: "pending"
+    t.string "code"
+    t.string "detail"
+    t.string "source"
+    t.string "pdf_version"
+    t.string "api_version"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
