@@ -22,11 +22,8 @@ module ClaimsApi
           lighthouse_claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if lighthouse_claim.blank? && params[:id].to_s.include?('-')
 
-          bgs_claim = if lighthouse_claim.present?
-                        bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: lighthouse_claim.evss_id)
-                      else
-                        bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
-                      end
+          benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
+          bgs_claim = bgs_service.ebenefits_benefit_claims_status.find_benefit_claim_details_by_benefit_claim_id(benefit_claim_id: benefit_claim_id)
 
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if lighthouse_claim.blank? && bgs_claim.blank?
 
@@ -34,8 +31,8 @@ module ClaimsApi
             benefit_claims_dto: {
               benefit_claim: [
                 {
-                  benefit_claim_id: bgs_claim[:bnft_claim_detail][:bnft_claim_id],
-                  claim_status_type: bgs_claim[:bnft_claim_detail][:status_type_nm]
+                  benefit_claim_id: bgs_claim[:benefit_claim_details_dto][:benefit_claim_id],
+                  claim_status_type: bgs_claim[:benefit_claim_details_dto][:claim_status_type]
                 }
               ]
             }
