@@ -145,6 +145,9 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
             stub_mpi
 
             with_okta_user(scopes) do
+              expect_any_instance_of(
+                ClaimsApi::V1::Forms::IntentToFileController
+              ).to receive(:veteran_submitting_burial_itf?).and_return(true)
               VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
                 submit_request(example.metadata)
               end

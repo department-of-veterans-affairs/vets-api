@@ -65,7 +65,7 @@ module AppealsApi
 
         def date_signed
           timezone = notice_of_disagreement.form_data&.dig('data', 'attributes', 'timezone').presence&.strip || 'UTC'
-          time = Time.now.in_time_zone(timezone)
+          time = notice_of_disagreement.created_at.in_time_zone(timezone)
           time.strftime('%Y-%m-%d')
         end
 

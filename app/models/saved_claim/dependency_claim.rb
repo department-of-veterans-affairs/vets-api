@@ -98,7 +98,7 @@ class SavedClaim::DependencyClaim < SavedClaim
   def upload_to_vbms(path:, doc_type: '148')
     uploader = ClaimsApi::VBMSUploader.new(
       filepath: path,
-      file_number: parsed_form['veteran_information']['ssn'],
+      file_number: parsed_form['veteran_information']['va_file_number'] || parsed_form['veteran_information']['ssn'],
       doc_type: doc_type
     )
 

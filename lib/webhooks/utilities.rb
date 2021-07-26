@@ -25,7 +25,9 @@ module Webhooks
       end
 
       def api_registered?(api_name)
-        @event_to_api_name.values.include?(api_name) rescue false
+        @event_to_api_name.values.include?(api_name)
+      rescue
+        false
       end
 
       def register_name_to_event(name, event)
@@ -40,7 +42,8 @@ module Webhooks
 
       def register_event(event)
         @supported_events ||= []
-        raise ArgumentError.new('Event previously registered!') if @supported_events.include?(event)
+        raise ArgumentError, 'Event previously registered!' if @supported_events.include?(event)
+
         @supported_events << event
         @supported_events.uniq!
       end
@@ -53,7 +56,7 @@ module Webhooks
 
         api_name = keyword_args[:api_name]
         max_retries = keyword_args[:max_retries]
-        raise ArgumentError.new('api name previously registered!') if Webhooks::Utilities.api_registered?(api_name)
+        raise ArgumentError, 'api name previously registered!' if Webhooks::Utilities.api_registered?(api_name)
 
         event.each do |e|
           Webhooks::Utilities.register_event(e)
@@ -73,7 +76,7 @@ module Webhooks
 
     # Validates a subscription request for an upload submission.  Returns an object representing the subscription
     def validate_subscription(subscriptions)
-      # todo move out of vba documents
+      # TODO: move out of vba documents
       schema_path = Pathname.new('modules/vba_documents/spec/fixtures/subscriptions/webhook_subscriptions_schema.json')
       schemer_formats = {
         'valid_urls' => ->(urls, _schema_info) { validate_urls(urls) },
@@ -84,14 +87,14 @@ module Webhooks
       unless schemer.valid?(subscriptions)
         raise SchemaValidationErrors, ["Invalid subscription! Body must match the included example\n#{SUBSCRIPTION_EX}"]
       end
+
       subscriptions
     end
 
     def validate_events(subscriptions)
-      events = subscriptions.select{ |s| s.key?('event') }.map { |s| s['event'] }
-      if Set.new(events).size != events.length
-        raise SchemaValidationErrors, ["Duplicate Event(s) submitted! #{events}"]
-      end
+      events = subscriptions.select { |s| s.key?('event') }.map { |s| s['event'] }
+      raise SchemaValidationErrors, ["Duplicate Event(s) submitted! #{events}"] if Set.new(events).size != events.length
+
       unsupported_events = events - Webhooks::Utilities.supported_events
 
       if unsupported_events.length.positive?
@@ -108,7 +111,7 @@ module Webhooks
         raise SchemaValidationErrors, ["Invalid subscription! URI does not parse: #{url}"]
       end
       https = uri.scheme.eql? 'https'
-      if !https && Settings.websockets.require_https
+      if !https && Settings.webhooks.require_https
         raise SchemaValidationErrors, ["Invalid subscription! URL #{url} must be https!"]
       end
 
@@ -133,4 +136,3 @@ unless Thread.current['under_test']
   Webhooks::Utilities.api_name_to_time_block.freeze
   Webhooks::Utilities.api_name_to_retries.freeze
 end
-

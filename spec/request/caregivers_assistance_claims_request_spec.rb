@@ -14,6 +14,48 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   let(:build_valid_form_submission) { -> { VetsJsonSchema::EXAMPLES['10-10CG'].clone } }
   let(:get_schema) { -> { VetsJsonSchema::SCHEMAS['10-10CG'].clone } }
 
+  shared_examples 'a completed PDF' do
+    let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
+    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
+
+    after do
+      File.delete(response_pdf) if File.exist?(response_pdf)
+    end
+
+    it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
+      form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
+      claim     = build(:caregivers_assistance_claim, form: form_data)
+      body      = { caregivers_assistance_claim: { form: form_data } }.to_json
+
+      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+        form: form_data
+      ).and_return(
+        claim
+      )
+
+      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid') # When the saved claim is initialized
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
+
+      post endpoint, params: body, headers: headers
+
+      expect(response).to have_http_status(:ok)
+
+      # download response conent (the pdf) to disk
+      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+
+      # compare it with the pdf fixture
+      expect(
+        pdfs_fields_match?(response_pdf, expected_pdf)
+      ).to eq(true)
+
+      # ensure that the tmp file was deleted
+      expect(
+        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
+      ).to eq(false)
+    end
+  end
+
   describe 'POST /v0/caregivers_assistance_claims' do
     subject do
       post endpoint, params: body, headers: headers
@@ -58,44 +100,32 @@ RSpec.describe 'Caregivers Assistance Claims', type: :request do
   end
 
   describe 'POST /v0/caregivers_assistance_claims/download_pdf' do
-    let(:endpoint) { '/v0/caregivers_assistance_claims/download_pdf' }
-    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
-    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
+    context 'when ezcg_use_facility_api feature toggle is disabled' do
+      before do
+        Flipper.add :ezcg_use_facility_api
+        Flipper.disable :ezcg_use_facility_api
+      end
 
-    after do
-      File.delete(response_pdf) if File.exist?(response_pdf)
+      after do
+        Flipper.remove :ezcg_use_facility_api
+      end
+
+      it_behaves_like 'a completed PDF'
     end
 
-    it 'returns a completed PDF', run_at: '2017-07-25 00:00:00 -0400' do
-      form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
-      claim     = build(:caregivers_assistance_claim, form: form_data)
-      body      = { caregivers_assistance_claim: { form: form_data } }.to_json
+    context 'when ezcg_use_facility_api feature toggle is enabled' do
+      before do
+        VCR.insert_cassette('pcafc/get_facilities_with_cg_params', allow_unused_http_interactions: false)
+        Flipper.add :ezcg_use_facility_api
+        Flipper.enable :ezcg_use_facility_api
+      end
 
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
+      after do
+        VCR.eject_cassette
+        Flipper.remove :ezcg_use_facility_api
+      end
 
-      expect(SecureRandom).to receive(:uuid).and_return('saved-claim-guid') # When the saved claim is initialized
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
-
-      post endpoint, params: body, headers: headers
-
-      expect(response).to have_http_status(:ok)
-
-      # download response conent (the pdf) to disk
-      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
-
-      # compare it with the pdf fixture
-      expect(
-        pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
-
-      # ensure that the tmp file was deleted
-      expect(
-        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-      ).to eq(false)
+      it_behaves_like 'a completed PDF'
     end
   end
 end

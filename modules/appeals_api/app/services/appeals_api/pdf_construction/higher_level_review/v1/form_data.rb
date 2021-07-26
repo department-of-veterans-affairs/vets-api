@@ -105,7 +105,9 @@ module AppealsApi
         end
 
         def rep_name_and_phone_number
-          higher_level_review.informal_conference_rep_name_and_phone_number
+          rep = higher_level_review.informal_conference_rep
+
+          "#{rep&.dig('name')} #{higher_level_review.informal_conference_rep_phone}"
         end
 
         def signature

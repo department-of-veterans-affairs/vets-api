@@ -5,7 +5,6 @@ require 'pdf_info'
 module ClaimsApi
   module DocumentValidations
     extend ActiveSupport::Concern
-    # rubocop:disable Metrics/BlockLength
     included do
       def validate_documents_content_type
         return if document_content_type_errors.empty?
@@ -69,6 +68,5 @@ module ClaimsApi
         }
       end
     end
-    # rubocop:enable Metrics/BlockLength
   end
 end

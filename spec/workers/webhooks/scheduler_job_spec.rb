@@ -20,7 +20,7 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
     end
     results = Webhooks::SchedulerJob.new.perform
     results.each_with_index do |r, i|
-      expect(r.first.respond_to? :to_f).to be true # our callbacks are intervals (for sidekiq's perform_in)
+      expect(r.first.respond_to?(:to_f)).to be true # our callbacks are intervals (for sidekiq's perform_in)
       expect(r.last).to eq Thread.current['job_ids'][i] # We get our job IDs back
     end
   end

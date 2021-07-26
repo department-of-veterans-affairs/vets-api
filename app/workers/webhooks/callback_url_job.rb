@@ -21,12 +21,12 @@ module Webhooks
 
     private
 
-    def notify()
+    def notify
       @response = Faraday.post(@url, @msg.to_json, 'Content-Type' => 'application/json')
     rescue Faraday::ClientError, Faraday::Error => e
       Rails.logger.error("Webhooks::CallbackUrlJob Error in CallbackUrlJob #{e.message}", e)
       @response = e
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error("Webhooks::CallbackUrlJob unexpected Error in CallbackUrlJob #{e.message}", e)
       @response = e
     ensure
@@ -35,7 +35,6 @@ module Webhooks
 
     def record_attempt
       ActiveRecord::Base.transaction do
-        attempt = Webhooks::NotificationAttempt.new
         successful = false
         if @response.respond_to? :success?
           successful = @response.success?
@@ -44,25 +43,40 @@ module Webhooks
           attempt_response = { 'exception' => @response.message }
         end
 
-        attempt.success = successful
-        attempt.response = attempt_response
-        attempt.save!
-        attempt_id = attempt.id
+        # create the notification attempt record
+        attempt = create_attempt(successful, attempt_response)
 
+        # write an association record tied to each notification used in this attempt
         Webhooks::Notification.where(id: @ids).each do |notification|
-          wnaa = Webhooks::NotificationAttemptAssoc.new
-          wnaa.webhooks_notification_id = notification.id
-          wnaa.webhooks_notification_attempt_id = attempt_id
-          wnaa.save!
+          create_attempt_assoc(notification, attempt)
 
+          # seal off the attempt if we received a successful response or hit our max retry limit
           if attempt.success? || notification.webhooks_notification_attempts.count >= @max_retries
-            notification.final_attempt_id = attempt_id
+            notification.final_attempt_id = attempt.id
           end
 
           notification.processing = nil
           notification.save!
         end
       end
+    end
+
+    def create_attempt(successful, response)
+      attempt = Webhooks::NotificationAttempt.new do |a|
+        a.success = successful
+        a.response = response
+      end
+      attempt.save!
+      attempt
+    end
+
+    def create_attempt_assoc(notification, attempt)
+      attempt_assoc = Webhooks::NotificationAttemptAssoc.new do |naa|
+        naa.webhooks_notification_id = notification.id
+        naa.webhooks_notification_attempt_id = attempt.id
+      end
+      attempt_assoc.save!
+      attempt_assoc
     end
   end
 end

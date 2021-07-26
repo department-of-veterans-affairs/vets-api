@@ -30,7 +30,7 @@ module EVSS
 
       def request_headers(additional_headers)
         edipi = additional_headers['va_eauth_dodedipnid'].presence || @account&.edipi
-        ssn = additional_headers['va_eauth_pnid'].presence || @user.ssn
+        ssn = additional_headers['va_eauth_pnid'].presence || @user&.ssn
         {
           'ssn' => ssn,
           'edipi' => edipi,
