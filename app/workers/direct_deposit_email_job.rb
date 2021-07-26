@@ -3,7 +3,7 @@
 class DirectDepositEmailJob
   include Sidekiq::Worker
   extend SentryLogging
-  sidekiq_options expires_in: 1.day
+  sidekiq_options retry: 14
 
   def self.send_to_emails(user_emails, ga_client_id, dd_type)
     if user_emails.present?

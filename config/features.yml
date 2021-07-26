@@ -108,6 +108,10 @@ features:
     actor_type: user
     description: Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
     enable_in_development: true
+  discharge_wizard_features:
+    actor_type: user
+    description: Iteration of new features for discharge wizard
+    enable_in_development: true
   facilities_ppms_suppress_community_care:
     actor_type: user
     description: Hide ppms community care searches
