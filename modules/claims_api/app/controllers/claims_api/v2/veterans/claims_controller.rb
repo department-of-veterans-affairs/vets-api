@@ -28,7 +28,7 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
-          massaged_bgs_claim = massage_bgs_claim(bgs_claim: bgs_claim)
+          massaged_bgs_claim = bgs_claim ? massage_bgs_claim(bgs_claim: bgs_claim) : empty_bgs_claim_structure
           lighthouse_claim = lighthouse_claim ? [lighthouse_claim] : []
 
           claim = BGSToLighthouseClaimsMapperService.process(
@@ -75,6 +75,14 @@ module ClaimsApi
                   claim_status_type: bgs_claim[:benefit_claim_details_dto][:claim_status_type]
                 }
               ]
+            }
+          }
+        end
+
+        def empty_bgs_claim_structure
+          {
+            benefit_claims_dto: {
+              benefit_claim: []
             }
           }
         end
