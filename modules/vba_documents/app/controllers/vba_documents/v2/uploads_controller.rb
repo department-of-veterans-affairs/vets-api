@@ -8,12 +8,7 @@ require_dependency 'vba_documents/payload_manager'
 require_dependency 'vba_documents/upload_validator'
 require_dependency 'vba_documents/multipart_parser'
 require 'common/exceptions'
-require_dependency './modules/vba_documents/lib/vba_documents/webhooks_registrations'
-
-# TODO: clean loads out of this file
-# load './lib/webhooks/utilities.rb'
-# load './modules/vba_documents/lib/vba_documents/webhooks_registrations.rb'
-# load './app/models/webhooks/subscription.rb'
+require './lib/webhooks/utilities'
 
 module VBADocuments
   module V2
