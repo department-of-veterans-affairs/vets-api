@@ -1,13 +1,19 @@
 # frozen_string_literal: true
 
-Faraday::Response.register_middleware check_in_errors: HealthQuest::Middleware::Response::Errors
-Faraday::Middleware.register_middleware check_in_logging: HealthQuest::Middleware::HealthQuestLogging
+##
+# Registering middleware needed by Faraday for logging and error reporting
+#
+Faraday::Middleware.register_middleware(check_in_logging: Middleware::CheckInLogging)
+Faraday::Response.register_middleware(check_in_errors: Middleware::Errors)
 
 module ChipApi
   ##
   # An object responsible for making HTTP calls to the Chip API
   #
   class Request
+    include Common::Client::Concerns::Monitoring
+
+    STATSD_KEY_PREFIX = 'api.check_in.chip_api.request'
     ##
     # Builds a ChipApi::Request instance
     #
@@ -21,27 +27,33 @@ module ChipApi
     # HTTP GET call to the Chip API to retrieve a user's
     # Check-in information for a specific Appointment
     #
-    # @param lorota_uuid [String]
+    # @param opts [Hash]
     # @return [Faraday::Response]
     #
-    def get(lorota_uuid)
-      connection.get("/appointments/#{lorota_uuid}") do |req|
-        req.headers = get_headers
+    def get(opts = {})
+      with_monitoring do
+        connection.get(opts[:path]) do |req|
+          req.headers = headers.merge('Authorization' => "Bearer #{opts[:access_token]}")
+        end
       end
     end
 
     ##
-    # make a HTTP POST call to the Chip API in order to
+    # Make a HTTP POST call to the Chip API in order to
     # check-in a user for a specific appointment
     #
-    # @param params [String] URI.encode_www_form parameters
+    # @param opts [Hash]
     # @return [Faraday::Response]
     #
-    def post(check_in_params)
-      connection.post('/actions/check-in') { |req| req.body = check_in_params }
+    def post(opts = {})
+      with_monitoring do
+        connection.post(opts[:path]) do |req|
+          prefix = opts[:access_token] ? 'Bearer' : 'Basic'
+          suffix = opts[:access_token] || opts[:claims_token]
+          req.headers = headers.merge('Authorization' => "#{prefix} #{suffix}")
+        end
+      end
     end
-
-    private
 
     ##
     # Create a connection object that manages the attributes
@@ -62,8 +74,8 @@ module ChipApi
     #
     # @return [Hash]
     #
-    def get_headers
-      { 'Accept' => '*/*' }
+    def headers
+      { 'x-apigw-api-id' => chip_api.tmp_api_id }
     end
 
     ##
@@ -72,8 +84,14 @@ module ChipApi
     #
     # @return [String]
     #
-    def url
-      Settings.check_in.chip_api.url
+    def url # rubocop:disable Rails/Delegate
+      chip_api.url
+    end
+
+    private
+
+    def chip_api
+      Settings.check_in.chip_api
     end
   end
 end

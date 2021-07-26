@@ -20,9 +20,10 @@ RSpec.describe 'Available Slots Request', type: :request do
       context 'on a successful request' do
         it 'returns list of available slots' do
           VCR.use_cassette('vaos/v2/systems/get_available_slots_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics/1081/slots?start=2021-05-26T00:00:00Z&end=2021-06-30T23:59:59Z'
+            get '/vaos/v2/locations/983/clinics/1081/slots?start=2021-05-26T00:00:00Z&end=2021-06-30T23:59:59Z',
+                headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/slots', { strict: false })
+            expect(response.body).to match_camelized_schema('vaos/v2/slots', { strict: false })
 
             slots = JSON.parse(response.body)['data']
             expect(slots.size).to eq(401)

@@ -264,8 +264,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(auto_claim.file_data).to be_truthy
     end
 
-    # TODO: uncomment when validation is fixed
-    xit 'responds with a 422 when unknown error' do
+    it 'responds with a 422 when unknown error' do
       expect(ClaimsApi::ClaimUploader).to receive(:perform_async).and_raise(Common::Exceptions::UnprocessableEntity)
       put "/services/claims/v0/forms/526/#{auto_claim.id}", params: binary_params, headers: headers
       expect(response.status).to eq(422)
