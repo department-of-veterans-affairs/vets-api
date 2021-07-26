@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require_dependency './lib/webhooks/utilities'
-require_dependency './app/workers/webhooks/notifications_job'
+require './lib/webhooks/utilities'
+require './app/workers/webhooks/notifications_job'
 
 module Webhooks
   class SchedulerJob

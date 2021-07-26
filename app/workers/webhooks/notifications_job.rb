@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency './app/workers/webhooks/callback_url_job'
+require './app/workers/webhooks/callback_url_job'
 
 module Webhooks
   class NotificationsJob
