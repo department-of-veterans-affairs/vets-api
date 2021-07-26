@@ -87,7 +87,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
         end
       end
 
-      %i[missing_event bad_URL unknown_event not_https duplicate_events].each do |test_case|
+      %i[missing_event bad_URL unknown_event not_https duplicate_events not_JSON].each do |test_case|
         %i[file text].each do |multipart_fashion|
           it "returns error with invalid #{test_case} observers #{multipart_fashion}" do
             observers = if multipart_fashion == :file
