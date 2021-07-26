@@ -673,6 +673,7 @@
             "content": {
               "application/json": {
                 "example": {
+<<<<<<< HEAD
                   "id": "600131328",
                   "@links": {
                     "rel": "self",
@@ -680,6 +681,10 @@
                     "url": "http://www.example.com/services/claims/v2/claims/600131328"
                   },
                   "type": "Appeals Control"
+=======
+                  "id": "555555555",
+                  "type": "Compensation"
+>>>>>>> a2161fc9b (API-8399 - Fix rswag specs)
                 },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",

@@ -34,7 +34,7 @@ module ClaimsApi
           claim = BGSToLighthouseClaimsMapperService.process(
             bgs_claims: massaged_bgs_claim,
             lighthouse_claims: lighthouse_claim
-          )
+          ).first
 
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(claim, base_url: request.base_url)
         end
