@@ -7,15 +7,16 @@ module VBADocuments
     WEBHOOK_STATUS_CHANGE_EVENT = 'gov.va.developer.benefits-intake.status_change'
 
     register_events('gov.va.developer.benefits-intake.status_change',
-                    api_name: 'PLAY_API', max_retries: 3) do |last_time_async_scheduled|
-      next_run = if last_time_async_scheduled.nil?
+                    api_name: 'vba_documents-v2',
+                    max_retries: Settings.vba_documents.webhooks.registration_max_retries) do |ltas|
+      next_run = if ltas.nil?
                    0.seconds.from_now
                  else
-                   30.seconds.from_now # TODO: make 15.minutes.from_now
+                   Settings.vba_documents.webhooks.registration_next_run_in_minutes.minutes.from_now
                  end
       next_run
     rescue
-      30.seconds.from_now
+      15.minutes.from_now
     end
   end
 end

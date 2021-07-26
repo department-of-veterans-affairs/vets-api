@@ -111,7 +111,7 @@ module Webhooks
         raise SchemaValidationErrors, ["Invalid subscription! URI does not parse: #{url}"]
       end
       https = uri.scheme.eql? 'https'
-      if !https && Settings.websockets.require_https
+      if !https && Settings.webhooks.require_https
         raise SchemaValidationErrors, ["Invalid subscription! URL #{url} must be https!"]
       end
 
