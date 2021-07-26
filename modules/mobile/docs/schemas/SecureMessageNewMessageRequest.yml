@@ -22,3 +22,7 @@ properties:
   subject:
     type: string
     example: "Question about my medication"
+  draft_id:
+    type: integer
+    description: |
+      Specifies draft message ID to send.  Draft message is deleted once sent. Note that the recipient_id, category, body, and subject included with this post will overwrite any of original values of the draft.

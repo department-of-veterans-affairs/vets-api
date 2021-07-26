@@ -82,20 +82,30 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
           end
         end
 
-        # TODO: currently VAOS Service errors on sending multiple statuses (VAOSR-2005). When fixed, implement rspec.
-        xit 'has access and returns va appointments given a date range and multiple statuses' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes) do
+        it 'has access and returns va appointments given a date range and multiple statuses' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses=proposed,booked',
                 headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            data = JSON.parse(response.body)['data']
+            expect(data.size).to eq(53)
+            expect(data[0]['attributes']['status']).to eq('booked')
+            expect(data[52]['attributes']['status']).to eq('proposed')
           end
         end
 
-        # TODO: currently VAOS Service errors on sending multiple statuses (VAOSR-2005). When fixed, implement rspec.
-        xit 'has access and returns va appointments given a date range and multiple statuses (as Array)' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', record: :new_episodes) do
+        it 'has access and returns va appointments given a date range and multiple statuses (as Array)' do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses[]=proposed' \
                 '&statuses[]=booked',
                 headers: inflection_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
+            data = JSON.parse(response.body)['data']
+            expect(data.size).to eq(53)
+            expect(data[0]['attributes']['status']).to eq('booked')
+            expect(data[52]['attributes']['status']).to eq('proposed')
           end
         end
 

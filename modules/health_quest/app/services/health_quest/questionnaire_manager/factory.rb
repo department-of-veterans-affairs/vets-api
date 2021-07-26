@@ -110,48 +110,16 @@ module HealthQuest
       #
       # @return [Hash] an aggregated hash
       #
-      def all # rubocop:disable Metrics/MethodLength
+      def all
         @lighthouse_appointments = get_lighthouse_appointments.resource&.entry
         @locations = get_locations
 
-        if lighthouse_appointments.blank? || @locations.blank?
-          Rails.logger.info(
-            "Loma Linda user does not have any Appointment resources? #{lighthouse_appointments.blank?}", user_info
-          )
-          Rails.logger.info("Loma Linda user does not have any Location resources? #{locations.blank?}", user_info)
-
-          return default_response
-        end
+        return default_response if lighthouse_appointments.blank?
 
         concurrent_pgd_requests
         @facilities = get_facilities
 
-        if organizations.blank? || questionnaire_responses.blank? || save_in_progress.blank?
-          Rails.logger.info(
-            "Loma Linda user does not have any Organization resources? #{organizations.blank?}", user_info
-          )
-          Rails.logger.info(
-            "Loma Linda user does not have any QuestionnaireResponse resources? #{questionnaire_responses.blank?}",
-            user_info
-          )
-          Rails.logger.info(
-            "Loma Linda user does not have any in progress items? #{save_in_progress.blank?}", user_info
-          )
-        end
-
-        if patient.blank?
-          Rails.logger.info("Loma Linda user does not have a Patient resource? #{patient.blank?}", user_info)
-
-          return default_response
-        end
-
-        if questionnaires.blank?
-          Rails.logger.info(
-            "Loma Linda user does not have any Questionnaire resources? #{questionnaires.blank?}", user_info
-          )
-
-          return default_response
-        end
+        return default_response if patient.blank? || questionnaires.blank?
 
         compose
       end
@@ -165,7 +133,7 @@ module HealthQuest
       # @param data [Hash] questionnaire answers and appointment data hash.
       # @return [FHIR::ClientReply] an instance of ClientReply
       #
-      def create_questionnaire_response(data) # rubocop:disable Metrics/MethodLength
+      def create_questionnaire_response(data)
         attrs = data.to_h.with_indifferent_access
         response = questionnaire_response_service.create(attrs)
 
@@ -180,14 +148,6 @@ module HealthQuest
 
               qr.save
             end
-
-            Rails.logger.info(
-              'Loma Linda user successfully created a QuestionnaireResponse resource', user_info
-            )
-          else
-            Rails.logger.info(
-              'Loma Linda user failed to create a QuestionnaireResponse resource', user_info
-            )
           end
         end
       end
@@ -200,36 +160,15 @@ module HealthQuest
       # @param questionnaire_response_id [String]
       # @return [String]
       #
-      def generate_questionnaire_response_pdf(questionnaire_response_id) # rubocop:disable Metrics/MethodLength
+      def generate_questionnaire_response_pdf(questionnaire_response_id)
         snapshot = HealthQuest::QuestionnaireResponse
                    .where(user_uuid: user.uuid, questionnaire_response_id: questionnaire_response_id.to_s)
                    .first
-
         appointment = lighthouse_appointment_service.get(snapshot.appointment_id)
-
-        unless appointment&.response&.fetch(:code) == 200
-          Rails.logger.info(
-            "Loma Linda user could not find an Appointment resource with id: #{snapshot&.appointment_id}", user_info
-          )
-        end
-
         loc_id = appointment.resource.participant.first.actor.reference.match(ID_MATCHER)[1]
         location = location_service.get(loc_id)
-
-        unless location&.response&.fetch(:code) == 200
-          Rails.logger.info(
-            "Loma Linda user could not find a Location resource with id: #{loc_id}", user_info
-          )
-        end
-
         org_id = location.resource.managingOrganization.reference.match(ID_MATCHER)[1]
         org = organization_service.get(org_id)
-
-        unless org&.response&.fetch(:code) == 200
-          Rails.logger.info(
-            "Loma Linda user could not find an Organization resource with id: #{org_id}", user_info
-          )
-        end
 
         HealthQuest::QuestionnaireManager::QuestionnaireResponseReport
           .manufacture(questionnaire_response: snapshot, appointment: appointment, location: location, org: org)
@@ -419,15 +358,6 @@ module HealthQuest
       end
 
       private
-
-      def user_info
-        {
-          user_uuid: user&.uuid,
-          user_icn: user&.icn,
-          loa: user&.loa,
-          facilities: user&.mpi_profile&.vha_facility_ids || []
-        }
-      end
 
       def date_ge_one_month_ago
         month = tz_date_string(1.month.ago)

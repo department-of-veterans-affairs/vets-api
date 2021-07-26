@@ -157,30 +157,14 @@ describe AppealsApi::HigherLevelReview, type: :model do
     it('matches json') { is_expected.to eq form_data_attributes['informalConferenceTimes'] }
   end
 
-  describe '#informal_conference_rep_name_and_phone_number' do
-    subject { higher_level_review.informal_conference_rep_name_and_phone_number }
-
-    it('matches json') do
-      expect(subject).to eq(
-        form_data_attributes['informalConferenceRep']['name'] +
-        ' +' +
-        form_data_attributes['informalConferenceRep']['phone']['countryCode'] +
-        '-' +
-        form_data_attributes['informalConferenceRep']['phone']['areaCode'] +
-        '-' +
-        form_data_attributes['informalConferenceRep']['phone']['phoneNumber'][0..2] +
-        '-' +
-        form_data_attributes['informalConferenceRep']['phone']['phoneNumber'][3..] +
-        ' ext' +
-        form_data_attributes['informalConferenceRep']['phone']['phoneNumberExt']
-      )
-    end
-  end
-
   describe '#contestable_issues' do
-    subject { higher_level_review.contestable_issues }
+    subject { higher_level_review.contestable_issues.to_json }
 
-    it('matches json') { is_expected.to eq form_data['included'] }
+    it 'matches json' do
+      issues = form_data['included'].map { |issue| AppealsApi::ContestableIssue.new(issue) }.to_json
+
+      expect(subject).to eq(issues)
+    end
   end
 
   describe '#date_signed' do
@@ -195,59 +179,6 @@ describe AppealsApi::HigherLevelReview, type: :model do
 
   context 'validations' do
     let(:higher_level_review) { described_class.new(form_data: form_data, auth_headers: auth_headers) }
-
-    context 'veteran phone number is too long' do
-      let(:form_data) do
-        {
-          'data' => {
-            'type' => default_form_data['data']['type'],
-            'attributes' => default_form_data['data']['attributes'].merge(veteran)
-          },
-          'included' => default_form_data['included']
-        }
-      end
-
-      let(:veteran) do
-        {
-          veteran: {
-            phone: { areaCode: '999', phoneNumber: '1234567890', phoneNumberExt: '1234567890' }
-          }
-        }.as_json
-      end
-
-      it 'a phone number that\'s too long creates an invalid record (b/c won\'t fit on the form)' do
-        expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.to_a.length).to eq 1
-        expect(higher_level_review.errors.to_a.first.downcase).to include 'phone'
-      end
-    end
-
-    context 'informal conference rep info is too long' do
-      let(:form_data) do
-        {
-          'data' => {
-            'type' => default_form_data['data']['type'],
-            'attributes' => default_form_data['data']['attributes'].merge(informal_conference_rep)
-          },
-          'included' => default_form_data['included']
-        }
-      end
-
-      let(:informal_conference_rep) do
-        {
-          'informalConferenceRep' => {
-            'name' => 'x' * 1000,
-            'phone' => default_form_data['data']['attributes']['informalConferenceRep']['phone']
-          }
-        }
-      end
-
-      it 'too much informal conference info creates an invalid record (b/c won\'t fit on the form)' do
-        expect(higher_level_review.valid?).to be false
-        expect(higher_level_review.errors.to_a.length).to eq 1
-        expect(higher_level_review.errors.to_a.first.downcase).to include 'rep'
-      end
-    end
 
     context 'birth date isn\'t a date' do
       let(:auth_headers) { default_auth_headers.merge 'X-VA-Birth-Date' => 'apricot' }

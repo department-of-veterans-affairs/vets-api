@@ -8,26 +8,15 @@ module VAForms
       skip_before_action(:authenticate)
 
       def index
-        if Flipper.enabled?(:new_va_forms_search)
-          if params[:query].present?
-            # Checks to see if a form follows the SF/VA DD(p)-DDDD format
-            params[:query].strip!
-            valid_search_regex = /^\d{2}[pP]?-\d+(?:-)?[a-zA-Z]{0,2}(?:-.)?$/
-            sf_form_regex = /^[sS][fF][\-\s\d]?\d+\s?[a-zA-Z]?$/
-            if params[:query].match(sf_form_regex).present?
-              params[:query].sub!(/[sS][fF]/, '\0%')
-              params[:query].gsub!(/-/, '%')
-              return search_by_form_number
-            end
-            return search_by_text(params[:query]) if params[:query] == '10-10'
-            return search_by_form_number if params[:query].match(valid_search_regex).present?
+        if params[:query].present?
+          # Checks to see if a form follows the SF/VA DD(p)-DDDD format
+          params[:query].strip!
+          valid_search_regex = /^\d{2}[pP]?-\d+(?:-)?[a-zA-Z]{0,2}(?:-.)?$/
+          return search_by_form_number if params[:query].match(valid_search_regex).present?
 
-            return search_by_text(VAForms::RegexHelper.new.scrub_query(params[:query]))
-          end
-          return_all
-        else
-          old_search
+          return search_by_text(VAForms::RegexHelper.new.scrub_query(params[:query]))
         end
+        return_all
       end
 
       def search_by_form_number
@@ -38,12 +27,6 @@ module VAForms
 
       def search_by_text(query)
         render json: Form.search(query),
-               serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: VAForms::FormListSerializer
-      end
-
-      def old_search
-        render json: Form.old_search(search_term: params[:query]),
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: VAForms::FormListSerializer
       end

@@ -9,6 +9,7 @@ module AppealsApi
         NUMBER_OF_ISSUES_FIRST_PAGE = 7
         NUMBER_OF_ISSUES_SECOND_PAGE = 6
         MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM = (NUMBER_OF_ISSUES_FIRST_PAGE + NUMBER_OF_ISSUES_SECOND_PAGE).freeze
+        SHORT_EMAIL_LENGTH = 100
 
         def initialize(higher_level_review)
           @higher_level_review = higher_level_review
@@ -118,7 +119,7 @@ module AppealsApi
           stamper = CentralMail::DatestampPdf.new(stamped_pdf_path)
 
           bottom_stamped_path = stamper.run(
-            text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
+            text: "API.VA.GOV #{higher_level_review.created_at.utc.strftime('%Y-%m-%d %H:%M%Z')}",
             x: 5,
             y: 775,
             text_only: true
@@ -150,13 +151,12 @@ module AppealsApi
             whiteout_line pdf, :last_name
             whiteout_line pdf, :number_and_street
             whiteout_line pdf, :city
-            whiteout_line pdf, :veteran_email
-            whiteout_line pdf, :veteran_phone_extension
+            whiteout_line pdf, :veteran_email, text_override: 'See attached page for veteran email'
             pdf.start_new_page
 
             whiteout_line pdf, :rep_first_name
             whiteout_line pdf, :rep_last_name
-            whiteout_line pdf, :rep_email
+            whiteout_line pdf, :rep_email, text_override: 'See attached page for representative email'
             whiteout_line pdf, :rep_international_number
             whiteout_line pdf, :rep_domestic_ext
             fill_contestable_issues_text pdf
@@ -183,14 +183,18 @@ module AppealsApi
         end
 
         def additional_pages?
-          form_data.contestable_issues.count > MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM
+          form_data.contestable_issues.count > MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM || any_long_emails?
+        end
+
+        def any_long_emails?
+          form_data.veteran_email.length > SHORT_EMAIL_LENGTH || form_data.rep_email.length > SHORT_EMAIL_LENGTH
         end
 
         def fill_contestable_issues_dates!(options)
           form_issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
           form_issues.each_with_index do |issue, index|
             date_fields = form_fields.issue_decision_date_fields(index)
-            date = Date.parse(issue['attributes']['decisionDate'])
+            date = issue.decision_date
             options[date_fields[:month]] = date.strftime '%m'
             options[date_fields[:day]] = date.strftime '%d'
             options[date_fields[:year]] = date.strftime '%Y'
@@ -201,16 +205,16 @@ module AppealsApi
         def fill_contestable_issues_text(pdf)
           issues = form_data.contestable_issues.take(MAX_NUMBER_OF_ISSUES_ON_MAIN_FORM)
           issues.first(NUMBER_OF_ISSUES_FIRST_PAGE).each_with_index do |issue, i|
-            if (text = issue.dig('attributes', 'issue')&.presence)
-              pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg1][i])
+            if issue.text_exists?
+              pdf.text_box issue.text, default_text_opts.merge(form_fields.boxes[:issues_pg1][i])
               pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg1][i])
             end
           end
           pdf.start_new_page # Always start a new page even if there are no issues so other text can insert properly
 
           issues.drop(NUMBER_OF_ISSUES_FIRST_PAGE).each_with_index do |issue, i|
-            if (text = issue.dig('attributes', 'issue')&.presence)
-              pdf.text_box text, default_text_opts.merge(form_fields.boxes[:issues_pg2][i])
+            if issue.text_exists?
+              pdf.text_box issue.text, default_text_opts.merge(form_fields.boxes[:issues_pg2][i])
               pdf.text_box form_data.soc_date_text(issue), default_text_opts.merge(form_fields.boxes[:soc_date_pg2][i])
             end
           end
@@ -222,12 +226,15 @@ module AppealsApi
           pdf.fill_color '000000'
         end
 
-        def whiteout_line(pdf, attr)
+        def whiteout_line(pdf, attr, text_override: nil, length_for_override: SHORT_EMAIL_LENGTH)
           text_opts = form_fields.boxes[attr].merge(default_text_opts).merge(
             height: 13
           )
           whiteout pdf, form_fields.boxes[attr]
-          pdf.text_box form_data.send(attr), text_opts
+
+          text = form_data.send(attr)
+          text = text_override if text_override.present? && text.length > length_for_override
+          pdf.text_box text, text_opts
         end
       end
     end

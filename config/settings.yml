@@ -100,6 +100,9 @@ form_10_10cg:
       enabled: true
       region: us-gov-west-1
 
+vbs:
+  url: https://vbs.example.com/api/v1
+
 # Settings for Education Benefits
 edu:
   prefill: true
@@ -438,6 +441,8 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  documentation:
+    path_enabled_flag: false
   report_enabled: false
   monthly_report: false
   location:
@@ -679,7 +684,7 @@ betamocks:
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
-  mock_search: true
+  mock_search: false
   url: https://search.usa.gov/api/v2
 
 # Settings for search-typeahead
@@ -702,12 +707,15 @@ flipper:
     - alastair@adhocteam.us
     - anna@adhoc.team
     - bill.ryan@adhocteam.us
+    - clark@governmentcio.com # Designer on GCIO
     - cameron@oddball.io
     - cory.trimm@va.gov
-    - cwheeler@governmentcio.com
+    - craig.wheeler@gcio.com
     - dan.hinze@adhocteam.us
+    - dat.tran@gcio.com
     - delli-gatti_michael@bah.com
     - devinmccurdy@gmail.com
+    - dnalbach@governmentcio.com
     - draju@governmentcio.com
     - dror@matal.com
     - elder_joseph@bah.com
@@ -715,10 +723,12 @@ flipper:
     - erik@adhocteam.us
     - filip.fafara@gmail.com
     - fahmed@governmentcio.com
+    - gescobar@governmentcio.com
     - grodriguez@governmentcio.com
     - hshin@thoughtworks.com
     - jacob.gacek@thoughtworks.com
     - jbalboni@gmail.com
+    - james.adams2@va.gov # Jim Adams designer on GCIO
     - jeff@adhocteam.us
     - jennie.mcgibney@va.gov
     - jesse.cohn@adhocteam.us
@@ -731,6 +741,7 @@ flipper:
     - kam@adhocteam.us
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
+    - kevin.musiorski@gcio.com # Kevin Musiorski (GCIO), Engineer
     - kmircovich@governmentcio.com
     - lauren.alexanderson@va.gov
     - lauren.ernest@adhocteam.us
@@ -756,6 +767,7 @@ flipper:
     - regarr@gmail.com # Robin Garrison - AdHoc
     - riley.anderson@oddball.io
     - roth_matthew@bah.com
+    - ryan.leahy@adhocteam.us # Ryan Leahy - Adhoc
     - ryan.thurlwell@va.gov
     - saman.moshafi@thoughtworks.com
     - samara.strauss@va.gov
@@ -772,7 +784,7 @@ flipper:
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
-    - zachary.morel@gcio.com
+    - zach.morel@gcio.com
 
 bgs:
   application: ~
@@ -1034,3 +1046,28 @@ github_cvu:
 pg_hero:
   username: ~
   password: ~
+
+check_in:
+  chip_api:
+    url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+    tmp_api_id: 2dcdrrn5zc
+    mock: false
+    key_path: ~
+    redis_session_prefix: check_in
+    timeout: 30
+
+rack:
+  cookie_secret: ~
+
+# Settings for BID Services
+bid:
+  awards:
+    base_url: ~
+    credentials: ~
+    mock: true
+
+# Settings for Test User Dashboard modules
+test_user_dashboard:
+  env: dev

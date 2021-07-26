@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "object",
+      "required": [
+        "id",
+        "type",
+        "attributes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "required": [
+            "hasRequiredAppointmentHistory",
+            "isEligibleForNewAppointmentRequest"
+          ],
+          "properties": {
+            "hasRequiredAppointmentHistory": {
+              "type": "boolean"
+            },
+            "isEligibleForNewAppointmentRequest": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -10,13 +10,12 @@ describe TestUserDashboard::CreateTestUserAccount do
 
   describe '#call' do
     it 'sets the account_id and services' do
-      VCR.use_cassette('mpi/find_candidate/find_profile_with_attributes', VCR::MATCH_EVERYTHING) do
-        tud_account = ::TestUserDashboard::CreateTestUserAccount.new(users[0]).call
-        expect(tud_account.account_uuid).not_to be_nil
-        expect(tud_account.services).to eq %w[facilities hca edu-benefits form-save-in-progress
-                                              form-prefill]
-        expect(tud_account).to be_a(TestUserDashboard::TudAccount)
-      end
+      tud_account = ::TestUserDashboard::CreateTestUserAccount.new(users[0]).call
+      expect(tud_account.account_uuid).not_to be_nil
+      expect(tud_account.services).to eq %w[facilities hca edu_benefits form-save-in-progress
+                                            form-prefill user-profile appeals-status
+                                            identity-proofed vet360 claim_increase]
+      expect(tud_account).to be_a(TestUserDashboard::TudAccount)
     end
   end
 end

@@ -42,7 +42,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'skips observed holidays' do
-        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(false).at_least(:once)
         expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
 
         possible_runs.each do |day, should_run|
@@ -222,7 +221,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       before do
         expect(Rails.env).to receive('development?').twice.and_return(true)
-        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).twice.and_return(true)
         expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
       end
 
@@ -249,7 +247,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         expect(Rails.env).to receive('development?').once.and_return(true)
         expect(Flipper).to receive(:enabled?).with(:spool_testing_error_3).and_return(false).at_least(:once)
-        expect(Flipper).to receive(:enabled?).with(:spool_testing_error_1).and_return(true).at_least(:once)
         expect(Flipper).to receive(:enabled?).with(:spool_testing_error_2).and_return(false).at_least(:once)
       end
 

@@ -86,6 +86,9 @@ features:
   debt_letters_show_letters:
     actor_type: user
     description: Enables debt letters
+  decision_review_hlr_email:
+    actor_type: user
+    description: Send email notification for successful HLR submission
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -105,12 +108,20 @@ features:
     actor_type: user
     description: Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
     enable_in_development: true
+  discharge_wizard_features:
+    actor_type: user
+    description: Iteration of new features for discharge wizard
+    enable_in_development: true
   facilities_ppms_suppress_community_care:
     actor_type: user
     description: Hide ppms community care searches
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
+  facility_locator_covid_vaccine_walk_in_availability_text_frontend:
+    actor_type: user
+    description: Enable covid vaccine walk-in availability text within covid vaccine related search results
+    enable_in_development: true
   facility_locator_lighthouse_covid_vaccine_query:
     actor_type: user
     description: enable covid search/display
@@ -149,9 +160,13 @@ features:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
     enable_in_development: true
-  find_forms_mvp_enhancement:
+  find_forms_first_flag:
     actor_type: user
-    description: Enhances Find A Forms MVP.
+    description: Enhances Find A Forms Flag 1.
+    enable_in_development: true
+  find_forms_second_flag:
+    actor_type: user
+    description: Enhances Find A Forms Flag 2.
     enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
@@ -192,16 +207,16 @@ features:
     description: >
       [Front-end only] When enabled, the 10-10EZ will collect a home and mailing address for the veteran
       vs only collecting a single, "permanent" address.
-  new_va_forms_search:
-    actor_type: user
-    description: Uses the new search algorithm
-    enable_in_development: true
   pre_entry_covid19_screener:
     actor_type: user
     description: >
       Toggle for the entire pre-entry covid 19 self-screener available at /covid19screener and to be used by visitors
       to VHA facilities in lieu of manual screening with a VHA employee.
       This toggle is owned by Patrick B. and the rest of the CTO Health Products team.
+  profile_notification_settings:
+    actor_type: user
+    description: Turns on the Notification Settings section of the VA.gov Profile
+    enable_in_development: true
   profile_schema_forms:
     actor_type: user
     description: Enables SchemaForm-based contact info edit forms on the VA.gov Veteran profile page
@@ -282,9 +297,6 @@ features:
   show_new_view_test_lab_results_page:
     actor_type: user
     description: This will show the non-Cerner-user and Cerner-user content for the page /health-care/view-test-and-lab-results/
-  spool_testing_error_1:
-    actor_type: user
-    description: Enables spool_file_events tracking rows to be used to prevent multiple spool files per RPO per date
   spool_testing_error_2:
     actor_type: user
     description: Enables Slack notifications for CreateDailySpoolFiles
@@ -384,15 +396,10 @@ features:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
     enable_in_development: true
-  edu_form5490_updates:
-    actor_type: user
-    description: Form 5490 updates in support of Isakson and Roe legislation
-    enable_in_development: true
-  edu_form10203_updates:
-    actor_type: user
-    description: Form 10203 updates in support of Isakson and Roe legislation
-    enable_in_development: true
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
     enable_in_development: true
+  ezcg_use_facility_api:
+    actor_type: user
+    description: Enables 1010EZ & 1010CG to use the Facility API instead of JSON schema

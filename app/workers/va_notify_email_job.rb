@@ -2,7 +2,8 @@
 
 class VANotifyEmailJob
   include Sidekiq::Worker
-  sidekiq_options expires_in: 1.day
+  include SentryLogging
+  sidekiq_options retry: 14
 
   def perform(email, template_id, personalisation = nil)
     notify_client = VaNotify::Service.new(Settings.vanotify.services.va_gov.api_key)
@@ -14,5 +15,17 @@ class VANotifyEmailJob
         personalisation: personalisation
       }.compact
     )
+  rescue Common::Exceptions::BackendServiceException => e
+    if e.status_code == 400
+      log_exception_to_sentry(
+        e,
+        {
+          args: { email: email, template_id: template_id, personalisation: personalisation }
+        },
+        { error: :va_notify_email_job }
+      )
+    else
+      raise e
+    end
   end
 end
