@@ -81,9 +81,9 @@ module SAML
         safe_attr('va_eauth_emailaddress')
       end
 
-      # Returns an array beause a person can have multipe types.
+      # Returns an array because a person can have multipe types.
       def person_types
-        safe_attr('va_eauth_persontype')&.split('|')
+        safe_attr('va_eauth_persontype')&.split('|') || []
       end
 
       ### Identifiers
