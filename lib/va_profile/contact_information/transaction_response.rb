@@ -101,7 +101,25 @@ module VAProfile
       end
     end
 
-    class EmailTransactionResponse < TransactionResponse; end
+    class EmailTransactionResponse < TransactionResponse
+      attribute :response_body, String
+
+      def self.from(*args)
+        return_val = super
+
+        return_val.response_body = @response_body
+
+        return_val
+      end
+
+      def new_email
+        tx_output = response_body['tx_output'][0]
+        return if tx_output['effective_end_date'].present?
+
+        tx_output['email_address_text']
+      end
+    end
+
     class TelephoneTransactionResponse < TransactionResponse; end
     class PermissionTransactionResponse < TransactionResponse; end
   end

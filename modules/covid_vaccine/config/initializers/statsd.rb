@@ -2,31 +2,33 @@
 
 vetext_endpoints = %w[put_vaccine_registry]
 
-vetext_endpoints.each do |endpoint|
-  StatsD.increment("api.vetext.#{endpoint}.total", 0)
-  StatsD.increment("api.vetext.#{endpoint}.fail", 0)
+Rails.application.reloader.to_prepare do
+  vetext_endpoints.each do |endpoint|
+    StatsD.increment("api.vetext.#{endpoint}.total", 0)
+    StatsD.increment("api.vetext.#{endpoint}.fail", 0)
+  end
+
+  CovidVaccine::SubmissionJob.extend StatsD::Instrument
+  CovidVaccine::SubmissionJob.statsd_count_success :perform,
+                                                   'covid_vaccine.submission_job'
+
+  StatsD.increment('covid_vaccine.submission_job.success', 0)
+  StatsD.increment('covid_vaccine.submission_job.failure', 0)
+
+  CovidVaccine::V0::RegistrationService.extend StatsD::Instrument
+  CovidVaccine::V0::RegistrationService.statsd_measure :facility_attributes,
+                                                       'covid_vaccine.facility_query.measure'
+  CovidVaccine::V0::RegistrationService.statsd_count_success :facility_attributes,
+                                                             'covid_vaccine.facility_query', &:present?
+  CovidVaccine::V0::RegistrationService.statsd_measure :attributes_from_mpi,
+                                                       'covid_vaccine.mpi_query.measure'
+  CovidVaccine::V0::RegistrationService.statsd_measure :submit,
+                                                       'covid_vaccine.vetext_submit.measure'
+  CovidVaccine::V0::RegistrationService.statsd_count_success :attributes_from_mpi,
+                                                             'covid_vaccine.mpi_query', &:present?
+  CovidVaccine::V0::RegistrationService.statsd_count_success :submit,
+                                                             'covid_vaccine.vetext_submit'
 end
-
-CovidVaccine::SubmissionJob.extend StatsD::Instrument
-CovidVaccine::SubmissionJob.statsd_count_success :perform,
-                                                 'covid_vaccine.submission_job'
-
-StatsD.increment('covid_vaccine.submission_job.success', 0)
-StatsD.increment('covid_vaccine.submission_job.failure', 0)
-
-CovidVaccine::V0::RegistrationService.extend StatsD::Instrument
-CovidVaccine::V0::RegistrationService.statsd_measure :facility_attributes,
-                                                     'covid_vaccine.facility_query.measure'
-CovidVaccine::V0::RegistrationService.statsd_count_success :facility_attributes,
-                                                           'covid_vaccine.facility_query', &:present?
-CovidVaccine::V0::RegistrationService.statsd_measure :attributes_from_mpi,
-                                                     'covid_vaccine.mpi_query.measure'
-CovidVaccine::V0::RegistrationService.statsd_measure :submit,
-                                                     'covid_vaccine.vetext_submit.measure'
-CovidVaccine::V0::RegistrationService.statsd_count_success :attributes_from_mpi,
-                                                           'covid_vaccine.mpi_query', &:present?
-CovidVaccine::V0::RegistrationService.statsd_count_success :submit,
-                                                           'covid_vaccine.vetext_submit'
 
 StatsD.increment('covid_vaccine.facility_query.success', 0)
 StatsD.increment('covid_vaccine.facility_query.failure', 0)

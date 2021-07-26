@@ -21,6 +21,9 @@ en:
         title: Validation error
         code: 100
         status: 422
+      validation_errors_bad_request:
+        <<: *validation_errors
+        status: 400
       invalid_resource:
         <<: *defaults
         title: Invalid resource
@@ -784,6 +787,30 @@ en:
         <<: *external_defaults
         title: Bad Gateway
         code: 'HEALTH_QUEST_502'
+        detail: 'Received an an invalid response from the upstream server'
+        status: 502
+      CHECK_IN_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'CHECK_IN_400'
+        detail: 'Appointment request id is invalid'
+        status: 400
+      CHECK_IN_403:
+        <<: *external_defaults
+        title: Forbidden
+        code: 'CHECK_IN_403'
+        detail: 'This user is forbidden from performing requests on the upstream server'
+        status: 403
+      CHECK_IN_404:
+        <<: *external_defaults
+        title: Not Found
+        code: 'CHECK_IN_404'
+        detail: 'The resource could not be found'
+        status: 404
+      CHECK_IN_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'CHECK_IN_502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
       IAM_SSOE_400:
@@ -1867,6 +1894,18 @@ en:
         code: VET360_PHON210
         detail: International numbers must have a valid country code that is not 1, and
           no area code.
+        status: 400
+      VET360_PHON211:
+        <<: *external_defaults
+        title: Area Code Pattern
+        code: VET360_PHON211
+        detail: Area Codes do not end with the same two digits
+        status: 400
+      VET360_PHON213:
+        <<: *external_defaults
+        title: Area Code Pattern
+        code: VET360_PHON213
+        detail: Area Codes do not include 9 as the middle digit
         status: 400
       VET360_PHON300:
         <<: *external_defaults

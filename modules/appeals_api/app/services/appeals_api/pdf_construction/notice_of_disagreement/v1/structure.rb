@@ -32,7 +32,6 @@ module AppealsApi
         end
 
         # rubocop:disable Metrics/MethodLength
-        # rubocop:disable Metrics/BlockLength
         def insert_overlaid_pages(form_fill_path)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
           temp_path = "/#{::Common::FileHelpers.random_file_path}.pdf"
@@ -53,14 +52,16 @@ module AppealsApi
                 height: 16
               )
             )
+
             pdf.text_box(
-              form_data.preferred_email,
+              preferred_email_field_text,
               text_opts.merge(
                 at: [145, 514],
                 width: 195,
                 height: 24
               )
             )
+
             pdf.text_box(
               form_data.representatives_name,
               text_opts.merge(
@@ -87,9 +88,8 @@ module AppealsApi
 
           output_path
         end
-        # rubocop:enable Metrics/MethodLength
-        # rubocop:enable Metrics/BlockLength
 
+        # rubocop:enable Metrics/MethodLength
         def add_additional_pages
           return unless additional_pages?
 
@@ -118,7 +118,7 @@ module AppealsApi
           stamper = CentralMail::DatestampPdf.new(stamped_pdf_path)
 
           bottom_stamped_path = stamper.run(
-            text: "API.VA.GOV #{Time.zone.now.utc.strftime('%Y-%m-%d %H:%M%Z')}",
+            text: "API.VA.GOV #{notice_of_disagreement.created_at.utc.strftime('%Y-%m-%d %H:%M%Z')}",
             x: 5,
             y: 775,
             text_only: true
@@ -166,7 +166,8 @@ module AppealsApi
 
         def additional_pages?
           form_data.hearing_type_preference.present? ||
-            form_data.contestable_issues.count > 5
+            form_data.contestable_issues.count > 5 ||
+            !short_preferred_email?
         end
 
         # rubocop:disable Metrics/MethodLength
@@ -196,6 +197,15 @@ module AppealsApi
             end
         end
         # rubocop:enable Metrics/MethodLength
+
+        def short_preferred_email?
+          # preferred email will be present since it's required & has minLength set
+          form_data.preferred_email.length <= 120
+        end
+
+        def preferred_email_field_text
+          short_preferred_email? ? form_data.preferred_email : 'See attached page for preferred email'
+        end
       end
     end
   end

@@ -21,7 +21,7 @@ module FacilitiesApi
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
         def provider_locator(params)
           qparams = provider_locator_params(params)
-          response = perform(:get, 'v1.0/ProviderLocator', qparams)
+          response = perform(:get, provider_locator_url, qparams)
 
           return [] if response.body.nil?
 
@@ -33,7 +33,8 @@ module FacilitiesApi
 
         def pos_locator(params)
           qparams = pos_locator_params(params, '17,20')
-          response = perform(:get, 'v1.0/PlaceOfServiceLocator', qparams)
+
+          response = perform(:get, place_of_service_locator_url, qparams)
 
           return [] if response.body.nil?
 
@@ -45,11 +46,35 @@ module FacilitiesApi
 
         # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
         def specialties
-          response = perform(:get, 'v1.0/Specialties', {})
+          response = perform(:get, specialties_url, {})
           response.body
         end
 
         private
+
+        def provider_locator_url
+          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
+            '/dws/v1.0/ProviderLocator'
+          else
+            'v1.0/ProviderLocator'
+          end
+        end
+
+        def place_of_service_locator_url
+          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
+            '/dws/v1.0/PlaceOfServiceLocator'
+          else
+            '/v1.0/PlaceOfServiceLocator'
+          end
+        end
+
+        def specialties_url
+          if Flipper.enabled?(:facility_locator_ppms_use_secure_api)
+            '/dws/v1.0/Specialties'
+          else
+            '/v1.0/Specialties'
+          end
+        end
 
         def trim_response_attributes!(response)
           response.body.collect! do |hsh|
@@ -96,7 +121,7 @@ module FacilitiesApi
 
         def provider_locator_params(params)
           specialties = Array.wrap(params[:specialties])
-          specialty_codes = specialties.first(4).map.with_index.with_object({}) do |(code, index), hsh|
+          specialty_codes = specialties.first(5).map.with_index.with_object({}) do |(code, index), hsh|
             hsh["specialtycode#{index + 1}".to_sym] = code
           end
 

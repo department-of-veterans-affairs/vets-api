@@ -22,6 +22,7 @@ module ClaimsApi
         # @return [JSON] Response from BGS
         def submit_form_0966
           validate_json_schema
+          check_for_invalid_burial_submission! if form_type == 'burial'
 
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
           render json: bgs_response,
@@ -62,17 +63,10 @@ module ClaimsApi
 
         private
 
-        def participant_claimant_id
-          return target_veteran.participant_id unless form_type == 'burial'
-          return target_veteran.participant_id unless header_request?
-
-          raise ::Common::Exceptions::Forbidden, detail: "Representative cannot file for type 'burial'"
-        end
-
         def intent_to_file_options
           {
             intent_to_file_type_code: ClaimsApi::IntentToFile::ITF_TYPES[form_type],
-            participant_claimant_id: form_attributes['participant_claimant_id'] || participant_claimant_id,
+            participant_claimant_id: form_attributes['participant_claimant_id'] || target_veteran.participant_id,
             participant_vet_id: form_attributes['participant_vet_id'] || target_veteran.participant_id,
             received_date: Time.zone.now.strftime('%Y-%m-%dT%H:%M:%S%:z'),
             submitter_application_icn_type_code: ClaimsApi::IntentToFile::SUBMITTER_CODE,
@@ -108,6 +102,22 @@ module ClaimsApi
               }
             }
           }
+        end
+
+        def check_for_invalid_burial_submission!
+          error_detail = "Veteran cannot file for type 'burial'"
+          raise ::Common::Exceptions::Forbidden, detail: error_detail if veteran_submitting_burial_itf?
+
+          error_detail = 'unknown claimaint id'
+          raise ::Common::Exceptions::Forbidden, detail: error_detail unless request_includes_claimant_id?
+        end
+
+        def veteran_submitting_burial_itf?
+          form_type == 'burial' && !header_request?
+        end
+
+        def request_includes_claimant_id?
+          form_attributes['participant_claimant_id'].present?
         end
       end
     end
