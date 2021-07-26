@@ -22,21 +22,31 @@ RSpec.describe AfterLoginJob do
       end
     end
 
-    context 'in a production environment' do
+    context 'in a non-staging environment' do
       let(:user) { create(:user) }
 
+      around do |example|
+        with_settings(Settings.test_user_dashboard, env: 'production') do
+          example.run
+        end
+      end
+
       it 'does not call TUD account checkout' do
-        expect(Rails.env).to receive('production?').once.and_return(true)
         expect_any_instance_of(TestUserDashboard::CheckoutUser).not_to receive(:call)
         described_class.new.perform('user_uuid' => user.uuid)
       end
     end
 
-    context 'in a non-production environment' do
+    context 'in a staging environment' do
       let(:user) { create(:user) }
 
+      around do |example|
+        with_settings(Settings.test_user_dashboard, env: 'staging') do
+          example.run
+        end
+      end
+
       it 'calls TUD account checkout' do
-        expect(Rails.env).to receive('production?').once.and_return(false)
         expect_any_instance_of(TestUserDashboard::CheckoutUser).to receive(:call)
         described_class.new.perform('user_uuid' => user.uuid)
       end

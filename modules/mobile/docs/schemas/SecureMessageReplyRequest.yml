@@ -19,4 +19,8 @@ properties:
   body:
     type: string
     example: Dear provider, please clarify my test results. Thank you. 
+  draft_id:
+    type: integer
+    description: |
+      Specifies draft message ID to send.  Draft message is deleted once sent. Note that body included with this post will overwrite any of original values of the draft.
   

@@ -10,7 +10,7 @@ module ClaimsApi
         raise ::Common::Exceptions::ResourceNotFound if target_veteran&.mpi&.icn.blank?
         raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
 
-        render json: { id: target_veteran.mpi.icn }
+        render json: ClaimsApi::V2::Blueprints::VeteranIdentifierBlueprint.render(target_veteran)
       end
 
       protected

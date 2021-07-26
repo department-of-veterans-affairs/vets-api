@@ -100,6 +100,9 @@ form_10_10cg:
       enabled: true
       region: us-gov-west-1
 
+vbs:
+  url: https://vbs.example.com/api/v1
+
 # Settings for Education Benefits
 edu:
   prefill: true
@@ -438,6 +441,8 @@ preneeds:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  documentation:
+    path_enabled_flag: false
   report_enabled: false
   monthly_report: false
   location:
@@ -705,7 +710,7 @@ flipper:
     - clark@governmentcio.com # Designer on GCIO
     - cameron@oddball.io
     - cory.trimm@va.gov
-    - cwheeler@governmentcio.com
+    - craig.wheeler@gcio.com
     - dan.hinze@adhocteam.us
     - dat.tran@gcio.com
     - delli-gatti_michael@bah.com

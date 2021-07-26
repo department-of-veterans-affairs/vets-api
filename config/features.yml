@@ -108,6 +108,10 @@ features:
     actor_type: user
     description: Allow user to upload files up to 150 MB in size (EVSS endpoint for 526 & CST)
     enable_in_development: true
+  discharge_wizard_features:
+    actor_type: user
+    description: Iteration of new features for discharge wizard
+    enable_in_development: true
   facilities_ppms_suppress_community_care:
     actor_type: user
     description: Hide ppms community care searches
@@ -391,10 +395,6 @@ features:
   yellow_ribbon_mvp_enhancement:
     actor_type: user
     description: Enhances Yellow Ribbon MVP.
-    enable_in_development: true
-  edu_form5490_updates:
-    actor_type: user
-    description: Form 5490 updates in support of Isakson and Roe legislation
     enable_in_development: true
   check_in_experience_enabled:
     actor_type: user

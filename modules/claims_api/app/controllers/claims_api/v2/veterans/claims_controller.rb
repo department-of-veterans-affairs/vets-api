@@ -7,23 +7,37 @@ module ClaimsApi
         before_action :verify_access!
 
         def index
-          service           = bgs_service(veteran_participant_id: target_veteran.participant_id)
-          service_params    = { participant_id: target_veteran.participant_id }
-          bgs_claims        = service.benefit_claims.find_claims_details_by_participant_id(service_params)
+          bgs_claims = bgs_service.benefit_claims.find_claims_details_by_participant_id(
+            participant_id: target_veteran.participant_id
+          )
+          lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
+          merged_claims = BGSToLighthouseClaimsMapperService.process(bgs_claims: bgs_claims,
+                                                                     lighthouse_claims: lighthouse_claims)
 
-          query_params      = { veteran_icn: target_veteran.mpi.icn }
-          lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(query_params)
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(merged_claims)
+        end
 
-          mapper_params     = { bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims }
-          claims            = BGSToLighthouseClaimsMapperService.process(mapper_params)
+        def show
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
 
-          render json: claims
+          if claim.present?
+            render json: { id: params[:id], type: claim[:claim_type] }
+          else
+            # If we don't have it, it might still be in BGS, so check there
+            bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
+            claim_details = bgs_claim.dig(:bnft_claim_detail)
+
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if claim_details.blank?
+
+            render json: { id: params[:id], type: claim_details[:bnft_claim_type_nm] }
+          end
         end
 
         private
 
-        def bgs_service(veteran_participant_id:)
-          BGS::Services.new(external_uid: veteran_participant_id, external_key: veteran_participant_id)
+        def bgs_service
+          BGS::Services.new(external_uid: target_veteran.participant_id,
+                            external_key: target_veteran.participant_id)
         end
       end
     end
