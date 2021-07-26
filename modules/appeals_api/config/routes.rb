@@ -44,8 +44,6 @@ AppealsApi::Engine.routes.draw do
         get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
       end
 
-      get 'contestable_issues/:decision_review_type', to: 'contestable_issues#index'
-
       resources :higher_level_reviews, only: %i[create show] do
         collection do
           get 'schema'
