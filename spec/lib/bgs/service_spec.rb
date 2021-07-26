@@ -34,6 +34,16 @@ RSpec.describe BGS::Service do
       end
     end
 
+    describe '#find_bank_name_by_routng_trnsit_nbr' do
+      it 'increments statsd' do
+        VCR.use_cassette('bgs/ddeft/find_bank_name_valid', VCR::MATCH_EVERYTHING) do
+          expect do
+            bgs_service.find_bank_name_by_routng_trnsit_nbr('122400724')
+          end.to trigger_statsd_increment('api.bgs.find_bank_name_by_routng_trnsit_nbr.total')
+        end
+      end
+    end
+
     describe '#get_ch33_dd_eft_info' do
       let(:routing_number) { '122400724' }
 

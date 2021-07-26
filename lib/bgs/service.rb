@@ -183,17 +183,23 @@ module BGS
         :routng_trnsit_nbr
       ).merge(
         financial_institution_name: lambda do
-          return if routing_number.blank?
-
           begin
-            res = service.ddeft.find_bank_name_by_routng_trnsit_nbr(routing_number)
-            res[:find_bank_name_by_routng_trnsit_nbr_response][:return][:bank_name]
+            find_bank_name_by_routng_trnsit_nbr(routing_number)
           rescue => e
             log_exception_to_sentry(e, { routing_number: routing_number }, { error: 'ch33_dd' })
             nil
           end
         end.call
       )
+    end
+
+    def find_bank_name_by_routng_trnsit_nbr(routing_number)
+      return if routing_number.blank?
+
+      with_monitoring do
+        res = service.ddeft.find_bank_name_by_routng_trnsit_nbr(routing_number)
+        res[:find_bank_name_by_routng_trnsit_nbr_response][:return][:bank_name]
+      end
     end
 
     def find_ch33_dd_eft
