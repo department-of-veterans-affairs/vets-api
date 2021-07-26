@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.6.6'
+ruby '~> 2.6.6'
 
 # temp fix for security vulnerability, hopefulle we can remove this line with the next rails patch
 # https://blog.jcoglan.com/2020/06/02/redos-vulnerability-in-websocket-extensions/
@@ -52,6 +52,7 @@ gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
+gem 'blueprinter'
 gem 'breakers'
 gem 'bootsnap', require: false
 gem 'carrierwave'

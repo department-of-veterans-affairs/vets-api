@@ -10,31 +10,36 @@ RSpec.describe BGS::Form674 do
   # @TODO: may want to return something else
   it 'returns a hash with proc information' do
     VCR.use_cassette('bgs/form674/submit') do
-      modify_dependents = BGS::Form674.new(user_object).submit(all_flows_payload)
+      VCR.use_cassette('bid/awards/get_awards_pension') do
+        modify_dependents = BGS::Form674.new(user_object).submit(all_flows_payload)
 
-      expect(modify_dependents).to include(
-        :jrn_dt,
-        :jrn_lctn_id,
-        :jrn_obj_id,
-        :jrn_status_type_cd,
-        :jrn_user_id,
-        :vnp_proc_id
-      )
+        expect(modify_dependents).to include(
+          :jrn_dt,
+          :jrn_lctn_id,
+          :jrn_obj_id,
+          :jrn_status_type_cd,
+          :jrn_user_id,
+          :vnp_proc_id
+        )
+      end
     end
   end
 
   it 'calls all methods in flow' do
     VCR.use_cassette('bgs/form674/submit') do
-      expect_any_instance_of(BGS::Service).to receive(:create_proc).and_call_original
-      expect_any_instance_of(BGS::Service).to receive(:create_proc_form).and_call_original
-      expect_any_instance_of(BGS::VnpVeteran).to receive(:create).and_call_original
-      expect_any_instance_of(BGS::BenefitClaim).to receive(:create).and_call_original
-      expect_any_instance_of(BGS::StudentSchool).to receive(:create).and_call_original
-      expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:create).and_call_original
-      expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
-      expect_any_instance_of(BGS::VnpRelationships).to receive(:create_all).and_call_original
+      VCR.use_cassette('bid/awards/get_awards_pension') do
+        expect_any_instance_of(BGS::Service).to receive(:create_proc).and_call_original
+        expect_any_instance_of(BGS::Service).to receive(:create_proc_form).and_call_original
+        expect_any_instance_of(BGS::VnpVeteran).to receive(:create).and_call_original
+        expect_any_instance_of(BGS::BenefitClaim).to receive(:create).and_call_original
+        expect_any_instance_of(BGS::StudentSchool).to receive(:create).and_call_original
+        expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:create).and_call_original
+        expect_any_instance_of(BGS::VnpBenefitClaim).to receive(:update).and_call_original
+        expect_any_instance_of(BGS::VnpRelationships).to receive(:create_all).and_call_original
+        expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-      BGS::Form674.new(user_object).submit(all_flows_payload)
+        BGS::Form674.new(user_object).submit(all_flows_payload)
+      end
     end
   end
 end

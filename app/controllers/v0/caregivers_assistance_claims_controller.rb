@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pcafc/facilities'
+
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
@@ -30,7 +32,11 @@ module V0
       # Brakeman will raise a warning if we use a claim's method or attribute in the source file name.
       # Use an arbitrary uuid for the source file name and don't use the return value of claim#to_pdf
       # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
-      source_file_path = PdfFill::Filler.fill_form(@claim, SecureRandom.uuid, sign: false)
+      source_file_path = PdfFill::Filler.fill_form(
+        @claim,
+        SecureRandom.uuid,
+        { sign: false, facility_label: get_facility_label }
+      )
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
 
@@ -87,6 +93,11 @@ module V0
 
     def auditor
       self.class::AUDITOR
+    end
+
+    def get_facility_label
+      target_facility_code = @claim.parsed_form.dig 'veteran', 'plannedClinic'
+      PCAFC::Facilities.return_facility_label(target_facility_code)
     end
   end
 end
