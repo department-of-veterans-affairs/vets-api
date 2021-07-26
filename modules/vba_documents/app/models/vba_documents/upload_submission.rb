@@ -214,7 +214,7 @@ module VBADocuments
 
       # get the message to record the status change web hook
       msg = format_msg(VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
-      Webhooks::Utilities.record_notification(
+      Webhooks::Utilities.record_notifications(
         consumer_id: consumer_id,
         consumer_name: consumer_name,
         event: VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT,

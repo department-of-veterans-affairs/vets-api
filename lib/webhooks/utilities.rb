@@ -48,7 +48,7 @@ module Webhooks
 
     module ClassMethods
       def register_events(*event, **keyword_args, &block)
-        raise ArgumentError, 'Block required to yield next exectution time!' unless block_given?
+        raise ArgumentError, 'Block required to yield next execution time!' unless block_given?
         raise ArgumentError, 'api_name argument required' unless keyword_args.key? :api_name
 
         api_name = keyword_args[:api_name]

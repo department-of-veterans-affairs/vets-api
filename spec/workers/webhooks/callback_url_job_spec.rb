@@ -9,18 +9,10 @@ require_relative 'registrations'
 RSpec.describe Webhooks::CallbackUrlJob, type: :job do
 
   let(:faraday_response) { instance_double('Faraday::Response') }
-  let(:consumer_id) do
-    'f7d83733-a047-413b-9cce-e89269dcb5b1'
-  end
-  let(:consumer_name) do
-    'tester'
-  end
-  let(:api_id) do
-    '43581f6f-448c-4ed3-846a-68a004c9b78b'
-  end
-  let(:msg) do
-    {'msg' => 'the message'}
-  end
+  let(:consumer_id) do 'f7d83733-a047-413b-9cce-e89269dcb5b1' end
+  let(:consumer_name) do 'tester' end
+  let(:api_guid) do '43581f6f-448c-4ed3-846a-68a004c9b78b' end
+  let(:msg) do {'msg' => 'the message'} end
   let(:observers_json) {
     {
         "subscriptions" => [
@@ -34,19 +26,13 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
         ]
     }
   }
-  let(:urls) do
-    observers_json['subscriptions'].first['urls']
-  end
+  let(:urls) do observers_json['subscriptions'].first['urls'] end
 
   before do
-    @subscription = Webhooks::Utilities.register_webhook(consumer_id, consumer_name, observers_json, api_id)
-    @notifications = Webhooks::Utilities.record_notification(
-        consumer_id: consumer_id,
-        consumer_name: consumer_name,
-        event: 'test_event',
-        api_guid: api_id,
-        msg: msg
-    )
+    @subscription = Webhooks::Utilities.register_webhook(consumer_id, consumer_name, observers_json, api_guid)
+    params = { consumer_id: consumer_id, consumer_name: consumer_name, event: 'test_event', api_guid: api_guid, msg: msg }
+    @notifications = Webhooks::Utilities.record_notifications(params)
+
     @notification_by_url = -> (url) do
         @notifications.select do |n|
           n.callback_url.eql?(url)
@@ -75,11 +61,9 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
       expect(attempt.success).to be true
       expect(attempt.response['status']).to be 200
     end
-
   end
 
   context 'failures' do
-
     it 'records failure attempts from a responsive callback url' do
       mock_faraday(400, '', false)
       urls.each { |url|
