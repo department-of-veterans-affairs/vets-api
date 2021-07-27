@@ -15,7 +15,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       allow(Rails.env).to receive('development?').and_return(true)
     end
 
-    context 'job only runs between 6-18 every 4 hours', run_at: '2017-01-01 00:00:00 EDT' do
+    context 'job only runs between 6-18 every 6 hours', run_at: '2017-01-01 00:00:00 EDT' do
       let(:scheduler) { Rufus::Scheduler.new }
       let(:possible_runs) do
         ['2017-01-01 06:00:00 -0500',
@@ -29,7 +29,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         scheduler.schedule_cron(cron) {} # schedule_cron requires a block
       end
 
-      it 'is only triggered by sidekiq-scheduler every 4 hours between 6-18' do
+      it 'is only triggered by sidekiq-scheduler every 6 hours between 6-18' do
         upcoming_runs = scheduler.timeline(Time.zone.now, 1.day.from_now).map(&:first)
         expected_runs = possible_runs.map { |d| EtOrbi.parse(d.to_s) }
         expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))
