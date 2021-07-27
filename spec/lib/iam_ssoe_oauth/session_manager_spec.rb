@@ -83,6 +83,15 @@ describe 'IAMSSOeOAuth::SessionManager' do
                                                          tags: ['type:refresh', 'credential:MHV'])
       end
     end
+
+    context 'with a nil user' do
+      it 'raises an unauthorized error' do
+        allow(session_manager).to receive(:build_user).and_return(nil)
+        VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
+          expect { session_manager.find_or_create_user }.to raise_error(Common::Exceptions::Unauthorized)
+        end
+      end
+    end
   end
 
   describe '#logout' do

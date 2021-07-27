@@ -151,3 +151,31 @@ hqva_mobile:
       - "patient/Location.read"
       - "patient/Organization.read"
       - "patient/Patient.read"
+
+sidekiq:
+  github_organization: "organization"
+  github_team: 0000000
+  github_oauth_key: xxx000
+  github_oauth_secret: 000xxx
+
+check_in:
+  chip_api:
+    url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+    tmp_api_id: 2dcdrrn5zc
+    mock: false
+    key_path: ~
+    redis_session_prefix: check_in
+    timeout: 30
+
+rack:
+  cookie_secret: "xxxxx"
+
+bid:
+  awards:
+    base_url: https://fake_url.com
+    credentials: fake_auth
+
+test_user_dashboard:
+  env: staging

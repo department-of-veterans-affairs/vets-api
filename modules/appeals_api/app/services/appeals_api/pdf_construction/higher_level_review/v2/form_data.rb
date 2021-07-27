@@ -99,19 +99,19 @@ module AppealsApi
         def rep_phone_area_code
           return if rep_country_code != '1'
 
-          higher_level_review.rep_phone_data&.dig('areaCode') || ''
+          higher_level_review.informal_conference_rep_phone.area_code || ''
         end
 
         def rep_phone_prefix
           return if rep_country_code != '1'
 
-          higher_level_review.rep_phone_data&.dig('phoneNumber')&.first(3) || ''
+          higher_level_review.informal_conference_rep_phone.phone_number&.first(3) || ''
         end
 
         def rep_phone_line_number
           return if rep_country_code != '1'
 
-          higher_level_review.rep_phone_data&.dig('phoneNumber')&.last(4) || ''
+          higher_level_review.informal_conference_rep_phone.phone_number&.last(4) || ''
         end
 
         def rep_email
@@ -119,7 +119,7 @@ module AppealsApi
         end
 
         def rep_domestic_ext
-          ext = higher_level_review.informal_conference_rep_ext
+          ext = higher_level_review.informal_conference_rep_phone.phone_number_ext
 
           # if the number is international, it gets added to that output
           return '' if rep_country_code != '1' || ext.blank?
@@ -130,33 +130,23 @@ module AppealsApi
         def rep_international_number
           return '' if rep_country_code == '1'
 
-          higher_level_review.informal_conference_rep_phone_number
+          higher_level_review.informal_conference_rep_phone.to_s
         end
 
         def rep_country_code
-          higher_level_review.rep_phone_data&.dig('countryCode') || '1'
+          higher_level_review.informal_conference_rep_phone.country_code || '1'
         end
 
         def soc_opt_in
           higher_level_review.soc_opt_in ? 1 : 'Off'
         end
 
-        def soc_date(issue)
-          issue['attributes']&.dig('socDate')
-        end
-
-        def soc_date_formatted(issue)
-          date = soc_date(issue)
-          return '' unless date
-
-          Date.parse(date).strftime('%m-%d-%Y')
-        end
-
         def soc_date_text(issue)
-          date = soc_date(issue)
+          date = issue.soc_date_formatted
+
           return '' unless date
 
-          "SOC/SSOC Date: #{soc_date_formatted(issue)}"
+          "SOC/SSOC Date: #{date}"
         end
 
         def signature

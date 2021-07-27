@@ -17,6 +17,17 @@ VBADocuments::Engine.routes.draw do
     end
   end
 
+  if Settings.vba_documents.v2_enabled
+    namespace :v2, defaults: { format: 'json' } do
+      resources :uploads, only: %i[create show] do
+        get 'download', to: 'uploads#download'
+        collection do
+          resource :report, only: %i[create]
+        end
+      end
+    end
+  end
+
   namespace :v1, defaults: { format: 'json' } do
     resources :uploads, only: %i[create show] do
       get 'download', to: 'uploads#download'
@@ -32,6 +43,10 @@ VBADocuments::Engine.routes.draw do
     end
 
     namespace :v1 do
+      resources :api, only: [:index]
+    end
+
+    namespace :v2 do
       resources :api, only: [:index]
     end
   end

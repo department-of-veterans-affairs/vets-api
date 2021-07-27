@@ -52,6 +52,11 @@ module AppealsApi
           end
 
           describe '#preferred_email' do
+            before do
+              # Email from fixture file is very long, so set up something shorter here
+              notice_of_disagreement.form_data['data']['attributes']['veteran']['emailAddressText'] = 'user@example.com'
+            end
+
             it { expect(form_data.preferred_email).to eq('user@example.com') }
           end
 

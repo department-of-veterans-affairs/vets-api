@@ -88,11 +88,12 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def add_veteran_info(updated_form, user)
     updated_form['veteranInformation'].merge!(
       {
-        'VAFileNumber' => updated_form['veteranInformation']['vaFileNumber'] || veteran_va_file_number(user),
+        'VAFileNumber' => veteran_va_file_number(user),
         'pid' => user.participant_id,
         'edipi' => user.edipi,
         'vet360ID' => user.vet360_id,
-        'dob' => user.birth_date
+        'dob' => user.birth_date,
+        'ssn' => user.ssn
       }
     ).except!('vaFileNumber')
   end

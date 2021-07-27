@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '2.6.6'
+ruby '~> 2.6.6'
 
 # temp fix for security vulnerability, hopefulle we can remove this line with the next rails patch
 # https://blog.jcoglan.com/2020/06/02/redos-vulnerability-in-websocket-extensions/
@@ -52,6 +52,7 @@ gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs'
+gem 'blueprinter'
 gem 'breakers'
 gem 'bootsnap', require: false
 gem 'carrierwave'
@@ -68,10 +69,10 @@ gem 'faraday_middleware'
 gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'fhir_client', '~> 4.0.6'
-gem 'flipper', '~> 0.20.4'
-gem 'flipper-active_record', '~> 0.20.4'
-gem 'flipper-active_support_cache_store', '~> 0.20.4'
-gem 'flipper-ui', '~> 0.20.4'
+gem 'flipper', '~> 0.21.0'
+gem 'flipper-active_record', '~> 0.21.0'
+gem 'flipper-active_support_cache_store', '~> 0.21.0'
+gem 'flipper-ui', '~> 0.21.0'
 gem 'foreman'
 gem 'google-api-client'
 gem 'google-apis-core'
@@ -124,6 +125,7 @@ gem 'redis-namespace'
 gem 'request_store'
 gem 'restforce'
 gem 'rgeo-geojson'
+gem 'rswag-ui'
 gem 'ruby-saml'
 gem 'rubyzip', '>= 1.3.0'
 gem 'savon'
@@ -138,6 +140,7 @@ gem 'typhoeus'
 gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
+gem 'warden-github'
 gem 'will_paginate'
 gem 'with_advisory_lock'
 
@@ -171,7 +174,6 @@ group :test do
   gem 'webrick', '>= 1.6.1'
 end
 
-# rubocop:disable Metrics/BlockLength
 group :development, :test do
   gem 'awesome_print', '~> 1.9' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'brakeman', '~> 5.0'
@@ -196,7 +198,7 @@ group :development, :test do
   gem 'rspec-instrumentation-matcher'
   gem 'rspec-its'
   gem 'rspec-rails'
-  gem 'rswag'
+  gem 'rswag-specs'
   gem 'rubocop', require: false
   gem 'rubocop-rails'
   gem 'rubocop-rspec'
@@ -206,8 +208,6 @@ group :development, :test do
   gem 'webmock'
   gem 'yard'
 end
-# rubocop:enable Metrics/BlockLength
-
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
 if (Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com'].nil? ||
     Bundler::Settings.new(Bundler.app_config_path)['enterprise.contribsys.com']&.empty?) &&

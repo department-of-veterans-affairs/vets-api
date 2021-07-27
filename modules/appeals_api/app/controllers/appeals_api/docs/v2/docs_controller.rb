@@ -5,6 +5,8 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
 
   SWAGGERED_CLASSES = [
     AppealsApi::V2::HigherLevelReviewsControllerSwagger,
+    AppealsApi::V1::NoticeOfDisagreementsControllerSwagger,
+    AppealsApi::V1::Schemas::NoticeOfDisagreements,
     AppealsApi::V2::Schemas::HigherLevelReviews,
     AppealsApi::V2::SecuritySchemeSwagger,
     AppealsApi::V2::SwaggerRoot
@@ -20,6 +22,8 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
     Swagger::Blocks.build_root_json(SWAGGERED_CLASSES)
                    .deep_merge(
                      AppealsApi::V2::Schemas::HigherLevelReviews.hlr_legacy_schemas
+                   ).deep_merge(
+                     AppealsApi::V1::Schemas::NoticeOfDisagreements.nod_json_schemas
                    )
   end
 end

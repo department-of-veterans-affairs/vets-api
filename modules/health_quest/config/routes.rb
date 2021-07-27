@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 HealthQuest::Engine.routes.draw do
+  match '/health_quest/v0/*path', to: 'application#cors_preflight', via: [:options]
+
   namespace :v0, defaults: { format: :json } do
     resources :lighthouse_appointments, only: %i[index show]
     resources :locations, only: %i[index show]

@@ -39,4 +39,12 @@ Content-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76
 ```
 
 Note that the Content-Disposition parameter "name" in each part must be the expected values
-"metadata", "content", "attachment1"..."attachmentN"
+"metadata", "content", "attachment1"..."attachmentN". The attachment attributes must be named 
+exactly as they are listed here (case sensitive), for example: "attachment_1" or "Attachment2"
+are invalid.
+
+This is an example curl command:
+
+```
+curl -v -L -X PUT '<Location from \uploads>' -F 'metadata="{\"veteranFirstName\": \"Jane\",\"veteranLastName\": \"Doe\",\"fileNumber\": \"012345678\",\"zipCode\": \"97202\",\"source\": \"MyVSO\",\"docType\": \"21-22\",\"businessLine\": \"CMP\"}";type=application/json' -F 'content=@"content.pdf"' -F 'attachment1=@"file1.pdf"' -F 'attachment2=@"another_file.pdf"'
+```

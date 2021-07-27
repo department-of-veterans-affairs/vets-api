@@ -51,6 +51,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   def validate_json_schema
     validate_json_schema_for_headers
     validate_json_schema_for_body
+    validate_json_schema_for_pdf_fit
   rescue JsonSchema::JsonApiMissingAttribute => e
     render json: e.to_json_api, status: e.code
   end
@@ -67,6 +68,17 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
       SCHEMA_ERROR_TYPE,
       schema_version: 'v2'
     ).validate!(self.class::FORM_NUMBER, @json_body)
+  end
+
+  def validate_json_schema_for_pdf_fit
+    status, error = AppealsApi::HigherLevelReviews::PdfFormFieldV2Validator.new(
+      @json_body,
+      headers
+    ).validate!
+
+    return if error.blank?
+
+    render status: status, json: error
   end
 
   def validation_success

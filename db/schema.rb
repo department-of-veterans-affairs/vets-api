@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_28_151724) do
+ActiveRecord::Schema.define(version: 2021_07_23_134730) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -147,6 +147,21 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
   end
 
+  create_table "appeals_api_supplemental_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.string "encrypted_auth_headers"
+    t.string "encrypted_auth_headers_iv"
+    t.string "status", default: "pending"
+    t.string "code"
+    t.string "detail"
+    t.string "source"
+    t.string "pdf_version"
+    t.string "api_version"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
   create_table "async_transactions", id: :serial, force: :cascade do |t|
     t.string "type"
     t.string "user_uuid"
@@ -229,6 +244,7 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.jsonb "special_issues", default: []
     t.string "encrypted_bgs_special_issue_responses"
     t.string "encrypted_bgs_special_issue_responses_iv"
+    t.string "veteran_icn"
     t.index ["evss_id"], name: "index_claims_api_auto_established_claims_on_evss_id"
     t.index ["md5"], name: "index_claims_api_auto_established_claims_on_md5"
     t.index ["source"], name: "index_claims_api_auto_established_claims_on_source"
@@ -625,23 +641,6 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.index ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at"
   end
 
-  create_table "preference_choices", id: :serial, force: :cascade do |t|
-    t.string "code"
-    t.string "description"
-    t.integer "preference_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["preference_id"], name: "index_preference_choices_on_preference_id"
-  end
-
-  create_table "preferences", id: :serial, force: :cascade do |t|
-    t.string "code", null: false
-    t.string "title"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["code"], name: "index_preferences_on_code", unique: true
-  end
-
   create_table "preferred_facilities", force: :cascade do |t|
     t.string "facility_code", null: false
     t.integer "account_id", null: false
@@ -741,22 +740,12 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.datetime "checkout_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.text "services"
     t.string "id_type"
     t.string "loa"
     t.string "account_type"
-    t.text "services"
     t.uuid "idme_uuid"
-  end
-
-  create_table "user_preferences", id: :serial, force: :cascade do |t|
-    t.integer "account_id", null: false
-    t.integer "preference_id", null: false
-    t.integer "preference_choice_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_user_preferences_on_account_id"
-    t.index ["preference_choice_id"], name: "index_user_preferences_on_preference_choice_id"
-    t.index ["preference_id"], name: "index_user_preferences_on_preference_id"
+    t.text "notes"
   end
 
   create_table "va_forms_forms", force: :cascade do |t|
@@ -821,6 +810,7 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.string "whodunnit"
     t.text "object"
     t.datetime "created_at"
+    t.text "object_changes"
     t.index ["item_type", "item_id"], name: "index_versions_on_item_type_and_item_id"
   end
 
@@ -858,6 +848,47 @@ ActiveRecord::Schema.define(version: 2021_05_28_151724) do
     t.uuid "guid", null: false
     t.json "response"
     t.index ["guid"], name: "index_vic_submissions_on_guid", unique: true
+  end
+
+  create_table "webhooks_notification_attempt_assocs", id: false, force: :cascade do |t|
+    t.bigint "webhooks_notification_id", null: false
+    t.bigint "webhooks_notification_attempt_id", null: false
+    t.index ["webhooks_notification_attempt_id"], name: "index_wh_assoc_attempt_id"
+    t.index ["webhooks_notification_id"], name: "index_wh_assoc_notification_id"
+  end
+
+  create_table "webhooks_notification_attempts", force: :cascade do |t|
+    t.boolean "success", default: false
+    t.jsonb "response", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "webhooks_notifications", force: :cascade do |t|
+    t.string "api_name", null: false
+    t.string "consumer_name", null: false
+    t.uuid "consumer_id", null: false
+    t.uuid "api_guid", null: false
+    t.string "event", null: false
+    t.string "callback_url", null: false
+    t.jsonb "msg", null: false
+    t.integer "final_attempt_id"
+    t.integer "processing"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["api_name", "consumer_id", "api_guid", "event", "final_attempt_id"], name: "index_wh_notify"
+    t.index ["final_attempt_id", "api_name", "event", "api_guid"], name: "index_wk_notify_processing"
+  end
+
+  create_table "webhooks_subscriptions", force: :cascade do |t|
+    t.string "api_name", null: false
+    t.string "consumer_name", null: false
+    t.uuid "consumer_id", null: false
+    t.uuid "api_guid"
+    t.jsonb "events", default: {"subscriptions"=>[]}
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["api_name", "consumer_id", "api_guid"], name: "index_webhooks_subscription", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

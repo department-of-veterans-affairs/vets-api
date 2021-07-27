@@ -6,7 +6,7 @@ module ClaimsApi
   module PoaVerification
     extend ActiveSupport::Concern
 
-    included do # rubocop:disable Metrics/BlockLength
+    included do
       #
       # Validate poa code provided exists in OGC dataset, that provided poa code is a valid/active poa code
       # @param poa_code [String] poa code to validate
@@ -54,11 +54,12 @@ module ClaimsApi
       #
       # @return [Boolean] True if valid poa code, False if not
       def valid_poa_code_for_current_user?(poa_code)
-        representative = ::Veteran::Service::Representative.for_user(first_name: @current_user.first_name,
-                                                                     last_name: @current_user.last_name)
-        return false if representative.blank?
+        reps = ::Veteran::Service::Representative.all_for_user(first_name: @current_user.first_name,
+                                                               last_name: @current_user.last_name)
+        return false if reps.blank?
+        raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
 
-        representative.poa_codes.include?(poa_code)
+        reps.first.poa_codes.include?(poa_code)
       end
 
       #

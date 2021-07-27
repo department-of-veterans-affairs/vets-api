@@ -602,13 +602,12 @@ module PdfFill
         employer.except!('dates')
       end
 
-      # rubocop:disable Layout/LineLength
       def expand_employment_disability_dates(unemployability)
-        @form_data['disabilityAffectEmployFTDate'] = split_date(unemployability['disabilityAffectedEmploymentFullTimeDate'])
+        @form_data['disabilityAffectEmployFTDate'] =
+          split_date(unemployability['disabilityAffectedEmploymentFullTimeDate'])
         @form_data['lastWorkedFullTimeDate'] = split_date(unemployability['lastWorkedFullTimeDate'])
         @form_data['becameTooDisabledToWorkDate'] = split_date(unemployability['becameTooDisabledToWorkDate'])
       end
-      # rubocop:enable Layout/LineLength
 
       def expand_income_items(unemployability)
         @form_data['mostEarningsInAYear'] = unemployability['mostEarningsInAYear']
