@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_22_175727) do
+ActiveRecord::Schema.define(version: 2021_07_23_134730) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -145,6 +145,21 @@ ActiveRecord::Schema.define(version: 2021_07_22_175727) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["statusable_type", "statusable_id"], name: "status_update_id_type_index"
+  end
+
+  create_table "appeals_api_supplemental_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "encrypted_form_data"
+    t.string "encrypted_form_data_iv"
+    t.string "encrypted_auth_headers"
+    t.string "encrypted_auth_headers_iv"
+    t.string "status", default: "pending"
+    t.string "code"
+    t.string "detail"
+    t.string "source"
+    t.string "pdf_version"
+    t.string "api_version"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -626,23 +641,6 @@ ActiveRecord::Schema.define(version: 2021_07_22_175727) do
     t.index ["database", "captured_at"], name: "index_pghero_query_stats_on_database_and_captured_at"
   end
 
-  create_table "preference_choices", id: :serial, force: :cascade do |t|
-    t.string "code"
-    t.string "description"
-    t.integer "preference_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["preference_id"], name: "index_preference_choices_on_preference_id"
-  end
-
-  create_table "preferences", id: :serial, force: :cascade do |t|
-    t.string "code", null: false
-    t.string "title"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["code"], name: "index_preferences_on_code", unique: true
-  end
-
   create_table "preferred_facilities", force: :cascade do |t|
     t.string "facility_code", null: false
     t.integer "account_id", null: false
@@ -748,17 +746,6 @@ ActiveRecord::Schema.define(version: 2021_07_22_175727) do
     t.string "account_type"
     t.uuid "idme_uuid"
     t.text "notes"
-  end
-
-  create_table "user_preferences", id: :serial, force: :cascade do |t|
-    t.integer "account_id", null: false
-    t.integer "preference_id", null: false
-    t.integer "preference_choice_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["account_id"], name: "index_user_preferences_on_account_id"
-    t.index ["preference_choice_id"], name: "index_user_preferences_on_preference_choice_id"
-    t.index ["preference_id"], name: "index_user_preferences_on_preference_id"
   end
 
   create_table "va_forms_forms", force: :cascade do |t|
