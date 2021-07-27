@@ -19,8 +19,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       let(:scheduler) { Rufus::Scheduler.new }
       let(:possible_runs) do
         ['2017-01-01 06:00:00 -0500',
-         '2017-01-01 10:00:00 -0500',
-         '2017-01-01 14:00:00 -0500',
+         '2017-01-01 12:00:00 -0500',
          '2017-01-01 18:00:00 -0500']
       end
 
