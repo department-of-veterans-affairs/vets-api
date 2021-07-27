@@ -291,76 +291,175 @@ RSpec.describe 'Claims', type: :request do
     end
 
     describe 'show' do
-      context 'for a single claim' do
-        context 'when no auth header provided' do
-          it 'returns a 401 error code' do
-            with_okta_user(scopes) do
-              get claim_by_id_path
-              expect(response.status).to eq(401)
+      context 'when no auth header provided' do
+        it 'returns a 401 error code' do
+          with_okta_user(scopes) do
+            get claim_by_id_path
+            expect(response.status).to eq(401)
+          end
+        end
+      end
+
+      context 'when current user is not the target veteran' do
+        context 'when current user is not a representative of the target veteran' do
+          it 'returns a 403' do
+            with_okta_user(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_is_target_veteran?).and_return(false)
+              expect_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:user_represents_veteran?).and_return(false)
+
+              get claim_by_id_path, headers: auth_header
+              expect(response.status).to eq(403)
+            end
+          end
+        end
+      end
+
+      context 'when looking for a Lighthouse claim' do
+        let(:claim_id) { '123-abc-456-def' }
+
+        context 'when a Lighthouse claim does not exist' do
+          it 'returns a 404' do
+            with_okta_user(scopes) do |auth_header|
+              expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
+
+              get claim_by_id_path, headers: auth_header
+
+              expect(response.status).to eq(404)
             end
           end
         end
 
-        context 'when current user is not the target veteran' do
-          context 'when current user is not a representative of the target veteran' do
-            it 'returns a 403' do
+        context 'when a Lighthouse claim does exist' do
+          let(:lighthouse_claim) do
+            OpenStruct.new(
+              id: '0958d973-36fb-43ef-8801-2718bd33c825',
+              evss_id: '111111111',
+              claim_type: 'Compensation',
+              status: 'pending'
+            )
+          end
+
+          context 'and a BGS claim does not exist' do
+            let(:bgs_claim) { nil }
+
+            it 'returns the Lighthouse claim' do
               with_okta_user(scopes) do |auth_header|
-                expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                  .to receive(:user_is_target_veteran?).and_return(false)
-                expect_any_instance_of(ClaimsApi::V2::ApplicationController)
-                  .to receive(:user_represents_veteran?).and_return(false)
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:get_by_id_or_evss_id).and_return(lighthouse_claim)
+                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
 
                 get claim_by_id_path, headers: auth_header
-                expect(response.status).to eq(403)
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(200)
+                expect(json_response).to be_an_instance_of(Hash)
+                expect(json_response['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+              end
+            end
+          end
+
+          context 'and a BGS claim does exist' do
+            let(:bgs_claim) do
+              {
+                benefit_claim_details_dto: {
+                  benefit_claim_id: '111111111',
+                  claim_status_type: 'value from BGS'
+                }
+              }
+            end
+
+            it "returns a claim with the Lighthouse 'id' and the BGS 'type'" do
+              with_okta_user(scopes) do |auth_header|
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:get_by_id_or_evss_id).and_return(lighthouse_claim)
+                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+
+                get claim_by_id_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(200)
+                expect(json_response).to be_an_instance_of(Hash)
+                expect(json_response['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                expect(json_response['type']).to eq('value from BGS')
               end
             end
           end
         end
+      end
 
-        context 'when a known claimId is provided' do
-          it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
-              expect(ClaimsApi::AutoEstablishedClaim)
-                .to receive(:get_by_id_or_evss_id).and_return(
-                  OpenStruct.new(id: '1111', claim_type: 'Appeals Control', evss_id: '1', status: 'completed')
-                )
-              expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
-                .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
+      context 'when looking for a BGS claim' do
+        let(:claim_id) { '123456789' }
 
-              get claim_by_id_path, headers: auth_header
-              expect(response.status).to eq(200)
-            end
-          end
-        end
-
-        context 'when a known BGS claimId is provided' do
-          it 'returns a 200' do
-            with_okta_user(scopes) do |auth_header|
-              expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
-              expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
-                .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(
-                  benefit_claim_details_dto: {
-                    benefit_claim_id: '1',
-                    claim_status_type: 'Compensation'
-                  }
-                )
-
-              get claim_by_id_path, headers: auth_header
-              expect(response.status).to eq(200)
-            end
-          end
-        end
-
-        context 'when an unknown claim_id is provided' do
+        context 'when a BGS claim does not exist' do
           it 'returns a 404' do
             with_okta_user(scopes) do |auth_header|
-              expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
               expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
                 .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
 
               get claim_by_id_path, headers: auth_header
 
               expect(response.status).to eq(404)
+            end
+          end
+        end
+
+        context 'when a BGS claim does exist' do
+          let(:bgs_claim) do
+            {
+              benefit_claim_details_dto: {
+                benefit_claim_id: '111111111',
+                claim_status_type: 'value from BGS'
+              }
+            }
+          end
+
+          context 'and a Lighthouse claim does exit' do
+            let(:lighthouse_claim) do
+              OpenStruct.new(
+                id: '0958d973-36fb-43ef-8801-2718bd33c825',
+                evss_id: '111111111',
+                claim_type: 'Compensation',
+                status: 'pending'
+              )
+            end
+
+            it "returns a claim with the Lighthouse 'id' and the BGS 'type'" do
+              with_okta_user(scopes) do |auth_header|
+                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:get_by_id_or_evss_id).and_return(lighthouse_claim)
+
+                get claim_by_id_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(200)
+                expect(json_response).to be_an_instance_of(Hash)
+                expect(json_response['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
+                expect(json_response['type']).to eq('value from BGS')
+              end
+            end
+          end
+
+          context 'and a Lighthouse claim does not exit' do
+            it "returns a claim with the BGS 'id'" do
+              with_okta_user(scopes) do |auth_header|
+                expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim)
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:get_by_id_or_evss_id).and_return(nil)
+
+                get claim_by_id_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+                expect(response.status).to eq(200)
+                expect(json_response).to be_an_instance_of(Hash)
+                expect(json_response['id']).to eq('111111111')
+              end
             end
           end
         end
