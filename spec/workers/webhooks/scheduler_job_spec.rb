@@ -1,17 +1,20 @@
 # frozen_string_literal: true
 
+require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
 require './spec/workers/webhooks/job_tracking'
 
 RSpec.describe Webhooks::SchedulerJob, type: :job do
+
+
   after do
     Thread.current['job_ids'] = []
   end
 
   it 'schedules notification jobs' do
     Webhooks::Utilities
-      .register_events('gov.va.developer.SchedulerJobTEST1',
-                       api_name: 'SchedulerJobTEST1', max_retries: 1) do
+        .register_events('gov.va.developer.SchedulerJobTEST1',
+                         api_name: 'SchedulerJobTEST1', max_retries: 1) do
       future
     end
     results = Webhooks::SchedulerJob.new.perform
@@ -23,8 +26,8 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
 
   it 'reschedules itself when something goes wrong' do
     Webhooks::Utilities
-      .register_events('gov.va.developer.SchedulerJobTEST2',
-                       api_name: 'SchedulerJobTEST2', max_retries: 1) do
+        .register_events('gov.va.developer.SchedulerJobTEST2',
+                         api_name: 'SchedulerJobTEST2', max_retries: 1) do
       future
     end
     allow_any_instance_of(Webhooks::SchedulerJob).to receive(:go).and_raise('busted')
@@ -35,8 +38,8 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
   it 'schedules the notification job correctly' do
     future = 10.minutes.from_now
     Webhooks::Utilities
-      .register_events('gov.va.developer.SchedulerJobTEST3',
-                       api_name: 'SchedulerJobTEST3', max_retries: 1) do
+        .register_events('gov.va.developer.SchedulerJobTEST3',
+                         api_name: 'SchedulerJobTEST3', max_retries: 1) do
       future
     end
     results = Webhooks::SchedulerJob.new.perform('SchedulerJobTEST3').first
@@ -46,9 +49,9 @@ RSpec.describe Webhooks::SchedulerJob, type: :job do
 
   it 'schedules a notification job even if the registered block fails' do
     Webhooks::Utilities
-      .register_events('gov.va.developer.SchedulerJobTEST4',
-                       api_name: 'SchedulerJobTEST4', max_retries: 1) do
-      raise 'I am a naughty developer!'
+        .register_events('gov.va.developer.SchedulerJobTEST4',
+                         api_name: 'SchedulerJobTEST4', max_retries: 1) do
+      raise "I am a naughty developer!"
     end
     results = Webhooks::SchedulerJob.new.perform('SchedulerJobTEST4').first
     expect(results.first.to_i).to be >= 1.hour.from_now.to_i

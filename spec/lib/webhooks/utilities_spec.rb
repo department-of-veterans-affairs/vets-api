@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
 
 RSpec.describe 'Webhooks::Utilities' do
@@ -120,13 +120,15 @@ RSpec.describe 'Webhooks::Utilities' do
   end
 
   it 'validates urls' do
-    expect(TestHelper.new.validate_url('http://www.google.com')).to be true
+    with_settings(Settings.webhooks, require_https: false) do
+      expect(TestHelper.new.validate_url('http://www.google.com')).to be true
+    end
     expect do
       TestHelper.new.validate_url('Not a good url')
     end.to raise_error do |e|
       expect(e.errors.first.detail).to match(/URI does not parse/)
     end
-    with_settings(Settings.websockets, require_https: true) do
+    with_settings(Settings.webhooks, require_https: true) do
       expect(TestHelper.new.validate_url('https://www.google.com')).to be true
       expect do
         TestHelper.new.validate_url('http://www.google.com')

@@ -128,7 +128,8 @@ module Webhooks
   end
 end
 # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
-unless Rails.env.test?
+
+unless Webhooks::Utilities.respond_to? :suppress_registrations # certain rspec tests will manage this themselves
   # ADD YOUR REGISTRATIONS BELOW
   require './lib/webhooks/registrations'
 

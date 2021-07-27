@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require './spec/lib/webhooks/utilities_helper'
 require './lib/webhooks/utilities'
 require './app/models/webhooks/utilities'
 
@@ -15,19 +16,19 @@ describe Webhooks::Utilities, type: :model do
   let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
   let(:consumer_name) { 'tester' }
   let(:api_guid) { '43581f6f-448c-4ed3-846a-68a004c9b78b' }
-  let(:msg) { { 'msg' => 'the message' } }
+  let(:msg) { {'msg' => 'the message'} }
   let(:observers) do
     {
-      'subscriptions' => [
-        {
-          'event' => 'model_event',
-          'urls' => ['https://i/am/listening', 'https://i/am/also/listening']
-        },
-        {
-          'event' => 'model_event2',
-          'urls' => ['https://i/am/listening2']
-        }
-      ]
+        'subscriptions' => [
+            {
+                'event' => 'model_event',
+                'urls' => ['https://i/am/listening', 'https://i/am/also/listening']
+            },
+            {
+                'event' => 'model_event2',
+                'urls' => ['https://i/am/listening2']
+            }
+        ]
     }
   end
 
@@ -64,7 +65,7 @@ describe Webhooks::Utilities, type: :model do
     expect(subscription.events.eql?(observers)).to be true
 
     Testing::EVENTS.each do |e|
-      params = { consumer_id: consumer_id, consumer_name: consumer_name, event: e, api_guid: api_guid, msg: msg }
+      params = {consumer_id: consumer_id, consumer_name: consumer_name, event: e, api_guid: api_guid, msg: msg}
       notifications = Webhooks::Utilities.record_notifications(params)
       validate_common_columns(subscription, notifications)
       urls = notifications.map(&:callback_url)

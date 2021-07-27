@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
 require_relative 'job_tracking'
-require_dependency './lib/webhooks/utilities'
+require './lib/webhooks/utilities'
 require_relative 'registrations'
 
 RSpec.describe Webhooks::CallbackUrlJob, type: :job do
