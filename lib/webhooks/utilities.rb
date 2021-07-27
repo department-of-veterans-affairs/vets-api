@@ -128,9 +128,11 @@ module Webhooks
   end
 end
 # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
-
-unless Thread.current['under_test']
+unless $under_test
+  # ADD YOUR REGISTRATIONS BELOW
   require './lib/webhooks/registrations'
+
+  # ADD YOUR REGISTRATIONS ABOVE
   Webhooks::Utilities.supported_events.freeze
   Webhooks::Utilities.event_to_api_name.freeze
   Webhooks::Utilities.api_name_to_time_block.freeze

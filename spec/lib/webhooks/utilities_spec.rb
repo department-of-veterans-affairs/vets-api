@@ -24,7 +24,7 @@ RSpec.describe 'Webhooks::Utilities' do
   end
 
   before(:all) do
-    Thread.current['under_test'] = true
+    $under_test = true
     load './lib/webhooks/utilities.rb'
 
     class TestHelper

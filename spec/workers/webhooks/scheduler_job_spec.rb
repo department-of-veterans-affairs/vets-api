@@ -3,7 +3,7 @@
 require 'rails_helper'
 require './spec/workers/webhooks/job_tracking'
 
-Thread.current['under_test'] = true
+$under_test = true
 
 RSpec.describe Webhooks::SchedulerJob, type: :job do
 
