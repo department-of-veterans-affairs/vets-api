@@ -11,7 +11,7 @@ module ClaimsApi
           {
             rel: 'self',
             type: 'GET',
-            url: "#{options[:base_url]}/services/claims/v2/claims/#{claim.id)}"
+            url: "#{options[:base_url]}/services/claims/v2/claims/#{claim[:id]}"
           }
         end
 
