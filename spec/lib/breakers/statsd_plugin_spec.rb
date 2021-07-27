@@ -82,8 +82,7 @@ describe Breakers::StatsdPlugin do
       let(:abstract_service) { double('abstract_service') }
 
       before do
-        allow(abstract_service).to receive(:name) { 'abstract_service' }
-        allow(subject).to receive(:get_tags).and_return(['request_env'])
+        allow(abstract_service).to receive(:name).and_return('abstract_service')
       end
 
       it 'builds metrics with request env' do
