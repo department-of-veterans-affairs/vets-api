@@ -196,7 +196,7 @@ AppsApi::FetchConnections:
   description: "Fetches and handles notifications for recent application connections and disconnections"
 
 EducationForm::Process10203Submissions:
-  cron: "0 6-18 * * * America/New_York"
+  cron: "0 6-18/6 * * * America/New_York"
   class: EducationForm::Process10203Submissions
   description: "Go through 22-10203 submissions and determine if application should be processed as part of normal submission process or rejected"
 
@@ -213,7 +213,7 @@ ClaimsApi::ClaimAuditor:
 Veteran::VSOReloader:
   cron: "0 2 * * * America/New_York"
   class: Veteran::VSOReloader
-  description: Pulls down current list of VSOs and updates accordingly 
+  description: Pulls down current list of VSOs and updates accordingly
 
 VBADocuments::DeploymentsNotifier:
   at: "<%=0.seconds.from_now%>"
