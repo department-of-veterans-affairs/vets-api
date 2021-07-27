@@ -37,6 +37,7 @@ module VBADocuments
           submission.refresh_status! unless submission.status == 'expired'
         end
 
+
         render json: submission,
                serializer: VBADocuments::V1::UploadSerializer,
                render_location: false
