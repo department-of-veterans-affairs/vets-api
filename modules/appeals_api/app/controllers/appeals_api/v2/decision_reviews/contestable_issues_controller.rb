@@ -100,13 +100,17 @@ module AppealsApi::V2
       end
 
       def validate_params
-        render_unprocessable_entity(
-          "decision_review_type must be one of: #{VALID_DECISION_REVIEW_TYPES.join(', ')}"
-        ) if invalid_decision_review_type?
+        if invalid_decision_review_type?
+          render_unprocessable_entity(
+            "decision_review_type must be one of: #{VALID_DECISION_REVIEW_TYPES.join(', ')}"
+          )
+        end
 
-        render_unprocessable_entity(
-          'benefit_type required for Higher Level Review'
-        ) if benefit_type_needed_and_missing?
+        if benefit_type_needed_and_missing?
+          render_unprocessable_entity(
+            'benefit_type required for Higher Level Review'
+          )
+        end
       end
 
       def invalid_decision_review_type?
