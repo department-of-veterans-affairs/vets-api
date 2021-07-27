@@ -28,7 +28,7 @@ RSpec.describe BGS::Service do
       it 'increments statsd' do
         VCR.use_cassette('bgs/service/find_ch33_dd_eft_no_icn', VCR::MATCH_EVERYTHING) do
           expect do
-            response = bgs_service.find_ch33_dd_eft
+            bgs_service.find_ch33_dd_eft
           end.to trigger_statsd_increment('api.bgs.find_ch33_dd_eft.total')
         end
       end
