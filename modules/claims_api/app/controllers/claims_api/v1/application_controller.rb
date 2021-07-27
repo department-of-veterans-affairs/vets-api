@@ -61,14 +61,12 @@ module ClaimsApi
       end
 
       def target_veteran(with_gender: false)
-        return @target_veteran if @target_veteran.present?
-
         if header_request?
           headers_to_validate = %w[X-VA-SSN X-VA-First-Name X-VA-Last-Name X-VA-Birth-Date]
           validate_headers(headers_to_validate)
-          @target_veteran = veteran_from_headers(with_gender: with_gender)
+          veteran_from_headers(with_gender: with_gender)
         else
-          @target_veteran = ClaimsApi::Veteran.from_identity(identity: @current_user)
+          ClaimsApi::Veteran.from_identity(identity: @current_user)
         end
       end
 
