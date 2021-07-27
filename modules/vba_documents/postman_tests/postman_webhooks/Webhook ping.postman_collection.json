@@ -26,7 +26,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"message\": \"This is kevins test1\"\r\n}",
+					"raw": "{\r\n    \"notifications\": [\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"uploaded\",\r\n            \"epoch_time\": 1626989161,\r\n            \"status_from\": \"pending\"\r\n        },\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"received\",\r\n            \"epoch_time\": 1626989167,\r\n            \"status_from\": \"uploaded\"\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -63,7 +63,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"message\": \"This is kevins test2\"\r\n}",
+					"raw": "{\r\n    \"notifications\": [\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"uploaded\",\r\n            \"epoch_time\": 1626989161,\r\n            \"status_from\": \"pending\"\r\n        },\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"received\",\r\n            \"epoch_time\": 1626989167,\r\n            \"status_from\": \"uploaded\"\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -100,7 +100,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"message\": \"This is kevins test3\"\r\n}",
+					"raw": "{\r\n    \"notifications\": [\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"uploaded\",\r\n            \"epoch_time\": 1626989161,\r\n            \"status_from\": \"pending\"\r\n        },\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"received\",\r\n            \"epoch_time\": 1626989167,\r\n            \"status_from\": \"uploaded\"\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -137,7 +137,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"message\": \"This is kevins test4\"\r\n}",
+					"raw": "{\r\n    \"notifications\": [\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"uploaded\",\r\n            \"epoch_time\": 1626989161,\r\n            \"status_from\": \"pending\"\r\n        },\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"received\",\r\n            \"epoch_time\": 1626989167,\r\n            \"status_from\": \"uploaded\"\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -174,7 +174,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"message\": \"This is kevins test5\"\r\n}",
+					"raw": "{\r\n    \"notifications\": [\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"uploaded\",\r\n            \"epoch_time\": 1626989161,\r\n            \"status_from\": \"pending\"\r\n        },\r\n        {\r\n            \"guid\": \"dd6fa40e-e60c-4002-a0a6-6ac7433340b4\",\r\n            \"event\": \"gov.va.developer.benefits-intake.status_change\",\r\n            \"api_name\": \"vba_documents-v2\",\r\n            \"status_to\": \"received\",\r\n            \"epoch_time\": 1626989167,\r\n            \"status_from\": \"uploaded\"\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"

@@ -25,7 +25,22 @@
 							"var previousRequest = JSON.parse(globals.previousRequest),",
 							"    webhookRequestData = previousRequest;",
 							"",
-							"console.log(webhookRequestData)"
+							"console.log(webhookRequestData)",
+							"",
+							"webhookRequestData.data.notifications.forEach(function(message, index){",
+							"    pm.test(`Webhook message ${index+1} has a guid`, function () {",
+							"        pm.expect(message).to.have.property('guid');",
+							"    });",
+							"    ",
+							"    pm.test(`Webhook message ${index+1} has an event`, function () {",
+							"        pm.expect(message).to.have.property('event');",
+							"    });",
+							"    ",
+							"    pm.test(`Webhook message ${index+1} has an api_name`, function () {",
+							"        pm.expect(message).to.have.property('api_name');",
+							"    });",
+							"    console.log(message['status_from'])",
+							"});"
 						],
 						"type": "text/javascript"
 					}
