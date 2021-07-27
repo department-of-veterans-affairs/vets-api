@@ -15,15 +15,13 @@ module ClaimsApi
           render json: [] && return unless bgs_claims || lighthouse_claims
 
           mapped_claims = map_claims(bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims)
-
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, base_url: request.base_url)
         end
 
         def show
           lighthouse_claim = find_lighthouse_claim!(claim_id: params[:id])
-
           benefit_claim_id = lighthouse_claim.present? ? lighthouse_claim.evss_id : params[:id]
-          bgs_claim = find_bgs_claim(claim_id: benefit_claim_id)
+          bgs_claim = find_bgs_claim!(claim_id: benefit_claim_id)
 
           if lighthouse_claim.blank? && bgs_claim.blank?
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
@@ -57,6 +55,9 @@ module ClaimsApi
           end
 
           lighthouse_claims.each do |remaining_claim|
+            # if claim wasn't matched earlier, then this claim is in a weird state where
+            #  it's 'established' in Lighthouse, but unknown to BGS.
+            #  shouldn't really ever happen, but if it does, skip it.
             next if remaining_claim.status.casecmp?('established')
 
             mapped_claims << BGSToLighthouseClaimsMapperService.process(lighthouse_claim: remaining_claim)
@@ -79,10 +80,18 @@ module ClaimsApi
           lighthouse_claim
         end
 
-        def find_bgs_claim(claim_id:)
+        def find_bgs_claim!(claim_id:)
           bgs_service.ebenefits_benefit_claims_status.find_benefit_claim_details_by_benefit_claim_id(
             benefit_claim_id: claim_id
           )
+        rescue Savon::SOAPFault => e
+          # the ebenefits service raises an exception if a claim is not found
+          #  so catch the exception here and return a 404 instead
+          if e.message.include?("No BnftClaim found for #{claim_id}")
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
+          end
+
+          raise
         end
 
         def looking_for_lighthouse_claim?(claim_id:)
