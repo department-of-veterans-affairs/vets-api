@@ -128,7 +128,7 @@ module Webhooks
   end
 end
 # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
-unless $under_test
+unless Rails.env.test?
   # ADD YOUR REGISTRATIONS BELOW
   require './lib/webhooks/registrations'
 

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-$under_test = true
 require './lib/webhooks/utilities'
 require './app/models/webhooks/utilities'
 
