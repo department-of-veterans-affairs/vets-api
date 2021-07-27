@@ -14,11 +14,7 @@ module ClaimsApi
           merged_claims = BGSToLighthouseClaimsMapperService.process(bgs_claims: bgs_claims,
                                                                      lighthouse_claims: lighthouse_claims)
 
-<<<<<<< HEAD
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(merged_claims, base_url: request.base_url)
-=======
-          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(merged_claims)
->>>>>>> 13f2f6f0249e1e0e1ee9555459e9a53043578919
         end
 
         def show
