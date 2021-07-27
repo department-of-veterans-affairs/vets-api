@@ -341,10 +341,6 @@ features:
     actor_type: user
     description: Allows veterans to directly schedule VA appointments
     enable_in_development: true
-  va_online_scheduling_express_care_new:
-    actor_type: user
-    description: Enables Express Care request flow in VAOS
-    enable_in_development: true
   va_online_scheduling_facility_selection_v2_2:
     actor_type: user
     description: Set up toggle in anticipation of the next iteration of facility selection, version 2.2.
