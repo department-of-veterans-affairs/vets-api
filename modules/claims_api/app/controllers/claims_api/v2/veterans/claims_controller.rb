@@ -10,12 +10,13 @@ module ClaimsApi
           bgs_claims = bgs_service.ebenefits_benefit_claims_status.find_benefit_claims_status_by_ptcpnt_id(
             participant_id: target_veteran.participant_id
           )
-
           lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
-          merged_claims = BGSToLighthouseClaimsMapperService.process(bgs_claims: bgs_claims,
-                                                                     lighthouse_claims: lighthouse_claims)
 
-          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(merged_claims, base_url: request.base_url)
+          render json: [] && return unless bgs_claims || lighthouse_claims
+
+          mapped_claims = map_claims(bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims)
+
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, base_url: request.base_url)
         end
 
         def show
@@ -28,13 +29,8 @@ module ClaimsApi
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found')
           end
 
-          massaged_bgs_claim = bgs_claim ? massage_bgs_claim(bgs_claim: bgs_claim) : empty_bgs_claim_structure
-          lighthouse_claim = lighthouse_claim ? [lighthouse_claim] : []
-
-          claim = BGSToLighthouseClaimsMapperService.process(
-            bgs_claims: massaged_bgs_claim,
-            lighthouse_claims: lighthouse_claim
-          ).first
+          bgs_claim = massage_bgs_claim(bgs_claim: bgs_claim) if bgs_claim.present?
+          claim = BGSToLighthouseClaimsMapperService.process(bgs_claim: bgs_claim, lighthouse_claim: lighthouse_claim)
 
           render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(claim, base_url: request.base_url)
         end
@@ -44,6 +40,33 @@ module ClaimsApi
         def bgs_service
           BGS::Services.new(external_uid: target_veteran.participant_id,
                             external_key: target_veteran.participant_id)
+        end
+
+        def map_claims(bgs_claims:, lighthouse_claims:)
+          mapped_claims = bgs_claims[:benefit_claims_dto][:benefit_claim].map do |bgs_claim|
+            matching_claim = find_bgs_claim_in_lighthouse_collection(
+              lighthouse_collection: lighthouse_claims,
+              bgs_claim: bgs_claim
+            )
+            if matching_claim
+              lighthouse_claims.delete(matching_claim)
+              BGSToLighthouseClaimsMapperService.process(bgs_claim: bgs_claim, lighthouse_claim: matching_claim)
+            else
+              BGSToLighthouseClaimsMapperService.process(bgs_claim: bgs_claim)
+            end
+          end
+
+          lighthouse_claims.each do |remaining_claim|
+            next if remaining_claim.status.casecmp?('established')
+
+            mapped_claims << BGSToLighthouseClaimsMapperService.process(lighthouse_claim: remaining_claim)
+          end
+
+          mapped_claims
+        end
+
+        def find_bgs_claim_in_lighthouse_collection(lighthouse_collection:, bgs_claim:)
+          lighthouse_collection.find { |lighthouse_claim| lighthouse_claim.evss_id == bgs_claim[:benefit_claim_id] }
         end
 
         def find_lighthouse_claim!(claim_id:)
@@ -68,22 +91,8 @@ module ClaimsApi
 
         def massage_bgs_claim(bgs_claim:)
           {
-            benefit_claims_dto: {
-              benefit_claim: [
-                {
-                  benefit_claim_id: bgs_claim[:benefit_claim_details_dto][:benefit_claim_id],
-                  claim_status_type: bgs_claim[:benefit_claim_details_dto][:claim_status_type]
-                }
-              ]
-            }
-          }
-        end
-
-        def empty_bgs_claim_structure
-          {
-            benefit_claims_dto: {
-              benefit_claim: []
-            }
+            benefit_claim_id: bgs_claim[:benefit_claim_details_dto][:benefit_claim_id],
+            claim_status_type: bgs_claim[:benefit_claim_details_dto][:claim_status_type]
           }
         end
       end
