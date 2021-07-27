@@ -6,7 +6,7 @@ module Webhooks
     has_many :webhooks_notification_attempt_assocs,
              class_name: 'Webhooks::NotificationAttemptAssoc',
              foreign_key: :webhooks_notification_attempt_id,
-             inverse_of: :webhooks_notification_attempt_assocs,  # what? todo cris
+             inverse_of: :webhooks_notification_attempt_assocs,
              dependent: :destroy
 
     has_many :webhooks_notifications,

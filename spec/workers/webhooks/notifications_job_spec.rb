@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require './spec/workers/webhooks/job_tracking'
-Thread.current['under_test'] = true
 require_dependency './lib/webhooks/utilities'
 require_relative 'registrations'
 
