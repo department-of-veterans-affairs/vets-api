@@ -38,9 +38,9 @@ module Mobile
           phone = facility.phone['main']
           return nil unless phone
 
-          # captures area code (\d{3}) number \s(\d{3}-\d{4})
-          # and extension (until the end of the string) (\S*)\z
-          phone_captures = facility.phone['main'].match(/(\d{3})-(\d{3}-\d{4})(\S*)\z/)
+          # captures area code (\d{3}) number (\d{3}-\d{4})
+          # and optional extension (until the end of the string) (?:\sx(\d*))?$
+          phone_captures = facility.phone['main'].match(/^(\d{3})-(\d{3}-\d{4})(?:\sx(\d*))?$/)
 
           if phone_captures.nil?
             Rails.logger.warn(
