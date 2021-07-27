@@ -12,15 +12,9 @@ module ClaimsApi
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
           head(:no_content) && return if poa_code.blank?
 
-          representative_cached = representative(poa_code)
-          render json: {
-            code: poa_code,
-            name: representative_cached[:name],
-            type: representative_cached[:type],
-            phone: {
-              number: representative_cached[:phone_number]
-            }
-          }
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
+            representative(poa_code).merge({ code: poa_code })
+          )
         end
 
         private
