@@ -96,8 +96,17 @@ describe ChipApi::Service do
 
     context 'when status 403' do
       it 'returns a formatted response' do
-        resp = Faraday::Response.new(body: 'Not authorized', status: 403)
-        hsh = { data: { error: true, message: 'Unauthorized access' }, status: resp.status }
+        resp = Faraday::Response.new(body: 'Forbidden', status: 403)
+        hsh = { data: { error: true, message: 'Forbidden' }, status: resp.status }
+
+        expect(subject.build.handle_response(resp)).to eq(hsh)
+      end
+    end
+
+    context 'when status 401' do
+      it 'returns a formatted response' do
+        resp = Faraday::Response.new(body: 'Unauthorized', status: 401)
+        hsh = { data: { error: true, message: 'Unauthorized' }, status: resp.status }
 
         expect(subject.build.handle_response(resp)).to eq(hsh)
       end
