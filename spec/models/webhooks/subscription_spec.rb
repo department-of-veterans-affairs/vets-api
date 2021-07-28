@@ -18,40 +18,25 @@ describe Webhooks::Subscription, type: :model do
   end
 
   it 'records the subscription' do
-    @subscription_guid.each do |s|
-      expect(s.events).to eq(observers)
-    end
-    @subscription_no_guid.each do |s|
-      expect(s.events).to eq(observers)
-    end
+    expect(@subscription_guid.events).to eq(observers)
+    expect(@subscription_no_guid.events).to eq(observers)
   end
 
   it 'records the api name' do
     api_name = Webhooks::Utilities.event_to_api_name[observers['subscriptions'].first['event']]
-    @subscription_guid.each do |s|
-      expect(s.api_name).to eq(api_name)
-    end
-    @subscription_no_guid.each do |s|
-      expect(s.api_name).to eq(api_name)
-    end
+    expect(@subscription_guid.api_name).to eq(api_name)
+    expect(@subscription_no_guid.api_name).to eq(api_name)
+
   end
 
   it 'records the consumer name' do
-    @subscription_guid.each do |s|
-      expect(s.consumer_name).to eq(consumer_name)
-    end
-    @subscription_no_guid.each do |s|
-      expect(s.consumer_name).to eq(consumer_name)
-    end
+    expect(@subscription_guid.consumer_name).to eq(consumer_name)
+    expect(@subscription_no_guid.consumer_name).to eq(consumer_name)
   end
 
   it 'records the consumer id' do
-    @subscription_guid.each do |s|
-      expect(s.consumer_id).to eq(consumer_id)
-    end
-    @subscription_no_guid.each do |s|
-      expect(s.consumer_id).to eq(consumer_id)
-    end
+    expect(@subscription_guid.consumer_id).to eq(consumer_id)
+    expect(@subscription_no_guid.consumer_id).to eq(consumer_id)
   end
 
   it 'queries for subscriptions correctly' do
