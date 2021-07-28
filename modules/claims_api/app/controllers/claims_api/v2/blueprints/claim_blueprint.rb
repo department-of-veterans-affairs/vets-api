@@ -7,6 +7,14 @@ module ClaimsApi
         identifier :id
         field :type
 
+        field :@links do |claim, options|
+          {
+            rel: 'self',
+            type: 'GET',
+            url: "#{options[:base_url]}/services/claims/v2/claims/#{claim[:id]}"
+          }
+        end
+
         transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
       end
     end
