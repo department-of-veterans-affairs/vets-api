@@ -425,31 +425,13 @@
               "application/json": {
                 "example": [
                   {
-                    "id": "111111111",
+                    "id": "555555555",
                     "@links": {
                       "rel": "self",
                       "type": "GET",
-                      "url": "http://www.example.com/services/claims/v2/claims/111111111"
+                      "url": "http://www.example.com/services/claims/v2/claims/555555555"
                     },
-                    "type": "Appeals Control"
-                  },
-                  {
-                    "id": "222222222",
-                    "@links": {
-                      "rel": "self",
-                      "type": "GET",
-                      "url": "http://www.example.com/services/claims/v2/claims/222222222"
-                    },
-                    "type": "Claim for Increase"
-                  },
-                  {
-                    "id": "333333333",
-                    "@links": {
-                      "rel": "self",
-                      "type": "GET",
-                      "url": "http://www.example.com/services/claims/v2/claims/333333333"
-                    },
-                    "type": "Rating Control"
+                    "type": "Compensation"
                   }
                 ],
                 "schema": {
@@ -673,18 +655,13 @@
             "content": {
               "application/json": {
                 "example": {
-<<<<<<< HEAD
-                  "id": "600131328",
+                  "id": "555555555",
                   "@links": {
                     "rel": "self",
                     "type": "GET",
-                    "url": "http://www.example.com/services/claims/v2/claims/600131328"
+                    "url": "http://www.example.com/services/claims/v2/claims/555555555"
                   },
-                  "type": "Appeals Control"
-=======
-                  "id": "555555555",
                   "type": "Compensation"
->>>>>>> a2161fc9b (API-8399 - Fix rswag specs)
                 },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
