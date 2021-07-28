@@ -129,7 +129,9 @@ module Webhooks
 end
 # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
 
-if !Webhooks::Utilities.respond_to? :suppress_registrations # certain rspec tests will manage this themselves
+if Webhooks::Utilities.respond_to? :suppress_registrations
+  send :puts, 'Skipping registrations'
+else # certain rspec tests will manage this themselves
   send :puts, 'Inside registrations and registering'
   # ADD YOUR REGISTRATIONS BELOW
   require './lib/webhooks/registrations'
@@ -139,6 +141,4 @@ if !Webhooks::Utilities.respond_to? :suppress_registrations # certain rspec test
   Webhooks::Utilities.event_to_api_name.freeze
   Webhooks::Utilities.api_name_to_time_block.freeze
   Webhooks::Utilities.api_name_to_retries.freeze
-else
-  send :puts, 'Skipping registrations'
 end
