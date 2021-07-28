@@ -9,7 +9,11 @@ module V0
     rescue_from ::DebtManagementCenter::FinancialStatusReportService::FSRNotFoundInRedis, with: :render_not_found
 
     def create
-      render json: service.submit_financial_status_report(fsr_form)
+      render(
+        json: service.submit_financial_status_report(
+          fsr_form
+        )
+      )
     end
 
     def download_pdf
