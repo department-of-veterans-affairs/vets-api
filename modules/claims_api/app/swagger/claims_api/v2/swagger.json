@@ -429,7 +429,7 @@
                     "@links": {
                       "rel": "self",
                       "type": "GET",
-                      "url": "http://www.example.com/services/claims/v2/claims/555555555"
+                      "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
                     },
                     "status": "Complete",
                     "type": "Compensation"
@@ -666,7 +666,7 @@
                   "@links": {
                     "rel": "self",
                     "type": "GET",
-                    "url": "http://www.example.com/services/claims/v2/claims/555555555"
+                    "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
                   },
                   "status": "Complete",
                   "type": "Compensation"

@@ -15,7 +15,9 @@ module ClaimsApi
           render json: [] && return unless bgs_claims || lighthouse_claims
 
           mapped_claims = map_claims(bgs_claims: bgs_claims, lighthouse_claims: lighthouse_claims)
-          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, base_url: request.base_url)
+
+          blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId] }
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(mapped_claims, blueprint_options)
         end
 
         def show
@@ -30,7 +32,8 @@ module ClaimsApi
           bgs_claim = massage_bgs_claim(bgs_claim: bgs_claim) if bgs_claim.present?
           claim = BGSToLighthouseClaimsMapperService.process(bgs_claim: bgs_claim, lighthouse_claim: lighthouse_claim)
 
-          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(claim, base_url: request.base_url)
+          blueprint_options = { base_url: request.base_url, veteran_id: params[:veteranId] }
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(claim, blueprint_options)
         end
 
         private
