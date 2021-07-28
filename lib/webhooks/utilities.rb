@@ -128,7 +128,7 @@ module Webhooks
   end
 end
 # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
-
+Rails.env = 'test'
 unless Rails.env.test?
   send :puts, 'Inside registrations and registering'
   # ADD YOUR REGISTRATIONS BELOW
