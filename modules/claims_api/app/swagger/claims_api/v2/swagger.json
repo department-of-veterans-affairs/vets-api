@@ -431,6 +431,7 @@
                       "type": "GET",
                       "url": "http://www.example.com/services/claims/v2/claims/555555555"
                     },
+                    "status": "Complete",
                     "type": "Compensation"
                   }
                 ],
@@ -441,6 +442,7 @@
                     "required": [
                       "id",
                       "type",
+                      "status",
                       "@links"
                     ],
                     "additionalProperties": false,
@@ -455,6 +457,11 @@
                         "type": "string",
                         "description": "Name of Claim type",
                         "example": "Appeals Control"
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Status of Claim",
+                        "example": "Complete"
                       },
                       "@links": {
                         "type": "object",
@@ -661,6 +668,7 @@
                     "type": "GET",
                     "url": "http://www.example.com/services/claims/v2/claims/555555555"
                   },
+                  "status": "Complete",
                   "type": "Compensation"
                 },
                 "schema": {
@@ -670,6 +678,7 @@
                   "required": [
                     "id",
                     "type",
+                    "status",
                     "@links"
                   ],
                   "properties": {
@@ -682,6 +691,11 @@
                       "type": "string",
                       "description": "Name of Claim type",
                       "example": "Appeals Control"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status of Claim",
+                      "example": "Complete"
                     },
                     "@links": {
                       "type": "object",

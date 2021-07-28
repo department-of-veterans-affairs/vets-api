@@ -6,6 +6,7 @@ module ClaimsApi
       class ClaimBlueprint < Blueprinter::Base
         identifier :id
         field :type
+        field :status
 
         field :@links do |claim, options|
           {

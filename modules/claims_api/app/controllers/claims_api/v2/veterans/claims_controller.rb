@@ -98,10 +98,13 @@ module ClaimsApi
           claim_id.to_s.include?('-')
         end
 
+        # the 'ebenfits' services used in the 'index' and 'show' actions return differing data structures
+        #  massage the 'show' data structure to be in a state that the BGSToLighthouseClaimsMapperService can use
         def massage_bgs_claim(bgs_claim:)
           {
             benefit_claim_id: bgs_claim[:benefit_claim_details_dto][:benefit_claim_id],
-            claim_status_type: bgs_claim[:benefit_claim_details_dto][:claim_status_type]
+            claim_status_type: bgs_claim[:benefit_claim_details_dto][:claim_status_type],
+            phase_type: bgs_claim[:benefit_claim_details_dto][:bnft_claim_lc_status][:phase_type]
           }
         end
       end

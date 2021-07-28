@@ -111,7 +111,8 @@ RSpec.describe 'Claims', type: :request do
                   benefit_claim: [
                     {
                       benefit_claim_id: '111111111',
-                      claim_status_type: 'Compensation'
+                      claim_status_type: 'Compensation',
+                      phase_type: 'Pending'
                     }
                   ]
                 }
@@ -128,7 +129,7 @@ RSpec.describe 'Claims', type: :request do
               ]
             end
 
-            it 'returns a collection that contains the claim with the Lighthouse id and BGS type' do
+            it 'returns a collection that contains the claim with the Lighthouse id, BGS type, & BGS status' do
               with_okta_user(scopes) do |auth_header|
                 expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
                   .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_claims)
@@ -143,6 +144,7 @@ RSpec.describe 'Claims', type: :request do
                 expect(json_response.count).to eq(1)
                 expect(json_response.first['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 expect(json_response.first['type']).to eq('Compensation')
+                expect(json_response.first['status']).to eq('Pending')
               end
             end
           end
@@ -154,7 +156,8 @@ RSpec.describe 'Claims', type: :request do
                   benefit_claim: [
                     {
                       benefit_claim_id: '111111111',
-                      claim_status_type: 'Compensation'
+                      claim_status_type: 'Compensation',
+                      phase_type: 'Pending'
                     }
                   ]
                 }
@@ -198,7 +201,8 @@ RSpec.describe 'Claims', type: :request do
                 benefit_claim: [
                   {
                     benefit_claim_id: '111111111',
-                    claim_status_type: 'Compensation'
+                    claim_status_type: 'Compensation',
+                    phase_type: 'Pending'
                   }
                 ]
               }
@@ -366,12 +370,15 @@ RSpec.describe 'Claims', type: :request do
               {
                 benefit_claim_details_dto: {
                   benefit_claim_id: '111111111',
-                  claim_status_type: 'value from BGS'
+                  claim_status_type: 'value from BGS',
+                  bnft_claim_lc_status: {
+                    phase_type: 'Pending'
+                  }
                 }
               }
             end
 
-            it "returns a claim with the Lighthouse 'id' and the BGS 'type'" do
+            it "returns a claim with the Lighthouse 'id', BGS 'type', & BGS 'status'" do
               with_okta_user(scopes) do |auth_header|
                 expect(ClaimsApi::AutoEstablishedClaim)
                   .to receive(:get_by_id_or_evss_id).and_return(lighthouse_claim)
@@ -385,6 +392,7 @@ RSpec.describe 'Claims', type: :request do
                 expect(json_response).to be_an_instance_of(Hash)
                 expect(json_response['id']).to eq('0958d973-36fb-43ef-8801-2718bd33c825')
                 expect(json_response['type']).to eq('value from BGS')
+                expect(json_response['status']).to eq('Pending')
               end
             end
           end
@@ -412,7 +420,10 @@ RSpec.describe 'Claims', type: :request do
             {
               benefit_claim_details_dto: {
                 benefit_claim_id: '111111111',
-                claim_status_type: 'value from BGS'
+                claim_status_type: 'value from BGS',
+                bnft_claim_lc_status: {
+                  phase_type: 'Pending'
+                }
               }
             }
           end

@@ -33,15 +33,15 @@ module ClaimsApi
 
     def matched_claim
       # this claim was submitted via Lighthouse, so use the 'id' the user is most likely to know
-      { id: lighthouse_claim.id, type: bgs_claim[:claim_status_type] }
+      { id: lighthouse_claim.id, type: bgs_claim[:claim_status_type], status: bgs_claim[:phase_type] }
     end
 
     def unmatched_bgs_claim
-      { id: bgs_claim[:benefit_claim_id], type: bgs_claim[:claim_status_type] }
+      { id: bgs_claim[:benefit_claim_id], type: bgs_claim[:claim_status_type], status: bgs_claim[:phase_type] }
     end
 
     def unmatched_lighthouse_claim
-      { id: lighthouse_claim.id, type: lighthouse_claim.claim_type }
+      { id: lighthouse_claim.id, type: lighthouse_claim.claim_type, status: lighthouse_claim.status.capitalize }
     end
   end
 end
