@@ -427,7 +427,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     context 'when Veteran is missing a participant_id' do
       before do
-        stub_mpi(build(:mvi_profile, participant_id: nil))
+        stub_mpi_not_found
       end
 
       context 'when consumer is representative' do

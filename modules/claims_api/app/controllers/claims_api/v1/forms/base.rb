@@ -12,24 +12,12 @@ module ClaimsApi
       class Base < ClaimsApi::V1::ApplicationController
         # schema endpoint should be wide open
         skip_before_action :authenticate, only: %i[schema]
-        skip_before_action :verify_mpi, only: %i[schema]
+        skip_before_action :validate_veteran_identifiers, only: %i[schema]
         include ClaimsApi::EndpointDeprecation
 
         def schema
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           render json: { data: [ClaimsApi::FormSchemas.new.schemas[self.class::FORM_NUMBER]] }
-        end
-
-        protected
-
-        def validate_veteran_identifiers
-          return if target_veteran.participant_id.present? && target_veteran.birls_id.present?
-          return unless header_request?
-          return if target_veteran.mpi_record?
-
-          raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Submitting an original claim requires Veteran to be authenticated with an ID.me account'
-          )
         end
 
         private
