@@ -404,16 +404,16 @@ GEM
       nokogiri (>= 1.10.4)
     filelock (1.1.1)
     find_a_port (1.0.1)
-    flipper (0.20.4)
-    flipper-active_record (0.20.4)
+    flipper (0.21.0)
+    flipper-active_record (0.21.0)
       activerecord (>= 5.0, < 7)
-      flipper (~> 0.20.4)
-    flipper-active_support_cache_store (0.20.4)
+      flipper (~> 0.21.0)
+    flipper-active_support_cache_store (0.21.0)
       activesupport (>= 5.0, < 7)
-      flipper (~> 0.20.4)
-    flipper-ui (0.20.4)
+      flipper (~> 0.21.0)
+    flipper-ui (0.21.0)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 0.20.4)
+      flipper (~> 0.21.0)
       rack (>= 1.4, < 3)
       rack-protection (>= 1.5.3, < 2.2.0)
     foreman (0.87.2)
@@ -1017,10 +1017,10 @@ DEPENDENCIES
   fast_jsonapi
   fastimage
   fhir_client (~> 4.0.6)
-  flipper (~> 0.20.4)
-  flipper-active_record (~> 0.20.4)
-  flipper-active_support_cache_store (~> 0.20.4)
-  flipper-ui (~> 0.20.4)
+  flipper (~> 0.21.0)
+  flipper-active_record (~> 0.21.0)
+  flipper-active_support_cache_store (~> 0.21.0)
+  flipper-ui (~> 0.21.0)
   foreman
   fuubar
   google-api-client

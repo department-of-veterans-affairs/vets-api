@@ -14,14 +14,14 @@ module ClaimsApi
           merged_claims = BGSToLighthouseClaimsMapperService.process(bgs_claims: bgs_claims,
                                                                      lighthouse_claims: lighthouse_claims)
 
-          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(merged_claims)
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(merged_claims, base_url: request.base_url)
         end
 
         def show
           claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
 
           if claim.present?
-            render json: { id: params[:id], type: claim[:claim_type] }
+            claim_details = { id: params[:id], type: claim[:claim_type] }
           else
             # If we don't have it, it might still be in BGS, so check there
             bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
@@ -29,8 +29,10 @@ module ClaimsApi
 
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if claim_details.blank?
 
-            render json: { id: params[:id], type: claim_details[:bnft_claim_type_nm] }
+            claim_details = { id: params[:id], type: claim_details[:bnft_claim_type_nm] }
           end
+
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(claim_details, base_url: request.base_url)
         end
 
         private
