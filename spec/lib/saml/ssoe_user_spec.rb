@@ -607,6 +607,44 @@ RSpec.describe SAML::User do
       end
     end
 
+    context 'with multi-value birls_id' do
+      let(:saml_attributes) do
+        build(:ssoe_idme_mhv_loa3,
+              va_eauth_birlsfilenumber: [birls_id])
+      end
+
+      context 'with different values' do
+        let(:birls_id) { '0123456789,0000000054' }
+
+        it 'does not validate' do
+          expect { subject.validate! }
+            .to raise_error { |error|
+                  expect(error).to be_a(SAML::UserAttributeError)
+                  expect(error.message).to eq('User attributes contain multiple distinct BIRLS ID values')
+                }
+        end
+      end
+    end
+
+    context 'with multi-value corp_id' do
+      let(:saml_attributes) do
+        build(:ssoe_idme_mhv_loa3,
+              vba_corp_id: [corp_id])
+      end
+
+      context 'with different values' do
+        let(:corp_id) { '0123456789,0000000054' }
+
+        it 'does not validate' do
+          expect { subject.validate! }
+            .to raise_error { |error|
+                  expect(error).to be_a(SAML::UserAttributeError)
+                  expect(error.message).to eq('User attributes contain multiple distinct CORP ID values')
+                }
+        end
+      end
+    end
+
     context 'with multi-value edipi' do
       let(:saml_attributes) do
         build(:ssoe_idme_mhv_loa3,
