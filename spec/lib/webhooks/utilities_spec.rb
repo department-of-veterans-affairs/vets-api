@@ -2,6 +2,7 @@
 
 require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
+require './lib/webhooks/utilities'
 
 RSpec.describe 'Webhooks::Utilities' do
   let(:websocket_settings) do
@@ -25,8 +26,6 @@ RSpec.describe 'Webhooks::Utilities' do
   end
 
   before(:all) do
-    load './lib/webhooks/utilities.rb'
-
     class TestHelper
       include Webhooks::Utilities
     end
