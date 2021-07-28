@@ -51,9 +51,10 @@ RSpec.describe 'Webhooks::Utilities' do
         'working!'
       end
     end
-    total_events = Testing::EVENTS.length + 1
+    # total_events = Testing::EVENTS.length + 1
     # initial registration in before block adds one
-    expect(Webhooks::Utilities.supported_events.length).to be(total_events)
+    # expect(Webhooks::Utilities.supported_events.length).to be(total_events)
+    # Above test on the build server gets hard to do if another tests causes a registration.  We check each event...
     Testing::EVENTS.each do |e|
       expect(Webhooks::Utilities.supported_events.include?(e)).to be true
       expect(Webhooks::Utilities.event_to_api_name[e]).to be 'TEST_API2'
@@ -136,8 +137,10 @@ RSpec.describe 'Webhooks::Utilities' do
         expect(e.errors.first.detail).to match(/must be https/)
       end
     end
-    valids = ['http://www.google.com', 'https://www.google.com']
-    expect(TestHelper.new.validate_urls(valids)).to be true
+    with_settings(Settings.webhooks, require_https: false) do
+      valids = ['http://www.google.com', 'https://www.google.com']
+      expect(TestHelper.new.validate_urls(valids)).to be true
+    end
   end
   # rubocop:enable Style/MultilineBlockChain
 end

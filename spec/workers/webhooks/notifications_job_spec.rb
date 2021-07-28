@@ -27,7 +27,7 @@ RSpec.describe Webhooks::NotificationsJob, type: :job do
     }
   end
 
-  before do
+  before(:all) do
     @subscription = Webhooks::Utilities.register_webhook(consumer_id, consumer_name, observers_json, api_id)
     @notifications = Webhooks::Utilities.record_notifications(
       consumer_id: consumer_id,
@@ -36,6 +36,9 @@ RSpec.describe Webhooks::NotificationsJob, type: :job do
       api_guid: api_id,
       msg: msg
     )
+  end
+
+  before do
     Thread.current['job_ids'] = []
   end
 

@@ -38,8 +38,6 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
         n.callback_url.eql?(url)
       end.map(&:id)
     end
-
-    Thread.current['job_ids'] = []
   end
 
   def mock_faraday(status, body, success)
