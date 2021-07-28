@@ -26,7 +26,6 @@ describe Webhooks::Subscription, type: :model do
     api_name = Webhooks::Utilities.event_to_api_name[observers['subscriptions'].first['event']]
     expect(@subscription_guid.api_name).to eq(api_name)
     expect(@subscription_no_guid.api_name).to eq(api_name)
-
   end
 
   it 'records the consumer name' do
