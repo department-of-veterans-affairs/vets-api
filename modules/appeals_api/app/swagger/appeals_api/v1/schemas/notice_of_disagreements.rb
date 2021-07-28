@@ -5,6 +5,26 @@ module AppealsApi::V1
     class NoticeOfDisagreements
       include Swagger::Blocks
 
+      def self.nod_json_schemas
+        read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
+
+        read_json_schema = ->(filename) { JSON.parse read_file[['config', 'schemas', 'v1', filename]] }
+
+        nod_create_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
+          read_json_schema['10182.json']
+        ).to_swagger['components']['schemas']
+
+        nod_create_header_schemas = AppealsApi::JsonSchemaToSwaggerConverter.new(
+          read_json_schema['10182_headers.json']
+        ).to_swagger['components']['schemas']
+
+        {
+          components: {
+            schemas: nod_create_schemas.merge(nod_create_header_schemas)
+          }
+        }
+      end
+
       swagger_component do
         schema :nodStatus do
           key :type, :string
@@ -386,10 +406,10 @@ module AppealsApi::V1
               key :maxLength, 10
             end
 
-            property :disagreementReason do
+            property :disagreementArea do
               key :type, :string
               key :example, 'Effective Date'
-              key :example, 'The point of contention for this specific issue'
+              key :example, 'The specific part of the VA decision that the Veteran disagrees with. ex: service connection, effective date of award, evaluation of disability'
               key :maxLength, 90
             end
           end
@@ -399,6 +419,58 @@ module AppealsApi::V1
           key :type, :string
           key :enum, %w[processing s3_failed s3_error vbms_error vbms_failed submitted]
           key :example, 'submitted'
+        end
+
+        schema :documentUploadMetadata do
+          key :type, :object
+          key :description, 'Identifying properties about the document payload being submitted'
+          key :required, %i[veteranFirstName veteranLastName fileNumber zipCode source]
+
+          property :veteranFirstName do
+            key :type, :string
+            key :description, 'Veteran first name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.'
+            key :pattern, '^[a-zA-Z\-\/\s]{1,50}$'
+            key :example, 'Jane'
+          end
+
+          property :veteranLastName do
+            key :type, :string
+            key :description, 'Veteran last name. Cannot be missing or empty or longer than 50 characters. Only upper/lower case letters, hyphens(-), spaces and forward-slash(/) allowed.'
+            key :pattern, '^[a-zA-Z\-\/\s]{1,50}$'
+            key :example, 'Doe-Smith'
+          end
+
+          property :fileNumber do
+            key :description, 'The Veteran\'s file number is exactly 9 digits with no alpha characters, hyphens, spaces or punctuation. In most cases, this is the Veteran\'s SSN but may also be an 8 digit BIRL number. If no file number has been established or if it is unknown, the application should use the Veteran\'s SSN and the file number will be associated with the submission later in the process. Incorrect file numbers can cause delays.'
+            key :pattern, '^\d{8,9}$'
+            key :example, '999887777'
+            key :type, :string
+          end
+
+          property :zipCode do
+            key :type, :string
+            key :example, '94402'
+            key :description, "Veteran zip code. Either five digits (XXXXX) or five digits then four digits separated by a hyphen (XXXXX-XXXX). Use '00000' for Veterans with non-US addresses."
+          end
+
+          property :source do
+            key :type, :string
+            key :example, 'Vets.gov'
+            key :description, 'System, installation, or entity submitting the document'
+          end
+
+          property :docType do
+            key :type, :string
+            key :example, '316'
+            key :description, 'VBA form number of the document'
+          end
+
+          property :businessLine do
+            key :type, :string
+            key :example, 'BVA'
+            key :enum, %i[BVA]
+            key :description, 'BVA - Board of Veteran Appeals'
+          end
         end
       end
     end

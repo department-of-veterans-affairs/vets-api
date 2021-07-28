@@ -22,6 +22,43 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     pending_record
   end
 
+  describe 'validate_service_dates' do
+    context 'when activeDutyEndDate is before activeDutyBeginDate' do
+      it 'throws an error' do
+        auto_form.form_data = { 'serviceInformation' => { 'servicePeriods' => [{
+          'activeDutyBeginDate' => '1991-05-02',
+          'activeDutyEndDate' => '1990-04-05'
+        }] } }
+
+        expect(auto_form.save).to eq(false)
+        expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
+      end
+    end
+
+    context 'when activeDutyEndDate is not provided' do
+      it 'throws an error' do
+        auto_form.form_data = { 'serviceInformation' => { 'servicePeriods' => [{
+          'activeDutyBeginDate' => '1991-05-02',
+          'activeDutyEndDate' => nil
+        }] } }
+
+        expect(auto_form.save).to eq(true)
+      end
+    end
+
+    context 'when activeDutyBeginDate is not provided' do
+      it 'throws an error' do
+        auto_form.form_data = { 'serviceInformation' => { 'servicePeriods' => [{
+          'activeDutyBeginDate' => nil,
+          'activeDutyEndDate' => '1990-04-05'
+        }] } }
+
+        expect(auto_form.save).to eq(false)
+        expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
+      end
+    end
+  end
+
   describe 'pending?' do
     context 'no pending records' do
       it 'is false' do

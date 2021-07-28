@@ -15,7 +15,7 @@ EDUCATION BENEFIT BEING APPLIED FOR: <%= @applicant.benefit %>
 
 <%
   case
-  when @applicant.benefit == 'chapter35' && @applicant.relationship&.downcase == 'spouse' 
+  when @applicant.benefit == 'chapter35' && @applicant.relationship&.downcase == 'spouse'
 -%>
 I UNDERSTAND THAT I AM CHOOSING TO RECEIVE DEA BENEFITS INSTEAD OF ANY FRY SCHOLARSHIP BENEFITS FOR WHICH I AM CURRENTLY ELIGIBLE. THIS INCLUDES FRY SCHOLARSHIP BENEFITS BASED ON THE DEATH OF THE QUALIFYING INDIVIDUAL ON THIS APPLICATION, AS WELL AS, FRY SCHOLARSHIP BENEFITS BASED ON THE DEATH OF ANY OTHER INDIVIDUALS NOT LISTED ON THIS APPLICATION.
 <% when @applicant.benefit == 'chapter35' && @applicant.relationship&.downcase == 'child' -%>
@@ -76,7 +76,8 @@ Branch of Service:   <%= @applicant.serviceBranch %>
 
 Veteran's date of birth: <%= @applicant.veteranDateOfBirth %>
 
-Date of death or MIA/POW: <%= value_or_na(@applicant.veteranDateOfDeath) %>
+<%= veteran_date_of_death_label %>
+<%= value_or_na(@applicant.veteranDateOfDeath) %>
 
 Is qualifying individual on active duty: <%= yesno(@applicant.currentlyActiveDuty) %>
 

@@ -11,7 +11,7 @@ describe VAOS::MessageForm, type: :model do
 
     it 'validates presence of required attributes' do
       expect(subject).not_to be_valid
-      expect(subject.errors.keys).to contain_exactly(:message_text)
+      expect(subject.errors.attribute_names).to contain_exactly(:message_text)
     end
 
     it 'raises a Common::Exceptions::ValidationErrors when trying to fetch coerced params' do

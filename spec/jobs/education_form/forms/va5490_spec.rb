@@ -69,12 +69,25 @@ RSpec.describe EducationForm::Forms::VA5490 do
     end
   end
 
-  %w[
-    simple_chapter_33_child
-    kitchen_sink_chapter_35_spouse
-    kitchen_sink_chapter_33_spouse
-    kitchen_sink_chapter_35_child
-  ].each do |test_application|
-    test_spool_file('5490', test_application)
+  context 'spool_file tests' do
+    %w[
+      simple_chapter_33_child
+      kitchen_sink_chapter_33_spouse
+      kitchen_sink_chapter_35_spouse
+      kitchen_sink_chapter_33_spouse
+      kitchen_sink_chapter_35_child
+    ].each do |test_application|
+      test_spool_file('5490', test_application)
+    end
+  end
+
+  context 'spool_file tests with pow/mia labels' do
+    %w[
+      kitchen_sink_chapter_33_died_on_duty
+      kitchen_sink_chapter_33_died_non_duty
+      kitchen_sink_chapter_33_pow_or_mia
+    ].each do |test_application|
+      test_spool_file('5490', test_application)
+    end
   end
 end

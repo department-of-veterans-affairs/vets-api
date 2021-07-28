@@ -20,6 +20,8 @@ module MPI
       SUBJECT_XPATH = 'controlActProcess/subject'
       PATIENT_XPATH = 'registrationEvent/subject1/patient'
       STATUS_XPATH = 'statusCode/@code'
+      CONFIDENTIALITY_CODE_XPATH = 'confidentialityCode/@code'
+      ID_THEFT_INDICATOR = 'ID_THEFT^TRUE'
 
       PATIENT_PERSON_PREFIX = 'patientPerson/'
       RELATIONSHIP_PREFIX = 'relationshipHolder1/'
@@ -88,7 +90,8 @@ module MPI
         profile_ids_hash = create_mvi_profile_ids(patient, historical_icns)
         misc_hash = {
           search_token: locate_element(@original_body, 'id').attributes[:extension],
-          relationships: parse_relationships(patient.locate(PATIENT_RELATIONSHIP_XPATH))
+          relationships: parse_relationships(patient.locate(PATIENT_RELATIONSHIP_XPATH)),
+          id_theft_flag: parse_id_theft_flag(patient)
         }
 
         MPI::Models::MviProfile.new(profile_identity_hash.merge(profile_ids_hash).merge(misc_hash))
@@ -103,6 +106,11 @@ module MPI
         relationship_ids_hash = create_mvi_profile_ids(locate_element(relationship, RELATIONSHIP_PREFIX))
 
         MPI::Models::MviProfileRelationship.new(relationship_identity_hash.merge(relationship_ids_hash))
+      end
+
+      def parse_id_theft_flag(patient)
+        code = locate_element(patient, CONFIDENTIALITY_CODE_XPATH)
+        code == ID_THEFT_INDICATOR
       end
 
       def create_mvi_profile_identity(person, person_prefix)

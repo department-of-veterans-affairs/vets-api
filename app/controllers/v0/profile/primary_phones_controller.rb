@@ -20,6 +20,7 @@ module V0
 
         if phone.valid?
           response = service.post_primary_phone phone
+          Rails.logger.info('PrimaryPhonesController#create request completed', sso_logging_info)
 
           render json: response, serializer: PhoneNumberSerializer
         else

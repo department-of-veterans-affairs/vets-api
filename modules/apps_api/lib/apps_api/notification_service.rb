@@ -16,9 +16,12 @@ module AppsApi
       @notify_client = VaNotify::Service.new(Settings.vanotify.services.lighthouse.api_key)
       @connection_event = 'app.oauth2.as.consent.grant'
       @disconnection_event = 'app.oauth2.as.consent.revoke'
+      @should_perform = Settings.directory.notification_service_flag || false
     end
 
     def handle_event(event_type, template)
+      return 'not enabled for this environment' unless @should_perform
+
       logs = get_events(event_type)
       logs.body.each do |event|
         parsed_hash = parse_event(event)

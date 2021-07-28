@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Documents management', type: :request do
-  let(:file) { fixture_file_upload('/files/doctors-note.pdf', 'application/pdf') }
+  let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
   let!(:claim) do
@@ -43,7 +43,7 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   context 'with unaccepted file_type' do
-    let(:file) { fixture_file_upload('files/invalid_idme_cert.crt', 'application/x-x509-ca-cert') }
+    let(:file) { fixture_file_upload('invalid_idme_cert.crt', 'application/x-x509-ca-cert') }
 
     it 'rejects files with invalid document_types' do
       params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
@@ -54,7 +54,7 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   context 'with locked PDF and no provided password' do
-    let(:locked_file) { fixture_file_upload('files/locked_pdf_password_is_test.pdf', 'application/pdf') }
+    let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
 
     it 'rejects locked PDFs if no password is provided' do
       params = { file: locked_file, tracked_item_id: tracked_item_id, document_type: document_type }
@@ -97,7 +97,7 @@ RSpec.describe 'Documents management', type: :request do
   end
 
   context 'with no body' do
-    let(:file) { fixture_file_upload('/files/empty_file.txt', 'text/plain') }
+    let(:file) { fixture_file_upload('empty_file.txt', 'text/plain') }
 
     it 'rejects a text file with no body' do
       params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }

@@ -217,15 +217,15 @@ describe HealthQuest::QuestionnaireManager::Factory do
                                 ]))
       ]
     end
-    let(:location) { double('FHIR::Location', resource: OpenStruct.new) }
+    let(:location) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: ['my_location'])) }
 
     before do
       allow_any_instance_of(subject).to receive(:lighthouse_appointments).and_return(appointments)
-      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:get).with(anything).and_return(location)
+      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:search).with(anything).and_return(location)
     end
 
     it 'returns an array of locations' do
-      expect(described_class.manufacture(user).get_locations).to eq([location])
+      expect(described_class.manufacture(user).get_locations).to eq(['my_location'])
     end
   end
 
@@ -239,15 +239,23 @@ describe HealthQuest::QuestionnaireManager::Factory do
                                 to_hash: { id: 'I2-LABC' }))
       ]
     end
+    let(:organization) { double('FHIR::ClientReply', resource: double('FHIR::Bundle', entry: ['my_org'])) }
 
     before do
       allow_any_instance_of(subject).to receive(:locations).and_return(locations)
-      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:get)
-        .with(anything).and_return(default_organization)
+      allow_any_instance_of(HealthQuest::Resource::Factory).to receive(:search)
+        .with(anything).and_return(organization)
     end
 
     it 'returns an array of organizations' do
-      expect(described_class.manufacture(user).get_organizations).to eq([default_organization])
+      expect(described_class.manufacture(user).get_organizations).to eq(['my_org'])
+    end
+
+    it 'search receives the correct set of arguments' do
+      expect_any_instance_of(HealthQuest::Resource::Factory).to receive(:search)
+        .with({ _id: 'I2-OABC', _count: '100' }).once
+
+      described_class.manufacture(user).get_organizations
     end
   end
 

@@ -180,6 +180,50 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReport do
     end
   end
 
+  describe '#format_address' do
+    it 'returns nil if address is blank' do
+      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
+
+      expect(subject.manufacture({}).format_address({})).to eq(nil)
+    end
+
+    it 'returns a formatted address' do
+      hsh = {
+        'address_line1' => '521 W Cedar St',
+        'address_line2' => 'Line Two',
+        'address_line3' => 'Line Three',
+        'city' => 'Atlanta',
+        'state_code' => 'GA',
+        'zip_code' => '82301'
+      }
+      address = '521 W Cedar St Line Two Line Three, Atlanta, GA 82301'
+
+      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
+
+      expect(subject.manufacture({}).format_address(hsh)).to eq(address)
+    end
+  end
+
+  describe '#format_phone' do
+    it 'returns nil if phone is blank' do
+      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
+
+      expect(subject.manufacture({}).format_phone({})).to eq(nil)
+    end
+
+    it 'returns a formatted phone' do
+      hsh = {
+        'area_code' => '313',
+        'phone_number' => '6220000'
+      }
+      phone = '313-622-0000'
+
+      allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
+
+      expect(subject.manufacture({}).format_phone(hsh)).to eq(phone)
+    end
+  end
+
   describe '#set_phone' do
     it 'sets the set_phone array' do
       allow_any_instance_of(subject).to receive(:build_content).and_return(nil)
@@ -281,12 +325,12 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseReport do
 
       hsh = {
         Lang: 'en-us',
-        Title: 'Questionnaire Details',
-        Author: 'va.gov',
-        Subject: 'Veteran Questionnaire Responses',
-        Keywords: 'questionnaire answers pre-visit',
+        Title: 'Primary Care Questionnaire',
+        Author: 'Department of Veterans Affairs',
+        Subject: 'Primary Care Questionnaire',
+        Keywords: 'health questionnaires pre-visit',
         Creator: 'va.gov',
-        Producer: 'va.gov API',
+        Producer: 'va.gov',
         CreationDate: Time.zone.now
       }
 

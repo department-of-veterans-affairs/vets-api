@@ -2,8 +2,6 @@
 
 [![Build Status](http://jenkins.vfs.va.gov/buildStatus/icon?job=testing/vets-api/master)](http://jenkins.vfs.va.gov/job/builds/job/vets-api/)
 [![Yard Docs](http://img.shields.io/badge/yard-docs-blue.svg)](https://www.rubydoc.info/github/department-of-veterans-affairs/vets-api)
-[![Maintainability](https://api.codeclimate.com/v1/badges/8576e1b71f64d9bcd3cb/maintainability)](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/8576e1b71f64d9bcd3cb/test_coverage)](https://codeclimate.com/github/department-of-veterans-affairs/vets-api/test_coverage)
 [![License: CC0-1.0](https://img.shields.io/badge/License-CC0%201.0-lightgrey.svg)](LICENSE.md)
 
 This project provides common APIs for applications that live on VA.gov (formerly vets.gov APIs).
@@ -102,6 +100,7 @@ The following features require additional configuration, click for details.
 - [Master Veteran Index (MVI)](/docs/setup/mvi.md)
 - [My HealtheVet (MHV)](/docs/setup/mhv.md)
 - [Virtual Machine Access](/docs/setup/virtual_machine_access.md)
+- [Test User Dashboard](https://github.com/department-of-veterans-affairs/vsp-test-user-dashboard/blob/main/README.md#back-end)
 
 To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 

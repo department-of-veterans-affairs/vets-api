@@ -17,6 +17,7 @@ module ClaimsApi
                                                  marshal: true,
                                                  marshaler: JsonMarshal::Marshaller)
 
+    validate :validate_service_dates
     after_create :log_special_issues
     after_create :log_flashes
 
@@ -65,7 +66,7 @@ module ClaimsApi
 
     def self.pending?(id)
       query = where(id: id)
-      query.exists? ? query.first : false
+      query.exists? && query.first.evss_id.nil? ? query.first : false
     end
 
     def self.evss_id_by_token(token)
@@ -74,7 +75,7 @@ module ClaimsApi
 
     def self.get_by_id_or_evss_id(id)
       if id.to_s.include?('-')
-        find(id)
+        find_by(id: id)
       else
         find_by(evss_id: id)
       end
@@ -130,6 +131,23 @@ module ClaimsApi
       return if special_issues.blank?
 
       Rails.logger.info("ClaimsApi: Claim[#{id}] contains the following special issues - #{special_issues}")
+    end
+
+    def validate_service_dates
+      service_periods = form_data.dig('serviceInformation', 'servicePeriods')
+
+      service_periods.each do |service_period|
+        start_date = Date.parse(service_period['activeDutyBeginDate']) if service_period['activeDutyBeginDate'].present?
+        end_date = Date.parse(service_period['activeDutyEndDate']) if service_period['activeDutyEndDate'].present?
+
+        if start_date.present? && end_date.blank?
+          next
+        elsif start_date.blank?
+          errors.add :activeDutyBeginDate, 'must be present'
+        elsif (start_date.blank? && end_date.present?) || start_date > end_date
+          errors.add :activeDutyBeginDate, 'must be before activeDutyEndDate'
+        end
+      end
     end
 
     def remove_encrypted_fields

@@ -16,9 +16,7 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
       let(:time) { Time.zone.now }
 
       let(:submitted_claims) do
-        SavedClaim::VeteranReadinessEmploymentClaim.where(
-          updated_at: (time - 24.hours)..(time - 1.second)
-        )
+        VRE::CreateCh31SubmissionsReport.new.get_claims_submitted_in_range
       end
 
       let(:mail) { described_class.build(submitted_claims).deliver_now }
@@ -52,6 +50,65 @@ RSpec.describe Ch31SubmissionsReportMailer, type: %i[mailer aws_helpers] do
 
         expect(mail.to).to eq(
           %w[
+            VRC.VBABOS@va.gov
+            VRE.VBAPRO@va.gov
+            VRE.VBANYN@va.gov
+            VRC.VBABUF@va.gov
+            VRE.VBAHAR@va.gov
+            vre.vbanew@va.gov
+            VREBDD.VBAPHI@va.gov
+            VRE.VBAPIT@va.gov
+            VRE.VBABAL@va.gov
+            VRE.VBAROA@va.gov
+            VRE.VBAHUN@va.gov
+            VRETMP.VBAATG@va.gov
+            VRE281900.VBASPT@va.gov
+            VRC.VBAWIN@va.gov
+            VRC.VBACMS@va.gov
+            VREAPPS.VBANAS@va.gov
+            VRC.VBANOL@va.gov
+            VRE.VBAMGY@va.gov
+            VRE.VBAJAC@va.gov
+            VRE.VBACLE@va.gov
+            VRE.VBAIND@va.gov
+            VRE.VBALOU@va.gov
+            VAVBACHI.VRE@va.gov
+            VRE.VBADET@va.gov
+            VREApplications.VBAMIW@va.gov
+            VRC.VBASTL@va.gov
+            VRE.VBADES@va.gov
+            VRE.VBALIN@va.gov
+            VRC.VBASPL@va.gov
+            VRE.VBADEN@va.gov
+            VRC.VBAALB@va.gov
+            VRE.VBASLC@va.gov
+            VRC.VBAOAK@va.gov
+            ROVRC.VBALAN@va.gov
+            VRE.VBAPHO@va.gov
+            VRE.VBASEA@va.gov
+            VRE.VBABOI@va.gov
+            VRE.VBAPOR@va.gov
+            VREAPPS.VBAWAC@va.gov
+            VRE.VBALIT@va.gov
+            VREBDD.VBAMUS@va.gov
+            VRE.VBAREN@va.gov
+            MBVRE.VBASAJ@va.gov
+            VRE.VBAMPI@va.gov
+            VRE.VBAHOU@va.gov
+            VRE.VBAWAS@va.gov
+            VRE.VBAMAN@va.gov
+            EBENAPPS.VBASDC@va.gov
+            VRE.VBATOG@va.gov
+            VRE.VBAMAN@va.gov
+            VRC.VBAFHM@va.gov
+            VRC.VBAFAR@va.gov
+            VRC.VBAFAR@va.gov
+            VRE.VBADEN@va.gov
+            VRE.VBAWIC@va.gov
+            VRC.VBAHON@va.gov
+            VAVBA/WIM/RO/VR&E@vba.va.gov
+            VRE.VBAANC@va.gov
+            VRE.VBAPIT@va.gov
             VRE-CMS.VBAVACO@va.gov
             Jason.Wolf@va.gov
           ]

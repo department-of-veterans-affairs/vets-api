@@ -1,47 +1,54 @@
-The Benefits Intake API allows authorized third-party systems used by Veteran Service Organizations and agencies to digitally submit claim documents directly to the Veterans Benefits Administration's (VBA) claims intake process.
-
-This API provides a secure and efficient alternative to paper or fax document submissions. VBA can begin processing documents submitted through this API immediately, which ultimately allows VA to provide Veterans with claim decisions more quickly. All successfully submitted documents are routed to the correct office(s) for processing, including documents related to the following benefit/claim types :
+The Benefits Intake API allows authorized third-party systems used by Veteran Service Organizations (VSOs), agencies, and Veterans to digitally submit VA benefits claim documents directly to the Veterans Benefits Administration's (VBA) claims intake process. This API handles documents related to the following benefit claim types: 
 
 * Compensation
 * Pension/Survivors Benefits
 * Education
 * Fiduciary
 * Insurance
-* Veteran Readiness & Employment (VRE), and
+* Veteran Readiness & Employment (VRE)
 * Board of Veteran Appeals (BVA)
 
-It also saves users time by reporting documents' status until they reach Veterans Benefits Management System (VBMS), where the documents are reviewed. This eliminates the need for users to switch between systems to manually check whether documents have reached VBMS.
+This API also provides submission status updates until documents are successfully established for VBA claim processing, eliminating the need for users to switch between systems to manually check whether documents have been successfully uploaded.
 
-Visit our VA Lighthouse [support portal](https://developer.va.gov/support) for further assistance.
+## Background 
+This API provides a secure, efficient, and tracked alternative to mail or fax for VA benefit claim document submissions. Documents are uploaded directly to the VBA so they can be processed as quickly as possible.
 
-## Technical Summary
-The Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as binary multipart/form-data (not base64). A unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
+## Technical overview
+The Benefits Intake API first provides an upload location and unique submission identifier, and then accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. 
 
-API consumers are encouraged to validate the `zipcode` and `fileNumber` fields before submission according to their description in the DocumentUploadMetadata model.
+The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as binary multipart/form-data (not base64). The unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
 
+To avoid errors and processing delays, API consumers are encouraged to validate the `zipcode`,`fileNumber`, `veteranFirstName`, `veteranLastName` and `businessLine` fields before submission according to their description in the DocumentUploadMetadata model and use the 'businessLine' attribute for the most efficient processing. Additionally, please ensure no PDF user or owner passwords are used in submitted PDFs. 
 
-## Design
-### Attachment & File Size Limits
-There is not a limit on the number of documents that can be submitted at once, but file sizes can impact the number of documents accepted.
+### Attachment & file size limits
+There is no limit on the number of files a payload can contain, but size limits do apply.
 
-The file size limit for each document is 100 MB. The entire package, which is all documents combined into one file, is limited to 5 GB.
+* Uploaded documents cannot be larger than 21" x 21"
+* The entire payload cannot exceed 5 GB
+* No single file in a payload can exceed 100 MB
 
-The maximum page size for each document is 21 in x 21 in.
+### Date of receipt
+The date that documents are successfully submitted through the Benefits Intake API is used as the official VA date of receipt. However, note that until a document status of `received`, `processing`, `success`, or `vbms` is returned, a client cannot consider the document received by VA. 
 
-### Date of Receipt
-The date and time documents are submitted to the Benefits Intake API is used as the official VA date of receipt. However, note that until a document status of `received`, `processing`, `success`, or `vbms` is returned, a client cannot consider the document received by VA.
-
-A status of `received` means that the document package has been transmitted, but possibly not validated. Any errors with the document package (unreadable PDF, etc) will cause the status to change to `error`.
-
-Please note that in the sandbox environment, the final status of a submission is `received` and submissions do not actually progress to Central Mail / VBMS. Progress beyond the `received` status can be simulated for testing - see Status Simulation below.
+A status of `received` means that the document package has been transmitted, but may not be validated. Any errors with the document package, such as unreadable PDFs or a Veteran not found, will cause the status to change to `error`.
 
 If the document status is `error`, VA has not received the submission and cannot honor the submission date as the date of receipt.
 
-### Authorization
-API requests are authorized by means of a symmetric API token, provided in an HTTP header with name `apikey`.
+### Authentication and Authorization
+API requests are authorized through a symmetric API token, provided in an HTTP header with name 'apikey'. [Request an API key.](https://developer.va.gov/apply)
 
-### Upload Operation
-Allows a client to upload a document package (form + attachments + metadata).
+### Testing in the sandbox environment
+In the sandbox environment, the final status of a submission is `received` and submissions do not actually progress to the central mail repository or VBMS. 
+
+Progress beyond the `received` status can be simulated for testing. We allow passing in a `Status-Override` header on the `/uploads/{id}` endpoint so that you can change the status of your submission to simulate the various scenarios. 
+
+The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `vbms`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
+
+### Test data
+We use mock test data in the sandbox environment. Data is not sent upstream and it is not necessary to align submitted test data with any other systems' data.
+
+### Upload operation
+Allows a client to upload a multi-part document package (form + attachments + metadata).
 
 1. Client Request: POST https://sandbox-api.va.gov/services/vba_documents/v1/
     * No request body or parameters required
@@ -58,27 +65,20 @@ Allows a client to upload a document package (form + attachments + metadata).
 4. Service Response: The HTTP status indicates whether the upload was successful.
     * Additionally, the response includes an ETag header containing an MD5 hash of the submitted payload. This can be compared to the submitted payload to ensure data integrity of the upload.
 
-### Status Simulation
-In the sandbox environment, the final status of a submission is `received`. Test submissions do not progress to Central Mail / VBMS. In sandbox, we allow passing in a `Status-Override` header on the `/uploads/{id}` endpoint so that you can change the status of your submission to simulate the various scenarios. 
-
-The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `vbms`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
-
-### Status Caching
+### Status caching
 Due to current system limitations, data for the `/uploads/report` endpoint is cached for one hour.
 
 A request to the `/uploads/{id}` endpoint will return a real-time status for that GUID, and update its status in `/uploads/report`.
 
 The `updated_at` field indicates the last time the status for a given GUID was updated.
 
-### Optional Base64 Encoding
+### Optional Base64 encoding
 
 Base64 is an encoding scheme that converts binary data into text format, so that encoded textual data can be easily transported over networks uncorrupted and without data loss. 
 
-Base64 can be used to encode binary multipart/form-data it in its entirety, in order to bypass certain false positives encountered as the VA firewall scans for attack signatures. If your PDF file uploads are failing, causing your GUIDs to expire before a PDF is received, you might consider <ins>encoding the entire payload</ins> in base64.
-
-Note that the whole payload must be encoded, not individual parts/attachments.
+Base64 can be used to encode binary multipart/form-data it in its entirety.  Note that the whole payload must be encoded, not individual parts/attachments.
 
 After encoding your payload, you'll be required to preface your base64 string with `data:multipart/form-data;base64,` in order to allow our system to distinguish the file type. Your final string payload would look something like `data:multipart/form-data;base64,(encryption string)==` and close with the standard == marker.  Note that the multipart boundaries i.e. -----WebKitFormBoundaryVfOwzCyvug0JmWYo and ending ------WebKitFormBoundaryVfOwzCyvug0JmWYo- must also be included.
 
-## Reference
-Raw Open API Spec: https://api.va.gov/services/vba_documents/docs/v1/api
+### Consumer onboarding process
+When you're ready to move to production, [request a production API key.](https://developer.va.gov/go-live)

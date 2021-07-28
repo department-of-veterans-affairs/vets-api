@@ -104,6 +104,12 @@ paths:
             type: boolean
           description: Whether or not to use this API's cache or fetch records from the upstream service
           example: true
+        - in: query
+          name: sort
+          schema:
+            type: string
+          description: Field to sort the appointments list by. Currently only supports `startDateUtc`. Prefixing `-` reverses the sort.
+          example: -startDateUtc
       responses:
         '200':
           description: OK
@@ -2305,11 +2311,11 @@ paths:
     get:
       summary: /v0/messaging/health/folders/{id}/messages
       description: |
-        List messages in a secure messaging folder. 
-        
-        When listing messages, the response for each message will include most but not all of the message attributes. 
-        Specifically, the message body and attachment information is not included. Those attributes can be obtained by 
-        getting the specific message resource. 
+        List messages in a secure messaging folder.
+
+        When listing messages, the response for each message will include most but not all of the message attributes.
+        Specifically, the message body and attachment information is not included. Those attributes can be obtained by
+        getting the specific message resource.
       operationId: get_folder_messages
       security:
         - Bearer: []
@@ -2347,6 +2353,7 @@ paths:
           <ul>
             <li>If a subject isn't included, default subject will be "{{Category}} Inquiry" (e.g. Medication Inquiry)</li>
             <li>Messages can only be replied to for 120 days.  After that, the message is considered "expired"</li>
+            <li>If sending a draft, include the draft's ID in the request body as `draft_id`. Draft will be deleted once sent. Any fields included in request body will overwrite original draft contents.
             <li>If including file attachments, this request must be sent as <i>multipart/form-data</i></li>
             <li>
               File attachment restrictions (as imposed by MHV):
@@ -2370,9 +2377,9 @@ paths:
                 uploads[]:
                   type: array
                   description: |
-                    One or more message attachments. 
-                    
-                    <strong>NOTES:</strong> 
+                    One or more message attachments.
+
+                    <strong>NOTES:</strong>
                     <ul>
                     <li>A single message may have a maximum of 4 attachments.</li>
                     <li>A single attachment cannot exceed 3 MB</li>
@@ -2408,7 +2415,7 @@ paths:
     get:
       summary: /v0/messaging/health/messages/{id}
       description: |
-        Get a secure message <strong>and mark the message as read</strong>. 
+        Get a secure message <strong>and mark the message as read</strong>.
 
         <strong>NOTES:</strong>
         <ul>
@@ -2583,6 +2590,13 @@ paths:
       operationId: post_create_message_reply
       security:
         - Bearer: []
+      parameters:
+          - in: path
+            name: id
+            required: true
+            description: ID of the message that is being replied to
+            schema:
+              type: integer
       requestBody:
         description: Reply message body
         required: true
@@ -2597,9 +2611,9 @@ paths:
                 uploads[]:
                   type: array
                   description: |
-                    One or more message attachments. 
-                    
-                    <strong>NOTES:</strong> 
+                    One or more message attachments.
+
+                    <strong>NOTES:</strong>
                     <ul>
                     <li>A single message may have a maximum of 4 attachments.</li>
                     <li>A single attachment cannot exceed 3 MB</li>
@@ -2640,6 +2654,13 @@ paths:
       operationId: get_attachment
       security:
         - Bearer: []
+      parameters:
+          - in: path
+            name: id
+            required: true
+            description: ID of the message that we are retrieving attachments of
+            schema:
+              type: integer
       responses:
         '200':
           description: OK
@@ -2718,8 +2739,155 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
-
-
+  /v0/messaging/health/message_drafts:
+    post:
+      summary: /v0/messaging/health/message_drafts
+      description: Save a new draft message
+      operationId: post_create_message_draft
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/SecureMessageNewMessageRequest.yml'
+      security:
+        - Bearer: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/SecureMessageNewMessageRequest.yml'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/message_drafts/{id}:
+    put:
+      summary: /v0/messaging/health/message_drafts/{id}
+      description: Update an existing draft message
+      operationId: post_create_message_draft
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The id of the draft that is to be updated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              example: { body: "the updated message" }
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/message_drafts/{reply_id}/replydraft:
+    post:
+      summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft
+      description: Save a new draft message as a reply to an existing message
+      operationId: post_create_message_draft_reply
+      parameters:
+        - in: path
+          name: reply_id
+          required: true
+          schema:
+            type: string
+          description: The id of the message that will be replied to
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/SecureMessageNewMessageRequest.yml'
+      security:
+        - Bearer: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/SecureMessageNewMessageRequest.yml'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+  /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}:
+    post:
+      summary: /v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}
+      description: Edit a draft message that was a reply to an existing message
+      operationId: post_create_message_draft_reply
+      parameters:
+        - in: path
+          name: reply_id
+          required: true
+          schema:
+            type: string
+          description: The id of the message that will be replied to
+        - in: path
+          name: draft_id
+          required: true
+          schema:
+            type: string
+          description: The id of the draft that is to be updated
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              example: { body: "the updated message" }
+      security:
+        - Bearer: []
+      responses:
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
+        '403':
+          description: Not authorized for access to secure messages
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
 
 components:
   securitySchemes:

@@ -56,6 +56,12 @@ module Okta
       end
     end
 
+    def clear_user_session(user_id)
+      with_monitoring do
+        delete_url_with_token("#{USER_API_BASE_PATH}/#{user_id}/sessions?oauthTokens=TRUE")
+      end
+    end
+
     def grants(user_id)
       with_monitoring do
         get_url_with_token("#{USER_API_BASE_PATH}/#{user_id}/grants")

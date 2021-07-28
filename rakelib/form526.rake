@@ -580,7 +580,7 @@ namespace :form526 do
     end
 
     def user_identity(icn:, edipi:)
-      OpenStruct.new mhv_icn: icn, dslogon_edipi: edipi
+      OpenStruct.new mhv_icn: icn, edipi: edipi
     end
 
     def edipi(auth_headers)

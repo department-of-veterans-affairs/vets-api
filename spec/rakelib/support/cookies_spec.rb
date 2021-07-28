@@ -27,7 +27,7 @@ describe Cookies do
 
     let(:api_session_header) { subject.api_session_header }
     let(:decrypted_api_session_header) do
-      decrypt_session_cookie(api_session_header.match(/^api_session=(.*)$/).captures.first)
+      decrypt_session_cookie(api_session_header.match(/^api_session=(.*)$/).captures.first.split(';').first)
     end
 
     it 'includes the uuid' do

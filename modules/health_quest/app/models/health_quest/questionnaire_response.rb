@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'json_marshal/marshaller'
-
 module HealthQuest
   ##
   # An ActiveRecord object for modeling and persisting questionnaire response and user demographics data to the DB.
@@ -24,11 +22,11 @@ module HealthQuest
     attr_encrypted :questionnaire_response_data,
                    key: Settings.db_encryption_key,
                    marshal: true,
-                   marshaler: JsonMarshal::Marshaller
+                   marshaler: JsonMarshaller
     attr_encrypted :user_demographics_data,
                    key: Settings.db_encryption_key,
                    marshal: true,
-                   marshaler: JsonMarshal::Marshaller
+                   marshaler: JsonMarshaller
 
     validates :questionnaire_response_data, presence: true
 
@@ -36,6 +34,10 @@ module HealthQuest
 
     private
 
+    ##
+    # sets the users demographics as a snapshot when creating a
+    # questionnaire response against lighthouse
+    #
     def set_user_demographics
       contact_info = user.vet360_contact_info
 

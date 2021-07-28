@@ -77,11 +77,28 @@ module ClaimsApi
         #
         # @return [JSON] Last POA change request through Claims API
         def active
-          power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5: header_md5,
-                                                                                          source_name: source_name)
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found') unless power_of_attorney
+          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
 
-          render json: power_of_attorney, serializer: ClaimsApi::PowerOfAttorneySerializer
+          representative_info = build_representative_info(current_poa_code)
+
+          render json: {
+            data: {
+              id: nil,
+              type: 'claims_api_power_of_attorneys',
+              attributes: {
+                status: ClaimsApi::PowerOfAttorney::UPDATED,
+                date_request_accepted: current_poa_begin_date,
+                representative: {
+                  service_organization: {
+                    name: representative_info[:name],
+                    phone_number: representative_info[:phone_number],
+                    poa_code: current_poa_code
+                  }
+                },
+                previous_poa: previous_poa_code
+              }
+            }
+          }
         end
 
         # POST to validate 2122 submission payload.
@@ -124,6 +141,44 @@ module ClaimsApi
               }
             }
           }
+        end
+
+        def current_poa_begin_date
+          return nil if current_poa.try(:begin_date).blank?
+
+          Date.strptime(current_poa.begin_date, '%m/%d/%Y')
+        end
+
+        def current_poa
+          @current_poa ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa
+        end
+
+        def current_poa_code
+          current_poa.try(:code)
+        end
+
+        def previous_poa_code
+          @previous_poa_code ||= BGS::PowerOfAttorneyVerifier.new(target_veteran).previous_poa_code
+        end
+
+        def build_representative_info(poa_code)
+          if poa_code_in_organization?(poa_code)
+            veteran_service_organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
+            raise 'Veteran Service Organization not found' if veteran_service_organization.blank?
+
+            {
+              name: veteran_service_organization.name,
+              phone_number: veteran_service_organization.phone
+            }
+          else
+            representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).first
+            raise 'Power of Attorney not found' if representative.blank?
+
+            {
+              name: "#{representative.first_name} #{representative.last_name}",
+              phone_number: representative.phone
+            }
+          end
         end
       end
     end

@@ -14,7 +14,7 @@ class Sidekiq::SemanticLogging < Sidekiq::JobLogger
       user_uuid: item['user_uuid'] || 'N/A'
     }
 
-    logger.tagged(**logger_tags) do
+    @logger.tagged(**logger_tags) do
       super(item, queue)
     end
   end

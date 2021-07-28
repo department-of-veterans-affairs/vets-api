@@ -244,7 +244,7 @@ class DependentsApplication < Common::RedisStore
   private
 
   def user_can_access_evss
-    errors[:user] << 'must have evss access' unless user.authorize(:evss, :access?)
+    errors.add(:user, 'must have evss access') unless user.authorize(:evss, :access?)
   end
 
   def create_submission_job

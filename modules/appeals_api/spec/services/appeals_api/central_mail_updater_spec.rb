@@ -42,6 +42,18 @@ describe AppealsApi::CentralMailUpdater do
       hlr.reload
       expect(hlr.status).to eq('success')
     end
+
+    it 'hlr V2 accepts VBMS Complete and maps it to caseflow' do
+      hlr = create(:higher_level_review)
+      hlr.update!(api_version: 'V2')
+      central_mail_response[0][:uuid] = hlr.id
+      allow(faraday_response).to receive(:body).at_least(:once).and_return([central_mail_response].to_json)
+
+      subject.call([hlr])
+      hlr.reload
+      expect(hlr.api_version).to eq('V2')
+      expect(hlr.status).to eq('caseflow')
+    end
   end
 
   context 'when verifying status structures' do

@@ -31,10 +31,14 @@ module VBADocuments
 
     def self.download_raw_file(guid)
       store = VBADocuments::ObjectStore.new
-      tempfile = Tempfile.new(guid)
-      version = store.first_version(guid)
-      store.download(version, tempfile.path)
-      [tempfile, version.last_modified]
+      if store.bucket.object(guid).exists?
+        tempfile = Tempfile.new(guid)
+        version = store.first_version(guid)
+        store.download(version, tempfile.path)
+        [tempfile, version.last_modified]
+      else
+        raise Common::Exceptions::ResourceNotFound.new(detail: 'File no longer stored.')
+      end
     end
 
     def self.attachments(parsed)

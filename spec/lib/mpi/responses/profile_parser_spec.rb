@@ -29,7 +29,8 @@ describe MPI::Responses::ProfileParser do
           birls_ids: [],
           sec_id: nil,
           historical_icns: nil,
-          search_token: 'WSDOC1609131753362231779394902'
+          search_token: 'WSDOC1609131753362231779394902',
+          id_theft_flag: false
         )
       end
 
@@ -50,7 +51,8 @@ describe MPI::Responses::ProfileParser do
             birls_ids: [],
             sec_id: nil,
             historical_icns: nil,
-            search_token: 'WSDOC1609131753362231779394902'
+            search_token: 'WSDOC1609131753362231779394902',
+            id_theft_flag: false
           )
         end
 
@@ -82,7 +84,8 @@ describe MPI::Responses::ProfileParser do
               'UNK^NI^200DOD^USDOD^A',
               'UNK^PI^200CORP^USVBA^A'
             ],
-            search_token: 'WSDOC1609131753362231779394902'
+            search_token: 'WSDOC1609131753362231779394902',
+            id_theft_flag: false
           )
         end
 
@@ -113,7 +116,8 @@ describe MPI::Responses::ProfileParser do
               '1008714701^PN^200PROV^USDVA^A',
               '1100792239^PI^200MHS^USVHA^A'
             ],
-            search_token: 'WSDOC1908201553145951848240311'
+            search_token: 'WSDOC1908201553145951848240311',
+            id_theft_flag: false
           )
         end
 
@@ -161,7 +165,8 @@ describe MPI::Responses::ProfileParser do
           birls_ids: [],
           search_token: 'WSDOC2005221733165441605720989',
           person_type_code: 'Dependent',
-          relationships: [mpi_profile_relationship_component]
+          relationships: [mpi_profile_relationship_component],
+          id_theft_flag: false
         )
       end
 
@@ -286,7 +291,8 @@ describe MPI::Responses::ProfileParser do
           '123412345^PI^200BRLS^USVBA^A'
         ],
         search_token: 'WSDOC1611060614456041732180196',
-        person_type_code: 'Patient'
+        person_type_code: 'Patient',
+        id_theft_flag: false
       )
     end
 
@@ -309,7 +315,8 @@ describe MPI::Responses::ProfileParser do
         sec_id: nil,
         birls_id: nil,
         birls_ids: [],
-        search_token: 'WSDOC1609131753362231779394902'
+        search_token: 'WSDOC1609131753362231779394902',
+        id_theft_flag: false
       )
     end
 

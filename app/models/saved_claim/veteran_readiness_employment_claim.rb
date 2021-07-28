@@ -8,7 +8,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   FORM = '28-1900'
   # We will be adding numbers here and eventually completeley removing this and the caller to open up VRE submissions
   # to all vets
-  PERMITTED_OFFICE_LOCATIONS = %w[325].freeze
+  PERMITTED_OFFICE_LOCATIONS = %w[].freeze
 
   REGIONAL_OFFICE_EMAILS = {
     '301' => 'VRC.VBABOS@va.gov',
@@ -88,11 +88,12 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
   def add_veteran_info(updated_form, user)
     updated_form['veteranInformation'].merge!(
       {
-        'VAFileNumber' => updated_form['veteranInformation']['vaFileNumber'] || veteran_va_file_number(user),
+        'VAFileNumber' => veteran_va_file_number(user),
         'pid' => user.participant_id,
         'edipi' => user.edipi,
         'vet360ID' => user.vet360_id,
-        'dob' => user.birth_date
+        'dob' => user.birth_date,
+        'ssn' => user.ssn
       }
     ).except!('vaFileNumber')
   end
@@ -133,6 +134,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     uploader.upload!
+  end
+
+  def send_to_central_mail!
+    form_copy = parsed_form
+
+    form_copy['veteranSocialSecurityNumber'] = parsed_form.dig('veteranInformation', 'ssn')
+    form_copy['veteranFullName'] = parsed_form.dig('veteranInformation', 'fullName')
+    form_copy['vaFileNumber'] = parsed_form.dig('veteranInformation', 'VAFileNumber')
+
+    update(form: form_copy.to_json)
+
+    log_message_to_sentry(guid, :warn, { attachment_id: guid }, { team: 'vfs-ebenefits' })
+    process_attachments!
   end
 
   # SavedClaims require regional_office to be defined

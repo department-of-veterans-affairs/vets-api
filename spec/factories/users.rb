@@ -23,7 +23,7 @@ FactoryBot.define do
       multifactor { false }
       mhv_correlation_id { nil }
       mhv_account_type { nil }
-      dslogon_edipi { nil }
+      edipi { nil }
       va_patient { nil }
       search_token { nil }
       icn_with_aaid { nil }
@@ -63,7 +63,7 @@ FactoryBot.define do
                              multifactor: t.multifactor,
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
-                             dslogon_edipi: t.dslogon_edipi,
+                             edipi: t.edipi,
                              sign_in: t.sign_in,
                              common_name: t.common_name)
       user.instance_variable_set(:@identity, user_identity)

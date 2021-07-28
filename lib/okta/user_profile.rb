@@ -20,6 +20,9 @@ module Okta
       elsif @attrs['last_login_type'] == 'dslogon'
         dl = DSLOGON_PREMIUM_LOAS.include?(@attrs['dslogon_assurance']) ? 3 : 1
         { current: dl, highest: dl }
+      # SSOe combines LOA into a single field for all 3 login types
+      elsif %w[200DOD 200VIDM 200MHV].include?(@attrs['last_login_type'])
+        { current: @attrs['loa']&.to_i, highest: @attrs['loa']&.to_i }
       else
         { current: @attrs['idme_loa']&.to_i, highest: @attrs['idme_loa']&.to_i }
       end

@@ -10,10 +10,10 @@ module AppealsApi::V1
         class EvidenceSubmissionRequestValidatorError < StandardError; end
 
         skip_before_action :authenticate
-        before_action :nod_id_present?, only: :create
+        before_action :nod_uuid_present?, only: :create
 
         def create
-          status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(params[:nod_id],
+          status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(params[:nod_uuid],
                                                                              request.headers['X-VA-SSN']).call
 
           if status == :ok
@@ -44,12 +44,12 @@ module AppealsApi::V1
 
         private
 
-        def nod_id_present?
-          nod_id_missing_error unless params[:nod_id]
+        def nod_uuid_present?
+          nod_uuid_missing_error unless params[:nod_uuid]
         end
 
-        def nod_id_missing_error
-          error = { title: 'bad_request', detail: I18n.t('appeals_api.errors.missing_nod_id') }
+        def nod_uuid_missing_error
+          error = { title: 'bad_request', detail: I18n.t('appeals_api.errors.missing_nod_uuid') }
           log_error(error)
 
           render json: { errors: [error] }, status: :bad_request
@@ -58,7 +58,7 @@ module AppealsApi::V1
         def submission_attributes
           {
             source: request.headers['X-Consumer-Username'],
-            supportable_id: params[:nod_id],
+            supportable_id: params[:nod_uuid],
             supportable_type: 'AppealsApi::NoticeOfDisagreement'
           }
         end

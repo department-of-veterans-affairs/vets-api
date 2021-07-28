@@ -21,20 +21,16 @@ module SearchClickTracking
     attr_reader :url
     attr_reader :query
     attr_reader :position
-    attr_reader :client_ip
     attr_reader :module_code
     attr_reader :user_agent
 
-    # rubocop:disable Metrics/ParameterLists
-    def initialize(url, query, position, user_agent, module_code = 'I14Y', client_ip = request.remote_ip)
+    def initialize(url, query, position, user_agent, module_code = 'I14Y')
       @url = url
       @query = query
       @position = position
-      @client_ip = client_ip
       @user_agent = user_agent
       @module_code = module_code
     end
-    # rubocop:enable Metrics/ParameterLists
 
     # POSTs click tracking query param data to search.gov
     #
@@ -56,7 +52,7 @@ module SearchClickTracking
       config.base_path
     end
 
-    # Required params [affiliate, access_key, module_code, url, query, position, client_ip, user_agent]
+    # Required params [affiliate, access_key, module_code, url, query, position, user_agent]
     #
     # @see https://search.usa.gov/sites/7378/api_instructions
     #
@@ -69,7 +65,6 @@ module SearchClickTracking
           url: url,
           query: query,
           position: position,
-          client_ip: client_ip,
           user_agent: user_agent
         }
       )

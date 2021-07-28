@@ -41,6 +41,33 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
         expect(response.status).to eq(422)
         expect(parsed['errors']).to be_an Array
       end
+
+      it 'fails when the phone number is too long' do
+        data = JSON.parse(@data)
+        data['data']['attributes']['veteran'].merge!(
+          { 'phone' => { 'areaCode' => '999', 'phoneNumber' => '1234567890', 'phoneNumberExt' => '1234567890' } }
+        )
+
+        post(path, params: data.to_json, headers: @minimum_required_headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors']).to include(
+          {
+            'status' => 422,
+            'detail' => 'Phone number will not fit on form (20 char limit): 9991234567890x1234567890'
+          }
+        )
+      end
+
+      it 'fails when the informal conference rep data is too long' do
+        data = JSON.parse(@data)
+        data['data']['attributes']['informalConferenceRep'].merge!(
+          { 'name' => 'x' * 1000 }
+        )
+
+        post(path, params: data.to_json, headers: @minimum_required_headers)
+        expect(response.status).to eq(422)
+        expect(parsed['errors'][0]['detail']).to include('Informal conference rep will not fit on form')
+      end
     end
 
     it 'create the job to build the PDF' do
@@ -84,7 +111,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
-          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
       end
 
@@ -96,7 +123,7 @@ describe AppealsApi::V1::DecisionReviews::HigherLevelReviewsController, type: :r
           body = JSON.parse(response.body)
           expect(response.status).to eq 422
           expect(body['errors']).to be_an Array
-          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object: #{json}"
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
       end
     end

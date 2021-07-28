@@ -72,7 +72,18 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/AppointmentsResponse"
+                      required:
+                        - id
+                        - type
+                        - attributes
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          example: appointments
+                        attributes:
+                          $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -115,7 +126,18 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/AppointmentResponse"
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -160,7 +182,18 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/AppointmentResponse"
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -216,17 +249,90 @@ paths:
             application/json:
               schema:
                 required:
-                  - id
-                  - type
-                  - attributes
+                  - data
                 properties:
-                  id:
-                    type: string
-                  type:
-                    type: string
-                    example: appointments
-                  attributes:
-                    $ref: "#/components/schemas/Appointment"
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        example: appointments
+                      attributes:
+                        $ref: "#/components/schemas/Appointment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
+  "/facilities":
+    get:
+      tags:
+        - mobile facility service
+      summary: Search for facilities matching criteria.
+      operationId: getFacilities
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+          description: Not implemented and will be ignored if present.
+        - in: query
+          name: ids
+          required: true
+          schema:
+            type: string
+          description: A comma-separated list of facility IDs.
+          example: '534,534gb,442'
+        - in: query
+          name: children
+          schema:
+            type: boolean
+          description: Indicates whether child facilities should be returned for matching parent facilities.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: array
+                    items:
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          example: appointments
+                        attributes:
+                          $ref: "#/components/schemas/Facility"   
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -431,26 +537,31 @@ paths:
         - bearerAuth: []
       responses:
         "200":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves patient appointment metadata
           content:
             application/json:
               schema:
                 required:
-                  - id
-                  - type
-                  - attributes
+                  - data
                 properties:
-                  id:
-                    type: string
-                  type:
-                    type: string
-                  attributes:
+                  data:
                     type: object
+                    required:
+                      - id
+                      - type
+                      - attributes
                     properties:
-                      hasRequiredAppointmentHistory:
-                        type: boolean
-                      isEligibleForNewAppointmentRequest:
-                        type: boolean
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        type: object
+                        properties:
+                          hasRequiredAppointmentHistory:
+                            type: boolean
+                          isEligibleForNewAppointmentRequest:
+                            type: boolean
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -498,21 +609,12 @@ paths:
             application/json:
               schema:
                 required:
-                  - id
-                  - type
-                  - attributes
+                  - data
                 properties:
-                  id:
-                    type: string
-                  type:
-                    type: string
-                  attributes:
-                    type: object
-                    properties:
-                      hasRequiredAppointmentHistory:
-                        type: boolean
-                      isEligibleForNewAppointmentRequest:
-                        type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/SchedulingConfiguration"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -540,6 +642,34 @@ components:
       scheme: "bearer"
       bearerFormat: "JWT"
   schemas:
+    Address:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - postal
+            - physical
+            - both
+        line:
+          description: 'Street name, number, direction & P.O. Box etc. The order of lines in the array is the order in which lines should appear in an address label.'
+          type: array
+          items:
+            type: string
+          example:
+            - '50 Irving Street, Northwest'
+        city:
+          description: 'Name of city, town etc.'
+          type: string
+          example: Washington
+        state:
+          description: Sub-unit of country (abbreviations ok)
+          type: string
+          example: DC
+        postalCode:
+          description: Postal code for area
+          type: string
+          example: 20422-0001
     Appointment:
       description: Information about a future or past meeting.
       type: object
@@ -639,12 +769,6 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/Appointment"
-    AppointmentResponse:
-      description: A single appointment
-      type: object
-      properties:
-        data:
-          "$ref": "#/components/schemas/Appointment"
     AppointmentStatus:
       type: string
       enum:
@@ -817,6 +941,104 @@ components:
         value:
           type: string
           nullable: false
+    Facility:
+      description: Describes a VA facility.
+      type: object
+      properties:
+        id:
+          description: The facility ID.
+          type: string
+          example: 612GJ
+        vistaSite:
+          description: The VistA site that this facility belongs to.
+          type: string
+          example: '612'
+        vastParent:
+          description: The VAST parent site.
+          type: string
+          example: 612A4
+        type:
+          description: 'The VA facility type. One of: health, benefits, cemetery, vetCenter'
+          example: health
+          type: string
+        name:
+          type: string
+          example: Ralph H. Johnson Department of Veterans Affairs Medical Center
+        classification:
+          type: string
+          example: VA Medical Center (VAMC)
+        timezone:
+          $ref: '#/components/schemas/Timezone'
+        lat:
+          type: number
+          description: Facility latitude
+          format: float
+          example: 38.931114
+        long:
+          type: number
+          description: Facility longitude
+          format: float
+          example: -77.01091
+        website:
+          type: string
+          format: url
+          example: 'http://www.washingtondc.va.gov'
+        phone:
+          $ref: '#/components/schemas/PhoneNumbers'
+        hoursOfOperation:
+          type: array
+          items:
+            $ref: '#/components/schemas/HoursOfOperation'
+        mailingAddress:
+          $ref: '#/components/schemas/Address'
+        physicalAddress:
+          $ref: '#/components/schemas/Address'
+        mobile:
+          description: 'The mobile health facilities move regularly within a region. If a facility comes back from this API with "mobile": "true", the latitude/longitude and address could be inaccurate. To get the exact current location, please call the number listed.'
+          type: boolean
+          example: false
+        healthService:
+          description: 'The health services offered by this facility, such as ''PrimaryCare'' or ''Podiatry''.'
+          type: array
+          items:
+            type: string
+        operatingStatus:
+          $ref: '#/components/schemas/OperatingStatus'
+    HoursOfOperation:
+      type: object
+      properties:
+        daysOfWeek:
+          type: string
+          enum:
+            - mon
+            - tue
+            - wed
+            - thu
+            - fri
+            - sat
+            - sun
+        allDay:
+          type: boolean
+        openingTime:
+          type: string
+          pattern: '([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?'
+        closingTime:
+          type: string
+          pattern: '([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?'
+      description: |
+        Standard hours of operation. Currently formatted as descriptive text suitable for display, with no guarantee of a standard parsable format. Hours of operation may vary due to holidays or other events.
+    OperatingStatus:
+      type: object
+      description: 'Current status of facility operations.The overall status of the facility which can be Normal Hours and Services, Facility Notice, Limited Hours and/or Services, or Closed. This field replaces active_status.'
+      properties:
+        code:
+          description: 'The operating status of the facility. One of: NORMAL, NOTICE, LIMITED, or CLOSED.'
+          type: string
+        additionalInfo:
+          description: 'Details of facility notices for visitors, such as messages about parking lot closures or floor visitation information.'
+          type: string
+          minLength: 0
+          maxLength: 300
     PatientContact:
       description: Patient contact information
       type: object
@@ -858,21 +1080,109 @@ components:
         value:
           type: string
           description: the practitioner ID
-    # Slot:
-    #   type: object
-    #   properties:
-    #     id:
-    #       description: The slot ID
-    #       type: string
-    #       pattern: "[A-Za-z0-9\\-\\.]{1,64}"
-    #     start:
-    #       description: Date/Time that the slot is to begin.
-    #       type: string
-    #       format: date-time
-    #     end:
-    #       description: Date/Time that the slot is to end.
-    #       type: string
-    #       format: date-time
+    PhoneNumbers:
+      type: object
+      properties:
+        main:
+          type: string
+          example: 202-555-1212
+        fax:
+          type: string
+          example: 202-555-1212
+        pharmacy:
+          type: string
+          example: 202-555-1212
+        afterHours:
+          type: string
+          example: 202-555-1212
+        patientAdvocate:
+          type: string
+          example: 202-555-1212
+        mentalHealthClinic:
+          type: string
+          example: 202-555-1212
+        enrollmentCoordinator:
+          type: string
+          example: 202-555-1212
+    SchedulingConfiguration:
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: object
+          required: 
+            - facility_id
+          properties:
+            facility_id:
+              type: string
+            services:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  stop_codes:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        primary:
+                          type: string
+                        secondary:
+                          type: string
+                  char4:
+                    type: string
+                  direct:
+                    type: object
+                    properties:
+                      patient_history_required:
+                        type: boolean
+                      patient_history_duration:
+                        type: integer
+                      can_cancel:
+                        type: boolean
+                      enabled:
+                        type: boolean
+                  request:
+                    type: object
+                    properties:
+                      patient_history_required:
+                        type: boolean
+                      patient_history_duration:
+                        type: integer
+                      can_cancel:
+                        type: boolean
+                      submitted_request_limit:
+                        type: integer
+                      enterprise_submitted_request_limit:
+                        type: integer
+                      supported:
+                        type: boolean
+                      scheduling_days:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day:
+                              type: string
+                            can_schedule:
+                              type: boolean
+                            start_time:
+                              type: string
+                            end_time:
+                              type: string
+            community_care:
+              type: boolean            
     TasAddress:
       type: object
       properties:
@@ -916,6 +1226,17 @@ components:
           type: string
         atlas:
           "$ref": "#/components/schemas/TasInfo"
+    Timezone:
+      type: object
+      properties:
+        zoneId:
+          type: string
+          description: The timezone ID.
+          example: America/New_York
+        abbreviation:
+          type: string
+          description: The timezone ID abbreviation.
+          example: EDT
   responses:
     "BadGateway":
       description: "The server was acting as a gateway or proxy and received an invalid response from the upstream server."

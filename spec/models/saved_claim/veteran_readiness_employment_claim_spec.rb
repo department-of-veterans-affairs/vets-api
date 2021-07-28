@@ -25,7 +25,7 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
     it 'adds veteran information' do
       VCR.use_cassette 'veteran_readiness_employment/add_claimant_info' do
         claim.add_claimant_info(user_object)
-        claimant_keys = %w[fullName ssn dob VAFileNumber pid edipi vet360ID regionalOffice]
+        claimant_keys = %w[fullName dob pid edipi vet360ID regionalOffice VAFileNumber ssn]
         expect(claim.parsed_form['veteranInformation']).to include(
           {
             'fullName' => {
@@ -74,7 +74,10 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
 
-          expect(response['error_occurred']).to eq(false)
+          # the business has asked us to put a pause on submissions
+          # so this is just a temporary change but will be put back
+          # expect(response['error_occurred']).to eq(false)
+          expect(response).to eq(nil)
         end
       end
 
@@ -91,7 +94,10 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
           claim.add_claimant_info(user_object)
           response = claim.send_to_vre(user_object)
 
-          expect(response['error_occurred']).to eq(true)
+          # the business has asked us to put a pause on submissions
+          # so this is just a temporary change but will be put back
+          # expect(response['error_occurred']).to eq(true)
+          expect(response).to eq(nil)
         end
       end
     end
@@ -116,6 +122,17 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   describe '#regional_office' do
     it 'returns an empty array' do
       expect(claim.regional_office).to be_empty
+    end
+  end
+
+  describe '#send_to_central_mail!' do
+    it 'sends the claim to central mail' do
+      claim.send_to_central_mail!
+    end
+
+    it 'calls process_attachments! method' do
+      expect(claim).to receive(:process_attachments!)
+      claim.send_to_central_mail!
     end
   end
 end

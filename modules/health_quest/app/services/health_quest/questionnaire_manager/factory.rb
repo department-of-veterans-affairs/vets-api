@@ -113,10 +113,12 @@ module HealthQuest
       def all
         @lighthouse_appointments = get_lighthouse_appointments.resource&.entry
         @locations = get_locations
+
         return default_response if lighthouse_appointments.blank?
 
         concurrent_pgd_requests
         @facilities = get_facilities
+
         return default_response if patient.blank? || questionnaires.blank?
 
         compose
@@ -162,10 +164,11 @@ module HealthQuest
         snapshot = HealthQuest::QuestionnaireResponse
                    .where(user_uuid: user.uuid, questionnaire_response_id: questionnaire_response_id.to_s)
                    .first
-
         appointment = lighthouse_appointment_service.get(snapshot.appointment_id)
-        location = location_service.get(appointment.resource.participant.first.actor.reference.match(ID_MATCHER)[1])
-        org = organization_service.get(location.resource.managingOrganization.reference.match(ID_MATCHER)[1])
+        loc_id = appointment.resource.participant.first.actor.reference.match(ID_MATCHER)[1]
+        location = location_service.get(loc_id)
+        org_id = location.resource.managingOrganization.reference.match(ID_MATCHER)[1]
+        org = organization_service.get(org_id)
 
         HealthQuest::QuestionnaireManager::QuestionnaireResponseReport
           .manufacture(questionnaire_response: snapshot, appointment: appointment, location: location, org: org)
@@ -236,12 +239,14 @@ module HealthQuest
         @get_lighthouse_appointments ||=
           lighthouse_appointment_service.search(
             patient: user.icn,
-            date: [date_ge_one_year_ago, date_le_one_year_from_now]
+            date: [date_ge_one_month_ago, date_le_two_weeks_from_now],
+            _count: '100'
           )
       end
 
       ##
-      # Gets a list of Locations from the `lighthouse_appointments` array.
+      # Gets a list of Locations from the `lighthouse_appointments` array
+      # with a single request using the `_id` param
       #
       # @return [Array] a list of Locations
       #
@@ -255,15 +260,15 @@ module HealthQuest
             acc[location_id] << appt
           end
 
-        location_references.each_with_object([]) do |(k, _v), accumulator|
-          loc = location_service.get(k)
+        clinic_identifiers = location_references&.keys&.join(',')
+        location_response = location_service.search(_id: clinic_identifiers, _count: '100')
 
-          accumulator << loc
-        end
+        location_response&.resource&.entry
       end
 
       ##
       # Returns an array of Organizations from the Health API for the `locations` array
+      # with a single request using the `_id` param
       #
       # @return [Array] a list of Organizations
       #
@@ -277,11 +282,10 @@ module HealthQuest
             acc[org_id] << loc
           end
 
-        org_references.each_with_object([]) do |(k, _v), accumulator|
-          org = organization_service.get(k)
+        facility_identifiers = org_references&.keys&.join(',')
+        org_response = organization_service.search(_id: facility_identifiers, _count: '100')
 
-          accumulator << org
-        end
+        org_response&.resource&.entry
       end
 
       ##
@@ -319,7 +323,8 @@ module HealthQuest
         @get_questionnaire_responses ||=
           questionnaire_response_service.search(
             source: user.icn,
-            authored: [date_ge_one_year_ago, date_le_one_year_from_now]
+            authored: [date_ge_one_month_ago, date_le_two_weeks_from_now],
+            _count: '100'
           )
       end
 
@@ -354,20 +359,20 @@ module HealthQuest
 
       private
 
-      def date_ge_one_year_ago
-        year = tz_date_string(1.year.ago)
+      def date_ge_one_month_ago
+        month = tz_date_string(1.month.ago)
 
-        "ge#{year}"
+        "ge#{month}"
       end
 
-      def date_le_one_year_from_now
-        year = tz_date_string(1.year.from_now)
+      def date_le_two_weeks_from_now
+        weeks = tz_date_string(2.weeks.from_now)
 
-        "le#{year}"
+        "le#{weeks}"
       end
 
-      def tz_date_string(year)
-        year.in_time_zone.to_date.to_s
+      def tz_date_string(span)
+        span.in_time_zone.to_date.to_s
       end
 
       def default_response

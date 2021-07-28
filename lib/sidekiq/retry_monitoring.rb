@@ -13,6 +13,8 @@ module Sidekiq
     private
 
     def should_notify?(worker, job)
+      return false unless job['retry_count']
+
       # retry_count is incremented after all middlewares are called
 
       worker.is_a?(Sidekiq::MonitoredWorker) &&

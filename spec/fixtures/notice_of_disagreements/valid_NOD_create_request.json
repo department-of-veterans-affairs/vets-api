@@ -23,8 +23,7 @@
         "emailAddressText": "user@example.com",
         "representativesName": "Tony Danza"
       },
-      "boardReviewOption": "hearing",
-      "hearingTypePreference": "central_office",
+      "boardReviewOption": "evidence_submission",
       "timezone": "America/Chicago",
       "socOptIn": false
     }

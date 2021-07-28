@@ -123,6 +123,27 @@ RSpec.describe 'Disability Claims ', type: :request do
     context 'validation' do
       let(:json_data) { JSON.parse data }
 
+      # rubocop:disable Layout/LineLength
+      it 'doesn\'t allow additional fields' do
+        with_okta_user(scopes) do |auth_header|
+          params = json_data
+          params['data']['attributes']['serviceInformation']['someBadField'] = 'someValue'
+          params['data']['attributes']['anotherBadField'] = 'someValue'
+
+          post path, params: params.to_json, headers: headers.merge(auth_header)
+
+          expect(response.status).to eq(422)
+          expect(JSON.parse(response.body)['errors'].size).to eq(2)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The property /serviceInformation/someBadField is not defined on the schema. Additional properties are not allowed'
+          )
+          expect(JSON.parse(response.body)['errors'][1]['detail']).to eq(
+            'The property /anotherBadField is not defined on the schema. Additional properties are not allowed'
+          )
+        end
+      end
+      # rubocop:enable Layout/LineLength
+
       it 'requires currentMailingAddress subfields' do
         with_okta_user(scopes) do |auth_header|
           params = json_data
@@ -474,6 +495,19 @@ RSpec.describe 'Disability Claims ', type: :request do
         post("/services/claims/v1/forms/526/#{bad_id}/attachments",
              params: binary_params, headers: headers.merge(auth_header))
         expect(response.status).to eq(404)
+      end
+    end
+
+    context 'when a claim is already established' do
+      let(:auto_claim) { create(:auto_established_claim, :status_established) }
+
+      it 'returns a 404 error because only pending claims are allowed' do
+        with_okta_user(scopes) do |auth_header|
+          allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+          put("/services/claims/v1/forms/526/#{auto_claim.id}",
+              params: binary_params, headers: headers.merge(auth_header))
+          expect(response.status).to eq(404)
+        end
       end
     end
   end

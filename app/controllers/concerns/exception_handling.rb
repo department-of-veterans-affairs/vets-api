@@ -26,7 +26,6 @@ module ExceptionHandling
     exception.respond_to?(:sentry_type) && !exception.log_to_sentry?
   end
 
-  # rubocop:disable Metrics/BlockLength
   included do
     rescue_from 'Exception' do |exception|
       va_exception =
@@ -58,8 +57,6 @@ module ExceptionHandling
       render_errors(va_exception)
     end
   end
-  # rubocop:enable Metrics/BlockLength
-
   def render_errors(va_exception)
     case va_exception
     when JsonSchema::JsonApiMissingAttribute
@@ -80,7 +77,7 @@ module ExceptionHandling
   end
 
   def report_mapped_exception(exception, va_exception)
-    extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
+    extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_h) } : {}
     # Add additional user specific context to the logs
     if exception.is_a?(Common::Exceptions::BackendServiceException) && current_user.present?
       extra[:icn] = current_user.icn

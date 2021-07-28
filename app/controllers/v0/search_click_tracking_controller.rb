@@ -13,7 +13,7 @@ module V0
     # query, position, client_ip, and user_agent.
     #
     def create
-      response = SearchClickTracking::Service.new(url, query, position, user_agent, module_code, client_ip).track_click
+      response = SearchClickTracking::Service.new(url, query, position, user_agent, module_code).track_click
       if response.success?
         render nothing: true, status: 204
       else
@@ -24,7 +24,7 @@ module V0
     private
 
     def click_params
-      params.permit(:url, :query, :position, :client_ip, :module_code, :user_agent)
+      params.permit(:url, :query, :position, :module_code, :user_agent)
     end
 
     # Returns a sanitized, permitted version of the passed url params.
@@ -52,15 +52,6 @@ module V0
     #
     def position
       sanitize click_params['position']
-    end
-
-    # Returns a sanitized, permitted version of the passed client_ip params.
-    #
-    # @return [String]
-    # @see https://api.rubyonrails.org/v4.2/classes/ActionView/Helpers/SanitizeHelper.html#method-i-sanitize
-    #
-    def client_ip
-      sanitize click_params['client_ip']
     end
 
     # Returns a sanitized, permitted version of the passed module_code params.

@@ -30,7 +30,7 @@ module VBADocuments
       where(status: status)
         .where("(metadata -> 'status' -> ? -> 'start')::bigint < ?", status,
                look_back.to_i.send(unit_of_measure.to_sym).ago.to_i)
-        .order(-> { "(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc" }.call)
+        .order(-> { Arel.sql("(metadata -> 'status' -> '#{status}' -> 'start')::bigint asc") }.call)
       # lambda above stops security scan from finding false positive sql injection!
     }
 
@@ -117,6 +117,31 @@ module VBADocuments
       ActiveRecord::Base.connection_pool.with_connection do |c|
         c.raw_connection.exec_params(avg_status_sql, [from, to]).to_a
       end
+    end
+
+    def track_uploaded_received(cause_key, cause)
+      case cause_key
+      when :uuid_already_in_cache_cause
+        metadata['status']['uploaded'][cause_key.to_s] ||= {}
+        metadata['status']['uploaded'][cause_key.to_s][cause] ||= []
+        cause_array = metadata['status']['uploaded'][cause_key.to_s][cause]
+        cause_array << Time.now.to_i unless cause_array.length > 10
+      when :cause
+        metadata['status']['received'][cause_key.to_s] ||= []
+        metadata['status']['received'][cause_key.to_s] << cause
+        # should *never* have an array greater than 1 in length
+      else
+        Rails.logger.info("track_uploaded_received Invalid cause key passed #{cause_key}")
+      end
+      save!
+    end
+
+    def track_concurrent_duplicate
+      # This should never occur now that we are using with_advisory_lock in perform, but if it does we will record it
+      # and otherwise leave this model alone as another instance of this job is currently also processing this guid
+      metadata['uuid_already_in_cache_count'] ||= 0
+      metadata['uuid_already_in_cache_count'] += 1
+      save!
     end
 
     private

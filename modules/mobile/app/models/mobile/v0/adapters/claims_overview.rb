@@ -4,6 +4,32 @@ module Mobile
   module V0
     module Adapters
       class ClaimsOverview
+        APPEALS_TYPES = {
+          legacy: 'legacyAppeal',
+          supplemental_claim: 'supplementalClaim',
+          higher_level_review: 'higherLevelReview',
+          appeal: 'appeal'
+        }.freeze
+
+        APPEALS_DISPLAY_TYPES = {
+          legacy: 'appeal',
+          supplemental_claim: 'supplemental claim',
+          higher_level_review: 'higher-level review',
+          appeal: 'appeal'
+        }.freeze
+
+        PROGRAM_AREA_MAP = {
+          compensation: 'disability compensation',
+          pension: 'pension',
+          insurance: 'insurance',
+          loan_guaranty: 'loan guaranty',
+          education: 'education',
+          vre: 'vocational rehabilitation and employment',
+          medical: 'health care',
+          burial: 'burial benefits',
+          fiduciary: 'fiduciary'
+        }.freeze
+
         def parse(list)
           list
             .map { |entry| entry['list_data'] ? parse_claim(entry) : parse_appeal(entry) }
@@ -22,7 +48,8 @@ module Mobile
               date_filed: Date.strptime(entry['list_data']['date'], '%m/%d/%Y').iso8601,
               updated_at: Date.strptime(
                 entry['list_data']['claim_phase_dates']['phase_change_date'], '%m/%d/%Y'
-              ).to_time.iso8601
+              ).iso8601,
+              display_title: entry['list_data']['status_type']
             }
           )
         end
@@ -37,9 +64,22 @@ module Mobile
               subtype: subtype,
               completed: !entry['attributes']['active'],
               date_filed: entry['attributes']['events'][filed_index]['date'],
-              updated_at: DateTime.parse(entry['attributes']['events'].last['date']).iso8601
+              updated_at: entry['attributes']['events'].last['date'],
+              display_title: get_appeals_display_title(subtype, entry['attributes']['programArea'])
             }
           )
+        end
+
+        def get_appeals_display_title(type, program_area)
+          appeal_key = APPEALS_TYPES.key(type)
+          appeal_display_text = APPEALS_DISPLAY_TYPES[appeal_key]
+          program_area_sym = program_area.blank? ? :other : program_area.to_sym
+          program_area_text = PROGRAM_AREA_MAP[program_area_sym] ? (PROGRAM_AREA_MAP[program_area_sym]).to_s : ''
+          if type == APPEALS_TYPES[:appeal] || type == APPEALS_TYPES[:legacy]
+            "#{program_area_text} #{appeal_display_text}".lstrip
+          else
+            "#{appeal_display_text} for #{program_area_text}"
+          end
         end
       end
     end

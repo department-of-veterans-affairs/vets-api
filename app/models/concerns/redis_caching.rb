@@ -19,8 +19,12 @@ module RedisCaching
     end
 
     def set_cached(key, data)
-      @redis.set(key, data.to_json)
-      @redis.expire(key, @redis_ttl)
+      if data
+        @redis.set(key, data.to_json)
+        @redis.expire(key, @redis_ttl)
+      else
+        Rails.logger.info('Attempted to set nil data in redis cache')
+      end
     end
 
     def clear_cache(key)

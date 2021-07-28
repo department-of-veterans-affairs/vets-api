@@ -53,14 +53,14 @@ module VBADocuments
       dt = 1.month.ago.end_of_month - d.days
       status_dates = 'created_at >= ? and created_at < ?'
 
-      # ["57a1b2be-e229-45a2-be6f-5c49438b7cc1|2020-08-27 15:44:13 UTC",..]
+      # ["57a1b2be-e229-45a2-be6f-5c49438b7cc1|2020-08-27 15:44:13 UTC|success|VetPro",..]
       statuses = VBADocuments::UploadSubmission::IN_FLIGHT_STATUSES.to_a.map { |e| e } << 'uploaded'
       VBADocuments::UploadSubmission
         .where(status: statuses)
         .where(status_dates, VBADocuments::UploadSubmission::VBMS_IMPLEMENTATION_DATE, dt)
         .where("metadata -> '#{VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY}' is null")
         .order(created_at: :asc)
-        .pluck(:guid, :created_at, :status).map { |data| data.join('|') }
+        .pluck(:guid, :created_at, :status, :consumer_name).map { |data| data.join('|') }
     end
 
     private

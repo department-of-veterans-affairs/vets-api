@@ -8,6 +8,8 @@ module CypressViewportUpdater
 
     def update(viewports:)
       hash = JSON.parse(raw_content)
+      hash['viewportWidth'] = viewports.desktop[0].width
+      hash['viewportHeight'] = viewports.desktop[0].height
       hash['env']['vaTopMobileViewports'] = viewports.mobile
       hash['env']['vaTopTabletViewports'] = viewports.tablet
       hash['env']['vaTopDesktopViewports'] = viewports.desktop

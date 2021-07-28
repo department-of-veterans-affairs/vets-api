@@ -16,74 +16,46 @@ RSpec.describe 'facilities', type: :request do
   context 'with a loa3 user' do
     let(:user) { build(:user, :mhv) }
 
-    describe 'GET facility clinics' do
-      context 'on successful query for clinics given service type' do
-        it 'returns a list of clinics' do
-          VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinical_service=audiology'
+    describe 'GET facilities' do
+      context 'on successful query for a facility' do
+        it 'returns facility details' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/facilities?ids=688', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
-            x = JSON.parse(response.body)
-            expect(x['data'].size).to eq(7)
-            expect(x['data'][0]['id']).to eq('570')
-            expect(x['data'][0]['type']).to eq('clinics')
-            expect(x['data'][0]['attributes']['service_name']).to eq('CHY C&P AUDIO')
+            expect(response.body).to be_a(String)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
           end
         end
       end
 
-      context 'on successful query for clinics given csv clinic ids' do
-        it 'returns a list of clinics' do
-          VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinic_ids=570,945'
+      context 'on successful query for a facility given multiple facilities in array form' do
+        it 'returns facility details' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_200', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/facilities?ids[]=983&ids[]=984', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
-            x = JSON.parse(response.body)
-            expect(x['data'].size).to eq(2)
-            expect(x['data'][1]['id']).to eq('945')
-            expect(x['data'][1]['type']).to eq('clinics')
-            expect(x['data'][1]['attributes']['service_name']).to eq('FTC C&P AUDIO BEV')
-          end
-        end
-      end
-
-      context 'on successful query for clinics given array clinic ids' do
-        it 'returns a list of clinics' do
-          VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570&clinic_ids[]=945'
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
             expect(JSON.parse(response.body)['data'].size).to eq(2)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
           end
         end
       end
 
-      context 'on successful query for clinics given an array with a single clinic id' do
-        it 'returns a single clinic' do
-          VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570'
+      context 'on successful query for a facility and children' do
+        it 'returns facility details' do
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_with_children_200',
+                           match_requests_on: %i[method uri]) do
+            get '/vaos/v2/facilities?ids=688&children=true', headers: inflection_header
             expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('vaos/v2/clinics', { strict: false })
-            expect(JSON.parse(response.body)['data'].size).to eq(1)
-          end
-        end
-      end
-
-      context 'on successful query for clinics given an array with a single clinic id when camel-inflected' do
-        it 'returns a single clinic' do
-          VCR.use_cassette('vaos/v2/systems/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570', headers: inflection_header
-            expect(response).to have_http_status(:ok)
-            expect(JSON.parse(response.body)['data'].size).to eq(1)
-            expect(response).to match_camelized_response_schema('vaos/v2/clinics')
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].size).to eq(8)
+            expect(response).to match_camelized_response_schema('vaos/v2/get_facilities', { strict: false })
           end
         end
       end
 
       context 'on sending a bad request to the VAOS Service' do
         it 'returns a 400 http status' do
-          VCR.use_cassette('vaos/v2/systems/get_facility_clinics_400', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/locations/983/clinics?clinic_ids[]=570&clinical_service=audiology'
+          VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_400', match_requests_on: %i[method uri]) do
+            get '/vaos/v2/facilities?ids=688'
             expect(response).to have_http_status(:bad_request)
             expect(JSON.parse(response.body)['errors'][0]['code']).to eq('VAOS_400')
           end

@@ -8,10 +8,13 @@ describe MPIPolicy do
   permissions :queryable? do
     let(:user) { build(:user, :loa3) }
 
+    before { stub_mpi_not_found }
+
     context 'with a user who has the required mvi attributes' do
       context 'where user has an icn, but not the required personal attributes' do
         it 'is queryable' do
           user.identity.attributes = {
+            icn: 'some-icn',
             ssn: nil,
             first_name: nil,
             last_name: nil,

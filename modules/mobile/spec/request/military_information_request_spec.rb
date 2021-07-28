@@ -87,6 +87,18 @@ RSpec.describe 'military_information', type: :request do
         }
       end
 
+      let(:expected_body_empty) do
+        {
+          'data' => {
+            'id' => '69ad43ea-6882-5673-8552-377624da64a5',
+            'type' => 'militaryInformation',
+            'attributes' => {
+              'serviceHistory' => []
+            }
+          }
+        }
+      end
+
       context 'with multiple military service episodes' do
         it 'matches the mobile service history schema' do
           VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
@@ -115,6 +127,17 @@ RSpec.describe 'military_information', type: :request do
             get '/mobile/v0/military-service-history', headers: iam_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_body_no_end_date)
+            expect(response.body).to match_json_schema('mobile_service_history_response')
+          end
+        end
+      end
+
+      context 'with an empty military service episode' do
+        it 'matches the mobile service history schema' do
+          VCR.use_cassette('emis/get_military_service_episodes/empty') do
+            get '/mobile/v0/military-service-history', headers: iam_headers
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)).to eq(expected_body_empty)
             expect(response.body).to match_json_schema('mobile_service_history_response')
           end
         end

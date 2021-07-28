@@ -13,8 +13,7 @@
           "description": "Internal vets-api Claim ID"
         },
         "type": {
-          "type": "string",
-          "description": "Required by JSON API standard"
+          "type": "string"
         },
         "attributes": {
           "type": "object",
@@ -112,8 +111,7 @@
                     "description": "Unique identifier of document"
                   },
                   "type": {
-                    "type": "string",
-                    "description": "Required by JSON API standard"
+                    "type": "string"
                   },
                   "md5": {
                     "type": ["string", "null"],

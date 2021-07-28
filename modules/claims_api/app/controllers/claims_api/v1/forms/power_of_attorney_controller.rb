@@ -47,7 +47,7 @@ module ClaimsApi
 
           # This job only occurs when a Veteran submits a PoA request, they are not required to submit a document.
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id) unless header_request?
-          if enable_vmbs_access?
+          if enable_vbms_access?
             ClaimsApi::VBMSUpdater.perform_async(power_of_attorney.id,
                                                  target_veteran.participant_id)
           end
@@ -90,10 +90,12 @@ module ClaimsApi
         # GET current POA for a Veteran.
         #
         # @return [JSON] Last POA change request through Claims API
-        def active
+        def active # rubocop:disable Metrics/MethodLength
           validate_user_is_accredited! if header_request?
 
           raise ::Common::Exceptions::ResourceNotFound.new(detail: 'POA not found') unless current_poa_code
+
+          representative_info = build_representative_info(current_poa_code)
 
           render json: {
             data: {
@@ -104,6 +106,10 @@ module ClaimsApi
                 date_request_accepted: current_poa_begin_date,
                 representative: {
                   service_organization: {
+                    first_name: representative_info[:first_name],
+                    last_name: representative_info[:last_name],
+                    organization_name: representative_info[:organization_name],
+                    phone_number: representative_info[:phone_number],
                     poa_code: current_poa_code
                   }
                 },
@@ -124,7 +130,7 @@ module ClaimsApi
 
         private
 
-        def enable_vmbs_access?
+        def enable_vbms_access?
           form_attributes['recordConsent'] && form_attributes['consentLimits'].blank?
         end
 
@@ -185,6 +191,30 @@ module ClaimsApi
               }
             }
           }
+        end
+
+        def build_representative_info(poa_code)
+          if poa_code_in_organization?(poa_code)
+            veteran_service_organization = ::Veteran::Service::Organization.find_by(poa: poa_code)
+            raise 'Veteran Service Organization not found' if veteran_service_organization.blank?
+
+            {
+              first_name: nil,
+              last_name: nil,
+              organization_name: veteran_service_organization.name,
+              phone_number: veteran_service_organization.phone
+            }
+          else
+            representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes)', poa_code).first
+            raise 'Power of Attorney not found' if representative.blank?
+
+            {
+              first_name: representative.first_name,
+              last_name: representative.last_name,
+              organization_name: nil,
+              phone_number: representative.phone
+            }
+          end
         end
       end
     end

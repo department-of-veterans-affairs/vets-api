@@ -26,6 +26,28 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
   end
 
   describe '#index' do
+    let(:provider_urgent_care) do
+      {
+        'id' => '1a2ec66b370936eccc980db2fcf4b094fc61a5329aea49744d538f6a9bab2569',
+        'type' => 'provider',
+        'attributes' =>
+        { 'accNewPatients' => 'false',
+          'address' => { 'street' => '2 BAYSHORE PLZ', 'city' => 'ATLANTIC HIGHLANDS', 'state' => 'NJ',
+                         'zip' => '07716' },
+          'caresitePhone' => '732-291-2900',
+          'email' => nil,
+          'fax' => nil,
+          'gender' => 'NotSpecified',
+          'lat' => 40.409114,
+          'long' => -74.041849,
+          'name' => 'BAYSHORE PHARMACY',
+          'phone' => nil,
+          'posCodes' => '17',
+          'prefContact' => nil,
+          'uniqueId' => '1225028293' }
+      }
+    end
+
     context 'Missing Provider', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_missing_provider') do
       it 'gracefully handles ppms provider lookup failures' do
         get '/v1/facilities/ccp', params: params
@@ -113,56 +135,10 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
           bod = JSON.parse(response.body)
 
-          sha256 = 'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d'
+          expect(bod['data']).to include(provider_urgent_care)
 
-          expect(bod['data']).to include(
-            {
-              'id' => sha256,
-              'type' => 'provider',
-              'attributes' => {
-                'accNewPatients' => 'false',
-                'address' => {
-                  'street' => '5024 5TH AVE',
-                  'city' => 'BROOKLYN',
-                  'state' => 'NY',
-                  'zip' => '11220-1909'
-                },
-                'caresitePhone' => '718-571-9251',
-                'email' => nil,
-                'fax' => nil,
-                'gender' => 'NotSpecified',
-                'lat' => 40.644795,
-                'long' => -74.011055,
-                'name' => 'CITY MD URGENT CARE',
-                'phone' => nil,
-                'posCodes' => '20',
-                'prefContact' => nil,
-                'uniqueId' => '1487993564'
-              }
-            }
-          )
           expect(response).to be_successful
         end
-      end
-
-      it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
-        allow(StatsD).to receive(:measure)
-
-        expect(StatsD).to receive(:measure).with(
-          'facilities.ppms.provider_locator',
-          kind_of(Numeric),
-          hash_including(
-            tags: [
-              'facilities.ppms',
-              'facilities.ppms.radius:200',
-              'facilities.ppms.results:11'
-            ]
-          )
-        )
-
-        expect do
-          get '/v1/facilities/ccp', params: params
-        end.to instrument('facilities.ppms.request.faraday')
       end
 
       [
@@ -299,34 +275,7 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
 
         bod = JSON.parse(response.body)
 
-        sha256 = 'b09211e205d103edf949d2897dcbe489fb7bc3f2c73f203022b4d7b96e603d0d'
-
-        expect(bod['data']).to include(
-          {
-            'id' => sha256,
-            'type' => 'provider',
-            'attributes' => {
-              'accNewPatients' => 'false',
-              'address' => {
-                'street' => '5024 5TH AVE',
-                'city' => 'BROOKLYN',
-                'state' => 'NY',
-                'zip' => '11220-1909'
-              },
-              'caresitePhone' => '718-571-9251',
-              'email' => nil,
-              'fax' => nil,
-              'gender' => 'NotSpecified',
-              'lat' => 40.644795,
-              'long' => -74.011055,
-              'name' => 'CITY MD URGENT CARE',
-              'phone' => nil,
-              'posCodes' => '20',
-              'prefContact' => nil,
-              'uniqueId' => '1487993564'
-            }
-          }
-        )
+        expect(bod['data']).to include(provider_urgent_care)
 
         expect(response).to be_successful
       end
@@ -344,34 +293,34 @@ RSpec.describe 'Community Care Providers', type: :request, team: :facilities, vc
       expect(bod['errors'][0]['title']).to eq('Record not found')
     end
 
-    it 'returns a provider with services' do
-      get '/v1/facilities/ccp/1225028293'
+    it 'returns a provider' do
+      get '/v1/facilities/ccp/1154383230'
 
       bod = JSON.parse(response.body)
 
       expect(bod).to include(
         'data' => {
-          'id' => '1225028293',
+          'id' => '1154383230',
           'type' => 'provider',
           'attributes' => {
-            'accNewPatients' => nil,
+            'accNewPatients' => 'true',
             'address' => {
-              'street' => '2 BAYSHORE PLZ',
-              'city' => 'ATLANTIC HIGHLANDS',
+              'street' => '502 CANDLEWOOD CMNS',
+              'city' => 'HOWELL',
               'state' => 'NJ',
-              'zip' => '07716'
+              'zip' => '07731-2172'
             },
             'caresitePhone' => nil,
-            'email' => 'MANAGER.BAYSHOREPHARMACY@COMCAST.NET',
+            'email' => nil,
             'fax' => nil,
-            'gender' => nil,
-            'lat' => 40.409114,
-            'long' => -74.041849,
-            'name' => 'BAYSHORE PHARMACY',
+            'gender' => 'Female',
+            'lat' => 40.146886,
+            'long' => -74.224247,
+            'name' => 'GESUALDI, AMY',
             'phone' => nil,
             'posCodes' => nil,
             'prefContact' => nil,
-            'uniqueId' => '1225028293'
+            'uniqueId' => '1154383230'
           }
         }
       )

@@ -1,77 +1,38 @@
 # frozen_string_literal: true
 
-require 'evss/error_middleware'
+require 'claims_api/v2/params_validation/veteran_identifier'
 
 module ClaimsApi
   module V2
     class VeteranIdentifierController < ClaimsApi::V2::ApplicationController
-      # TODO: REMOVE BEFORE IMPLEMENTATION
-      skip_before_action :authenticate, only: %i[find]
-      ICN_FOR_TEST_USER = '1012667145V762142'
-      # TODO: REMOVE BEFORE IMPLEMENTATION
-
       def find
-        raise ::Common::Exceptions::Unauthorized if request.headers['Authorization'].blank?
+        validate_request!(ClaimsApi::V2::ParamsValidation::VeteranIdentifier)
+        raise ::Common::Exceptions::ResourceNotFound if target_veteran&.mpi&.icn.blank?
+        raise ::Common::Exceptions::Forbidden unless user_is_target_veteran? || user_is_representative?
 
-        validate_request
-        veteran = find_veteran(params)
-
-        render json: { id: veteran[:id] }
+        render json: ClaimsApi::V2::Blueprints::VeteranIdentifierBlueprint.render(target_veteran)
       end
 
-      private
+      protected
 
-      def validate_request
-        params.require(:ssn)
-        params.require(:birthdate)
-        params.require(:firstName)
-        params.require(:lastName)
-
-        validate_ssn!(params[:ssn])
-        validate_birthdate!(params[:birthdate])
+      def target_veteran
+        @target_veteran ||= ClaimsApi::Veteran.new(
+          uuid: params[:ssn],
+          ssn: params[:ssn],
+          first_name: params[:firstName],
+          last_name: params[:lastName],
+          va_profile: ClaimsApi::Veteran.build_profile(params[:birthdate]),
+          loa: @current_user.loa
+        )
       end
 
-      def validate_ssn!(ssn)
-        return if ssn.match?(/^\d{9}$/)
+      def user_is_target_veteran?
+        return false unless @current_user.first_name.casecmp?(target_veteran.first_name)
+        return false unless @current_user.last_name.casecmp?(target_veteran.last_name)
+        return false unless @current_user.ssn == target_veteran.ssn
+        return false unless Date.parse(@current_user.birth_date) == Date.parse(target_veteran.birth_date)
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('ssn', ssn)
-      end
-
-      def validate_birthdate!(date_str)
-        date = Date.parse(date_str)
-        return if date <= Time.zone.today
-
-        raise ::Common::Exceptions::InvalidFieldValue.new('birthdate', date_str)
-      rescue ArgumentError
-        raise ::Common::Exceptions::InvalidFieldValue.new('birthdate', date_str)
-      end
-
-      def find_veteran(params)
-        test_veteran_data = {
-          id: ICN_FOR_TEST_USER,
-          ssn: '796130115',
-          firstName: 'Tamara',
-          lastName: 'Ellis',
-          birthdate: '1967-06-19'
-        }
-
-        unless params[:ssn] == test_veteran_data[:ssn]
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-        end
-
-        unless params[:firstName].casecmp?(test_veteran_data[:firstName])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-        end
-
-        unless params[:lastName].casecmp?(test_veteran_data[:lastName])
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-        end
-
-        unless params[:birthdate] == test_veteran_data[:birthdate]
-          raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
-        end
-
-        test_veteran_data
+        true
       end
     end
   end

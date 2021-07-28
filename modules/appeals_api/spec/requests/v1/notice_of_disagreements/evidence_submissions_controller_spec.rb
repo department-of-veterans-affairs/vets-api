@@ -29,7 +29,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     context 'when corresponding notice of disagreement record not found' do
       it 'returns an error' do
         with_s3_settings do
-          post path, params: { nod_id: 1979 }, headers: headers
+          post path, params: { nod_uuid: 1979 }, headers: headers
 
           expect(response.status).to eq 404
           expect(response.body).to include 'not found'
@@ -40,7 +40,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     context 'when corresponding notice of disagreement record found' do
       it "returns an error if nod 'boardReviewOption' is not 'evidence_submission'" do
         with_s3_settings do
-          post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
+          post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
 
           expect(response.status).to eq 422
           expect(response.body).to include "'boardReviewOption' must be 'evidence_submission'"
@@ -52,7 +52,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           with_s3_settings do
             notice_of_disagreement.update(board_review_option: 'evidence_submission')
             headers['X-VA-SSN'] = '1111111111'
-            post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
+            post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
 
             expect(response.status).to eq 422
             expect(response.body).to include "'X-VA-SSN' does not match"
@@ -65,7 +65,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         it 'creates the evidence submission and returns upload location' do
           with_s3_settings do
             notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
-            post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
+            post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
 
             data = JSON.parse(response.body)['data']
             expect(data).to have_key('id')
@@ -90,7 +90,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
           allow(s3_bucket).to receive(:object).and_return(s3_object)
           allow(s3_object).to receive(:presigned_url).and_return(+'https://nope/')
           notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
-          post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
+          post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
 
           expect(response.status).to eq 500
           expect(response.body).to include('Unable to provide document upload location')
@@ -98,7 +98,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       end
     end
 
-    it "returns an error when 'nod_id' parameter is missing" do
+    it "returns an error when 'nod_uuid' parameter is missing" do
       with_s3_settings do
         post path, headers: headers
 
@@ -110,8 +110,7 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
     it 'stores the source from headers' do
       with_s3_settings do
         notice_of_disagreement.update(board_review_option: 'evidence_submission')
-        post path, params: { nod_id: notice_of_disagreement.id }, headers: headers
-
+        post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
         data = JSON.parse(response.body)['data']
         record = AppealsApi::EvidenceSubmission.find_by(guid: data['id'])
         expect(record.source).to eq headers['X-Consumer-Username']
@@ -139,14 +138,14 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
 
     it 'returns details for the evidence submission' do
       es = evidence_submissions.sample
-      nod_id = es.supportable_id
+      nod_uuid = es.supportable_id
       get "#{path}#{es.guid}"
       submission = JSON.parse(response.body)['data']
 
       expect(submission['id']).to eq es.guid
       expect(submission['type']).to eq('evidenceSubmission')
       expect(submission['attributes']['status']).to eq('pending')
-      expect(submission['attributes']['appealId']).to eq(nod_id)
+      expect(submission['attributes']['appealId']).to eq(nod_uuid)
       expect(submission['attributes']['appealType']).to eq('NoticeOfDisagreement')
     end
 

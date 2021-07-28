@@ -65,5 +65,21 @@ module EducationForm::Forms
 
       previous_benefits_arr.join("\n")
     end
+
+    def veteran_date_of_death_label
+      return 'Date of death or MIA/POW:' if @applicant.benefit != 'chapter33' || @applicant.sponsorStatus.nil?
+
+      case @applicant.sponsorStatus
+
+      when 'diedOnDuty'
+        label = 'Died while serving on active duty or duty other than active duty:'
+      when 'diedFromDisabilityOrOnReserve'
+        label = 'Died from a service-connected disability while a member of the Selected Reserve:'
+      when 'powOrMia'
+        label = 'Listed as MIA or POW:'
+      end
+
+      label
+    end
   end
 end

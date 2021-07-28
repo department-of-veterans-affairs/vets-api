@@ -18,18 +18,6 @@ module Form1010cg
     NOT_FOUND = 'NOT_FOUND'
     AUDITOR = Form1010cg::Auditor.new
 
-    def self.submit_attachment!(carma_case_id, veteran_name, document_type, file_path)
-      raise 'invalid veteran_name' if veteran_name.try(:[], 'first').nil? || veteran_name.try(:[], 'last').nil?
-      raise 'invalid document_type' unless CARMA::Models::Attachment::DOCUMENT_TYPES.values.include?(document_type)
-
-      carma_attachments = CARMA::Models::Attachments.new(
-        carma_case_id, veteran_name['first'], veteran_name['last']
-      )
-
-      carma_attachments.add(document_type, file_path)
-      carma_attachments.submit!
-    end
-
     def self.collect_attachments(claim)
       poa_attachment_id   = claim.parsed_form['poaAttachmentId']
       claim_pdf_path      = claim.to_pdf(sign: true)

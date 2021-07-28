@@ -16,7 +16,7 @@ module MPI
       SCHEMA_FILE_NAME = 'mpi_add_person_template.xml'
 
       def initialize(user)
-        raise ArgumentError, 'User missing attributes' unless user.can_mvi_proxy_add?
+        raise ArgumentError, 'User missing attributes' unless can_mvi_proxy_add?(user)
 
         @user = user
       end
@@ -30,6 +30,22 @@ module MPI
       end
 
       private
+
+      def can_mvi_proxy_add?(user)
+        personal_info?(user) &&
+          user.edipi.present? &&
+          user.icn_with_aaid.present? &&
+          user.search_token.present?
+      rescue # Default to false for any error
+        false
+      end
+
+      def personal_info?(user)
+        user.first_name.present? &&
+          user.last_name.present? &&
+          user.ssn.present? &&
+          user.birth_date.present?
+      end
 
       def build_content(user)
         current_time = Time.current

@@ -13,8 +13,7 @@
           "description": "Claim ID from EVSS"
         },
         "type": {
-          "type": "string",
-          "description": "Required by JSON API standard"
+          "type": "string"
         },
         "attributes": {
           "type": "object",
@@ -29,17 +28,20 @@
             "date_filed": {
               "type": "string",
               "format": "date",
-              "description": "Date in YYYY-MM-DD the claim was first filed"
+              "description": "Date in YYYY-MM-DD the claim was first filed",
+              "example": "2018-06-04"
             },
             "min_est_date": {
               "type": ["string", "null"],
               "format": "date",
-              "description": "Minimum Estimated Claim Completion Date"
+              "description": "Minimum Estimated Claim Completion Date",
+              "example": "2019-06-04"
             },
             "max_est_date": {
               "type": ["string", "null"],
               "format": "date",
-              "description": "Maximum Estimated Claim Completion Date"
+              "description": "Maximum Estimated Claim Completion Date",
+              "example": "2019-09-04"
             },
             "open": {
               "type": "boolean",
@@ -65,6 +67,7 @@
               "type": "string",
               "description": "Current status of the claim",
               "enum": [
+                "pending",
                 "Claim received",
                 "Initial review",
                 "Evidence gathering, review, and decision",
@@ -164,8 +167,7 @@
                     "description": "Unique identifier of document"
                   },
                   "type": {
-                    "type": "string",
-                    "description": "Required by JSON API standard"
+                    "type": "string"
                   },
                   "md5": {
                     "type": "string",

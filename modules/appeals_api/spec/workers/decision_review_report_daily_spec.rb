@@ -5,15 +5,23 @@ require 'rails_helper'
 describe AppealsApi::DecisionReviewReportDaily, type: :job do
   describe '#perform' do
     it 'sends mail' do
-      with_settings(Settings.modules_appeals_api.reports.decision_review, enabled: true) do
+      with_settings(Settings.modules_appeals_api.reports.daily_decision_review, enabled: true) do
         Timecop.freeze
         date_to = Time.zone.now
         date_from = date_to.monday? ? 3.days.ago : 1.day.ago
+        recipients = %w[
+          drew.fisher@adhocteam.us
+          jack.schuss@oddball.io
+          kelly@adhocteam.us
+          laura.trager@adhocteam.us
+          nathan.wright@oddball.io
+        ]
 
         expect(AppealsApi::DecisionReviewMailer).to receive(:build).once.with(
           date_from: date_from.beginning_of_day,
           date_to: date_to,
-          friendly_duration: 'Daily'
+          friendly_duration: 'Daily',
+          recipients: recipients
         ).and_return(double.tap do |mailer|
           expect(mailer).to receive(:deliver_now).once
         end)

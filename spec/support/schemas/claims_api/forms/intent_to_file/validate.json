@@ -7,8 +7,7 @@
       "required": ["type", "attributes"],
       "properties": {
         "type": {
-          "type": "string",
-          "description": "Required by JSON API standard"
+          "type": "string"
         },
         "attributes": {
           "type": "object",

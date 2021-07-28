@@ -66,52 +66,101 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
 
     context 'when a matching contention is found' do
       context 'when contention does not have existing special issues' do
-        let(:claim_id) { '600200323' }
-        let(:claim) do
-          {
-            jrn_dt: '2020-08-17T10:44:43-05:00',
-            bnft_clm_tc: '130DPNEBNADJ',
-            bnft_clm_tn: 'eBenefits Dependency Adjustment',
-            claim_rcvd_dt: '2020-08-17T00:00:00-05:00',
-            clm_id: claim_id,
-            contentions: [
-              {
+        context 'when multiple contentions exist for claim' do
+          let(:claim_id) { '600200323' }
+          let(:claim) do
+            {
+              jrn_dt: '2020-08-17T10:44:43-05:00',
+              bnft_clm_tc: '130DPNEBNADJ',
+              bnft_clm_tn: 'eBenefits Dependency Adjustment',
+              claim_rcvd_dt: '2020-08-17T00:00:00-05:00',
+              clm_id: claim_id,
+              contentions: [
+                {
+                  clm_id: contention_id[:claim_id],
+                  cntntn_id: '999111',
+                  clsfcn_id: contention_id[:code],
+                  clmnt_txt: contention_id[:name]
+                },
+                {
+                  clm_id: '321',
+                  cntntn_id: '123456',
+                  clsfcn_id: '333',
+                  clmnt_txt: 'different-name-here'
+                }
+              ],
+              lc_stt_rsn_tc: 'OPEN',
+              lc_stt_rsn_tn: 'Open',
+              lctn_id: '322',
+              non_med_clm_desc: 'eBenefits Dependency Adjustment',
+              prirty: '0',
+              ptcpnt_id_clmnt: '600036156',
+              ptcpnt_id_vet: '600036156',
+              ptcpnt_suspns_id: '600276939',
+              soj_lctn_id: '347'
+            }
+          end
+          let(:claims) { { benefit_claims: [claim] } }
+
+          it 'all special issues provided are appended to payload' do
+            expected_claim_options = claim.dup
+            special_issues_payload = special_issues.map { |si| { spis_tc: si } }
+            expected_claim_options[:contentions] = [
+              { clm_id: claim_id, cntntn_id: '999111', special_issues: special_issues_payload },
+              { clm_id: claim_id, cntntn_id: '123456', special_issues: [] }
+            ]
+            expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
+
+            subject.new.perform(user, contention_id, special_issues, claim_record.id)
+          end
+
+          it 'stores bgs exceptions correctly' do
+            expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions)
+              .and_raise(BGS::ShareError.new('failed', 500))
+
+            subject.new.perform(user, contention_id, special_issues, claim_record.id)
+            expect(ClaimsApi::AutoEstablishedClaim.find(claim_record.id).bgs_special_issue_responses.count).to eq(1)
+          end
+        end
+
+        context 'when a single contention exists for claim' do
+          let(:claim_id) { '600200323' }
+          let(:claim) do
+            {
+              jrn_dt: '2020-08-17T10:44:43-05:00',
+              bnft_clm_tc: '130DPNEBNADJ',
+              bnft_clm_tn: 'eBenefits Dependency Adjustment',
+              claim_rcvd_dt: '2020-08-17T00:00:00-05:00',
+              clm_id: claim_id,
+              contentions: {
                 clm_id: contention_id[:claim_id],
                 cntntn_id: '999111',
                 clsfcn_id: contention_id[:code],
                 clmnt_txt: contention_id[:name]
-              }
-            ],
-            lc_stt_rsn_tc: 'OPEN',
-            lc_stt_rsn_tn: 'Open',
-            lctn_id: '322',
-            non_med_clm_desc: 'eBenefits Dependency Adjustment',
-            prirty: '0',
-            ptcpnt_id_clmnt: '600036156',
-            ptcpnt_id_vet: '600036156',
-            ptcpnt_suspns_id: '600276939',
-            soj_lctn_id: '347'
-          }
-        end
-        let(:claims) { { benefit_claims: [claim] } }
+              },
+              lc_stt_rsn_tc: 'OPEN',
+              lc_stt_rsn_tn: 'Open',
+              lctn_id: '322',
+              non_med_clm_desc: 'eBenefits Dependency Adjustment',
+              prirty: '0',
+              ptcpnt_id_clmnt: '600036156',
+              ptcpnt_id_vet: '600036156',
+              ptcpnt_suspns_id: '600276939',
+              soj_lctn_id: '347'
+            }
+          end
+          let(:claims) { { benefit_claims: [claim] } }
 
-        it 'all special issues provided are appended to payload' do
-          expected_claim_options = claim.dup
-          special_issues_payload = special_issues.map { |si| { spis_tc: si } }
-          expected_claim_options[:contentions] = [
-            { clm_id: claim_id, cntntn_id: '999111', special_issues: special_issues_payload }
-          ]
-          expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
+          it 'all special issues provided are appended to payload' do
+            expected_claim_options = claim.dup
+            special_issues_payload = special_issues.map { |si| { spis_tc: si } }
+            expected_claim_options[:contentions] = [
+              { clm_id: claim_id, cntntn_id: '999111', special_issues: special_issues_payload }
+            ]
+            expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions).with(expected_claim_options)
 
-          subject.new.perform(user, contention_id, special_issues, claim_record.id)
-        end
-
-        it 'stores bgs exceptions correctly' do
-          expect_any_instance_of(BGS::ContentionService).to receive(:manage_contentions)
-            .and_raise(BGS::ShareError.new('failed', 500))
-
-          subject.new.perform(user, contention_id, special_issues, claim_record.id)
-          expect(ClaimsApi::AutoEstablishedClaim.find(claim_record.id).bgs_special_issue_responses.count).to eq(1)
+            subject.new.perform(user, contention_id, special_issues, claim_record.id)
+          end
         end
       end
 

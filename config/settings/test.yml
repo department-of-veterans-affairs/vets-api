@@ -118,8 +118,8 @@ hqva_mobile:
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
   timeout: 15
   facilities:
-    url: "https://sandbox-api.va.gov"
-    ids_path: "/v1/facilities/va"
+    url: "https://staging-api.va.gov"
+    ids_path: "/facilities_api/v1/va"
   lighthouse:
     url: "https://sandbox-api.va.gov"
     pgd_path: "/services/pgd/v0/r4"
@@ -151,3 +151,31 @@ hqva_mobile:
       - "patient/Location.read"
       - "patient/Organization.read"
       - "patient/Patient.read"
+
+sidekiq:
+  github_organization: "organization"
+  github_team: 0000000
+  github_oauth_key: xxx000
+  github_oauth_secret: 000xxx
+
+check_in:
+  chip_api:
+    url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
+    tmp_api_id: 2dcdrrn5zc
+    mock: false
+    key_path: ~
+    redis_session_prefix: check_in
+    timeout: 30
+
+rack:
+  cookie_secret: "xxxxx"
+
+bid:
+  awards:
+    base_url: https://fake_url.com
+    credentials: fake_auth
+
+test_user_dashboard:
+  env: staging

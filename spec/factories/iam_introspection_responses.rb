@@ -139,4 +139,67 @@ FactoryBot.define do
 
     initialize_with { attributes }
   end
+
+  factory :idme_loa3_introspection_payload, class: Hash do
+    fediamtransaction_id { '5eWibth5T4By92LinZBrcRi+dMHCkde5bhzwwVeOmPI' }
+    fediam_is_delegate { 'false' }
+    fediam_birls_number { '796121200' }
+    birthdate { '1970-08-12' }
+    fediamss_issue_instant { '2020-08-05T21:48:38Z' }
+    fediam_mviicn { '1008596379V859838' }
+    fediam_street { '1700 University Boulevard' }
+    fediamsecid { '0000028114' }
+    client_id { 'VAMobile' }
+    fediam_country { 'NOT_FOUND' }
+    fediam_gender { 'MALE' }
+    exp { 1_596_667_726 }
+    code_challenge { 'tDKCgVeM7b8X2Mw7ahEeSPPFxr7TGPc25IV5ex0PvHI' }
+    fediam_street1 { '1700 University Boulevard' }
+    fediam_do_dedipn_id { '1005079124' }
+    fediam_gc_id {
+      '1008596379V859838^NI^200M^USVHA^P|796121200^PI^200BRLS^USVBA^A|0000028114^PN^200PROV^USDVA^A|' \
+      '1005079124^NI^200DOD^USDOD^A|32331150^PI^200CORP^USVBA^A|85c50aa76934460c8736f687a6a30546^PN^200VIDM^USDVA^A|' \
+      '2810777^PI^200CORP^USVBA^A|32324397^PI^200CORP^USVBA^A|19798466a4b143748e664482c6b6b81b^PN^200VIDM^USDVA^A|' \
+      '796121200^AN^200CORP^USVBA^'
+    }
+    active { true }
+    fediamauth_n_type { 'IDME' }
+    fediam_not_on_or_after { '2020-08-05T21:53:42Z' }
+    aud { 'VAMobile' }
+    fediam_mcid { 'WSSOE2008051748411450069042554' }
+    fediamidsource { 'ssoe' }
+    fediam_vaafi_proof_authority { 'FICAM' }
+    phone_number { '(858)335-0190' }
+    tokens_generated_by { 'OAuth AZN Code Flow' }
+    fediamissuer { 'https://int.eauth.va.gov/isam/sps/saml20idp/saml20' }
+    fediamproofing_auth { 'FICAM' }
+    fediam_authentication_method { 'http://idmanagement.gov/ns/assurance/loa/3' }
+    fediamam_eai_xattr_session_lifetime { '1596667722' }
+    fediam_suffix { 'NOT_FOUND' }
+    sub { '0000028114' }
+    fediam_mhvien { 'NOT_FOUND' }
+    fediam_authentication_instant { '2020-08-05T21:48:42Z' }
+    token_type { 'bearer' }
+    fediam_common_name { 'va.api.user+idme.008@gmail.com' }
+    scope { 'openid' }
+    fediam_postal_code { '78665' }
+    fediam_vaafi_csp_id { '200VIDM_19798466a4b143748e664482c6b6b81b' }
+    fediam_pn_id { '796121200' }
+    fediam_pn_id_type { 'SSN' }
+    iat { 1_596_664_126 }
+    email { 'va.api.user+idme.008@gmail.com' }
+    code_challenge_method { 'S256' }
+    given_name { 'GREG' }
+    middle_name { 'A' }
+    fediamassur_level { '3' }
+    fediam_not_before { '2020-08-05T21:43:42Z' }
+    fediam_prefix { 'NOT_FOUND' }
+    fediam_state { 'TX' }
+    fediam_city { 'Round Rock' }
+    fediam_pid { '32331150,2810777,32324397' }
+    family_name { 'ANDERSON' }
+    username { '0000028114' }
+
+    initialize_with { attributes }
+  end
 end

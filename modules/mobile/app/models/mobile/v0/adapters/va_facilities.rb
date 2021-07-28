@@ -35,9 +35,21 @@ module Mobile
         end
 
         def phone_from_facility(facility)
-          # captures area code (\d{3}) number \s(\d{3}-\d{4})
-          # and extension (until the end of the string) (\S*)\z
-          phone_captures = facility.phone['main'].match(/(\d{3})-(\d{3}-\d{4})(\S*)\z/)
+          phone = facility.phone['main']
+          return nil unless phone
+
+          # captures area code (\d{3}) number (\d{3}-\d{4})
+          # and optional extension (until the end of the string) (?:\sx(\d*))?$
+          phone_captures = facility.phone['main'].match(/^(\d{3})-(\d{3}-\d{4})(?:\sx(\d*))?$/)
+
+          if phone_captures.nil?
+            Rails.logger.warn(
+              'mobile appointments failed to parse facility phone number',
+              facility_id: facility.id,
+              facility_phone: facility.phone
+            )
+            return nil
+          end
 
           Mobile::V0::AppointmentPhone.new(
             area_code: phone_captures[1].presence,

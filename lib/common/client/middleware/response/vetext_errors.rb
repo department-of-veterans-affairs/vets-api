@@ -8,7 +8,7 @@ module Common
           def on_complete(env)
             return if env.success?
 
-            Rails.logger.debug('VEText Service Error', body: env.body, status: env.status)
+            Rails.logger.info('VEText Service Error', body: env.body, status: env.status)
             case env.status
             when 400..499
               raise Common::Exceptions::BackendServiceException.new('VETEXT_PUSH_400', {}, env.status,

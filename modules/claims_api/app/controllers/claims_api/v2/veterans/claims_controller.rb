@@ -1,25 +1,45 @@
 # frozen_string_literal: true
 
-require 'evss/error_middleware'
-
 module ClaimsApi
   module V2
     module Veterans
       class ClaimsController < ClaimsApi::V2::ApplicationController
-        # TODO: REMOVE BEFORE IMPLEMENTATION
-        skip_before_action :authenticate, only: %i[index]
-        ICN_FOR_TEST_USER = '1012667145V762142'
-        # TODO: REMOVE BEFORE IMPLEMENTATION
+        before_action :verify_access!
 
         def index
-          raise ::Common::Exceptions::Unauthorized if request.headers['Authorization'].blank?
-          unless params[:veteranId] == ICN_FOR_TEST_USER
-            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Resource not found')
+          bgs_claims = bgs_service.benefit_claims.find_claims_details_by_participant_id(
+            participant_id: target_veteran.participant_id
+          )
+          lighthouse_claims = ClaimsApi::AutoEstablishedClaim.where(veteran_icn: target_veteran.mpi.icn)
+          merged_claims = BGSToLighthouseClaimsMapperService.process(bgs_claims: bgs_claims,
+                                                                     lighthouse_claims: lighthouse_claims)
+
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(merged_claims, base_url: request.base_url)
+        end
+
+        def show
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
+
+          if claim.present?
+            claim_details = { id: params[:id], type: claim[:claim_type] }
+          else
+            # If we don't have it, it might still be in BGS, so check there
+            bgs_claim = bgs_service.benefit_claims.find_claim_details_by_claim_id(claim_id: params[:id])
+            claim_details = bgs_claim.dig(:bnft_claim_detail)
+
+            raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Claim not found') if claim_details.blank?
+
+            claim_details = { id: params[:id], type: claim_details[:bnft_claim_type_nm] }
           end
 
-          render json: JSON.parse(
-            File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'usability_testing_claims.json'))
-          )
+          render json: ClaimsApi::V2::Blueprints::ClaimBlueprint.render(claim_details, base_url: request.base_url)
+        end
+
+        private
+
+        def bgs_service
+          BGS::Services.new(external_uid: target_veteran.participant_id,
+                            external_key: target_veteran.participant_id)
         end
       end
     end

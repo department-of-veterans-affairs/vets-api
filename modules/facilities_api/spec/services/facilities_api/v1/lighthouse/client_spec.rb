@@ -110,6 +110,57 @@ RSpec.describe FacilitiesApi::V1::Lighthouse::Client, team: :facilities, vcr: vc
     end
   end
 
+  context 'StatsD notifications' do
+    context 'Lighthouse responds Successfully' do
+      it "sends a 'facilities.lighthouse.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:increment).with(
+          'facilities.lighthouse.response.total',
+          hash_including(
+            tags: [
+              'http_status:200'
+            ]
+          )
+        )
+
+        expect do
+          FacilitiesApi::V1::Lighthouse::Client.new.get_facilities(params)
+        end.to instrument('lighthouse.facilities.request.faraday')
+      end
+    end
+
+    context 'Lighthouse responds with a Failure', vcr: vcr_options.merge(cassette_name: '/lighthouse/facilities_401') do
+      it "sends a 'facilities.lighthouse.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:measure)
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:increment).with(
+          'facilities.lighthouse.response.total',
+          hash_including(
+            tags: [
+              'http_status:401'
+            ]
+          )
+        )
+        expect(StatsD).to receive(:increment).with(
+          'facilities.lighthouse.response.failures',
+          hash_including(
+            tags: [
+              'http_status:401'
+            ]
+          )
+        )
+
+        expect do
+          FacilitiesApi::V1::Lighthouse::Client.new.get_by_id('vha_358')
+        end.to raise_error(
+          Common::Exceptions::BackendServiceException
+        ).and instrument('lighthouse.facilities.request.faraday')
+      end
+    end
+  end
+
   describe '#get_by_id' do
     it 'returns a facility' do
       r = facilities_client.get_by_id('vha_358')

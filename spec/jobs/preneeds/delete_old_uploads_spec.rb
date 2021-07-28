@@ -5,6 +5,12 @@ require 'rails_helper'
 RSpec.describe Preneeds::DeleteOldUploads, type: :model do
   let(:job) { described_class.new }
 
+  describe '::EXPIRATION_TIME' do
+    it 'is 2.months' do
+      expect(described_class::EXPIRATION_TIME).to eq(2.months)
+    end
+  end
+
   describe '#uuids_to_keep' do
     it 'gets the uuids of attachments in in progress forms' do
       create(

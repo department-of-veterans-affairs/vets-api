@@ -23,6 +23,80 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
     expect(described_class.new).to be_an(Facilities::PPMS::V1::Client)
   end
 
+  context 'StatsD notifications' do
+    context 'PPMS responds Successfully' do
+      it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:measure)
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:measure).with(
+          'facilities.ppms.provider_locator',
+          kind_of(Numeric),
+          hash_including(
+            tags: [
+              'facilities.ppms',
+              'facilities.ppms.radius:200',
+              'facilities.ppms.results:11'
+            ]
+          )
+        )
+        expect(StatsD).to receive(:increment).with(
+          'facilities.ppms.response.total',
+          hash_including(
+            tags: [
+              'http_status:200'
+            ]
+          )
+        )
+
+        expect do
+          Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
+        end.to instrument('facilities.ppms.request.faraday')
+      end
+    end
+
+    context 'PPMS responds with a Failure', vcr: vcr_options.merge(cassette_name: 'facilities/ppms/ppms_500') do
+      it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
+        allow(StatsD).to receive(:measure)
+        allow(StatsD).to receive(:increment)
+
+        expect(StatsD).to receive(:measure).with(
+          'facilities.ppms.provider_locator',
+          kind_of(Numeric),
+          hash_including(
+            tags: [
+              'facilities.ppms',
+              'facilities.ppms.radius:200',
+              'facilities.ppms.results:0'
+            ]
+          )
+        )
+        expect(StatsD).to receive(:increment).with(
+          'facilities.ppms.response.total',
+          hash_including(
+            tags: [
+              'http_status:500'
+            ]
+          )
+        )
+        expect(StatsD).to receive(:increment).with(
+          'facilities.ppms.response.failures',
+          hash_including(
+            tags: [
+              'http_status:500'
+            ]
+          )
+        )
+
+        expect do
+          Facilities::PPMS::V1::Client.new.provider_locator(params.merge(specialties: ['213E00000X']))
+        end.to raise_error(
+          Common::Exceptions::BackendServiceException
+        ).and instrument('facilities.ppms.request.faraday')
+      end
+    end
+  end
+
   context 'with an http timeout' do
     it 'logs an error and raise GatewayTimeout' do
       allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
@@ -75,22 +149,22 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
       expect(r.length).to be 10
       expect(r[0]).to have_attributes(
         acc_new_patients: 'true',
-        address_city: 'RED BANK',
-        address_postal_code: '07701-1063',
+        address_city: 'BELFORD',
+        address_postal_code: '07718-1042',
         address_state_province: 'NJ',
-        address_street: '176 RIVERSIDE AVE',
-        care_site: 'VISITING NURSE ASSOCIATION OF CENTRAL J',
-        caresite_phone: '732-219-6625',
+        address_street: '55 LEONARDVILLE RD',
+        care_site: 'ROBERT C LILLIE',
+        caresite_phone: '732-787-4747',
         contact_method: nil,
         email: nil,
         fax: nil,
-        gender: 'Female',
-        latitude: 40.35396,
-        longitude: -74.07492,
+        gender: 'Male',
+        latitude: 40.414248,
+        longitude: -74.097581,
         main_phone: nil,
-        miles: 5.477,
-        provider_identifier: '1154383230',
-        provider_name: 'GESUALDI, AMY'
+        miles: 2.5153,
+        provider_identifier: '1437189941',
+        provider_name: 'LILLIE, ROBERT C'
       )
     end
   end
@@ -101,23 +175,26 @@ RSpec.describe Facilities::PPMS::V1::Client, team: :facilities, vcr: vcr_options
       expect(r.length).to be 10
       expect(r[0]).to have_attributes(
         acc_new_patients: 'false',
-        address_city: 'BROOKLYN',
-        address_postal_code: '11220-1909',
-        address_state_province: 'NY',
-        address_street: '5024 5TH AVE',
-        care_site: 'CITY MD URGENT CARE',
-        caresite_phone: '718-571-9251',
+        address_city: 'ATLANTIC HIGHLANDS',
+        address_postal_code: '07716',
+        address_state_province: 'NJ',
+        address_street: '2 BAYSHORE PLZ',
+        care_site: 'BAYSHORE PHARMACY',
+        caresite_phone: '732-291-2900',
         contact_method: nil,
         email: nil,
         fax: nil,
         gender: 'NotSpecified',
-        latitude: 40.644795,
-        longitude: -74.011055,
+        latitude: 40.409114,
+        longitude: -74.041849,
         main_phone: nil,
-        miles: 42.074,
-        pos_codes: ['20'],
-        provider_identifier: '1487993564',
-        provider_name: 'CITY MD URGENT CARE'
+        miles: 1.0277,
+        pos_codes: %w[
+          17
+          20
+        ],
+        provider_identifier: '1225028293',
+        provider_name: 'BAYSHORE PHARMACY'
       )
     end
   end

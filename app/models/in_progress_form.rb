@@ -12,10 +12,16 @@ class InProgressForm < ApplicationRecord
   attr_accessor :skip_exipry_update
 
   RETURN_URL_SQL = "CAST(metadata -> 'returnUrl' AS text)"
-  scope :has_attempted_submit, -> { where("(metadata -> 'submission' ->> 'hasAttemptedSubmit')::boolean") }
+  scope :has_attempted_submit, lambda {
+                                 where("(metadata -> 'submission' ->> 'hasAttemptedSubmit')::boolean or "\
+                                       "(metadata -> 'submission' ->> 'has_attempted_submit')::boolean")
+                               }
   scope :has_errors,           -> { where("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
   scope :has_no_errors,        -> { where.not("(metadata -> 'submission' -> 'errors') IS NOT NULL") }
-  scope :has_error_message,    -> { where("(metadata -> 'submission' -> 'errorMessage')::text !='false'") }
+  scope :has_error_message,    lambda {
+                                 where("(metadata -> 'submission' -> 'errorMessage')::text !='false' or "\
+                                       "(metadata -> 'submission' -> 'error_message')::text !='false' ")
+                               }
   # the double quotes in return_url are part of the value
   scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
 
@@ -73,7 +79,7 @@ class InProgressForm < ApplicationRecord
   # https://dsva.slack.com/archives/C1A7KLZ9B/p1501856503336861
   def id_me_user_uuid
     if user_uuid && !user_uuid.length.in?([20, 21, 22, 23, 32])
-      errors[:user_uuid] << "(#{user_uuid}) is not a proper length"
+      errors.add(:user_uuid, "(#{user_uuid}) is not a proper length")
     end
   end
 

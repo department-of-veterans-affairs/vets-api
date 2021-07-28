@@ -8,20 +8,31 @@
 /.bundle
 .envrc
 
-# Ignore the default SQLite database.
-/db/*.sqlite3
-/db/*.sqlite3-journal
-
 # Ignore all logfiles and tempfiles.
 /log/*
+/tmp/*
 !/log/.keep
-/logfile
-/tmp
+!/tmp/.keep
 /coverage
 /reports
 
+# Ignore pidfiles, but keep the directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Ignore uploaded files in development.
+/storage/*
+!/storage/.keep
+
+# And byebug's history file
+.byebug_history
+
 # Ignore precompiled assets
 public/assets/**
+
+# Ignore master key for decrypting credentials and more.
+/config/master.key
 
 # *Uploader.store_dir for local development and test
 public/disability_compensation_supporting_form/**
@@ -32,20 +43,6 @@ spec/support/uploads/
 # Ignore local config
 config/application.yml
 
-# Ignore rvm stuff
-# Ignore rbenv
-.ruby-gemset
-.rbenv-gemsets
-
-.idea/
-.vscode/
-
-# And byebug's history file
-.byebug_history
-
-# Ignore .DS_Store
-.DS_Store
-
 # Ignore the docker runtime folders
 tmp/
 data/
@@ -55,29 +52,17 @@ log/*
 .env
 .local
 
+# Ignore local setttings changes
 config/settings.local.yml
 config/settings/*.local.yml
 config/environments/*.local.yml
-
-rspec.xml
 
 # Ignore certificates directory
 config/certs
 config/ca-trust
 !config/ca-trust/README.md
 
-dump.rdb
-/.project
-.generators
-.rakeTasks
-
-# Ignore IDE files
-*.iml
-
-#ignore storage files
-/storage/*
-
-#ignore docker_debugging and .env
+# Ignore docker_debugging and .env
 docker_debugging
 .env
 

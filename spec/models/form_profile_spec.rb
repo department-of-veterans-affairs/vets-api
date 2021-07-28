@@ -26,6 +26,7 @@ RSpec.describe FormProfile, type: :model do
   let(:full_name) do
     {
       'first' => user.first_name&.capitalize,
+      'middle' => user.middle_name&.capitalize,
       'last' => user.last_name&.capitalize,
       'suffix' => user.suffix
     }
@@ -106,8 +107,8 @@ RSpec.describe FormProfile, type: :model do
       },
       'veteranInformation' => {
         'fullName' => {
-          'first' => 'Abraham',
-          'last' => 'Lincoln',
+          'first' => user.first_name.capitalize,
+          'last' => user.last_name.capitalize,
           'suffix' => 'Jr.'
         },
         'ssn' => '796111863',
@@ -274,6 +275,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -289,6 +291,7 @@ RSpec.describe FormProfile, type: :model do
     {
       'claimantFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -309,6 +312,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'applicantFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -343,6 +347,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -366,6 +371,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -385,6 +391,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -406,6 +413,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -427,6 +435,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -449,6 +458,7 @@ RSpec.describe FormProfile, type: :model do
       'currentlyActiveDuty' => true,
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -470,6 +480,7 @@ RSpec.describe FormProfile, type: :model do
       'currentlyActiveDuty' => true,
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -482,6 +493,7 @@ RSpec.describe FormProfile, type: :model do
     {
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -512,6 +524,7 @@ RSpec.describe FormProfile, type: :model do
     {
       'fullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -619,6 +632,7 @@ RSpec.describe FormProfile, type: :model do
     {
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -641,6 +655,7 @@ RSpec.describe FormProfile, type: :model do
     {
       'claimantFullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -725,6 +740,7 @@ RSpec.describe FormProfile, type: :model do
       'serviceBranch' => 'Air Force',
       'fullName' => {
         'first' => user.first_name&.capitalize,
+        'middle' => user.middle_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.suffix
       },
@@ -1158,6 +1174,7 @@ RSpec.describe FormProfile, type: :model do
           {
             'claimantFullName' => {
               'first' => user.first_name&.capitalize,
+              'middle' => user.middle_name&.capitalize,
               'last' => user.last_name&.capitalize,
               'suffix' => user.suffix
             }
@@ -1175,7 +1192,6 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
-    # rubocop:disable RSpec/MultipleMemoizedHelpers
     context 'with a higher level review form' do
       let(:schema_name) { '20-0996' }
       let(:schema) { VetsJsonSchema::SCHEMAS[schema_name] }
@@ -1277,7 +1293,6 @@ RSpec.describe FormProfile, type: :model do
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
     end
-    # rubocop:enable RSpec/MultipleMemoizedHelpers
 
     context 'with a pension application form' do
       it 'returns the va profile mapped to the pension form' do

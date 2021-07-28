@@ -66,12 +66,35 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it 'posts a 403 when a representative who doesn\'t have an MPI account tries to post type "burial"' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-          data[:data][:attributes] = { type: 'burial' }
-          post path, params: data.to_json, headers: headers.merge(auth_header)
-          expect(response.status).to eq(403)
+    describe "'burial' submission" do
+      it "returns a 403 when veteran is submitting for 'burial'" do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            data[:data][:attributes] = { type: 'burial' }
+            post path, params: data.to_json, headers: auth_header
+            expect(response.status).to eq(403)
+          end
+        end
+      end
+
+      it "returns a 403 when 'participant claimant id' is not provided" do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            data[:data][:attributes] = { type: 'burial' }
+            post path, params: data.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(403)
+          end
+        end
+      end
+
+      it "returns a 200 if the veteran is not the submitter and 'participant claimant id' is provided" do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            data[:attributes] = extra
+            data[:attributes][:type] = 'burial'
+            post path, params: data.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(200)
+          end
         end
       end
     end
@@ -95,6 +118,20 @@ RSpec.describe 'Intent to file', type: :request do
       with_okta_user(scopes) do |auth_header|
         post path, headers: auth_header, params: ''
         expect(response.status).to eq(422)
+      end
+    end
+
+    it 'fails if any additional fields are passed in' do
+      with_okta_user(scopes) do |auth_header|
+        data[:data][:attributes]['someBadField'] = 'someValue'
+
+        post path, params: data.to_json, headers: headers.merge(auth_header)
+
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].size).to eq(1)
+        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+          'The property /someBadField is not defined on the schema. Additional properties are not allowed'
+        )
       end
     end
   end

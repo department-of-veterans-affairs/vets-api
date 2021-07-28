@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pcafc/facilities'
+
 module V0
   # Application for the Program of Comprehensive Assistance for Family Caregivers (Form 10-10CG)
   class CaregiversAssistanceClaimsController < ApplicationController
@@ -27,26 +29,22 @@ module V0
     # If we were unable to submit the user's claim digitally, we allow them to the download
     # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      if @claim.valid?
-        # Brakeman will raise a warning if we use a claim's method or attribute in the source file name.
-        # Use an arbitrary uuid for the source file name and don't use the return value of claim#to_pdf
-        # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
-        uuid = SecureRandom.uuid
+      # Brakeman will raise a warning if we use a claim's method or attribute in the source file name.
+      # Use an arbitrary uuid for the source file name and don't use the return value of claim#to_pdf
+      # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
+      source_file_path = PdfFill::Filler.fill_form(
+        @claim,
+        SecureRandom.uuid,
+        { sign: false, facility_label: get_facility_label }
+      )
+      client_file_name = file_name_for_pdf(@claim.veteran_data)
+      file_contents    = File.read(source_file_path)
 
-        @claim.to_pdf(uuid, sign: false)
+      File.delete(source_file_path)
 
-        source_file_path = Rails.root.join 'tmp', 'pdfs', "10-10CG_#{uuid}.pdf"
-        client_file_name = file_name_for_pdf(@claim.veteran_data)
-        file_contents    = File.read(source_file_path)
+      auditor.record(:pdf_download)
 
-        File.delete(source_file_path)
-
-        auditor.record(:pdf_download)
-
-        send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
-      else
-        raise(Common::Exceptions::ValidationErrors, @claim)
-      end
+      send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     end
 
     private
@@ -67,7 +65,10 @@ module V0
     end
 
     def file_name_for_pdf(veteran_data)
-      "10-10CG_#{veteran_data['fullName']['first']}_#{veteran_data['fullName']['last']}.pdf"
+      veteran_name = veteran_data.try(:[], 'fullName')
+      first_name = veteran_name.try(:[], 'first') || 'First'
+      last_name = veteran_name.try(:[], 'last') || 'Last'
+      "10-10CG_#{first_name}_#{last_name}.pdf"
     end
 
     def backend_service_outage
@@ -92,6 +93,11 @@ module V0
 
     def auditor
       self.class::AUDITOR
+    end
+
+    def get_facility_label
+      target_facility_code = @claim.parsed_form.dig 'veteran', 'plannedClinic'
+      PCAFC::Facilities.return_facility_label(target_facility_code)
     end
   end
 end

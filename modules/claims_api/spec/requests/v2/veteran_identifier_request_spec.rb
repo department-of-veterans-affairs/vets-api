@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe 'Veteran Identifier Endpoint', type: :request do
   let(:path) { '/services/benefits/v2/veteran-id:find' }
-  let(:headers) { { 'Authorization': 'Bearer somerandomstuff' } }
   let(:data) do
     {
       ssn: '796130115',
@@ -13,43 +12,57 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
       birthdate: '1967-06-19'
     }
   end
+  let(:scopes) { %w[claim.read] }
+  let(:test_user_icn) { '1012667145V762142' }
+  let(:veteran) { ClaimsApi::Veteran.new }
+  let(:veteran_mpi_data) { MPIData.new }
 
   describe 'Veteran Identifier' do
     context 'when auth header and body params are present' do
-      context 'when body params match exactly' do
-        it 'returns an id' do
-          post path, params: data, headers: headers
-          icn = JSON.parse(response.body)['id']
-
-          expect(icn).to eq(ClaimsApi::V2::VeteranIdentifierController::ICN_FOR_TEST_USER)
-          expect(response.status).to eq(200)
-        end
-      end
-
-      context 'when body params do not match exactly' do
-        context 'when first name is mixed-case' do
+      context 'when veteran icn is found' do
+        context 'when user is a Veteran representative' do
           it 'returns an id' do
-            valid_data = data
-            valid_data[:firstName] = 'TaMAra'
+            expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+            allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
+            expect(::Veteran::Service::Representative).to receive(:find_by).and_return(true)
+            with_okta_user(scopes) do |auth_header|
+              post path, params: data, headers: auth_header
+              icn = JSON.parse(response.body)['id']
 
-            post path, params: valid_data, headers: headers
-            icn = JSON.parse(response.body)['id']
-
-            expect(icn).to eq(ClaimsApi::V2::VeteranIdentifierController::ICN_FOR_TEST_USER)
-            expect(response.status).to eq(200)
+              expect(icn).to eq(test_user_icn)
+              expect(response.status).to eq(200)
+            end
           end
         end
 
-        context 'when last name is mixed-case' do
+        context 'when user is also the Veteran that was found' do
+          okta_user_info = {
+            first_name: 'abraham',
+            last_name: 'lincoln',
+            ssn: '796111863',
+            va_profile: ClaimsApi::Veteran.build_profile('1809-02-12')
+          }
+          let(:veteran) do
+            ClaimsApi::Veteran.new(
+              first_name: okta_user_info[:first_name],
+              last_name: okta_user_info[:last_name],
+              ssn: okta_user_info[:ssn],
+              va_profile: okta_user_info[:va_profile]
+            )
+          end
+
           it 'returns an id' do
-            valid_data = data
-            valid_data[:lastName] = 'eLLiS'
+            expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+            allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
+            with_okta_user(scopes) do |auth_header|
+              post path, params: data, headers: auth_header
+              icn = JSON.parse(response.body)['id']
 
-            post path, params: valid_data, headers: headers
-            icn = JSON.parse(response.body)['id']
-
-            expect(icn).to eq(ClaimsApi::V2::VeteranIdentifierController::ICN_FOR_TEST_USER)
-            expect(response.status).to eq(200)
+              expect(icn).to eq(test_user_icn)
+              expect(response.status).to eq(200)
+            end
           end
         end
       end
@@ -59,57 +72,27 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
       let(:data) { nil }
 
       it 'returns a 400 error code' do
-        post path, params: data, headers: headers
-        expect(response.status).to eq(400)
+        with_okta_user(scopes) do |auth_header|
+          post path, params: data, headers: auth_header
+          expect(response.status).to eq(400)
+        end
       end
     end
 
     context 'when auth header is not present' do
-      let(:headers) { nil }
-
       it 'returns a 401 error code' do
         post path, params: data
         expect(response.status).to eq(401)
       end
     end
 
-    context 'when veteran cannot be found' do
-      context 'when ssn does not match' do
-        it 'returns a 404' do
-          invalid_data = data
-          invalid_data[:ssn] = '123456789'
-
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(404)
-        end
-      end
-
-      context 'when first name does not match' do
-        it 'returns a 404' do
-          invalid_data = data
-          invalid_data[:firstName] = 'Random'
-
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(404)
-        end
-      end
-
-      context 'when last name does not match' do
-        it 'returns a 404' do
-          invalid_data = data
-          invalid_data[:lastName] = 'Person'
-
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(404)
-        end
-      end
-
-      context 'when birthdate does not match' do
-        it 'returns a 404' do
-          invalid_data = data
-          invalid_data[:birthdate] = '1970-01-01'
-
-          post path, params: invalid_data, headers: headers
+    context 'when veteran icn cannot be found' do
+      it 'returns a 404' do
+        expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+        allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+        allow(veteran_mpi_data).to receive(:icn).and_return(nil)
+        with_okta_user(scopes) do |auth_header|
+          post path, params: data, headers: auth_header
           expect(response.status).to eq(404)
         end
       end
@@ -118,41 +101,49 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
     context 'when ssn is invalid' do
       context 'when ssn is too long' do
         it 'returns a 400 error code' do
-          invalid_data = data
-          invalid_data[:ssn] = '7961301159'
+          with_okta_user(scopes) do |auth_header|
+            invalid_data = data
+            invalid_data[:ssn] = '7961301159'
 
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(400)
+            post path, params: invalid_data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
         end
       end
 
       context 'when ssn is too short' do
         it 'returns a 400 error code' do
-          invalid_data = data
-          invalid_data[:ssn] = '79613011'
+          with_okta_user(scopes) do |auth_header|
+            invalid_data = data
+            invalid_data[:ssn] = '79613011'
 
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(400)
+            post path, params: invalid_data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
         end
       end
 
       context 'when ssn has non-digit characters' do
         it 'returns a 400 error code' do
-          invalid_data = data
-          invalid_data[:ssn] = '796130 .A!'
+          with_okta_user(scopes) do |auth_header|
+            invalid_data = data
+            invalid_data[:ssn] = '796130 .A!'
 
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(400)
+            post path, params: invalid_data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
         end
       end
 
       context 'when ssn is blank' do
         it 'returns a 400 error code' do
-          invalid_data = data
-          invalid_data[:ssn] = ''
+          with_okta_user(scopes) do |auth_header|
+            invalid_data = data
+            invalid_data[:ssn] = ''
 
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(400)
+            post path, params: invalid_data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
         end
       end
     end
@@ -160,21 +151,41 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
     context 'when birthdate is invalid' do
       context 'when birthdate is an invalid date' do
         it 'returns a 400 error code' do
-          invalid_data = data
-          invalid_data[:birthdate] = '1234'
+          with_okta_user(scopes) do |auth_header|
+            invalid_data = data
+            invalid_data[:birthdate] = '1234'
 
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(400)
+            post path, params: invalid_data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
         end
       end
 
       context 'when birthdate is in the future' do
         it 'returns a 400 error code' do
-          invalid_data = data
-          invalid_data[:birthdate] = (Time.zone.today + 1.year).to_s
+          with_okta_user(scopes) do |auth_header|
+            invalid_data = data
+            invalid_data[:birthdate] = (Time.zone.today + 1.year).to_s
 
-          post path, params: invalid_data, headers: headers
-          expect(response.status).to eq(400)
+            post path, params: invalid_data, headers: auth_header
+            expect(response.status).to eq(400)
+          end
+        end
+      end
+    end
+
+    context 'when request is forbidden' do
+      context 'when user is not a Veteran representative, nor the matching Veteran' do
+        it 'reutrns a 403 forbidden response' do
+          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+          allow(veteran).to receive(:mpi).and_return(veteran_mpi_data)
+          allow(veteran_mpi_data).to receive(:icn).and_return(test_user_icn)
+          expect(::Veteran::Service::Representative).to receive(:find_by).and_return(nil)
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data, headers: auth_header
+
+            expect(response.status).to eq(403)
+          end
         end
       end
     end
@@ -184,8 +195,10 @@ RSpec.describe 'Veteran Identifier Endpoint', type: :request do
 
       describe 'veteran identifier' do
         it 'returns a 404 error code' do
-          post path, params: data, headers: headers
-          expect(response.status).to eq(404)
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data, headers: auth_header
+            expect(response.status).to eq(404)
+          end
         end
       end
     end

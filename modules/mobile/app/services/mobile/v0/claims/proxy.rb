@@ -32,6 +32,8 @@ module Mobile
           raw_claim = claims_service.find_claim_with_docs_by_id(claim.evss_id).body.fetch('claim', {})
           claim.update(data: raw_claim)
           EVSSClaimDetailSerializer.new(claim)
+        rescue EVSS::ErrorMiddleware::EVSSError => e
+          handle_middleware_error(e)
         end
 
         def get_appeal(id)
@@ -43,13 +45,15 @@ module Mobile
           serializable_resource[:id] = appeal['id']
           serializable_resource[:type] = appeal['type']
           serializable_resource
+        rescue EVSS::ErrorMiddleware::EVSSError => e
+          handle_middleware_error(e)
         end
 
         def request_decision(id)
-          claim = EVSSClaim.for_user(current_user).find_by(evss_id: id)
+          claim = EVSSClaim.for_user(@user).find_by(evss_id: id)
           jid = evss_claim_service.request_decision(claim)
           Rails.logger.info('Mobile Request', {
-                              claim_id: params[:id],
+                              claim_id: id,
                               job_id: jid
                             })
           claim.update(requested_decision: true)
@@ -180,6 +184,14 @@ module Mobile
           temp_file = Tempfile.new(pdf_filename, encoding: 'ASCII-8BIT')
           temp_file.write(File.read(pdf_path))
           ActionDispatch::Http::UploadedFile.new(filename: pdf_filename, type: 'application/pdf', tempfile: temp_file)
+        end
+
+        def handle_middleware_error(error)
+          response_values = {
+            details: error.details
+          }
+          raise Common::Exceptions::BackendServiceException.new('MOBL_502_upstream_error', response_values, 500,
+                                                                error.body)
         end
       end
     end

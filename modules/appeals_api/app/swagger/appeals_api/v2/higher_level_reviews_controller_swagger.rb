@@ -9,6 +9,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
   read_json_from_same_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v2', filename]) }
+  read_json_from_v1_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
   response_hlr_show_not_found = read_json_from_same_dir['response_hlr_show_not_found.json']
   response_hlr_create_error = read_json_from_same_dir['response_hlr_create_error.json']
@@ -105,6 +106,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
         'Review as of the `receiptDate` and bound by `benefitType`. Not all issues returned are guaranteed to be ' \
         'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       key :description, desc
+
       parameter name: 'X-VA-SSN', in: 'header', description: 'veteran\'s ssn' do
         key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
         schema '$ref': 'X-VA-SSN'
@@ -123,7 +125,7 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
         schema '$ref': 'hlrCreateBenefitType'
       end
 
-      responses = read_json_from_same_dir['responses_contestable_issues.json']
+      responses = read_json_from_v1_dir['responses_contestable_issues.json']
       responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
         value: {
           errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type',

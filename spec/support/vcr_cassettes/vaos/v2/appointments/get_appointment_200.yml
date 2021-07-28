@@ -1,0 +1,59 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments/20029
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Referer:
+      - https://review-instance.va.gov
+      X-Vamf-Jwt:
+      - stubbed-token 
+      X-Request-Id:
+      - ''
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 26 May 2021 22:11:30 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '333'
+      Server:
+      - openresty
+      X-Vamf-Version:
+      - 1.5.0
+      B3:
+      - c2a3004a1beb43de-deb64eb06ddd3f21-1
+      Access-Control-Allow-Headers:
+      - x-vamf-jwt
+      X-Vamf-Build:
+      - d8af5ed
+      X-Vamf-Timestamp:
+      - '2021-05-24T22:00:44+0000'
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET,OPTIONS
+      Access-Control-Max-Age:
+      - '3600'
+      Strict-Transport-Security:
+      - max-age=63072000; includeSubDomains; preload
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"20029","kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","telehealth":{"url":"https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VAC00064863@care2.evn.va.gov&pin=2059245058#"},"start":"2020-06-18T17:00:00Z","end":"2020-06-18T17:20:00Z","minutesDuration":20}}'
+  recorded_at: Wed, 26 May 2021 22:11:30 GMT
+recorded_with: VCR 6.0.0

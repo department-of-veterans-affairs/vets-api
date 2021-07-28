@@ -14,7 +14,8 @@ module Mobile
       attribute :subtype, Types::String
       attribute :completed, Types::Bool
       attribute :date_filed, Types::Date
-      attribute :updated_at, Types::DateTime
+      attribute :updated_at, Types::Date
+      attribute :display_title, Types::String
     end
   end
 end

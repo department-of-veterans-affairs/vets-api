@@ -67,7 +67,6 @@ module HCA
       end
 
       # rubocop:disable Metrics/MethodLength
-      # rubocop:disable Metrics/BlockLength
       def build_lookup_user_xml(icn)
         Nokogiri::XML::Builder.new do |xml|
           xml.public_send(
@@ -105,7 +104,6 @@ module HCA
           end
         end.to_xml
       end
-      # rubocop:enable Metrics/BlockLength
       # rubocop:enable Metrics/MethodLength
     end
   end

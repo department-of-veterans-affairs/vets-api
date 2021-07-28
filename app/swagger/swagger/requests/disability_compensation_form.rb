@@ -39,8 +39,8 @@ module Swagger
 
           parameter do
             key :name, :params
-            key :description, 'part of a medical term of lay term for a medical condition;
-              for example "?name_part=anxiety"'
+            key :description,
+                'part of a medical term of lay term for a medical condition; for example "?name_part=anxiety"'
             key :in, :path
             key :type, :string
             key :required, true

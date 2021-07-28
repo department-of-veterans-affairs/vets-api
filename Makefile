@@ -129,11 +129,7 @@ server:  ## Starts the server (natively)
 
 .PHONY: spec
 spec:  ## Runs spec tests
-ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) "bin/rspec ${SPEC_PATH}"
-else
-	@$(BASH_TEST) "bin/rails spec:with_codeclimate_coverage"
-endif
 
 .PHONY: spec_parallel_setup
 spec_parallel_setup:  ## Setup the parallel test dbs. This resets the current test db, as well as the parallel test dbs
@@ -148,9 +144,7 @@ spec_parallel:  ## Runs spec tests in parallel
 ifeq ($(ENV_ARG), dev)
 	@$(BASH_DEV) "RAILS_ENV=test DISABLE_BOOTSNAP=true NOCOVERAGE=true bundle exec parallel_rspec ${SPEC_PATH}"
 else
-	@$(COMPOSE_TEST) $(BASH) -c "cc-test-reporter before-build"
 	@$(COMPOSE_TEST) $(BASH) -c "DISABLE_BOOTSNAP=true bundle exec parallel_rspec ${SPEC_PATH}"
-	@$(COMPOSE_TEST) $(BASH) -c "cc-test-reporter after-build -t simplecov"
 endif
 
 .PHONY: up

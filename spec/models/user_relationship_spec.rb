@@ -70,4 +70,18 @@ RSpec.describe UserRelationship, type: :model do
       expect(user_relationship.to_hash).to eq user_relationship_hash
     end
   end
+
+  describe '#get_full_attributes' do
+    let(:mpi_relationship) { build(:mpi_profile_relationship) }
+    let(:user_relationship) { described_class.from_mpi_relationship(mpi_relationship) }
+    let(:mpi_object_double) { double }
+
+    before do
+      allow(MPIData).to receive(:for_user).and_return(mpi_object_double)
+    end
+
+    it 'returns an MPI profile for relationship attributes' do
+      expect(user_relationship.get_full_attributes).to eq mpi_object_double
+    end
+  end
 end

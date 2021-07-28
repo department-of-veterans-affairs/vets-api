@@ -147,6 +147,8 @@ RSpec.describe 'Power of Attorney ', type: :request do
     describe 'active' do
       context 'when there is no active power of attorney' do
         it 'returns a 404' do
+          allow(Veteran::User).to receive(:new).and_return(OpenStruct.new(current_poa: nil))
+
           get('/services/claims/v0/forms/2122/active',
               params: nil, headers: headers)
 

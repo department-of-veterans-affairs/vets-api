@@ -11,6 +11,7 @@ class TriageTeam < Common::Base
   attribute :triage_team_id, Integer
   attribute :name, String, sortable: { order: 'ASC', default: true }
   attribute :relation_type, String
+  attribute :preferred_team, Boolean
 
   def <=>(other)
     name <=> other.name

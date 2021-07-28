@@ -138,22 +138,43 @@ module HealthQuest
 
       def set_address
         [
-          ['Country:', user_data.dig('address', 'country')],
-          ['Mailing address:', user_data['mailing_address']],
-          ['Home address:', user_data['home_address']]
+          ['Country:', user_data&.dig('address', 'country')],
+          ['Mailing address:', format_address(user_data['mailing_address'])],
+          ['Home address:', format_address(user_data['home_address'])]
         ]
+      end
+
+      def format_address(addr)
+        return if addr.blank?
+
+        street_info = [addr['address_line1'], addr['address_line2'], addr['address_line3']].compact.join(' ')
+        city = addr['city']
+        state = addr['state_code']
+        zip = addr['zip_code']
+
+        "#{street_info}, #{city}, #{state} #{zip}"
       end
 
       def set_phone
         [
-          ['Home phone:', user_data['home_phone']],
-          ['Mobile phone:', user_data['mobile_phone']],
-          ['Work phone:', user_data['work_phone']]
+          ['Home phone:', format_phone(user_data['home_phone'])],
+          ['Mobile phone:', format_phone(user_data['mobile_phone'])],
+          ['Work phone:', format_phone(user_data['work_phone'])]
         ]
       end
 
+      def format_phone(phone_hash)
+        return if phone_hash.blank?
+
+        area_code = phone_hash['area_code']
+        prefix = phone_hash['phone_number']&.first(3)
+        line = phone_hash['phone_number']&.last(4)
+
+        [area_code, prefix, line].compact.join('-')
+      end
+
       def set_questionnaire_items
-        questions = questionnaire_response.questionnaire_response_data['item']
+        questions = questionnaire_response&.questionnaire_response_data&.fetch('item')
 
         questions.each do |q|
           answers = q['answer']
@@ -175,23 +196,25 @@ module HealthQuest
       end
 
       def qr_submitted_time
-        questionnaire_response.created_at.in_time_zone(DEFAULT_TIME_ZONE).to_date.strftime(QR_DATE_FORMAT)
+        questionnaire_response&.created_at&.in_time_zone(DEFAULT_TIME_ZONE)&.to_date&.strftime(QR_DATE_FORMAT)
       end
 
       def appointment_date
-        appt_utc_time = appointment.resource.start
-        time = DateTime.strptime(appt_utc_time).in_time_zone(DEFAULT_TIME_ZONE)
+        time = DateTime.strptime(appt_utc_time)&.in_time_zone(DEFAULT_TIME_ZONE)
 
         time.strftime(DATE_FORMAT)
       end
 
       def appointment_time
-        appt_utc_time = appointment.resource.start
         time = DateTime.strptime(appt_utc_time).in_time_zone(DEFAULT_TIME_ZONE)
         local_time = time.strftime(TIME_FORMAT)
         local_time_zone = time.strftime(TIME_ZONE_FORMAT)
 
         "#{local_time} #{local_time_zone}"
+      end
+
+      def appt_utc_time
+        appointment&.resource&.start
       end
 
       def appointment_destination
@@ -203,7 +226,7 @@ module HealthQuest
       end
 
       def date_of_birth
-        DateTime.parse(user_data['date_of_birth']).strftime(HEADER_DATE_FORMAT)
+        DateTime.parse(user_data['date_of_birth'])&.strftime(HEADER_DATE_FORMAT)
       end
 
       def set_qr_header
@@ -212,11 +235,11 @@ module HealthQuest
       end
 
       def org_name
-        org.resource.name
+        org&.resource&.name
       end
 
       def loc_name
-        location.resource.name
+        location&.resource&.name
       end
 
       def header_columns
@@ -228,22 +251,22 @@ module HealthQuest
       end
 
       def user_data
-        @user_data ||= questionnaire_response.user_demographics_data
+        @user_data ||= questionnaire_response&.user_demographics_data
       end
 
       def qr_data
-        @qr_data ||= questionnaire_response.questionnaire_response_data
+        @qr_data ||= questionnaire_response&.questionnaire_response_data
       end
 
       def info
         {
           Lang: 'en-us',
-          Title: 'Questionnaire Details',
-          Author: 'va.gov',
-          Subject: 'Veteran Questionnaire Responses',
-          Keywords: 'questionnaire answers pre-visit',
+          Title: 'Primary Care Questionnaire',
+          Author: 'Department of Veterans Affairs',
+          Subject: 'Primary Care Questionnaire',
+          Keywords: 'health questionnaires pre-visit',
           Creator: 'va.gov',
-          Producer: 'va.gov API',
+          Producer: 'va.gov',
           CreationDate: Time.zone.now
         }
       end

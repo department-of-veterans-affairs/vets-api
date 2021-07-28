@@ -8,27 +8,18 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
   let(:evss_user) { create(:evss_user) }
   let(:evss_user2) { create(:evss_user, uuid: '87ebe3da-36a3-4c92-9a73-61e9d700f6ea') }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
+  let!(:account) { create(:account, uuid: evss_user.account_uuid) }
 
   context 'scheduling' do
     before do
       allow(Rails.env).to receive('development?').and_return(true)
     end
 
-    context 'job only runs between 6-18', run_at: '2017-01-01 00:00:00 EDT' do
+    context 'job only runs between 6-18 every 6 hours', run_at: '2017-01-01 00:00:00 EDT' do
       let(:scheduler) { Rufus::Scheduler.new }
       let(:possible_runs) do
         ['2017-01-01 06:00:00 -0500',
-         '2017-01-01 07:00:00 -0500',
-         '2017-01-01 08:00:00 -0500',
-         '2017-01-01 09:00:00 -0500',
-         '2017-01-01 10:00:00 -0500',
-         '2017-01-01 11:00:00 -0500',
          '2017-01-01 12:00:00 -0500',
-         '2017-01-01 13:00:00 -0500',
-         '2017-01-01 14:00:00 -0500',
-         '2017-01-01 15:00:00 -0500',
-         '2017-01-01 16:00:00 -0500',
-         '2017-01-01 17:00:00 -0500',
          '2017-01-01 18:00:00 -0500']
       end
 
@@ -38,7 +29,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         scheduler.schedule_cron(cron) {} # schedule_cron requires a block
       end
 
-      it 'is only triggered by sidekiq-scheduler between 6-18' do
+      it 'is only triggered by sidekiq-scheduler every 6 hours between 6-18' do
         upcoming_runs = scheduler.timeline(Time.zone.now, 1.day.from_now).map(&:first)
         expected_runs = possible_runs.map { |d| EtOrbi.parse(d.to_s) }
         expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))

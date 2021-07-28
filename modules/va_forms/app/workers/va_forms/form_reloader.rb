@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require 'va_forms/regex_helper'
 
 module VAForms
   class FormReloader
     include Sidekiq::Worker
     include SentryLogging
-
     FORM_BASE_URL = 'https://www.va.gov'
 
     def perform
@@ -23,8 +23,7 @@ module VAForms
         build_and_save_form(form)
       rescue => e
         log_message_to_sentry(
-          "#{form['fieldVaFormNumber']} failed to import into forms database",
-          :error, body: e.message
+          "#{form['fieldVaFormNumber']} failed to import into forms database", :error, body: e.message
         )
         next
       end
@@ -59,15 +58,22 @@ module VAForms
     def build_and_save_form(form)
       va_form = VAForms::Form.find_or_initialize_by row_id: form['fieldVaFormRowId']
       attrs = init_attributes(form)
-      url = form['fieldVaFormUrl']['uri']
-      va_form_url = url.starts_with?('http') ? url.gsub('http:', 'https:') : expand_va_url(url)
+      new_url = form['fieldVaFormUrl']['uri']
+      stored_url = VAForms::Form.where(row_id: form['fieldVaFormRowId']).select('url').first&.url
+      va_form_url = new_url.starts_with?('http') ? new_url.gsub('http:', 'https:') : expand_va_url(new_url)
+      normalized_url = Addressable::URI.parse(va_form_url).normalize.to_s
+      if stored_url != normalized_url && stored_url.present?
+        notify_slack(normalized_url, stored_url, form['fieldVaFormNumber'])
+      end
       issued_string = form.dig('fieldVaFormIssueDate', 'value')
       revision_string = form.dig('fieldVaFormRevisionDate', 'value')
-      attrs[:url] = Addressable::URI.parse(va_form_url).normalize.to_s
+      attrs[:url] = normalized_url
       attrs[:first_issued_on] = parse_date(issued_string) if issued_string.present?
       attrs[:last_revision_on] = parse_date(revision_string) if revision_string.present?
       va_form.assign_attributes(attrs)
       va_form = update_sha256(va_form)
+      number_tag = VAForms::RegexHelper.new.strip_va(form['fieldVaFormNumber'])
+      va_form.tags = va_form.tags.presence || number_tag
       va_form.save
       va_form
     end
@@ -130,6 +136,20 @@ module VAForms
       raise ArgumentError, 'url must start with ./va or ./medical' unless url.starts_with?('./va', './medical')
 
       "#{FORM_BASE_URL}/vaforms/#{url.gsub('./', '')}" if url.starts_with?('./va') || url.starts_with?('./medical')
+    end
+
+    def notify_slack(old_form_url, new_form_url, form_name)
+      return unless Settings.va_forms.slack.enabled
+
+      slack_url = Settings.va_forms.slack.notification_url
+      slack_users = Settings.va_forms.slack.users
+      begin
+        Faraday.post(slack_url,
+                     "{\"text\": \"#{slack_users} #{form_name} has changed from #{old_form_url} to #{new_form_url}\" }",
+                     'Content-Type' => 'application/json')
+      rescue Faraday::ClientError, Faraday::Error => e
+        Rails.logger.error("Failed to notify slack channel of forms change! #{e.message}", e)
+      end
     end
   end
 end

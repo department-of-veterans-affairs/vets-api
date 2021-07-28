@@ -7,6 +7,7 @@ module AppealsApi
     class Generator
       def initialize(appeal, version: 'V1')
         @appeal = appeal
+        appeal.update(pdf_version: version)
         @structure = appeal.pdf_structure(version)
       end
 

@@ -50,6 +50,26 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
         change(AppealsApi::NoticeOfDisagreementPdfSubmitJob.jobs, :size).by(1)
       )
     end
+
+    context 'keeps track of which version of the api it is serving' do
+      it 'V1' do
+        path = base_path('notice_of_disagreements')
+
+        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.api_version).to eq('V1')
+      end
+
+      it 'V2' do
+        path = '/services/appeals/v2/decision_reviews/notice_of_disagreements'
+
+        post(path, params: @minimum_valid_data, headers: @minimum_required_headers)
+        nod = AppealsApi::NoticeOfDisagreement.find_by(id: parsed['data']['id'])
+
+        expect(nod.api_version).to eq('V2')
+      end
+    end
   end
 
   describe '#validate' do
@@ -79,11 +99,34 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreementsController, type:
       end
     end
 
-    context 'when validation fails due to a JSON parse error' do
-      it 'responds with a JSON parse error' do
-        allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
-        post(path, params: @data, headers: @headers)
-        expect(response.status).to eq(422)
+    context 'responds with a 422 when request.body isn\'t a JSON *object*' do
+      before do
+        fake_io_object = OpenStruct.new string: json
+        allow_any_instance_of(ActionDispatch::Request).to receive(:body).and_return(fake_io_object)
+      end
+
+      context 'request.body is a JSON string' do
+        let(:json) { '"Hello!"' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
+      end
+
+      context 'request.body is a JSON integer' do
+        let(:json) { '66' }
+
+        it 'responds with a properly formed error object' do
+          post(path, params: @data, headers: @headers)
+          body = JSON.parse(response.body)
+          expect(response.status).to eq 422
+          expect(body['errors']).to be_an Array
+          expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
+        end
       end
     end
   end

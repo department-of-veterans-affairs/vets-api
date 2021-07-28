@@ -14,6 +14,9 @@ module AppealsApi
     include Sidekiq::MonitoredWorker
     include CentralMail::Utilities
 
+    # Retry for ~7 days
+    sidekiq_options retry: 20
+
     def perform(higher_level_review_id, version = 'V1')
       higher_level_review = AppealsApi::HigherLevelReview.find(higher_level_review_id)
 
@@ -26,13 +29,14 @@ module AppealsApi
         handle_upload_error(higher_level_review, e)
       rescue => e
         higher_level_review.update_status!(status: 'error', code: e.class.to_s, detail: e.message)
-        Rails.logger.info("#{self.class} error: #{e}")
+        Rails.logger.error("#{self.class} error: #{e}")
         raise
       end
     end
 
     def retry_limits_for_notification
-      [2, 5]
+      # Alert @ 1m, 10m, 30m, 4h, 1d, 3d, and 7d
+      [2, 5, 6, 10, 14, 17, 20]
     end
 
     def notify(retry_params)
@@ -56,13 +60,13 @@ module AppealsApi
         'docType' => '20-0996'
       }
       body = { 'metadata' => metadata.to_json, 'document' => to_faraday_upload(pdf_path, '200996-document.pdf') }
-      process_response(CentralMail::Service.new.upload(body), higher_level_review)
-      log_submission(higher_level_review, metadata)
+      process_response(CentralMail::Service.new.upload(body), higher_level_review, metadata)
     end
 
-    def process_response(response, higher_level_review)
+    def process_response(response, higher_level_review, metadata)
       if response.success? || response.body.match?(NON_FAILING_ERROR_REGEX)
         higher_level_review.update_status!(status: 'submitted')
+        log_submission(higher_level_review, metadata)
       else
         map_error(response.status, response.body, AppealsApi::UploadError)
       end
@@ -76,13 +80,13 @@ module AppealsApi
     end
 
     def log_upload_error(higher_level_review, e)
-      Rails.logger.info("#{higher_level_review.class.to_s.gsub('::', ' ')}: Submission failure",
-                        'source' => higher_level_review.consumer_name,
-                        'consumer_id' => higher_level_review.consumer_id,
-                        'consumer_username' => higher_level_review.consumer_name,
-                        'uuid' => higher_level_review.id,
-                        'code' => e.code,
-                        'detail' => e.detail)
+      Rails.logger.error("#{higher_level_review.class.to_s.gsub('::', ' ')}: Submission failure",
+                         'source' => higher_level_review.consumer_name,
+                         'consumer_id' => higher_level_review.consumer_id,
+                         'consumer_username' => higher_level_review.consumer_name,
+                         'uuid' => higher_level_review.id,
+                         'code' => e.code,
+                         'detail' => e.detail)
     end
 
     def handle_upload_error(higher_level_review, e)
@@ -90,10 +94,10 @@ module AppealsApi
       higher_level_review.update(status: 'error', code: e.code, detail: e.detail)
 
       if e.code == 'DOC201' || e.code == 'DOC202'
-        AppealsApi::SidekiqRetryNotifier.notify!(
+        notify(
           {
             'class' => self.class.name,
-            'retry_count' => '-',
+            'args' => [higher_level_review.id],
             'error_class' => e.code,
             'error_message' => e.detail,
             'failed_at' => Time.zone.now

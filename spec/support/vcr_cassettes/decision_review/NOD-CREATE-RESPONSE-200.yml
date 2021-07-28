@@ -5,7 +5,14 @@ http_interactions:
     uri: https://sandbox-api.va.gov/services/appeals/v1/decision_reviews/notice_of_disagreements
     body:
       encoding: UTF-8
-      string: '{"data":{"type":"noticeOfDisagreement","attributes":{"veteran":{"homeless":false,"address":{"addressLine1":"123 Main St","addressLine2":"Suite #1200","addressLine3":"Box 4","city":"New York","countryName":"United States","stateCode":"NY","zipCode5":"30012","internationalPostalCode":"1"},"phone":{"countryCode":"6","areaCode":"555","phoneNumber":"8001111","phoneNumberExt":"2"},"emailAddressText":"user@example.com","representativesName":"Tony Danza"},"boardReviewOption":"hearing","hearingTypePreference":"central_office","timezone":"America/Chicago","socOptIn":false}},"included":[{"type":"contestableIssue","attributes":{"issue":"tinnitus","decisionDate":"1900-01-01","decisionIssueId":1,"ratingIssueReferenceId":"2","ratingDecisionReferenceId":"3"}},{"type":"contestableIssue","attributes":{"issue":"left knee","decisionDate":"1900-01-02","decisionIssueId":4,"ratingIssueReferenceId":"5"}},{"type":"contestableIssue","attributes":{"issue":"right knee","decisionDate":"1900-01-03","ratingIssueReferenceId":"6","ratingDecisionReferenceId":"7"}},{"type":"contestableIssue","attributes":{"issue":"PTSD","decisionDate":"1900-01-04","decisionIssueId":8,"ratingDecisionReferenceId":"9"}},{"type":"contestableIssue","attributes":{"issue":"Traumatic Brain Injury","decisionDate":"1900-01-05","decisionIssueId":10}},{"type":"contestableIssue","attributes":{"issue":"right shoulder","decisionDate":"1900-01-06"}}]}'
+      string: '{"data":{"type":"noticeOfDisagreement","attributes":{"veteran":{"homeless":false,"address":{"addressLine1":"123
+        Main St","addressLine2":"Suite #1200","addressLine3":"Box 4","city":"New York","countryName":"United
+        States","stateCode":"NY","zipCode5":"30012","internationalPostalCode":"1"},"phone":{"countryCode":"6","areaCode":"555","phoneNumber":"8001111","phoneNumberExt":"2"},"emailAddressText":"user@example.com","representativesName":"Tony
+        Danza"},"boardReviewOption":"evidence_submission","timezone":"America/Chicago","socOptIn":false}},"included":[{"type":"contestableIssue","attributes":{"issue":"tinnitus","decisionDate":"1900-01-01","decisionIssueId":1,"ratingIssueReferenceId":"2","ratingDecisionReferenceId":"3"}},{"type":"contestableIssue","attributes":{"issue":"left
+        knee","decisionDate":"1900-01-02","decisionIssueId":4,"ratingIssueReferenceId":"5"}},{"type":"contestableIssue","attributes":{"issue":"right
+        knee","decisionDate":"1900-01-03","ratingIssueReferenceId":"6","ratingDecisionReferenceId":"7"}},{"type":"contestableIssue","attributes":{"issue":"PTSD","decisionDate":"1900-01-04","decisionIssueId":8,"ratingDecisionReferenceId":"9"}},{"type":"contestableIssue","attributes":{"issue":"Traumatic
+        Brain Injury","decisionDate":"1900-01-05","decisionIssueId":10}},{"type":"contestableIssue","attributes":{"issue":"right
+        shoulder","decisionDate":"1900-01-06"}}]}'
     headers:
       Accept:
       - application/json
@@ -14,13 +21,13 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Apikey:
-      - <LIGHTHOUSE_API_KEY>
-      X-Va-Ssn:
-      - '212222112'
+      - "<LIGHTHOUSE_API_KEY>"
       X-Va-First-Name:
       - abraham
       X-Va-Last-Name:
       - lincoln
+      X-Va-Ssn:
+      - '212222112'
       X-Va-Birth-Date:
       - '1809-02-12'
       Accept-Encoding:
@@ -31,43 +38,43 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 02 Sep 2020 15:50:54 GMT
+      - Fri, 21 May 2021 18:09:23 GMT
       Content-Type:
       - application/json; charset=utf-8
       Connection:
       - keep-alive
-      Access-Control-Allow-Origin:
-      - "*"
       Etag:
-      - W/"2cc7b8ea0b0cec5d4c71e630df7e4616"
+      - W/"e384cecec50e02aee9640170cba3cbf9"
       Referrer-Policy:
       - strict-origin-when-cross-origin
       Vary:
       - Origin
-      Via:
-      - kong/1.2.2
       X-Content-Type-Options:
       - nosniff
       X-Download-Options:
       - noopen
       X-Frame-Options:
       - SAMEORIGIN
-      X-Kong-Proxy-Latency:
-      - '18'
-      X-Kong-Upstream-Latency:
-      - '36'
       X-Permitted-Cross-Domain-Policies:
       - none
+      X-Request-Id:
+      - 404f35cc-4729-4add-ba88-6014e88f97d8
+      X-Runtime:
+      - '0.046330'
+      X-Xss-Protection:
+      - 1; mode=block
+      Access-Control-Allow-Origin:
+      - "*"
       X-Ratelimit-Limit-Minute:
       - '60'
       X-Ratelimit-Remaining-Minute:
       - '59'
-      X-Request-Id:
-      - b60bc188-1b33-465f-9540-e4d729987639
-      X-Runtime:
-      - '0.032668'
-      X-Xss-Protection:
-      - 1; mode=block
+      X-Kong-Upstream-Latency:
+      - '49'
+      X-Kong-Proxy-Latency:
+      - '1'
+      Via:
+      - kong/1.2.2
       Strict-Transport-Security:
       - max-age=31536000; includeSubDomains; preload
       Cache-Control:
@@ -75,12 +82,19 @@ http_interactions:
       Pragma:
       - no-cache
       Set-Cookie:
-      - TS016f4012=01c8917e48c690d229ef6a75740a6216f172ccb4bd5016e3a1bde38f7e08c2f482eba25ea964665d2b8d58132fe58fa1fcb396163d;
+      - TS0108eb76=01c8917e48450c126a23af17dae59dde598aeaa894b43631b56ab2bdd1d59eae2113c1f134c081d65a2ef6706238fb126ef099facb;
         Max-Age=900; Path=/
       Transfer-Encoding:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"data":{"id":"1234567a-89b0-123c-d456-789e01234f56","type":"noticeOfDisagreement","attributes":{"status":"submitted","updatedAt":"2020-04-23T21:06:12.531Z","createdAt":"2020-04-23T21:06:12.531Z","formData":{"data":{"type":"noticeOfDisagreement","attributes":{"veteran":{"homeless":false,"address":{"addressLine1":"string","addressLine2":"string","addressLine3":"string","city":"string","stateCode":"UT","zipCode5":"20001","countryName":"string","internationalPostalCode":"string"},"phone":{"countryCode":"34","areaCode":"555","phoneNumber":"8001111","phoneNumberExt":"2"},"emailAddressText":"user@example.com"},"boardReviewOption":"evidence_submission","timezone":"America/Chicago","socOptIn":true}},"included":[{"type":"contestableIssue","attributes":{"issue":"tinnitus","decisionDate":"1900-01-01"}}]}}}}'
-  recorded_at: Wed, 02 Sep 2020 15:50:55 GMT
+      string: '{"data":{"id":"e076ea91-6b99-4912-bffc-a8318b9b403f","type":"noticeOfDisagreement","attributes":{"status":"pending","updatedAt":"2021-05-21T18:09:23.460Z","createdAt":"2021-05-21T18:09:23.460Z","formData":{"data":{"type":"noticeOfDisagreement","attributes":{"veteran":{"homeless":false,"address":{"addressLine1":"123
+        Main St","addressLine2":"Suite #1200","addressLine3":"Box 4","city":"New York","countryName":"United
+        States","stateCode":"NY","zipCode5":"30012","internationalPostalCode":"1"},"phone":{"countryCode":"6","areaCode":"555","phoneNumber":"8001111","phoneNumberExt":"2"},"emailAddressText":"user@example.com","representativesName":"Tony
+        Danza"},"boardReviewOption":"evidence_submission","timezone":"America/Chicago","socOptIn":false}},"included":[{"type":"contestableIssue","attributes":{"issue":"tinnitus","decisionDate":"1900-01-01","decisionIssueId":1,"ratingIssueReferenceId":"2","ratingDecisionReferenceId":"3"}},{"type":"contestableIssue","attributes":{"issue":"left
+        knee","decisionDate":"1900-01-02","decisionIssueId":4,"ratingIssueReferenceId":"5"}},{"type":"contestableIssue","attributes":{"issue":"right
+        knee","decisionDate":"1900-01-03","ratingIssueReferenceId":"6","ratingDecisionReferenceId":"7"}},{"type":"contestableIssue","attributes":{"issue":"PTSD","decisionDate":"1900-01-04","decisionIssueId":8,"ratingDecisionReferenceId":"9"}},{"type":"contestableIssue","attributes":{"issue":"Traumatic
+        Brain Injury","decisionDate":"1900-01-05","decisionIssueId":10}},{"type":"contestableIssue","attributes":{"issue":"right
+        shoulder","decisionDate":"1900-01-06"}}]}}}}'
+  recorded_at: Fri, 21 May 2021 18:09:23 GMT
 recorded_with: VCR 6.0.0

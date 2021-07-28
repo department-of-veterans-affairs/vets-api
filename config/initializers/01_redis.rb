@@ -32,3 +32,5 @@ Redis.current = if Settings.redis.app_data.key?(:secondary_url)
                 else
                   Redis.new(REDIS_CONFIG[:redis].to_hash)
                 end
+
+Redis.exists_returns_integer = true

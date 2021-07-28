@@ -21,6 +21,7 @@ module V0
 
         if email_address.valid?
           response = service.post_email_address email_address
+          Rails.logger.info('EmailsController#create request completed', sso_logging_info)
 
           render json: response, serializer: EmailSerializer
         else

@@ -8,7 +8,8 @@ RSpec.describe 'appointments', type: :request do
   include JsonSchemaMatchers
 
   before do
-    iam_sign_in
+    allow_any_instance_of(IAMUser).to receive(:icn).and_return('24811694708759028')
+    iam_sign_in(build(:iam_user))
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
 
@@ -92,7 +93,7 @@ RSpec.describe 'appointments', type: :request do
       let(:start_date) { Time.now.utc.iso8601 }
       let(:end_date) { (Time.now.utc + 3.months).iso8601 }
       let(:params) { { startDate: start_date, endDate: end_date, page: { number: 1, size: 10 }, useCache: true } }
-      let(:user) { FactoryBot.build(:iam_user) }
+      let(:user) { build(:iam_user) }
 
       before do
         va_path = Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'va_appointments.json')
@@ -610,6 +611,142 @@ RSpec.describe 'appointments', type: :request do
         )
       end
     end
+
+    context "when a VA appointment's facility does not have a phone number" do
+      before do
+        Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+
+        VCR.use_cassette('appointments/get_facilities_phone_bug', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_address_bug', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_address_bug', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: nil
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:location) { response.parsed_body['data'].first.dig('attributes', 'location') }
+
+      it 'correctly parses the phone number as nil' do
+        expect(location).to eq(
+          {
+            'name' => 'Cheyenne VA Medical Center',
+            'address' => {
+              'street' => '2360 East Pershing Boulevard',
+              'city' => 'Cheyenne',
+              'state' => 'WY',
+              'zipCode' => '82001-5356'
+            },
+            'lat' => 41.148027,
+            'long' => -104.7862575,
+            'phone' => nil,
+            'url' => nil,
+            'code' => nil
+          }
+        )
+      end
+    end
+
+    context "when a VA appointment's facility phone number is malformed" do
+      before do
+        allow(Rails.logger).to receive(:warn)
+        Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+
+        VCR.use_cassette('appointments/get_facilities_phone_bug', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_address_bug', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_address_bug', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: nil
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:location) { response.parsed_body['data'][1].dig('attributes', 'location') }
+
+      it 'correctly parses the phone number as nil' do
+        expect(location).to eq(
+          {
+            'name' => 'Cheyenne VA Medical Center',
+            'address' => {
+              'street' => '2360 East Pershing Boulevard',
+              'city' => 'Cheyenne',
+              'state' => 'WY',
+              'zipCode' => '82001-5356'
+            },
+            'lat' => 41.148027,
+            'long' => -104.7862575,
+            'phone' => nil,
+            'url' => nil,
+            'code' => nil
+          }
+        )
+      end
+
+      it 'logs the facility phone number' do
+        expect(Rails.logger).to have_received(:warn).at_least(:once).with(
+          'mobile appointments failed to parse facility phone number',
+          {
+            facility_id: 'vha_442GC',
+            facility_phone: {
+              'fax' => '970-407-7440',
+              'main' => '970224-1550',
+              'pharmacy' => '866-420-6337',
+              'afterHours' => '307-778-7550',
+              'patientAdvocate' => '307-778-7550 x7517',
+              'mentalHealthClinic' => '307-778-7349',
+              'enrollmentCoordinator' => '307-778-7550 x7579'
+            }
+          }
+        )
+      end
+    end
+
+    describe 'sorting' do
+      before do
+        Timecop.freeze(Time.zone.parse('2020-11-01T10:30:00Z'))
+
+        VCR.use_cassette('appointments/get_facilities_address_bug', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('appointments/get_cc_appointments_address_bug', match_requests_on: %i[method uri]) do
+            VCR.use_cassette('appointments/get_appointments_address_bug', match_requests_on: %i[method uri]) do
+              get '/mobile/v0/appointments', headers: iam_headers, params: params
+            end
+          end
+        end
+      end
+
+      after { Timecop.return }
+
+      let(:first_appointment_date) { DateTime.parse(response.parsed_body['data'].first['attributes']['startDateUtc']) }
+      let(:last_appointment_date) { DateTime.parse(response.parsed_body['data'].last['attributes']['startDateUtc']) }
+
+      context 'when ascending sorting is requested in params' do
+        let(:params) { { sort: 'startDateUtc' } }
+
+        it 'has the most recent appointments come first' do
+          expect(first_appointment_date).to be < last_appointment_date
+        end
+      end
+
+      context 'when reverse sorting is requested in params' do
+        let(:params) { { sort: '-startDateUtc' } }
+
+        it 'has the earlier appointments come first' do
+          expect(first_appointment_date).to be > last_appointment_date
+        end
+      end
+
+      context 'when no sorting is requested in params' do
+        let(:params) { nil }
+
+        it 'defaults to having the most recent appointments come first' do
+          expect(first_appointment_date).to be < last_appointment_date
+        end
+      end
+    end
   end
 
   describe 'PUT /mobile/v0/appointments/cancel' do
@@ -656,7 +793,6 @@ RSpec.describe 'appointments', type: :request do
         it 'returns bad request with detail in errors' do
           VCR.use_cassette('appointments/get_cancel_reasons_500', match_requests_on: %i[method uri]) do
             put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
-
             expect(response).to have_http_status(:bad_gateway)
             expect(response.parsed_body['errors'].first['detail'])
               .to eq('Received an an invalid response from the upstream server')
@@ -693,7 +829,6 @@ RSpec.describe 'appointments', type: :request do
         VCR.use_cassette('appointments/put_cancel_appointment', match_requests_on: %i[method uri]) do
           VCR.use_cassette('appointments/get_cancel_reasons', match_requests_on: %i[method uri]) do
             put "/mobile/v0/appointments/cancel/#{cancel_id}", headers: iam_headers
-
             expect(response).to have_http_status(:success)
             expect(response.body).to be_an_instance_of(String).and be_empty
           end

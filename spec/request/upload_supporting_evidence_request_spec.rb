@@ -7,11 +7,11 @@ RSpec.describe 'Upload supporting evidence', type: :request do
   let(:user) { build(:disabilities_compensation_user) }
 
   let(:pdf_file) do
-    fixture_file_upload('files/doctors-note.pdf', 'application/pdf')
+    fixture_file_upload('doctors-note.pdf', 'application/pdf')
   end
 
   let(:encrypted_pdf_file) do
-    fixture_file_upload('files/password_is_test.pdf', 'application/pdf')
+    fixture_file_upload('password_is_test.pdf', 'application/pdf')
   end
 
   before do
@@ -57,7 +57,7 @@ RSpec.describe 'Upload supporting evidence', type: :request do
 
       it 'returns a 422 for a malformed pdf' do
         post '/v0/upload_supporting_evidence',
-             params: { supporting_evidence_attachment: { file_data: fixture_file_upload('files/malformed-pdf.pdf') } }
+             params: { supporting_evidence_attachment: { file_data: fixture_file_upload('malformed-pdf.pdf') } }
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'
@@ -67,7 +67,7 @@ RSpec.describe 'Upload supporting evidence', type: :request do
       it 'returns a 422  for an unallowed file type' do
         post '/v0/upload_supporting_evidence',
              params: { supporting_evidence_attachment:
-                       { file_data: fixture_file_upload('spec/fixtures/files/invalid_idme_cert.crt') } }
+                       { file_data: fixture_file_upload('invalid_idme_cert.crt') } }
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'
@@ -81,7 +81,7 @@ RSpec.describe 'Upload supporting evidence', type: :request do
       it 'returns a 422  for a file that is too small' do
         post '/v0/upload_supporting_evidence',
              params: { supporting_evidence_attachment:
-                       { file_data: fixture_file_upload('spec/fixtures/files/empty_file.txt') } }
+                       { file_data: fixture_file_upload('empty_file.txt') } }
         expect(response).to have_http_status(:unprocessable_entity)
         err = JSON.parse(response.body)['errors'][0]
         expect(err['title']).to eq 'Unprocessable Entity'

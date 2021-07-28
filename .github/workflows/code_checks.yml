@@ -5,18 +5,13 @@ jobs:
     name: Linting and Security
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-      RAILS_ENV: test
-    runs-on: ubuntu-20.04
-
+    runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
     steps:
       - uses: actions/checkout@v2
 
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-
-      - name: Install System Packages (pdftk, poppler, imagemagick)
-        run: sudo apt install imagemagick pdftk poppler-utils
 
       - name: Run bundle-audit (checks gems for CVE issues)
         run:  bundle exec bundle-audit check --update
@@ -27,79 +22,110 @@ jobs:
       - name: Run Brakeman
         run:  bundle exec brakeman --ensure-latest --confidence-level=2 -o brakeman.json
 
-      - uses: duderman/rubocop-annotate-action@v0.1.0
+      - uses: actions/upload-artifact@v2
+        if: always()
         with:
-          path: rubocop.json
-        if: hashFiles('rubocop.json') != ''
-
-      - uses: devmasx/brakeman-linter-action@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          REPORT_PATH: brakeman.json
-        if: hashFiles('brakeman.json') != ''
+          name: Linting and Security Results
+          path: |
+            rubocop.json
+            brakeman.json
+          if-no-files-found: ignore
 
   tests:
     name: Test
-    runs-on: asg
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CI: true
       DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-      DISABLE_BOOTSNAP: true
+      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners (setup-ruby)
       RAILS_ENV: test
-      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
+      "Settings.binaries.clamdscan": "clamscan"
       "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
       "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
-      "Settings.binaries.clamdscan": "clamscan"
+      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
       TERM: xterm-256color
-      GIT_COMMIT_SHA: ${{ github.sha }}
-      CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
-      ImageOS: ubuntu20
-      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners
+    runs-on: asg
 
     services:
       postgres:
         image: postgis/postgis:11-2.5
+        credentials:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
         env:
           POSTGRES_USER: vets-api
-          POSTGRES_DB: vets-api_test
           POSTGRES_PASSWORD: postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
         ports:
           - 5432:5432
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
-
-      redis:
-        image: circleci/redis:5.0-alpine
 
     steps:
       - uses: actions/checkout@v2
 
       - uses: ruby/setup-ruby@v1
+        env:
+          ImageOS: ubuntu20
         with:
           bundler-cache: true
 
       - name: Setup Database
         run: bundle exec parallel_test -n 14 -e 'bundle exec rake db:reset'
 
-      - name: Setup Code Climate Reporting
-        run: |
-          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
-          chmod +x ./cc-test-reporter
-          ./cc-test-reporter before-build
-
       - name: Run Specs
         run: bundle exec parallel_rspec spec/ modules -n 14 -o '--color --tty'
 
-      - name: Publish Code Climate coverage
-        run: |
-          export GIT_BRANCH="${GITHUB_REF/refs\/heads\//}"
-          ./cc-test-reporter after-build -t simplecov
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Coverage Report
+          path: coverage
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v2
+        if: always()
+        with:
+          name: Test Results
+          path: log/*.xml
+          if-no-files-found: ignore
+
+  publish_results:
+    name: Publish Results
+    if: always()
+    needs: [linting_and_security, tests]
+    runs-on: ubuntu-20.04 # Doesn't run on self-hosted runners as there are SSL issues within the TIC
+
+    steps:
+      - uses: actions/download-artifact@v2
+
+      - uses: duderman/rubocop-annotate-action@v0.1.0
+        with:
+          path: Linting and Security Results/rubocop.json
+        if: hashFiles('Linting and Security Results/rubocop.json') != ''
+
+      - uses: devmasx/brakeman-linter-action@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          REPORT_PATH: Linting and Security Results/brakeman.json
+        if: hashFiles('Linting and Security/brakeman.json') != ''
 
       - name: Publish Test Results
         uses: docker://ghcr.io/enricomi/publish-unit-test-result-action:v1
         if: always()
         with:
           check_name: Test Results
-          comment_on_pr: false
-          files: log/*.xml
+          comment_mode: off
+          files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fix up coverage report to work with coverage-check-action
+        run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
+
+      - name: Publish Coverage Report
+        uses: devmasx/coverage-check-action@v1.2.0
+        if: hashFiles('Coverage Report/.last_run.json') != ''
+        with:
+          type: simplecov
+          result_path: Coverage Report/.last_run.json
+          min_coverage: 90
+          token: ${{ secrets.GITHUB_TOKEN }}

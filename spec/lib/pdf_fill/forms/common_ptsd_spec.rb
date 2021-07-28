@@ -42,7 +42,6 @@ describe PdfFill::Forms::CommonPtsd do
     end
   end
 
-  # rubocop:disable Layout/LineLength
   describe '#expand_incident_location' do
     it 'expands the incident location into three lines one word each' do
       expect(including_class.new.expand_incident_location(
@@ -66,7 +65,8 @@ describe PdfFill::Forms::CommonPtsd do
 
     it 'ignores more than 90 characters' do
       expect(JSON.parse(including_class.new.expand_incident_location(
-        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+        'incidentLocation' =>
+          'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
       ).to_json)).to eq(
         'row0' => 'abcdefghijklmno',
         'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
@@ -76,7 +76,6 @@ describe PdfFill::Forms::CommonPtsd do
       )
     end
   end
-  # rubocop:enable Layout/LineLength
 
   describe '#expand incident_unit_assignment' do
     it 'expands the incident unit assignment into three lines one word each' do
