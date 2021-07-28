@@ -261,8 +261,8 @@ namespace :form526 do
 
   desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>,<flag>]'
   task :errors, %i[start_date end_date flag] => [:environment] do |_, args|
-    def print_row(sub_id, p_id, created_at, is_bdd, job_class)
-      printf "%-15s %-16s  %-25s %-10s %-20s\n", sub_id, p_id, created_at, is_bdd, job_class
+    def print_row(sub_id, p_id, created_at, is_bdd, job_class, submitted_claim_id)
+      printf "%-15s %-16s  %-25s %-10s %-20s %-10s\n", sub_id, p_id, created_at, is_bdd, job_class, submitted_claim_id
       # rubocop:enable Style/FormatStringToken
     end
 
@@ -271,13 +271,14 @@ namespace :form526 do
         puts k
         puts '*****************'
         puts "Unique Participant ID count: #{v[:participant_ids].count}"
-        print_row('submission_id:', 'participant_id:', 'created_at:', 'is_bdd?', 'job_class')
+        print_row('submission_id:', 'participant_id:', 'created_at:', 'is_bdd?', 'job_class', 'submitted_claim_id')
         v[:submission_ids].each do |submission|
           print_row(submission[:sub_id],
                     submission[:p_id],
                     submission[:date],
                     submission[:is_bdd],
-                    submission[:job_class])
+                    submission[:job_class],
+                    submission[:submitted_claim_id])
         end
         puts '*****************'
         puts ''
@@ -346,6 +347,7 @@ namespace :form526 do
             p_id: submission.auth_headers['va_eauth_pid'],
             date: submission.created_at,
             is_bdd: submission.bdd?,
+            submitted_claim_id: submission.submitted_claim_id,
             job_class: job_status.job_class
           )
           errors[message][:participant_ids].add(submission.auth_headers['va_eauth_pid'])
