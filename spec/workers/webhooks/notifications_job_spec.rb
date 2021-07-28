@@ -36,9 +36,6 @@ RSpec.describe Webhooks::NotificationsJob, type: :job do
       api_guid: api_id,
       msg: msg
     )
-  end
-
-  before do
     Thread.current['job_ids'] = []
   end
 
