@@ -5,7 +5,6 @@ require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
 require_dependency './lib/webhooks/utilities'
-require './lib/webhooks/registrations'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
