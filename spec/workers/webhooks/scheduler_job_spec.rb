@@ -5,7 +5,7 @@ require 'rails_helper'
 require './spec/workers/webhooks/job_tracking'
 
 RSpec.describe Webhooks::SchedulerJob, type: :job do
-  after do
+  before do
     Thread.current['job_ids'] = []
   end
 
