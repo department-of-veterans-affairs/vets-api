@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require './spec/lib/webhooks/utilities_helper'
+# require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
 require './spec/workers/webhooks/job_tracking'
 
