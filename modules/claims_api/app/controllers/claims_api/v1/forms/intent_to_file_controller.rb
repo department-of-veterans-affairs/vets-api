@@ -23,7 +23,6 @@ module ClaimsApi
         def submit_form_0966
           validate_json_schema
           check_for_invalid_burial_submission! if form_type == 'burial'
-          validate_veteran_identifiers
 
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
           render json: bgs_response,
