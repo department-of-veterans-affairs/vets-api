@@ -24,6 +24,11 @@ module ClaimsApi
 
       def validate_veteran_identifiers
         return if target_veteran.participant_id.present? && target_veteran.birls_id.present?
+
+        if target_veteran.participant_id.present? && target_veteran.birls_id.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'No birls_id while participant_id present')
+        end
+
         return unless header_request?
         return if target_veteran.mpi_record?
 
