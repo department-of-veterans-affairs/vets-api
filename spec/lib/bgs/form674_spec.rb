@@ -45,23 +45,19 @@ RSpec.describe BGS::Form674 do
 
   it 'submits a manual claim with pension disabled' do
     VCR.use_cassette('bgs/form674/submit') do
-      claim = BGS::Form674.new(user_object)
-
       expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(false)
 
-      claim.submit(all_flows_payload)
+      BGS::Form674.new(user_object).submit(all_flows_payload)
     end
   end
 
   it 'submits a manual claim with pension enabled' do
     VCR.use_cassette('bgs/form674/submit') do
       VCR.use_cassette('bid/awards/get_awards_pension') do
-        claim = BGS::Form674.new(user_object)
-
         expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
         expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
 
-        claim.submit(all_flows_payload)
+        BGS::Form674.new(user_object).submit(all_flows_payload)
       end
     end
   end
