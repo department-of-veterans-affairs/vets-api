@@ -42,6 +42,9 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     context 'when emis response is invalid' do
+      before do
+        allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :veteran_status) { nil }
+      end
 
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
@@ -97,6 +100,9 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     context 'when emis response is invalid' do
+      before do
+        allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :veteran_status) { nil }
+      end
 
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
