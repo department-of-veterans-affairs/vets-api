@@ -45,8 +45,8 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
 
           before do |example|
             with_okta_user(scopes) do
-              expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
-                .to receive(:find_claims_details_by_participant_id).and_return(bgs_response)
+              expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_response)
               expect(ClaimsApi::AutoEstablishedClaim)
                 .to receive(:where).and_return([])
 
@@ -172,8 +172,8 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
           before do |example|
             with_okta_user(scopes) do
               expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
-              expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
-                .to receive(:find_claim_details_by_claim_id).and_return(bgs_response)
+              expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_response)
 
               submit_request(example.metadata)
             end
@@ -264,8 +264,8 @@ describe 'Claims', swagger_doc: 'v2/swagger.json' do
           before do |example|
             with_okta_user(scopes) do
               expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_or_evss_id).and_return(nil)
-              expect_any_instance_of(BGS::BenefitClaimWebServiceV1)
-                .to receive(:find_claim_details_by_claim_id).and_return({})
+              expect_any_instance_of(BGS::EbenefitsBenefitClaimsStatus)
+                .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
 
               submit_request(example.metadata)
             end
