@@ -163,7 +163,11 @@ describe VAOS::Middleware::VAOSLogging do
             )
             .and trigger_statsd_increment(
               'api.vaos.va_mobile.response.fail',
-              tags: ['method:GET', 'url:/appointments/v1/patients/xxx/appointments', 'http_status:Faraday::ConnectionFailed']
+              tags: [
+                'method:GET',
+                'url:/appointments/v1/patients/xxx/appointments',
+                'http_status:Faraday::ConnectionFailed'
+              ]
             )
             .and trigger_statsd_increment(
               'api.external_http_request.VAOS.failed',
