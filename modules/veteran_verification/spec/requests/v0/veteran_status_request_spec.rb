@@ -42,13 +42,12 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     context 'when emis response is invalid' do
-      before do
-        allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :veteran_status) { nil }
-      end
 
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
-          get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
+          VCR.use_cassette('emis/get_veteran_status/broken') do
+            get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
+          end
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
@@ -100,13 +99,12 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     end
 
     context 'when emis response is invalid' do
-      before do
-        allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :veteran_status) { nil }
-      end
 
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
-          get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
+          VCR.use_cassette('emis/get_veteran_status/broken') do
+            get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
+          end
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
@@ -116,9 +114,11 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
 
       it 'matches the errors camel-inflected schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
-          get '/services/veteran_verification/v0/status',
+          VCR.use_cassette('emis/get_veteran_status/broken') do
+            get '/services/veteran_verification/v0/status',
               params: nil,
               headers: auth_header.merge('X-Key-Inflection' => 'camel')
+          end
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_camelized_response_schema('errors')
