@@ -111,7 +111,6 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     end
 
     context 'when emis response is invalid' do
-
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('emis/get_deployment_v2/invalid') do
@@ -130,9 +129,8 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
           VCR.use_cassette('emis/get_deployment_v2/invalid') do
             VCR.use_cassette('emis/get_military_service_episodes_v2/invalid') do
               get '/services/veteran_verification/v1/service_history',
-              params: nil,
-              headers: headers(auth_header.merge(inflection_header))
-
+                params: nil,
+                headers: headers(auth_header.merge(inflection_header))
             end
           end
         end
