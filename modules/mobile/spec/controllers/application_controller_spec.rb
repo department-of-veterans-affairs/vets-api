@@ -102,13 +102,12 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
           end.to trigger_statsd_increment('iam_ssoe_oauth.create_user_session.success', times: 1)
         end
 
-        it 'measures the session creation execution time' do
-          expect(StatsD).to receive(:measure).with('api.request.view_runtime', any_args)
-          expect(StatsD).to receive(:measure).with('api.request.db_runtime', any_args)
-          expect(StatsD).to receive(:measure).with('iam_ssoe_oauth.create_user_session.measure', any_args)
-
+        it 'measures the session creation execution time' do 
           VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
-            get :index
+            expect { get :index }
+              .to trigger_statsd_measure('api.request.view_runtime')
+              .and trigger_statsd_measure('api.request.db_runtime')
+              .and trigger_statsd_measure('iam_ssoe_oauth.create_user_session.measure')
           end
         end
       end

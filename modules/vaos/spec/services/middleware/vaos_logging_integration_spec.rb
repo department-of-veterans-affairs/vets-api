@@ -32,9 +32,18 @@ describe VAOS::Middleware::VAOSLogging do
                  '2020-06-02T07%3A00%3A00Z&useCache=false'
           )
           expect { service.get_appointments(type, start_date, end_date) }
-            .to trigger_statsd_increment('api.vaos.va_mobile.response.total')
-            .and trigger_statsd_increment('api.external_http_request.VAOS.success')
-            .and trigger_statsd_measure('api.external_http_request.VAOS.time')
+            .to trigger_statsd_increment(
+              'api.vaos.va_mobile.response.total',
+              tags: ['method:GET', 'url:/appointments/v1/patients/xxx/appointments', 'http_status:']
+            )
+            .and trigger_statsd_increment(
+              'api.external_http_request.VAOS.success',
+              tags: ['endpoint:/appointments/v1/patients/xxx/appointments', 'method:get']
+            )
+            .and trigger_statsd_measure(
+              'api.external_http_request.VAOS.time',
+              tags: ['endpoint:/appointments/v1/patients/xxx/appointments', 'method:get']
+            )
             .and trigger_statsd_increment('shared.sidekiq.default.VAOS_ExtendSessionJob.enqueue')
             .and trigger_statsd_increment('api.vaos.get_appointments.total')
         end
@@ -55,10 +64,19 @@ describe VAOS::Middleware::VAOSLogging do
           )
           expect { service.get_appointments(type, start_date, end_date) }
             .to raise_error(Common::Exceptions::BackendServiceException)
-            .and trigger_statsd_increment('api.vaos.va_mobile.response.total')
-            .and trigger_statsd_increment('api.vaos.va_mobile.response.fail')
+            .and trigger_statsd_increment(
+              'api.vaos.va_mobile.response.total',
+              tags: ['method:GET', 'url:/appointments/v1/patients/xxx/appointments', 'http_status:']
+            )
+            .and trigger_statsd_increment(
+              'api.vaos.va_mobile.response.fail',
+              tags: ['method:GET', 'url:/appointments/v1/patients/xxx/appointments', 'http_status:500']
+            )
             .and trigger_statsd_increment('api.vaos.get_appointments.total')
-            .and trigger_statsd_increment('api.vaos.get_appointments.fail')
+            .and trigger_statsd_increment(
+              'api.vaos.get_appointments.fail',
+              tags: ['error:VAOSServiceException']
+            )
         end
       end
     end
@@ -97,10 +115,22 @@ describe VAOS::Middleware::VAOSLogging do
           expect { service.get_appointments(type, start_date, end_date) }
             .to raise_error(Common::Exceptions::GatewayTimeout)
             .and trigger_statsd_increment('api.vaos.get_appointments.total')
-            .and trigger_statsd_increment('api.vaos.va_mobile.response.total')
-            .and trigger_statsd_increment('api.vaos.va_mobile.response.fail')
-            .and trigger_statsd_increment('api.external_http_request.VAOS.failed')
-            .and trigger_statsd_increment('api.vaos.get_appointments.fail')
+            .and trigger_statsd_increment(
+              'api.vaos.va_mobile.response.total',
+              tags: ['method:GET', 'url:/appointments/v1/patients/xxx/appointments', 'http_status:']
+            )
+            .and trigger_statsd_increment(
+              'api.vaos.va_mobile.response.fail',
+              tags: ['method:GET', 'url:/appointments/v1/patients/xxx/', 'http_status:Faraday::TimeoutError']
+            )
+            .and trigger_statsd_increment(
+              'api.external_http_request.VAOS.failed',
+              tags: ['endpoint:/appointments/v1/patients/xxx/appointments', 'method:get']
+            )
+            .and trigger_statsd_increment(
+              'api.vaos.get_appointments.fail',
+              tags: ['error:CommonExceptionsGatewayTimeout']
+            )
         end
       end
 
@@ -127,10 +157,22 @@ describe VAOS::Middleware::VAOSLogging do
           expect { service.get_appointments(type, start_date, end_date) }
             .to raise_error(Common::Client::Errors::ClientError)
             .and trigger_statsd_increment('api.vaos.get_appointments.total')
-            .and trigger_statsd_increment('api.vaos.va_mobile.response.total')
-            .and trigger_statsd_increment('api.vaos.va_mobile.response.fail')
-            .and trigger_statsd_increment('api.external_http_request.VAOS.failed')
-            .and trigger_statsd_increment('api.vaos.get_appointments.fail')
+            .and trigger_statsd_increment(
+              'api.vaos.va_mobile.response.total',
+              tags: ['method:GET', 'url:/appointments/v1/patients/xxx/appointments', 'http_status:']
+            )
+            .and trigger_statsd_increment(
+              'api.vaos.va_mobile.response.fail',
+              tags: ['method:GET', 'url:/appointments/v1/patients/xxx/', 'http_status:Faraday::ConnectionFailed']
+            )
+            .and trigger_statsd_increment(
+              'api.external_http_request.VAOS.failed',
+              tags: ['endpoint:/appointments/v1/patients/xxx/appointments', 'method:get']
+            )
+            .and trigger_statsd_increment(
+              'api.vaos.get_appointments.fail',
+              tags: ['error:CommonClientErrorsClientError']
+            )
         end
       end
     end
