@@ -377,6 +377,10 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
+  va_online_scheduling_facilities_service_v2:
+    actor_type: user
+    description: Toggle for new mobile facility service v2 endpoints
+    enable_in_development: true
   va_online_scheduling_variant_testing:
     actor_type: user
     enable_in_development: true
