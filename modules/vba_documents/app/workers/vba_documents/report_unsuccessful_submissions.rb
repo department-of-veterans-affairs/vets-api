@@ -13,7 +13,7 @@ module VBADocuments
       if Settings.vba_documents.report_enabled
         @to = Time.zone.now
         @from = @to.monday? ? 7.days.ago : 1.day.ago
-        @consumers = UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq
+        @consumers = UploadSubmission.where(created_at: @from..@to).pluck(:consumer_name).uniq.reject(&:blank?)
         UnsuccessfulReportMailer.build(totals, stuck, errored, @from, @to).deliver_now
       end
     end
