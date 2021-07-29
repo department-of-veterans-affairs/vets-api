@@ -102,8 +102,14 @@ RSpec.shared_examples 'contestable issues index requests' do |options|
       headers['X-VA-SSN'] = ssn
     end
 
-    get("/services/appeals/v1/decision_reviews/#{options[:decision_review_type]}/" \
-    "contestable_issues/#{options[:benefit_type]}",
-        headers: headers)
+    path = if options[:version] == 'v2'
+             "/services/appeals/v2/decision_reviews/contestable_issues/#{options[:decision_review_type]}" \
+               "?benefit_type=#{options[:benefit_type]}"
+           else
+             "/services/appeals/v1/decision_reviews/#{options[:decision_review_type]}/" \
+               "contestable_issues/#{options[:benefit_type]}"
+           end
+
+    get(path, headers: headers)
   end
 end
