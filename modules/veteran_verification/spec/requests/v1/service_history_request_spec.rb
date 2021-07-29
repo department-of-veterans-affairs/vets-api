@@ -111,9 +111,6 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     end
 
     context 'when emis response is invalid' do
-      before do
-        allow(EMISRedis::MilitaryInformationV2).to receive_message_chain(:for_user, :service_history) { nil }
-      end
 
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
@@ -232,9 +229,6 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     end
 
     context 'when emis response is invalid' do
-      before do
-        allow(EMISRedis::MilitaryInformationV2).to receive_message_chain(:for_user, :service_history) { nil }
-      end
 
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
