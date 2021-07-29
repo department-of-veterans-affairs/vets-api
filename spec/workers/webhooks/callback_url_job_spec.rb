@@ -97,7 +97,7 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
       end
     end
 
-    it 'records failure cattempts from an unresponsive callback url' do
+    it 'records failure attempts from an unresponsive callback url' do
       [Faraday::ClientError.new('busted'), StandardError.new('busted')].each do |error|
         # standard error forces exercise of last exception block
         allow(Faraday).to receive(:post).and_raise(error)
