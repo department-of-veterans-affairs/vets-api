@@ -211,8 +211,8 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
             VCR.use_cassette('emis/get_deployment_v2/valid') do
               VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
                 get '/services/veteran_verification/v0/service_history',
-                  params: nil,
-                  headers: auth_header.merge('Accept' => 'application/jwt')
+                    params: nil,
+                    headers: auth_header.merge('Accept' => 'application/jwt')
                 expect(response).to have_http_status(:ok)
                 expect(response.body).to be_a(String)
 
@@ -254,8 +254,8 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
           VCR.use_cassette('emis/get_deployment_v2/invalid') do
             VCR.use_cassette('emis/get_military_service_episodes_v2/invalid') do
               get '/services/veteran_verification/v0/service_history',
-              params: nil,
-              headers: headers(auth_header.merge(inflection_header))
+                  params: nil,
+                  headers: headers(auth_header.merge(inflection_header))
             end
           end
         end
