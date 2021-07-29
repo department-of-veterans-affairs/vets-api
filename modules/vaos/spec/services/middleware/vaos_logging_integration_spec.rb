@@ -37,7 +37,6 @@ describe VAOS::Middleware::VAOSLogging do
             .and trigger_statsd_measure("api.external_http_request.VAOS.time")
             .and trigger_statsd_increment("shared.sidekiq.default.VAOS_ExtendSessionJob.enqueue")
             .and trigger_statsd_increment("api.vaos.get_appointments.total")
-          end
         end
       end
     end
