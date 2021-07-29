@@ -13,7 +13,8 @@ RSpec.configure do |config|
   # be generated at the provided relative path under swagger_root
   # By default, the operations defined in spec files are added to the first
   # document below. You can override this behavior by adding a swagger_doc tag to the
-  # the root example_group in your specs, e.g. describe '...', swagger_doc: 'v2/swagger.json'
+  # the root example_group in your specs e.g.
+  # describe '...', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json'
 
   config.swagger_docs = [
     ClaimsApi
