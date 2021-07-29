@@ -23,7 +23,6 @@ module VBADocuments
     FINAL_SUCCESS_STATUS_KEY = 'final_success_status'
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
     ALL_STATUSES = IN_FLIGHT_STATUSES + %w[pending uploaded vbms error expired].freeze
-    NOTIFY_STATUSES = IN_FLIGHT_STATUSES + %w[uploaded vbms error].freeze
     RPT_STATUSES = %w[pending uploaded] + IN_FLIGHT_STATUSES + %w[vbms error expired].freeze
 
     scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
