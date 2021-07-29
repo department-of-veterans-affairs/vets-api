@@ -168,6 +168,10 @@ features:
     actor_type: user
     description: Enhances Find A Forms Flag 2.
     enable_in_development: true
+  find_forms_third_flag:
+    actor_type: user
+    description: Enhances Find A Forms Flag 3.
+    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
@@ -340,10 +344,6 @@ features:
   va_online_scheduling_direct:
     actor_type: user
     description: Allows veterans to directly schedule VA appointments
-    enable_in_development: true
-  va_online_scheduling_express_care_new:
-    actor_type: user
-    description: Enables Express Care request flow in VAOS
     enable_in_development: true
   va_online_scheduling_facility_selection_v2_2:
     actor_type: user

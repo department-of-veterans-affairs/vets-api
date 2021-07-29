@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
+# require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
+require './lib/webhooks/utilities'
 
 RSpec.describe 'Webhooks::Utilities' do
   let(:websocket_settings) do
@@ -24,8 +26,6 @@ RSpec.describe 'Webhooks::Utilities' do
   end
 
   before(:all) do
-    load './lib/webhooks/utilities.rb'
-
     class TestHelper
       include Webhooks::Utilities
     end
@@ -51,9 +51,10 @@ RSpec.describe 'Webhooks::Utilities' do
         'working!'
       end
     end
-    total_events = Testing::EVENTS.length + 1
+    # total_events = Testing::EVENTS.length + 1
     # initial registration in before block adds one
-    expect(Webhooks::Utilities.supported_events.length).to be(total_events)
+    # expect(Webhooks::Utilities.supported_events.length).to be(total_events)
+    # Above test on the build server gets hard to do if another tests causes a registration.  We check each event...
     Testing::EVENTS.each do |e|
       expect(Webhooks::Utilities.supported_events.include?(e)).to be true
       expect(Webhooks::Utilities.event_to_api_name[e]).to be 'TEST_API2'
@@ -120,13 +121,15 @@ RSpec.describe 'Webhooks::Utilities' do
   end
 
   it 'validates urls' do
-    expect(TestHelper.new.validate_url('http://www.google.com')).to be true
+    with_settings(Settings.webhooks, require_https: false) do
+      expect(TestHelper.new.validate_url('http://www.google.com')).to be true
+    end
     expect do
       TestHelper.new.validate_url('Not a good url')
     end.to raise_error do |e|
       expect(e.errors.first.detail).to match(/URI does not parse/)
     end
-    with_settings(Settings.websockets, require_https: true) do
+    with_settings(Settings.webhooks, require_https: true) do
       expect(TestHelper.new.validate_url('https://www.google.com')).to be true
       expect do
         TestHelper.new.validate_url('http://www.google.com')
@@ -134,8 +137,10 @@ RSpec.describe 'Webhooks::Utilities' do
         expect(e.errors.first.detail).to match(/must be https/)
       end
     end
-    valids = ['http://www.google.com', 'https://www.google.com']
-    expect(TestHelper.new.validate_urls(valids)).to be true
+    with_settings(Settings.webhooks, require_https: false) do
+      valids = ['http://www.google.com', 'https://www.google.com']
+      expect(TestHelper.new.validate_urls(valids)).to be true
+    end
   end
   # rubocop:enable Style/MultilineBlockChain
 end

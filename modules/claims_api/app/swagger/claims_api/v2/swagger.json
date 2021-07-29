@@ -426,14 +426,29 @@
                 "example": [
                   {
                     "id": "111111111",
+                    "@links": {
+                      "rel": "self",
+                      "type": "GET",
+                      "url": "http://www.example.com/services/claims/v2/claims/111111111"
+                    },
                     "type": "Appeals Control"
                   },
                   {
                     "id": "222222222",
+                    "@links": {
+                      "rel": "self",
+                      "type": "GET",
+                      "url": "http://www.example.com/services/claims/v2/claims/222222222"
+                    },
                     "type": "Claim for Increase"
                   },
                   {
                     "id": "333333333",
+                    "@links": {
+                      "rel": "self",
+                      "type": "GET",
+                      "url": "http://www.example.com/services/claims/v2/claims/333333333"
+                    },
                     "type": "Rating Control"
                   }
                 ],
@@ -443,7 +458,8 @@
                   "items": {
                     "required": [
                       "id",
-                      "type"
+                      "type",
+                      "@links"
                     ],
                     "additionalProperties": false,
                     "description": "Claim details.",
@@ -457,6 +473,15 @@
                         "type": "string",
                         "description": "Name of Claim type",
                         "example": "Appeals Control"
+                      },
+                      "@links": {
+                        "type": "object",
+                        "description": "HATEOAS links in the HAL standard format",
+                        "example": {
+                          "rel": "self",
+                          "type": "GET",
+                          "url": "https://api.va.gov/services/claims/v2/claims/600131328"
+                        }
                       }
                     }
                   }
@@ -649,6 +674,11 @@
               "application/json": {
                 "example": {
                   "id": "600131328",
+                  "@links": {
+                    "rel": "self",
+                    "type": "GET",
+                    "url": "http://www.example.com/services/claims/v2/claims/600131328"
+                  },
                   "type": "Appeals Control"
                 },
                 "schema": {
@@ -657,7 +687,8 @@
                   "additionalProperties": false,
                   "required": [
                     "id",
-                    "type"
+                    "type",
+                    "@links"
                   ],
                   "properties": {
                     "id": {
@@ -669,6 +700,15 @@
                       "type": "string",
                       "description": "Name of Claim type",
                       "example": "Appeals Control"
+                    },
+                    "@links": {
+                      "type": "object",
+                      "description": "HATEOAS links in the HAL standard format",
+                      "example": {
+                        "rel": "self",
+                        "type": "GET",
+                        "url": "https://api.va.gov/services/claims/v2/claims/600131328"
+                      }
                     }
                   }
                 }
@@ -919,10 +959,10 @@
                 "example": {
                   "code": "A1Q",
                   "name": "Firstname Lastname",
-                  "type": "individual",
                   "phone": {
                     "number": "555-555-5555"
-                  }
+                  },
+                  "type": "individual"
                 },
                 "schema": {
                   "type": "object",

@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+# require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
 require_relative 'job_tracking'
-require_dependency './lib/webhooks/utilities'
+require './lib/webhooks/utilities'
 require_relative 'registrations'
 
 RSpec.describe Webhooks::CallbackUrlJob, type: :job do
@@ -37,8 +38,6 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
         n.callback_url.eql?(url)
       end.map(&:id)
     end
-
-    Thread.current['job_ids'] = []
   end
 
   def mock_faraday(status, body, success)

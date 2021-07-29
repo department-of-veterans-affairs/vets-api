@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
+# require './spec/lib/webhooks/utilities_helper'
 require 'rails_helper'
 require './spec/workers/webhooks/job_tracking'
 
 RSpec.describe Webhooks::SchedulerJob, type: :job do
-  after do
+  before do
     Thread.current['job_ids'] = []
   end
 

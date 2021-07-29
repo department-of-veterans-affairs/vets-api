@@ -128,11 +128,11 @@ module Webhooks
   end
 end
 # rubocop:enable ThreadSafety/InstanceVariableInClassMethod
+# ADD YOUR REGISTRATIONS BELOW
+require './lib/webhooks/registrations'
+# ADD YOUR REGISTRATIONS ABOVE
+# Rails.env = 'test'
 unless Rails.env.test?
-  # ADD YOUR REGISTRATIONS BELOW
-  require './lib/webhooks/registrations'
-
-  # ADD YOUR REGISTRATIONS ABOVE
   Webhooks::Utilities.supported_events.freeze
   Webhooks::Utilities.event_to_api_name.freeze
   Webhooks::Utilities.api_name_to_time_block.freeze
