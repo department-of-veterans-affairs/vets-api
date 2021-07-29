@@ -12,7 +12,7 @@ module ClaimsApi
       class Base < ClaimsApi::V1::ApplicationController
         # schema endpoint should be wide open
         skip_before_action :authenticate, only: %i[schema]
-        skip_before_action :verify_mpi, only: %i[schema]
+        skip_before_action :validate_veteran_identifiers, only: %i[schema]
         include ClaimsApi::EndpointDeprecation
 
         def schema

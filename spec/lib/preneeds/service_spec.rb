@@ -18,17 +18,6 @@ describe Preneeds::Service do
     end
   end
 
-  describe 'get_discharge_types' do
-    it 'gets a collection of discharge_types' do
-      discharge_types = VCR.use_cassette('preneeds/discharge_types/gets_a_list_of_discharge_types') do
-        subject.get_discharge_types
-      end
-
-      expect(discharge_types).to be_a(Common::Collection)
-      expect(discharge_types.type).to eq(Preneeds::DischargeType)
-    end
-  end
-
   describe 'receive_pre_need_application' do
     before do
       FactoryBot.rewind_sequences

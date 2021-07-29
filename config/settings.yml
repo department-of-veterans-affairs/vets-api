@@ -1,5 +1,4 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
-vsp_environment:
 
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
@@ -61,7 +60,9 @@ test_database_url: postgis:///vets-api-test
 
 relative_url_root: /
 
-secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
+# This is a fake secret key base... not used in any envs
+secret_key_base: c1a13acb916e6ebf1d2a93a3924586520508b609e80e048364902cd36ab602c9ec6ddcb47ac66e7903dbc77ae876df5564658a4f786b50497440b0c7dc029361
+old_secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
 dmc:
   client_id: "0be3d60e3983438199f192b6e723a6f0"
