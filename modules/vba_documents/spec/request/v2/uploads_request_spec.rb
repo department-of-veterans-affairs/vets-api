@@ -296,7 +296,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
 
-      get vba_documents.v2_upload_download_path(upload.guid)
+      get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
       expect(response.status).to eq(404)
     end
   end
