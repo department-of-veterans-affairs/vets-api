@@ -109,7 +109,7 @@ module BGS
       if proc_state == 'MANUAL_VAGOV'
         receiving_pension = false
 
-        if Flipper.enabled?(:dependents_bid_awards_pension_check)
+        if Flipper.enabled?(:dependents_pension_check)
           pension_response = bid_service.get_awards_pension
           receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
         end
