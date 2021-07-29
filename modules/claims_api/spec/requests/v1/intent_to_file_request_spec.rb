@@ -23,120 +23,144 @@ RSpec.describe 'Intent to file', type: :request do
 
   before do
     stub_poa_verification
-    stub_mpi
   end
 
   describe '#0966' do
-    describe 'schema' do
-      it 'returns a successful get response with json schema' do
-        get path
-        json_schema = JSON.parse(response.body)['data'][0]
-        expect(json_schema).to eq(JSON.parse(schema))
+    context 'when Veteran has all necessary identifiers' do
+      before do
+        stub_mpi
       end
-    end
 
-    it 'posts a minimum payload and returns a payload with an expiration date' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-          post path, params: data.to_json, headers: headers.merge(auth_header)
-          expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
+      describe 'schema' do
+        it 'returns a successful get response with json schema' do
+          get path
+          json_schema = JSON.parse(response.body)['data'][0]
+          expect(json_schema).to eq(JSON.parse(schema))
         end
       end
-    end
 
-    it 'posts a maximum payload and returns a payload with an expiration date' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-          data['attributes'] = extra
-          post path, params: data.to_json, headers: headers.merge(auth_header)
-          expect(response.status).to eq(200)
-          expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
+      it 'posts a minimum payload and returns a payload with an expiration date' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            post path, params: data.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
+          end
         end
       end
-    end
 
-    it 'posts a 422 error with detail when BGS returns a 500 response' do
-      with_okta_user(scopes) do |auth_header|
-        VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
-          data[:data][:attributes] = { type: 'pension' }
+      it 'posts a maximum payload and returns a payload with an expiration date' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+            data['attributes'] = extra
+            post path, params: data.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(200)
+            expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('duplicate')
+          end
+        end
+      end
+
+      it 'posts a 422 error with detail when BGS returns a 500 response' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file_500') do
+            data[:data][:attributes] = { type: 'pension' }
+            post path, params: data.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(422)
+          end
+        end
+      end
+
+      describe "'burial' submission" do
+        it "returns a 403 when veteran is submitting for 'burial'" do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              data[:data][:attributes] = { type: 'burial' }
+              post path, params: data.to_json, headers: auth_header
+              expect(response.status).to eq(403)
+            end
+          end
+        end
+
+        it "returns a 403 when 'participant claimant id' is not provided" do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              data[:data][:attributes] = { type: 'burial' }
+              post path, params: data.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(403)
+            end
+          end
+        end
+
+        it "returns a 200 if the veteran is not the submitter and 'participant claimant id' is provided" do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              data[:attributes] = extra
+              data[:attributes][:type] = 'burial'
+              post path, params: data.to_json, headers: headers.merge(auth_header)
+              expect(response.status).to eq(200)
+            end
+          end
+        end
+      end
+
+      it "fails if passed a type that doesn't exist" do
+        with_okta_user(scopes) do |auth_header|
+          data[:data][:attributes][:type] = 'failingtesttype'
           post path, params: data.to_json, headers: headers.merge(auth_header)
           expect(response.status).to eq(422)
         end
       end
-    end
 
-    describe "'burial' submission" do
-      it "returns a 403 when veteran is submitting for 'burial'" do
+      it 'fails if none is passed in' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-            data[:data][:attributes] = { type: 'burial' }
-            post path, params: data.to_json, headers: auth_header
-            expect(response.status).to eq(403)
-          end
+          post path, headers: headers.merge(auth_header)
+          expect(response.status).to eq(422)
         end
       end
 
-      it "returns a 403 when 'participant claimant id' is not provided" do
+      it 'fails if none is passed in as non-poa request' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-            data[:data][:attributes] = { type: 'burial' }
+          post path, headers: auth_header, params: ''
+          expect(response.status).to eq(422)
+        end
+      end
+
+      it 'fails if any additional fields are passed in' do
+        with_okta_user(scopes) do |auth_header|
+          data[:data][:attributes]['someBadField'] = 'someValue'
+
+          post path, params: data.to_json, headers: headers.merge(auth_header)
+
+          expect(response.status).to eq(422)
+          expect(JSON.parse(response.body)['errors'].size).to eq(1)
+          expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
+            'The property /someBadField is not defined on the schema. Additional properties are not allowed'
+          )
+        end
+      end
+    end
+
+    context 'when Veteran is missing a participant_id' do
+      before do
+        stub_mpi_not_found
+      end
+
+      context 'when consumer is representative' do
+        it 'returns an unprocessible entity status' do
+          with_okta_user(scopes) do |auth_header|
             post path, params: data.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(403)
+            expect(response.status).to eq(422)
           end
         end
-      end
-
-      it "returns a 200 if the veteran is not the submitter and 'participant claimant id' is provided" do
-        with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
-            data[:attributes] = extra
-            data[:attributes][:type] = 'burial'
-            post path, params: data.to_json, headers: headers.merge(auth_header)
-            expect(response.status).to eq(200)
-          end
-        end
-      end
-    end
-
-    it "fails if passed a type that doesn't exist" do
-      with_okta_user(scopes) do |auth_header|
-        data[:data][:attributes][:type] = 'failingtesttype'
-        post path, params: data.to_json, headers: headers.merge(auth_header)
-        expect(response.status).to eq(422)
-      end
-    end
-
-    it 'fails if none is passed in' do
-      with_okta_user(scopes) do |auth_header|
-        post path, headers: headers.merge(auth_header)
-        expect(response.status).to eq(422)
-      end
-    end
-
-    it 'fails if none is passed in as non-poa request' do
-      with_okta_user(scopes) do |auth_header|
-        post path, headers: auth_header, params: ''
-        expect(response.status).to eq(422)
-      end
-    end
-
-    it 'fails if any additional fields are passed in' do
-      with_okta_user(scopes) do |auth_header|
-        data[:data][:attributes]['someBadField'] = 'someValue'
-
-        post path, params: data.to_json, headers: headers.merge(auth_header)
-
-        expect(response.status).to eq(422)
-        expect(JSON.parse(response.body)['errors'].size).to eq(1)
-        expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
-          'The property /someBadField is not defined on the schema. Additional properties are not allowed'
-        )
       end
     end
   end
 
   describe '#active' do
+    before do
+      stub_mpi
+    end
+
     it 'returns the latest itf of a compensation type' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
@@ -190,6 +214,10 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#validate' do
+    before do
+      stub_mpi
+    end
+
     it 'returns a response when valid' do
       with_okta_user(scopes) do |auth_header|
         post "#{path}/validate", params: data.to_json, headers: headers.merge(auth_header)
