@@ -50,8 +50,10 @@ RSpec.describe CovidVaccine::RegistrationEmailJob, type: :worker do
       described_class.perform_async(email, date, confirmation_id)
 
       expect { described_class.perform_one }
-        .to change(described_class.jobs, :size).from(1).to(0)
-        .and trigger_statsd_increment('worker.covid_vaccine_registration_email.success')
+        .to trigger_statsd_increment('worker.covid_vaccine_registration_email.success')
+        .and change(described_class.jobs, :size)
+        .from(1)
+        .to(0)
     end
 
     it 'handles errors' do

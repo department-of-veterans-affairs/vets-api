@@ -254,7 +254,7 @@ RSpec.describe Form1010cg::Auditor do
     end
 
     context 'increments' do
-      it 'nothing' do        
+      it 'nothing' do
         expect { subject.log_mpi_search_result(claim_guid: 'uuid-123', form_subject: 'veteran', result: :found) }
           .to trigger_statsd_increment
       end

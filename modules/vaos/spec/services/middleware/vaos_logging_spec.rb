@@ -41,7 +41,7 @@ describe VAOS::Middleware::VAOSLogging do
                                                   url: '(POST) https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
       expect { client.post(user_service_uri) }
         .to trigger_statsd_increment(
-          'api.vaos.va_mobile.response.total', 
+          'api.vaos.va_mobile.response.total',
           tags: ['method:POST', 'url:/users/v2/session', 'http_status:']
         )
     end
@@ -53,7 +53,10 @@ describe VAOS::Middleware::VAOSLogging do
                                                   duration: 0.0,
                                                   url: '(GET) https://veteran.apps.va.gov/whatever').and_call_original
       expect { client.get(all_other_uris, nil, { 'X-Vamf-Jwt' => sample_jwt }) }
-        .to trigger_statsd_increment('api.vaos.va_mobile.response.total', tags: ['method:GET', 'url:/whatever', 'http_status:'])
+        .to trigger_statsd_increment(
+          'api.vaos.va_mobile.response.total',
+          tags: ['method:GET', 'url:/whatever', 'http_status:']
+        )
     end
 
     it 'other requests with X-VAMF-JWT log a success' do
@@ -63,7 +66,10 @@ describe VAOS::Middleware::VAOSLogging do
                                                   duration: 0.0,
                                                   url: '(GET) https://veteran.apps.va.gov/user_service_refresh_uri').and_call_original
       expect { client.get(user_service_refresh_uri, nil, { 'X-VAMF-JWT' => sample_jwt }) }
-        .to trigger_statsd_increment('api.vaos.va_mobile.response.total', tags: ['method:GET', 'url:/user_service_refresh/uri', 'http_status:'])
+        .to trigger_statsd_increment(
+          'api.vaos.va_mobile.response.total',
+          tags: ['method:GET', 'url:/user_service_refresh/uri', 'http_status:']
+        )
     end
   end
 
