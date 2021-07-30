@@ -20,6 +20,7 @@ describe Common::Client::Middleware::Response do
       conn.adapter :test do |stub|
         stub.get('ok') { [200, { 'Content-Type' => 'application/json' }, message_json] }
         stub.get('not-found') { [404, { 'Content-Type' => 'application/json' }, four_o_four] }
+        stub.get('no-body') { [404, { 'Content-Type' => 'application/json' }, ''] }
         stub.get('refill-fail') { [400, { 'Content-Type' => 'application/json' }, i18n_type_error] }
         stub.get('mhv-generic-html') { [400, { 'Content-Type' => 'application/html' }, mhv_generic_html] }
         stub.get('mhv-generic-xml') { [400, { 'Content-Type' => 'application/xml' }, mhv_generic_html] }
@@ -28,7 +29,7 @@ describe Common::Client::Middleware::Response do
   end
 
   let(:message_json) { attributes_for(:message).to_json }
-  let(:four_o_four) { { errorCode: 400, message: 'Record Not Found', developerMessage: 'blah' }.to_json }
+  let(:four_o_four) { { errorCode: 404, message: 'Record Not Found', developerMessage: 'blah' }.to_json }
   let(:i18n_type_error) { { errorCode: 139, message: 'server response', developerMessage: 'blah' }.to_json }
   let(:mhv_generic_html) { '<html><body width=100%>Some Error Message</body></html>' }
   let(:mhv_generic_xml) do
@@ -98,6 +99,17 @@ describe Common::Client::Middleware::Response do
       expect { faraday_client.get('mhv-generic-xml') }.to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
         expect(error.message).to eq(xml_or_html_response)
+      end
+    end
+
+    it 'can handle errors with no body' do
+      message = 'Unhandled Exception - status: 404, body: '
+
+      expect_any_instance_of(Common::Client::Middleware::Response::RaiseError).to receive(:body)
+        .at_least(:once).and_return(nil)
+      expect { faraday_client.get('no-body') }.to raise_error do |error|
+        expect(error).to be_a(Common::Client::Middleware::Response::BackendUnhandledException)
+        expect(error.message).to eq(message)
       end
     end
   end
