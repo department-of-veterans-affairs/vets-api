@@ -41,7 +41,6 @@ module Webhooks
       end
 
       def register_event(event)
-        raise ArgumentError, "Test_event was registered here!!!" if event == 'test_event'
         @supported_events ||= []
         raise ArgumentError, "Event: #{event} previously registered! api_name: #{event_to_api_name[event]}" if @supported_events.include?(event)
 
