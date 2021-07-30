@@ -208,6 +208,8 @@ module SAML
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] if mhv_id_mismatch?
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_edipis] if edipi_mismatch?
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch] if mhv_icn_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_birls_ids] if birls_id_mismatch?
+        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_corp_ids] if corp_id_mismatch?
       end
 
       private
@@ -253,6 +255,16 @@ module SAML
         mhvicn_val = safe_attr('va_eauth_mhvicn')
         icn_val = safe_attr('va_eauth_icn')
         icn_val.present? && mhvicn_val.present? && icn_val != mhvicn_val
+      end
+
+      def birls_id_mismatch?
+        birls_ids = safe_attr('va_eauth_birlsfilenumber')&.split(',') || []
+        birls_ids.reject(&:nil?).uniq.size > 1
+      end
+
+      def corp_id_mismatch?
+        corp_ids = safe_attr('vba_corp_id')&.split(',') || []
+        corp_ids.reject(&:nil?).uniq.size > 1
       end
 
       def csid
