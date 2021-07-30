@@ -16,7 +16,7 @@ namespace :attr_encrypted do
     module Database
       module KeyRotation
         def encryption_key(attribute)
-          if is_decrypting?(attribute)
+          if decrypting?(attribute)
             Settings.old_db_encryption_key
           else
             Settings.db_encryption_key
