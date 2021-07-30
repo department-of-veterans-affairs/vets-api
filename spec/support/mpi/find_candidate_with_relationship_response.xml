@@ -113,7 +113,7 @@
                 <subjectOf2 typeCode="SBJ">
                   <administrativeObservation classCode="VERIF">
                     <code codeSystem="2.16.840.1.113883.4.349" code="PERSON_TYPE" displayName="Person Type"/>
-                    <value xsi:type="CD" code="DEP" displayName="Dependent"/>
+                    <value xsi:type="CD" code="DEP~VET" displayName="Dependent, Veteran"/>
                   </administrativeObservation>
                 </subjectOf2>
               </patient>
