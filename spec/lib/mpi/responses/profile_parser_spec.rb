@@ -164,7 +164,7 @@ describe MPI::Responses::ProfileParser do
           birls_id: nil,
           birls_ids: [],
           search_token: 'WSDOC2005221733165441605720989',
-          person_type_code: 'Dependent',
+          person_types: %w[DEP VET],
           relationships: [mpi_profile_relationship_component],
           id_theft_flag: false
         )
@@ -173,7 +173,7 @@ describe MPI::Responses::ProfileParser do
       let(:mpi_profile_relationship_component) do
         build(
           :mpi_profile_relationship,
-          person_type_code: [],
+          person_types: [],
           given_names: %w[Mark],
           family_name: 'Webb',
           suffix: 'Jr',
@@ -291,7 +291,7 @@ describe MPI::Responses::ProfileParser do
           '123412345^PI^200BRLS^USVBA^A'
         ],
         search_token: 'WSDOC1611060614456041732180196',
-        person_type_code: 'Patient',
+        person_types: ['PAT'],
         id_theft_flag: false
       )
     end
