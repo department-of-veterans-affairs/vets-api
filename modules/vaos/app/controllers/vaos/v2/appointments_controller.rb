@@ -66,7 +66,8 @@ module VAOS
                       :service_type,
                       slot: %i[id start end],
                       contact: [telecom: %i[type value]],
-                      requested_periods: %i[start end])
+                      requested_periods: %i[start end],
+                      practitioner_ids: %i[system value])
       end
 
       def start_date

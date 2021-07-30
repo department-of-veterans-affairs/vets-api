@@ -10,6 +10,7 @@ module VAOS
       attribute :kind, String
       attribute :status, String
       attribute :location_id, String
+      attribute :practitioner_ids, Array[Hash]
       attribute :clinic, String
       attribute :reason, String
       attribute :slot, Hash
