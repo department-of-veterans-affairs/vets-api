@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
+
 class AppealSubmission < ApplicationRecord
+  include Database::KeyRotation
   APPEAL_TYPES = %w[HLR NOD].freeze
   validates :user_uuid, :submitted_appeal_uuid, presence: true
   validates :type_of_appeal, inclusion: APPEAL_TYPES
-  attr_encrypted :upload_metadata, key: Settings.db_encryption_key
+  attr_encrypted :upload_metadata, key: Proc.new { |r| r.encryption_key(:upload_metadata) }
 
   has_many :appeal_submission_uploads, dependent: :destroy
 

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
 require 'sentry_logging'
 
 class Form526Submission < ApplicationRecord
+  include Database::KeyRotation
   include SentryLogging
 
   # A 526 disability compensation form record. This class is used to persist the post transformation form
@@ -26,9 +28,9 @@ class Form526Submission < ApplicationRecord
   # @!attribute workflow_complete
   #   @return [Timestamp] updated at date.
   #
-  attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
-  attr_encrypted(:form_json, key: Settings.db_encryption_key)
-  attr_encrypted(:birls_ids_tried, key: Settings.db_encryption_key)
+  attr_encrypted(:auth_headers_json, key: Proc.new { |r| r.encryption_key(:auth_headers_json) })
+  attr_encrypted(:form_json, key: Proc.new { |r| r.encryption_key(:form_json) })
+  attr_encrypted(:birls_ids_tried, key: Proc.new { |r| r.encryption_key(:birls_ids_tried) })
 
   belongs_to :saved_claim,
              class_name: 'SavedClaim::DisabilityCompensation',

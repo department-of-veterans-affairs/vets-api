@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
 require 'json_marshal/marshaller'
 
 module ClaimsApi
   module FileData
+    include Database::KeyRotation
     extend ActiveSupport::Concern
 
     included do
-      attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+      attr_encrypted(:file_data, key: Proc.new { |r| r.encryption_key(:file_data) }, marshal: true, marshaler: JsonMarshal::Marshaller)
 
       def file_name
         file_data['filename']

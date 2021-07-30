@@ -1,17 +1,19 @@
 # frozen_string_literal: true
 
 require 'csv'
+require 'database/key_rotation'
 
 module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
     class Representative < ApplicationRecord
+      include Database::KeyRotation
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id
 
-      attr_encrypted(:ssn, key: Settings.db_encryption_key)
-      attr_encrypted(:dob, key: Settings.db_encryption_key)
+      attr_encrypted(:ssn, key: Proc.new { |r| r.encryption_key(:ssn) })
+      attr_encrypted(:dob, key: Proc.new { |r| r.encryption_key(:dob) })
 
       scope :attorneys, -> { where(user_types: ['attorney']) }
       scope :veteran_service_officers, -> { where(user_types: ['veteran_service_officer']) }

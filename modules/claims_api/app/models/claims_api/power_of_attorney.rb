@@ -2,13 +2,15 @@
 
 require 'json_marshal/marshaller'
 require 'common/file_helpers'
+require 'database/key_rotation'
 
 module ClaimsApi
   class PowerOfAttorney < ApplicationRecord
+    include Database::KeyRotation
     include FileData
-    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:source_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:form_data, key: Proc.new { |r| r.encryption_key(:form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: Proc.new { |r| r.encryption_key(:auth_headers) }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:source_data, key: Proc.new { |r| r.encryption_key(:source_data) }, marshal: true, marshaler: JsonMarshal::Marshaller)
 
     PENDING = 'pending'
     UPDATED = 'updated'

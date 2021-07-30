@@ -3,17 +3,19 @@
 require 'json_marshal/marshaller'
 require 'claims_api/special_issue_mappers/evss'
 require 'claims_api/homelessness_situation_type_mapper'
+require 'database/key_rotation'
 
 module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
+    include Database::KeyRotation
     include FileData
-    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:evss_response, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:bgs_flash_responses, key: Settings.db_encryption_key,
+    attr_encrypted(:form_data, key: Proc.new { |r| r.encryption_key(:form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: Proc.new { |r| r.encryption_key(:auth_headers) }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:evss_response, key: Proc.new { |r| r.encryption_key(:evss_response) }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_flash_responses, key: Proc.new { |r| r.encryption_key(:bgs_flash_responses) },
                                          marshal: true,
                                          marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:bgs_special_issue_responses, key: Settings.db_encryption_key,
+    attr_encrypted(:bgs_special_issue_responses, key: Proc.new { |r| r.encryption_key(:bgs_special_issue_responses) },
                                                  marshal: true,
                                                  marshaler: JsonMarshal::Marshaller)
 

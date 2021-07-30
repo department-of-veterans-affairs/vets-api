@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'attr_encrypted'
+require 'database/key_rotation'
 require 'pdf_fill/filler'
 
 # Base class to hold common functionality for Claim submissions.
@@ -17,12 +18,13 @@ require 'pdf_fill/filler'
 #    files to the submitted claim, and to begin processing them.
 
 class SavedClaim < ApplicationRecord
+  include Database::KeyRotation
   include SetGuid
 
   validates(:form, presence: true)
   validate(:form_matches_schema)
   validate(:form_must_be_string)
-  attr_encrypted(:form, key: Settings.db_encryption_key)
+  attr_encrypted(:form, key: Proc.new { |r| r.encryption_key(:form) })
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
 

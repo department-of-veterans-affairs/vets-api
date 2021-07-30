@@ -2,9 +2,11 @@
 
 require 'json_marshal/marshaller'
 require 'common/exceptions'
+require 'database/key_rotation'
 
 module AppealsApi
   class NoticeOfDisagreement < ApplicationRecord
+    include Database::KeyRotation
     include NodStatus
 
     def self.load_json_schema(filename)
@@ -17,8 +19,8 @@ module AppealsApi
       nil
     end
 
-    attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:form_data, key: Proc.new { |r| r.encryption_key(:form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: Proc.new { |r| r.encryption_key(:auth_headers) }, marshal: true, marshaler: JsonMarshal::Marshaller)
 
     validate :validate_hearing_type_selection, if: :pii_present?
 

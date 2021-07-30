@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
+
 class EducationStemAutomatedDecision < ApplicationRecord
+  include Database::KeyRotation
   INIT = 'init'
   PROCESSED = 'processed'
   DENIED = 'denied'
 
   DECISION_STATES = [INIT, PROCESSED, DENIED].freeze
 
-  attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
+  attr_encrypted(:auth_headers_json, key: Proc.new { |r| r.encryption_key(:auth_headers_json) })
 
   validates(:automated_decision_state, inclusion: DECISION_STATES)
 

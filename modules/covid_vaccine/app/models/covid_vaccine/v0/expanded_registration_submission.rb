@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
 require 'json_marshal/marshaller'
 
 module CovidVaccine
   module V0
     class ExpandedRegistrationSubmission < ApplicationRecord
+      include Database::KeyRotation
       include AASM
 
       aasm(:state) do
@@ -49,9 +51,9 @@ module CovidVaccine
         reg.form_data&.symbolize_keys!
       end
 
-      attr_encrypted :form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller
-      attr_encrypted :raw_form_data, key: Settings.db_encryption_key, marshal: true, marshaler: JsonMarshal::Marshaller
-      attr_encrypted :eligibility_info, key: Settings.db_encryption_key, marshal: true,
+      attr_encrypted :form_data, key: Proc.new { |r| r.encryption_key(:form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller
+      attr_encrypted :raw_form_data, key: Proc.new { |r| r.encryption_key(:raw_form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller
+      attr_encrypted :eligibility_info, key: Proc.new { |r| r.encryption_key(:eligibility_info) }, marshal: true,
                                         marshaler: JsonMarshal::Marshaller
     end
   end

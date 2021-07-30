@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
+
 class InProgressForm < ApplicationRecord
+  include Database::KeyRotation
+
   class CleanUUID < ActiveRecord::Type::String
     def cast(value)
       super(value.to_s.delete('-'))
@@ -26,7 +30,7 @@ class InProgressForm < ApplicationRecord
   scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
 
   attribute :user_uuid, CleanUUID.new
-  attr_encrypted :form_data, key: Settings.db_encryption_key
+  attr_encrypted :form_data, key: Proc.new { |r| r.encryption_key(:form_data) }
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)

@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
+
 module HealthQuest
   ##
   # An ActiveRecord object for modeling and persisting questionnaire response and user demographics data to the DB.
@@ -17,14 +19,15 @@ module HealthQuest
   # @!attribute user
   #   @return [User]
   class QuestionnaireResponse < ApplicationRecord
+    include Database::KeyRotation
     attr_accessor :user
 
     attr_encrypted :questionnaire_response_data,
-                   key: Settings.db_encryption_key,
+                   key: Proc.new { |r| r.encryption_key(:questionnaire_response_data) },
                    marshal: true,
                    marshaler: JsonMarshaller
     attr_encrypted :user_demographics_data,
-                   key: Settings.db_encryption_key,
+                   key: Proc.new { |r| r.encryption_key(:user_demographics_data) },
                    marshal: true,
                    marshaler: JsonMarshaller
 

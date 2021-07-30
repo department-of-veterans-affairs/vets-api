@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
+
 class FormAttachment < ApplicationRecord
+  include Database::KeyRotation
   include SetGuid
   include SentryLogging
 
-  attr_encrypted(:file_data, key: Settings.db_encryption_key)
+  attr_encrypted(:file_data, key: Proc.new { |r| r.encryption_key(:file_data) })
 
   validates(:file_data, :guid, presence: true)
 

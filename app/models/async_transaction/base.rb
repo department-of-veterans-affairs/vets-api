@@ -1,7 +1,10 @@
 # frozen_string_literal: true
 
+require 'database/key_rotation'
+
 module AsyncTransaction
   class Base < ApplicationRecord
+    include Database::KeyRotation
     self.table_name = 'async_transactions'
 
     REQUESTED = 'requested'
@@ -12,7 +15,7 @@ module AsyncTransaction
       where('created_at < ?', DELETE_COMPLETED_AFTER.ago).where(status: COMPLETED)
     }
 
-    attr_encrypted :metadata, key: Settings.db_encryption_key
+    attr_encrypted :metadata, key: Proc.new { |r| r.encryption_key(:metadata) }
 
     before_save :serialize_metadata
 
