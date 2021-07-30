@@ -111,13 +111,13 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     end
 
     context 'when emis response is invalid' do
+      before do
+        allow(EMISRedis::MilitaryInformationV2).to receive(:for_user).and_return( nil )
+      end
+
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('emis/get_deployment_v2/invalid') do
-            VCR.use_cassette('emis/get_military_service_episodes_v2/invalid') do
-              get '/services/veteran_verification/v1/service_history', params: nil, headers: headers(auth_header)
-            end
-          end
+          get '/services/veteran_verification/v1/service_history', params: nil, headers: headers(auth_header)
         end
 
         expect(response).to have_http_status(:bad_gateway)
@@ -126,13 +126,9 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
       it 'matches the errors camel-inflected schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('emis/get_deployment_v2/invalid') do
-            VCR.use_cassette('emis/get_military_service_episodes_v2/invalid') do
-              get '/services/veteran_verification/v1/service_history',
-                  params: nil,
-                  headers: headers(auth_header.merge(inflection_header))
-            end
-          end
+          get '/services/veteran_verification/v1/service_history',
+              params: nil,
+              headers: headers(auth_header.merge(inflection_header))
         end
 
         expect(response).to have_http_status(:bad_gateway)
@@ -236,13 +232,13 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     end
 
     context 'when emis response is invalid' do
+      before do
+        allow(EMISRedis::MilitaryInformationV2).to receive(:for_user).and_return( nil )
+      end
+
       it 'matches the errors schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('emis/get_deployment_v2/invalid') do
-            VCR.use_cassette('emis/get_military_service_episodes_v2/invalid') do
-              get '/services/veteran_verification/v1/service_history', params: nil, headers: headers(auth_header)
-            end
-          end
+          get '/services/veteran_verification/v1/service_history', params: nil, headers: headers(auth_header)
         end
 
         expect(response).to have_http_status(:bad_gateway)
@@ -251,13 +247,9 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
       it 'matches the errors camel-inflected schema', :aggregate_failures do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('emis/get_deployment_v2/invalid') do
-            VCR.use_cassette('emis/get_military_service_episodes_v2/invalid') do
-              get '/services/veteran_verification/v1/service_history',
-                  params: nil,
-                  headers: headers(auth_header.merge(inflection_header))
-            end
-          end
+          get '/services/veteran_verification/v1/service_history',
+              params: nil,
+              headers: headers(auth_header.merge(inflection_header))
         end
 
         expect(response).to have_http_status(:bad_gateway)
