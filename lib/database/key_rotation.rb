@@ -6,7 +6,7 @@ module Database
       encrypted_attributes[attribute][:operation] == :decrypting
     end
 
-    def encryption_key
+    def encryption_key(attribute)
       Settings.db_encryption_key
     end
   end
