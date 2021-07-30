@@ -43,7 +43,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
 
     context 'when emis response is invalid' do
       before do
-        allow(EMISRedis::MilitaryInformationV2).to receive(:for_user).and_return( nil )
+        allow(EMISRedis::MilitaryInformationV2).to receive(:for_user).and_return(nil)
       end
 
       it 'matches the errors schema', :aggregate_failures do
