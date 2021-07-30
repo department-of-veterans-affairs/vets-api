@@ -54,7 +54,7 @@ module HealthQuest
       def fetch
         response = request.post(api_paths[api], post_params)
 
-        self.access_token = JSON.parse(response.body).fetch(ACCESS_TOKEN)
+        self.access_token = Oj.load(response.body).fetch(ACCESS_TOKEN)
         self.decoded_token = JWT.decode(access_token, nil, false).first
         self
       end
