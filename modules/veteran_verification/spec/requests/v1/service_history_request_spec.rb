@@ -112,7 +112,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
     context 'when emis response is invalid' do
       before do
-        allow(EMISRedis::MilitaryInformationV2).to receive(:for_user).and_return( nil )
+        allow(EMISRedis::MilitaryInformationV2).to receive(:for_user).and_return(nil)
       end
 
       it 'matches the errors schema', :aggregate_failures do
@@ -233,7 +233,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
     context 'when emis response is invalid' do
       before do
-        allow(EMISRedis::MilitaryInformationV2).to receive(:for_user).and_return( nil )
+        allow(EMISRedis::MilitaryInformationV2).to receive(:for_user).and_return(nil)
       end
 
       it 'matches the errors schema', :aggregate_failures do
