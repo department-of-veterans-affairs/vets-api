@@ -31,7 +31,7 @@ module ClaimsApi
 
         if header_request? && !target_veteran.mpi_record?
           raise ::Common::Exceptions::UnprocessableEntity.new(
-            detail: 'Submitting an original claim requires Veteran to be authenticated with an ID.me account'
+            detail: 'Submitting an original claim requires the Veteran to be authenticated with an identity-verified account'
           )
         end
 
