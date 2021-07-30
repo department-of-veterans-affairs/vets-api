@@ -18,7 +18,6 @@ module VBADocuments
           consumer_name: request.headers['X-Consumer-Username'],
           consumer_id: request.headers['X-Consumer-ID']
         )
-        submission.metadata['lob_required'] = true
         submission.save!
         render status: :accepted,
                json: submission,
