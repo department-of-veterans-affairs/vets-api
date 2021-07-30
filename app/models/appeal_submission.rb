@@ -7,7 +7,7 @@ class AppealSubmission < ApplicationRecord
   APPEAL_TYPES = %w[HLR NOD].freeze
   validates :user_uuid, :submitted_appeal_uuid, presence: true
   validates :type_of_appeal, inclusion: APPEAL_TYPES
-  attr_encrypted :upload_metadata, key: Proc.new { |r| r.encryption_key(:upload_metadata) }
+  attr_encrypted :upload_metadata, key: proc { |r| r.encryption_key(:upload_metadata) }
 
   has_many :appeal_submission_uploads, dependent: :destroy
 

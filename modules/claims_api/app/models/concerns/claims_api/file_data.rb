@@ -9,7 +9,9 @@ module ClaimsApi
     extend ActiveSupport::Concern
 
     included do
-      attr_encrypted(:file_data, key: Proc.new { |r| r.encryption_key(:file_data) }, marshal: true, marshaler: JsonMarshal::Marshaller)
+      attr_encrypted(:file_data, key: proc { |r|
+                                        r.encryption_key(:file_data)
+                                      }, marshal: true, marshaler: JsonMarshal::Marshaller)
 
       def file_name
         file_data['filename']

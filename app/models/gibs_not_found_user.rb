@@ -5,7 +5,7 @@ require 'database/key_rotation'
 class GibsNotFoundUser < ApplicationRecord
   # :nocov:
   include Database::KeyRotation
-  attr_encrypted :ssn, key: Proc.new { |r| r.encryption_key(:ssn) }
+  attr_encrypted :ssn, key: proc { |r| r.encryption_key(:ssn) }
 
   validates :edipi, presence: true, uniqueness: true
   validates :first_name, :last_name, :encrypted_ssn, :encrypted_ssn_iv, :dob, presence: true

@@ -30,7 +30,7 @@ class InProgressForm < ApplicationRecord
   scope :return_url, ->(url) { where(%( #{RETURN_URL_SQL} = ? ), '"' + url + '"') }
 
   attribute :user_uuid, CleanUUID.new
-  attr_encrypted :form_data, key: Proc.new { |r| r.encryption_key(:form_data) }
+  attr_encrypted :form_data, key: proc { |r| r.encryption_key(:form_data) }
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)

@@ -13,8 +13,12 @@ module CovidVaccine
         reg.form_data&.symbolize_keys!
       end
 
-      attr_encrypted :form_data, key: Proc.new { |r| r.encryption_key(:form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller
-      attr_encrypted :raw_form_data, key: Proc.new { |r| r.encryption_key(:raw_form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller
+      attr_encrypted :form_data, key: proc { |r|
+                                        r.encryption_key(:form_data)
+                                      }, marshal: true, marshaler: JsonMarshal::Marshaller
+      attr_encrypted :raw_form_data, key: proc { |r|
+                                            r.encryption_key(:raw_form_data)
+                                          }, marshal: true, marshaler: JsonMarshal::Marshaller
     end
   end
 end

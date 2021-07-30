@@ -24,7 +24,7 @@ class SavedClaim < ApplicationRecord
   validates(:form, presence: true)
   validate(:form_matches_schema)
   validate(:form_must_be_string)
-  attr_encrypted(:form, key: Proc.new { |r| r.encryption_key(:form) })
+  attr_encrypted(:form, key: proc { |r| r.encryption_key(:form) })
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
 

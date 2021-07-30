@@ -2,7 +2,6 @@
 
 module Database
   module KeyRotation
-
     def is_decrypting?(attribute)
       encrypted_attributes[attribute][:operation] == :decrypting
     end

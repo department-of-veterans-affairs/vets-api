@@ -10,7 +10,7 @@ class EducationStemAutomatedDecision < ApplicationRecord
 
   DECISION_STATES = [INIT, PROCESSED, DENIED].freeze
 
-  attr_encrypted(:auth_headers_json, key: Proc.new { |r| r.encryption_key(:auth_headers_json) })
+  attr_encrypted(:auth_headers_json, key: proc { |r| r.encryption_key(:auth_headers_json) })
 
   validates(:automated_decision_state, inclusion: DECISION_STATES)
 

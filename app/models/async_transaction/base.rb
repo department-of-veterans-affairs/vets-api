@@ -15,7 +15,7 @@ module AsyncTransaction
       where('created_at < ?', DELETE_COMPLETED_AFTER.ago).where(status: COMPLETED)
     }
 
-    attr_encrypted :metadata, key: Proc.new { |r| r.encryption_key(:metadata) }
+    attr_encrypted :metadata, key: proc { |r| r.encryption_key(:metadata) }
 
     before_save :serialize_metadata
 

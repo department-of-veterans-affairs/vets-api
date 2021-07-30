@@ -28,9 +28,9 @@ class Form526Submission < ApplicationRecord
   # @!attribute workflow_complete
   #   @return [Timestamp] updated at date.
   #
-  attr_encrypted(:auth_headers_json, key: Proc.new { |r| r.encryption_key(:auth_headers_json) })
-  attr_encrypted(:form_json, key: Proc.new { |r| r.encryption_key(:form_json) })
-  attr_encrypted(:birls_ids_tried, key: Proc.new { |r| r.encryption_key(:birls_ids_tried) })
+  attr_encrypted(:auth_headers_json, key: proc { |r| r.encryption_key(:auth_headers_json) })
+  attr_encrypted(:form_json, key: proc { |r| r.encryption_key(:form_json) })
+  attr_encrypted(:birls_ids_tried, key: proc { |r| r.encryption_key(:birls_ids_tried) })
 
   belongs_to :saved_claim,
              class_name: 'SavedClaim::DisabilityCompensation',

@@ -9,13 +9,19 @@ module ClaimsApi
   class AutoEstablishedClaim < ApplicationRecord
     include Database::KeyRotation
     include FileData
-    attr_encrypted(:form_data, key: Proc.new { |r| r.encryption_key(:form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:auth_headers, key: Proc.new { |r| r.encryption_key(:auth_headers) }, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:evss_response, key: Proc.new { |r| r.encryption_key(:evss_response) }, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:bgs_flash_responses, key: Proc.new { |r| r.encryption_key(:bgs_flash_responses) },
+    attr_encrypted(:form_data, key: proc { |r|
+                                      r.encryption_key(:form_data)
+                                    }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: proc { |r|
+                                         r.encryption_key(:auth_headers)
+                                       }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:evss_response, key: proc { |r|
+                                          r.encryption_key(:evss_response)
+                                        }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:bgs_flash_responses, key: proc { |r| r.encryption_key(:bgs_flash_responses) },
                                          marshal: true,
                                          marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:bgs_special_issue_responses, key: Proc.new { |r| r.encryption_key(:bgs_special_issue_responses) },
+    attr_encrypted(:bgs_special_issue_responses, key: proc { |r| r.encryption_key(:bgs_special_issue_responses) },
                                                  marshal: true,
                                                  marshaler: JsonMarshal::Marshaller)
 

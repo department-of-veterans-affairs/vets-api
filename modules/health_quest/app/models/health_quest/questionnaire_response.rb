@@ -23,11 +23,11 @@ module HealthQuest
     attr_accessor :user
 
     attr_encrypted :questionnaire_response_data,
-                   key: Proc.new { |r| r.encryption_key(:questionnaire_response_data) },
+                   key: proc { |r| r.encryption_key(:questionnaire_response_data) },
                    marshal: true,
                    marshaler: JsonMarshaller
     attr_encrypted :user_demographics_data,
-                   key: Proc.new { |r| r.encryption_key(:user_demographics_data) },
+                   key: proc { |r| r.encryption_key(:user_demographics_data) },
                    marshal: true,
                    marshaler: JsonMarshaller
 

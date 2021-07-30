@@ -11,7 +11,7 @@ class PersistentAttachment < ApplicationRecord
   include Database::KeyRotation
   include SetGuid
 
-  attr_encrypted(:file_data, key: Proc.new { |r| r.encryption_key(:file_data) })
+  attr_encrypted(:file_data, key: proc { |r| r.encryption_key(:file_data) })
   belongs_to :saved_claim, inverse_of: :persistent_attachments, optional: true
   delegate :original_filename, :size, to: :file
 

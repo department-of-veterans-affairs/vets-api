@@ -7,7 +7,7 @@ class FormAttachment < ApplicationRecord
   include SetGuid
   include SentryLogging
 
-  attr_encrypted(:file_data, key: Proc.new { |r| r.encryption_key(:file_data) })
+  attr_encrypted(:file_data, key: proc { |r| r.encryption_key(:file_data) })
 
   validates(:file_data, :guid, presence: true)
 

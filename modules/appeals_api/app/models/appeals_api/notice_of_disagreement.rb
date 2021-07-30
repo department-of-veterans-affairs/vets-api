@@ -19,8 +19,12 @@ module AppealsApi
       nil
     end
 
-    attr_encrypted(:form_data, key: Proc.new { |r| r.encryption_key(:form_data) }, marshal: true, marshaler: JsonMarshal::Marshaller)
-    attr_encrypted(:auth_headers, key: Proc.new { |r| r.encryption_key(:auth_headers) }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:form_data, key: proc { |r|
+                                      r.encryption_key(:form_data)
+                                    }, marshal: true, marshaler: JsonMarshal::Marshaller)
+    attr_encrypted(:auth_headers, key: proc { |r|
+                                         r.encryption_key(:auth_headers)
+                                       }, marshal: true, marshaler: JsonMarshal::Marshaller)
 
     validate :validate_hearing_type_selection, if: :pii_present?
 

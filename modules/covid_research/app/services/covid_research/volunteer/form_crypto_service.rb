@@ -7,7 +7,7 @@ module CovidResearch
     class FormCryptoService
       include Database::KeyRotation
       extend AttrEncrypted
-      attr_encrypted :submission, key: Proc.new { |r| r.encryption_key(:submission) }
+      attr_encrypted :submission, key: proc { |r| r.encryption_key(:submission) }
 
       # @param form_data [String] encrypted form data
       # @param iv [String] encrypted iv (for decrypting the form_data)

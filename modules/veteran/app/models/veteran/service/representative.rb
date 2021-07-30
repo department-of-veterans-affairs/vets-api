@@ -12,8 +12,8 @@ module Veteran
 
       self.primary_key = :representative_id
 
-      attr_encrypted(:ssn, key: Proc.new { |r| r.encryption_key(:ssn) })
-      attr_encrypted(:dob, key: Proc.new { |r| r.encryption_key(:dob) })
+      attr_encrypted(:ssn, key: proc { |r| r.encryption_key(:ssn) })
+      attr_encrypted(:dob, key: proc { |r| r.encryption_key(:dob) })
 
       scope :attorneys, -> { where(user_types: ['attorney']) }
       scope :veteran_service_officers, -> { where(user_types: ['veteran_service_officer']) }
