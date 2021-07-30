@@ -275,6 +275,7 @@ describe VBADocuments::UploadSubmission, type: :model do
     end
   end
 
+
   context 'aged_processing' do
     it 'can find submissions that have been in-flight for too long' do
       states = %w[pending uploaded received processing]
