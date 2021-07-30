@@ -1,5 +1,4 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
-vsp_environment:
 
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
@@ -747,6 +746,7 @@ flipper:
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kam@adhocteam.us
+    - kathleen.crawford@gcio.com
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kevin.musiorski@gcio.com # Kevin Musiorski (GCIO), Engineer
@@ -792,6 +792,7 @@ flipper:
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
+    - kha.huynh@thoughtworks.com
     - zach.morel@gcio.com
 
 bgs:

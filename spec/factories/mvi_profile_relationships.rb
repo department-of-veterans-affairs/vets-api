@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :mpi_profile_relationship, class: 'MPI::Models::MviProfileRelationship' do
-    person_type_code { 'VET' }
+    person_types { ['VET'] }
     given_names { %w[Joe William] }
     family_name { 'Smith' }
     suffix { 'Sr' }

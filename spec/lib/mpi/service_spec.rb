@@ -31,7 +31,7 @@ describe MPI::Service do
       birls_ids: ['796122306'],
       historical_icns: nil,
       icn_with_aaid: icn_with_aaid,
-      person_type_code: [],
+      person_types: [],
       full_mvi_ids: [
         '1008714701V416111^NI^200M^USVHA^P',
         '796122306^PI^200BRLS^USVBA^A',
