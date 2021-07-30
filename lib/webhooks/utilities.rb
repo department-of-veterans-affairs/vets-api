@@ -15,13 +15,6 @@ module Webhooks
     class << self
       attr_reader :supported_events, :event_to_api_name, :api_name_to_time_block, :api_name_to_retries
 
-      def clear
-        @api_name_to_retries = {}
-        @event_to_api_name = {}
-        @supported_events = []
-        @api_name_to_time_block = {}
-      end
-
       def included(base)
         base.extend ClassMethods
       end

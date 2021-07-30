@@ -10,7 +10,7 @@ RSpec.describe Webhooks::CallbackUrlJob, type: :job do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
   let(:consumer_name) { 'tester' }
-  let(:api_guid) { '43581f6f-448c-4ed3-846a-68a004c9b78b' }
+  let(:api_guid) { SecureRandom.uuid }
   let(:msg) { { 'msg' => 'the message' } }
   let(:observers_json) do
     {

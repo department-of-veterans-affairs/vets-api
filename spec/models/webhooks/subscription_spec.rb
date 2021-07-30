@@ -6,8 +6,8 @@ require_dependency './lib/webhooks/utilities'
 describe Webhooks::Subscription, type: :model do
   let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
   let(:consumer_name) { 'tester' }
-  let(:api_id) { '43581f6f-448c-4ed3-846a-68a004c9b78b' }
-  let(:api_id_invalid) { '11111f1f-111c-1ed1-111a-11a111c1b11b' }
+  let(:api_id) { SecureRandom.uuid }
+  let(:api_id_invalid) { SecureRandom.uuid }
   let(:fixture_path) { './modules/vba_documents/spec/fixtures/subscriptions/' }
   let(:observers) { JSON.parse File.read(fixture_path + 'subscriptions.json') }
   # let(:event) do VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT end
