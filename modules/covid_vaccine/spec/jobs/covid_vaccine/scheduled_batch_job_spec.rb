@@ -51,7 +51,7 @@ RSpec.describe CovidVaccine::ScheduledBatchJob, type: :worker do
 
             expect { subject.perform }
               .to trigger_statsd_increment('shared.sidekiq.default.CovidVaccine_EnrollmentUploadJob.enqueue')
-              .and trigger_statsd_incremetn('worker.covid_vaccine_schedule_batch.success')
+              .and trigger_statsd_increment('worker.covid_vaccine_schedule_batch.success')
           end
         end
       end
