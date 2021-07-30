@@ -33,7 +33,8 @@ module MPI
       ADDRESS_XPATH = 'addr'
       PHONE = 'telecom'
       PERSON_TYPE = 'PERSON_TYPE'
-      DISPLAY_NAME_XPATH = 'value/@displayName'
+      PERSON_TYPE_SEPERATOR = '~'
+      PERSON_TYPE_VALUE_XPATH = 'value/@code'
       PERSON_TYPE_CODE_XPATH = 'code/@code'
       ADMIN_OBSERVATION_XPATH = '*/administrativeObservation'
 
@@ -115,7 +116,7 @@ module MPI
 
       def create_mvi_profile_identity(person, person_prefix)
         person_component = locate_element(person, person_prefix)
-        person_type = parse_person_type(person)
+        person_types = parse_person_type(person)
         name = parse_name(locate_element(person_component, NAME_XPATH))
         {
           given_names: name[:given],
@@ -126,7 +127,7 @@ module MPI
           ssn: parse_ssn(locate_element(person_component, SSN_XPATH)),
           address: parse_address(person_component),
           home_phone: parse_phone(person, person_prefix),
-          person_type_code: person_type
+          person_types: person_types
         }
       end
 
@@ -228,7 +229,10 @@ module MPI
 
       def parse_person_type(person)
         person.locate(ADMIN_OBSERVATION_XPATH).each do |element|
-          return element.locate(DISPLAY_NAME_XPATH).first if element.locate(PERSON_TYPE_CODE_XPATH).first == PERSON_TYPE
+          if element.locate(PERSON_TYPE_CODE_XPATH).first == PERSON_TYPE
+            person_type_string = element.locate(PERSON_TYPE_VALUE_XPATH).first
+            return person_type_string&.split(PERSON_TYPE_SEPERATOR) || []
+          end
         end
       end
     end

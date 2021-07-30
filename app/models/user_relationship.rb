@@ -4,6 +4,8 @@ class UserRelationship
   attr_accessor :first_name, :last_name, :birth_date, :ssn,
                 :gender, :veteran_status, :participant_id, :icn
 
+  PERSON_TYPE_VETERAN = 'VET'
+
   # Initializer with a single 'person' from a BGS get_dependents call
   def self.from_bgs_dependent(bgs_dependent)
     user_relationship = new
@@ -28,7 +30,7 @@ class UserRelationship
     user_relationship.birth_date = Formatters::DateFormatter.format_date(mpi_relationship.birth_date)
     user_relationship.ssn = mpi_relationship.ssn
     user_relationship.gender = mpi_relationship.gender
-    user_relationship.veteran_status = mpi_relationship.person_type_code == 'Veteran'
+    user_relationship.veteran_status = mpi_relationship.person_types.include? PERSON_TYPE_VETERAN
     # ID attributes
     user_relationship.icn = mpi_relationship.icn
     user_relationship.participant_id = mpi_relationship.participant_id

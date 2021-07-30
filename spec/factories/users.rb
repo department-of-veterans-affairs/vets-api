@@ -28,7 +28,7 @@ FactoryBot.define do
       search_token { nil }
       icn_with_aaid { nil }
       common_name { nil }
-      person_types { [] }
+      person_types { ['VET'] }
 
       sign_in do
         {
@@ -60,6 +60,7 @@ FactoryBot.define do
                              icn: t.icn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
+                             person_types: t.person_types,
                              multifactor: t.multifactor,
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
