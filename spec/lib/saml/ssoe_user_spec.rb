@@ -616,12 +616,13 @@ RSpec.describe SAML::User do
       context 'with different values' do
         let(:birls_id) { '0123456789,0000000054' }
 
-        it 'does not validate' do
-          expect { subject.validate! }
-            .to raise_error { |error|
-                  expect(error).to be_a(SAML::UserAttributeError)
-                  expect(error.message).to eq('User attributes contain multiple distinct BIRLS ID values')
-                }
+        it 'logs warning to sentry' do
+          expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+            'User attributes contain multiple distinct BIRLS ID values.',
+            'warn',
+            { birls_ids: birls_id }
+          )
+          subject.validate!
         end
       end
     end
