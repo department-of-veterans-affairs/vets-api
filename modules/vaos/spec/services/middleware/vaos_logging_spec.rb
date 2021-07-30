@@ -68,7 +68,7 @@ describe VAOS::Middleware::VAOSLogging do
       expect { client.get(user_service_refresh_uri, nil, { 'X-VAMF-JWT' => sample_jwt }) }
         .to trigger_statsd_increment(
           'api.vaos.va_mobile.response.total',
-          tags: ['method:GET', 'url:/user_service_refresh/uri', 'http_status:']
+          tags: ['method:GET', 'url:/user_service_refresh_uri', 'http_status:']
         )
     end
   end
