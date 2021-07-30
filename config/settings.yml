@@ -648,6 +648,7 @@ maintenance:
   service_query_prefix: "External: "
   services:
     carma: P6XLE0T
+    dmc: PD9XGBG
     appeals: P9S4RFU
     arcgis: P45YBFA
     dslogon: P9DJJAV
