@@ -62,8 +62,3 @@ module Webhooks
     end
   end
 end
-
-# load './app/models/webhook_subscription'
-
-# require 'open-uri'
-# open("https://gorails.com").status
