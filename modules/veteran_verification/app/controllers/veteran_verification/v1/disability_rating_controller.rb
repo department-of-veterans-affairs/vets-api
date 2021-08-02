@@ -13,7 +13,7 @@ module VeteranVerification
       before_action { permit_scopes %w[disability_rating.read] }
 
       def index
-        response = DisabilityRatingV1.for_user(@current_user)
+        response = DisabilityRating.for_user(@current_user)
         serialized = ActiveModelSerializers::SerializableResource.new(
           response,
           each_serializer: VeteranVerification::DisabilityRatingSerializer
