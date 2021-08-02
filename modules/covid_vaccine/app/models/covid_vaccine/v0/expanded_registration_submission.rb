@@ -57,8 +57,9 @@ module CovidVaccine
       attr_encrypted :raw_form_data, key: proc { |r|
                                             r.encryption_key(:raw_form_data)
                                           }, marshal: true, marshaler: JsonMarshal::Marshaller
-      attr_encrypted :eligibility_info, key: proc { |r| r.encryption_key(:eligibility_info)
-                                          }, marshal: true, marshaler: JsonMarshal::Marshaller
+      attr_encrypted :eligibility_info, key: proc { |r|
+                                               r.encryption_key(:eligibility_info)
+                                             }, marshal: true, marshaler: JsonMarshal::Marshaller
     end
   end
 end
