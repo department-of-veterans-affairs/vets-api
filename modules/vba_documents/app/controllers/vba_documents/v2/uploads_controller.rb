@@ -62,7 +62,7 @@ module VBADocuments
         end
 
         render json: submission,
-               serializer: VBADocuments::V1::UploadSerializer,
+               serializer: VBADocuments::V2::UploadSerializer,
                render_location: false
       end
 
