@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 require 'rails_helper'
@@ -16,7 +15,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     context 'with in-flight submissions' do
       it 'returns status of a single upload submissions' do
         params = [upload_received.guid]
-        post vba_documents.v2_report_path, params: { ids: params }
+        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -27,7 +26,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
       it 'returns status of a multiple upload submissions' do
         params = [upload_received.guid, upload2_received.guid]
-        post vba_documents.v2_report_path, params: { ids: params }
+        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -39,7 +38,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
       it 'silentlies skip status not returned from central mail' do
         params = [upload_received.guid, upload2_received.guid]
-        post vba_documents.v2_report_path, params: { ids: params }
+        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -53,7 +52,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     context 'without in-flight submissions' do
       it 'does not fetch status if no in-flight submissions' do
         params = [upload.guid]
-        post vba_documents.v2_report_path, params: { ids: params }
+        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -63,7 +62,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
       end
 
       it 'presents error result for non-existent submission' do
-        post vba_documents.v2_report_path, params: { ids: ['fake-1234'] }
+        post '/services/vba_documents/v2/uploads/report', params: { ids: ['fake-1234'] }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -77,18 +76,18 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
     context 'with invalid parameters' do
       it 'returns error if no guids parameter' do
-        post vba_documents.v2_report_path, params: { foo: 'bar' }
+        post '/services/vba_documents/v2/uploads/report', params: { foo: 'bar' }
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns error if guids parameter not a list' do
-        post vba_documents.v2_report_path, params: { ids: 'bar' }
+        post '/services/vba_documents/v2/uploads/report', params: { ids: 'bar' }
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns error if guids parameter has too many elements' do
         params = Array.new(1001, 'abcd-1234')
-        post vba_documents.v2_report_path, params: { ids: params }
+        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -96,7 +95,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     context 'with uploaded pdf data' do
       it 'reports on pdf upload data' do
         params = [pdf_info.guid]
-        post vba_documents.v2_report_path, params: { ids: params }
+        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data'].size).to eq(1)
