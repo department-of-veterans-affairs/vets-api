@@ -169,13 +169,13 @@ class OpenidApplicationController < ApplicationController
   end
 
   def build_session(ttl, profile)
-    session = Session.new(token: token.to_s, uuid: token.identifiers.uuid, profile: profile)
+    session = Session.new(token: Digest::SHA256.hexdigest(token.to_s), uuid: token.identifiers.uuid, profile: profile)
     session.expire(ttl)
     session
   end
 
   def build_launch_session(ttl, launch)
-    session = Session.new(token: token.to_s, launch: launch)
+    session = Session.new(token: Digest::SHA256.hexdigest(token.to_s), launch: launch)
     session.expire(ttl)
     session
   end
