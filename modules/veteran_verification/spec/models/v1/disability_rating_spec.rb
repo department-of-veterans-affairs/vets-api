@@ -17,7 +17,7 @@ describe VeteranVerification::V1::DisabilityRating do
         expect(result[:combined_effective_date]).to eq('2019-01-01')
         expect(result[:legal_effective_date]).to eq('2018-12-31')
         expect(result[:individual_ratings][0][:decision]).to eq('Service Connected')
-        expect(result[:individual_ratings][0][:effective_date]).to eq('2005-01-01')
+        expect(result[:individual_ratings][0][:effective_date]).to eq(Date.parse('2005-01-01'))
         expect(result[:individual_ratings][0][:rating_percentage]).to eq(100)
       end
     end
@@ -29,7 +29,7 @@ describe VeteranVerification::V1::DisabilityRating do
         expect(result[:combined_effective_date]).to eq('2019-01-01')
         expect(result[:legal_effective_date]).to eq('2018-12-31')
         expect(result[:individual_ratings][0][:decision]).to eq('Service Connected')
-        expect(result[:individual_ratings][0][:effective_date]).to eq('2005-01-01')
+        expect(result[:individual_ratings][0][:effective_date]).to eq(Date.parse('2005-01-01'))
         expect(result[:individual_ratings][0][:rating_percentage]).to eq(100)
       end
     end
