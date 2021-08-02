@@ -195,7 +195,7 @@ describe 'VEText::Service' do
 
     context 'with a valid inputs' do
       let(:response) do
-        VCR.use_cassette('vetext/send_success', :match_requests_on => [:body]) do
+        VCR.use_cassette('vetext/send_success', match_requests_on: [:body]) do
           service.send_notification(
             'va_mobile_app',
             '1008596379V859838',

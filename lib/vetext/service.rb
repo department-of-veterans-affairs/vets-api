@@ -67,7 +67,7 @@ module VEText
     def format_personalization(personalization)
       formatted_personalization = {}
       personalization.each do |k, v|
-        formatted_personalization[k.upcase] =  v
+        formatted_personalization[k.upcase] = v
       end
       formatted_personalization
     end
