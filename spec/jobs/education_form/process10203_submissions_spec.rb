@@ -130,7 +130,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
                    .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
       end
 
-      it 'skips POA check with  without poa' do
+      it 'skips POA check when :stem_automated_decision flag is on' do
         expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(true).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
