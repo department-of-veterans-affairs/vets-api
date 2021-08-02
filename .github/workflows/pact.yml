@@ -16,6 +16,9 @@ jobs:
     services:
       postgres:
         image: postgis/postgis:11-2.5
+        credentials:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
         env:
           POSTGRES_USER: vets-api
           POSTGRES_DB: vets-api-test

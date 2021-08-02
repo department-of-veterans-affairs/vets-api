@@ -12,7 +12,7 @@ module ClaimsApi
 
       skip_before_action :set_tags_and_extra_context, raise: false
       before_action :validate_json_format, if: -> { request.post? }
-      before_action :verify_mpi
+      before_action :validate_veteran_identifiers
 
       # fetch_audience: defines the audience used for oauth
       # NOTE: required for oauth through claims_api to function
@@ -21,6 +21,24 @@ module ClaimsApi
       end
 
       protected
+
+      def validate_veteran_identifiers
+        return if target_veteran.participant_id.present? && target_veteran.birls_id.present?
+
+        if target_veteran.participant_id.present? && target_veteran.birls_id.blank?
+          raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'No birls_id while participant_id present')
+        end
+
+        if header_request? && !target_veteran.mpi_record?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail:
+              'Submitting an original claim requires the Veteran to be authenticated with an identity-verified account'
+          )
+        end
+
+        add_response = @current_user.mpi_add_person
+        raise add_response.error unless add_response.ok?
+      end
 
       def source_name
         user = header_request? ? @current_user : target_veteran

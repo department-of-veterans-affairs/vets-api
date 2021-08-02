@@ -425,16 +425,14 @@
               "application/json": {
                 "example": [
                   {
-                    "id": "111111111",
-                    "type": "Appeals Control"
-                  },
-                  {
-                    "id": "222222222",
-                    "type": "Claim for Increase"
-                  },
-                  {
-                    "id": "333333333",
-                    "type": "Rating Control"
+                    "id": "555555555",
+                    "@links": {
+                      "rel": "self",
+                      "type": "GET",
+                      "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
+                    },
+                    "status": "Complete",
+                    "type": "Compensation"
                   }
                 ],
                 "schema": {
@@ -443,7 +441,9 @@
                   "items": {
                     "required": [
                       "id",
-                      "type"
+                      "type",
+                      "status",
+                      "@links"
                     ],
                     "additionalProperties": false,
                     "description": "Claim details.",
@@ -457,6 +457,20 @@
                         "type": "string",
                         "description": "Name of Claim type",
                         "example": "Appeals Control"
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Status of Claim",
+                        "example": "Complete"
+                      },
+                      "@links": {
+                        "type": "object",
+                        "description": "HATEOAS links in the HAL standard format",
+                        "example": {
+                          "rel": "self",
+                          "type": "GET",
+                          "url": "https://api.va.gov/services/claims/v2/claims/600131328"
+                        }
                       }
                     }
                   }
@@ -648,8 +662,14 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "600131328",
-                  "type": "Appeals Control"
+                  "id": "555555555",
+                  "@links": {
+                    "rel": "self",
+                    "type": "GET",
+                    "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
+                  },
+                  "status": "Complete",
+                  "type": "Compensation"
                 },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
@@ -657,7 +677,9 @@
                   "additionalProperties": false,
                   "required": [
                     "id",
-                    "type"
+                    "type",
+                    "status",
+                    "@links"
                   ],
                   "properties": {
                     "id": {
@@ -669,6 +691,20 @@
                       "type": "string",
                       "description": "Name of Claim type",
                       "example": "Appeals Control"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status of Claim",
+                      "example": "Complete"
+                    },
+                    "@links": {
+                      "type": "object",
+                      "description": "HATEOAS links in the HAL standard format",
+                      "example": {
+                        "rel": "self",
+                        "type": "GET",
+                        "url": "https://api.va.gov/services/claims/v2/claims/600131328"
+                      }
                     }
                   }
                 }
@@ -919,10 +955,10 @@
                 "example": {
                   "code": "A1Q",
                   "name": "Firstname Lastname",
-                  "type": "individual",
                   "phone": {
                     "number": "555-555-5555"
-                  }
+                  },
+                  "type": "individual"
                 },
                 "schema": {
                   "type": "object",

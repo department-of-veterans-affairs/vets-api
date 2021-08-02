@@ -28,7 +28,7 @@ FactoryBot.define do
       search_token { nil }
       icn_with_aaid { nil }
       common_name { nil }
-      person_types { [] }
+      person_types { ['VET'] }
 
       sign_in do
         {
@@ -60,6 +60,7 @@ FactoryBot.define do
                              icn: t.icn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
+                             person_types: t.person_types,
                              multifactor: t.multifactor,
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
@@ -224,6 +225,25 @@ FactoryBot.define do
             birls_id: '796043735',
             participant_id: '600061742',
             birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
+      end
+    end
+
+    factory :no_dob_evss_user, traits: [:loa3] do
+      first_name { 'WESLEY' }
+      last_name { 'FORD' }
+      last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
+      ssn { '796043735' }
+
+      after(:build) do
+        stub_mpi(
+          build(
+            :mvi_profile,
+            edipi: '1007697216',
+            birls_id: '796043735',
+            participant_id: '600061742',
+            birth_date: nil
           )
         )
       end
