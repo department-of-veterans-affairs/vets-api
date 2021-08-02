@@ -29,12 +29,15 @@ module ClaimsApi
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'No birls_id while participant_id present')
         end
 
-        return unless header_request?
-        return if target_veteran.mpi_record?
+        if header_request? && !target_veteran.mpi_record?
+          raise ::Common::Exceptions::UnprocessableEntity.new(
+            detail:
+              'Submitting an original claim requires the Veteran to be authenticated with an identity-verified account'
+          )
+        end
 
-        raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: 'Submitting an original claim requires Veteran to be authenticated with an ID.me account'
-        )
+        add_response = @current_user.mpi_add_person
+        raise add_response.error unless add_response.ok?
       end
 
       def source_name
