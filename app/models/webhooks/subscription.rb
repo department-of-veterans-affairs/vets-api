@@ -3,7 +3,6 @@
 module Webhooks
   class Subscription < ApplicationRecord
     self.table_name = 'webhooks_subscriptions'
-    # remove api_name and infer it from the event
     def self.get_notification_urls(api_name:, consumer_id:, event:, api_guid: nil)
       sql = "
         select json_agg(agg.urls)::jsonb as event_urls
@@ -26,7 +25,6 @@ module Webhooks
       retrieve_event_urls(sql, api_name, consumer_id, event, api_guid)
     end
 
-    # remove api_name and infer it from the event
     def self.get_observers_by_guid(api_name:, consumer_id:, api_guid:)
       sql = "
         select a.events -> 'subscriptions' as api_consumer_subscriptions

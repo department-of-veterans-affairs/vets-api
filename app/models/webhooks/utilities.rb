@@ -7,6 +7,7 @@ require 'uri'
 module Webhooks
   module Utilities
     module ClassMethods
+      # We assume the subscription parameter has already been through validate_subscription()
       def register_webhook(consumer_id, consumer_name, subscription, api_guid)
         event = subscription['subscriptions'].first['event']
         api_name = Webhooks::Utilities.event_to_api_name[event]
