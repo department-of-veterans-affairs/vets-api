@@ -153,6 +153,21 @@ RSpec.describe 'Intent to file', type: :request do
           end
         end
       end
+
+      context 'when consumer is Veteran' do
+        it 'adds person to MPI' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('mpi/add_person/add_person_success') do
+                VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
+                  expect_any_instance_of(MPIData).to receive(:add_person).once.and_call_original
+                  post path, params: data.to_json, headers: auth_header
+                end
+              end
+            end
+          end
+        end
+      end
     end
 
     context 'when Veteran has participant_id' do

@@ -13,6 +13,7 @@ Mobile::Engine.routes.draw do
     post '/claim/:id/documents', to: 'claims_and_appeals#upload_document'
     post '/claim/:id/documents/multi-image', to: 'claims_and_appeals#upload_multi_image_document'
     post '/claim/:id/request-decision', to: 'claims_and_appeals#request_decision'
+    get '/disability-rating', to: 'disability_rating#index'
     get '/letters', to: 'letters#index'
     get '/letters/beneficiary', to: 'letters#beneficiary'
     post '/letters/:type/download', to: 'letters#download'
