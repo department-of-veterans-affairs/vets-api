@@ -73,7 +73,7 @@ class OpenidApplicationController < ApplicationController
 
   def analyze_redis_launch_context
     @session = Session.find(Digest::SHA256.hexdigest(token.to_s))
-    # Sessions are not originally created for client credentials tokens,one will be created here.
+    # Sessions are not originally created for client credentials tokens, one will be created here.
     if @session.nil?
       ttl = token.payload['exp'] - Time.current.utc.to_i
       launch = fetch_smart_launch_context
