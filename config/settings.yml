@@ -460,6 +460,8 @@ webhooks:
 
 # Settings for VBA Document upload service module
 vba_documents:
+  documentation:
+    path_enabled_flag: false
   report_enabled: false
   monthly_report: false
   location:
