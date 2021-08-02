@@ -17,6 +17,7 @@ module VAOS
       attribute :contact, Hash
       attribute :service_type, String
       attribute :requested_periods, Array[Hash]
+      attribute :preferred_language, String
 
       def initialize(user, json_hash)
         @user = user

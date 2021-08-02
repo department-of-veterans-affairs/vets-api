@@ -13,6 +13,7 @@ FactoryBot.define do
       status { 'proposed' }
       location_id { '983' }
       practitioner_ids { [{ system: 'HSRM', value: 'ppmsid' }] }
+      preferred_language { 'English' }
       reason { 'Testing' }
 
       contact do

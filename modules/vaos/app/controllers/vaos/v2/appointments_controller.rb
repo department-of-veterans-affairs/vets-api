@@ -64,6 +64,7 @@ module VAOS
                       :clinic,
                       :reason,
                       :service_type,
+                      :preferred_language,
                       slot: %i[id start end],
                       contact: [telecom: %i[type value]],
                       requested_periods: %i[start end],
