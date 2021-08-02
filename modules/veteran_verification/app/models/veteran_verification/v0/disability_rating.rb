@@ -53,10 +53,10 @@ module VeteranVerification
       end
 
       def self.individual_ratings(response)
-        if response[:disability_rating_record][:ratings].class.eql? Hash
+        if response[:disability_rating_record][:ratings].instance_of?(Hash)
           ratings = [response[:disability_rating_record][:ratings]]
           response[:disability_rating_record][:ratings] = ratings
-        elsif response[:disability_rating_record][:ratings].class.eql? NilClass
+        elsif response[:disability_rating_record][:ratings].instance_of?(NilClass)
           response[:disability_rating_record][:ratings] = []
         end
         ratings = response[:disability_rating_record][:ratings].map do |rating|
