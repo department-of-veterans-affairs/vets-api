@@ -31,7 +31,7 @@ module VeteranVerification
       end
 
       def self.handle_errors!(response)
-        raise_error! unless response[:disability_rating_record].class.eql? Hash
+        raise_error! unless response[:disability_rating_record].instance_of?(Hash)
       end
 
       def self.raise_error!
