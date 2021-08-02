@@ -3,31 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Form1010cg::Auditor do
-  before(:all) do
-    # StatsD is configured to use Rails.logger in order to output the stats that are being incremented in our app.
-    # Since our methods calls StatsD#increment, it will create a log output using Rails.logger.
-    #
-    # In order to set expectations on Rails.logger for **only** what our test suite is concerned with, we'll need to
-    # disconnect the Rails.logger form StatsD and reconnect it after our test suite is completed.
-    @_statsd_logger = StatsD.backend
-    StatsD.backend  = nil
-  end
-
-  after(:all) do
-    StatsD.backend = @_statsd_logger
-  end
-
-  describe '::new' do
-    it 'accepts a logger' do
-      expect(described_class.new(Rails.logger).logger).to eq(Rails.logger)
-      expect(described_class.new(Sidekiq.logger).logger).to eq(Sidekiq.logger)
-    end
-
-    it 'sets the default logger to Rails.logger' do
-      expect(described_class.new.logger).to eq(Rails.logger)
-    end
-  end
-
   describe '::metrics' do
     it 'provides StatsD metric values' do
       expect(
@@ -51,8 +26,8 @@ RSpec.describe Form1010cg::Auditor do
   describe '#record_submission_attempt' do
     context 'increments' do
       it 'api.form1010cg.submission.attempt' do
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.attempt')
-        subject.record_submission_attempt
+        expect { subject.record_submission_attempt }
+          .to trigger_statsd_increment('api.form1010cg.submission.attempt')
       end
     end
 
@@ -85,8 +60,8 @@ RSpec.describe Form1010cg::Auditor do
           attachments_job_id: 'abc123'
         }
 
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.success')
-        subject.record_submission_success(expected_context)
+        expect { subject.record_submission_success(expected_context) }
+          .to trigger_statsd_increment('api.form1010cg.submission.success')
       end
     end
 
@@ -190,8 +165,8 @@ RSpec.describe Form1010cg::Auditor do
       it 'api.form1010cg.submission.failure.client.data' do
         expected_context = { errors: %w[error1 error2], claim_guid: 'uuid-123' }
 
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.data')
-        subject.record_submission_failure_client_data(expected_context)
+        expect { subject.record_submission_failure_client_data(expected_context) }
+          .to trigger_statsd_increment('api.form1010cg.submission.failure.client.data')
       end
     end
 
@@ -220,8 +195,8 @@ RSpec.describe Form1010cg::Auditor do
       it 'api.form1010cg.submission.failure.client.data' do
         expected_context = { claim_guid: 'uuid-123' }
 
-        expect(StatsD).to receive(:increment).with('api.form1010cg.submission.failure.client.qualification')
-        subject.record_submission_failure_client_qualification(expected_context)
+        expect { subject.record_submission_failure_client_qualification(expected_context) }
+          .to trigger_statsd_increment('api.form1010cg.submission.failure.client.qualification')
       end
     end
 
@@ -240,8 +215,8 @@ RSpec.describe Form1010cg::Auditor do
   describe '#record_pdf_download' do
     context 'increments' do
       it 'api.form1010cg.submission.failure.client.data' do
-        expect(StatsD).to receive(:increment).with('api.form1010cg.pdf_download')
-        subject.record_pdf_download
+        expect { subject.record_pdf_download }
+          .to trigger_statsd_increment('api.form1010cg.pdf_download')
       end
     end
 
