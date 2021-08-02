@@ -85,8 +85,12 @@ module BGS
     # else use 130SCHEBNREJ (eBenefits School Attendance Reject)
     def set_claim_type(proc_state)
       if proc_state == 'MANUAL_VAGOV'
-        pension_response = bid_service.get_awards_pension
-        receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
+        receiving_pension = false
+
+        if Flipper.enabled?(:dependents_pension_check)
+          pension_response = bid_service.get_awards_pension
+          receiving_pension = pension_response.body['awards_pension']['is_in_receipt_of_pension']
+        end
 
         if receiving_pension
           @end_product_name = 'PMC eBenefits School Attendance Reject'

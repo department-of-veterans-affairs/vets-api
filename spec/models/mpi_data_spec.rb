@@ -84,6 +84,7 @@ describe MPIData, skip_mvi: true do
       let(:search_token) { 'some-search_token' }
       let(:gender) { 'M' }
       let(:ssn) { '987654321' }
+      let(:person_types) { ['VET'] }
       let(:mvi_profile) do
         build(:mvi_profile,
               given_names: given_names,
@@ -93,6 +94,7 @@ describe MPIData, skip_mvi: true do
               edipi: edipi,
               search_token: search_token,
               ssn: ssn,
+              person_types: person_types,
               gender: gender)
       end
       let(:expected_user_identity) do
@@ -107,6 +109,7 @@ describe MPIData, skip_mvi: true do
               search_token: search_token,
               gender: gender,
               ssn: ssn,
+              person_types: person_types,
               idme_uuid: user.idme_uuid)
       end
 
