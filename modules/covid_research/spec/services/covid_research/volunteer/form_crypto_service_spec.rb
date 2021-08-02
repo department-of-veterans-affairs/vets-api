@@ -6,6 +6,7 @@ require CovidResearch::Engine.root.join('spec', 'rails_helper.rb')
 RSpec.describe CovidResearch::Volunteer::FormCryptoService do
   let(:subject)        { described_class.new }
   let(:raw_form)       { read_fixture('valid-submission.json') }
+  # Rebuild this by running `rake rebuild_encrypted_fixture` when changing the encryption keys
   let(:encoded)        { JSON.parse(read_fixture('encrypted-form.json')) }
   let(:encrypted_form) { Base64.decode64(encoded['form_data']) }
   let(:iv)             { Base64.decode64(encoded['iv']) }
