@@ -39,18 +39,6 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(ids).to include(upload_received.guid)
         expect(ids).to include(upload2_received.guid)
       end
-
-      it 'silentlies skip status not returned from central mail' do
-        params = [upload_received.guid, upload2_received.guid]
-        post vba_documents.v2_report_path, params: { ids: params }
-        expect(response).to have_http_status(:ok)
-        json = JSON.parse(response.body)
-        expect(json['data']).to be_an(Array)
-        expect(json['data'].size).to eq(2)
-        ids = json['data'].map { |x| x['attributes']['guid'] }
-        expect(ids).to include(upload_received.guid)
-        expect(ids).to include(upload2_received.guid)
-      end
     end
 
     context 'without in-flight submissions' do
