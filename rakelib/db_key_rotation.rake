@@ -17,7 +17,7 @@ namespace :attr_encrypted do
       module KeyRotation
         def encryption_key(attribute)
           if decrypting?(attribute)
-            Settings.old_db_encryption_key
+            @database_key
           else
             Settings.db_encryption_key
           end
@@ -30,12 +30,18 @@ namespace :attr_encrypted do
         old_metadata = submission.upload_metadata
         submission.upload_metadata = old_metadata
         submission.save!
+      rescue
+        submission.database_key = Settings.db_encryption_key
+        retry
       end
 
       EducationStemAutomatedDecision.all.each do |esad|
         old_auth_headers_json = esad.auth_headers_json
         esad.auth_headers_json = old_auth_headers_json
         esad.save!
+      rescue
+        esad.database_key = Settings.db_encryption_key
+        retry
       end
 
       Form526Submission.all.each do |form_526_sub|
@@ -49,30 +55,45 @@ namespace :attr_encrypted do
         form_526_sub.birls_ids_tried = old_birls_ids_tried
 
         form_526_sub.save!
+      rescue
+        form_526_sub.database_key = Settings.db_encryption_key
+        retry
       end
 
       FormAttachment.all.each do |form_attachment|
         old_file_data = form_attachment.file_data
         form_attachment.file_data = old_file_data
         form_attachment.save!
+      rescue
+        form_attachment.database_key = Settings.db_encryption_key
+        retry
       end
 
       GibsNotFoundUser.all.each do |r|
         old_ssn = r.ssn
         r.ssn = old_ssn
         r.save!
+      rescue
+        r.database_key = Settings.db_encryption_key
+        retry
       end
 
       InProgressForm.all.each do |in_progress_form|
         old_form_data = in_progress_form.form_data
         in_progress_form.form_data = old_form_data
         in_progress_form.save!
+      rescue
+        in_progress_form.database_key = Settings.db_encryption_key
+        retry
       end
 
       PersistentAttachment.all.each do |pa|
         old_file_data = pa.file_data
         pa.file_data = old_file_data
         pa.save!
+      rescue
+        pa.database_key = Settings.db_encryption_key
+        retry
       end
 
       # SavedClaim
@@ -94,6 +115,9 @@ namespace :attr_encrypted do
           old_form = saved_claim.form
           saved_claim.form = old_form
           saved_claim.save!
+        rescue
+          saved_claim.database_key = Settings.db_encryption_key
+          retry
         end
       end
 
@@ -101,6 +125,9 @@ namespace :attr_encrypted do
         old_metadata = at.metadata
         at.metadata = old_metadata
         at.save!
+      rescue
+        at.database_key = Settings.db_encryption_key
+        retry
       end
 
       AppealsApi::HigherLevelReview.all.each do |hlr|
@@ -111,6 +138,9 @@ namespace :attr_encrypted do
         hlr.auth_headers = old_auth_headers
 
         hlr.save!
+      rescue
+        hlr.database_key = Settings.db_encryption_key
+        retry
       end
 
       AppealsApi::NoticeOfDisagreement.all.each do |nod|
@@ -121,6 +151,9 @@ namespace :attr_encrypted do
         nod.auth_headers = old_auth_headers
 
         nod.save!
+      rescue
+        nod.database_key = Settings.db_encryption_key
+        retry
       end
 
       ClaimsApi::AutoEstablishedClaim.all.each do |aec|
@@ -143,6 +176,9 @@ namespace :attr_encrypted do
         aec.bgs_special_issue_responses = old_special_issue_repsonses
 
         aec.save!
+      rescue
+        aec.database_key = Settings.db_encryption_key
+        retry
       end
 
       ClaimsApi::PowerOfAttorney.all.each do |poa|
@@ -159,6 +195,9 @@ namespace :attr_encrypted do
         poa.source_data = old_source_data
 
         poa.save!
+      rescue
+        poa.database_key = Settings.db_encryption_key
+        retry
       end
 
       ClaimsApi::SupportingDocument.all.each do |sd|
@@ -166,6 +205,9 @@ namespace :attr_encrypted do
         sd.file_data = old_file_data
 
         sd.save!
+      rescue
+        sd.database_key = Settings.db_encryption_key
+        retry
       end
 
       CovidVaccine::V0::ExpandedRegistrationSubmission.all.each do |ers|
@@ -179,6 +221,9 @@ namespace :attr_encrypted do
         ers.eligibility_info = old_eligibility_info
 
         ers.save!
+      rescue
+        ers.database_key = Settings.db_encryption_key
+        retry
       end
 
       CovidVaccine::V0::RegistrationSubmission.all.each do |rs|
@@ -189,6 +234,9 @@ namespace :attr_encrypted do
         rs.raw_form_data = old_raw_form_data
 
         rs.save!
+      rescue
+        rs.database_key = Settings.db_encryption_key
+        retry
       end
 
       HealthQuest::QuestionnaireResponse.all.each do |qs|
@@ -199,6 +247,9 @@ namespace :attr_encrypted do
         qs.user_demographics_data = old_user_demographics_data
 
         qs.save!
+      rescue
+        qs.database_key = Settings.db_encryption_key
+        retry
       end
 
       Veteran::Service::Representative.all.each do |vsr|
@@ -209,6 +260,9 @@ namespace :attr_encrypted do
         vsr.dob = old_dob
 
         vsr.save!
+      rescue
+        vsr.database_key = Settings.db_encryption_key
+        retry
       end
     rescue => e
       puts "....rolling back transaction. Error occured: #{e.inspect}"
