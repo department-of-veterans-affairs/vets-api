@@ -2,7 +2,7 @@
 
 module VeteranVerification
   module Docs
-    module V0
+    module V1
       class ApiController < ApplicationController
         skip_before_action(:authenticate)
 
@@ -15,7 +15,7 @@ module VeteranVerification
 
         def verification_yaml
           @verification_yaml ||= YAML.safe_load(
-            File.read(VeteranVerification::Engine.root.join('VETERAN_VERIFICATION_V0.yml'))
+            File.read(VeteranVerification::Engine.root.join('VETERAN_VERIFICATION_V1.yml'))
           )
         end
       end
