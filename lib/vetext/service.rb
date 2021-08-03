@@ -49,7 +49,7 @@ module VEText
                 appSid: app_sid(app_name),
                 icn: icn,
                 templateSid: template_id,
-                personalization: personalization
+                personalization: format_personalization(personalization)
               })
     end
 
@@ -62,6 +62,14 @@ module VEText
       else
         raise Common::Exceptions::RecordNotFound, app_name
       end
+    end
+
+    def format_personalization(personalization)
+      formatted_personalization = {}
+      personalization.each do |k, v|
+        formatted_personalization[k.upcase] = v
+      end
+      formatted_personalization
     end
   end
 end
