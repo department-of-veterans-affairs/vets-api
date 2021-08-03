@@ -16,4 +16,18 @@ VeteranVerification::Engine.routes.draw do
       get 'veteran_verification', to: 'api#veteran_verification'
     end
   end
+
+  namespace :v1 do
+    resources :service_history, only: [:index]
+    resources :disability_rating, only: [:index]
+    resources :keys, only: [:index]
+    resources :health, only: [:index]
+    get 'status', to: 'veteran_status#index'
+  end
+
+  namespace :docs do
+    namespace :v1, defaults: { format: 'json' } do
+      get 'veteran_verification', to: 'api#veteran_verification'
+    end
+  end
 end
