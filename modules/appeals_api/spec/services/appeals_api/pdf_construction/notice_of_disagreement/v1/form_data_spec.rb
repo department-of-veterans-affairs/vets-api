@@ -29,7 +29,7 @@ module AppealsApi
           describe '#mailing_address' do
             it do
               expect(form_data.mailing_address)
-                .to eq('123 Main St Suite #1200 Box 4, New York, NY, 30012, United States')
+                .to eq('123 Main St Suite #1200 Box 4, North Pole, H0H 0H0, Canada')
             end
           end
 
