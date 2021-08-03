@@ -483,7 +483,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         stub_mpi
       end
 
-      it 'creates the sidekick job' do
+      it 'responds with bad request' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/claims/claims') do
             post path, params: data, headers: headers.merge(auth_header)
