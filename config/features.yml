@@ -201,7 +201,7 @@ features:
     description: Show/Hide the school ratings section of the Comparison Tool School Profile Page.
   hlr_v2:
     actor_type: user
-    descriiption: Enable showing Higher-Level Review v2
+    description: Enable showing Higher-Level Review v2
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
