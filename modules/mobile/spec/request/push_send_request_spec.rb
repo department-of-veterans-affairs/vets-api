@@ -24,7 +24,7 @@ RSpec.describe 'push send', type: :request do
       end
 
       it 'returns 200 and empty json' do
-        VCR.use_cassette('vetext/send_success') do
+        VCR.use_cassette('vetext/send_success', match_requests_on: [:body]) do
           post '/mobile/v0/push/send', headers: iam_headers(json_body_headers), params: params.to_json
           expect(response).to have_http_status(:ok)
           expect(response.body).to eq('{}')
