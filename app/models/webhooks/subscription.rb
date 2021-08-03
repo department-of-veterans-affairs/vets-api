@@ -26,7 +26,7 @@ module Webhooks
     end
 
     def self.get_observers_by_guid(api_name:, consumer_id:, api_guid:)
-      uuid_regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/
+      uuid_regex = /^[a-f0-9]{8}-[a-f0-9]{4}-[0-5][a-f0-9]{3}-[089ab][a-f0-9]{3}-[a-f0-9]{12}$/i
       return [] unless uuid_regex.match?(consumer_id) && uuid_regex.match?(api_guid)
 
       sql = "
