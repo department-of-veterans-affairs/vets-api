@@ -41,8 +41,8 @@ module Webhooks
     end
 
     private
-    
-    def self.retrieve_event_urls(sql, *args)
+
+    def retrieve_event_urls(sql, *args)
       result = ActiveRecord::Base.connection_pool.with_connection do |c|
         c.raw_connection.exec_params(sql, args).to_a
       end
@@ -51,7 +51,7 @@ module Webhooks
       JSON.parse(event_urls).flatten.uniq
     end
 
-    def self.retrieve_observers_by_guid(sql, *args)
+    def retrieve_observers_by_guid(sql, *args)
       result = ActiveRecord::Base.connection_pool.with_connection do |c|
         c.raw_connection.exec_params(sql, args).to_a
       end
