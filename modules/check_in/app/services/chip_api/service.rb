@@ -71,13 +71,15 @@ module ChipApi
 
       case status
       when 200
-        { data: value, status: resp.status }
+        { data: value, status: status }
+      when 401
+        { data: { error: true, message: 'Unauthorized' }, status: status }
       when 404
-        { data: { error: true, message: 'We could not find that UUID' }, status: resp.status }
+        { data: { error: true, message: 'We could not find that UUID' }, status: status }
       when 403
-        { data: { error: true, message: 'Unauthorized access' }, status: resp.status }
+        { data: { error: true, message: 'Forbidden' }, status: status }
       else
-        { data: { error: true, message: 'Something went wrong' }, status: resp.status }
+        { data: { error: true, message: 'Something went wrong' }, status: status }
       end
     end
   end

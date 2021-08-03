@@ -125,6 +125,45 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe '#person_types' do
+    let(:user) { build(:user, person_types: identity_person_types) }
+    let(:mpi_profile) { build(:mvi_profile, person_types: mpi_person_types) }
+    let(:identity_person_types) { ['some_identity_person_types'] }
+    let(:mpi_person_types) { 'some_mpi_person_types' }
+
+    before do
+      allow(user).to receive(:mpi).and_return(mpi_profile)
+    end
+
+    context 'when person_types on User Identity exists' do
+      let(:identity_person_types) { ['some_identity_person_types'] }
+
+      it 'returns person_types off the User Identity' do
+        expect(user.person_types).to eq(identity_person_types)
+      end
+    end
+
+    context 'when person_types on identity does not exist' do
+      let(:identity_person_types) { nil }
+
+      context 'and person_types on MPI Data exists' do
+        let(:mpi_person_types) { 'some_mpi_person_types' }
+
+        it 'returns person_types from the MPI Data' do
+          expect(user.person_types).to eq([mpi_person_types])
+        end
+      end
+
+      context 'and person_types on MPI Data does not exist' do
+        let(:mpi_person_types) { nil }
+
+        it 'returns an empty array' do
+          expect(user.person_types).to eq([])
+        end
+      end
+    end
+  end
+
   describe '#all_emails' do
     let(:user) { build(:user, :loa3) }
     let(:vet360_email) { user.vet360_contact_info.email.email_address }
@@ -376,6 +415,10 @@ RSpec.describe User, type: :model do
           expect(user.gender).to be(user.identity.gender)
         end
 
+        it 'fetches person_types from IDENTITY' do
+          expect(user.identity_person_types).to be(user.identity.person_types)
+        end
+
         it 'fetches properly parsed birth_date from IDENTITY' do
           expect(user.birth_date).to eq(Date.parse(user.identity.birth_date).iso8601)
         end
@@ -420,6 +463,10 @@ RSpec.describe User, type: :model do
 
         it 'fetches last_name from MPI' do
           expect(user.last_name_mpi).to be(mvi_profile.family_name)
+        end
+
+        it 'fetches person_types from MPI' do
+          expect(user.mpi_person_types).to be(mvi_profile.person_types)
         end
 
         it 'fetches gender from MPI' do

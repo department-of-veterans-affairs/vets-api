@@ -1,64 +1,38 @@
 {
-    "bnft_claim_detail": {
-        "bnft_claim_id": "600131328",
-        "bnft_claim_lc_status": [
-            {
-                "action_jrsdtn_lctn_id": "347",
-                "action_jrsdtn_station_number": "317",
-                "action_ptcpnt_id": "600065506",
-                "bnft_claim_id": "600131328",
-                "bnft_claim_lc_status_id": "18966564",
-                "bnft_claim_lc_status_type_nm": "Open",
-                "chngd_dt": "2018-06-19T08:50:36-05:00",
-                "claim_jrsdtn_lctn_id": "347",
-                "jrn_dt": "2018-06-19T08:50:36-05:00",
-                "jrn_lctn_id": "317",
-                "jrn_obj_id": "SHARE  - CEST",
-                "jrn_status_type_cd": "I",
-                "jrn_user_id": "VBACOREEHEE"
-            },
-            {
-                "action_jrsdtn_lctn_id": "123725",
-                "action_jrsdtn_station_number": "499",
-                "action_ptcpnt_id": "600093190",
-                "bnft_claim_id": "600131328",
-                "bnft_claim_lc_status_id": "20408171",
-                "bnft_claim_lc_status_type_nm": "Open",
-                "chngd_dt": "2018-08-06T08:42:33-05:00",
-                "claim_jrsdtn_lctn_id": "347",
-                "jrn_dt": "2018-08-06T08:42:33-05:00",
-                "jrn_lctn_id": "283",
-                "jrn_obj_id": "VBMS",
-                "jrn_status_type_cd": "I",
-                "jrn_user_id": "NWQSYSACCT"
-            }
-        ],
-        "bnft_claim_type_cd": "930AC",
-        "bnft_claim_type_nm": "Appeals Control",
-        "claim_jrsdtn_lctn_id": "347",
-        "claim_rcvd_dt": "2018-06-19T00:00:00-05:00",
-        "claim_suspns_lc_status": {
-            "claim_suspns_cd": "054",
-            "claim_suspns_dt": "2018-07-19T00:00:00-05:00"
+    "benefit_claim_details_dto": {
+        "attention_needed": "No",
+        "base_end_prdct_type_cd": "400",
+        "benefit_claim_id": "555555555",
+        "bnft_claim_lc_status": {
+            "phase_chngd_dt": "2017-10-18T08:23:35.000+00:00",
+            "phase_type": "Complete",
+            "phase_type_change_ind": "78"
         },
-        "cp_claim_end_prdct_type_cd": "930",
-        "file_nbr": "796130115",
-        "gulf_war_registry_ind": "N",
-        "homeless_ind": "Y",
-        "payee_type_cd": "00",
-        "payee_type_nm": "Veteran",
-        "pgm_type_cd": "CPL",
-        "pgm_type_nm": "Compensation-Pension Live",
-        "pow_ind": "N",
-        "pre_discharge_ind": "N",
-        "ptcpnt_clmant_id": "600043201",
-        "ptcpnt_vet_id": "600043201",
-        "ssn_nbr": "796130115",
-        "station_of_jurisdiction": "317",
-        "status_type_cd": "PEND",
-        "status_type_nm": "Pending",
-        "temp_jrsdtn_lctn_id": "123725",
-        "temporary_station_of_jurisdiction": "499"
+        "bnft_claim_type_cd": "400PREDSCHRG",
+        "claim_complete_dt": "2017-10-18T08:23:35.000+00:00",
+        "claim_dt": "2017-05-02",
+        "claim_status": "CAN",
+        "claim_status_type": "Compensation",
+        "contentions": "abnormal heart (New), abscess kidney (New), encephalitis lethargica residuals (New), dracunculiasis (New), gingivitis (New), abnormal weight loss (New), groin condition (New), metritis (New)",
+        "decision_notification_sent": "No",
+        "development_letter_sent": "No",
+        "end_prdct_type_cd": "404",
+        "poa": "RANDOM E PERSON",
+        "program_type": "CPL",
+        "ptcpnt_clmant_id": "111111111",
+        "ptcpnt_vet_id": "111111111",
+        "regional_office_jrsdctn": "National Work Queue",
+        "submtr_applcn_type_cd": "EBN",
+        "submtr_role_type_cd": "VET",
+        "temp_regional_office_jrsdctn": null,
+        "wsyswwn": {
+            "address_line1": "National Work Queue",
+            "address_line2": "810 Vermont Avenue NW",
+            "address_line3": null,
+            "city": "Washington",
+            "state": "DC",
+            "zip": "20420"
+        }
     },
-    "@xmlns:ns0": "http://benefitclaim.services.vetsnet.vba.va.gov/"
+    "@xmlns:ns0": "http://claimstatus.services.ebenefits.vba.va.gov/"
 }

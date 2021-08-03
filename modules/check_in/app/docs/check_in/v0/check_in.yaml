@@ -48,8 +48,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCheckInData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
         '403':
-          description: Unauthorized access
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -169,11 +175,13 @@ components:
       required:
         - data
         - status
-    InternalServerError:
+    Unauthorized:
+      $ref: "#/components/schemas/Errors"
+    Forbidden:
       $ref: "#/components/schemas/Errors"
     NotFound:
       $ref: "#/components/schemas/Errors"
-    Forbidden:
+    InternalServerError:
       $ref: "#/components/schemas/Errors"
     Errors:
       properties:
