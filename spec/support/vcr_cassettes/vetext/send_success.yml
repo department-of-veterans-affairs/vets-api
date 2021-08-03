@@ -5,7 +5,7 @@ http_interactions:
       uri: https://vetext1.r01.med.va.gov/api/vetext/pub/mobile/push/send
       body:
         encoding: UTF-8
-        string: '{appSid: "EC15A7E1767C4018AC50B442AAC50D1E", icn: "12345", templateSid: "0EF7C8C9390847D7B3B521426EFF5814", personalization: { "%APPOINTMENT_DATE%": "DEC 14", "%APPOINTMENT_TIME%": "10:00" }'
+        string: '{"appSid":"mobile-app-sid","icn":"1008596379V859838","templateSid":"0EF7C8C9390847D7B3B521426EFF5814","personalization":{"%APPOINTMENT_DATE%":"DEC 14","%APPOINTMENT_TIME%":"10:00"}}'
       headers:
         Accept: "application/json"
         Content-Type: "application/json"
