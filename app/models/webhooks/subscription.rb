@@ -40,6 +40,8 @@ module Webhooks
       retrieve_observers_by_guid(sql, api_name, consumer_id, api_guid)
     end
 
+    private
+    
     def self.retrieve_event_urls(sql, *args)
       result = ActiveRecord::Base.connection_pool.with_connection do |c|
         c.raw_connection.exec_params(sql, args).to_a
