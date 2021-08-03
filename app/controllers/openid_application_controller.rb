@@ -37,6 +37,7 @@ class OpenidApplicationController < ApplicationController
 
     # Only want to fetch the Okta profile if the session isn't already established and not a CC token
     @session = Session.find(Digest::SHA256.hexdigest(token.to_s)) unless token.client_credentials_token?
+    @session = Session.find(token.to_s) unless token.client_credentials_token? || !@session.nil?
     profile = @session.profile unless @session.nil? || @session.profile.nil?
     profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !profile.nil?
     populate_ssoi_token_payload(profile) if !profile.nil? && profile.attrs['last_login_type'] == 'ssoi'
@@ -73,6 +74,7 @@ class OpenidApplicationController < ApplicationController
 
   def analyze_redis_launch_context
     @session = Session.find(Digest::SHA256.hexdigest(token.to_s))
+    @session = Session.find(token) unless !@session.nil?
     # Sessions are not originally created for client credentials tokens, one will be created here.
     if @session.nil?
       ttl = token.payload['exp'] - Time.current.utc.to_i
