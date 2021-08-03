@@ -6,6 +6,10 @@ require 'vba_documents/pdf_inspector'
 require_relative '../../../app/serializers/vba_documents/upload_serializer'
 
 RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
+  include VBADocuments::Fixtures
+  Settings.vba_documents.v2_enabled = true
+  load('./modules/vba_documents/config/routes.rb')
+
   describe '#create /v2/uploads/report' do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:pdf_info) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
@@ -15,7 +19,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     context 'with in-flight submissions' do
       it 'returns status of a single upload submissions' do
         params = [upload_received.guid]
-        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
+        post vba_documents.v2_report_path, params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -26,7 +30,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
       it 'returns status of a multiple upload submissions' do
         params = [upload_received.guid, upload2_received.guid]
-        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
+        post vba_documents.v2_report_path, params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -38,7 +42,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
       it 'silentlies skip status not returned from central mail' do
         params = [upload_received.guid, upload2_received.guid]
-        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
+        post vba_documents.v2_report_path, params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -52,7 +56,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     context 'without in-flight submissions' do
       it 'does not fetch status if no in-flight submissions' do
         params = [upload.guid]
-        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
+        post vba_documents.v2_report_path, params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -62,7 +66,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
       end
 
       it 'presents error result for non-existent submission' do
-        post '/services/vba_documents/v2/uploads/report', params: { ids: ['fake-1234'] }
+        post vba_documents.v2_report_path, params: { ids: ['fake-1234'] }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -76,18 +80,18 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
     context 'with invalid parameters' do
       it 'returns error if no guids parameter' do
-        post '/services/vba_documents/v2/uploads/report', params: { foo: 'bar' }
+        post vba_documents.v2_report_path, params: { foo: 'bar' }
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns error if guids parameter not a list' do
-        post '/services/vba_documents/v2/uploads/report', params: { ids: 'bar' }
+        post vba_documents.v2_report_path, params: { ids: 'bar' }
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'returns error if guids parameter has too many elements' do
         params = Array.new(1001, 'abcd-1234')
-        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
+        post vba_documents.v2_report_path, params: { ids: params }
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -95,7 +99,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     context 'with uploaded pdf data' do
       it 'reports on pdf upload data' do
         params = [pdf_info.guid]
-        post '/services/vba_documents/v2/uploads/report', params: { ids: params }
+        post vba_documents.v2_report_path, params: { ids: params }
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data'].size).to eq(1)
