@@ -139,12 +139,12 @@ module ClaimsApi
 
         private
 
-        # 
+        #
         # Any custom 526 submission validations above and beyond json schema validation
-        # 
+        #
         def validate_form_526_submission_values
           return if form_attributes['claimDate'].blank?
-          return if Date.parse(form_attributes['claimDate']) <= Date.today
+          return if Date.parse(form_attributes['claimDate']) <= Time.zone.today
 
           raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
         end

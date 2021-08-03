@@ -18,7 +18,7 @@ RSpec.describe 'Disability Claims ', type: :request do
   end
 
   describe '#526' do
-    let(:claim_date) { (Date.today - 1.day).to_s }
+    let(:claim_date) { (Time.zone.today - 1.day).to_s }
     let(:auto_cest_pdf_generation_disabled) { false }
     let(:data) do
       temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
@@ -477,12 +477,11 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     context 'when submitted claim_date is in the future' do
-      let(:claim_date) { (Date.today + 1.day).to_s }
+      let(:claim_date) { (Time.zone.today + 1.day).to_s }
 
       before do
         stub_mpi
       end
-
 
       it 'creates the sidekick job' do
         with_okta_user(scopes) do |auth_header|
