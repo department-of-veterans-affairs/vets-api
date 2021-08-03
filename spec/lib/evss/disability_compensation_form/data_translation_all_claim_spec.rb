@@ -669,7 +669,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'form526' => {
             'mailingAddress' => {
               'country' => 'Germany',
-              'city' => 'apo',
+              'city' => ' apo ',
               'state' => 'AA',
               'addressLine1' => '1234 Couch Strasse',
               'zipCode' => '12345-6789'
