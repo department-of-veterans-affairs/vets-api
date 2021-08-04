@@ -71,7 +71,9 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController, type: :reque
 
         it 'returns an unaltered form if EVSS does not respond' do
           rated_disabilities_before = JSON.parse(in_progress_form.form_data).dig('ratedDisabilities')
-          allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to receive(:get_rated_disabilities).and_raise(Common::Client::Errors::ClientError)
+          allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
+            receive(:get_rated_disabilities).and_raise(Common::Client::Errors::ClientError)
+          )
           get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
 
           expect(response).to have_http_status(:ok)
@@ -80,8 +82,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController, type: :reque
           expect(json_response['formData']['updatedRatedDisabilities']).to be_nil
           expect(json_response['metadata']['returnUrl']).to eq('/va-employee')
         end
-
-
       end
 
       context 'when a form is found and rated_disabilites are unchanged' do
