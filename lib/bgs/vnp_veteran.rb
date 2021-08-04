@@ -17,7 +17,7 @@ module BGS
       participant = bgs_service.create_participant(@proc_id, @user.participant_id)
       claim_type_end_product = bgs_service.find_benefit_claim_type_increment(@claim_type)
 
-      log_message_to_sentry(claim_type_end_product, :warn, '', { team: 'vfs-ebenefits' })
+      log_message_to_sentry("#{@proc_id}-#{claim_type_end_product}", :warn, '', { team: 'vfs-ebenefits' })
 
       address = create_address(participant)
       regional_office_number = get_regional_office(address[:zip_prefix_nbr], address[:cntry_nm], '')
