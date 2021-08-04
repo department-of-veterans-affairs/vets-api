@@ -13,6 +13,8 @@ module VBADocuments
         processed = process(upload)
         expire(upload) unless processed
       end
+    rescue => e
+      Rails.logger.error("Error in upload scanner #{e.message}", e)
     end
 
     private

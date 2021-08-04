@@ -1,0 +1,11 @@
+{
+  "subscriptions": [
+    {
+      "event": "this-event-does-not-exist",
+      "urls": [
+        "https://i/am/listening",
+        "https://i/am/also/listening"
+      ]
+    }
+  ]
+}

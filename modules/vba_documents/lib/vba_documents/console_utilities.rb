@@ -111,3 +111,8 @@ end
 # from = 'success'
 # to = 'vbms'
 # invalid_guids = process_manual_status_changes(guids,from,to,error_hash)
+#
+#
+# CLEANUP ALL FORENSICS
+# f = UploadFile.where(status: 'forensics')
+# f.each do |uf| cleanup(uf) end
