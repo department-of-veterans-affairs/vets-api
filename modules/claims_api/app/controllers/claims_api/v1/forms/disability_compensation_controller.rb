@@ -28,6 +28,7 @@ module ClaimsApi
         # @return [JSON] Record in pending state
         def submit_form_526 # rubocop:disable Metrics/MethodLength
           validate_json_schema
+          validate_form_526_submission_values!
           validate_initial_claim
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -137,6 +138,20 @@ module ClaimsApi
         # rubocop:enable Metrics/MethodLength
 
         private
+
+        #
+        # Any custom 526 submission validations above and beyond json schema validation
+        #
+        def validate_form_526_submission_values!
+          validate_form_526_submission_claim_date!
+        end
+
+        def validate_form_526_submission_claim_date!
+          return if form_attributes['claimDate'].blank?
+          return if Date.parse(form_attributes['claimDate']) <= Time.zone.today
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
+        end
 
         def flashes
           initial_flashes = form_attributes.dig('veteran', 'flashes') || []
