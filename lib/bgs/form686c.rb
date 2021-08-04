@@ -23,6 +23,7 @@ module BGS
       @end_product_code = '130DPNEBNADJ'
     end
 
+    # rubocop:disable Metrics/MethodLength
     def submit(payload)
       vnp_proc_state_type_cd = get_state_type(payload)
       proc_id = create_proc_id_and_form(vnp_proc_state_type_cd)
@@ -35,6 +36,7 @@ module BGS
 
       set_claim_type(vnp_proc_state_type_cd)
 
+      # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
 
       benefit_claim_record = BenefitClaim.new(
@@ -52,6 +54,7 @@ module BGS
       proc_state = vnp_proc_state_type_cd == 'MANUAL_VAGOV' ? vnp_proc_state_type_cd : 'Ready'
       bgs_service.update_proc(proc_id, proc_state: proc_state)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
