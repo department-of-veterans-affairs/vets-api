@@ -36,7 +36,7 @@ module AppealsApi
       end
 
       def template_id(template)
-        Settings.vanotify.services.va_gov.template_id.public_send(template)
+        Settings.vanotify.services.lighthouse.template_id.public_send(template)
       end
 
       def log_error(guid, type)
