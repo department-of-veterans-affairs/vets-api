@@ -34,6 +34,9 @@ module BGS
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
       set_claim_type(vnp_proc_state_type_cd)
+
+      log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
+
       benefit_claim_record = BenefitClaim.new(
         args: {
           vnp_benefit_claim: vnp_benefit_claim_record,
