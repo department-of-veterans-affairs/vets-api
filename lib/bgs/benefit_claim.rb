@@ -34,7 +34,7 @@ module BGS
         status_type_code: benefit_claim.dig(:benefit_claim_record, :status_type_code)
       }
     rescue => e
-      # temporary logging while sentry is acting up
+      # temporary logging to troubleshoot
       log_message_to_sentry("BACKUP-LOGGING: #{@proc_id} - #{e.message}", :warn, '', { team: 'vfs-ebenefits' })
       handle_error(e, __method__.to_s)
     end
