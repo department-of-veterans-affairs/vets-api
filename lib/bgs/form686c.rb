@@ -13,6 +13,8 @@ require_relative '../bid/awards/service'
 
 module BGS
   class Form686c
+    include SentryLogging
+
     REMOVE_CHILD_OPTIONS = %w[report_child18_or_older_is_not_attending_school
                               report_stepchild_not_in_household
                               report_marriage_of_child_under18].freeze
