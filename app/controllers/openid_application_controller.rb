@@ -36,7 +36,7 @@ class OpenidApplicationController < ApplicationController
     return false if token.blank?
 
     # Only want to fetch the Okta profile if the session isn't already established and not a CC token
-    @session = Session.find(Digest::SHA256.hexdigest(token.to_s)) unless token.client_credentials_token?
+    @session = Session.find(hash_token(token)) unless token.client_credentials_token?
     @session = Session.find(token.to_s) unless token.client_credentials_token? || !@session.nil?
     profile = @session.profile unless @session.nil? || @session.profile.nil?
     profile = fetch_profile(token.identifiers.okta_uid) unless token.client_credentials_token? || !profile.nil?
@@ -73,7 +73,7 @@ class OpenidApplicationController < ApplicationController
   end
 
   def analyze_redis_launch_context
-    @session = Session.find(Digest::SHA256.hexdigest(token.to_s))
+    @session = Session.find(hash_token(token))
     @session = Session.find(token) if @session.nil?
     # Sessions are not originally created for client credentials tokens, one will be created here.
     if @session.nil?
@@ -171,13 +171,13 @@ class OpenidApplicationController < ApplicationController
   end
 
   def build_session(ttl, profile)
-    session = Session.new(token: Digest::SHA256.hexdigest(token.to_s), uuid: token.identifiers.uuid, profile: profile)
+    session = Session.new(token: hash_token(token), uuid: token.identifiers.uuid, profile: profile)
     session.expire(ttl)
     session
   end
 
   def build_launch_session(ttl, launch)
-    session = Session.new(token: Digest::SHA256.hexdigest(token.to_s), launch: launch)
+    session = Session.new(token: hash_token(token), launch: launch)
     session.expire(ttl)
     session
   end
@@ -200,5 +200,8 @@ class OpenidApplicationController < ApplicationController
     raise error_klass('Invalid launch context')
   end
 
+  def hash_token(token)
+    Digest::SHA256.hexdigest(token.to_s)
+  end
   attr_reader :current_user, :session, :scopes
 end
