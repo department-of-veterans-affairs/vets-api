@@ -144,6 +144,7 @@ module ClaimsApi
         #
         def validate_form_526_submission_values!
           validate_form_526_submission_claim_date!
+          validate_form_526_claimant_certification!
         end
 
         def validate_form_526_submission_claim_date!
@@ -151,6 +152,10 @@ module ClaimsApi
           return if Date.parse(form_attributes['claimDate']) <= Time.zone.today
 
           raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
+        end
+
+        def validate_form_526_claimant_certification!
+          raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification', form_attributes['claimantCertification']) unless form_attributes['claimantCertification'] == true
         end
 
         def flashes
