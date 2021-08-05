@@ -25,7 +25,7 @@ module VBADocuments
         VBADocuments::UploadSubmission.transaction do
           submission = VBADocuments::UploadSubmission.create(
             consumer_name: request.headers['X-Consumer-Username'],
-            consumer_id: request.headers['X-Consumer-ID']
+            consumer_id: request.headers['X-Consumer-ID'],
           )
           observers = params[:observers]
           if observers.respond_to? :read
@@ -34,6 +34,8 @@ module VBADocuments
             subscriptions = validate_subscription(JSON.parse(observers))
           end
 
+          submission.metadata['version'] = 2
+          submission.save!
           if subscriptions
             Webhooks::Utilities.register_webhook(
               submission.consumer_id, submission.consumer_name, subscriptions, submission.guid
@@ -82,11 +84,12 @@ module VBADocuments
         upload_model = UploadFile.new
         begin
           upload_model.multipart.attach(io: StringIO.new(request.raw_post), filename: upload_model.guid)
+          upload_model.metadata['version'] = 2
           upload_model.save!
           parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))
           inspector = VBADocuments::PDFInspector.new(pdf: parts)
           validate_parts(parts)
-          validate_metadata(parts[META_PART_NAME])
+          validate_metadata(parts[META_PART_NAME], submission_version: 2)
           update_pdf_metadata(upload_model, inspector)
           perfect_metadata(upload_model, parts, Time.zone.now)
           VBADocuments::UploadProcessor.perform_async(upload_model.guid, caller: self.class.name)
