@@ -30,6 +30,6 @@ they would be when running rails directly.
 - `rake security` - Run the suite of security scanners on the codebase.
 - `rake ci` - Run all build steps performed in CI.
 
-### Running a rails interactive console 
+### Running a rails interactive console
 
 - `rails console` -  runs an IRB like REPL in which all of the API's classes and environmental variables have been loaded.
