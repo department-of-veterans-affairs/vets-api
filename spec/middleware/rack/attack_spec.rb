@@ -59,24 +59,24 @@ RSpec.describe Rack::Attack do
           allow_any_instance_of(ChipApi::Service).to receive(:get_check_in).and_return(data)
 
           10.times do
-            get '/check_in/v0/patient_check_ins/123456', headers: headers
+            get '/check_in/v0/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers: headers
 
             expect(last_response.status).to eq(200)
           end
         end
 
         it 'throttles with status 429' do
-          get '/check_in/v0/patient_check_ins/123456', headers: headers
+          get '/check_in/v0/patient_check_ins/d602d9eb-9a31-484f-9637-13ab0b507e0d', headers: headers
 
           expect(last_response.status).to eq(429)
         end
       end
 
       context 'when POST endpoint' do
-        let(:post_params) { { patient_check_ins: { id: '123aBc' } } }
+        let(:post_params) { { patient_check_ins: { id: 'd602d9eb-9a31-484f-9637-13ab0b507e0d' } } }
 
         before do
-          allow_any_instance_of(ChipApi::Service).to receive(:create_check_in).with(anything).and_return(data)
+          allow_any_instance_of(ChipApi::Service).to receive(:create_check_in).and_return(data)
 
           10.times do
             post '/check_in/v0/patient_check_ins', post_params, headers # rubocop:disable Rails/HttpPositionalArguments

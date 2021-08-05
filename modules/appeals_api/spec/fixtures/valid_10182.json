@@ -8,11 +8,10 @@
           "addressLine1": "123 Main St",
           "addressLine2": "Suite #1200",
           "addressLine3": "Box 4",
-          "city": "New York",
-          "countryName": "United States",
-          "stateCode": "NY",
-          "zipCode5": "30012",
-          "internationalPostalCode": "1"
+          "city": "North Pole",
+          "countryName": "Canada",
+          "zipCode5": "00000",
+          "internationalPostalCode": "H0H 0H0"
         },
         "phone": {
           "countryCode": "6",
