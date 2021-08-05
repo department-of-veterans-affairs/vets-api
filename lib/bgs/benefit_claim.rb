@@ -4,6 +4,8 @@ require_relative 'service'
 
 module BGS
   class BenefitClaim
+    include SentryLogging
+
     BENEFIT_CLAIM_PARAM_CONSTANTS = {
       benefit_claim_type: '1',
       payee: '00',
