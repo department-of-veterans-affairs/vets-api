@@ -55,9 +55,7 @@ Rails.application.reloader.to_prepare do
       end
 
       # this will enable features on dev-api.va.gov if they are set to enable_in_development
-      if Settings.vsp_environment == 'development' && feature_config['enable_in_development']
-        Flipper.enable(feature)
-      end
+      Flipper.enable(feature) if Settings.vsp_environment == 'development' && feature_config['enable_in_development']
     end
     # remove features from UI that have been removed from code
     removed_features = (Flipper.features.collect(&:name) - FLIPPER_FEATURE_CONFIG['features'].keys)
