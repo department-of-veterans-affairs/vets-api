@@ -4,6 +4,8 @@ require_relative 'service'
 
 module BGS
   class VnpVeteran
+    include SentryLogging
+
     def initialize(proc_id:, payload:, user:, claim_type:)
       @user = user
       @proc_id = proc_id
