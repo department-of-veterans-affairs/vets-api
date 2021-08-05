@@ -214,6 +214,8 @@ module SM
       Common::Collection.new(Message, json)
     end
 
+    # test
+
     ##
     # Create a message
     #
