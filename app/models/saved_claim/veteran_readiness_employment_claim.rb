@@ -114,6 +114,15 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     @office_location = check_office_location[0] if @office_location.nil?
 
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+
+    # TODO: remove temp logging related to debugging
+    log_message_to_sentry(
+      "VRE.html.erb exists: #{File.exist?('app/mailers/views/veteran_readiness_employment.html.erb')}",
+      :warn,
+      {},
+      { team: 'vfs-ebenefits' }
+    )
+
     VeteranReadinessEmploymentMailer.build(user, email_addr).deliver_now if user.present?
 
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
