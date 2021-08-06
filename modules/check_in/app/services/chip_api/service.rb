@@ -53,7 +53,7 @@ module ChipApi
       return handle_response(client_error) unless valid?
 
       token = session.retrieve
-      resp = request.get(path: "/dev/appointments/#{uuid}", access_token: token)
+      resp = request.get(path: "/appointments/#{uuid}", access_token: token)
 
       handle_response(resp)
     end
@@ -67,7 +67,7 @@ module ChipApi
       return handle_response(client_error) unless valid?
 
       token = session.retrieve
-      resp = request.post(path: "/dev/actions/check-in/#{uuid}", access_token: token)
+      resp = request.post(path: "/actions/check-in/#{uuid}", access_token: token)
 
       handle_response(resp)
     end

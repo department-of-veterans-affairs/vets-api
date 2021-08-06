@@ -35,7 +35,7 @@ module ChipApi
     # @return [ChipApi::Token]
     #
     def fetch
-      response = request.post(path: '/dev/token', claims_token: claims_token.static)
+      response = request.post(path: '/token', claims_token: claims_token.static)
 
       self.access_token = Oj.load(response.body)['token']
       self
