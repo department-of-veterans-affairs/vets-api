@@ -92,23 +92,17 @@ module AppealsApi
     end
 
     def decision_reviews_versions
-      if v2_enabled?
-        [
-          decision_reviews_v1.merge({ status: VERSION_STATUS[:previous] }),
-          decision_reviews_v2
-        ]
-      else
-        [
-          decision_reviews_v1
-        ]
-      end
+      [
+        decision_reviews_v1,
+        decision_reviews_v2
+      ]
     end
 
     def decision_reviews_v1
       {
         version: '1.0.0',
         internal_only: true,
-        status: VERSION_STATUS[:current],
+        status: VERSION_STATUS[:previous],
         path: '/services/appeals/docs/v1/decision_reviews',
         healthcheck: '/services/appeals/v1/healthcheck'
       }
@@ -122,10 +116,6 @@ module AppealsApi
         path: '/services/appeals/docs/v2/decision_reviews',
         healthcheck: '/services/appeals/v2/healthcheck'
       }
-    end
-
-    def v2_enabled?
-      Settings.modules_appeals_api.documentation.path_enabled_flag
     end
   end
 end
