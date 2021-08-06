@@ -56,7 +56,7 @@ module Rswag
       end
 
       def relevant_path?(url_path)
-        url_path.include?(ENV.fetch('RAILS_ENGINE'))
+        url_path.include?(ENV.fetch('RAILS_MODULE'))
       end
     end
   end
