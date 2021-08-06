@@ -79,7 +79,7 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
       end
 
-      unless VALID_LOB.keys.include?(lob)
+      unless VALID_LOB.keys.include?(lob.to_s.upcase)
         msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{VALID_LOB_MSG.keys.join(',')}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
       end
@@ -104,7 +104,7 @@ module VBADocuments
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
-      metadata['businessLine'] = VALID_LOB[metadata['businessLine']].to_s if metadata.key? 'businessLine'
+      metadata['businessLine'] = VALID_LOB[metadata['businessLine'].to_s.upcase] if metadata.key? 'businessLine'
       metadata
     end
 
