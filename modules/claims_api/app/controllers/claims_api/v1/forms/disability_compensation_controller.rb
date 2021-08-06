@@ -155,10 +155,10 @@ module ClaimsApi
         end
 
         def validate_form_526_claimant_certification!
-          unless form_attributes['claimantCertification'] == true
-            raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
-                                                              form_attributes['claimantCertification'])
-          end
+          return unless form_attributes['claimantCertification'] == true
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
+                                                            form_attributes['claimantCertification'])
         end
 
         def flashes
