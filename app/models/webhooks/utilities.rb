@@ -26,6 +26,7 @@ module Webhooks
         webhook_urls = Webhooks::Subscription.get_notification_urls(
           api_name: api_name, consumer_id: consumer_id, event: event, api_guid: api_guid
         )
+        return [] unless webhook_urls.size.positive?
 
         notifications = []
         webhook_urls.each do |url|
