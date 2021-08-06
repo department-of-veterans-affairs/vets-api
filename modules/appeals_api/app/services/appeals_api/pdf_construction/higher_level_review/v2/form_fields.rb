@@ -174,6 +174,7 @@ module AppealsApi
             last_name: { at: [230, 560], width: 293 },
             number_and_street: { at: [29, 462], width: 512 },
             city: { at: [200, 441], width: 307 },
+            zip_code: { at: [297, 418], width: 82 },
             veteran_email: { at: [8, 335], width: 513 },
             veteran_phone_extension: { at: [220, 378], width: 50, height: 10 },
             rep_first_name: { at: [11, 586], width: 195 },
