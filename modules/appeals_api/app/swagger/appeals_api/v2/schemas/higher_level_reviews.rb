@@ -16,11 +16,6 @@ module AppealsApi::V2
           key :pattern, '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z'
         end
 
-        schema :hlrStatus do
-          key :type, :string
-          key :enum, AppealsApi::HlrStatus::V2_STATUSES
-        end
-
         schema :errorWithTitleAndDetail do
           key :type, :array
 
@@ -35,11 +30,6 @@ module AppealsApi::V2
               key :type, :string
             end
           end
-        end
-
-        schema :nonBlankString do
-          key :type, :string
-          key :pattern, '\\S'
         end
       end
 
