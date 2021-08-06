@@ -73,6 +73,14 @@ RSpec.describe 'Intent to file', type: :request do
   end
 
   describe '#active' do
+    before do
+      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+    end
+
+    after do
+      Timecop.return
+    end
+
     it 'returns the latest itf of a compensation type' do
       VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
         get "#{path}/active", params: { type: 'compensation' }, headers: headers
