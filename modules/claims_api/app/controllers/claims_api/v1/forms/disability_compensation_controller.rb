@@ -155,7 +155,7 @@ module ClaimsApi
         end
 
         def validate_form_526_claimant_certification!
-          return unless form_attributes['claimantCertification'] == true
+          return unless form_attributes['claimantCertification'] == false
 
           raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
                                                             form_attributes['claimantCertification'])
