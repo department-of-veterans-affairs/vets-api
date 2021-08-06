@@ -246,6 +246,7 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
           before do |example|
             stub_poa_verification
             stub_mpi
+            Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
 
             with_okta_user(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
@@ -260,6 +261,7 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
                 example: JSON.parse(response.body, symbolize_names: true)
               }
             }
+            Timecop.return
           end
 
           it 'returns a valid 200 response' do |example|
