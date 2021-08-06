@@ -493,6 +493,24 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
+    context 'when submitted application_expiration_date is in the future' do
+      before do
+        stub_mpi
+      end
+
+      it 'responds with bad request' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims') do
+            json_data = JSON.parse data
+            params = json_data
+            params['data']['attributes']['applicationExpirationDate'] = (Time.zone.today - 1.day).to_s
+            post path, params: params.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(400)
+          end
+        end
+      end
+    end
+
     context 'when submitted claimant_certification is false' do
       before do
         stub_mpi

@@ -144,6 +144,7 @@ module ClaimsApi
         #
         def validate_form_526_submission_values!
           validate_form_526_submission_claim_date!
+          validate_form_526_application_expiration_date!
           validate_form_526_claimant_certification!
         end
 
@@ -152,6 +153,13 @@ module ClaimsApi
           return if Date.parse(form_attributes['claimDate']) <= Time.zone.today
 
           raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
+        end
+
+        def validate_form_526_application_expiration_date!
+          return if Date.parse(form_attributes['applicationExpirationDate']) >= Time.zone.today
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('applicationExpirationDate',
+                                                            form_attributes['applicationExpirationDate'])
         end
 
         def validate_form_526_claimant_certification!
