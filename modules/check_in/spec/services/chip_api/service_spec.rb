@@ -20,7 +20,7 @@ describe ChipApi::Service do
 
     let(:opts) do
       {
-        path: '/dev/appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d',
+        path: '/appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d',
         access_token: 'abc123'
       }
     end
@@ -50,7 +50,7 @@ describe ChipApi::Service do
   describe '#create_check_in' do
     let(:opts) do
       {
-        path: '/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d',
+        path: '/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d',
         access_token: 'abc123'
       }
     end
