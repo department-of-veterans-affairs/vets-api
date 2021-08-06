@@ -8,6 +8,7 @@ module ClaimsApi
       @doc_type = doc_type
     end
 
+    # rubocop:disable Metrics/MethodLength
     def upload!
       upload_token_response = fetch_upload_token(
         filepath: @filepath,
@@ -15,8 +16,13 @@ module ClaimsApi
       )
 
       # TODO: remove temp logging for troubleshooting related to VRE claim upload to VBMS
-      if caller.first.match /veteran_readiness_employment_claim.rb/
-        log_message_to_sentry("VBMSUploader#upload! file exists?: #{File.exists?(@filepath)}", :warn, {}, { team: 'vfs-ebenefits' } )
+      if caller.first.match(/veteran_readiness_employment_claim.rb/)
+        log_message_to_sentry(
+          "VBMSUploader#upload! file exists?: #{File.exist?(@filepath)}",
+          :warn,
+          {},
+          { team: 'vfs-ebenefits' }
+        )
       end
 
       upload_response = upload_document(
@@ -25,8 +31,13 @@ module ClaimsApi
       )
 
       # TODO: remove temp logging for troubleshooting related to VRE claim upload to VBMS
-      if caller.first.match /veteran_readiness_employment_claim.rb/
-        log_message_to_sentry("VBMSUploader#upload! upload_response: #{upload_response}", :warn, {}, { team: 'vfs-ebenefits' } )
+      if caller.first.match(/veteran_readiness_employment_claim.rb/)
+        log_message_to_sentry(
+          "VBMSUploader#upload! upload_response: #{upload_response}",
+          :warn,
+          {},
+          { team: 'vfs-ebenefits' }
+        )
       end
 
       {
@@ -34,6 +45,7 @@ module ClaimsApi
         vbms_document_series_ref_id: upload_response.upload_document_response[:@document_series_ref_id]
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def fetch_upload_token(filepath:, file_number:)
       content_hash = Digest::SHA1.hexdigest(File.read(filepath))
@@ -53,7 +65,12 @@ module ClaimsApi
 
     def upload_document(filepath:, upload_token:)
       # TODO: remove temp logging for troubleshooting
-      log_message_to_sentry("VBMSUploader#upload_document file exists?: #{File.exists?(filepath)}", :warn, {}, { team: 'vfs-ebenefits' } )
+      log_message_to_sentry(
+        "VBMSUploader#upload_document file exists?: #{File.exist?(filepath)}",
+        :warn,
+        {},
+        { team: 'vfs-ebenefits' }
+      )
 
       upload_request = VBMS::Requests::UploadDocument.new(
         upload_token: upload_token,
