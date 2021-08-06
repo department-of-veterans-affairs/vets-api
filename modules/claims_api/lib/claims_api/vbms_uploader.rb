@@ -14,10 +14,21 @@ module ClaimsApi
         file_number: @file_number
       )
 
+      # TODO: remove temp logging for troubleshooting related to VRE claim upload to VBMS
+      if caller.first.match /veteran_readiness_employment_claim.rb/
+        log_message_to_sentry("VBMSUploader#upload! file exists?: #{File.exists?(@filepath)}", :warn, {}, { team: 'vfs-ebenefits' } )
+      end
+
       upload_response = upload_document(
         filepath: @filepath,
         upload_token: upload_token_response.upload_token
       )
+
+      # TODO: remove temp logging for troubleshooting related to VRE claim upload to VBMS
+      if caller.first.match /veteran_readiness_employment_claim.rb/
+        log_message_to_sentry("VBMSUploader#upload! upload_response: #{upload_response}", :warn, {}, { team: 'vfs-ebenefits' } )
+      end
+
       {
         vbms_new_document_version_ref_id: upload_response.upload_document_response[:@new_document_version_ref_id],
         vbms_document_series_ref_id: upload_response.upload_document_response[:@document_series_ref_id]
@@ -41,6 +52,9 @@ module ClaimsApi
     end
 
     def upload_document(filepath:, upload_token:)
+      # TODO: remove temp logging for troubleshooting
+      log_message_to_sentry("VBMSUploader#upload_document file exists?: #{File.exists?(filepath)}", :warn, {}, { team: 'vfs-ebenefits' } )
+
       upload_request = VBMS::Requests::UploadDocument.new(
         upload_token: upload_token,
         filepath: filepath
