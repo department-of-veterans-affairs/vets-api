@@ -28,23 +28,20 @@ module Rswag
             end
           end
 
-          if relevant_path?(url_path) # Added line
+          if relevant_path?(url_path) # Added conditional
             file_path = File.join(@config.swagger_root, url_path)
             dirname = File.dirname(file_path)
             FileUtils.mkdir_p dirname unless File.exist?(dirname)
-
             File.open(file_path, 'w') do |file|
               file.write(pretty_generate(doc))
             end
-
             @output.puts "Swagger doc generated at #{file_path}"
-          end # Added line
+          end # Added conditional
         end
       end
       # rubocop:enable Metrics/BlockNesting, Layout/LineLength, Style/CommentedKeyword, Metrics/MethodLength
 
-      # Added stuff
-      private
+      private # Added methods
 
       def request_examples(value)
         examples = value.dig(:parameters)&.find { |p| (p[:in] == :body || p[:in] == :formData) && p[:examples] }
