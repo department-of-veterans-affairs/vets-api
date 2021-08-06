@@ -503,14 +503,12 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         expect(updated.uploaded_pdf['line_of_business']).to eq('CMP')
       end
 
-      %w[LOG MED BUR OTH DROC].each do |future_lob|
-        it "maps the future line of business #{future_lob} to CMP" do
-          @md['businessLine'] = future_lob
-          described_class.new.perform(upload.guid, test_caller)
-          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-          expect(updated.uploaded_pdf['line_of_business']).to eq(future_lob)
-          expect(updated.uploaded_pdf['submitted_line_of_business']).to eq('CMP')
-        end
+      it "maps the future line of business OTH to CMP" do
+        @md['businessLine'] = "OTH"
+        described_class.new.perform(upload.guid, test_caller)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.uploaded_pdf['line_of_business']).to eq("OTH")
+        expect(updated.uploaded_pdf['submitted_line_of_business']).to eq('CMP')
       end
     end
 
