@@ -143,7 +143,8 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     # TODO: remove temp logging for troubleshooting
-    log_message_to_sentry("VRE #upload_to_vbms form_path: #{form_path}", :warn, {}, { team: 'vfs-ebenefits' })
+    message = "VRE #upload_to_vbms form_path '#{form_path}' exists: #{File.exist?(form_path)}"
+    log_message_to_sentry(message, :warn, {}, { team: 'vfs-ebenefits' })
 
     uploader.upload!
   end
