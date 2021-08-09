@@ -4,7 +4,7 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviews::ContestableIssuesCont
   include AppealsApi::HeaderModification
 
   def index
-    deprecate(response: response, link: AppealsApi::HeaderModification::V2_DEV_DOCS) if hlr_v2_live?
+    deprecate(response: response, link: AppealsApi::HeaderModification::V2_DEV_DOCS)
 
     get_contestable_issues_from_caseflow
 
@@ -19,9 +19,5 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviews::ContestableIssuesCont
 
   def decision_review_type
     'higher_level_reviews'
-  end
-
-  def hlr_v2_live?
-    Settings.modules_appeals_api.documentation.path_enabled_flag
   end
 end

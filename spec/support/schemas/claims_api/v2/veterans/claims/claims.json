@@ -2,7 +2,7 @@
   "$schema" : "http://json-schema.org/draft-04/schema#",
   "type" : "array",
   "items": {
-    "required": ["id", "type", "@links"],
+    "required": ["id", "type", "status", "@links"],
     "additionalProperties": false,
     "description": "Claim details.",
     "properties": {
@@ -15,6 +15,11 @@
         "type": "string",
         "description": "Name of Claim type",
         "example": "Appeals Control"
+      },
+      "status": {
+        "type": "string",
+        "description": "Status of Claim",
+        "example": "Complete"
       },
       "@links": {
         "type": "object",

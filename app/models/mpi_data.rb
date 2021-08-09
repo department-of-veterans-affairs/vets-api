@@ -104,6 +104,11 @@ class MPIData < Common::RedisStore
   # @return [Boolean] presence or absence of identity theft flag
   delegate :id_theft_flag, to: :profile
 
+  # The person types that the user's profile represents
+  #
+  # @return [Array[String]] the list of person types
+  delegate :person_types, to: :profile, allow_nil: true
+
   # The profile returned from the MVI service. Either returned from cached response in Redis or the MVI service.
   #
   # @return [MPI::Models::MviProfile] patient 'golden record' data from MVI

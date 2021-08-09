@@ -16,8 +16,24 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController, type: :reque
 
     describe '#show' do
       let(:user) { loa3_user }
+      let(:rated_disabilites_from_evss) do
+        [{ 'name' => 'Diabetes mellitus0',
+           'ratedDisabilityId' => '0',
+           'ratingDecisionId' => '63655',
+           'diagnosticCode' => 5238,
+           'decisionCode' => 'SVCCONNCTED',
+           'decisionText' => 'Service Connected',
+           'ratingPercentage' => 100 },
+         { 'name' => 'Diabetes mellitus1',
+           'ratedDisabilityId' => '1',
+           'ratingDecisionId' => '63655',
+           'diagnosticCode' => 5238,
+           'decisionCode' => 'SVCCONNCTED',
+           'decisionText' => 'Service Connected',
+           'ratingPercentage' => 100 }]
+      end
       let!(:in_progress_form) do
-        form_json = JSON.parse(File.read('spec/support/disability_compensation_form/526_in_progress_form_maixmal.json'))
+        form_json = JSON.parse(File.read('spec/support/disability_compensation_form/526_in_progress_form_minimal.json'))
         FactoryBot.create(:in_progress_form,
                           user_uuid: user.uuid,
                           form_id: '21-526EZ',
@@ -34,34 +50,53 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController, type: :reque
         end
       end
 
-      context 'when a form is found' do
-        let(:rated_disabilites_from_evss) do
-          [{ 'name' => 'Diabetes mellitus0',
-             'ratedDisabilityId' => '0',
-             'ratingDecisionId' => '63655',
-             'diagnosticCode' => 5238,
-             'decisionCode' => 'SVCCONNCTED',
-             'decisionText' => 'Service Connected',
-             'ratingPercentage' => 100 },
-           { 'name' => 'Diabetes mellitus1',
-             'ratedDisabilityId' => '1',
-             'ratingDecisionId' => '63655',
-             'diagnosticCode' => 5238,
-             'decisionCode' => 'SVCCONNCTED',
-             'decisionText' => 'Service Connected',
-             'ratingPercentage' => 100 }]
-        end
-
+      context 'when a form is found and rated_disabilites have updates' do
         it 'returns the form as JSON' do
-          rated_disabilities_before = JSON.parse(in_progress_form.form_data).dig('ratedDisabilities')
+          # change form data
+          fd = JSON.parse(in_progress_form.form_data)
+          fd['ratedDisabilities'].first['diagnosticCode'] = '111'
+          in_progress_form.update(form_data: fd)
+
           VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
             get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
           end
           expect(response).to have_http_status(:ok)
           json_response = JSON.parse(response.body)
-          expect(json_response['formData']['ratedDisabilities']).to eq(rated_disabilities_before)
+          expect(json_response['formData']['ratedDisabilities']).to eq(
+            JSON.parse(in_progress_form.form_data).dig('ratedDisabilities')
+          )
           expect(json_response['formData']['updatedRatedDisabilities']).to eq(rated_disabilites_from_evss)
           expect(json_response['metadata']['returnUrl']).to eq('/disabilities/rated-disabilities')
+        end
+
+        it 'returns an unaltered form if EVSS does not respond' do
+          rated_disabilities_before = JSON.parse(in_progress_form.form_data).dig('ratedDisabilities')
+          allow_any_instance_of(EVSS::DisabilityCompensationForm::Service).to(
+            receive(:get_rated_disabilities).and_raise(Common::Client::Errors::ClientError)
+          )
+          get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+
+          expect(response).to have_http_status(:ok)
+          json_response = JSON.parse(response.body)
+          expect(json_response['formData']['ratedDisabilities']).to eq(rated_disabilities_before)
+          expect(json_response['formData']['updatedRatedDisabilities']).to be_nil
+          expect(json_response['metadata']['returnUrl']).to eq('/va-employee')
+        end
+      end
+
+      context 'when a form is found and rated_disabilites are unchanged' do
+        it 'returns the form as JSON' do
+          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+            get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+          end
+
+          expect(response).to have_http_status(:ok)
+          json_response = JSON.parse(response.body)
+          expect(json_response['formData']['ratedDisabilities']).to eq(
+            JSON.parse(in_progress_form.form_data).dig('ratedDisabilities')
+          )
+          expect(json_response['formData']['updatedRatedDisabilities']).to be_nil
+          expect(json_response['metadata']['returnUrl']).to eq('/va-employee')
         end
       end
     end

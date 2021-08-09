@@ -110,7 +110,7 @@ module AppealsApi
       {
         version: '1.0.0',
         internal_only: true,
-        status: VERSION_STATUS[:current],
+        status: VERSION_STATUS[:previous],
         path: '/services/appeals/docs/v1/decision_reviews',
         healthcheck: '/services/appeals/v1/healthcheck'
       }

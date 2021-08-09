@@ -425,31 +425,14 @@
               "application/json": {
                 "example": [
                   {
-                    "id": "111111111",
+                    "id": "555555555",
                     "@links": {
                       "rel": "self",
                       "type": "GET",
-                      "url": "http://www.example.com/services/claims/v2/claims/111111111"
+                      "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
                     },
-                    "type": "Appeals Control"
-                  },
-                  {
-                    "id": "222222222",
-                    "@links": {
-                      "rel": "self",
-                      "type": "GET",
-                      "url": "http://www.example.com/services/claims/v2/claims/222222222"
-                    },
-                    "type": "Claim for Increase"
-                  },
-                  {
-                    "id": "333333333",
-                    "@links": {
-                      "rel": "self",
-                      "type": "GET",
-                      "url": "http://www.example.com/services/claims/v2/claims/333333333"
-                    },
-                    "type": "Rating Control"
+                    "status": "Complete",
+                    "type": "Compensation"
                   }
                 ],
                 "schema": {
@@ -459,6 +442,7 @@
                     "required": [
                       "id",
                       "type",
+                      "status",
                       "@links"
                     ],
                     "additionalProperties": false,
@@ -473,6 +457,11 @@
                         "type": "string",
                         "description": "Name of Claim type",
                         "example": "Appeals Control"
+                      },
+                      "status": {
+                        "type": "string",
+                        "description": "Status of Claim",
+                        "example": "Complete"
                       },
                       "@links": {
                         "type": "object",
@@ -673,13 +662,14 @@
             "content": {
               "application/json": {
                 "example": {
-                  "id": "600131328",
+                  "id": "555555555",
                   "@links": {
                     "rel": "self",
                     "type": "GET",
-                    "url": "http://www.example.com/services/claims/v2/claims/600131328"
+                    "url": "http://www.example.com/services/benefits/v2/veterans/1013062086V794840/claims/555555555"
                   },
-                  "type": "Appeals Control"
+                  "status": "Complete",
+                  "type": "Compensation"
                 },
                 "schema": {
                   "$schema": "http://json-schema.org/draft-04/schema#",
@@ -688,6 +678,7 @@
                   "required": [
                     "id",
                     "type",
+                    "status",
                     "@links"
                   ],
                   "properties": {
@@ -700,6 +691,11 @@
                       "type": "string",
                       "description": "Name of Claim type",
                       "example": "Appeals Control"
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "Status of Claim",
+                      "example": "Complete"
                     },
                     "@links": {
                       "type": "object",

@@ -6,12 +6,13 @@ module ClaimsApi
       class ClaimBlueprint < Blueprinter::Base
         identifier :id
         field :type
+        field :status
 
         field :@links do |claim, options|
           {
             rel: 'self',
             type: 'GET',
-            url: "#{options[:base_url]}/services/claims/v2/claims/#{claim[:id]}"
+            url: "#{options[:base_url]}/services/benefits/v2/veterans/#{options[:veteran_id]}/claims/#{claim[:id]}"
           }
         end
 

@@ -212,6 +212,10 @@ class User < Common::RedisStore
     mpi_profile&.normalized_suffix
   end
 
+  def person_types
+    identity_person_types.presence || mpi_person_types
+  end
+
   def ssn_mpi
     mpi_profile&.ssn
   end
@@ -256,7 +260,7 @@ class User < Common::RedisStore
   delegate :mhv_icn, to: :identity, allow_nil: true
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :common_name, to: :identity, allow_nil: true
-  delegate :person_types, to: :identity, allow_nil: true
+  delegate :person_types, to: :identity, allow_nil: true, prefix: true
 
   # mpi attributes
   delegate :birls_id, to: :mpi, prefix: true
@@ -266,6 +270,7 @@ class User < Common::RedisStore
   delegate :icn_with_aaid, to: :mpi
   delegate :vet360_id, to: :mpi
   delegate :search_token, to: :mpi
+  delegate :person_types, to: :mpi, prefix: true
   delegate :id_theft_flag, to: :mpi
   delegate :status, to: :mpi, prefix: true
   delegate :error, to: :mpi, prefix: true

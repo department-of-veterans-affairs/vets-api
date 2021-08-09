@@ -93,6 +93,10 @@ features:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
     enable_in_development: true
+  dependents_pension_check:
+    actor_type: user
+    description: Manage whether or not Pension check is enabled for the 686/674
+    enable_in_development: true
   dependents_management:
     actor_type: user
     description: Manage dependent removal from view dependent page
@@ -195,6 +199,9 @@ features:
   gibct_school_ratings:
     actor_type: user
     description: Show/Hide the school ratings section of the Comparison Tool School Profile Page.
+  hlr_v2:
+    actor_type: user
+    description: Enable showing Higher-Level Review v2
   in_progress_form_custom_expiration:
     actor_type: user
     description: Enable/disable custom expiration dates for forms
@@ -377,6 +384,10 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
+  va_online_scheduling_facilities_service_v2:
+    actor_type: user
+    description: Toggle for new mobile facility service v2 endpoints
+    enable_in_development: true
   va_online_scheduling_variant_testing:
     actor_type: user
     enable_in_development: true
@@ -399,6 +410,14 @@ features:
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
+    enable_in_development: true
+  check_in_experience_low_authentication_enabled:
+    actor_type: user
+    description: Enables the health care check-in experiences to use the lowest tier of authentication, i.e. last 4 and last name
+    enable_in_development: true
+  check_in_experience_multiple_appointment_support:
+    actor_type: user
+    description: Enables the health care check-in experiences to show multiple appointments
     enable_in_development: true
   ezcg_use_facility_api:
     actor_type: user
