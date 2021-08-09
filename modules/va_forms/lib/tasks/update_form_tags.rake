@@ -17,7 +17,7 @@ module VAForms
         UPDATE va_forms_forms SET tags = concat(tags, ' dic') WHERE lower(va_forms_forms.form_name)='21p-535';
         UPDATE va_forms_forms SET tags = concat(tags, ' rn') WHERE lower(va_forms_forms.form_name) in ('10-2850a', '10-0430');
         UPDATE va_forms_forms SET tags = concat(tags, ' headstone') WHERE lower(va_forms_forms.form_name) in ('21p-530', 'va40-10007' , '21p-10196');
-        UPDATE va_forms_forms SET tags = concat(tags, ' vehicle') WHERE lower(va_forms_forms.form_name) in ('10-1394', '10-2511');
+        UPDATE va_forms_forms SET tags = concat(tags, ' vehicle car') WHERE lower(va_forms_forms.form_name) in ('10-1394', '10-2511');
         UPDATE va_forms_forms SET tags = concat(tags, ' caretaker') WHERE lower(va_forms_forms.form_name)='10-10cg';
         UPDATE va_forms_forms SET tags = concat(tags, ' dea') WHERE lower(va_forms_forms.form_name)='22-5490';
         UPDATE va_forms_forms SET tags = concat(tags, ' hippa') WHERE lower(va_forms_forms.form_name) in ('10-252', '10-10163', '10-10164', '10-0527', '10-10116');
