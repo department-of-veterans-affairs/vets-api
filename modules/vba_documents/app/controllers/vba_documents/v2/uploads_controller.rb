@@ -89,7 +89,7 @@ module VBADocuments
           parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))
           inspector = VBADocuments::PDFInspector.new(pdf: parts)
           validate_parts(parts)
-          validate_metadata(parts[META_PART_NAME], submission_version: 2)
+          validate_metadata(parts[META_PART_NAME], submission_version: upload_model.metadata['version'])
           update_pdf_metadata(upload_model, inspector)
           perfect_metadata(upload_model, parts, Time.zone.now)
           VBADocuments::UploadProcessor.perform_async(upload_model.guid, caller: self.class.name)
