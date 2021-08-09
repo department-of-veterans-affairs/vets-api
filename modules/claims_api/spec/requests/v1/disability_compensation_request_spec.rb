@@ -561,7 +561,6 @@ RSpec.describe 'Disability Claims ', type: :request do
               params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] = (Time.zone.today + 1.day).to_s
               params['data']['attributes']['serviceInformation']['servicePeriods'].first['separationLocationCode'] = '11111111111'
               post path, params: params.to_json, headers: headers.merge(auth_header)
-              binding.pry
               expect(response.status).to eq(400)
             end
           end
