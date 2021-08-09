@@ -53,7 +53,7 @@ module ChipApi
       return handle_response(client_error) unless valid?
 
       token = session.retrieve
-      resp = request.get(path: "/appointments/#{uuid}", access_token: token)
+      resp = request.get(path: "/#{base_path}/appointments/#{uuid}", access_token: token)
 
       handle_response(resp)
     end
@@ -67,9 +67,19 @@ module ChipApi
       return handle_response(client_error) unless valid?
 
       token = session.retrieve
-      resp = request.post(path: "/actions/check-in/#{uuid}", access_token: token)
+      resp = request.post(path: "/#{base_path}/actions/check-in/#{uuid}", access_token: token)
 
       handle_response(resp)
+    end
+
+    ##
+    # Helper method for returning the Chip URL base path
+    # from our environment configuration file
+    #
+    # @return [String]
+    #
+    def base_path
+      Settings.check_in.chip_api.base_path
     end
 
     ##
