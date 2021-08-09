@@ -112,6 +112,10 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
   describe '#zip_code_5' do
     context 'when address present' do
+      before do
+        form_data['data']['attributes']['veteran']['address']['zipCode5'] = '30012'
+      end
+
       it { expect(notice_of_disagreement.zip_code_5).to eq '30012' }
     end
 
@@ -123,6 +127,17 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
       end
 
       it { expect(notice_of_disagreement.zip_code_5).to eq '00000' }
+    end
+  end
+
+  describe '#zip_code_5_or_international_postal_code' do
+    it 'returns internationalPostalCode when zip is 0s' do
+      expect(notice_of_disagreement.zip_code_5_or_international_postal_code).to eq 'H0H 0H0'
+    end
+
+    it 'returns zipCode5 if it is not all 0s' do
+      form_data['data']['attributes']['veteran']['address']['zipCode5'] = '30012'
+      expect(notice_of_disagreement.zip_code_5_or_international_postal_code).to eq '30012'
     end
   end
 
