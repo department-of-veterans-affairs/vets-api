@@ -35,7 +35,7 @@ module VeteranVerification
     end
 
     def self.handle_errors!(emis)
-      raise_error! unless emis.service_history.is_a?(Array)
+      raise_error! unless emis&.service_history.is_a?(Array)
     end
 
     def self.raise_error!

@@ -5,19 +5,22 @@ require 'rails_helper'
 describe ChipApi::Service do
   subject { described_class }
 
+  let(:id) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
+  let(:valid_check_in) { CheckIn::PatientCheckIn.build(uuid: id) }
+  let(:invalid_check_in) { CheckIn::PatientCheckIn.build(uuid: '1234') }
+
   describe '.build' do
     it 'returns an instance of Service' do
-      expect(subject.build).to be_an_instance_of(ChipApi::Service)
+      expect(subject.build(valid_check_in)).to be_an_instance_of(ChipApi::Service)
     end
   end
 
   describe '#get_check_in' do
     Timecop.freeze(Time.zone.now)
 
-    let(:id) { '123abc' }
     let(:opts) do
       {
-        path: '/dev/appointments/123abc',
+        path: '/dev/appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d',
         access_token: 'abc123'
       }
     end
@@ -38,7 +41,7 @@ describe ChipApi::Service do
 
       hsh = { data: Oj.load(faraday_response.body), status: faraday_response.status }
 
-      expect(subject.build.get_check_in(id)).to eq(hsh)
+      expect(subject.build(valid_check_in).get_check_in).to eq(hsh)
     end
 
     Timecop.return
@@ -47,7 +50,7 @@ describe ChipApi::Service do
   describe '#create_check_in' do
     let(:opts) do
       {
-        path: '/dev/actions/check-in/789',
+        path: '/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d',
         access_token: 'abc123'
       }
     end
@@ -60,7 +63,7 @@ describe ChipApi::Service do
 
       hsh = { data: faraday_response.body, status: faraday_response.status }
 
-      expect(subject.build.create_check_in('789')).to eq(hsh)
+      expect(subject.build(valid_check_in).create_check_in).to eq(hsh)
     end
   end
 
@@ -71,7 +74,7 @@ describe ChipApi::Service do
           resp = Faraday::Response.new(body: { foo: 'bar' }, status: 200)
           hsh = { data: { foo: 'bar' }, status: 200 }
 
-          expect(subject.build.handle_response(resp)).to eq(hsh)
+          expect(subject.build(valid_check_in).handle_response(resp)).to eq(hsh)
         end
       end
 
@@ -80,7 +83,7 @@ describe ChipApi::Service do
           resp = Faraday::Response.new(body: 'bar', status: 200)
           hsh = { data: 'bar', status: 200 }
 
-          expect(subject.build.handle_response(resp)).to eq(hsh)
+          expect(subject.build(valid_check_in).handle_response(resp)).to eq(hsh)
         end
       end
     end
@@ -90,7 +93,7 @@ describe ChipApi::Service do
         resp = Faraday::Response.new(body: 'Not found', status: 404)
         hsh = { data: { error: true, message: 'We could not find that UUID' }, status: resp.status }
 
-        expect(subject.build.handle_response(resp)).to eq(hsh)
+        expect(subject.build(valid_check_in).handle_response(resp)).to eq(hsh)
       end
     end
 
@@ -99,7 +102,7 @@ describe ChipApi::Service do
         resp = Faraday::Response.new(body: 'Forbidden', status: 403)
         hsh = { data: { error: true, message: 'Forbidden' }, status: resp.status }
 
-        expect(subject.build.handle_response(resp)).to eq(hsh)
+        expect(subject.build(valid_check_in).handle_response(resp)).to eq(hsh)
       end
     end
 
@@ -108,7 +111,16 @@ describe ChipApi::Service do
         resp = Faraday::Response.new(body: 'Unauthorized', status: 401)
         hsh = { data: { error: true, message: 'Unauthorized' }, status: resp.status }
 
-        expect(subject.build.handle_response(resp)).to eq(hsh)
+        expect(subject.build(valid_check_in).handle_response(resp)).to eq(hsh)
+      end
+    end
+
+    context 'when status 400' do
+      it 'returns a formatted response' do
+        resp = Faraday::Response.new(body: { error: true, message: 'Invalid uuid' }, status: 400)
+        hsh = { data: { error: true, message: 'Invalid uuid' }, status: resp.status }
+
+        expect(subject.build(invalid_check_in).handle_response(resp)).to eq(hsh)
       end
     end
 
@@ -117,8 +129,14 @@ describe ChipApi::Service do
         resp = Faraday::Response.new(body: 'Something went wrong', status: 500)
         hsh = { data: { error: true, message: 'Something went wrong' }, status: resp.status }
 
-        expect(subject.build.handle_response(resp)).to eq(hsh)
+        expect(subject.build(valid_check_in).handle_response(resp)).to eq(hsh)
       end
+    end
+  end
+
+  describe '#base_path' do
+    it 'returns base_path' do
+      expect(subject.build(valid_check_in).base_path).to eq('dev')
     end
   end
 end

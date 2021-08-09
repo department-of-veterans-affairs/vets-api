@@ -114,6 +114,14 @@ module AppealsApi
       veteran.dig('address', 'countryCodeISO2') || 'US'
     end
 
+    def zip_code
+      if zip_code_5 == '00000'
+        veteran.dig('address', 'internationalPostalCode') || '00000'
+      else
+        zip_code_5
+      end
+    end
+
     def zip_code_5
       veteran.dig('address', 'zipCode5') || '00000'
     end

@@ -18,7 +18,7 @@ module VBADocuments
           consumer_name: request.headers['X-Consumer-Username'],
           consumer_id: request.headers['X-Consumer-ID']
         )
-
+        submission.save!
         render status: :accepted,
                json: submission,
                serializer: VBADocuments::V1::UploadSerializer,

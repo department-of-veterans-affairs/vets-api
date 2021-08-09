@@ -245,3 +245,7 @@ PgHeroQueryStatsJob:
 PgHeroCleanQueryStatsJob:
   cron: "0 0 1,15 * * America/New_York"
   description: Remove old PgHero query stats twice per month (1 and 15)
+
+Webhooks::SchedulerJob:
+  at: "<%=Settings.vba_documents.v2_enabled ? 0.seconds.from_now : 100.years.from_now%>"
+  description: Starts off webhook based notifications

@@ -70,7 +70,7 @@ module AppealsApi
         address_combined,
         veteran_contact_info.dig('address', 'city'),
         veteran_contact_info.dig('address', 'stateCode'),
-        veteran_contact_info.dig('address', 'zipCode5'),
+        zip_code_5_or_international_postal_code,
         veteran_contact_info.dig('address', 'countryName')
       ].compact.map(&:strip).join(', ')
     end
@@ -102,6 +102,13 @@ module AppealsApi
     def zip_code_5
       # schema already validated address presence if not homeless
       veteran_contact_info&.dig('address', 'zipCode5') || '00000'
+    end
+
+    def zip_code_5_or_international_postal_code
+      zip = zip_code_5
+      return zip unless zip == '00000'
+
+      veteran_contact_info&.dig('address', 'internationalPostalCode')
     end
 
     def lob

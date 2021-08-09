@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VeteranVerification::DisabilityRating do
+describe VeteranVerification::V0::DisabilityRating do
   let(:user) { build(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3, ssn: '796126777')) }
 
   before do
