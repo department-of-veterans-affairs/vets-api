@@ -48,6 +48,7 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  # TODO: get appointments vcr
   describe '#get_appointments' do
     context 'when requesting a list of appointments given a date range' do
       it 'returns a 200 status with list of appointments' do
