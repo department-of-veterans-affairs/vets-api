@@ -3,6 +3,7 @@
 require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/error_middleware'
+require 'evss/reference_data/service'
 require 'common/exceptions'
 require 'jsonapi/parser'
 
@@ -146,6 +147,7 @@ module ClaimsApi
           validate_form_526_submission_claim_date!
           validate_form_526_application_expiration_date!
           validate_form_526_claimant_certification!
+          validate_form_526_location_codes!
         end
 
         def validate_form_526_submission_claim_date!
@@ -167,6 +169,20 @@ module ClaimsApi
 
           raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
                                                             form_attributes['claimantCertification'])
+        end
+
+        def validate_form_526_location_codes!
+          locations_response = EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+          separation_locations = locations_response.separation_locations
+          form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
+            next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
+            next if separation_locations.any? do |location|
+                      location['code'] == service_period['separationLocationCode']
+                    end
+
+            raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
+                                                              form_attributes['separationLocationCode'])
+          end
         end
 
         def flashes

@@ -528,6 +528,46 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
     end
+
+    context 'when submitted separationLocationCode is missing for a future activeDutyEndDate' do
+      before do
+        stub_mpi
+      end
+
+      it 'responds with bad request' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims') do
+            json_data = JSON.parse data
+            params = json_data
+            params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] = (Time.zone.today + 1.day).to_s
+            post path, params: params.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(400)
+          end
+        end
+      end
+    end
+
+    context 'when submitted separationLocationCode is invalid' do
+      before do
+        stub_mpi
+      end
+
+      it 'responds with bad request' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims') do
+            VCR.use_cassette('evss/reference_data/get_intake_sites') do
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] = (Time.zone.today + 1.day).to_s
+              params['data']['attributes']['serviceInformation']['servicePeriods'].first['separationLocationCode'] = '11111111111'
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              binding.pry
+              expect(response.status).to eq(400)
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#upload_documents' do
