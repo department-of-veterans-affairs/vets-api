@@ -1,0 +1,42 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Decision Reviews",
+    "version": "v2",
+    "termsOfService": "https://developer.va.gov/terms-of-service",
+    "description": "### V2 Description\ndetails here...\n"
+  },
+  "tags": [
+    {
+      "name": "Higher-Level Reviews",
+      "description": ""
+    },
+    {
+      "name": "Notice of Disagreements",
+      "description": ""
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "apiKey": {
+        "type": "apiKey",
+        "name": "api_key",
+        "in": "header"
+      }
+    }
+  },
+  "paths": {
+  },
+  "basePath": "/services/appeals/v2/decision_reviews",
+  "servers": [
+    {
+      "url": "https://dev-api.va.gov/services/appeals/{version}/decision_reviews",
+      "description": "VA.gov API sandbox environment",
+      "variables": {
+        "version": {
+          "default": "v1"
+        }
+      }
+    }
+  ]
+}
