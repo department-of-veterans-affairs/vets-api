@@ -92,7 +92,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       end
     end
 
-
     it 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do
       post SUBMIT_ENDPOINT,
            params: {}.merge(valid_metadata).merge(valid_content).merge(valid_attachments)
