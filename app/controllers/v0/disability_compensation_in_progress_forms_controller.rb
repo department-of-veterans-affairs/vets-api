@@ -42,6 +42,9 @@ module V0
     def rated_disabilities_evss
       @rated_disabilities_evss ||= FormProfiles::VA526ez.for(form_id: form_id, user: @current_user)
                                                         .initialize_rated_disabilities_information
+    rescue
+      # if the call to EVSS fails we can skip updating. EVSS fails around an hour each night.
+      nil
     end
 
     def arr_to_compare(rated_disabilities)

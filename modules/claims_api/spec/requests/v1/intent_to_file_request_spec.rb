@@ -189,6 +189,11 @@ RSpec.describe 'Intent to file', type: :request do
   describe '#active' do
     before do
       stub_mpi
+      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+    end
+
+    after do
+      Timecop.return
     end
 
     it 'returns the latest itf of a compensation type' do

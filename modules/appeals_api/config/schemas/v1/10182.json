@@ -70,7 +70,12 @@
         "city":                    { "type": "string" },
         "stateCode":               { "$ref": "#/definitions/nodCreateStateCode" },
         "countryName":             { "type": "string" },
-        "zipCode5":                { "type": "string", "pattern": "^[0-9]{5}$", "minLength": 5, "maxLength": 5 },
+        "zipCode5":                {
+          "type": "string",
+          "pattern": "^[0-9]{5}$",
+          "minLength": 5, "maxLength": 5,
+          "description": "5-digit zipcode. Use \"00000\" if Veteran is outside the United States"
+        },
         "internationalPostalCode": { "type": "string" }
       },
       "required": [ "addressLine1", "city", "countryName", "zipCode5" ]
