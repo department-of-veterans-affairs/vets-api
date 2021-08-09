@@ -182,13 +182,9 @@
     },
     "meta": {
       "required": [
-        "errors",
         "pagination"
       ],
       "properties": {
-        "errors": {
-          "type": ["array", "null"]
-        },
         "pagination": {
           "type": "object",
           "required": [
