@@ -7,16 +7,16 @@ module VBADocuments
     LINE_BREAK = "\r\n"
     CARRIAGE_RETURN = "\r"
 
-    def self.parse(infile)
+    def self.parse(infile, submission = nil)
       if base64_encoded(infile)
-        create_file_from_base64(infile)
+        create_file_from_base64(infile, submission)
       else
-        parse_file(infile)
+        parse_file(infile, submission)
       end
     end
 
     # rubocop:disable Metrics/MethodLength
-    def self.parse_file(infile)
+    def self.parse_file(infile, submission = nil)
       parts = {}
       begin
         input = if infile.is_a? String
@@ -33,6 +33,7 @@ module VBADocuments
           content_type = get_content_type(headers)
           body, moreparts = consume_body(lines, separator, content_type)
           parts[partname] = body
+          record_sha256(submission, partname, body) if submission
           break unless moreparts
         end
       ensure
@@ -52,7 +53,7 @@ module VBADocuments
       content.start_with?('data:multipart/form-data;base64,')
     end
 
-    def self.create_file_from_base64(infile)
+    def self.create_file_from_base64(infile, submission = nil)
       FileUtils.mkdir_p '/tmp/vets-api'
       if infile.is_a? String
         contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile.shellescape}`
@@ -68,7 +69,7 @@ module VBADocuments
       File.open("/tmp/vets-api/#{filename}", 'wb') do |f|
         f.write(decoded_data)
       end
-      parse(File.open("/tmp/vets-api/#{filename}"))
+      parse(File.open("/tmp/vets-api/#{filename}"), submission)
     end
 
     def self.validate_size(infile)
@@ -169,6 +170,15 @@ module VBADocuments
           tf.write(line)
         end
       end
+    end
+
+    private
+
+    def self.record_sha256(submission, partname, body)
+      submission.metadata['sha_256'] = {} unless submission.metadata['sha_256']
+      sha256_value = OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), submission.consumer_id, body)
+      submission.metadata['sha_256'][partname] = sha256_value
+      submission.save!
     end
   end
 end

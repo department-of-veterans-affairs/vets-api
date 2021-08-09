@@ -40,7 +40,7 @@ module VBADocuments
       response = nil
       begin
         update_size(@upload, tempfile.size)
-        parts = VBADocuments::MultipartParser.parse(tempfile.path)
+        parts = VBADocuments::MultipartParser.parse(tempfile.path, @upload)
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
