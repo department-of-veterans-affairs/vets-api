@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments/20029
+    uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments/36952
     body:
       encoding: US-ASCII
       string: ''
@@ -16,7 +16,7 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - stubbed-token 
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyODU0NjYwNCwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyODU0NzUwNCwianRpIjoiZjVkNTkyZDMtMmE4MC00YzgzLWFkNDktYmY1MDQzZWZlZGM5IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjI4NTQ2NDI0LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.Gw65g6SCR2Ca5WV30qQO7wpnZtYwAoe-4g_8FYHwOxV_Iw3qZoB7d0-B_EbHqXYJ9G2lROyW2MvbNlKYOf_Bh6DPug1EJEozSvq0v9vGcKd2L8WwHQlfudpxFAlyMAlJbUlbw9CwiebXhiMrA2Oe9v_7nCHrGjm36o4Qe5EodftnzXPfYi26WSEkA7w1eSuxLD1cWFngqUFaaRmnGOoR5UgeBoyETyV4xn9dnuZ1xQXLVePCdYR90ZTjmzQgvzfhHTu-KeyACXKBkpkG2gj6QWFsz_OTlI65xnJ51EP4PSqz8vKWE_wFtIAK1Z2niSWKRwfeHrRDxioPjUjRnam58Q
       X-Request-Id:
       - ''
       Accept-Encoding:
@@ -27,23 +27,23 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 26 May 2021 22:11:30 GMT
+      - Mon, 09 Aug 2021 22:03:24 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '333'
+      - '562'
       Server:
       - openresty
       X-Vamf-Version:
-      - 1.5.0
+      - 1.9.0
       B3:
-      - c2a3004a1beb43de-deb64eb06ddd3f21-1
+      - 71dcc3e622148389-88f081065fafb5fb-1
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - d8af5ed
+      - e208742
       X-Vamf-Timestamp:
-      - '2021-05-24T22:00:44+0000'
+      - '2021-08-03T18:59:01+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
@@ -54,6 +54,8 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"data":{"id":"20029","kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","telehealth":{"url":"https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VAC00064863@care2.evn.va.gov&pin=2059245058#"},"start":"2020-06-18T17:00:00Z","end":"2020-06-18T17:20:00Z","minutesDuration":20}}'
-  recorded_at: Wed, 26 May 2021 22:11:30 GMT
+      string: '{"data":{"id":"36952","kind":"telehealth","status":"booked","patientIcn":"1012845331V153043","locationId":"983","telehealth":{"url":"https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VAC000416230@care2.evn.va.gov&pin=581391&aid=92b4abcf-beb4-4a61-b9ee-b717f65a4e9b#"},"practitioners":[{"id":{"system":"dfn-983","value":"520647710"},"firstName":"Aarathi","lastName":"Poldass","practiceName":"CHEYENNE
+        VAMC"}],"start":"2021-07-16T19:25:00Z","end":"2021-07-16T19:45:00Z","minutesDuration":20,"comment":"Test
+        VAR Res 4.30.1","cancellable":true}}'
+  recorded_at: Mon, 09 Aug 2021 22:03:24 GMT
 recorded_with: VCR 6.0.0

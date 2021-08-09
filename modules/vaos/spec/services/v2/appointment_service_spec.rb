@@ -8,6 +8,8 @@ describe VAOS::V2::AppointmentsService do
   let(:user) { build(:user, :vaos) }
   let(:start_date) { Time.zone.parse('2021-05-04T04:00:00.000Z') }
   let(:end_date) { Time.zone.parse('2022-07-03T04:00:00.000Z') }
+  let(:start_date_alt) { Time.zone.parse('2021-07-16T19:25:00Z') }
+  let(:end_date_alt) { Time.zone.parse('2021-07-16T19:45:00Z') }
   let(:id) { '202006031600983000030800000000000000' }
   let(:appointment_id) { 123 }
 
@@ -54,9 +56,9 @@ describe VAOS::V2::AppointmentsService do
       it 'returns a 200 status with list of appointments' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
-          response = subject.get_appointments(start_date, end_date)
+          response = subject.get_appointments(start_date_alt, end_date_alt)
 
-          expect(response[:data].size).to eq(81)
+          expect(response[:data].size).to eq(1)
         end
       end
     end
@@ -129,8 +131,8 @@ describe VAOS::V2::AppointmentsService do
     context 'with an appointment' do
       it 'returns an appointment' do
         VCR.use_cassette('vaos/v2/appointments/get_appointment_200', match_requests_on: %i[method uri]) do
-          response = subject.get_appointment('20029')
-          expect(response[:id]).to eq('20029')
+          response = subject.get_appointment('36952')
+          expect(response[:id]).to eq('36952')
           expect(response[:kind]).to eq('telehealth')
           expect(response[:status]).to eq('booked')
         end
