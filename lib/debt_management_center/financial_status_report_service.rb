@@ -83,7 +83,7 @@ module DebtManagementCenter
       date            = Time.now.in_time_zone(self.class::DATE_TIMEZONE).to_date
       date_formatted  = date.strftime('%m/%d/%Y')
 
-      form['applicantCertifications']['veteranDateSigned'] = date_formatted if form['applicantCertifications']
+      form['applicantCertification']['veteranDateSigned'] = date_formatted if form['applicantCertification']
     end
   end
 end
