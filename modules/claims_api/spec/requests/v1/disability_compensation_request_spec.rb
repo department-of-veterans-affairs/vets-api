@@ -493,7 +493,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
-    context 'when submitted application_expiration_date is in the future' do
+    context 'when submitted application_expiration_date is in the past' do
       before do
         stub_mpi
       end
