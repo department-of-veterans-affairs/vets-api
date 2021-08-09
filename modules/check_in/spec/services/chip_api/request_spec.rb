@@ -14,7 +14,7 @@ describe ChipApi::Request do
   describe '#get' do
     let(:opts) do
       {
-        path: '/appointments/123abc',
+        path: '/dev/appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d',
         access_token: 'abc123'
       }
     end
@@ -24,7 +24,7 @@ describe ChipApi::Request do
       allow_any_instance_of(Faraday::Connection).to receive(:get).with(anything).and_return(anything)
 
       expect_any_instance_of(Faraday::Connection).to receive(:get)
-        .with('/appointments/123abc').once
+        .with('/dev/appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d').once
 
       subject.build.get(opts)
     end
@@ -33,7 +33,7 @@ describe ChipApi::Request do
   describe '#post' do
     let(:opts) do
       {
-        path: '/actions/check-in/789',
+        path: '/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d',
         access_token: 'abc123'
       }
     end
@@ -42,7 +42,7 @@ describe ChipApi::Request do
       allow_any_instance_of(Faraday::Connection).to receive(:post).with(anything).and_return(anything)
 
       expect_any_instance_of(Faraday::Connection).to receive(:post)
-        .with('/actions/check-in/789').once
+        .with('/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d').once
 
       subject.build.post(opts)
     end
@@ -53,7 +53,7 @@ describe ChipApi::Request do
     let(:conn) { Faraday.new { |b| b.adapter(:test, stubs) } }
     let(:opts) do
       {
-        path: 'appointments/123',
+        path: '/dev/appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d',
         access_token: 'abc123'
       }
     end
@@ -63,7 +63,7 @@ describe ChipApi::Request do
     end
 
     it 'GET has headers' do
-      stubs.get('/appointments/123') do |_env|
+      stubs.get('/dev/appointments/d602d9eb-9a31-484f-9637-13ab0b507e0d') do |_env|
         [
           200,
           { 'Content-Type': 'application/json' },
@@ -82,13 +82,13 @@ describe ChipApi::Request do
     context 'with access_token' do
       let(:opts) do
         {
-          path: 'actions/check-in/789',
+          path: '/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d',
           access_token: 'abc123'
         }
       end
 
       it 'POST has bearer headers' do
-        stubs.post('/actions/check-in/789') do |_env|
+        stubs.post('/dev/actions/check-in/d602d9eb-9a31-484f-9637-13ab0b507e0d') do |_env|
           [
             200,
             { 'Content-Type': 'application/json' },
@@ -108,13 +108,13 @@ describe ChipApi::Request do
     context 'with claims_token' do
       let(:opts) do
         {
-          path: 'token',
+          path: '/dev/token',
           claims_token: 'efgh5678'
         }
       end
 
       it 'POST has basic headers' do
-        stubs.post('/token') do |_env|
+        stubs.post('/dev/token') do |_env|
           [
             200,
             { 'Content-Type': 'application/json' },
@@ -140,7 +140,7 @@ describe ChipApi::Request do
 
   describe '#url' do
     it 'has default headers' do
-      expect(subject.build.url).to eq('https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com/dev')
+      expect(subject.build.url).to eq('https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com')
     end
   end
 end
