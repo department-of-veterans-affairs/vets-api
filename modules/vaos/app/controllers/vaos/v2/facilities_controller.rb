@@ -10,10 +10,20 @@ module VAOS
         render json: VAOS::V2::FacilitiesSerializer.new(response[:data], meta: response[:meta])
       end
 
+      def show
+        response = mobile_facility_service.get_facility(id: id)
+        render json: VAOS::V2::FacilitiesSerializer.new(response[:data], meta: response[:meta])
+      end
+
+
       private
 
       def mobile_facility_service
         VAOS::V2::MobileFacilityService.new(current_user)
+      end
+
+      def id
+        ids = params.require(:ids)
       end
 
       def ids
