@@ -61,4 +61,10 @@ describe ChipApi::Token do
       expect(subject.build.chip_api).to be_a(Config::Options)
     end
   end
+
+  describe '#base_path' do
+    it 'returns base_path' do
+      expect(subject.build.chip_api.base_path).to eq('dev')
+    end
+  end
 end
