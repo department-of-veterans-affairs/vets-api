@@ -176,7 +176,11 @@ module VBADocuments
 
     def self.record_sha256(submission, partname, body)
       submission.metadata['sha_256'] = {} unless submission.metadata['sha_256']
-      sha256_value = OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), submission.consumer_id, body)
+      if body.class == Tempfile
+        sha256_value = Digest::SHA256.file(body).hexdigest
+      else
+        sha256_value = Digest::SHA256.hexdigest(body)
+      end
       submission.metadata['sha_256'][partname] = sha256_value
       submission.save!
     end
