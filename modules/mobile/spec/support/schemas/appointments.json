@@ -185,6 +185,9 @@
         "pagination"
       ],
       "properties": {
+        "errors": {
+          "type": "null"
+        },
         "pagination": {
           "type": "object",
           "required": [
