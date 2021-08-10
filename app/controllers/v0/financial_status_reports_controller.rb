@@ -132,6 +132,9 @@ module V0
             court_location
             docket_number
           ]
+        ],
+        applicant_certifications: %i[
+          veteran_signature
         ]
       ).to_hash
     end

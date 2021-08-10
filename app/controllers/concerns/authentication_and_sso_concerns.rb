@@ -59,7 +59,9 @@ module AuthenticationAndSSOConcerns
 
   # Destroys the users session in 1) Redis, 2) the MHV SSO Cookie, 3) and the Session Cookie
   def reset_session
-    AfterLogoutJob.perform_async(account_uuid: @current_user&.account_uuid) unless Rails.env.production?
+    if Settings.test_user_dashboard.env == 'staging'
+      AfterLogoutJob.perform_async(account_uuid: @current_user&.account_uuid)
+    end
     Rails.logger.info('SSO: ApplicationController#reset_session', sso_logging_info)
 
     clear_session
@@ -89,6 +91,7 @@ module AuthenticationAndSSOConcerns
   def set_api_cookie!
     return unless @session_object
 
+    session.delete :value
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 

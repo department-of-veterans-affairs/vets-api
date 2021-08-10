@@ -188,17 +188,17 @@ describe 'VEText::Service' do
 
     let(:personalization) do
       {
-        "%APPOINTMENT_DATE%": 'DEC 14',
-        "%APPOINTMENT_TIME%": '10:00'
+        "%appointment_date%": 'DEC 14',
+        "%appointment_time%": '10:00'
       }
     end
 
     context 'with a valid inputs' do
       let(:response) do
-        VCR.use_cassette('vetext/send_success') do
+        VCR.use_cassette('vetext/send_success', match_requests_on: [:body]) do
           service.send_notification(
             'va_mobile_app',
-            '12345',
+            '1008596379V859838',
             '0EF7C8C9390847D7B3B521426EFF5814',
             personalization
           )
@@ -217,7 +217,7 @@ describe 'VEText::Service' do
           expect do
             service.send_notification(
               'va_mobile_app',
-              '12345',
+              '1008596379V859838',
               '0EF7C8C9390847D7B3B521426EFF5814',
               personalization
             )
@@ -232,7 +232,7 @@ describe 'VEText::Service' do
           expect do
             service.send_notification(
               'va_mobile_app',
-              '12345',
+              '1008596379V859838',
               '0EF7C8C9390847D7B3B521426EFF5814',
               personalization
             )
@@ -247,7 +247,7 @@ describe 'VEText::Service' do
           expect do
             service.send_notification(
               'va_mobile_app',
-              '12345',
+              '1008596379V859838',
               '0EF7C8C9390847D7B3B521426EFF5814',
               personalization
             )

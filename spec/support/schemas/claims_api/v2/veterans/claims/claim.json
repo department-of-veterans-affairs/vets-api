@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "type", "status", "@links"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Claim ID",
+      "example": "600131328"
+    },
+    "type": {
+      "type": "string",
+      "description": "Name of Claim type",
+      "example": "Appeals Control"
+    },
+    "status": {
+      "type": "string",
+      "description": "Status of Claim",
+      "example": "Complete"
+    },
+    "@links": {
+      "type": "object",
+      "description": "HATEOAS links in the HAL standard format",
+      "example": {
+        "rel": "self",
+        "type": "GET",
+        "url": "https://api.va.gov/services/claims/v2/claims/600131328"
+      }
+    }
+  }
+}

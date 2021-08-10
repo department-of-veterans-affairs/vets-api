@@ -78,26 +78,25 @@ describe Breakers::StatsdPlugin do
   end
 
   describe 'send_metric' do
-    let(:abstract_service) { Common::Client::Base }
-
     context 'request env is not null' do
+      let(:abstract_service) { double('abstract_service') }
+
+      before do
+        allow(abstract_service).to receive(:name).and_return('abstract_service')
+      end
+
       it 'builds metrics with request env' do
-        allow_any_instance_of(Breakers::StatsdPlugin).to receive(:get_tags).and_return('request_env')
         allow(response).to receive(:[]).with(:duration).and_return(50)
 
-        expect_any_instance_of(StatsD).to receive('increment').and_return({})
-        expect_any_instance_of(StatsD).to receive('measure').and_return({})
-
-        subject.send_metric('ok', abstract_service, request, response)
+        expect { subject.send_metric('ok', abstract_service, request, response) }
+          .to trigger_statsd_increment("api.external_http_request.#{abstract_service.name}.ok")
+          .and trigger_statsd_measure("api.external_http_request.#{abstract_service.name}.time")
       end
 
       it 'builds metrics with request env and does not make StatsD measure call' do
-        allow_any_instance_of(Breakers::StatsdPlugin).to receive(:get_tags).and_return('request_env')
-
-        expect_any_instance_of(StatsD).to receive('increment').and_return({})
-        expect_any_instance_of(StatsD).not_to receive('measure')
-
-        subject.send_metric('ok', abstract_service, request, response)
+        expect { subject.send_metric('ok', abstract_service, request, response) }
+          .to trigger_statsd_increment("api.external_http_request.#{abstract_service.name}.ok")
+          .and not_trigger_statsd_measure("api.external_http_request.#{abstract_service.name}.time")
       end
     end
   end

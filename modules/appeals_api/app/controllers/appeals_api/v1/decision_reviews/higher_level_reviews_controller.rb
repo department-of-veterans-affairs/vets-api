@@ -146,9 +146,6 @@ class AppealsApi::V1::DecisionReviews::HigherLevelReviewsController < AppealsApi
   end
 
   def deprecate_headers
-    if Settings.modules_appeals_api.documentation.path_enabled_flag
-      # used in swagger to denote deprecation, should be replaced when we go live
-      deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK, sunset: sunset_date)
-    end
+    deprecate(response: response, link: AppealsApi::HeaderModification::RELEASE_NOTES_LINK, sunset: sunset_date)
   end
 end

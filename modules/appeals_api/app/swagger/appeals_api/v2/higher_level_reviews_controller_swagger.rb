@@ -9,49 +9,65 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
   read_file = ->(path) { File.read(AppealsApi::Engine.root.join(*path)) }
   read_json = ->(path) { JSON.parse(read_file.call(path)) }
   read_json_from_same_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v2', filename]) }
+  read_json_from_v1_dir = ->(filename) { read_json.call(['app', 'swagger', 'appeals_api', 'v1', filename]) }
 
   response_hlr_show_not_found = read_json_from_same_dir['response_hlr_show_not_found.json']
   response_hlr_create_error = read_json_from_same_dir['response_hlr_create_error.json']
 
   example_all_fields_used = read_json[['spec', 'fixtures', 'valid_200996_v2.json']]
 
+  hlr_show_properties = {
+    status: { type: 'string', enum: AppealsApi::HlrStatus::V2_STATUSES },
+    updatedAt: { '$ref': '#/components/schemas/timeStamp' },
+    createdAt: { '$ref': '#/components/schemas/timeStamp' },
+    formData: { '$ref': '#/components/schemas/hlrCreate' }
+  }
+  hlr_show_type = :higherLevelReview
+  hlr_show_schema = {
+    type: OBJ,
+    properties: {
+      id: { '$ref': '#/components/schemas/uuid' },
+      type: { type: :string, enum: [hlr_show_type] },
+      attributes: { type: OBJ, properties: hlr_show_properties }
+    }
+  }
+
   response_hlr_show_success = lambda do
-    properties = {
-      status: { '$ref': '#/components/schemas/hlrStatus' },
-      updatedAt: { '$ref': '#/components/schemas/timeStamp' },
-      createdAt: { '$ref': '#/components/schemas/timeStamp' },
-      formData: { '$ref': '#/components/schemas/hlrCreate' }
-    }
-    type = :higherLevelReview
-    schema = {
-      type: OBJ,
-      properties: {
-        id: { '$ref': '#/components/schemas/uuid' },
-        type: { type: :string, enum: [type] },
-        attributes: { type: OBJ, properties: properties }
-      }
-    }
     time = '2020-04-23T21:06:12.531Z'
     attrs = { status: :processing, updatedAt: time, createdAt: time, formData: example_all_fields_used }
-    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: type, attributes: attrs } }
+    example = { data: { id: '1234567a-89b0-123c-d456-789e01234f56', type: hlr_show_type, attributes: attrs } }
 
     {
       description: 'Info about a single Higher-Level Review',
-      content: { 'application/json': { schema: schema, examples: { HlrFound: { value: example } } } }
+      content: { 'application/json': { schema: hlr_show_schema, examples: { HlrFound: { value: example } } } }
     }
   end.call
+
+  hlr_ci_responses = read_json_from_v1_dir['responses_contestable_issues.json']
+
+  swagger_component do
+    schema :hlrShow do
+      key :type, hlr_show_schema[:type]
+      key :properties, hlr_show_schema[:properties]
+    end
+
+    schema :hlrContestableIssuesShow do
+      key :type, OBJ
+      key :properties, hlr_ci_responses['200']['content']['application/vnd.api+json']['schema']['properties']
+    end
+  end
 
   headers_json_schema = read_json[['config', 'schemas', 'v2', '200996_headers.json']]
   headers_swagger = AppealsApi::JsonSchemaToSwaggerConverter.new(headers_json_schema).to_swagger
   header_schemas = headers_swagger['components']['schemas']
   headers = header_schemas['hlrCreateParameters']['properties'].keys
   hlr_create_parameters = headers.map do |header|
+    header_def = header_schemas['hlrCreateParameters']['properties'][header]
     {
       name: header,
       in: 'header',
-      description: header_schemas[header]['allOf'][0]['description'],
-      required: header_schemas['hlrCreateParameters']['required'].include?(header),
-      schema: { '$ref': "#/components/schemas/#{header}" }
+      description: header_def['description'] || header_def&.dig('allOf')&.send(:[], 0)&.dig('description'),
+      required: header_schemas['hlrCreateParameters']['required'].include?(header)
     }
   end
 
@@ -105,6 +121,37 @@ class AppealsApi::V2::HigherLevelReviewsControllerSwagger
         'Review as of the `receiptDate` and bound by `benefitType`. Not all issues returned are guaranteed to be ' \
         'eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       key :description, desc
+
+      parameter name: 'X-VA-SSN', in: 'header', description: 'Veteran\'s ssn' do
+        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
+        schema type: :string, format: '^[0-9]{9}$'
+      end
+      parameter name: 'X-VA-File-Number', in: 'header', description: 'Veteran\'s file number' do
+        key :description, 'Either X-VA-SSN or X-VA-File-Number is required'
+        schema type: :string
+      end
+      parameter name: 'X-VA-Receipt-Date', in: 'header', required: true do
+        desc = '(yyyy-mm-dd) In order to determine contestability of issues, ' \
+          'the receipt date of a hypothetical Decision Review must be specified.'
+        key :description, desc
+        schema type: :string, format: :date
+      end
+      parameter name: 'benefit_type', in: 'path', required: true, description: 'Benefit Type' do
+        schema type: :string, enum: ['compensation']
+      end
+
+      # All types, for reference: %w[compensation pension fudiciary insurance education voc_rehab loan_guaranty vha nca]
+      detail = 'Benefit type nil is invalid. Must be one of: ["compensation"]'
+      hlr_ci_responses['422']['content']['application/vnd.api+json']['examples']['invalid benefit_type'] = {
+        value: {
+          errors: [{ status: 422, code: 'invalid_benefit_type', title: 'Invalid Benefit Type', detail: detail }]
+        }
+      }
+      key :responses, hlr_ci_responses
+
+      security do
+        key :apikey, []
+      end
     end
   end
 

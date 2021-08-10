@@ -5,7 +5,8 @@ namespace :form_progress do
   # bundle exec rake form_progress:return_url[21-526EZ,2020-10-06,2020-11-06]
   task :return_url, %i[form_id start_date end_date] => [:environment] do |_, args|
     forms = forms_with_args(args)
-    data = forms.select(InProgressForm::RETURN_URL_SQL).group(InProgressForm::RETURN_URL_SQL).order('count(*)').count
+    data = forms.select(InProgressForm::RETURN_URL_SQL)
+                .group(InProgressForm::RETURN_URL_SQL).order(Arel.sql('count(*)')).count
     puts data
   end
 
@@ -14,7 +15,7 @@ namespace :form_progress do
   task :error_url, %i[form_id start_date end_date] => [:environment] do |_, args|
     forms = forms_with_args(args)
     data = forms.has_errors.select(InProgressForm::RETURN_URL_SQL)
-                .group(InProgressForm::RETURN_URL_SQL).order('count(*)').count
+                .group(InProgressForm::RETURN_URL_SQL).order(Arel.sql('count(*)')).count
     puts data
   end
 
@@ -23,7 +24,7 @@ namespace :form_progress do
   task :abandon_url, %i[form_id start_date end_date] => [:environment] do |_, args|
     forms = forms_with_args(args)
     data = forms.has_no_errors.select(InProgressForm::RETURN_URL_SQL)
-                .group(InProgressForm::RETURN_URL_SQL).order('count(*)').count
+                .group(InProgressForm::RETURN_URL_SQL).order(Arel.sql('count(*)')).count
     puts data
   end
 
@@ -45,8 +46,8 @@ namespace :form_progress do
 
   def forms_with_args(args)
     form_id = args[:form_id] || '21-526EZ'
-    start_date = args[:start_date]&.to_date || 30.days.ago.utc
-    end_date = args[:end_date]&.to_date || Time.zone.now.utc
+    start_date = args[:start_date]&.to_date || 31.days.ago.utc
+    end_date = args[:end_date]&.to_date || 1.day.ago
     puts '------------------------------------------------------------'
     puts "* #{form_id} from #{start_date} to #{end_date} *"
     puts '------------------------------------------------------------'

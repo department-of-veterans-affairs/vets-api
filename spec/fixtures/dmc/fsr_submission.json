@@ -198,5 +198,8 @@
             "docket_number": ""
         },
         "additional_comments": "No comments"
+    },
+    "applicant_certifications": {
+        "veteran_signature": "Greg A Anderson"
     }
 }

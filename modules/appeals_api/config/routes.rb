@@ -37,9 +37,11 @@ AppealsApi::Engine.routes.draw do
 
   namespace :v2, defaults: { format: 'json' } do
     namespace :decision_reviews do
-      # namespace :higher_level_reviews do
-      #   get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
-      # end
+      get 'contestable_issues/:decision_review_type', to: 'contestable_issues#index'
+
+      namespace :higher_level_reviews do
+        get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
+      end
 
       resources :higher_level_reviews, only: %i[create show] do
         collection do

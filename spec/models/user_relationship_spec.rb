@@ -49,7 +49,7 @@ RSpec.describe UserRelationship, type: :model do
       expect(user_relationship.birth_date).to eq Formatters::DateFormatter.format_date(mpi_relationship.birth_date)
       expect(user_relationship.ssn).to eq mpi_relationship.ssn
       expect(user_relationship.gender).to eq mpi_relationship.gender
-      expect(user_relationship.veteran_status).to eq false
+      expect(user_relationship.veteran_status).to eq mpi_relationship.person_types.include? 'VET'
       expect(user_relationship.icn).to eq mpi_relationship.icn
       expect(user_relationship.participant_id).to eq mpi_relationship.participant_id
     end

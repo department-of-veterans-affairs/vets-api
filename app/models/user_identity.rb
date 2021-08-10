@@ -37,6 +37,7 @@ class UserIdentity < Common::RedisStore
   attribute :sign_in, Hash # original sign_in (see sso_service#mergable_identity_attributes)
   attribute :icn_with_aaid
   attribute :search_token
+  attribute :person_types
 
   validates :uuid, presence: true
   validates :loa, presence: true

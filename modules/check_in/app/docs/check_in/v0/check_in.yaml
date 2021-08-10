@@ -48,8 +48,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetCheckInData'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
         '403':
-          description: Unauthorized access
+          description: Forbidden
           content:
             application/json:
               schema:
@@ -98,6 +110,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessfulCheckIn'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequest'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized'
         '403':
           description: Unauthorized access
           content:
@@ -169,11 +193,15 @@ components:
       required:
         - data
         - status
-    InternalServerError:
+    BadRequest:
+      $ref: "#/components/schemas/Errors"
+    Unauthorized:
+      $ref: "#/components/schemas/Errors"
+    Forbidden:
       $ref: "#/components/schemas/Errors"
     NotFound:
       $ref: "#/components/schemas/Errors"
-    Forbidden:
+    InternalServerError:
       $ref: "#/components/schemas/Errors"
     Errors:
       properties:

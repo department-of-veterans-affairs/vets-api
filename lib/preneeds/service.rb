@@ -31,30 +31,6 @@ module Preneeds
       Common::Collection.new(Cemetery, json)
     end
 
-    # POST to retrieve military discharge types
-    #
-    # @return [Common::Collection<Preneeds::DischargeType>] collection of military discharge types
-    #
-    def get_discharge_types
-      soap = savon_client.build_request(:get_discharge_types, message: {})
-      json = with_monitoring { perform(:post, '', soap.body).body }
-
-      Common::Collection.new(DischargeType, json)
-    end
-
-    # POST to retrieve military ranks
-    #
-    # @param params [Hash] must include `branch_of_service`, `start_date`, `end_date` keys with values.
-    #   See {Preneeds::MilitaryRankInput}
-    # @return [Common::Collection<Preneeds::MilitaryRank>] collection of military ranks
-    #
-    def get_military_rank_for_branch_of_service(params)
-      soap = savon_client.build_request(:get_military_rank_for_branch_of_service, message: params)
-      json = with_monitoring { perform(:post, '', soap.body).body }
-
-      Common::Collection.new(MilitaryRank, json)
-    end
-
     # POST to submit a {Preneeds::BurialForm}
     #
     # @param burial_form [Preneeds::BurialForm] a valid BurialForm object

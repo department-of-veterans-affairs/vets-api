@@ -15,21 +15,11 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       allow(Rails.env).to receive('development?').and_return(true)
     end
 
-    context 'job only runs between 6-18', run_at: '2017-01-01 00:00:00 EDT' do
+    context 'job only runs between 6-18 every 6 hours', run_at: '2017-01-01 00:00:00 EDT' do
       let(:scheduler) { Rufus::Scheduler.new }
       let(:possible_runs) do
         ['2017-01-01 06:00:00 -0500',
-         '2017-01-01 07:00:00 -0500',
-         '2017-01-01 08:00:00 -0500',
-         '2017-01-01 09:00:00 -0500',
-         '2017-01-01 10:00:00 -0500',
-         '2017-01-01 11:00:00 -0500',
          '2017-01-01 12:00:00 -0500',
-         '2017-01-01 13:00:00 -0500',
-         '2017-01-01 14:00:00 -0500',
-         '2017-01-01 15:00:00 -0500',
-         '2017-01-01 16:00:00 -0500',
-         '2017-01-01 17:00:00 -0500',
          '2017-01-01 18:00:00 -0500']
       end
 
@@ -39,7 +29,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
         scheduler.schedule_cron(cron) {} # schedule_cron requires a block
       end
 
-      it 'is only triggered by sidekiq-scheduler between 6-18' do
+      it 'is only triggered by sidekiq-scheduler every 6 hours between 6-18' do
         upcoming_runs = scheduler.timeline(Time.zone.now, 1.day.from_now).map(&:first)
         expected_runs = possible_runs.map { |d| EtOrbi.parse(d.to_s) }
         expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))
@@ -140,7 +130,18 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
                    .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
       end
 
+      it 'skips POA check when :stem_automated_decision flag is on' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(true).at_least(:once)
+        application_10203 = create(:va10203)
+        application_10203.create_stem_automated_decision(evss_user)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(nil)
+      end
+
       it 'sets claim poa for evss user without poa' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
         evss_response_without_poa = OpenStruct.new({ 'userPoaInfoAvailable' => false })
@@ -156,6 +157,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       end
 
       it 'sets claim poa for evss user with poa' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
         gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)

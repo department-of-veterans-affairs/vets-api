@@ -18,32 +18,6 @@ describe Preneeds::Service do
     end
   end
 
-  describe 'get_discharge_types' do
-    it 'gets a collection of discharge_types' do
-      discharge_types = VCR.use_cassette('preneeds/discharge_types/gets_a_list_of_discharge_types') do
-        subject.get_discharge_types
-      end
-
-      expect(discharge_types).to be_a(Common::Collection)
-      expect(discharge_types.type).to eq(Preneeds::DischargeType)
-    end
-  end
-
-  describe 'get_military_rank_for_branch_of_service' do
-    let(:params) do
-      { branch_of_service: 'AC', start_date: '1926-07-02', end_date: '1926-07-02' }
-    end
-
-    it 'gets a collection of service branches' do
-      ranks = VCR.use_cassette('preneeds/military_ranks/gets_a_list_of_military_ranks') do
-        subject.get_military_rank_for_branch_of_service params
-      end
-
-      expect(ranks).to be_a(Common::Collection)
-      expect(ranks.type).to eq(Preneeds::MilitaryRank)
-    end
-  end
-
   describe 'receive_pre_need_application' do
     before do
       FactoryBot.rewind_sequences
