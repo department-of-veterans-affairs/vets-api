@@ -17,8 +17,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:dashes_slashes_first_last) { get_fixture('dashes_slashes_first_last_metadata.json').read }
   let(:name_too_long_metadata) { get_erbed_fixture('name_too_long_metadata.json.erb').read }
   let(:invalid_metadata_missing) { get_fixture('invalid_metadata_missing.json').read }
-  let(:invalid_metadata_missing_LOB) { get_fixture('invalid_metadata_missing_LOB.json').read }
-  let(:invalid_metadata_unknown_LOB) { get_fixture('invalid_metadata_unknown_LOB.json').read }
+  let(:invalid_metadata_missing_lob) { get_fixture('invalid_metadata_missing_LOB.json').read }
+  let(:invalid_metadata_unknown_lob) { get_fixture('invalid_metadata_unknown_LOB.json').read }
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
   let(:valid_metadata_space_in_name) { get_fixture('valid_metadata_space_in_name.json').read }
   let(:valid_doc) { get_fixture('valid_doc.pdf') }
@@ -516,7 +516,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status and records invalid lines of business' do
-      md = JSON.parse(invalid_metadata_unknown_LOB)
+      md = JSON.parse(invalid_metadata_unknown_lob)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
@@ -528,8 +528,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.detail).to match(/DROC/)
     end
 
-    it 'sets error status and records missing lines of business for V2', :focus do
-      md = JSON.parse(invalid_metadata_missing_LOB)
+    it 'sets error status and records missing lines of business for V2' do
+      md = JSON.parse(invalid_metadata_missing_lob)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
