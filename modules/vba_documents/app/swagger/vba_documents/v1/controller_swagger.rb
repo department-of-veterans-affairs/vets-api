@@ -40,8 +40,10 @@ module VBADocuments
         operation :put do
           extend VBADocuments::Responses::InternalServerError
           extend VBADocuments::Responses::UnauthorizedError
+          extend VBADocuments::Responses::TooManyRequestsError
+          extend VBADocuments::Responses::UnexpectedError
           key :summary, 'Accepts document upload.'
-          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'put_description.md'))
+          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'VBA Documents', 'put_description.md'))
           key :operationId, 'putBenefitsDocumentUpload'
 
           key :tags, [
@@ -63,7 +65,7 @@ module VBADocuments
             key :description, 'Document upload staged'
           end
 
-          response 400 do
+          response 403 do
             key :description, 'Document upload failed'
             content 'application/xml' do
               schema do
@@ -78,7 +80,6 @@ module VBADocuments
         operation :get do
           extend VBADocuments::Responses::NotFoundError
           extend VBADocuments::Responses::TooManyRequestsError
-          extend VBADocuments::Responses::UnexpectedError
           extend VBADocuments::Responses::InternalServerError
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::ForbiddenError

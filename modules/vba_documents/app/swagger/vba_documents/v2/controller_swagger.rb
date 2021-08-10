@@ -15,7 +15,7 @@ module VBADocuments
           extend VBADocuments::Responses::UnauthorizedError
           key :summary, 'Get a location for subsequent document upload PUT request'
           key :operationId, 'postBenefitsDocumentUpload'
-          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'v2', 'upload_description.md'))
+          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'VBA Documents', 'v2', 'upload_description.md'))
           security do
             key :apikey, []
           end
@@ -106,7 +106,6 @@ module VBADocuments
         operation :get do
           extend VBADocuments::Responses::NotFoundError
           extend VBADocuments::Responses::TooManyRequestsError
-          extend VBADocuments::Responses::UnexpectedError
           extend VBADocuments::Responses::InternalServerError
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::ForbiddenError
