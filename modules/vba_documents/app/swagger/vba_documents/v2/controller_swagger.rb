@@ -66,7 +66,6 @@ module VBADocuments
         operation :put do
           extend VBADocuments::Responses::InternalServerError
           extend VBADocuments::Responses::UnauthorizedError
-          extend VBADocuments::Responses::ForbiddenError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::UnexpectedError
           key :summary, 'Accepts document upload.'
@@ -92,8 +91,8 @@ module VBADocuments
             key :description, 'Document upload staged'
           end
 
-          response 400 do
-            key :description, 'Document upload failed'
+          response 403 do
+            key :description, 'Forbidden'
             content 'application/xml' do
               schema do
                 key :$ref, :DocumentUploadFailure
