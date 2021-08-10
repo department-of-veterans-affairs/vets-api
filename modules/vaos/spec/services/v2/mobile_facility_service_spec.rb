@@ -51,7 +51,7 @@ describe VAOS::V2::MobileFacilityService do
   describe '#facilities' do
     context 'with a facility id' do
       it 'returns a configuration' do
-        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_single_id_200',
                          match_requests_on: %i[method uri]) do
           response = subject.get_facilities(ids: '688')
           expect(response[:data].size).to eq(1)
@@ -81,9 +81,9 @@ describe VAOS::V2::MobileFacilityService do
 
     context 'when the upstream server returns a 400' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v2/mobile_facility/get_facilities_400',
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_400',
                          match_requests_on: %i[method uri]) do
-          expect { subject.get_facilities(ids: nil) }.to raise_error(
+          expect { subject.get_facilities(ids: 688) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -92,9 +92,45 @@ describe VAOS::V2::MobileFacilityService do
 
     context 'when the upstream server returns a 500' do
       it 'raises a backend exception' do
-        VCR.use_cassette('vaos/v2/mobile_facility/get_facilities_500',
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facilities_500',
                          match_requests_on: %i[method uri]) do
           expect { subject.get_facilities(ids: '688') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
+  describe '#get_facility' do
+    context 'with a valid request' do
+      it 'returns a facility' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                         match_requests_on: %i[method uri]) do
+          response = subject.get_facility('983')
+          expect(response[:id]).to eq('983')
+          expect(response[:type]).to eq('va_facilities')
+          expect(response[:name]).to eq('Cheyenne VA Medical Center')
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 400' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_400',
+                         match_requests_on: %i[method uri]) do
+          expect { subject.get_facility('983') }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+
+    context 'when the upstream server returns a 500' do
+      it 'raises a backend exception' do
+        VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_500',
+                         match_requests_on: %i[method uri]) do
+          expect { subject.get_facility('983') }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end

@@ -130,7 +130,18 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
                    .and change { EducationStemAutomatedDecision.processed.count }.from(0).to(1)
       end
 
+      it 'skips POA check when :stem_automated_decision flag is on' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(true).at_least(:once)
+        application_10203 = create(:va10203)
+        application_10203.create_stem_automated_decision(evss_user)
+
+        subject.perform
+        application_10203.reload
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(nil)
+      end
+
       it 'sets claim poa for evss user without poa' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
         evss_response_without_poa = OpenStruct.new({ 'userPoaInfoAvailable' => false })
@@ -146,6 +157,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
       end
 
       it 'sets claim poa for evss user with poa' do
+        expect(Flipper).to receive(:enabled?).with(:stem_automated_decision, any_args).and_return(false).at_least(:once)
         application_10203 = create(:va10203)
         application_10203.create_stem_automated_decision(evss_user)
         gi_bill_status = build(:gi_bill_status_response, remaining_entitlement: nil)

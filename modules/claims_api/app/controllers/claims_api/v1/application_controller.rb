@@ -22,10 +22,11 @@ module ClaimsApi
 
       protected
 
-      def validate_veteran_identifiers
-        return if target_veteran.participant_id.present? && target_veteran.birls_id.present?
+      def validate_veteran_identifiers(require_birls: false)
+        return if !require_birls && target_veteran.participant_id.present?
+        return if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.present?
 
-        if target_veteran.participant_id.present? && target_veteran.birls_id.blank?
+        if require_birls && target_veteran.participant_id.present? && target_veteran.birls_id.blank?
           raise ::Common::Exceptions::UnprocessableEntity.new(detail: 'No birls_id while participant_id present')
         end
 
