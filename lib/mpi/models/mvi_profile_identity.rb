@@ -16,7 +16,7 @@ module MPI
       attribute :ssn, String
       attribute :address, MviProfileAddress
       attribute :home_phone, String
-      attribute :person_type_code, String
+      attribute :person_types, Array[String]
 
       def normalized_suffix
         case @suffix

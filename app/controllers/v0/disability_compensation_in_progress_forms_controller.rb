@@ -22,7 +22,9 @@ module V0
 
       # If EVSS's list of rated disabilties does not match our prefilled rated disabilites
       if rated_disabilities_evss.present? &&
-         names_arr(parsed_form_data.dig('ratedDisabilities')) != names_arr(rated_disabilities_evss.rated_disabilities)
+         arr_to_compare(parsed_form_data.dig('ratedDisabilities')) !=
+         arr_to_compare(rated_disabilities_evss.rated_disabilities)
+
         if parsed_form_data['ratedDisabilities'].present? &&
            parsed_form_data.dig('view:claimType', 'view:claimingIncrease')
           metadata['returnUrl'] = '/disabilities/rated-disabilities'
@@ -40,10 +42,17 @@ module V0
     def rated_disabilities_evss
       @rated_disabilities_evss ||= FormProfiles::VA526ez.for(form_id: form_id, user: @current_user)
                                                         .initialize_rated_disabilities_information
+    rescue
+      # if the call to EVSS fails we can skip updating. EVSS fails around an hour each night.
+      nil
     end
 
-    def names_arr(rated_disabilities)
-      rated_disabilities&.collect { |rd| rd['name'] }&.sort
+    def arr_to_compare(rated_disabilities)
+      rated_disabilities&.collect do |rd|
+        diagnostic_code = rd['diagnostic_code'] || rd['diagnosticCode']
+        rated_disability_id = rd['rated_disability_id'] || rd['ratedDisabilityId']
+        "#{diagnostic_code}#{rated_disability_id}#{rd['name']}"
+      end&.sort
     end
   end
 end

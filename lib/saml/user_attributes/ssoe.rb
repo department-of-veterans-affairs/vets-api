@@ -81,9 +81,9 @@ module SAML
         safe_attr('va_eauth_emailaddress')
       end
 
-      # Returns an array beause a person can have multipe types.
+      # Returns an array because a person can have multipe types.
       def person_types
-        safe_attr('va_eauth_persontype')&.split('|')
+        safe_attr('va_eauth_persontype')&.split('|') || []
       end
 
       ### Identifiers
@@ -208,8 +208,13 @@ module SAML
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_mhv_ids] if mhv_id_mismatch?
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_edipis] if edipi_mismatch?
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:mhv_icn_mismatch] if mhv_icn_mismatch?
-        raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_birls_ids] if birls_id_mismatch?
         raise SAML::UserAttributeError, SAML::UserAttributeError::ERRORS[:multiple_corp_ids] if corp_id_mismatch?
+
+        # Multiple BIRLS IDs are more common, only raise a warning
+        if birls_id_mismatch?
+          log_message_to_sentry('User attributes contain multiple distinct BIRLS ID values.', 'warn',
+                                birls_ids: @attributes['va_eauth_birlsfilenumber'])
+        end
       end
 
       private

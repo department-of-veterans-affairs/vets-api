@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forwardable'
+
 module ChipApi
   ##
   # A service object for isolating dependencies from the PatientCheckInsController and
@@ -10,20 +12,34 @@ module ChipApi
   #   @return [ChipApi::Request]
   # @!attribute session
   #   @return [ChipApi::Session]
+  # @!attribute check_in
+  #   @return [CheckIn]
+  # @!method client_error
+  #   @return (see CheckIn#client_error)
+  # @!method uuid
+  #   @return (see CheckIn#uuid)
+  # @!method session
+  #   @return (see CheckIn#session)
   #
   class Service
-    attr_reader :request, :session
+    attr_reader :check_in, :request, :session
+
+    extend Forwardable
+
+    def_delegators :check_in, :client_error, :uuid, :valid?
 
     ##
     # Builds a Service instance
     #
+    # @param check_in [CheckIn]
     # @return [ChipApi::Service] an instance of this class
     #
-    def self.build
-      new
+    def self.build(check_in)
+      new(check_in)
     end
 
-    def initialize
+    def initialize(check_in)
+      @check_in = check_in
       @request = Request.build
       @session = Session.build
     end
@@ -31,12 +47,13 @@ module ChipApi
     ##
     # Gets the resource by its unique ID
     #
-    # @param id [String] a unique string value
     # @return [Hash]
     #
-    def get_check_in(id)
+    def get_check_in
+      return handle_response(client_error) unless valid?
+
       token = session.retrieve
-      resp = request.get(path: "/dev/appointments/#{id}", access_token: token)
+      resp = request.get(path: "/#{base_path}/appointments/#{uuid}", access_token: token)
 
       handle_response(resp)
     end
@@ -44,14 +61,25 @@ module ChipApi
     ##
     # Create a resource for the logged in user.
     #
-    # @param data [Hash] data submitted by the user.
     # @return [Hash]
     #
-    def create_check_in(id)
+    def create_check_in
+      return handle_response(client_error) unless valid?
+
       token = session.retrieve
-      resp = request.post(path: "/dev/actions/check-in/#{id}", access_token: token)
+      resp = request.post(path: "/#{base_path}/actions/check-in/#{uuid}", access_token: token)
 
       handle_response(resp)
+    end
+
+    ##
+    # Helper method for returning the Chip URL base path
+    # from our environment configuration file
+    #
+    # @return [String]
+    #
+    def base_path
+      Settings.check_in.chip_api.base_path
     end
 
     ##
@@ -70,7 +98,7 @@ module ChipApi
       status = resp&.status
 
       case status
-      when 200
+      when 200, 400
         { data: value, status: status }
       when 401
         { data: { error: true, message: 'Unauthorized' }, status: status }

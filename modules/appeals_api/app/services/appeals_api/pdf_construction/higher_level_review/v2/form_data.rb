@@ -9,7 +9,7 @@ module AppealsApi
         end
 
         delegate :first_name, :middle_initial, :last_name, :number_and_street, :city, :state_code,
-                 :country_code, :file_number, :zip_code_5, :insurance_policy_number, :contestable_issues, :birth_mm,
+                 :country_code, :file_number, :zip_code, :insurance_policy_number, :contestable_issues, :birth_mm,
                  :birth_dd, :birth_yyyy, :date_signed_mm, :date_signed_dd, :date_signed_yyyy,
                  to: :higher_level_review
 

@@ -170,8 +170,9 @@ module HealthQuest
         org_id = location.resource.managingOrganization.reference.match(ID_MATCHER)[1]
         org = organization_service.get(org_id)
 
-        HealthQuest::QuestionnaireManager::QuestionnaireResponseReport
-          .manufacture(questionnaire_response: snapshot, appointment: appointment, location: location, org: org)
+        HealthQuest::QuestionnaireManager::PdfGenerator::Composer
+          .synthesize(questionnaire_response: snapshot, appointment: appointment, location: location, org: org)
+          .document
           .render
       end
 

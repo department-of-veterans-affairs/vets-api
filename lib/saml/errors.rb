@@ -10,7 +10,6 @@ module SAML
     MULTIPLE_EDIPIS_CODE = '102'
     MHV_ICN_MISMATCH_CODE = '103'
     IDME_UUID_MISSING_CODE = '104'
-    MULTIPLE_BIRLS_IDS_CODE = '105'
     MULTPLE_CORP_IDS_CODE = '106'
 
     ERRORS = {
@@ -26,9 +25,6 @@ module SAML
       idme_uuid_missing: { code: IDME_UUID_MISSING_CODE,
                            tag: :idme_uuid_missing,
                            message: 'User attributes is missing an ID.me UUID' }.freeze,
-      multiple_birls_ids: { code: MULTIPLE_BIRLS_IDS_CODE,
-                            tag: :multiple_birls_ids,
-                            message: 'User attributes contain multiple distinct BIRLS ID values' }.freeze,
       multiple_corp_ids: { code: MULTPLE_CORP_IDS_CODE,
                            tag: :multiple_corp_ids,
                            message: 'User attributes contain multiple distinct CORP ID values' }.freeze

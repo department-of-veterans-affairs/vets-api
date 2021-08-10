@@ -15,7 +15,7 @@ module VeteranVerification
 
         def verification_yaml
           @verification_yaml ||= YAML.safe_load(
-            File.read(VeteranVerification::Engine.root.join('VETERAN_VERIFICATION.yml'))
+            File.read(VeteranVerification::Engine.root.join('VETERAN_VERIFICATION_V0.yml'))
           )
         end
       end

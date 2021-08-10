@@ -31,7 +31,6 @@ module AppealsApi
             form_fields.insurance_policy_number => form_data.insurance_policy_number,
             form_fields.mailing_address_state => form_data.state_code,
             form_fields.mailing_address_country => form_data.country_code,
-            form_fields.mailing_address_zip_first_5 => form_data.zip_code_5,
             form_fields.veteran_homeless => form_data.veteran_homeless,
             form_fields.veteran_phone_area_code => form_data.veteran_phone_area_code,
             form_fields.veteran_phone_prefix => form_data.veteran_phone_prefix,
@@ -151,6 +150,7 @@ module AppealsApi
             whiteout_line pdf, :last_name
             whiteout_line pdf, :number_and_street
             whiteout_line pdf, :city
+            whiteout_line pdf, :zip_code
             whiteout_line pdf, :veteran_email, text_override: 'See attached page for veteran email'
             pdf.start_new_page
 

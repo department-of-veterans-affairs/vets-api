@@ -35,7 +35,7 @@ end
 gem 'sass-rails', '>= 6'
 
 # Anchored versions, do not change
-gem 'puma', '~> 5.3.2'
+gem 'puma', '~> 5.4.0'
 gem 'puma-plugin-statsd', '~> 1.2.1'
 gem 'rails', '~> 6.1.3'
 
@@ -96,7 +96,7 @@ gem 'memoist'
 gem 'mimemagic', '~> 0.4.3'
 gem 'mini_magick', '~> 4.11.0'
 gem 'net-sftp'
-gem 'nokogiri', '~> 1.11'
+gem 'nokogiri', '~> 1.12'
 gem 'notifications-ruby-client', '~> 5.3'
 gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
@@ -133,7 +133,7 @@ gem 'sentry-raven'
 gem 'shrine'
 gem 'slack-notify'
 gem 'staccato'
-gem 'statsd-instrument', '~> 2.6.0' # versions beyond 2.6 deprecate config and change logging messages
+gem 'statsd-instrument', '~> 3.1.0'
 gem 'strong_migrations'
 gem 'swagger-blocks'
 gem 'typhoeus'
