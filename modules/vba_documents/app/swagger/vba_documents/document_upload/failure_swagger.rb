@@ -17,7 +17,7 @@ module VBADocuments
           property :Code do
             key :type, :string
             key :description, 'Error code'
-            key :example, 'SignatureDoesNotMatch'
+            key :example, 'Signature DoesNotMatch'
           end
 
           property :Message do
