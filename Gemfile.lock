@@ -374,7 +374,7 @@ GEM
       faraday (>= 0.7.4, < 1.0)
     fast_jsonapi (1.5)
       activesupport (>= 4.2)
-    fastimage (2.2.4)
+    fastimage (2.2.5)
     ffi (1.15.1)
     fhir_client (4.0.6)
       activesupport (>= 3)
