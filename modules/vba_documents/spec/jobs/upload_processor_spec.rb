@@ -537,11 +537,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(faraday_response).to receive(:status).and_return(200)
       allow(faraday_response).to receive(:body).and_return('')
       allow(faraday_response).to receive(:success?).and_return(true)
-      capture_body = nil
-      expect(client_stub).to receive(:upload) { |arg|
-        capture_body = arg
-        faraday_response
-      }
       described_class.new.perform(v2_upload.guid, test_caller)
       updated = VBADocuments::UploadSubmission.find_by(guid: v2_upload.guid)
       expect(updated.status).to eq('error')
