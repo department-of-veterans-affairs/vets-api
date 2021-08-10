@@ -59,7 +59,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'has access and returns va appointments given a date range and single status' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200',
+                           match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments?start=2021-05-16T19:25:00Z&end=2021-09-16T19:45:00Z&statuses=proposed',
                 headers: inflection_header
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -71,7 +72,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'has access and returns va appointments given date a range and single status (as array)' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200',
+                           match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments?start=2021-05-16T19:25:00Z&end=2021-09-16T19:45:00Z&statuses[]=proposed',
                 headers: inflection_header
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
@@ -83,7 +85,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'has access and returns va appointments given a date range and multiple statuses' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_multi_status_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_multi_status_200',
+                           match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments?start=2021-05-16T19:25:00Z&end=2021-09-16T19:45:00Z&statuses=proposed,booked',
                 headers: inflection_header
             expect(response).to have_http_status(:ok)
@@ -96,7 +99,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
         end
 
         it 'has access and returns va appointments given a date range and multiple statuses (as Array)' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_multi_status_200', match_requests_on: %i[method uri]) do
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_multi_status_200',
+                           match_requests_on: %i[method uri]) do
             get '/vaos/v2/appointments?start=2021-05-16T19:25:00Z&end=2021-09-16T19:45:00Z&statuses[]=proposed' \
                 '&statuses[]=booked',
                 headers: inflection_header
