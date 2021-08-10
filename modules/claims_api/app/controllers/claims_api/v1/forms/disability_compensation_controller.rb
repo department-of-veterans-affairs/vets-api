@@ -22,6 +22,7 @@ module ClaimsApi
         end
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
         before_action :verify_power_of_attorney!, if: :header_request?
+        skip_before_action :validate_veteran_identifiers, only: %i[submit_form_526 validate_form_526]
 
         # POST to submit disability claim.
         #
@@ -29,6 +30,7 @@ module ClaimsApi
         def submit_form_526 # rubocop:disable Metrics/MethodLength
           validate_json_schema
           validate_form_526_submission_values!
+          validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -111,6 +113,7 @@ module ClaimsApi
         def validate_form_526
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
+          validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
 
           service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
