@@ -66,6 +66,9 @@ module VBADocuments
         operation :put do
           extend VBADocuments::Responses::InternalServerError
           extend VBADocuments::Responses::UnauthorizedError
+          extend VBADocuments::Responses::ForbiddenError
+          extend VBADocuments::Responses::TooManyRequestsError
+          extend VBADocuments::Responses::UnexpectedError
           key :summary, 'Accepts document upload.'
           key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'put_description.md'))
           key :operationId, 'putBenefitsDocumentUpload'
