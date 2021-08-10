@@ -67,6 +67,8 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
             notice_of_disagreement.update(board_review_option: 'evidence_submission', auth_headers: nil)
             post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
 
+            puts "RESPONSE BODY line 70: #{response.body}"
+
             data = JSON.parse(response.body)['data']
             expect(data).to have_key('id')
             expect(data).to have_key('type')
@@ -112,6 +114,9 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
         notice_of_disagreement.update(board_review_option: 'evidence_submission')
         post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
         data = JSON.parse(response.body)['data']
+
+        puts "RESPONSE BODY line 116: #{response.body}"
+
         record = AppealsApi::EvidenceSubmission.find_by(guid: data['id'])
         expect(record.source).to eq headers['X-Consumer-Username']
       end
