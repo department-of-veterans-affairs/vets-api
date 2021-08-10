@@ -55,5 +55,17 @@ describe EVSSPolicy do
         expect { EVSSPolicy.new(user, :evss).access_form526? }.to trigger_statsd_increment('api.evss.policy.failure')
       end
     end
+
+    context 'with a user who does not have the required date of birth' do
+      let(:user) { build(:no_dob_evss_user, :loa3, birth_date: nil) }
+
+      it 'denies access' do
+        expect(subject).not_to permit(user, :evss)
+      end
+
+      it 'increments the StatsD failure counter' do
+        expect { EVSSPolicy.new(user, :evss).access_form526? }.to trigger_statsd_increment('api.evss.policy.failure')
+      end
+    end
   end
 end

@@ -4,14 +4,16 @@ require_dependency 'vba_documents/upload_error'
 require_dependency 'vba_documents/sql_support'
 require 'central_mail/service'
 require 'common/exceptions'
+require_dependency './lib/webhooks/utilities'
 
 module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
+    include Webhooks
     extend SQLSupport
     send(:validates_uniqueness_of, :guid)
-    before_save :capture_status_time, if: :status_changed?
+    before_save :record_status_change, if: :status_changed?
     after_find :set_initial_status
     attr_reader :current_status
 
@@ -48,9 +50,11 @@ module VBADocuments
                                         code: 'DOC105',
                                         detail: VBADocuments::UploadError::DOC105,
                                         location: nil)
+
       def empty_submission.read_attribute_for_serialization(attr)
         send(attr)
       end
+
       empty_submission
     end
 
@@ -196,7 +200,7 @@ module VBADocuments
       @current_status = status
     end
 
-    def capture_status_time
+    def record_status_change
       from = @current_status
       to = status
       time = Time.now.to_i
@@ -206,7 +210,25 @@ module VBADocuments
       metadata['status'] ||= {}
       metadata['status'][to] ||= {}
       metadata['status'][to]['start'] = time
+
+      # get the message to record the status change web hook
+      if Settings.vba_documents.v2_enabled
+        msg = format_msg(VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, from, to, guid)
+        params = { consumer_id: consumer_id, consumer_name: consumer_name,
+                   event: VBADocuments::Registrations::WEBHOOK_STATUS_CHANGE_EVENT, api_guid: guid, msg: msg }
+        Webhooks::Utilities.record_notifications(params)
+      end
+
+      # set new current status
       @current_status = to
+    end
+
+    def format_msg(event, from_status, to_status, guid)
+      api = Webhooks::Utilities.event_to_api_name[event]
+      { api_name: api, guid: guid, event: event, status_from: from_status, status_to: to_status,
+        epoch_time: Time.now.to_i }
     end
   end
 end
+
+# load './modules/vba_documents/app/models/vba_documents/upload_submission.rb'

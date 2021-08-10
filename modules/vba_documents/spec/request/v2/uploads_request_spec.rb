@@ -1,261 +1,303 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require './lib/central_mail/utilities'
+require './lib/webhooks/utilities.rb'
 require_relative '../../support/vba_document_fixtures'
-
+require_dependency 'vba_documents/payload_manager'
 require_dependency 'vba_documents/object_store'
 require_dependency 'vba_documents/multipart_parser'
 
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
   include VBADocuments::Fixtures
-
-  Settings.vba_documents.v2_upload_endpoint_enabled = true
+  Settings.vba_documents.v2_enabled = true
   load('./modules/vba_documents/config/routes.rb')
 
-  # need a larger limit for sending raw data (base_64 for example)
-  Rack::Utils.key_space_limit = 65_536 * 5
-  SUBMIT_ENDPOINT = '/services/vba_documents/v2/uploads/submit'
-
-  def build_fixture(fixture, is_metadata = false, is_erb = false)
-    fixture_path = if is_erb && is_metadata
-                     get_erbed_fixture(fixture).path
-                   else
-                     get_fixture(fixture).path
-                   end
-    content_type = is_metadata ? 'application/json' : 'application/pdf'
-    Rack::Test::UploadedFile.new(fixture_path, content_type, !is_metadata)
+  let(:test_caller) { { 'caller' => 'tester' } }
+  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+  let(:valid_doc) { get_fixture('valid_doc.pdf') }
+  let(:dev_headers) do
+    {
+      'X-Consumer-ID': '59ac8ab0-1f28-43bd-8099-23adb561815d',
+      'X-Consumer-Username': 'Development'
+    }
   end
+  let(:fixture_path) { './modules/vba_documents/spec/fixtures/subscriptions/' }
 
-  def invalidate_metadata(key, value = nil, delete_key = false)
-    fixture = get_fixture('valid_metadata.json')
-    metadata = JSON.parse(File.read(fixture))
-    metadata[key] = value
-    metadata.delete(key) if delete_key
-    Rack::Test::UploadedFile.new(
-      StringIO.new(metadata.to_json), 'application/json', false, original_filename: 'metadata.json'
-    )
-  end
-
-  describe '#submit /v2/uploads/submit' do
-    let(:missing_first) { { metadata: build_fixture('missing_first_metadata.json', true) } }
-    let(:missing_last) { { metadata: build_fixture('missing_last_metadata.json', true) } }
-
-    let(:bad_with_digits_first) do
-      { metadata: build_fixture('bad_with_digits_first_metadata.json', true) }
-    end
-    let(:bad_with_funky_characters_last) do
-      { metadata: build_fixture('bad_with_funky_characters_last_metadata.json', true) }
-    end
-    let(:dashes_slashes_first_last) do
-      { metadata: build_fixture('dashes_slashes_first_last_metadata.json', true) }
-    end
-    let(:name_too_long_metadata) do
-      { metadata: build_fixture('name_too_long_metadata.json.erb', true, true) }
-    end
-    let(:valid_metadata_space_in_name) do
-      { metadata: build_fixture('valid_metadata_space_in_name.json', true) }
-    end
-
-    let(:valid_content) do
-      { content: build_fixture('valid_doc.pdf') }
-    end
-
-    let(:valid_attachments) do
-      { attachment1: build_fixture('valid_doc.pdf'),
-        attachment2: build_fixture('valid_doc.pdf') }
-    end
-
-    let(:valid_metadata) do
-      { metadata: build_fixture('valid_metadata.json', true) }
-    end
-
-    let(:invalid_attachment_oversized) do
-      { attachment1: build_fixture('18x22.pdf'),
-        attachment2: build_fixture('valid_doc.pdf') }
-    end
-
-    let(:invalid_content_missing) do
-      { content: nil }
-    end
-
-    let(:invalid_attachment_missing) do
-      { attachment1: nil }
-    end
-
-    after do
-      if @attributes
-        guid = @attributes['guid']
-        upload = VBADocuments::UploadFile.find_by(guid: guid)
-        expect(upload).to be_uploaded
-      end
-    end
-
-    it 'returns a UUID with status of uploaded and populated pdf metadata with a valid post' do
-      post SUBMIT_ENDPOINT,
-           params: {}.merge(valid_metadata).merge(valid_content).merge(valid_attachments)
-      expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
-      @attributes = json['data']['attributes']
-      expect(@attributes).to have_key('guid')
-      expect(@attributes['status']).to eq('uploaded')
-      uploaded_pdf = @attributes['uploaded_pdf']
-      expect(uploaded_pdf['total_documents']).to eq(3)
-      expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
-      expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(false)
-      expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
-    end
-
-    it 'processes base64 requests' do
-      post SUBMIT_ENDPOINT, params: get_fixture('base_64').read
-      expect(response).to have_http_status(:bad_request)
-      json = JSON.parse(response.body)
-      @attributes = json['data']['attributes']
-      expect(@attributes).to have_key('guid')
-      expect(@attributes['status']).to eq('error')
-      expect(@attributes['uploaded_pdf']).to have_key('total_documents')
-      expect(@attributes['uploaded_pdf']).to have_key('total_pages')
-      expect(@attributes['uploaded_pdf']).to have_key('content')
-      expect(@attributes['uploaded_pdf']['content']['dimensions']['oversized_pdf']).to be_truthy
-    end
-
-    it 'returns a UUID with status of error when an attachment is oversized' do
-      post SUBMIT_ENDPOINT,
-           params: {}.merge(valid_metadata).merge(valid_content).merge(invalid_attachment_oversized)
-      expect(response).to have_http_status(:bad_request)
-      json = JSON.parse(response.body)
-      @attributes = json['data']['attributes']
-      expect(@attributes).to have_key('guid')
-      expect(@attributes['status']).to eq('error')
-      uploaded_pdf = @attributes['uploaded_pdf']
-      expect(uploaded_pdf['total_documents']).to eq(3)
-      expect(uploaded_pdf['content']['dimensions']['oversized_pdf']).to eq(false)
-      expect(uploaded_pdf['content']['attachments'].first['dimensions']['oversized_pdf']).to eq(true)
-      expect(uploaded_pdf['content']['attachments'].last['dimensions']['oversized_pdf']).to eq(false)
-    end
-
-    %i[dashes_slashes_first_last valid_metadata_space_in_name].each do |allowed|
-      it "allows #{allowed} in names" do
-        post SUBMIT_ENDPOINT,
-             params: {}.merge(send(allowed)).merge(valid_content)
-        expect(response).to have_http_status(:ok)
-      end
-    end
-
-    %i[missing_first missing_last bad_with_digits_first bad_with_funky_characters_last
-       name_too_long_metadata].each do |bad|
-      it "returns an error if the name field #{bad} is missing or has bad characters" do
-        post SUBMIT_ENDPOINT,
-             params: {}.merge(send(bad)).merge(valid_content)
-        expect(response).to have_http_status(:bad_request)
-        json = JSON.parse(response.body)
-        @attributes = json['data']['attributes']
-        expect(@attributes['status']).to eq('error')
-        expect(@attributes['code']).to eq('DOC102')
-        expect(@attributes['detail']).to match(/^Invalid Veteran name/)
-      end
-    end
-
-    it 'returns an error when a content is missing' do
-      post SUBMIT_ENDPOINT,
-           params: {}.merge(valid_metadata).merge(invalid_content_missing).merge(valid_attachments)
-      expect(response).to have_http_status(:bad_request)
-      json = JSON.parse(response.body)
-      @attributes = json['data']['attributes']
-      expect(@attributes['status']).to eq('error')
-      expect(@attributes['code']).to eq('DOC101')
-      expect(@attributes['detail']).to eq('Missing content-type header')
-    end
-
-    it 'returns an error when an attachment is missing' do
-      post SUBMIT_ENDPOINT,
-           params: {}.merge(valid_metadata).merge(valid_content).merge(invalid_attachment_missing)
-      expect(response).to have_http_status(:bad_request)
-      json = JSON.parse(response.body)
-      @attributes = json['data']['attributes']
-      expect(@attributes['status']).to eq('error')
-      expect(@attributes['code']).to eq('DOC101')
-      expect(@attributes['detail']).to eq('Missing content-type header')
-    end
-
-    CentralMail::Utilities::VALID_LOB.each_key do |key|
-      it "consumes the valid line of business #{key}" do
-        fixture = get_fixture('valid_metadata.json')
-        metadata = JSON.parse(File.read(fixture))
-        metadata['businessLine'] = key
-        metadata_file = { metadata: Rack::Test::UploadedFile.new(
-          StringIO.new(metadata.to_json), 'application/json', false,
-          original_filename: 'metadata.json'
-        ) }
-        post SUBMIT_ENDPOINT, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
-        expect(response).to have_http_status(:ok)
-        json = JSON.parse(response.body)
-        @attributes = json['data']['attributes']
-        pdf_data = json['data']['attributes']['uploaded_pdf']
-        expect(@attributes['status']).to eq('uploaded')
-        expect(pdf_data['line_of_business']).to eq(key)
-        expect(pdf_data['submitted_line_of_business']).to eq(nil)
-      end
-    end
-
-    context 'with invalid metadata' do
-      it 'Returns a 400 error when an invalid line of business is submitted' do
-        fixture = get_fixture('valid_metadata.json')
-        metadata = JSON.parse(File.read(fixture))
-        metadata['businessLine'] = 'BAD_STATUS'
-        metadata_file = { metadata: Rack::Test::UploadedFile.new(
-          StringIO.new(metadata.to_json), 'application/json', false,
-          original_filename: 'metadata.json'
-        ) }
-        post SUBMIT_ENDPOINT, params: {}.merge(metadata_file).merge(valid_content).merge(valid_attachments)
-        expect(response).to have_http_status(:bad_request)
-        json = JSON.parse(response.body)
-        @attributes = json['data']['attributes']
-        expect(@attributes['status']).to eq('error')
-        expect(@attributes['code']).to eq('DOC102')
-        expect(@attributes['detail']).to start_with('Invalid businessLine provided')
-        expect(@attributes['detail']).to match(/BAD_STATUS/)
+  describe '#create /v2/uploads' do
+    context 'uploads' do
+      before do
+        s3_client = instance_double(Aws::S3::Resource)
+        allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
+        s3_bucket = instance_double(Aws::S3::Bucket)
+        s3_object = instance_double(Aws::S3::Object)
+        allow(s3_client).to receive(:bucket).and_return(s3_bucket)
+        allow(s3_bucket).to receive(:object).and_return(s3_object)
+        allow(s3_object).to receive(:presigned_url).and_return(+'https://fake.s3.url/foo/guid')
       end
 
-      %w[veteranFirstName veteranLastName fileNumber zipCode].each do |key|
-        it "Returns a 400 error when #{key} is nil" do
-          # set key to be nil in metadata
-          metadata = { metadata: invalidate_metadata(key) }
-          post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
-          expect(response).to have_http_status(:bad_request)
+      it 'returns a UUID and location' do
+        with_settings(Settings.vba_documents.location,
+                      prefix: 'https://fake.s3.url/foo/',
+                      replacement: 'https://api.vets.gov/proxy/') do
+          post vba_documents.v2_uploads_path
+          expect(response).to have_http_status(:accepted)
           json = JSON.parse(response.body)
-          @attributes = json['data']['attributes']
-          expect(@attributes['status']).to eq('error')
-          expect(@attributes['code']).to eq('DOC102')
-          expect(@attributes['detail']).to eq("Non-string values for keys: #{key}")
+          expect(json['data']['attributes']).to have_key('guid')
+          expect(json['data']['attributes']['status']).to eq('pending')
+          expect(json['data']['attributes']['location']).to eq('https://api.vets.gov/proxy/guid')
         end
+      end
 
-        it "Returns a 400 error when #{key} is missing" do
-          # remove the key from metadata
-          metadata = { metadata: invalidate_metadata(key, '', true) }
-          post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
-          expect(response).to have_http_status(:bad_request)
-          json = JSON.parse(response.body)
-          @attributes = json['data']['attributes']
-          expect(@attributes['status']).to eq('error')
-          expect(@attributes['code']).to eq('DOC102')
-          expect(@attributes['detail']).to eq("Missing required keys: #{key}")
-        end
+      it 'sets consumer name from X-Consumer-Username header' do
+        post vba_documents.v2_uploads_path, params: nil, headers: { 'X-Consumer-Username': 'test consumer' }
+        upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
+        expect(upload.consumer_name).to eq('test consumer')
+      end
 
-        if key.eql?('fileNumber')
-          it "Returns an error when #{key} is not a string" do
-            # make fileNumber a non-string value
-            metadata = { metadata: invalidate_metadata(key, 123_456_789) }
-            post SUBMIT_ENDPOINT, params: {}.merge(metadata).merge(valid_content).merge(valid_attachments)
-            expect(response).to have_http_status(:bad_request)
+      it 'sets consumer id from X-Consumer-ID header' do
+        post vba_documents.v2_uploads_path,
+             params: nil,
+             headers: { 'X-Consumer-ID': '29090360-72a8-4b77-b5ea-6ea1c69c7d89' }
+        upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
+        expect(upload.consumer_id).to eq('29090360-72a8-4b77-b5ea-6ea1c69c7d89')
+      end
+
+      %i[file text].each do |multipart_fashion|
+        it "returns a UUID, location and observers when valid observers #{multipart_fashion} included" do
+          with_settings(Settings.vba_documents.location,
+                        prefix: 'https://fake.s3.url/foo/',
+                        replacement: 'https://api.vets.gov/proxy/') do
+            observers_json = File.read(fixture_path + 'subscriptions.json')
+            observers = Rack::Test::UploadedFile.new("#{fixture_path}subscriptions.json", 'application/json')
+            observers = observers_json if multipart_fashion == :text
+            post vba_documents.v2_uploads_path,
+                 params: {
+                   'observers': observers
+                 },
+                 headers: dev_headers
+            expect(response).to have_http_status(:accepted)
             json = JSON.parse(response.body)
-            @attributes = json['data']['attributes']
-            expect(@attributes['status']).to eq('error')
-            expect(@attributes['code']).to eq('DOC102')
-            expect(@attributes['detail']).to eq("Non-string values for keys: #{key}")
+            expect(json['data']['attributes']).to have_key('guid')
+            expect(json['data']['attributes']['status']).to eq('pending')
+            expect(json['data']['attributes']['location']).to eq('https://api.vets.gov/proxy/guid')
+            expect(json['data']['attributes']['observers']).to eq(JSON.parse(observers_json)['subscriptions'])
           end
         end
       end
+
+      %i[missing_event bad_URL unknown_event not_https duplicate_events not_JSON empty_array].each do |test_case|
+        %i[file text].each do |multipart_fashion|
+          it "returns error with invalid #{test_case} observers #{multipart_fashion}" do
+            observers = if multipart_fashion == :file
+                          Rack::Test::UploadedFile.new("#{fixture_path}invalid_subscription_#{test_case}.json",
+                                                       'application/json')
+                        else
+                          File.read("#{fixture_path}invalid_subscription_#{test_case}.json")
+                        end
+
+            post vba_documents.v2_uploads_path,
+                 params: {
+                   'observers': observers
+                 },
+                 headers: dev_headers
+            expect(response).to have_http_status(:unprocessable_entity)
+          end
+        end
+      end
+
+      it 'returns error if spanning multiple api names' do
+        observers = File.read("#{fixture_path}subscriptions_multiple.json")
+
+        post vba_documents.v2_uploads_path,
+             params: {
+               'observers': observers
+             },
+             headers: dev_headers
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
+  describe '#show /v2/uploads/{id}' do
+    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload_large_detail) { FactoryBot.create(:upload_submission_large_detail) }
+
+    it 'returns status of an upload submission' do
+      get vba_documents.v2_upload_path(upload.guid)
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']['guid']).to eq(upload.guid)
+      expect(json['data']['attributes']['status']).to eq('pending')
+      expect(json['data']['attributes']['location']).to be_nil
+    end
+
+    it 'returns not_found with data for a non-existent submission' do
+      get vba_documents.v2_upload_path('non_existent_guid')
+      expect(response).to have_http_status(:not_found)
+      json = JSON.parse(response.body)
+      expect(json['errors']).to be_an(Array)
+      expect(json['errors'].size).to eq(1)
+      status = json['errors'][0]
+      expect(status['detail']).to include('non_existent_guid')
+    end
+
+    it 'keeps the displayed detail to 200 characters or less' do
+      get vba_documents.v2_upload_path(upload_large_detail.guid)
+      json = JSON.parse(response.body)
+      length = VBADocuments::UploadSerializer::MAX_DETAIL_DISPLAY_LENGTH
+      expect(json['data']['attributes']['detail'].length).to be <= length + 3
+      expect(json['data']['attributes']['detail']).to match(/.*\.\.\.$/)
+      get vba_documents.v2_upload_path(upload.guid)
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']['detail']).to eql(upload.detail.to_s)
+    end
+
+    context 'line of business' do
+      before do
+        @md = JSON.parse(valid_metadata)
+        @upload_submission = VBADocuments::UploadSubmission.new
+        @upload_submission.update(status: 'uploaded')
+        allow(VBADocuments::MultipartParser).to receive(:parse) {
+          { 'metadata' => @md.to_json, 'content' => valid_doc }
+        }
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(200)
+        allow(faraday_response).to receive(:body).and_return([[], []].to_json)
+        allow(faraday_response).to receive(:success?).and_return(true)
+        allow(VBADocuments::PayloadManager).to receive(:download_raw_file) { [Tempfile.new, Time.zone.now] }
+        expect(client_stub).to receive(:upload) {
+          faraday_response
+        }
+        expect(client_stub).to receive(:status) {
+          faraday_response
+        }
+      end
+
+      it 'displays the line of business' do
+        @md['businessLine'] = 'CMP'
+        VBADocuments::UploadProcessor.new.perform(@upload_submission.guid, test_caller)
+        get vba_documents.v2_upload_path(@upload_submission.guid)
+        json = JSON.parse(response.body)
+        pdf_data = json['data']['attributes']['uploaded_pdf']
+        expect(pdf_data['line_of_business']).to eq('CMP')
+        expect(pdf_data['submitted_line_of_business']).to eq(nil)
+      end
+
+      # for ticket: https://vajira.max.gov/browse/API-5293
+      # production was broken, the pull request below fixes it.  This test ensures it never comes back.
+      # https://github.com/department-of-veterans-affairs/vets-api/pull/6186
+      it 'succeeds when giving a status on legacy data' do
+        @md['businessLine'] = 'CMP'
+        @upload_submission.metadata = {}
+        @upload_submission.save!
+        VBADocuments::UploadProcessor.new.perform(@upload_submission.guid, test_caller)
+        get vba_documents.v2_upload_path(@upload_submission.guid)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+
+    it 'returns not_found for an expired submission' do
+      upload.update(status: 'expired')
+      get vba_documents.v2_upload_path(upload.guid)
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('expired')
+    end
+
+    context 'with vbms complete' do
+      let!(:vbms_upload) { FactoryBot.create(:upload_submission, status: 'vbms') }
+
+      it 'reports status of vbms' do
+        get vba_documents.v2_upload_path(vbms_upload.guid)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('vbms')
+      end
+    end
+
+    context 'with error status' do
+      let!(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
+
+      it 'returns json api errors' do
+        get vba_documents.v2_upload_path(error_upload.guid)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('error')
+      end
+    end
+
+    it 'allows updating of the status' do
+      with_settings(
+        Settings.vba_documents,
+        enable_status_override: true
+      ) do
+        starting_status = upload.status
+        get(vba_documents.v2_upload_path(upload.guid),
+            params: nil,
+            headers: { 'Status-Override' => 'vbms' })
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
+      end
+    end
+  end
+
+  describe '#download /v2/uploads/{id}' do
+    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:valid_doc) { get_fixture('valid_doc.pdf') }
+    let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+    let(:invalid_doc) { get_fixture('invalid_multipart_no_partname.blob') }
+
+    let(:valid_parts) do
+      { 'metadata' => valid_metadata,
+        'content' => valid_doc }
+    end
+
+    it "raises if settings aren't set" do
+      with_settings(Settings.vba_documents, enable_download_endpoint: false) do
+        get vba_documents.v2_upload_download_path(upload.guid)
+        expect(response.status).to eq(404)
+      end
+    end
+
+    it 'returns a 200 with content-type of zip' do
+      objstore = instance_double(VBADocuments::ObjectStore)
+      version = instance_double(Aws::S3::ObjectVersion)
+      bucket = instance_double(Aws::S3::Bucket)
+      obj = instance_double(Aws::S3::Object)
+      allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
+      allow(objstore).to receive(:first_version).and_return(version)
+      allow(objstore).to receive(:download)
+      allow(objstore).to receive(:bucket).and_return(bucket)
+      allow(bucket).to receive(:object).and_return(obj)
+      allow(obj).to receive(:exists?).and_return(true)
+      allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+
+      get vba_documents.v2_upload_download_path(upload.guid)
+      expect(response.status).to eq(200)
+      expect(response.headers['Content-Type']).to eq('application/zip')
+    end
+
+    it '200S even with an invalid doc' do
+      allow(VBADocuments::PayloadManager).to receive(:download_raw_file).and_return(invalid_doc)
+      get vba_documents.v2_upload_download_path(upload.guid)
+      expect(response.status).to eq(200)
+      expect(response.headers['Content-Type']).to eq('application/zip')
+    end
+
+    it 'returns a 404 if deleted from s3' do
+      objstore = instance_double(VBADocuments::ObjectStore)
+      version = instance_double(Aws::S3::ObjectVersion)
+      bucket = instance_double(Aws::S3::Bucket)
+      obj = instance_double(Aws::S3::Object)
+      allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
+      allow(objstore).to receive(:first_version).and_return(version)
+      allow(objstore).to receive(:download)
+      allow(objstore).to receive(:bucket).and_return(bucket)
+      allow(bucket).to receive(:object).and_return(obj)
+      allow(obj).to receive(:exists?).and_return(false)
+      allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+
+      get vba_documents.v2_upload_download_path(upload.guid)
+      expect(response.status).to eq(404)
     end
   end
 end

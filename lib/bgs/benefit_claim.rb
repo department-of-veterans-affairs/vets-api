@@ -4,6 +4,8 @@ require_relative 'service'
 
 module BGS
   class BenefitClaim
+    include SentryLogging
+
     BENEFIT_CLAIM_PARAM_CONSTANTS = {
       benefit_claim_type: '1',
       payee: '00',
@@ -34,6 +36,8 @@ module BGS
         status_type_code: benefit_claim.dig(:benefit_claim_record, :status_type_code)
       }
     rescue => e
+      # temporary logging to troubleshoot
+      log_message_to_sentry("BACKUP-LOGGING: #{@proc_id} - #{e.message}", :warn, '', { team: 'vfs-ebenefits' })
       handle_error(e, __method__.to_s)
     end
 

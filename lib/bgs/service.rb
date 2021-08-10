@@ -1,11 +1,16 @@
 # frozen_string_literal: true
 
 require_relative 'exceptions/bgs_errors'
+require 'common/client/concerns/monitoring'
 
 module BGS
   class Service
+    STATSD_KEY_PREFIX = 'api.bgs'
+
     include BGS::Exceptions::BGSErrors
     include SentryLogging
+    include Common::Client::Concerns::Monitoring
+
     # Journal Status Type Code
     # The alphabetic character representing the last action taken on the record
     # (I = Input, U = Update, D = Delete)
@@ -178,35 +183,43 @@ module BGS
         :routng_trnsit_nbr
       ).merge(
         financial_institution_name: lambda do
-          return if routing_number.blank?
-
-          begin
-            res = service.ddeft.find_bank_name_by_routng_trnsit_nbr(routing_number)
-            res[:find_bank_name_by_routng_trnsit_nbr_response][:return][:bank_name]
-          rescue => e
-            log_exception_to_sentry(e, { routing_number: routing_number }, { error: 'ch33_dd' })
-            nil
-          end
+          find_bank_name_by_routng_trnsit_nbr(routing_number)
+        rescue => e
+          log_exception_to_sentry(e, { routing_number: routing_number }, { error: 'ch33_dd' })
+          nil
         end.call
       )
     end
 
+    def find_bank_name_by_routng_trnsit_nbr(routing_number)
+      return if routing_number.blank?
+
+      with_monitoring do
+        res = service.ddeft.find_bank_name_by_routng_trnsit_nbr(routing_number)
+        res[:find_bank_name_by_routng_trnsit_nbr_response][:return][:bank_name]
+      end
+    end
+
     def find_ch33_dd_eft
-      service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
+      with_monitoring do
+        service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
+      end
     end
 
     def update_ch33_dd_eft(routing_number, acct_number, checking_acct)
-      service.claims.send(
-        :request,
-        :update_ch33_dd_eft,
-        ch33DdEftInput: {
-          dpositAcntNbr: acct_number,
-          dpositAcntTypeNm: checking_acct ? 'C' : 'S',
-          fileNumber: @user.ssn,
-          routngTrnsitNbr: routing_number,
-          tranCode: '2'
-        }
-      )
+      with_monitoring do
+        service.claims.send(
+          :request,
+          :update_ch33_dd_eft,
+          ch33DdEftInput: {
+            dpositAcntNbr: acct_number,
+            dpositAcntTypeNm: checking_acct ? 'C' : 'S',
+            fileNumber: @user.ssn,
+            routngTrnsitNbr: routing_number,
+            tranCode: '2'
+          }
+        )
+      end
     end
 
     def get_regional_office_by_zip_code(zip_code, country, province, lob, ssn)

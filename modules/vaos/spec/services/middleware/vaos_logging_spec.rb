@@ -34,36 +34,42 @@ describe VAOS::Middleware::VAOSLogging do
     let(:status) { 200 }
 
     it 'user service call logs a success' do
-      expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.va_mobile.response.total:1 #method:POST'\
-        ' #url:/users/v2/session #http_status:')
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
                                                   duration: 0.0,
                                                   url: '(POST) https://veteran.apps.va.gov/users/v2/session?processRules=true').and_call_original
-      client.post(user_service_uri)
+      expect { client.post(user_service_uri) }
+        .to trigger_statsd_increment(
+          'api.vaos.va_mobile.response.total',
+          tags: ['method:POST', 'url:/users/v2/session', 'http_status:']
+        )
     end
 
     it 'other requests with X-Vamf-Jwt log a success' do
-      expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.va_mobile.response.total:1 #method:GET '\
-        '#url:/whatever #http_status:')
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
                                                   duration: 0.0,
                                                   url: '(GET) https://veteran.apps.va.gov/whatever').and_call_original
-      client.get(all_other_uris, nil, { 'X-Vamf-Jwt' => sample_jwt })
+      expect { client.get(all_other_uris, nil, { 'X-Vamf-Jwt' => sample_jwt }) }
+        .to trigger_statsd_increment(
+          'api.vaos.va_mobile.response.total',
+          tags: ['method:GET', 'url:/whatever', 'http_status:']
+        )
     end
 
     it 'other requests with X-VAMF-JWT log a success' do
-      expect(Rails.logger).to receive(:info).with('[StatsD] increment api.vaos.va_mobile.response.total:1 #method:GET '\
-        '#url:/user_service_refresh_uri #http_status:')
       expect(Rails.logger).to receive(:info).with('VAOS service call succeeded!',
                                                   jti: 'ebfc95ef5f3a41a7b15e432fe47e9864',
                                                   status: 200,
                                                   duration: 0.0,
                                                   url: '(GET) https://veteran.apps.va.gov/user_service_refresh_uri').and_call_original
-      client.get(user_service_refresh_uri, nil, { 'X-VAMF-JWT' => sample_jwt })
+      expect { client.get(user_service_refresh_uri, nil, { 'X-VAMF-JWT' => sample_jwt }) }
+        .to trigger_statsd_increment(
+          'api.vaos.va_mobile.response.total',
+          tags: ['method:GET', 'url:/user_service_refresh_uri', 'http_status:']
+        )
     end
   end
 

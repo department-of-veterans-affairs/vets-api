@@ -19,6 +19,7 @@ module DebtManagementCenter
     configuration DebtManagementCenter::FinancialStatusReportConfiguration
 
     STATSD_KEY_PREFIX = 'api.dmc'
+    DATE_TIMEZONE = 'Central Time (US & Canada)'
 
     ##
     # Submit a financial status report to the Debt Management Center
@@ -31,6 +32,7 @@ module DebtManagementCenter
         form = camelize(form)
         raise_client_error unless form.key?('personalIdentification')
         form['personalIdentification']['fileNumber'] = @file_number
+        set_certification_date(form)
         response = DebtManagementCenter::FinancialStatusReportResponse.new(
           perform(:post, 'financial-status-report/formtopdf', form).body
         )
@@ -75,6 +77,13 @@ module DebtManagementCenter
 
     def camelize(hash)
       hash.deep_transform_keys! { |key| key.to_s.camelize(:lower) }
+    end
+
+    def set_certification_date(form)
+      date            = Time.now.in_time_zone(self.class::DATE_TIMEZONE).to_date
+      date_formatted  = date.strftime('%m/%d/%Y')
+
+      form['applicantCertifications']['veteranDateSigned'] = date_formatted if form['applicantCertifications']
     end
   end
 end

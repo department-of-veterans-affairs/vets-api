@@ -153,12 +153,47 @@ RSpec.describe 'Intent to file', type: :request do
           end
         end
       end
+
+      context 'when consumer is Veteran' do
+        it 'adds person to MPI' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+              VCR.use_cassette('mpi/add_person/add_person_success') do
+                VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
+                  expect_any_instance_of(MPIData).to receive(:add_person).once.and_call_original
+                  post path, params: data.to_json, headers: auth_header
+                end
+              end
+            end
+          end
+        end
+      end
+    end
+
+    context 'when Veteran has participant_id' do
+      context 'when Veteran is missing a birls_id' do
+        before do
+          stub_mpi(build(:mvi_profile, birls_id: nil))
+        end
+
+        it 'returns an unprocessible entity status' do
+          with_okta_user(scopes) do |auth_header|
+            post path, params: data.to_json, headers: headers.merge(auth_header)
+            expect(response.status).to eq(422)
+          end
+        end
+      end
     end
   end
 
   describe '#active' do
     before do
       stub_mpi
+      Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
+    end
+
+    after do
+      Timecop.return
     end
 
     it 'returns the latest itf of a compensation type' do

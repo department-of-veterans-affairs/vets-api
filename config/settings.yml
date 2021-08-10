@@ -440,6 +440,9 @@ preneeds:
   host: http://some.fakesite.com
   wsdl: "config/preneeds/wsdl/preneeds.wsdl"
 
+webhooks:
+  require_https: true
+
 # Settings for VBA Document upload service module
 vba_documents:
   documentation:
@@ -459,6 +462,9 @@ vba_documents:
     topic_arns:
       - vetsgov-arn
       - vagov-arn
+  webhooks:
+    registration_next_run_in_minutes: 15
+    registration_max_retries: 3
 
 #Settings for Claims Api Module
 claims_api:
@@ -740,6 +746,7 @@ flipper:
     - kabrown@thoughtworks.com
     - kadams@governmentcio.com
     - kam@adhocteam.us
+    - kathleen.crawford@gcio.com
     - kenneth.gary@va.gov
     - kenneth.santiago2010@gmail.com
     - kevin.musiorski@gcio.com # Kevin Musiorski (GCIO), Engineer
@@ -785,6 +792,7 @@ flipper:
     - tze@adhocteam.us
     - zurbergram@gmail.com
     - zmorel@governmentcio.com
+    - kha.huynh@thoughtworks.com
     - zach.morel@gcio.com
 
 bgs:
@@ -1051,6 +1059,7 @@ pg_hero:
 check_in:
   chip_api:
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
+    base_path: dev
     host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_id: 2dcdrrn5zc
