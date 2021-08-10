@@ -8,8 +8,8 @@ describe VAOS::V2::AppointmentsService do
   let(:user) { build(:user, :vaos) }
   let(:start_date) { Time.zone.parse('2021-05-04T04:00:00.000Z') }
   let(:end_date) { Time.zone.parse('2022-07-03T04:00:00.000Z') }
-  let(:start_date_alt) { Time.zone.parse('2021-07-16T19:25:00Z') }
-  let(:end_date_alt) { Time.zone.parse('2021-07-16T19:45:00Z') }
+  let(:start_date2) { Time.zone.parse('2021-05-16T19:25:00Z') }
+  let(:end_date2) { Time.zone.parse('2021-09-16T19:45:00Z') }
   let(:id) { '202006031600983000030800000000000000' }
   let(:appointment_id) { 123 }
 
@@ -50,25 +50,24 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  # TODO: get appointments vcr
   describe '#get_appointments' do
     context 'when requesting a list of appointments given a date range' do
       it 'returns a 200 status with list of appointments' do
         VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
-          response = subject.get_appointments(start_date_alt, end_date_alt)
+          response = subject.get_appointments(start_date2, end_date2)
 
-          expect(response[:data].size).to eq(1)
+          expect(response[:data].size).to eq(84)
         end
       end
     end
 
     context 'when requesting a list of appointments given a date range and single status' do
       it 'returns a 200 status with list of appointments' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
-          response = subject.get_appointments(start_date, end_date, 'proposed')
-          expect(response[:data].size).to eq(7)
+          response = subject.get_appointments(start_date2, end_date2, 'proposed')
+          expect(response[:data].size).to eq(3)
           expect(response[:data][0][:status]).to eq('proposed')
         end
       end
@@ -76,12 +75,12 @@ describe VAOS::V2::AppointmentsService do
 
     context 'when requesting a list of appointments given a date range and multiple statuses' do
       it 'returns a 200 status with list of appointments' do
-        VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri],
+        VCR.use_cassette('vaos/v2/appointments/get_appointments_multi_status_200', match_requests_on: %i[method uri],
                                                                       tag: :force_utf8) do
-          response = subject.get_appointments(start_date, end_date, 'proposed,booked')
-          expect(response[:data].size).to eq(53)
+          response = subject.get_appointments(start_date2, end_date2, 'proposed,booked')
+          expect(response[:data].size).to eq(17)
           expect(response[:data][0][:status]).to eq('booked')
-          expect(response[:data][52][:status]).to eq('proposed')
+          expect(response[:data][16][:status]).to eq('proposed')
         end
       end
     end
