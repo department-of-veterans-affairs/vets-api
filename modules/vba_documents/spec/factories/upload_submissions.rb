@@ -17,6 +17,11 @@ FactoryBot.define do
       status { 'received' }
     end
 
+    trait :version_2 do
+      guid { 'aa65a6a3-4193-46f5-90de-12026ffd40a1' }
+      metadata { { 'version': 2 } }
+    end
+
     trait :status_uploaded do
       guid { 'da65a6a3-4193-46f5-90de-12026ffd40a1' }
       status { 'uploaded' }
