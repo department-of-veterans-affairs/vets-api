@@ -50,6 +50,10 @@ module DebtManagementCenter
       end
     end
 
+    def create_debt_letter
+      
+    end
+
     private
 
     def vbms_documents
