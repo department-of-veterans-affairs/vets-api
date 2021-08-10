@@ -133,7 +133,7 @@ module V0
             docket_number
           ]
         ],
-        application_certifications: %i[
+        applicant_certifications: %i[
           veteran_signature
         ]
       ).to_hash
