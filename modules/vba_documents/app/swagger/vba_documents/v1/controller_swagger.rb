@@ -6,7 +6,7 @@ module VBADocuments
       include Swagger::Blocks
       VBA_TAG = ['VBA Documents'].freeze
       swagger_path '/uploads' do
-        operation :post do
+        operation :post, tags: VBA_TAG do
           extend VBADocuments::Responses::ForbiddenError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::InternalServerError
@@ -37,7 +37,7 @@ module VBADocuments
       end
 
       swagger_path '/path' do
-        operation :put do
+        operation :put, tags: VBA_TAG do
           extend VBADocuments::Responses::InternalServerError
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::TooManyRequestsError
@@ -77,7 +77,7 @@ module VBADocuments
       end
 
       swagger_path '/uploads/{id}' do
-        operation :get do
+        operation :get, tags: VBA_TAG do
           extend VBADocuments::Responses::NotFoundError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::InternalServerError
@@ -121,7 +121,7 @@ module VBADocuments
       end
 
       swagger_path '/uploads/{id}/download' do
-        operation :get do
+        operation :get, tags: VBA_TAG do
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::ForbiddenError
@@ -163,7 +163,7 @@ module VBADocuments
       end
 
       swagger_path '/uploads/report' do
-        operation :post do
+        operation :post, tags: VBA_TAG do
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::ForbiddenError

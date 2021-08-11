@@ -148,7 +148,7 @@ module VBADocuments
       end
 
       swagger_path '/uploads/{id}/download' do
-        operation :get , tags: VBA_TAG do
+        operation :get, tags: VBA_TAG do
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::ForbiddenError
