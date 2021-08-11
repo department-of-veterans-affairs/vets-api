@@ -34,6 +34,8 @@ module VBADocuments
             subscriptions = validate_subscription(JSON.parse(observers))
           end
 
+          submission.metadata['version'] = 2
+          submission.save!
           if subscriptions
             Webhooks::Utilities.register_webhook(
               submission.consumer_id, submission.consumer_name, subscriptions, submission.guid
@@ -82,11 +84,12 @@ module VBADocuments
         upload_model = UploadFile.new
         begin
           upload_model.multipart.attach(io: StringIO.new(request.raw_post), filename: upload_model.guid)
+          upload_model.metadata['version'] = 2
           upload_model.save!
           parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))
           inspector = VBADocuments::PDFInspector.new(pdf: parts)
           validate_parts(parts)
-          validate_metadata(parts[META_PART_NAME])
+          validate_metadata(parts[META_PART_NAME], submission_version: upload_model.metadata['version'].to_i)
           update_pdf_metadata(upload_model, inspector)
           perfect_metadata(upload_model, parts, Time.zone.now)
           VBADocuments::UploadProcessor.perform_async(upload_model.guid, caller: self.class.name)
@@ -97,8 +100,7 @@ module VBADocuments
           upload_model.update(status: 'error', code: 'DOC104', detail: e.message)
         end
         status = upload_model.status.eql?('error') ? 400 : 200
-        render json: upload_model,
-               serializer: VBADocuments::V2::UploadSerializer, status: status
+        render json: upload_model, serializer: VBADocuments::V2::UploadSerializer, status: status
       end
 
       private
