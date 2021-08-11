@@ -51,7 +51,7 @@ VAOS::Engine.routes.draw do
     get '/patients/', to: 'patients#index'
     get '/scheduling/configurations', to: 'scheduling#configurations'
     get '/facilities', to: 'facilities#index'
-
     post '/appointments', to: 'appointments#create'
+    put '/appointments/cancel/:id', to: 'appointments#cancel'
   end
 end
