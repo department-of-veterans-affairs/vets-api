@@ -128,7 +128,7 @@ module AppealsApi
 
     def decision_reviews_v2_beta
       {
-        version: '2.0.0-rwswag',
+        version: '2.0.0-rswag',
         internal_only: true,
         status: VERSION_STATUS[:current],
         path: '/services/appeals/docs/v2/decision_reviews_beta',
