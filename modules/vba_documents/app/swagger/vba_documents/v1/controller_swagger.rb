@@ -4,9 +4,9 @@ module VBADocuments
   module V1
     class ControllerSwagger
       include Swagger::Blocks
-
+      VBA_TAG = ['VBA Documents'].freeze
       swagger_path '/uploads' do
-        operation :post do
+        operation :post, tags: VBA_TAG do
           extend VBADocuments::Responses::ForbiddenError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::InternalServerError
@@ -18,7 +18,7 @@ module VBADocuments
             key :apikey, []
           end
           key :tags, [
-            'document_uploads'
+            VBA_TAG
           ]
 
           response 202 do
@@ -37,15 +37,17 @@ module VBADocuments
       end
 
       swagger_path '/path' do
-        operation :put do
+        operation :put, tags: VBA_TAG do
           extend VBADocuments::Responses::InternalServerError
           extend VBADocuments::Responses::UnauthorizedError
+          extend VBADocuments::Responses::TooManyRequestsError
+          extend VBADocuments::Responses::UnexpectedError
           key :summary, 'Accepts document upload.'
           key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'put_description.md'))
           key :operationId, 'putBenefitsDocumentUpload'
 
           key :tags, [
-            'document_uploads'
+            VBA_TAG
           ]
 
           parameter do
@@ -63,7 +65,7 @@ module VBADocuments
             key :description, 'Document upload staged'
           end
 
-          response 400 do
+          response 403 do
             key :description, 'Document upload failed'
             content 'application/xml' do
               schema do
@@ -75,10 +77,9 @@ module VBADocuments
       end
 
       swagger_path '/uploads/{id}' do
-        operation :get do
+        operation :get, tags: VBA_TAG do
           extend VBADocuments::Responses::NotFoundError
           extend VBADocuments::Responses::TooManyRequestsError
-          extend VBADocuments::Responses::UnexpectedError
           extend VBADocuments::Responses::InternalServerError
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::ForbiddenError
@@ -86,7 +87,7 @@ module VBADocuments
           key :operationId, 'getBenefitsDocumentUploadStatus'
 
           key :tags, [
-            'document_uploads'
+            VBA_TAG
           ]
 
           security do
@@ -120,7 +121,7 @@ module VBADocuments
       end
 
       swagger_path '/uploads/{id}/download' do
-        operation :get do
+        operation :get, tags: VBA_TAG do
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::ForbiddenError
@@ -130,7 +131,7 @@ module VBADocuments
           key :description, 'An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Files are deleted after 10 days. Only available in testing environments, not production.'
           key :operationId, 'getBenefitsDocumentUploadDownload'
 
-          key :tags, ['document_uploads']
+          key :tags, [VBA_TAG]
 
           security do
             key :apikey, []
@@ -162,13 +163,13 @@ module VBADocuments
       end
 
       swagger_path '/uploads/report' do
-        operation :post do
+        operation :post, tags: VBA_TAG do
           extend VBADocuments::Responses::UnauthorizedError
           extend VBADocuments::Responses::TooManyRequestsError
           extend VBADocuments::Responses::ForbiddenError
           extend VBADocuments::Responses::UnexpectedError
           extend VBADocuments::Responses::InternalServerError
-          key :tags, %i[document_uploads]
+          key :tags, [VBA_TAG]
 
           key :summary, 'Get a bulk status report for a list of previous uploads'
           key :operationId, 'getBenefitsDocumentUploadStatusReport'
