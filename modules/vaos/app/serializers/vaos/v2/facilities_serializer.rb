@@ -7,6 +7,8 @@ module VAOS
 
       set_id :id
 
+      set_type :facilities
+
       attributes :id,
                  :vista_site,
                  :vast_parent,

@@ -110,48 +110,6 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     end
   end
 
-  shared_examples '10-10CG valid request' do
-    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
-    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
-
-    after do
-      File.delete(response_pdf) if File.exist?(response_pdf)
-    end
-
-    it 'generates a filled out 10-10CG and sends file as response', run_at: '2017-07-25 00:00:00 -0400' do
-      form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
-      params    = { caregivers_assistance_claim: { form: form_data } }
-      claim     = build(:caregivers_assistance_claim, form: form_data)
-
-      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
-        form: form_data
-      ).and_return(
-        claim
-      )
-
-      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
-
-      expect(described_class::AUDITOR).to receive(:record).with(:pdf_download)
-
-      post :download_pdf, params: params
-
-      expect(response).to have_http_status(:ok)
-
-      # download response conent (the pdf) to disk
-      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
-
-      # compare it with the pdf fixture
-      expect(
-        pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
-
-      # ensure that the tmp file was deleted
-      expect(
-        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-      ).to eq(false)
-    end
-  end
-
   describe '#create' do
     let(:claim) { build(:caregivers_assistance_claim) }
 
@@ -341,37 +299,47 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   end
 
   describe '#download_pdf' do
-    context 'when there is a missing param' do
-      it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :download_pdf
-      it_behaves_like '10-10CG request with missing param: form', :download_pdf
+    let(:response_pdf) { Rails.root.join 'tmp', 'pdfs', '10-10CG_from_response.pdf' }
+    let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
+
+    after do
+      File.delete(response_pdf) if File.exist?(response_pdf)
     end
 
-    context 'when ezcg_use_facility_api feature toggle is disabled' do
-      before do
-        Flipper.add :ezcg_use_facility_api
-        Flipper.disable :ezcg_use_facility_api
-      end
+    it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :download_pdf
+    it_behaves_like '10-10CG request with missing param: form', :download_pdf
 
-      after do
-        Flipper.remove :ezcg_use_facility_api
-      end
+    it 'generates a filled out 10-10CG and sends file as response', run_at: '2017-07-25 00:00:00 -0400' do
+      form_data = get_fixture('pdf_fill/10-10CG/simple').to_json
+      params    = { caregivers_assistance_claim: { form: form_data } }
+      claim     = build(:caregivers_assistance_claim, form: form_data)
 
-      it_behaves_like '10-10CG valid request', :download_pdf
-    end
+      expect(SavedClaim::CaregiversAssistanceClaim).to receive(:new).with(
+        form: form_data
+      ).and_return(
+        claim
+      )
 
-    context 'when ezcg_use_facility_api feature toggle is enabled' do
-      before do
-        VCR.insert_cassette('pcafc/get_facilities_with_cg_params', allow_unused_http_interactions: false)
-        Flipper.add :ezcg_use_facility_api
-        Flipper.enable :ezcg_use_facility_api
-      end
+      expect(SecureRandom).to receive(:uuid).and_return('file-name-uuid') # When controller generates it for filename
 
-      after do
-        VCR.eject_cassette
-        Flipper.remove :ezcg_use_facility_api
-      end
+      expect(described_class::AUDITOR).to receive(:record).with(:pdf_download)
 
-      it_behaves_like '10-10CG valid request', :download_pdf
+      post :download_pdf, params: params
+
+      expect(response).to have_http_status(:ok)
+
+      # download response conent (the pdf) to disk
+      File.open(response_pdf, 'wb+') { |f| f.write(response.body) }
+
+      # compare it with the pdf fixture
+      expect(
+        pdfs_fields_match?(response_pdf, expected_pdf)
+      ).to eq(true)
+
+      # ensure that the tmp file was deleted
+      expect(
+        File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
+      ).to eq(false)
     end
   end
 end
