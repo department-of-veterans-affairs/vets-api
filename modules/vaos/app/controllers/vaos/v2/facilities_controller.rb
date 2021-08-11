@@ -10,10 +10,25 @@ module VAOS
         render json: VAOS::V2::FacilitiesSerializer.new(response[:data], meta: response[:meta])
       end
 
+      def show
+        render json: VAOS::V2::FacilitiesSerializer.new(facility)
+      end
+
       private
 
       def mobile_facility_service
         VAOS::V2::MobileFacilityService.new(current_user)
+      end
+
+      def facility
+        @facility ||=
+          mobile_facility_service.get_facility(facility_id)
+      end
+
+      def facility_id
+        params[:facility_id]
+      rescue ArgumentError
+        raise Common::Exceptions::InvalidFieldValue.new('facility_id', params[:facility_id])
       end
 
       def ids

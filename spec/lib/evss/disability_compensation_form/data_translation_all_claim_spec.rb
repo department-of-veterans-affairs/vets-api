@@ -557,6 +557,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 'first' => 'Steve',
                 'middle' => 'Steverson',
                 'last' => 'Stevington'
+              },
+              {
+                'first' => 'Steve',
+                'middle' => 'Steverson',
+                'last' => 'Stevington'
               }
             ]
           }

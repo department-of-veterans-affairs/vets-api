@@ -15,7 +15,6 @@ RSpec.describe 'Power of Attorney ', type: :request do
 
   before do
     stub_poa_verification
-    stub_mpi
   end
 
   describe '#2122' do
@@ -41,28 +40,83 @@ RSpec.describe 'Power of Attorney ', type: :request do
           Veteran::Service::Representative.new(poa_codes: ['074'], first_name: 'Abraham', last_name: 'Lincoln').save!
         end
 
-        it 'assigns a source' do
-          with_okta_user(scopes) do |auth_header|
-            post path, params: data, headers: headers.merge(auth_header)
-            token = JSON.parse(response.body)['data']['id']
-            poa = ClaimsApi::PowerOfAttorney.find(token)
-            expect(poa.source_data['name']).to eq('abraham lincoln')
-            expect(poa.source_data['icn'].present?).to eq(true)
-            expect(poa.source_data['email']).to eq('abraham.lincoln@vets.gov')
+        context 'when Veteran has all necessary identifiers' do
+          before do
+            stub_mpi
+          end
+
+          it 'assigns a source' do
+            with_okta_user(scopes) do |auth_header|
+              post path, params: data, headers: headers.merge(auth_header)
+              token = JSON.parse(response.body)['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(token)
+              expect(poa.source_data['name']).to eq('abraham lincoln')
+              expect(poa.source_data['icn'].present?).to eq(true)
+              expect(poa.source_data['email']).to eq('abraham.lincoln@vets.gov')
+            end
+          end
+
+          it 'returns a successful response with all the data' do
+            with_okta_user(scopes) do |auth_header|
+              post path, params: data, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
+              expect(parsed['data']['attributes']['status']).to eq('pending')
+            end
           end
         end
 
-        it 'returns a successful response with all the data' do
-          with_okta_user(scopes) do |auth_header|
-            post path, params: data, headers: headers.merge(auth_header)
-            parsed = JSON.parse(response.body)
-            expect(parsed['data']['type']).to eq('claims_api_power_of_attorneys')
-            expect(parsed['data']['attributes']['status']).to eq('pending')
+        context 'when Veteran is missing a participant_id' do
+          before do
+            stub_mpi_not_found
+          end
+
+          context 'when consumer is representative' do
+            it 'returns an unprocessible entity status' do
+              with_okta_user(scopes) do |auth_header|
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
+              end
+            end
+          end
+
+          context 'when consumer is Veteran' do
+            it 'adds person to MPI' do
+              with_okta_user(scopes) do |auth_header|
+                VCR.use_cassette('bgs/intent_to_file_web_service/insert_intent_to_file') do
+                  VCR.use_cassette('mpi/add_person/add_person_success') do
+                    VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
+                      expect_any_instance_of(MPIData).to receive(:add_person).once.and_call_original
+                      post path, params: data, headers: auth_header
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when Veteran has participant_id' do
+          context 'when Veteran is missing a birls_id' do
+            before do
+              stub_mpi(build(:mvi_profile, birls_id: nil))
+            end
+
+            it 'returns an unprocessible entity status' do
+              with_okta_user(scopes) do |auth_header|
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(200)
+              end
+            end
           end
         end
       end
 
       context 'when poa code is not associated with current user' do
+        before do
+          stub_mpi
+        end
+
         it 'responds with invalid poa code message' do
           with_okta_user(scopes) do |auth_header|
             post path, params: data, headers: headers.merge(auth_header)
@@ -73,6 +127,10 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     context 'when poa code is not valid' do
+      before do
+        stub_mpi
+      end
+
       it 'responds with invalid poa code message' do
         with_okta_user(scopes) do |auth_header|
           post path, params: data, headers: headers.merge(auth_header)
@@ -82,6 +140,10 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     context 'validation' do
+      before do
+        stub_mpi
+      end
+
       let(:json_data) { JSON.parse data }
 
       it 'requires poa_code subfield' do
@@ -109,6 +171,10 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#check status' do
+      before do
+        stub_mpi
+      end
+
       let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
 
       it 'return the status of a PoA based on GUID' do
@@ -123,6 +189,10 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#upload_power_of_attorney_document' do
+      before do
+        stub_mpi
+      end
+
       let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
       let(:binary_params) do
         { attachment: Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
@@ -157,6 +227,10 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#validate' do
+      before do
+        stub_mpi
+      end
+
       it 'returns a response when valid' do
         with_okta_user(scopes) do |auth_header|
           post "#{path}/validate", params: data, headers: headers.merge(auth_header)
@@ -184,6 +258,10 @@ RSpec.describe 'Power of Attorney ', type: :request do
     end
 
     describe '#active' do
+      before do
+        stub_mpi
+      end
+
       let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
       context 'when there is no BGS active power of attorney' do
