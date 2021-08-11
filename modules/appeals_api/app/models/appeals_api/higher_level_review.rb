@@ -225,7 +225,6 @@ module AppealsApi
       email_handler = Events::Handler.new(event_type: :hlr_received, opts: {
                                             email: email_v2,
                                             veteran_first_name: first_name,
-                                            veteran_last_name: last_name,
                                             date_submitted: date_signed,
                                             guid: id
                                           })
