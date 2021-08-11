@@ -16,8 +16,6 @@ module VeteranVerification
       return false if token.blank? || token.client_credentials_token?
 
       @session = Session.find(Digest::SHA256.hexdigest(token.to_s))
-      # Remove
-      @session = Session.find(token) if @session.nil?
       if @session.nil?
         profile = fetch_profile(token.identifiers.okta_uid)
         establish_session(profile)
