@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'swagger_helper'
+require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components'
 
-describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/forms/0966' do
     get 'Get 0966 JSON Schema for form.' do
       deprecated true
@@ -246,6 +247,7 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
           before do |example|
             stub_poa_verification
             stub_mpi
+            Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z'))
 
             with_okta_user(scopes) do
               VCR.use_cassette('bgs/intent_to_file_web_service/get_intent_to_file') do
@@ -260,6 +262,7 @@ describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable R
                 example: JSON.parse(response.body, symbolize_names: true)
               }
             }
+            Timecop.return
           end
 
           it 'returns a valid 200 response' do |example|

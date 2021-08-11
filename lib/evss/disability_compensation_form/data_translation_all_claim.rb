@@ -267,7 +267,7 @@ module EVSS
             'middleName' => an['middle'],
             'lastName' => an['last']
           }.compact
-        end
+        end.uniq
       end
 
       def service_branch(service_branch)
@@ -353,7 +353,7 @@ module EVSS
 
       def set_military_address(address, zip_code)
         {
-          'militaryPostOfficeTypeCode' => address['city'],
+          'militaryPostOfficeTypeCode' => address['city']&.strip&.upcase,
           'militaryStateCode' => address['state'],
           'zipFirstFive' => zip_code.first,
           'zipLastFour' => zip_code.last

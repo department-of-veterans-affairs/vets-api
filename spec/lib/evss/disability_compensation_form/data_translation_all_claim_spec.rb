@@ -557,6 +557,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 'first' => 'Steve',
                 'middle' => 'Steverson',
                 'last' => 'Stevington'
+              },
+              {
+                'first' => 'Steve',
+                'middle' => 'Steverson',
+                'last' => 'Stevington'
               }
             ]
           }
@@ -669,7 +674,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'form526' => {
             'mailingAddress' => {
               'country' => 'Germany',
-              'city' => 'Hamburg',
+              'city' => ' apo ',
               'state' => 'AA',
               'addressLine1' => '1234 Couch Strasse',
               'zipCode' => '12345-6789'
@@ -682,7 +687,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         expect(subject.send(:translate_veteran)).to eq 'veteran' => {
           'currentMailingAddress' => {
             'addressLine1' => '1234 Couch Strasse',
-            'militaryPostOfficeTypeCode' => 'Hamburg',
+            'militaryPostOfficeTypeCode' => 'APO',
             'country' => 'Germany',
             'militaryStateCode' => 'AA',
             'type' => 'MILITARY',

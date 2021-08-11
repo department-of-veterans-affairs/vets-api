@@ -35,7 +35,7 @@ module ChipApi
     # @return [ChipApi::Token]
     #
     def fetch
-      response = request.post(path: '/dev/token', claims_token: claims_token.static)
+      response = request.post(path: "/#{base_path}/token", claims_token: claims_token.static)
 
       self.access_token = Oj.load(response.body)['token']
       self
@@ -57,6 +57,16 @@ module ChipApi
     #
     def created_at
       @created_at ||= Time.zone.now.utc.to_i
+    end
+
+    ##
+    # Helper method for returning the Chip URL base path
+    # from our environment configuration file
+    #
+    # @return [String]
+    #
+    def base_path # rubocop:disable Rails/Delegate
+      chip_api.base_path
     end
 
     ##
