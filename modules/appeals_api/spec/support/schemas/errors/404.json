@@ -1,0 +1,24 @@
+{
+  "schema": {
+    "type": "object",
+    "properties": {
+      "errors": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "integer",
+              "enum": [
+                404
+              ]
+            },
+            "detail": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
