@@ -267,7 +267,7 @@ module EVSS
             'middleName' => an['middle'],
             'lastName' => an['last']
           }.compact
-        end
+        end.uniq
       end
 
       def service_branch(service_branch)
