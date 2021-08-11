@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'appeals_api/health_checker'
-
 module VeteranVerification
   class MetadataController < ::ApplicationController
     skip_before_action :verify_authenticity_token
