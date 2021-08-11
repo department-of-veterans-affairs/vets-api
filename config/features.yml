@@ -206,6 +206,10 @@ features:
     actor_type: user
     description: Toggles the availability of language support links (spanish et al) in the footer
     enable_in_development: true
+  mega_menu_mobile_v2:
+    actor_type: user
+    description: Separates mobile mega menu from desktop mega menu
+    enable_in_development: true
   mobile_api:
     actor_type: user
     description: API endpoints consumed by the VA Mobile App (iOS/Android)
