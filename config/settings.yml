@@ -1,5 +1,7 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
 
+vsp_environment: 
+
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
 # For CORS requests; separate multiple origins with a comma
