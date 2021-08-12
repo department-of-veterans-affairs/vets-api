@@ -91,6 +91,15 @@ module SAML
       build_sso_url(LOA::IDME_LOA1_VETS)
     end
 
+    def login_gov_url
+      @type = 'login_gov'
+      build_sso_url([
+                      'http://idmanagement.gov/ns/assurance/ial/1',
+                      'http://idmanagement.gov/ns/assurance/aal/2',
+                      'https://eauth.va.gov/csp?Select=logingov3'
+                    ])
+    end
+
     def custom_url(authn)
       @type = 'custom'
       build_sso_url(authn)
