@@ -12,6 +12,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
       update_stalled_notification_in_minutes: 180,
       daily_notification_hour: 7,
       notification_url: '',
+      internal_notification_url: '',
       enabled: true
     }
   end
@@ -24,6 +25,9 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     allow(faraday_response).to receive(:success?).and_return(true)
     @job = VBADocuments::SlackNotifier.new
     allow(@job).to receive(:send_to_slack) {
+      faraday_response
+    }
+    allow(@job).to receive(:send_to_internal_slack) {
       faraday_response
     }
     @results = nil
@@ -150,7 +154,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   context 'invalid parts' do
     before do
       u = VBADocuments::UploadSubmission.new
-      u.metadata['invalid_parts'] = %w("monkey banana")
+      u.metadata['invalid_parts'] = %W[banana, monkey]
       u.save!
     end
 
