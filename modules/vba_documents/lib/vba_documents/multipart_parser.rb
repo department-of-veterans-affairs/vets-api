@@ -168,7 +168,7 @@ module VBADocuments
           return tf, true
         else
           # AWS adds a line break to the end of the file, we need to remove it so that it preserves the proper sha256
-          line.chomp! if /%%EOF\n\r\n/.match?(line)
+          line.chomp! if (line.encoding.name == "ASCII-8BIT" && /%%EOF\n\r\n/.match?(line))
           tf.write(line)
         end
       end
