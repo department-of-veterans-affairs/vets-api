@@ -145,6 +145,7 @@ module VBADocuments
 
     private
 
+
     def log_invalid_parts(model, invalid_parts)
       message = "VBADocuments Invalid Part Uploaded\t"\
                 "GUID: #{model.guid}\t"\
