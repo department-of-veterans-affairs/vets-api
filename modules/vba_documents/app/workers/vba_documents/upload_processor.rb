@@ -42,7 +42,7 @@ module VBADocuments
         update_size(@upload, tempfile.size)
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         inspector = VBADocuments::PDFInspector.new(pdf: parts)
-        validate_parts(parts)
+        validate_parts(@upload, parts)
         validate_metadata(parts[META_PART_NAME], submission_version: @upload.metadata['version'].to_i)
         update_pdf_metadata(@upload, inspector)
         metadata = perfect_metadata(@upload, parts, timestamp)

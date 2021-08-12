@@ -8,6 +8,7 @@ module VBADocuments
     include ActionView::Helpers::DateHelper
 
     AGED_PROCESSING_QUERY_LIMIT = 10
+    INVALID_PARTS_QUERY_LIMIT = 10
 
     def perform
       return unless Settings.vba_documents.slack.enabled
@@ -17,6 +18,7 @@ module VBADocuments
       begin
         results = { long_flyers_alerted: long_flyers_alert,
                     upload_stalled_alerted: upload_stalled_alert,
+                    invalid_parts_alerted: invalid_parts_alert,
                     daily_notification: daily_notification }
       rescue => e
         results = e
@@ -27,6 +29,7 @@ module VBADocuments
 
     def fetch_settings
       @slack_url = Settings.vba_documents.slack.notification_url
+      @internal_slack_url = Settings.vba_documents.slack.internal_notification_url
       @in_flight_hungtime = Settings.vba_documents.slack.in_flight_notification_hung_time_in_days.to_i
       @renotify_time = Settings.vba_documents.slack.renotification_in_minutes.to_i
       @upload_hungtime = Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
@@ -66,8 +69,30 @@ module VBADocuments
       alert(alert_on, text)
     end
 
+    def invalid_parts_alert
+      query_str = "metadata ? 'invalid_parts' and not metadata ? 'invalid_parts_notified'"
+      alert_on = UploadSubmission.where(query_str).limit(INVALID_PARTS_QUERY_LIMIT)
+      text = 'ALERT - GUIDS with invalid parts submitted! (Top 10 shown)\n'
+      alert_on.each do |model|
+        text += "\tGUID: #{model.guid} has invalid parts: #{model.metadata['invalid_parts']}\n"
+      end
+      text = text.gsub(/\"/, "'")
+      resp = send_to_internal_slack(text) if alert_on.any?
+      if resp&.success?
+        alert_on.each do |model|
+          model.metadata['invalid_parts_notified'] = true
+          model.save!
+        end
+      end
+      resp&.success?
+    end
+
     def send_to_slack(text)
       Faraday.post(@slack_url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
+    end
+
+    def send_to_internal_slack(text)
+      Faraday.post(@internal_slack_url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
     end
 
     def add_notification_timestamp(models)

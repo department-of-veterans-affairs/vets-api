@@ -146,4 +146,24 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     u = VBADocuments::UploadSubmission.find_by(guid: guid)
     expect(last_notified).to be < u.metadata['last_slack_notification'].to_i
   end
+
+  context 'invalid parts' do
+    before do
+      u = VBADocuments::UploadSubmission.new
+      u.metadata['invalid_parts'] = %w("monkey banana")
+      u.save!
+    end
+
+    it 'notifies when invalid parts exist' do
+      @results = @job.perform
+      expect(@results[:invalid_parts_alerted]).to be(true)
+    end
+
+    it 'does not notify more than once when invalid parts exist' do
+      @results = @job.perform
+      expect(@results[:invalid_parts_alerted]).to be(true)
+      @results = @job.perform
+      expect(@results[:invalid_parts_alerted]).to be(nil)
+    end
+  end
 end
