@@ -92,10 +92,18 @@ module AppealsApi
     end
 
     def decision_reviews_versions
-      [
-        decision_reviews_v1,
-        decision_reviews_v2
-      ]
+      if beta_enabled?
+        [
+          decision_reviews_v1.merge,
+          decision_reviews_v2.merge({ status: VERSION_STATUS[:previous] }),
+          decision_reviews_v2_beta
+        ]
+      else
+        [
+          decision_reviews_v1,
+          decision_reviews_v2
+        ]
+      end
     end
 
     def decision_reviews_v1
@@ -116,6 +124,20 @@ module AppealsApi
         path: '/services/appeals/docs/v2/decision_reviews',
         healthcheck: '/services/appeals/v2/healthcheck'
       }
+    end
+
+    def decision_reviews_v2_beta
+      {
+        version: '2.0.0-rswag',
+        internal_only: true,
+        status: VERSION_STATUS[:current],
+        path: '/services/appeals/docs/v2/decision_reviews_beta',
+        healthcheck: '/services/appeals/v2/healthcheck'
+      }
+    end
+
+    def beta_enabled?
+      Settings.modules_appeals_api.documentation.path_enabled_flag
     end
   end
 end

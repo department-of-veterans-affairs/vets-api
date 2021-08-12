@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'swagger_helper'
+require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components'
 
-describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+describe 'Disability Claims', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/forms/526' do
     get 'Get a 526 schema for a claim.' do
       deprecated true
@@ -80,6 +81,7 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
             temp = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
             temp = JSON.parse(temp)
             temp['data']['attributes']['autoCestPDFGenerationDisabled'] = auto_cest_pdf_generation_disabled
+            temp['data']['attributes']['applicationExpirationDate'] = (Time.zone.today + 1.day).to_s
 
             temp
           end
@@ -90,7 +92,9 @@ describe 'Disability Claims', swagger_doc: 'v1/swagger.json' do # rubocop:disabl
 
             with_okta_user(scopes) do
               VCR.use_cassette('evss/claims/claims') do
-                submit_request(example.metadata)
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  submit_request(example.metadata)
+                end
               end
             end
           end
