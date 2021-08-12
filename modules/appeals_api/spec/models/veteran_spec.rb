@@ -10,7 +10,7 @@ RSpec.describe AppealsApi::Veteran, type: :model do
         ssn: '012345678',
         first_name: 'Melvin',
         last_name: 'AlsoMelvin',
-        birth_date: Date.today.iso8601
+        birth_date: Time.zone.now.iso8601
       )
 
       expect(ClaimsApi::Veteran).to have_received(:new)
