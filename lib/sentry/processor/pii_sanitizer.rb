@@ -31,6 +31,7 @@ module Sentry
           street
           va_eauth_authorization
           va_eauth_birlsfilenumber
+          va_eauth_gcIds
           vaEauthPnid
           zipCode
         ].freeze
