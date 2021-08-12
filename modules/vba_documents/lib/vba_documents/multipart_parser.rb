@@ -64,6 +64,7 @@ module VBADocuments
         contents = content.sub %r{data:((multipart)/.{3,}),}, ''
       end
       decoded_data = Base64.decode64(contents)
+      record_sha256(submission, 'base64', decoded_data) if submission
       filename = "temp_upload_#{Time.zone.now.to_i}"
 
       File.open("/tmp/vets-api/#{filename}", 'wb') do |f|

@@ -119,12 +119,15 @@ RSpec.describe VBADocuments::MultipartParser do
 
         it "handles a base64 payload #{file_or_stringio}" do
           valid_doc = FixtureHelper.fetch(get_fixture('base_64'), file_or_stringio)
-          result = described_class.parse(valid_doc)
+          base64_sha256 = '79e68c5b2571f752bbb6ef66a9beaaa53d97b8977ec5888c3f8db846de519240'
+          submission = VBADocuments::UploadSubmission.new
+          result = described_class.parse(valid_doc, submission)
           expect(result.size).to eq(2)
           expect(result).to have_key('metadata')
           expect(result['metadata']).to be_a(String)
           expect(result).to have_key('content')
           expect(result['content']).to be_a(Tempfile)
+          expect(submission.metadata['sha_256']['base64']).to eq(base64_sha256)
         end
       end
     end
