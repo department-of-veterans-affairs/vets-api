@@ -154,7 +154,7 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
   context 'invalid parts' do
     before do
       u = VBADocuments::UploadSubmission.new
-      u.metadata['invalid_parts'] = %W[banana, monkey]
+      u.metadata['invalid_parts'] = %w[banana monkey]
       u.save!
     end
 
