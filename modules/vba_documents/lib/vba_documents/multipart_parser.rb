@@ -156,8 +156,7 @@ module VBADocuments
         begin
           line = lines.next[0]
         rescue StopIteration
-          raise VBADocuments::UploadError.new(code: 'DOC101',
-                                              detail: 'Unexpected end of payload')
+          raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Unexpected end of payload')
         end
         linechomp = line.chomp(LINE_BREAK)
         if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")
@@ -167,6 +166,7 @@ module VBADocuments
           tf.rewind
           return tf, true
         else
+          # AWS appends a new line at the end of the pdf, we must remove it to maintain the original sha256 value
           line.chomp! if line.encoding.name == 'ASCII-8BIT' && /%%EOF\n\r\n/.match?(line)
           tf.write(line)
         end
