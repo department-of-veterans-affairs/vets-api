@@ -6,7 +6,6 @@ module VBADocuments
   class MultipartParser
     LINE_BREAK = "\r\n"
     CARRIAGE_RETURN = "\r"
-    EOF = "%%EOF"
 
     def self.parse(infile, submission = nil)
       if base64_encoded(infile)
