@@ -135,7 +135,8 @@ class AppealsApi::RswagConfig
                                   'type': 'string',
                                   'description': '5-digit zipcode. Use "00000" if Veteran is outside the United States',
                                   'pattern': '^[0-9]{5}$'
-                                }
+                                },
+                                'internationalPostalCode': { 'type': 'string', 'maxLength': 16 }
                               },
                               'additionalProperties': false
                             },
