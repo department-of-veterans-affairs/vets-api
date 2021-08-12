@@ -18,7 +18,8 @@ module ClaimsApi
       )
 
       # TODO: remove temp logging for troubleshooting related to VRE claim upload to VBMS
-      if caller.first.match(/veteran_readiness_employment_claim.rb/)
+      file_exists = File.exist?(@filepath)
+      unless file_exists && !caller.first.match(/veteran_readiness_employment_claim.rb/)
         log_message_to_sentry(
           "VBMSUploader#upload! file exists?: #{File.exist?(@filepath)}",
           :warn,
@@ -33,7 +34,8 @@ module ClaimsApi
       )
 
       # TODO: remove temp logging for troubleshooting related to VRE claim upload to VBMS
-      if caller.first.match(/veteran_readiness_employment_claim.rb/)
+      file_exists = File.exist?(@filepath)
+      unless file_exists && !caller.first.match(/veteran_readiness_employment_claim.rb/)
         log_message_to_sentry(
           "VBMSUploader#upload! upload_response: #{upload_response}",
           :warn,
@@ -41,7 +43,6 @@ module ClaimsApi
           { team: 'vfs-ebenefits' }
         )
       end
-
       {
         vbms_new_document_version_ref_id: upload_response.upload_document_response[:@new_document_version_ref_id],
         vbms_document_series_ref_id: upload_response.upload_document_response[:@document_series_ref_id]
