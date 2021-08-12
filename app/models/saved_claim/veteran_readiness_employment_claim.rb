@@ -148,9 +148,7 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     # TODO: remove temp logging for troubleshooting
     file_exists = File.exist?(form_path)
     message = "VRE #upload_to_vbms #{form_path} does not exist"
-    unless file_exists
-      log_message_to_sentry(message, :warn, {}, { team: 'vfs-ebenefits' })
-    end
+    log_message_to_sentry(message, :warn, {}, { team: 'vfs-ebenefits' }) unless file_exists
 
     uploader.upload!
   end
