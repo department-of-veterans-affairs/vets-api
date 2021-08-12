@@ -137,8 +137,7 @@ module ClaimsApi
         return false if (recent_service_periods_end_dates - [user_supplied_rad_date.to_s]).any?
 
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: 'User may not submit BDD more than 180 days prior to RAD date',
-          source: 'DataTranslationAllClaim'
+          detail: 'User may not submit BDD more than 180 days prior to RAD date'
         )
       end
 
