@@ -36,7 +36,7 @@ gem 'sass-rails', '>= 6'
 
 # Anchored versions, do not change
 gem 'puma', '~> 5.4.0'
-gem 'puma-plugin-statsd', '~> 1.2.1'
+gem 'puma-plugin-statsd', '~> 2.0.0'
 gem 'rails', '~> 6.1.3'
 
 # Gems with special version/repo needs
