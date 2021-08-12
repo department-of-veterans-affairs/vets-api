@@ -460,8 +460,10 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'returns an unprocessible entity status' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              post path, params: data, headers: headers.merge(auth_header)
-              expect(response.status).to eq(422)
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
+              end
             end
           end
         end
@@ -471,10 +473,12 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'adds person to MPI' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              VCR.use_cassette('mpi/add_person/add_person_success') do
-                VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
-                  expect_any_instance_of(MPIData).to receive(:add_person).once.and_call_original
-                  post path, params: data, headers: auth_header
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                VCR.use_cassette('mpi/add_person/add_person_success') do
+                  VCR.use_cassette('mpi/find_candidate/orch_search_with_attributes') do
+                    expect_any_instance_of(MPIData).to receive(:add_person).once.and_call_original
+                    post path, params: data, headers: auth_header
+                  end
                 end
               end
             end
@@ -492,8 +496,10 @@ RSpec.describe 'Disability Claims ', type: :request do
         it 'returns an unprocessible entity status' do
           with_okta_user(scopes) do |auth_header|
             VCR.use_cassette('evss/claims/claims') do
-              post path, params: data, headers: headers.merge(auth_header)
-              expect(response.status).to eq(422)
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(response.status).to eq(422)
+              end
             end
           end
         end
