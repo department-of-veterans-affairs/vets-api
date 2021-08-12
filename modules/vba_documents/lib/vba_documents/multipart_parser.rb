@@ -6,6 +6,7 @@ module VBADocuments
   class MultipartParser
     LINE_BREAK = "\r\n"
     CARRIAGE_RETURN = "\r"
+    EOF = "%%EOF"
 
     def self.parse(infile, submission = nil)
       if base64_encoded(infile)
@@ -167,6 +168,8 @@ module VBADocuments
           tf.rewind
           return tf, true
         else
+          # AWS adds a line break to the end of the file, we need to remove it so that it preserves the proper sha256
+          line.chomp! if /%%EOF\n\r\n/.match?(line)
           tf.write(line)
         end
       end
@@ -176,11 +179,11 @@ module VBADocuments
 
     def self.record_sha256(submission, partname, body)
       submission.metadata['sha_256'] = {} unless submission.metadata['sha_256']
-      if body.class == Tempfile
-        sha256_value = Digest::SHA256.file(body).hexdigest
-      else
-        sha256_value = Digest::SHA256.hexdigest(body)
-      end
+      sha256_value = if body.instance_of?(Tempfile)
+                       Digest::SHA256.file(body).hexdigest
+                     else
+                       Digest::SHA256.hexdigest(body)
+                     end
       submission.metadata['sha_256'][partname] = sha256_value
       submission.save!
     end
