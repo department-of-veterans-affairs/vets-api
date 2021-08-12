@@ -52,7 +52,7 @@ VAOS::Engine.routes.draw do
     get '/scheduling/configurations', to: 'scheduling#configurations'
     get '/facilities', to: 'facilities#index'
     get '/facilities/:facility_id', to: 'facilities#show'
-
     post '/appointments', to: 'appointments#create'
+    put '/appointments/cancel/:id', to: 'appointments#cancel'
   end
 end
