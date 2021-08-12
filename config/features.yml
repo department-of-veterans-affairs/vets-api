@@ -79,10 +79,6 @@ features:
   covid_volunteer_delivery:
     actor_type: cookie_id
     description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
-  dashboard_show_dashboard_2:
-    actor_type: user
-    description: Enables The New My VA Dashboard 2.0
-    enable_in_development: true
   debt_letters_show_letters:
     actor_type: user
     description: Enables debt letters
@@ -209,6 +205,10 @@ features:
   language_support:
     actor_type: user
     description: Toggles the availability of language support links (spanish et al) in the footer
+    enable_in_development: true
+  mega_menu_mobile_v2:
+    actor_type: user
+    description: Separates mobile mega menu from desktop mega menu
     enable_in_development: true
   mobile_api:
     actor_type: user

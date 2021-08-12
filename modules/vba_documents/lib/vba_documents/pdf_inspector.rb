@@ -74,8 +74,8 @@ module VBADocuments
 
     def add_line_of_business(data, parts_metadata)
       if parts_metadata.key? 'businessLine'
-        data['line_of_business'] = parts_metadata['businessLine']
-        data['submitted_line_of_business'] = VALID_LOB[parts_metadata['businessLine']].to_s
+        data['line_of_business'] = parts_metadata['businessLine'].to_s.upcase
+        data['submitted_line_of_business'] = VALID_LOB[parts_metadata['businessLine'].to_s.upcase]
       end
     end
 

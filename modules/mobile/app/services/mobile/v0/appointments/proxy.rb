@@ -33,9 +33,9 @@ module Mobile
           appointments = (va_appointments + cc_appointments).sort_by(&:start_date_utc)
 
           errors = errors.values.compact
-          raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' if errors.size == 2
+          raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error' if errors.size.positive?
 
-          [appointments, errors]
+          appointments
         end
 
         def put_cancel_appointment(params)

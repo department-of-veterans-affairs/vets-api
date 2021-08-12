@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 require 'swagger_helper'
+require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../support/swagger_shared_components'
 
-describe 'Intent to file', swagger_doc: 'v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
+describe 'Intent to file', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do # rubocop:disable RSpec/DescribeClass
   path '/forms/0966' do
     get 'Get 0966 JSON Schema for form.' do
       deprecated true

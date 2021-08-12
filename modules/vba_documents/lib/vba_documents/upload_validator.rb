@@ -40,7 +40,7 @@ module VBADocuments
       end
     end
 
-    def validate_metadata(metadata_input)
+    def validate_metadata(metadata_input, submission_version:)
       metadata = JSON.parse(metadata_input)
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object') unless metadata.is_a?(Hash)
 
@@ -58,7 +58,7 @@ module VBADocuments
       end
 
       validate_names(metadata['veteranFirstName'].strip, metadata['veteranLastName'].strip)
-      validate_line_of_business(metadata['businessLine'])
+      validate_line_of_business(metadata['businessLine'], submission_version)
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102', detail: 'Invalid JSON object')
     end
@@ -71,10 +71,15 @@ module VBADocuments
       end
     end
 
-    def validate_line_of_business(lob)
-      return if lob.to_s.empty?
+    def validate_line_of_business(lob, submission_version)
+      return if lob.to_s.empty? && !(submission_version && submission_version >= 2)
 
-      unless VALID_LOB.keys.include?(lob)
+      if lob.to_s.blank? && submission_version >= 2
+        msg = "The businessLine metadata field is missing or empty. Valid values are: #{VALID_LOB_MSG.keys.join(',')}"
+        raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
+      end
+
+      unless VALID_LOB.keys.include?(lob.to_s.upcase)
         msg = "Invalid businessLine provided - {#{lob}}, valid values are: #{VALID_LOB_MSG.keys.join(',')}"
         raise VBADocuments::UploadError.new(code: 'DOC102', detail: msg)
       end
@@ -99,7 +104,7 @@ module VBADocuments
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
-      metadata['businessLine'] = VALID_LOB[metadata['businessLine']].to_s if metadata.key? 'businessLine'
+      metadata['businessLine'] = VALID_LOB[metadata['businessLine'].to_s.upcase] if metadata.key? 'businessLine'
       metadata
     end
 
