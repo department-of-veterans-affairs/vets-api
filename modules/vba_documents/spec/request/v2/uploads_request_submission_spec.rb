@@ -113,7 +113,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       json = JSON.parse(response.body)
       @attributes = json['data']['attributes']
       expect(@attributes).to have_key('guid')
-      expect(@attributes['status']).to eq('error')
+      expect(@attributes['status']).to eq('uploaded')
       expect(@attributes['uploaded_pdf']).to have_key('total_documents')
       expect(@attributes['uploaded_pdf']).to have_key('total_pages')
       expect(@attributes['uploaded_pdf']).to have_key('content')
