@@ -10,14 +10,14 @@ class UserRelationship
   def self.from_bgs_dependent(bgs_dependent)
     user_relationship = new
     # Profile attributes
-    user_relationship.first_name = bgs_dependent['first_name']
-    user_relationship.last_name = bgs_dependent['last_name']
-    user_relationship.birth_date = Formatters::DateFormatter.format_date(bgs_dependent['date_of_birth'])
-    user_relationship.ssn = bgs_dependent['ssn']
-    user_relationship.gender = bgs_dependent['gender']
-    user_relationship.veteran_status = bgs_dependent['veteran_indicator'] == 'Y'
+    user_relationship.first_name = bgs_dependent[:first_name]
+    user_relationship.last_name = bgs_dependent[:last_name]
+    user_relationship.birth_date = Formatters::DateFormatter.format_date(bgs_dependent[:date_of_birth])
+    user_relationship.ssn = bgs_dependent[:ssn]
+    user_relationship.gender = bgs_dependent[:gender]
+    user_relationship.veteran_status = bgs_dependent[:veteran_indicator] == 'Y'
     # ID attributes
-    user_relationship.participant_id = bgs_dependent['ptcpnt_id']
+    user_relationship.participant_id = bgs_dependent[:ptcpnt_id]
     user_relationship
   end
 
@@ -56,13 +56,14 @@ class UserRelationship
 
   def build_user_identity
     UserIdentity.new(
-      first_name: first_name,
-      last_name: last_name,
-      birth_date: birth_date,
-      gender: gender,
-      ssn: ssn,
-      icn: icn,
-      mhv_icn: icn,
+      uuid: SecureRandom.uuid,
+      first_name: first_name.to_s,
+      last_name: last_name.to_s,
+      birth_date: birth_date.to_s,
+      gender: gender.to_s,
+      ssn: ssn.to_s,
+      icn: icn.to_s,
+      mhv_icn: icn.to_s,
       loa: {
         current: LOA::THREE,
         highest: LOA::THREE

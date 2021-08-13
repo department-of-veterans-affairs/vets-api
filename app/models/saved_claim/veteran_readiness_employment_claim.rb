@@ -116,12 +116,16 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
 
     # TODO: remove temp logging related to debugging
-    log_message_to_sentry(
-      "VRE.html.erb exists: #{File.exist?('app/mailers/views/veteran_readiness_employment.html.erb')}",
-      :warn,
-      {},
-      { team: 'vfs-ebenefits' }
-    )
+    file_name = 'app/mailers/views/veteran_readiness_employment.html.erb'
+    file_exists = File.exist?(file_name)
+    unless file_exists
+      log_message_to_sentry(
+        "#{user.participant_id}: #{file_name} does not exist",
+        :warn,
+        {},
+        { team: 'vfs-ebenefits' }
+      )
+    end
 
     VeteranReadinessEmploymentMailer.build(user, email_addr).deliver_now if user.present?
 
@@ -143,8 +147,9 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     )
 
     # TODO: remove temp logging for troubleshooting
-    message = "VRE #upload_to_vbms form_path '#{form_path}' exists: #{File.exist?(form_path)}"
-    log_message_to_sentry(message, :warn, {}, { team: 'vfs-ebenefits' })
+    file_exists = File.exist?(form_path)
+    message = "#{parsed_form['veteranInformation']['pid']}: VRE #upload_to_vbms #{form_path} does not exist"
+    log_message_to_sentry(message, :warn, {}, { team: 'vfs-ebenefits' }) unless file_exists
 
     uploader.upload!
   end
