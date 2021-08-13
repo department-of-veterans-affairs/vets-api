@@ -11,8 +11,8 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
       renotification_in_minutes: 240,
       update_stalled_notification_in_minutes: 180,
       daily_notification_hour: 7,
-      notification_url: '',
-      internal_notification_url: '',
+      default_alert_url: '',
+      invalid_parts_alert_url: '',
       enabled: true
     }
   end
@@ -25,9 +25,6 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     allow(faraday_response).to receive(:success?).and_return(true)
     @job = VBADocuments::SlackNotifier.new
     allow(@job).to receive(:send_to_slack) {
-      faraday_response
-    }
-    allow(@job).to receive(:send_to_internal_slack) {
       faraday_response
     }
     @results = nil

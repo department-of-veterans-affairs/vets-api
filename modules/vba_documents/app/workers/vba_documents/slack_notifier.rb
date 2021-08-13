@@ -28,8 +28,8 @@ module VBADocuments
     end
 
     def fetch_settings
-      @slack_url = Settings.vba_documents.slack.notification_url
-      @internal_slack_url = Settings.vba_documents.slack.internal_notification_url
+      @default_alert_url = Settings.vba_documents.slack.default_alert_url
+      @invalid_parts_alert_url = Settings.vba_documents.slack.invalid_parts_alert_url
       @in_flight_hungtime = Settings.vba_documents.slack.in_flight_notification_hung_time_in_days.to_i
       @renotify_time = Settings.vba_documents.slack.renotification_in_minutes.to_i
       @upload_hungtime = Settings.vba_documents.slack.update_stalled_notification_in_minutes.to_i
@@ -51,7 +51,7 @@ module VBADocuments
           duration = distance_of_time_in_words(Time.now.to_i - start_time)
           text += "\tStatus \'#{status}\' for #{duration}\n"
         end
-        resp = send_to_slack(text)
+        resp = send_to_slack(text, @default_alert_url)
       end
       resp&.success?
     end
@@ -77,7 +77,7 @@ module VBADocuments
         text += "\tGUID: #{model.guid} has invalid parts: #{model.metadata['invalid_parts']}\n"
       end
       text = text.gsub(/\"/, "'")
-      resp = send_to_internal_slack(text) if alert_on.any?
+      resp = send_to_slack(text, @invalid_parts_alert_url) if alert_on.any?
       if resp&.success?
         alert_on.each do |model|
           model.metadata['invalid_parts_notified'] = true
@@ -87,12 +87,8 @@ module VBADocuments
       resp&.success?
     end
 
-    def send_to_slack(text)
-      Faraday.post(@slack_url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
-    end
-
-    def send_to_internal_slack(text)
-      Faraday.post(@internal_slack_url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
+    def send_to_slack(text, url)
+      Faraday.post(url, "{\"text\": \"#{text}\"}", 'Content-Type' => 'application/json')
     end
 
     def add_notification_timestamp(models)
@@ -116,7 +112,7 @@ module VBADocuments
           guids_found = true
         end
       end
-      resp = send_to_slack(text) if guids_found
+      resp = send_to_slack(text, @default_alert_url) if guids_found
       add_notification_timestamp(alert_on.first.values.flatten) if resp&.success?
       resp&.success?
     end

@@ -466,8 +466,8 @@ vba_documents:
       - vagov-arn
   slack:
     enabled: false
-    notification_url:
-    internal_notification_url:
+    default_alert_url:
+    invalid_parts_alert_url:
     deployment_notification_benefits_url:
     deployment_notification_forms_url:
     in_flight_notification_hung_time_in_days: 14
