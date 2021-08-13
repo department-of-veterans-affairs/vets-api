@@ -15,6 +15,12 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::PPIU::Configuration
 
+      def initialize(*args)
+        super
+
+        raise Common::Exceptions::Unauthorized unless Flipper.enabled?(:direct_deposit_cnp, @user)
+      end
+
       # GETs a user's payment information
       #
       # @return [EVSS::PPIU::PaymentInformationResponse] Response with a users payment information
