@@ -90,6 +90,10 @@ FactoryBot.define do
       loa { nil }
     end
 
+    trait :dependent do
+      person_types { ['DEP'] }
+    end
+
     trait :accountable do
       authn_context { LOA::IDME_LOA3_VETS }
       uuid { '9d018700-b72c-444a-95b4-43e14a4509ea' }
