@@ -35,6 +35,7 @@ module Swagger
           service_verification
           civil_service
           benefit_summary
+          benefit_summary_dependent
           benefit_verification
           certificate_of_eligibility
         ], example: 'proof_of_service'
