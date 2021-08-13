@@ -984,7 +984,7 @@ RSpec.describe User, type: :model do
               'state_of_birth' => 'DC'
             }
           end
-          let(:bgs_dependent_response) { { 'persons' => [bgs_dependent] } }
+          let(:bgs_dependent_response) { { persons: [bgs_dependent] } }
           let(:user_relationship_double) { double }
           let(:expected_user_relationship_array) { [user_relationship_double] }
 

@@ -203,7 +203,7 @@ describe VBADocuments::UploadSubmission, type: :model do
           Timecop.freeze(time)
           upload = VBADocuments::UploadSubmission.new
           upload.consumer_name = "consumer_#{index}"
-          Timecop.travel(time + 1.minute)
+          Timecop.freeze(time + 1.minute)
           upload.status = 'uploaded'
           upload.save
         end
@@ -231,7 +231,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       time = Time.zone.now
       Timecop.freeze(time)
       upload = VBADocuments::UploadSubmission.new
-      Timecop.travel(time + 1.minute)
+      Timecop.freeze(time + 1.minute)
       upload.status = 'uploaded'
       upload.save!
       elapsed = upload.metadata['status']['pending']['end'] - upload.metadata['status']['pending']['start']
@@ -291,7 +291,7 @@ describe VBADocuments::UploadSubmission, type: :model do
         expect(ancient_in_flights.count).to eq 0
       end
 
-      Timecop.travel(time + 14.days + 1.minute)
+      Timecop.freeze(time + 14.days + 1.minute)
       # find four things, one in each state
       states.each do |status|
         ancient_in_flights = VBADocuments::UploadSubmission.aged_processing(14, :days, status).to_a
