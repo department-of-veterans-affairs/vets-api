@@ -109,7 +109,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
 
     it 'processes base64 requests' do
       post SUBMIT_ENDPOINT, params: get_fixture('base_64').read
-      expect(response).to have_http_status(:bad_request)
+      expect(response).to have_http_status(:ok)
       json = JSON.parse(response.body)
       @attributes = json['data']['attributes']
       expect(@attributes).to have_key('guid')
@@ -117,7 +117,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request, retry: 3 do
       expect(@attributes['uploaded_pdf']).to have_key('total_documents')
       expect(@attributes['uploaded_pdf']).to have_key('total_pages')
       expect(@attributes['uploaded_pdf']).to have_key('content')
-      expect(@attributes['uploaded_pdf']['content']['dimensions']['oversized_pdf']).to be_truthy
     end
 
     it 'returns a UUID with status of error when an attachment is oversized' do
