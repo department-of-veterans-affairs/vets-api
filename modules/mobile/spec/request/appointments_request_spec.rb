@@ -479,16 +479,12 @@ RSpec.describe 'appointments', type: :request do
           end
         end
 
-        it 'returns an ok response' do
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'has va appointments' do
-          expect(response.parsed_body['data'].size).to eq(3)
+        it 'returns a 502 response' do
+          expect(response).to have_http_status(:bad_gateway)
         end
 
         it 'matches the expected schema' do
-          expect(response.body).to match_json_schema('appointments')
+          expect(response.body).to match_json_schema('errors')
         end
       end
 
@@ -501,16 +497,12 @@ RSpec.describe 'appointments', type: :request do
           end
         end
 
-        it 'returns an ok response' do
-          expect(response).to have_http_status(:ok)
-        end
-
-        it 'has va appointments' do
-          expect(response.parsed_body['data'].size).to eq(7)
+        it 'returns a 502 response' do
+          expect(response).to have_http_status(:bad_gateway)
         end
 
         it 'matches the expected schema' do
-          expect(response.body).to match_json_schema('appointments')
+          expect(response.body).to match_json_schema('errors')
         end
       end
 
@@ -537,12 +529,12 @@ RSpec.describe 'appointments', type: :request do
           end
         end
 
-        it 'returns a 200 response' do
-          expect(response).to have_http_status(:ok)
+        it 'returns a 502 response' do
+          expect(response).to have_http_status(:bad_gateway)
         end
 
-        it 'has the right CC count' do
-          expect(response.parsed_body['data'].size).to eq(7)
+        it 'matches the expected schema' do
+          expect(response.body).to match_json_schema('errors')
         end
       end
     end
