@@ -97,3 +97,6 @@ Due to current system limitations, data for the status attribute for the followi
 - GET `/notice_of_disagreements/evidence_submission/{uuid}`
 
 The updated_at field indicates the last time the status for a given GUID was updated.
+
+### Character Support
+String data sent to our endpoints expect characters to fall within the [Windows-1252](https://en.wikipedia.org/wiki/Windows-1252) character space.
