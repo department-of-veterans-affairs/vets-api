@@ -17,6 +17,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:dashes_slashes_first_last) { get_fixture('dashes_slashes_first_last_metadata.json').read }
   let(:name_too_long_metadata) { get_erbed_fixture('name_too_long_metadata.json.erb').read }
   let(:invalid_metadata_missing) { get_fixture('invalid_metadata_missing.json').read }
+  let(:invalid_metadata_missing_lob) { get_fixture('invalid_metadata_missing_LOB.json').read }
+  let(:invalid_metadata_unknown_lob) { get_fixture('invalid_metadata_unknown_LOB.json').read }
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
   let(:valid_metadata_space_in_name) { get_fixture('valid_metadata_space_in_name.json').read }
   let(:valid_doc) { get_fixture('valid_doc.pdf') }
@@ -71,6 +73,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
   describe '#perform' do
     let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
+    let(:v2_upload) { FactoryBot.create(:upload_submission, :status_uploaded, :version_2) }
 
     context 'duplicates' do
       before(:context) do
@@ -503,20 +506,17 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         expect(updated.uploaded_pdf['line_of_business']).to eq('CMP')
       end
 
-      %w[LOG MED BUR OTH DROC].each do |future_lob|
-        it "maps the future line of business #{future_lob} to CMP" do
-          @md['businessLine'] = future_lob
-          described_class.new.perform(upload.guid, test_caller)
-          updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-          expect(updated.uploaded_pdf['line_of_business']).to eq(future_lob)
-          expect(updated.uploaded_pdf['submitted_line_of_business']).to eq('CMP')
-        end
+      it 'maps the future line of business OTH to CMP' do
+        @md['businessLine'] = 'OTH'
+        described_class.new.perform(upload.guid, test_caller)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.uploaded_pdf['line_of_business']).to eq('OTH')
+        expect(updated.uploaded_pdf['submitted_line_of_business']).to eq('CMP')
       end
     end
 
     it 'sets error status and records invalid lines of business' do
-      md = JSON.parse(valid_metadata)
-      md['businessLine'] = 'BAD_STATUS'
+      md = JSON.parse(invalid_metadata_unknown_lob)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => md.to_json, 'content' => valid_doc }
       }
@@ -525,7 +525,23 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC102')
       expect(updated.detail).to start_with('Invalid businessLine provided')
-      expect(updated.detail).to match(/BAD_STATUS/)
+      expect(updated.detail).to match(/DROC/)
+    end
+
+    it 'sets error status and records missing lines of business for V2' do
+      md = JSON.parse(invalid_metadata_missing_lob)
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc }
+      }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive(:status).and_return(200)
+      allow(faraday_response).to receive(:body).and_return('')
+      allow(faraday_response).to receive(:success?).and_return(true)
+      described_class.new.perform(v2_upload.guid, test_caller)
+      updated = VBADocuments::UploadSubmission.find_by(guid: v2_upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+      expect(updated.detail).to start_with('The businessLine metadata field is missing or empty.')
     end
 
     xit 'sets error status for non-PDF attachment parts' do

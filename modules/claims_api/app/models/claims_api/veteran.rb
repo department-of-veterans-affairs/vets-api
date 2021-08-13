@@ -28,6 +28,7 @@ module ClaimsApi
 
     delegate :birls_id, to: :mpi, allow_nil: true
     delegate :participant_id, to: :mpi, allow_nil: true
+    delegate :person_types, to: :mpi, allow_nil: true
 
     def birth_date
       va_profile[:birth_date]

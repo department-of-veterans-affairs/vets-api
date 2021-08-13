@@ -49,15 +49,50 @@ module EVSS
     def eauth_json
       {
         authorizationResponse: {
-          status: 'VETERAN',
+          status: get_status,
           idType: 'SSN',
           id: @user.ssn,
           edi: @user.edipi,
           firstName: @user.first_name,
           lastName: @user.last_name,
           birthDate: Formatters::DateFormatter.format_date(@user.birth_date, :datetime_iso8601)
-        }
+        }.merge(dependent? ? get_dependent_headers : {})
       }.to_json
+    end
+
+    def get_dependent_headers
+      sponsor = get_user_relationship
+      return {} unless sponsor
+
+      {
+        headOfFamily: {
+          id: sponsor.ssn,
+          idType: 'SSN',
+          edi: sponsor.edipi,
+          firstName: sponsor.given_names&.first,
+          lastName: sponsor.family_name,
+          birthDate: Formatters::DateFormatter.format_date(sponsor.birth_date, :datetime_iso8601),
+          status: 'SPONSOR'
+        }
+      }
+    end
+
+    def get_user_relationship
+      veteran_relationships = @user.relationships&.select(&:veteran_status)
+      return unless veteran_relationships.presence
+
+      # Makes sense to give the user the ability to select the relationship eventually, for now we return
+      # the first applicable relationship
+      selected_relationship = veteran_relationships.first
+      selected_relationship.get_full_attributes.profile
+    end
+
+    def get_status
+      dependent? ? 'DEPENDENT' : 'VETERAN'
+    end
+
+    def dependent?
+      @user.person_types&.include?('DEP')
     end
   end
 end

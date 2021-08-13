@@ -16,6 +16,11 @@ class AppealsApi::Docs::V2::DocsController < ApplicationController
     render json: decision_reviews_swagger_json
   end
 
+  def decision_reviews_beta
+    swagger = JSON.parse(File.read(AppealsApi::Engine.root.join('app/swagger/appeals_api/v2/swagger.json')))
+    render json: swagger
+  end
+
   private
 
   def decision_reviews_swagger_json
