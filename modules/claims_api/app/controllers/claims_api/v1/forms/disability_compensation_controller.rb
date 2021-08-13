@@ -152,6 +152,7 @@ module ClaimsApi
           validate_form_526_claimant_certification!
           validate_form_526_location_codes!
           validate_form_526_veteran_homelessness!
+          validate_form_526_service_pay!
         end
 
         def validate_form_526_submission_claim_date!
@@ -194,6 +195,21 @@ module ClaimsApi
             raise ::Common::Exceptions::InvalidFieldValue.new(
               'homelessness',
               form_attributes['veteran']['homelessness']
+            )
+          end
+        end
+
+        def validate_form_526_service_pay!
+          receiving_attr    = form_attributes.dig('servicePay', 'militaryRetiredPay', 'receiving')
+          will_receive_attr = form_attributes.dig('servicePay', 'militaryRetiredPay', 'willReceiveInFuture')
+
+          return if receiving_attr.nil? || will_receive_attr.nil?
+
+          # EVSS does not allow both attributes to be the same value (unless that value is nil)
+          if receiving_attr == will_receive_attr
+            raise ::Common::Exceptions::InvalidFieldValue.new(
+              'servicePay.militaryRetiredPay',
+              form_attributes['servicePay']['militaryRetiredPay']
             )
           end
         end
