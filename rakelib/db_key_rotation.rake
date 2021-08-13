@@ -37,8 +37,6 @@ namespace :attr_encrypted do
           model.database_key = Settings.db_encryption_key
         end
       end
-    end
-
     rescue => e
       puts "....rolling back transaction. Error occured: #{e.inspect}"
       Rails.logger.error("Error running the db key rotation rake task, rolling back: #{e}")
