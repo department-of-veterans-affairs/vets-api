@@ -20,8 +20,7 @@ module AppealsApi
           email_address: email,
           template_id: template_id,
           personalisation: {
-            'veteran_first_name' => opts['veteran_first_name'],
-            'veteran_last_name' => opts['veteran_last_name'],
+            'first_name' => opts['veteran_first_name'],
             'date_submitted' => opts['date_submitted']
           }
         )
@@ -36,7 +35,7 @@ module AppealsApi
       end
 
       def template_id(template)
-        Settings.vanotify.services.va_gov.template_id.public_send(template)
+        Settings.vanotify.services.lighthouse.template_id.public_send(template)
       end
 
       def log_error(guid, type)
@@ -56,7 +55,7 @@ module AppealsApi
       end
 
       def required_keys
-        %w[guid email date_submitted veteran_first_name veteran_last_name]
+        %w[guid email date_submitted veteran_first_name]
       end
     end
 

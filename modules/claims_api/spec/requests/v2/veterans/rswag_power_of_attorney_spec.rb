@@ -3,7 +3,7 @@
 require 'swagger_helper'
 require 'rails_helper'
 
-describe 'PowerOfAttorney', swagger_doc: 'v2/swagger.json' do
+describe 'PowerOfAttorney', swagger_doc: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json' do
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'

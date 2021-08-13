@@ -114,6 +114,19 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     @office_location = check_office_location[0] if @office_location.nil?
 
     email_addr = REGIONAL_OFFICE_EMAILS[@office_location] || 'VRE.VBACO@va.gov'
+
+    # TODO: remove temp logging related to debugging
+    file_name = 'app/mailers/views/veteran_readiness_employment.html.erb'
+    file_exists = File.exist?(file_name)
+    unless file_exists
+      log_message_to_sentry(
+        "#{user.participant_id}: #{file_name} does not exist",
+        :warn,
+        {},
+        { team: 'vfs-ebenefits' }
+      )
+    end
+
     VeteranReadinessEmploymentMailer.build(user, email_addr).deliver_now if user.present?
 
     # During Roll out our partners ask that we check vet location and if within proximity to specific offices,
@@ -132,6 +145,11 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
       file_number: parsed_form['veteranInformation']['VAFileNumber'] || parsed_form['veteranInformation']['ssn'],
       doc_type: doc_type
     )
+
+    # TODO: remove temp logging for troubleshooting
+    file_exists = File.exist?(form_path)
+    message = "#{parsed_form['veteranInformation']['pid']}: VRE #upload_to_vbms #{form_path} does not exist"
+    log_message_to_sentry(message, :warn, {}, { team: 'vfs-ebenefits' }) unless file_exists
 
     uploader.upload!
   end

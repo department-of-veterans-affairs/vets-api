@@ -3,6 +3,7 @@
 require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/error_middleware'
+require 'evss/reference_data/service'
 require 'common/exceptions'
 require 'jsonapi/parser'
 
@@ -22,6 +23,7 @@ module ClaimsApi
         end
         skip_before_action :validate_json_format, only: %i[upload_supporting_documents]
         before_action :verify_power_of_attorney!, if: :header_request?
+        skip_before_action :validate_veteran_identifiers, only: %i[submit_form_526 validate_form_526]
 
         # POST to submit disability claim.
         #
@@ -29,6 +31,7 @@ module ClaimsApi
         def submit_form_526 # rubocop:disable Metrics/MethodLength
           validate_json_schema
           validate_form_526_submission_values!
+          validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
 
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -111,6 +114,7 @@ module ClaimsApi
         def validate_form_526
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
+          validate_veteran_identifiers(require_birls: true)
           validate_initial_claim
 
           service = EVSS::DisabilityCompensationForm::Service.new(auth_headers)
@@ -144,6 +148,9 @@ module ClaimsApi
         #
         def validate_form_526_submission_values!
           validate_form_526_submission_claim_date!
+          validate_form_526_application_expiration_date!
+          validate_form_526_claimant_certification!
+          validate_form_526_location_codes!
         end
 
         def validate_form_526_submission_claim_date!
@@ -151,6 +158,34 @@ module ClaimsApi
           return if Date.parse(form_attributes['claimDate']) <= Time.zone.today
 
           raise ::Common::Exceptions::InvalidFieldValue.new('claimDate', form_attributes['claimDate'])
+        end
+
+        def validate_form_526_application_expiration_date!
+          return if Date.parse(form_attributes['applicationExpirationDate']) >= Time.zone.today
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('applicationExpirationDate',
+                                                            form_attributes['applicationExpirationDate'])
+        end
+
+        def validate_form_526_claimant_certification!
+          return unless form_attributes['claimantCertification'] == false
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('claimantCertification',
+                                                            form_attributes['claimantCertification'])
+        end
+
+        def validate_form_526_location_codes!
+          locations_response = EVSS::ReferenceData::Service.new(@current_user).get_separation_locations
+          separation_locations = locations_response.separation_locations
+          form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
+            next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
+            next if separation_locations.any? do |location|
+                      location['code'] == service_period['separationLocationCode']
+                    end
+
+            raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
+                                                              form_attributes['separationLocationCode'])
+          end
         end
 
         def flashes

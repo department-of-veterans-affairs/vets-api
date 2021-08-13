@@ -22,6 +22,14 @@ module VAOS
         end
       end
 
+      def get_facility(facility_id)
+        params = {}
+        with_monitoring do
+          response = perform(:get, facilities_url_with_id(facility_id), params, headers)
+          OpenStruct.new(response[:body])
+        end
+      end
+
       def get_scheduling_configurations(facility_ids, cc_enabled = nil, pagination_params = {})
         params = {
           facilityIds: facility_ids,
@@ -76,6 +84,10 @@ module VAOS
 
       def facilities_url
         '/facilities/v2/facilities'
+      end
+
+      def facilities_url_with_id(id)
+        "/facilities/v2/facilities/#{id}"
       end
     end
   end

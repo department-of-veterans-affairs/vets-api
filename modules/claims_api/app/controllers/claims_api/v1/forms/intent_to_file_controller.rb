@@ -13,6 +13,7 @@ module ClaimsApi
           permit_scopes %w[claim.write]
         end
         before_action :verify_power_of_attorney!, if: :header_request?
+        skip_before_action :validate_veteran_identifiers, only: %i[submit_form_0966 validate]
 
         FORM_NUMBER = '0966'
         ITF_TYPES = %w[compensation pension burial].freeze
@@ -22,6 +23,7 @@ module ClaimsApi
         # @return [JSON] Response from BGS
         def submit_form_0966
           validate_json_schema
+          validate_veteran_identifiers(require_birls: true)
           check_for_invalid_burial_submission! if form_type == 'burial'
 
           bgs_response = bgs_service.intent_to_file.insert_intent_to_file(intent_to_file_options)
@@ -58,6 +60,7 @@ module ClaimsApi
         def validate
           add_deprecation_headers_to_response(response: response, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
+          validate_veteran_identifiers(require_birls: true)
           render json: validation_success
         end
 

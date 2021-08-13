@@ -35,8 +35,8 @@ end
 gem 'sass-rails', '>= 6'
 
 # Anchored versions, do not change
-gem 'puma', '~> 5.3.2'
-gem 'puma-plugin-statsd', '~> 1.2.1'
+gem 'puma', '~> 5.4.0'
+gem 'puma-plugin-statsd', '~> 2.0.0'
 gem 'rails', '~> 6.1.3'
 
 # Gems with special version/repo needs
@@ -96,7 +96,7 @@ gem 'memoist'
 gem 'mimemagic', '~> 0.4.3'
 gem 'mini_magick', '~> 4.11.0'
 gem 'net-sftp'
-gem 'nokogiri', '~> 1.11'
+gem 'nokogiri', '~> 1.12'
 gem 'notifications-ruby-client', '~> 5.3'
 gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
