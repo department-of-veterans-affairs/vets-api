@@ -950,7 +950,7 @@ GEM
     websocket-driver (0.7.4)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
-    will_paginate (3.3.0)
+    will_paginate (3.3.1)
     with_advisory_lock (4.6.0)
       activerecord (>= 4.2)
     xmldsig (0.3.2)
