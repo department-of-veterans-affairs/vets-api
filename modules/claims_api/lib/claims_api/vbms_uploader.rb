@@ -67,14 +67,6 @@ module ClaimsApi
     end
 
     def upload_document(filepath:, upload_token:)
-      # TODO: remove temp logging for troubleshooting
-      log_message_to_sentry(
-        "VBMSUploader#upload_document file exists?: #{File.exist?(filepath)}",
-        :warn,
-        {},
-        { team: 'vfs-ebenefits' }
-      )
-
       upload_request = VBMS::Requests::UploadDocument.new(
         upload_token: upload_token,
         filepath: filepath
