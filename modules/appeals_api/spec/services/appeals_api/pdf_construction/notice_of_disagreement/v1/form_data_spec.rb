@@ -11,7 +11,7 @@ module AppealsApi
           let(:form_data) { described_class.new(notice_of_disagreement) }
 
           describe '#veteran_name' do
-            it { expect(form_data.veteran_name).to eq('Jane Z. Doe') }
+            it { expect(form_data.veteran_name).to eq('Jäñe ø. Doé') }
           end
 
           describe '#veteran_ssn' do
@@ -81,7 +81,7 @@ module AppealsApi
           end
 
           describe '#signature' do
-            it { expect(form_data.signature).to eq("Jane Z. Doe\n- Signed by digital authentication to api.va.gov") }
+            it { expect(form_data.signature).to eq("Jäñe ø. Doé\n- Signed by digital authentication to api.va.gov") }
 
             it 'truncates the signature if name is too long' do
               full_first_name = Faker::Lorem.characters(number: 99)
@@ -111,7 +111,7 @@ module AppealsApi
           end
 
           describe '#stamp_text' do
-            it { expect(form_data.stamp_text).to eq('Doe - 6789') }
+            it { expect(form_data.stamp_text).to eq('Doé - 6789') }
 
             it 'truncates the last name if too long' do
               full_last_name = 'AAAAAAAAAAbbbbbbbbbbCCCCCCCCCCdddddddddd'
