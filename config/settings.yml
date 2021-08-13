@@ -1,6 +1,6 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
 
-vsp_environment: 
+vsp_environment:
 
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
@@ -73,6 +73,13 @@ dmc:
   mock_fsr: false
   url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
   debts_endpoint: debt-letter/get
+
+mcp:
+  vbs:
+    url: ~
+    host: ~
+    service_name: VBS
+    mock: false
 
 fsr:
   prefill: true
