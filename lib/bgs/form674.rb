@@ -12,6 +12,8 @@ require_relative '../bid/awards/service'
 
 module BGS
   class Form674
+    include SentryLogging
+
     def initialize(user)
       @user = user
       @end_product_name = '130 - Automated School Attendance 674'
@@ -28,6 +30,10 @@ module BGS
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
       set_claim_type('MANUAL_VAGOV') # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
+
+      # temporary logging to troubleshoot
+      log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
+
       benefit_claim_record = BenefitClaim.new(
         args: {
           vnp_benefit_claim: vnp_benefit_claim_record,
