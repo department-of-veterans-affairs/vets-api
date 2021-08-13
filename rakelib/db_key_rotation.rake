@@ -26,7 +26,7 @@ namespace :attr_encrypted do
     end
 
     ApplicationRecord.descendants.each do |model|
-      if !model.encrypted_attributes.empty?
+      unless model.encrypted_attributes.empty?
         encrypted_attributes = model.encrypted_attributes.keys
 
         encrypted_attributes.each do |attribute|
