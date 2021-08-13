@@ -18,9 +18,7 @@ module EVSS
       def initialize(*args)
         super
 
-        unless Flipper.enabled?(:direct_deposit_cnp, @user)
-          raise Common::Exceptions::Unauthorized
-        end
+        raise Common::Exceptions::Unauthorized unless Flipper.enabled?(:direct_deposit_cnp, @user)
       end
 
       # GETs a user's payment information
