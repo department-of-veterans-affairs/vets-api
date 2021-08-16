@@ -56,7 +56,7 @@ module AppealsApi
 
       def personalisation
         {
-          'first_name' => opts['veteran_first_name'],
+          'first_name' => opts['first_name'],
           'date_submitted' => opts['date_submitted'].strftime('%B %d, %Y')
         }
       end
@@ -78,7 +78,7 @@ module AppealsApi
       end
 
       def required_keys
-        %w[guid email_identifier date_submitted veteran_first_name]
+        %w[guid email_identifier date_submitted first_name]
       end
     end
 

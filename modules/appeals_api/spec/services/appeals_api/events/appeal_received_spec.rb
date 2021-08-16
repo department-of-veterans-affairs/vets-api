@@ -19,7 +19,7 @@ module AppealsApi
 
           opts = {
             'email_identifier' => { 'id_value' => 'fake_email@email.com' },
-            'veteran_first_name' => 'first name',
+            'first_name' => 'first name',
             'date_submitted' => Time.zone.now.to_date,
             'guid' => '1234556'
           }
@@ -41,7 +41,7 @@ module AppealsApi
 
           opts = {
             'email_identifier' => { 'id_value' => '1233445353', 'id_type' => 'ICN' },
-            'veteran_first_name' => 'first name',
+            'first_name' => 'first name',
             'date_submitted' => Date.new(1900, 1, 1),
             'guid' => '1234556'
           }
@@ -55,7 +55,7 @@ module AppealsApi
                 id_type: 'ICN'
               },
               :template_id => 'fake_template_id',
-              'veteran_first_name' => 'first name',
+              'first_name' => 'first name',
               'date_submitted' => 'January 01, 1900'
             }
           )
