@@ -15,10 +15,6 @@ RSpec.describe MedicalCopays::VBS::Service do
     it 'responds to request_data' do
       expect(subject.respond_to?(:request_data)).to be(true)
     end
-
-    it 'responds to response_data' do
-      expect(subject.respond_to?(:response_data)).to be(true)
-    end
   end
 
   describe '.build' do

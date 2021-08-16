@@ -12,7 +12,7 @@ module MedicalCopays
     # @!attribute response_data
     #   @return [ResponseData]
     class Service
-      attr_reader :request, :request_data, :response_data
+      attr_reader :request, :request_data
 
       ##
       # Builds a Service instance
@@ -27,7 +27,6 @@ module MedicalCopays
       def initialize(opts)
         @request = MedicalCopays::Request.build
         @request_data = RequestData.build(user: opts[:user])
-        @response_data = ResponseData
       end
 
       ##
@@ -40,7 +39,7 @@ module MedicalCopays
 
         response = request.post('/GetStatementsByEDIPIAndVistaAccountNumber', request_data.to_hash)
 
-        response_data.build(response: response).handle
+        ResponseData.build(response: response).handle
       end
     end
   end
