@@ -10,12 +10,14 @@ module VAOS
       attribute :kind, String
       attribute :status, String
       attribute :location_id, String
+      attribute :practitioner_ids, Array[Hash]
       attribute :clinic, String
       attribute :reason, String
       attribute :slot, Hash
       attribute :contact, Hash
       attribute :service_type, String
       attribute :requested_periods, Array[Hash]
+      attribute :preferred_language, String
 
       def initialize(user, json_hash)
         @user = user
