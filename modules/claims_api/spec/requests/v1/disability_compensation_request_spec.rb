@@ -602,6 +602,84 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
     end
+
+    describe 'Veteran homelessness validations' do
+      context "when 'currentlyHomeless' and 'homelessnessRisk' are both provided" do
+        before do
+          stub_mpi
+        end
+
+        it 'responds with a bad request' do
+          with_okta_user(scopes) do |auth_header|
+            VCR.use_cassette('evss/claims/claims') do
+              VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                json_data = JSON.parse data
+                params = json_data
+                params['data']['attributes']['veteran']['homelessness']['currentlyHomeless'] = {
+                  homelessSituationType: 'fleeing',
+                  otherLivingSituation: 'community help center'
+                }
+                params['data']['attributes']['veteran']['homelessness']['homelessnessRisk'] = {
+                  homelessnessRiskSituationType: 'losingHousing',
+                  otherLivingSituation: 'community help center'
+                }
+                post path, params: params.to_json, headers: headers.merge(auth_header)
+                expect(response.status).to eq(400)
+              end
+            end
+          end
+        end
+      end
+
+      context "when neither 'currentlyHomeless' nor 'homelessnessRisk' is provided" do
+        context "when 'pointOfContact' is provided" do
+          before do
+            stub_mpi
+          end
+
+          it 'responds with a bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['veteran']['homelessness'] = {}
+                  params['data']['attributes']['veteran']['homelessness']['pointOfContact'] = {
+                    pointOfContactName: 'Jane Doe',
+                    primaryPhone: {
+                      areaCode: '555',
+                      phoneNumber: '5555555'
+                    }
+                  }
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'pointOfContact' is not provided" do
+          before do
+            stub_mpi
+          end
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['veteran']['homelessness'] = {}
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#upload_documents' do
