@@ -103,6 +103,88 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       actual = payload['form526']['veteran']['homelessness']['currentlyHomeless']['homelessSituationType']
       expect(actual).to eq('FLEEING_CURRENT_RESIDENCE')
     end
+
+    describe 'when days until release is between 90 and 180 days' do
+      it 'sets bddQualified to true' do
+        temp_form_data = pending_record.form_data
+        temp_form_data['serviceInformation'] = {
+          'servicePeriods' => [
+            {
+              'serviceBranch' => 'Air Force',
+              'activeDutyBeginDate' => '1991-05-02',
+              'activeDutyEndDate' => (Time.zone.now.to_date + 100.days).to_s
+            }
+          ]
+        }
+        pending_record.form_data = temp_form_data
+
+        payload = JSON.parse(pending_record.to_internal)
+        expect(payload['form526']['bddQualified']).to eq(true)
+      end
+    end
+
+    describe 'when days until release is less than 90 days' do
+      it 'sets bddQualified to false' do
+        temp_form_data = pending_record.form_data
+        temp_form_data['serviceInformation'] = {
+          'servicePeriods' => [
+            {
+              'serviceBranch' => 'Air Force',
+              'activeDutyBeginDate' => '1991-05-02',
+              'activeDutyEndDate' => (Time.zone.now.to_date + 80.days).to_s
+            }
+          ]
+        }
+        pending_record.form_data = temp_form_data
+
+        payload = JSON.parse(pending_record.to_internal)
+        expect(payload['form526']['bddQualified']).to eq(false)
+      end
+    end
+
+    describe 'when days until release is greater than 180 days' do
+      describe 'when Veteran has previous service period' do
+        it 'sets bddQualified to false' do
+          temp_form_data = pending_record.form_data
+          temp_form_data['serviceInformation'] = {
+            'servicePeriods' => [
+              {
+                'serviceBranch' => 'Air Force',
+                'activeDutyBeginDate' => '1991-05-02',
+                'activeDutyEndDate' => (Time.zone.now.to_date + 190.days).to_s
+              },
+              {
+                'serviceBranch' => 'Army',
+                'activeDutyBeginDate' => '1991-05-02',
+                'activeDutyEndDate' => (Time.zone.now.to_date - 1.day).to_s
+              }
+            ]
+          }
+          pending_record.form_data = temp_form_data
+
+          payload = JSON.parse(pending_record.to_internal)
+          expect(payload['form526']['bddQualified']).to eq(false)
+        end
+      end
+
+      describe 'when Veteran does not have previous service period' do
+        it 'raises an exception' do
+          temp_form_data = pending_record.form_data
+          temp_form_data['serviceInformation'] = {
+            'servicePeriods' => [
+              {
+                'serviceBranch' => 'Air Force',
+                'activeDutyBeginDate' => '1991-05-02',
+                'activeDutyEndDate' => (Time.zone.now.to_date + 190.days).to_s
+              }
+            ]
+          }
+          pending_record.form_data = temp_form_data
+
+          expect { pending_record.to_internal }.to raise_error(::Common::Exceptions::UnprocessableEntity)
+        end
+      end
+    end
   end
 
   describe 'evss_id_by_token' do

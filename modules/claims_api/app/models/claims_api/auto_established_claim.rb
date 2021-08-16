@@ -55,6 +55,7 @@ module ClaimsApi
     def to_internal
       form_data['claimDate'] ||= (persisted? ? created_at.to_date.to_s : Time.zone.today.to_s)
       form_data['claimSubmissionSource'] = 'Lighthouse'
+      form_data['bddQualified'] = bdd_qualified?
 
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
@@ -98,6 +99,50 @@ module ClaimsApi
     end
 
     private
+
+    EVSS_TZ = 'Central Time (US & Canada)'
+
+    def recent_service_periods_end_dates
+      end_dates = form_data.dig('serviceInformation', 'servicePeriods').map do |service_period|
+        unless service_period['serviceBranch'].include?('Reserve') ||
+               service_period['serviceBranch'].include?('National Guard')
+          service_period['activeDutyEndDate']
+        end
+      end
+
+      end_dates.compact
+    end
+
+    def user_supplied_rad_date
+      end_dates = recent_service_periods_end_dates
+      end_dates << form_data.dig('serviceInformation',
+                                 'reservesNationalGuardService',
+                                 'title10Activation',
+                                 'anticipatedSeparationDate')
+      end_dates.compact!
+      return nil if end_dates.blank?
+
+      end_dates.max.in_time_zone(EVSS_TZ).to_date
+    end
+
+    def days_until_release
+      return 0 if user_supplied_rad_date.blank?
+
+      form_submission_date = created_at.presence || Time.now.in_time_zone(EVSS_TZ)
+      @days_until_release ||= user_supplied_rad_date - form_submission_date.to_date
+    end
+
+    def bdd_qualified?
+      if days_until_release > 180
+        return false if (recent_service_periods_end_dates - [user_supplied_rad_date.to_s]).any?
+
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: 'User may not submit BDD more than 180 days prior to RAD date'
+        )
+      end
+
+      days_until_release >= 90
+    end
 
     def resolve_special_issue_mappings!
       mapper = ClaimsApi::SpecialIssueMappers::Evss.new
