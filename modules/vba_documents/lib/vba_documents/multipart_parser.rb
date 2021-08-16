@@ -168,7 +168,7 @@ module VBADocuments
           return tf, true
         else
           # AWS appends a new line at the end of the pdf, we must remove it to maintain the original sha256 value
-          line.chomp! if line.encoding.name == 'ASCII-8BIT' && /%%EOF\n\r\n/.match?(line)
+          line.chomp! if valid_encoding(line) && end_of_pdf(line)
           tf.write(line)
         end
       end
@@ -183,6 +183,23 @@ module VBADocuments
                      end
       submission.metadata['sha_256'][partname] = sha256_value
       submission.save!
+    end
+
+    def self.valid_encoding(line)
+      line.encoding.name == 'ASCII-8BIT' || line.encoding.name == 'UTF-8'
+    end
+
+    def self.end_of_pdf(line)
+      case line
+      when /%%EOF\n\r\n/
+        true
+      when /%EOF\r\n/
+        true
+      when /%EOF\n/
+        true
+      else
+        false
+      end
     end
   end
 end
