@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "43343126-d1cf-4bd5-8e56-7636b1af422c",
+                    "id": "fbbd5a18-c8bb-4193-bc17-0d6f86f75bf1",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "e4e73fb3-76fc-4d53-9b87-3bc866944332",
+                          "id": "6047f5fe-f76e-4100-83ee-a354935772d3",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-08-13T16:00:46.244Z"
+                          "uploaded_at": "2021-08-13T20:15:32.320Z"
                         }
                       ]
                     }
@@ -2072,9 +2072,15 @@
                               ],
                               "properties": {
                                 "receiving": {
-                                  "description": "Is Veteran getting Retiree pay.",
+                                  "description": "Is Veteran getting Retiree pay?",
                                   "type": "boolean",
                                   "example": true
+                                },
+                                "willReceiveInFuture": {
+                                  "description": "Will Veteran get Retiree pay in future?",
+                                  "type": "boolean",
+                                  "default": false,
+                                  "example": false
                                 },
                                 "payment": {
                                   "description": "Part of DoD paying Retirement Benefits.",
@@ -2269,7 +2275,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d43d066c-b9d7-46d0-836e-57641cc5b1a4",
+                    "id": "e5600e0e-b94c-415a-b087-5fa7b30b20a6",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2287,13 +2293,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-13T16:00:46.667Z",
+                      "updated_at": "2021-08-13T20:15:32.808Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "d43d066c-b9d7-46d0-836e-57641cc5b1a4",
+                      "token": "e5600e0e-b94c-415a-b087-5fa7b30b20a6",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3766,9 +3772,15 @@
                                 ],
                                 "properties": {
                                   "receiving": {
-                                    "description": "Is Veteran getting Retiree pay.",
+                                    "description": "Is Veteran getting Retiree pay?",
                                     "type": "boolean",
                                     "example": true
+                                  },
+                                  "willReceiveInFuture": {
+                                    "description": "Will Veteran get Retiree pay in future?",
+                                    "type": "boolean",
+                                    "default": false,
+                                    "example": false
                                   },
                                   "payment": {
                                     "description": "Part of DoD paying Retirement Benefits.",
@@ -3976,7 +3988,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c5b8c81d-6cd6-4c86-ade3-4742c51bace4",
+                    "id": "d8cabd57-aa42-4459-836c-4523af5c9d53",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3994,13 +4006,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-13T16:00:47.133Z",
+                      "updated_at": "2021-08-13T20:15:33.356Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "c5b8c81d-6cd6-4c86-ade3-4742c51bace4",
+                      "token": "d8cabd57-aa42-4459-836c-4523af5c9d53",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5874,9 +5886,15 @@
                                 ],
                                 "properties": {
                                   "receiving": {
-                                    "description": "Is Veteran getting Retiree pay.",
+                                    "description": "Is Veteran getting Retiree pay?",
                                     "type": "boolean",
                                     "example": true
+                                  },
+                                  "willReceiveInFuture": {
+                                    "description": "Will Veteran get Retiree pay in future?",
+                                    "type": "boolean",
+                                    "default": false,
+                                    "example": false
                                   },
                                   "payment": {
                                     "description": "Part of DoD paying Retirement Benefits.",
@@ -6084,7 +6102,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "82eabcd3-96f3-499a-aa2e-5630e6ebc78c",
+                    "id": "e2689d2a-eb60-4954-9d25-496f6d1a7eba",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6098,7 +6116,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-13T16:00:47.933Z",
+                      "updated_at": "2021-08-13T20:15:34.405Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6107,7 +6125,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "4d169c27-5515-4071-a510-103b8d5b689c",
+                          "id": "fe2cbff2-cb1b-45fc-9fbe-0ecc76967645",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8064,7 +8082,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fb0fc7dd-d3ce-43f6-ab2e-a5c7564ac8de",
+                    "id": "b49790e1-a413-45ac-ab72-3c222ac30f83",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
@@ -8777,7 +8795,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a6c7f441-e180-4089-850a-c9b4023fe9a8",
+                    "id": "4a1539b7-9452-4a22-aacd-2b3ecc299404",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
@@ -9102,7 +9120,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "aa30cf0f-170a-4a13-b781-ae75cc315362",
+                    "id": "7ce54e2c-6bae-40ac-8714-2032ab83ef60",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
