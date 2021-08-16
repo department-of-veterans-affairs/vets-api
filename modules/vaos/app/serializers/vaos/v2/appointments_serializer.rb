@@ -16,7 +16,6 @@ module VAOS
                  :location_id,
                  :clinic,
                  :telehealth,
-                 :practitioners,
                  :reason,
                  :start,
                  :end,
@@ -28,7 +27,9 @@ module VAOS
                  :priority,
                  :cancellation_reason,
                  :description,
-                 :comment
+                 :comment,
+                 :preferred_language,
+                 :practitioner_ids
     end
   end
 end

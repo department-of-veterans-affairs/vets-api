@@ -311,7 +311,9 @@
           "description": "Object describing Veteran Homelessness if applicable.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["pointOfContact"],
+          "dependentRequired": {
+            "pointOfContact": ["currentlyHomeless", "homelessnessRisk"]
+            },
           "properties": {
             "pointOfContact": {
               "description": "Object describing Homeless Veteran Point of Contact.",
