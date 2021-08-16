@@ -70,7 +70,7 @@ RSpec.describe Mobile::V0::PreCacheAppointmentsJob, type: :job do
             VCR.use_cassette('appointments/get_cc_appointments_500', match_requests_on: %i[method uri]) do
               VCR.use_cassette('appointments/get_appointments_default', match_requests_on: %i[method uri]) do
                 expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
-                subject.perform(user.uuid)
+                expect { subject.perform(user.uuid) }.to raise_error(Common::Exceptions::BackendServiceException)
                 expect(Mobile::V0::Appointment.get_cached(user)).to be_nil
               end
             end

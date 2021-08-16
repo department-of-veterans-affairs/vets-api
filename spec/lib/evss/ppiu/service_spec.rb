@@ -8,6 +8,16 @@ describe EVSS::PPIU::Service do
 
   let(:user) { build(:evss_user) }
 
+  describe 'with an unauthorized user' do
+    before do
+      expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(false)
+    end
+
+    it 'raises an exception when creating the service' do
+      expect { subject }.to raise_error(Common::Exceptions::Unauthorized)
+    end
+  end
+
   describe '#get_payment_information' do
     let(:pay_info) { subject.get_payment_information.responses.first }
 

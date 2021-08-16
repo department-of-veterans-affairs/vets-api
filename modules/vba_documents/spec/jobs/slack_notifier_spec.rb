@@ -11,7 +11,8 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
       renotification_in_minutes: 240,
       update_stalled_notification_in_minutes: 180,
       daily_notification_hour: 7,
-      notification_url: '',
+      default_alert_url: '',
+      invalid_parts_alert_url: '',
       enabled: true
     }
   end
@@ -145,5 +146,25 @@ RSpec.describe 'VBADocuments::SlackNotifier', type: :job do
     end
     u = VBADocuments::UploadSubmission.find_by(guid: guid)
     expect(last_notified).to be < u.metadata['last_slack_notification'].to_i
+  end
+
+  context 'invalid parts' do
+    before do
+      u = VBADocuments::UploadSubmission.new
+      u.metadata['invalid_parts'] = %w[banana monkey]
+      u.save!
+    end
+
+    it 'notifies when invalid parts exist' do
+      @results = @job.perform
+      expect(@results[:invalid_parts_alerted]).to be(true)
+    end
+
+    it 'does not notify more than once when invalid parts exist' do
+      @results = @job.perform
+      expect(@results[:invalid_parts_alerted]).to be(true)
+      @results = @job.perform
+      expect(@results[:invalid_parts_alerted]).to be(nil)
+    end
   end
 end
