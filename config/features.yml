@@ -97,6 +97,12 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  direct_deposit_cnp:
+    actor_type: user
+    description: Allow users to access direct deposit comp and pen APIs
+  direct_deposit_edu:
+    actor_type: user
+    description: Allow users to access direct deposit education benefits APIs
   direct_deposit_vanotify:
     actor_type: user
     description: Send direct deposit emails using VaNotify service

@@ -741,6 +741,8 @@ components:
           type: string
         comment:
           type: string
+        preferredLanguage:
+          type: string
     AppointmentKind:
       type: string
       enum:
@@ -877,6 +879,11 @@ components:
         locationId:
           description: The sta6aid for the VAfacility where the appointment is registered.
           type: string
+        practitionerIds:
+          description: A list of practitioner ids.
+          type: array
+          items:
+            "$ref": "#/components/schemas/PractitionerId"
         clinic:
           description: The clinic ID for the Appointment
           type: string
@@ -897,6 +904,8 @@ components:
           description: a list of requested periods for appointment
           items:
             "$ref": "#/components/schemas/Period"
+        preferredLanguage:
+          type: string
     Slot:
       type: object
       required:
