@@ -21,7 +21,7 @@ namespace :docker_debugging do
         Rake::Task['db:migrate'].invoke
         puts 'All dun!'
       end
-      if s.enable_sidekiq
+      if s.enable_sidekiq_debugging
         puts 'Sidekiq debugging is enabled'
         command += ',job=0'
       end

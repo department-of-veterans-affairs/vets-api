@@ -425,7 +425,10 @@ caseflow:
   mock: true
   app_token: PUBLICDEMO123
   host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-  timeout: 60
+  timeout: 119
+  # The forwardproxy timeout is 2m so I want something slightly less than that so we don't get the forwardproxy's html
+  # response when we're expecting JSON.  Ideally, caseflow would respond quicker but they're still giving good responses
+  # in over a minute.
 
 vic:
   url: https://some.fakesite.com
@@ -464,6 +467,16 @@ vba_documents:
     topic_arns:
       - vetsgov-arn
       - vagov-arn
+  slack:
+    enabled: false
+    default_alert_url:
+    invalid_parts_alert_url:
+    deployment_notification_benefits_url:
+    deployment_notification_forms_url:
+    in_flight_notification_hung_time_in_days: 14
+    renotification_in_minutes: 240
+    update_stalled_notification_in_minutes: 180
+    daily_notification_hour: 7
   webhooks:
     registration_next_run_in_minutes: 15
     registration_max_retries: 3

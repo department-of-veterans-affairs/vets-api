@@ -65,21 +65,16 @@ module Mobile
 
         # if appointments has been retrieved from redis, delete the cached version and return recovered appointments
         # otherwise fetch appointments from the upstream service
-        appointments, errors = if appointments
-                                 Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
-                                 [appointments, nil]
-                               else
-                                 Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
-                                 # because a user's entire set of appointments are locally cached and we always
-                                 # fetch a two year range these are later filtered by start and end date params
-                                 # from the request
-                                 appointments, errors = appointments_proxy.get_appointments(
-                                   start_date: [validated_params[:start_date], one_year_ago].min,
-                                   end_date: [validated_params[:end_date], one_year_from_now].max
-                                 )
-                                 Mobile::V0::Appointment.set_cached(@current_user, appointments)
-                                 [appointments, errors]
-                               end
+        if appointments
+          Rails.logger.info('mobile appointments cache fetch', user_uuid: @current_user.uuid)
+        else
+          appointments = appointments_proxy.get_appointments(
+            start_date: [validated_params[:start_date], one_year_ago].min,
+            end_date: [validated_params[:end_date], one_year_from_now].max
+          )
+          Mobile::V0::Appointment.set_cached(@current_user, appointments)
+          Rails.logger.info('mobile appointments service fetch', user_uuid: @current_user.uuid)
+        end
 
         appointments.reverse! if validated_params[:reverse_sort]
 
@@ -89,7 +84,7 @@ module Mobile
         end
         page_appointments, page_meta_data = paginate(list: appointments, validated_params: validated_params)
 
-        Mobile::V0::AppointmentSerializer.new(page_appointments, options(errors, page_meta_data))
+        Mobile::V0::AppointmentSerializer.new(page_appointments, options(page_meta_data))
       end
 
       def paginate(list:, validated_params:)
@@ -111,10 +106,10 @@ module Mobile
         [pages[page_number - 1], page_meta_data]
       end
 
-      def options(errors, page_meta_data)
+      def options(page_meta_data)
         {
+          errors: nil,
           meta: {
-            errors: errors.nil? ? nil : errors,
             pagination: page_meta_data[:pagination]
           },
           links: page_meta_data[:links]
