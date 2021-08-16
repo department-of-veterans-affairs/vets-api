@@ -366,10 +366,6 @@ features:
     actor_type: user
     description: Set up toggle in anticipation of the next iteration of the homepage and appointment cards.
     enable_in_development: true
-  va_online_scheduling_provider_selection:
-    actor_type: user
-    description: Enables the community care provider selection field
-    enable_in_development: true
   va_online_scheduling_requests:
     actor_type: user
     description: Allows veterans to submit requests for VA appointments
