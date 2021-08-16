@@ -42,8 +42,8 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
     end
 
     describe 'GET appointments' do
-      let(:start_date) { Time.zone.parse('2021-05-04T04:00:00.000Z') }
-      let(:end_date) { Time.zone.parse('2022-07-03T04:00:00.000Z') }
+      let(:start_date) { Time.zone.parse('2021-05-16T19:25:00Z') }
+      let(:end_date) { Time.zone.parse('2021-09-16T19:45:00Z') }
       let(:params) { { start: start_date, end: end_date } }
 
       context 'requests a list of appointments' do
@@ -53,59 +53,63 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
 
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
-            expect(JSON.parse(response.body)['data'].size).to eq(81)
+            expect(JSON.parse(response.body)['data'].size).to eq(84)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
           end
         end
 
         it 'has access and returns va appointments given a date range and single status' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses=proposed',
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200',
+                           match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2021-05-16T19:25:00Z&end=2021-09-16T19:45:00Z&statuses=proposed',
                 headers: inflection_header
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             data = JSON.parse(response.body)['data']
-            expect(data.size).to eq(7)
+            expect(data.size).to eq(3)
             expect(data[0]['attributes']['status']).to eq('proposed')
             expect(data[1]['attributes']['status']).to eq('proposed')
           end
         end
 
         it 'has access and returns va appointments given date a range and single status (as array)' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses[]=proposed',
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_single_status_200',
+                           match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2021-05-16T19:25:00Z&end=2021-09-16T19:45:00Z&statuses[]=proposed',
                 headers: inflection_header
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             data = JSON.parse(response.body)['data']
-            expect(data.size).to eq(7)
+            expect(data.size).to eq(3)
             expect(data[0]['attributes']['status']).to eq('proposed')
             expect(data[1]['attributes']['status']).to eq('proposed')
           end
         end
 
         it 'has access and returns va appointments given a date range and multiple statuses' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses=proposed,booked',
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_multi_status_200',
+                           match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2021-05-16T19:25:00Z&end=2021-09-16T19:45:00Z&statuses=proposed,booked',
                 headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             data = JSON.parse(response.body)['data']
-            expect(data.size).to eq(53)
+            expect(data.size).to eq(17)
             expect(data[0]['attributes']['status']).to eq('booked')
-            expect(data[52]['attributes']['status']).to eq('proposed')
+            expect(data[16]['attributes']['status']).to eq('proposed')
           end
         end
 
         it 'has access and returns va appointments given a date range and multiple statuses (as Array)' do
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/appointments?start=2021-05-04T04:00:00Z&end=2022-07-03T04:00:00Z&statuses[]=proposed' \
+          VCR.use_cassette('vaos/v2/appointments/get_appointments_multi_status_200',
+                           match_requests_on: %i[method uri]) do
+            get '/vaos/v2/appointments?start=2021-05-16T19:25:00Z&end=2021-09-16T19:45:00Z&statuses[]=proposed' \
                 '&statuses[]=booked',
                 headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             data = JSON.parse(response.body)['data']
-            expect(data.size).to eq(53)
+            expect(data.size).to eq(17)
             expect(data[0]['attributes']['status']).to eq('booked')
-            expect(data[52]['attributes']['status']).to eq('proposed')
+            expect(data[16]['attributes']['status']).to eq('proposed')
           end
         end
 
@@ -124,11 +128,11 @@ RSpec.describe 'vaos appointments', type: :request, skip_mvi: true do
       context 'when the VAOS service returns a single appointment' do
         it 'has access and returns appointment' do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200', match_requests_on: %i[method uri]) do
-            get '/vaos/v2/appointments/20029', headers: inflection_header
+            get '/vaos/v2/appointments/36952', headers: inflection_header
             expect(response).to have_http_status(:ok)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
             data = JSON.parse(response.body)['data']
-            expect(data['id']).to eq('20029')
+            expect(data['id']).to eq('36952')
             expect(data['attributes']['status']).to eq('booked')
             expect(data['attributes']['minutesDuration']).to eq(20)
           end

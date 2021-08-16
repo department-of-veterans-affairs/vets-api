@@ -5,7 +5,7 @@ http_interactions:
     uri: https://veteran.apps.va.gov/vaos/v1/patients/1012845331V153043/appointments
     body:
       encoding: UTF-8
-      string: '{"kind":"cc","status":"proposed","locationId":"983","reason":"Testing","patientIcn":"1012845331V153043","slot":{},"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"serviceType":"CCPOD","requestedPeriods":[{"start":"2021-06-15T12:00:00.000+00:00","end":"2021-06-15T23:59:00.000+00:00"}]}'
+      string: '{"kind":"cc","status":"proposed","locationId":"983","practitionerIds":[{"system":"HSRM","value":"1234567890"}],"reason":"Testing","contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"serviceType":"CCPOD","requestedPeriods":[{"start":"2021-06-15T12:00:00.000+00:00","end":"2021-06-15T23:59:00.000+00:00"}],"preferredLanguage":"English","patientIcn":"1012845331V153043"}'
     headers:
       Accept:
       - application/json
@@ -16,7 +16,7 @@ http_interactions:
       Referer:
       - https://review-instance.va.gov
       X-Vamf-Jwt:
-      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyMjc1MjU1MywicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyMjc1MzQ1MywianRpIjoiOWE0ZDc3ZTUtZWZiNC00NDhjLTkyM2ItZGY5ZDI2NWE4NmQ0IiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjIyNzUyMzczLCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.HiOmYeU7zusAye1Gh0saHj9Q0GVLuQo5wffJUWO9wYSa_ZJ4INxqpurAoK7r2N3jM9K63hOZa_18ATwv70c_WismCm4S5U3x_OpRXLt5nEFA3ux8tfolUdQrwTLJ16WE3uSP5dBf-6BpMf3MbTQOI3nesjKEJb8doYzwM-O5eteRhS7wDYUBDMqHXuIUxWgikC4wfta9awlE4ZKCE9W9z91gittje3tcDW_mf7lo8YlRy2G0Hey2nCMuPum3S0Tp38mOCDNSZPgYrZw_-cHHAzchW0EusPGZ4f3badK3SZ0OJMw5jimfJoVqNWJfI86i2Hpc-q7j0U0RpqkgzvkcQQ
+      - eyJhbGciOiJSUzUxMiJ9.eyJhdXRoZW50aWNhdGVkIjp0cnVlLCJsYXN0TmFtZSI6Ik1vcnJpc29uIiwic3ViIjoiMTAxMjg0NTMzMVYxNTMwNDMiLCJhdXRoZW50aWNhdGlvbkF1dGhvcml0eSI6Imdvdi52YS52YW9zIiwiZ2VuZGVyIjoiRkVNQUxFIiwiaXNzIjoiZ292LnZhLnZhbWYudXNlcnNlcnZpY2UudjIiLCJ2YW1mLmF1dGgucmVzb3VyY2VzIjpbIl4uKihcLyk_c2l0ZVtzXT9cLyhkZm4tKT85ODRcL3BhdGllbnRbc10_XC81NTIxNjEwNTBcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9zaXRlW3NdP1wvKGRmbi0pPzk4M1wvcGF0aWVudFtzXT9cLzcyMTY2OTFcL2FwcG9pbnRtZW50cyhcLy4qKT8kIiwiXi4qKFwvKT9wYXRpZW50W3NdP1wvKElDTlwvKT8xMDEyODQ1MzMxVjE1MzA0MyhcLy4qKT8kIl0sInNzbiI6Ijc5NjA2MTk3NiIsInNzdCI6MTYyODU0MjMwNiwicGF0aWVudCI6eyJmaXJzdE5hbWUiOiJKdWR5IiwibGFzdE5hbWUiOiJNb3JyaXNvbiIsImdlbmRlciI6IkZFTUFMRSIsImljbiI6IjEwMTI4NDUzMzFWMTUzMDQzIiwiZG9iIjoiMTk1My0wNC0wMSIsImRhdGVPZkJpcnRoIjoiMTk1My0wNC0wMSIsInNzbiI6Ijc5NjA2MTk3NiJ9LCJ2YW1mLmF1dGgucm9sZXMiOlsidmV0ZXJhbiJdLCJyaWdodE9mQWNjZXNzQWNjZXB0ZWQiOnRydWUsImV4cCI6MTYyODU0MzIwNywianRpIjoiMDczZDZiNDEtYjUxYS00OGEyLTk0NzAtODVhNWQzMzlmYjUzIiwiaWRUeXBlIjoiSUNOIiwiZGF0ZU9mQmlydGgiOiIxOTUzMDQwMSIsInZlcnNpb24iOjIuNSwiZWRpcGlkIjoiMTI1OTg5Nzk3OCIsInZpc3RhSWRzIjpbeyJwYXRpZW50SWQiOiI1NTIxNjEwNTAiLCJzaXRlSWQiOiI5ODQifSx7InBhdGllbnRJZCI6IjcyMTY2OTEiLCJzaXRlSWQiOiI5ODMifV0sImZpcnN0TmFtZSI6Ikp1ZHkiLCJzdGFmZkRpc2NsYWltZXJBY2NlcHRlZCI6dHJ1ZSwibmJmIjoxNjI4NTQyMTI3LCJkb2IiOiIxOTUzMDQwMSIsImxvYSI6Mn0.agak4n_FaUWlDufD1BYd35cKYF66PFpcafse1C4HVTfByZ2nGLLqjEWsqzCe3ENGuMBg7pgNF3yz70nVFhIdB2LLxKUHCw7BIpBt_L9v8nbXJIgZIDEt5zL5sjzdalpUO7meDFQuV5Ki123J2SRfgNwFPD9ZDVHthNBBYxrofEBy2iyz3ZAd-W_cXC0qVR2fqt7rC2v1opYUCZL8xMoIz5wPcJxKfbx2U-9hR0_fY_y1k8MnQdC6g6O_Fu34eQd0Hxa34vLPRvtMkDgRqXNV9-pg2uXABAMARRpuX1i0V3aKgJcXfauyAyRq2VhITLilEcFAqOBiLpIMpX2Su-jCKg
       X-Request-Id:
       - ''
       Accept-Encoding:
@@ -27,23 +27,23 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 03 Jun 2021 20:36:15 GMT
+      - Mon, 09 Aug 2021 20:52:10 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '355'
+      - '428'
       Server:
       - openresty
       X-Vamf-Version:
-      - 1.6.0
+      - 1.9.0
       B3:
-      - a2c341bdc59a5b21-e1450ee71a4425a8-1
+      - 0b3ad9dff2936f5e-0655c067059ef14b-1
       Access-Control-Allow-Headers:
       - x-vamf-jwt
       X-Vamf-Build:
-      - 36e545f
+      - e208742
       X-Vamf-Timestamp:
-      - '2021-05-29T19:44:21+0000'
+      - '2021-08-03T18:59:01+0000'
       Access-Control-Allow-Origin:
       - "*"
       Access-Control-Allow-Methods:
@@ -54,6 +54,6 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"id":"27009","kind":"cc","status":"proposed","serviceType":"CCPOD","patientIcn":"1012845331V153043","locationId":"983","reason":"Testing","slot":{},"requestedPeriods":[{"start":"2021-06-15T12:00:00Z","end":"2021-06-15T23:59:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]}}'
-  recorded_at: Thu, 03 Jun 2021 20:36:15 GMT
+      string: '{"id":"41228","kind":"cc","status":"proposed","serviceType":"CCPOD","patientIcn":"1012845331V153043","locationId":"983","practitioners":[{"id":{"system":"HSRM","value":"1234567890"}}],"reason":"Testing","requestedPeriods":[{"start":"2021-06-15T12:00:00Z","end":"2021-06-15T23:59:00Z"}],"contact":{"telecom":[{"type":"phone","value":"2125688889"},{"type":"email","value":"judymorisooooooooooooon@gmail.com"}]},"cancellable":true}'
+  recorded_at: Mon, 09 Aug 2021 20:52:10 GMT
 recorded_with: VCR 6.0.0
