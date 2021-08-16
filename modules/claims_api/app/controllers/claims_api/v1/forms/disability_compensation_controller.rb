@@ -204,14 +204,13 @@ module ClaimsApi
           will_receive_attr = form_attributes.dig('servicePay', 'militaryRetiredPay', 'willReceiveInFuture')
 
           return if receiving_attr.nil? || will_receive_attr.nil?
+          return unless receiving_attr == will_receive_attr
 
           # EVSS does not allow both attributes to be the same value (unless that value is nil)
-          if receiving_attr == will_receive_attr
-            raise ::Common::Exceptions::InvalidFieldValue.new(
-              'servicePay.militaryRetiredPay',
-              form_attributes['servicePay']['militaryRetiredPay']
-            )
-          end
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'servicePay.militaryRetiredPay',
+            form_attributes['servicePay']['militaryRetiredPay']
+          )
         end
 
         def too_many_homelessness_attributes_provided?
