@@ -126,10 +126,8 @@ jobs:
       - name: Docker Cleanup
         if: always()
         run: |
-          docker ps --all
           docker rmi -f vets-api:${{ env.DOCKER_IMAGE }} 2> /dev/null || true
           docker rm -f ${{ env.DOCKER_IMAGE }}_postgres_1 2> /dev/null || true
-          docker ps --all
 
   publish_results:
     name: Publish Results
