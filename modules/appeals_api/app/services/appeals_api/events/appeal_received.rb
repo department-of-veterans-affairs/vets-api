@@ -11,12 +11,19 @@ module AppealsApi
       def hlr_received
         return unless Flipper.enabled?(:decision_review_hlr_email)
 
-        log_error(guid, 'HLR') unless email_identifier
+        log_error(guid, 'HLR') unless email
 
         template_type = 'higher_level_review_received'
-        template = { template_id: template_id(template_type) }
+        template_id = template_id(template_type)
 
-        vanotify_service.send_email(params(template))
+        vanotify_service.send_email(
+          email_address: email,
+          template_id: template_id,
+          personalisation: {
+            'first_name' => opts['veteran_first_name'],
+            'date_submitted' => opts['date_submitted']
+          }
+        )
       end
 
       private
@@ -27,50 +34,20 @@ module AppealsApi
         @vanotify_service ||= VaNotify::Service.new(Settings.vanotify.services.lighthouse.api_key)
       end
 
-      def params(template_id)
-        [
-          lookup,
-          template_id,
-          personalisation
-        ].reduce(&:merge)
-      end
-
-      def lookup
-        if opts['email_identifier'] == 'email'
-          {
-            email_address: opts['email_identifier']['id_value']
-          }
-        else
-          {
-            recipient_identifier: {
-              id_value: opts['email_identifier']['id_value'],
-              id_type: opts['email_identifier']['id_type']
-            }
-          }
-        end
-      end
-
       def template_id(template)
         Settings.vanotify.services.lighthouse.template_id.public_send(template)
       end
 
-      def personalisation
-        {
-          'first_name' => opts['first_name'],
-          'date_submitted' => opts['date_submitted'].strftime('%B %d, %Y')
-        }
-      end
-
       def log_error(guid, type)
-        Rails.logger.error "No lookup value present for AppealsApi::AppealReceived notification #{type} - GUID: #{guid}"
+        Rails.logger.error "No email present for AppealsApi::AppealReceived notification #{type} - GUID: #{guid}"
       end
 
       def guid
         opts['guid']
       end
 
-      def email_identifier
-        opts['email_identifier']
+      def email
+        opts['email']
       end
 
       def required_keys?
@@ -78,7 +55,7 @@ module AppealsApi
       end
 
       def required_keys
-        %w[guid email_identifier date_submitted first_name]
+        %w[guid email date_submitted veteran_first_name]
       end
     end
 
