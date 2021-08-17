@@ -151,6 +151,8 @@ module ClaimsApi
           validate_form_526_application_expiration_date!
           validate_form_526_claimant_certification!
           validate_form_526_location_codes!
+          validate_form_526_veteran_homelessness!
+          validate_form_526_service_pay!
         end
 
         def validate_form_526_submission_claim_date!
@@ -186,6 +188,46 @@ module ClaimsApi
             raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
                                                               form_attributes['separationLocationCode'])
           end
+        end
+
+        def validate_form_526_veteran_homelessness!
+          if too_many_homelessness_attributes_provided? || unnecessary_homelessness_point_of_contact_provided?
+            raise ::Common::Exceptions::InvalidFieldValue.new(
+              'homelessness',
+              form_attributes['veteran']['homelessness']
+            )
+          end
+        end
+
+        def validate_form_526_service_pay!
+          receiving_attr    = form_attributes.dig('servicePay', 'militaryRetiredPay', 'receiving')
+          will_receive_attr = form_attributes.dig('servicePay', 'militaryRetiredPay', 'willReceiveInFuture')
+
+          return if receiving_attr.nil? || will_receive_attr.nil?
+          return unless receiving_attr == will_receive_attr
+
+          # EVSS does not allow both attributes to be the same value (unless that value is nil)
+          raise ::Common::Exceptions::InvalidFieldValue.new(
+            'servicePay.militaryRetiredPay',
+            form_attributes['servicePay']['militaryRetiredPay']
+          )
+        end
+
+        def too_many_homelessness_attributes_provided?
+          currently_homeless_attr = form_attributes.dig('veteran', 'homelessness', 'currentlyHomeless')
+          homelessness_risk_attr  = form_attributes.dig('veteran', 'homelessness', 'homelessnessRisk')
+
+          # EVSS does not allow both attributes to be provided at the same time
+          currently_homeless_attr.present? && homelessness_risk_attr.present?
+        end
+
+        def unnecessary_homelessness_point_of_contact_provided?
+          currently_homeless_attr = form_attributes.dig('veteran', 'homelessness', 'currentlyHomeless')
+          homelessness_risk_attr  = form_attributes.dig('veteran', 'homelessness', 'homelessnessRisk')
+          homelessness_poc_attr   = form_attributes.dig('veteran', 'homelessness', 'pointOfContact')
+
+          # EVSS does not allow passing a 'pointOfContact' if neither homelessness attribute is provided
+          currently_homeless_attr.blank? && homelessness_risk_attr.blank? && homelessness_poc_attr.present?
         end
 
         def flashes
