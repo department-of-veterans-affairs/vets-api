@@ -150,7 +150,7 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
       response '200', 'Info about a single Higher-Level Review' do
         schema AppealsApi::SwaggerSharedComponents.response_schemas[:hlr_response_schema]
 
-        hlr = FactoryBot.create(:higher_level_review)
+        hlr = FactoryBot.create(:minimal_higher_level_review_v2)
         let(:uuid) { hlr.id }
 
         before do |example|
@@ -348,6 +348,167 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
         end
 
         it 'returns a 200 response' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+      end
+    end
+  end
+
+  path '/higher_level_reviews/validate' do
+    post 'Validates a POST request body against the JSON schema.' do
+      tags 'Higher-Level Reviews'
+      operationId 'hlrValidate'
+      description 'Like the POST /higher_level_reviews, but only does the validations <b>—does not submit anything.</b>'
+      security [
+        { apikey: [] }
+      ]
+      consumes 'application/json'
+      produces 'application/json'
+
+      parameter name: :hlr_body, in: :body, schema: { '$ref' => '#/components/schemas/hlrCreate' }
+
+      parameter in: :body, examples: {
+        'minimum fields used' => {
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_minimum_v2.json')))
+        },
+        'all fields used' => {
+          value: JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+        }
+      }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_ssn_header]
+      let(:'X-VA-SSN') { '000000000' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_first_name_header]
+      let(:'X-VA-First-Name') { 'first' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_middle_initial_header]
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_last_name_header]
+      let(:'X-VA-Last-Name') { 'last' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_birth_date_header]
+      let(:'X-VA-Birth-Date') { '1900-01-01' }
+
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_file_number_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:veteran_insurance_policy_number_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_username_header]
+      parameter AppealsApi::SwaggerSharedComponents.header_params[:consumer_id_header]
+
+      response '200', 'Valid' do
+        let(:hlr_body) do
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_minimum_v2.json')))
+        end
+
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'hlr_validate.json')))
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        after do |example|
+          response_title = example.metadata[:description]
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              examples: {
+                "#{response_title}": {
+                  value: JSON.parse(response.body, symbolize_names: true)
+                }
+              }
+            }
+          }
+        end
+
+        it 'minimum fields used' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+      end
+
+      response '200', 'Valid' do
+        let(:hlr_body) do
+          JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+        end
+
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'hlr_validate.json')))
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        after do |example|
+          response_title = example.metadata[:description]
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              examples: {
+                "#{response_title}": {
+                  value: JSON.parse(response.body, symbolize_names: true)
+                }
+              }
+            }
+          }
+        end
+
+        it 'all fields used' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+      end
+
+      response '422', 'Error' do
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
+                                                                 'default.json')))
+        let(:hlr_body) do
+          request_body = JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'fixtures', 'valid_200996_v2.json')))
+          request_body['data']['attributes'].delete('informalConference')
+          request_body
+        end
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        after do |example|
+          response_title = example.metadata[:description]
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              examples: {
+                "#{response_title}": {
+                  value: JSON.parse(response.body, symbolize_names: true)
+                }
+              }
+            }
+          }
+        end
+
+        it 'Violates JSON schema' do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+      end
+
+      response '422', 'Error' do
+        schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors',
+                                                                 'not_json.json')))
+        let(:hlr_body) do
+          nil
+        end
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        after do |example|
+          response_title = example.metadata[:description]
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              examples: {
+                "#{response_title}": {
+                  value: JSON.parse(response.body, symbolize_names: true)
+                }
+              }
+            }
+          }
+        end
+
+        it 'Not JSON object' do |example|
           assert_response_matches_metadata(example.metadata)
         end
       end
