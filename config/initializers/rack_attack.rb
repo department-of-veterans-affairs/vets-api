@@ -9,6 +9,13 @@ class Rack::Attack
     req.ip if req.path == '/v0/limited'
   end
 
+  # Rate-limit PPMS lookup, in order to bore abusers.
+  # See https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/Postmortems/2021-08-16-facility-locator-possible-DOS.md
+  # for details.
+  throttle('facility_locator/ip', limit: 3, period: 1.minute) do |req|
+    req.ip if req.path == '/facilities_api/v1/ccp/provider'
+  end
+
   throttle('vic_profile_photos_download/ip', limit: 8, period: 5.minutes) do |req|
     req.ip if req.path == '/v0/vic/profile_photo_attachments' && req.get?
   end
