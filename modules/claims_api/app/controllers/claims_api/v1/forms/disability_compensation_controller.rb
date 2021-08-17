@@ -153,10 +153,10 @@ module ClaimsApi
           validate_form_526_location_codes!
           validate_form_526_veteran_homelessness!
           validate_form_526_service_pay!
-          validate_form_526_title10_activation!
+          validate_form_526_title10_activation_date!
         end
 
-        def validate_form_526_title10_activation!
+        def validate_form_526_title10_activation_date!
           title10_activation_date = form_attributes.dig('serviceInformation',
                                                         'reservesNationalGuardService',
                                                         'title10Activation',
