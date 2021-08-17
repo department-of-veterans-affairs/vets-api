@@ -977,6 +977,17 @@
               }
             }
           }
+        },
+        "if": {
+          "properties": {
+            "disabilityActionType": {
+              "enum": ["INCREASE"]
+            }
+          },
+          "required": ["disabilityActionType"]
+        },
+        "then": {
+          "required": ["ratedDisabilityId"]
         }
       }
     },
