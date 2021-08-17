@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cc5d2b32-1e9b-4d97-8861-547f6918a0f5",
+                    "id": "fbbd5a18-c8bb-4193-bc17-0d6f86f75bf1",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "bf6e8513-b1ff-4627-ad7a-0b60b5dccb47",
+                          "id": "6047f5fe-f76e-4100-83ee-a354935772d3",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-07-20T00:45:41.381Z"
+                          "uploaded_at": "2021-08-13T20:15:32.320Z"
                         }
                       ]
                     }
@@ -1264,9 +1264,12 @@
                               "description": "Object describing Veteran Homelessness if applicable.",
                               "type": "object",
                               "additionalProperties": false,
-                              "required": [
-                                "pointOfContact"
-                              ],
+                              "dependentRequired": {
+                                "pointOfContact": [
+                                  "currentlyHomeless",
+                                  "homelessnessRisk"
+                                ]
+                              },
                               "properties": {
                                 "pointOfContact": {
                                   "description": "Object describing Homeless Veteran Point of Contact.",
@@ -1382,7 +1385,6 @@
                               "uniqueItems": true,
                               "items": {
                                 "type": "object",
-                                "additionalProperties": false,
                                 "required": [
                                   "serviceBranch",
                                   "activeDutyBeginDate",
@@ -1430,6 +1432,10 @@
                                     "type": "string",
                                     "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$",
                                     "example": "1990-01-02"
+                                  },
+                                  "separationLocationCode": {
+                                    "type": "string",
+                                    "example": "98283"
                                   }
                                 }
                               }
@@ -2066,9 +2072,15 @@
                               ],
                               "properties": {
                                 "receiving": {
-                                  "description": "Is Veteran getting Retiree pay.",
+                                  "description": "Is Veteran getting Retiree pay?",
                                   "type": "boolean",
                                   "example": true
+                                },
+                                "willReceiveInFuture": {
+                                  "description": "Will Veteran get Retiree pay in future?",
+                                  "type": "boolean",
+                                  "default": false,
+                                  "example": false
                                 },
                                 "payment": {
                                   "description": "Part of DoD paying Retirement Benefits.",
@@ -2263,7 +2275,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "becd2da7-be08-4d81-b4ca-004a5d63567b",
+                    "id": "e5600e0e-b94c-415a-b087-5fa7b30b20a6",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2281,13 +2293,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-07-20T00:45:41.811Z",
+                      "updated_at": "2021-08-13T20:15:32.808Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "becd2da7-be08-4d81-b4ca-004a5d63567b",
+                      "token": "e5600e0e-b94c-415a-b087-5fa7b30b20a6",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -2952,9 +2964,12 @@
                                 "description": "Object describing Veteran Homelessness if applicable.",
                                 "type": "object",
                                 "additionalProperties": false,
-                                "required": [
-                                  "pointOfContact"
-                                ],
+                                "dependentRequired": {
+                                  "pointOfContact": [
+                                    "currentlyHomeless",
+                                    "homelessnessRisk"
+                                  ]
+                                },
                                 "properties": {
                                   "pointOfContact": {
                                     "description": "Object describing Homeless Veteran Point of Contact.",
@@ -3070,7 +3085,6 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
-                                  "additionalProperties": false,
                                   "required": [
                                     "serviceBranch",
                                     "activeDutyBeginDate",
@@ -3118,6 +3132,10 @@
                                       "type": "string",
                                       "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$",
                                       "example": "1990-01-02"
+                                    },
+                                    "separationLocationCode": {
+                                      "type": "string",
+                                      "example": "98283"
                                     }
                                   }
                                 }
@@ -3754,9 +3772,15 @@
                                 ],
                                 "properties": {
                                   "receiving": {
-                                    "description": "Is Veteran getting Retiree pay.",
+                                    "description": "Is Veteran getting Retiree pay?",
                                     "type": "boolean",
                                     "example": true
+                                  },
+                                  "willReceiveInFuture": {
+                                    "description": "Will Veteran get Retiree pay in future?",
+                                    "type": "boolean",
+                                    "default": false,
+                                    "example": false
                                   },
                                   "payment": {
                                     "description": "Part of DoD paying Retirement Benefits.",
@@ -3964,7 +3988,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "43f45bf3-7b05-41fb-bb1b-4d494ee21754",
+                    "id": "d8cabd57-aa42-4459-836c-4523af5c9d53",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -3982,13 +4006,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-07-20T00:45:42.293Z",
+                      "updated_at": "2021-08-13T20:15:33.356Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "43f45bf3-7b05-41fb-bb1b-4d494ee21754",
+                      "token": "d8cabd57-aa42-4459-836c-4523af5c9d53",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5054,9 +5078,12 @@
                                 "description": "Object describing Veteran Homelessness if applicable.",
                                 "type": "object",
                                 "additionalProperties": false,
-                                "required": [
-                                  "pointOfContact"
-                                ],
+                                "dependentRequired": {
+                                  "pointOfContact": [
+                                    "currentlyHomeless",
+                                    "homelessnessRisk"
+                                  ]
+                                },
                                 "properties": {
                                   "pointOfContact": {
                                     "description": "Object describing Homeless Veteran Point of Contact.",
@@ -5172,7 +5199,6 @@
                                 "uniqueItems": true,
                                 "items": {
                                   "type": "object",
-                                  "additionalProperties": false,
                                   "required": [
                                     "serviceBranch",
                                     "activeDutyBeginDate",
@@ -5220,6 +5246,10 @@
                                       "type": "string",
                                       "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$",
                                       "example": "1990-01-02"
+                                    },
+                                    "separationLocationCode": {
+                                      "type": "string",
+                                      "example": "98283"
                                     }
                                   }
                                 }
@@ -5856,9 +5886,15 @@
                                 ],
                                 "properties": {
                                   "receiving": {
-                                    "description": "Is Veteran getting Retiree pay.",
+                                    "description": "Is Veteran getting Retiree pay?",
                                     "type": "boolean",
                                     "example": true
+                                  },
+                                  "willReceiveInFuture": {
+                                    "description": "Will Veteran get Retiree pay in future?",
+                                    "type": "boolean",
+                                    "default": false,
+                                    "example": false
                                   },
                                   "payment": {
                                     "description": "Part of DoD paying Retirement Benefits.",
@@ -6066,7 +6102,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ee460fc9-5dcb-4674-9569-29a6c0c3e145",
+                    "id": "e2689d2a-eb60-4954-9d25-496f6d1a7eba",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6080,7 +6116,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-07-20T00:45:43.157Z",
+                      "updated_at": "2021-08-13T20:15:34.405Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6089,7 +6125,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "a463ae01-489e-48b1-b923-3bd9b469e4cf",
+                          "id": "fe2cbff2-cb1b-45fc-9fbe-0ecc76967645",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -6991,11 +7027,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "184000",
+                    "id": "183042",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creation_date": null,
-                      "expiration_date": "2021-08-04T11:11:14.000-05:00",
+                      "creation_date": "2020-06-05T11:24:28.000-05:00",
+                      "expiration_date": "2021-06-05T11:24:28.000-05:00",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -8046,11 +8082,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bfc0a228-e8ee-4eef-a3c5-efa88eec07d6",
+                    "id": "b49790e1-a413-45ac-ab72-3c222ac30f83",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-07-20",
+                      "date_request_accepted": "2021-08-13",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8759,11 +8795,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b67d8257-a712-49bd-bbc8-9645d119a03d",
+                    "id": "4a1539b7-9452-4a22-aacd-2b3ecc299404",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-07-20",
+                      "date_request_accepted": "2021-08-13",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9084,11 +9120,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "048a8a57-5c54-4688-ae20-e8204da428b2",
+                    "id": "7ce54e2c-6bae-40ac-8714-2032ab83ef60",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-07-20",
+                      "date_request_accepted": "2021-08-13",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
