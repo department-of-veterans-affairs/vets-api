@@ -95,22 +95,30 @@ RSpec.describe Rack::Attack do
   end
 
   describe 'facility_locator/ip' do
+    subject { last_response.status }
+
+    let(:endpoint) { '/facilities_api/v1/ccp/provider' }
+    let(:limit) { 3 }
+
     before do
       limit.times do
-        post endpoint, headers: headers
-        expect(last_response.status).not_to eq(429)
+        get endpoint, headers: headers
+        expect(subject).not_to eq(429)
       end
 
-      post endpoint, headers: headers
+      get endpoint, headers: other_headers
     end
 
-    context 'limit PPMS abuse' do
-      let(:limit) { 3 }
-      let(:endpoint) { '/facilities_api/v1/ccp/provider' }
+    context 'response status for repeated requests from the same IP' do
+      let(:other_headers) { headers }
 
-      it 'limits requests' do
-        expect(last_response.status).to eq(429)
-      end
+      it { is_expected.to eq 429 }
+    end
+
+    context 'response status for request from different IP' do
+      let(:other_headers) { { 'REMOTE_ADDR' => '4.3.2.1' } }
+
+      it { is_expected.to eq 200 }
     end
   end
 
