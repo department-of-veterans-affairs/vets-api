@@ -190,19 +190,7 @@ module VBADocuments
     end
 
     def self.end_of_pdf(line)
-      case line
-      # I don't trust the linter here. To be safe, I'm turning this off
-      # rubocop:disable Lint/DuplicateBranch
-      when /%%EOF\n\r\n/
-        true
-      when /%EOF\r\n/
-        true
-      when /%EOF\n/
-        true
-      else
-        false
-      end
-      # rubocop:enable Lint/DuplicateBranch
+      /%%EOF\n\r\n/.match?(line) || /%EOF\r\n/.match?(line) || /%EOF\n/.match?(line)
     end
   end
 end
