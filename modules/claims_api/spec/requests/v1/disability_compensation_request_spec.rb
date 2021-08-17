@@ -680,6 +680,118 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
     end
+
+    describe "'servicePay.militaryRetiredPay' validations" do
+      let(:service_pay_attribute) do
+        {
+          'militaryRetiredPay': {
+            'receiving': receiving,
+            'willReceiveInFuture': will_receive,
+            'payment': {
+              'serviceBranch': 'Air Force'
+            }
+          },
+          'waiveVABenefitsToRetainTrainingPay': false,
+          'waiveVABenefitsToRetainRetiredPay': false
+        }
+      end
+
+      context "when 'receiving' and 'willReceiveInFuture' are equal but not 'nil'" do
+        context "when both are 'true'" do
+          let(:receiving) { true }
+          let(:will_receive) { true }
+
+          before do
+            stub_mpi
+          end
+
+          it 'responds with a bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+        end
+
+        context "when both are 'false'" do
+          let(:receiving) { false }
+          let(:will_receive) { false }
+
+          before do
+            stub_mpi
+          end
+
+          it 'responds with a bad request' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(400)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context "when 'receiving' and 'willReceiveInFuture' are not equal" do
+        context "when 'receiving' is 'false' and 'willReceiveInFuture' is 'true'" do
+          let(:receiving) { false }
+          let(:will_receive) { true }
+
+          before do
+            stub_mpi
+          end
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'receiving' is 'true' and 'willReceiveInFuture' is 'false'" do
+          let(:receiving) { true }
+          let(:will_receive) { false }
+
+          before do
+            stub_mpi
+          end
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  params['data']['attributes']['servicePay'] = service_pay_attribute
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+          end
+        end
+      end
+    end
   end
 
   describe '#upload_documents' do

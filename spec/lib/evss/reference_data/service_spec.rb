@@ -17,7 +17,8 @@ describe EVSS::ReferenceData::Service do
           end.to trigger_statsd_increment('api.external_http_request.EVSS/ReferenceData.success', times: 1)
           expect(@response).to be_ok
           expect(@response.countries[0...10]).to eq(
-            %w[Afghanistan Albania Algeria Angola Anguilla Antigua Antigua\ and\ Barbuda Argentina Armenia Australia]
+            ['Afghanistan', 'Albania', 'Algeria', 'Angola', 'Anguilla', 'Antigua', 'Antigua and Barbuda', 'Argentina',
+             'Armenia', 'Australia']
           )
         end
       end
