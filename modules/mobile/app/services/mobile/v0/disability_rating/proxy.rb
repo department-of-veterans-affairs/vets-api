@@ -15,12 +15,13 @@ module Mobile
           individual_response = compensation_service.get_rated_disabilities
           Mobile::V0::Adapters::Rating.new.disability_ratings(combine_response, individual_response)
         rescue => e
-          status_code = e.respond_to?("response") ? e.response[:status] : e.status_code
-          if status_code == 400
+          status_code = e.respond_to?('response') ? e.response[:status] : e.status_code
+          case status_code
+          when 400
             raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
-          elsif status_code == 502
+          when 502
             raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
-          elsif status_code == 403
+          when 403
             raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
           else
             raise e

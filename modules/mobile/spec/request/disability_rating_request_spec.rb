@@ -20,27 +20,27 @@ RSpec.describe 'Mobile Disability Rating API endpoint', type: :request do
 
   let(:expected_response) do
     {
-        'data' => {
-            'id' => '0',
-            'type' => 'disabilityRating',
-            'attributes' => {
-                'combinedDisabilityRating' => 100,
-                'individualRatings' => [
-                    {
-                        "decision" => "Service Connected",
-                        "effectiveDate" => "2018-03-27T21:00:41.000+00:00",
-                        "ratingPercentage" => 100,
-                        "diagnosticText" => "Diabetes mellitus0"
-                    },
-                    {
-                        "decision" => "Service Connected",
-                        "effectiveDate" => "2018-03-27T21:00:41.000+00:00",
-                        "ratingPercentage" => 100,
-                        "diagnosticText" => "Diabetes mellitus1"
-                    }
-                ]
+      'data' => {
+        'id' => '0',
+        'type' => 'disabilityRating',
+        'attributes' => {
+          'combinedDisabilityRating' => 100,
+          'individualRatings' => [
+            {
+              'decision' => 'Service Connected',
+              'effectiveDate' => '2018-03-27T21:00:41.000+00:00',
+              'ratingPercentage' => 100,
+              'diagnosticText' => 'Diabetes mellitus0'
+            },
+            {
+              'decision' => 'Service Connected',
+              'effectiveDate' => '2018-03-27T21:00:41.000+00:00',
+              'ratingPercentage' => 100,
+              'diagnosticText' => 'Diabetes mellitus1'
             }
+          ]
         }
+      }
     }
   end
 
