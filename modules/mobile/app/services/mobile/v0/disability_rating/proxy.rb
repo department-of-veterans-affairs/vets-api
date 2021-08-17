@@ -11,26 +11,34 @@ module Mobile
         end
 
         def get_disability_ratings
-          response = rating_service.rating.find_rating_data(@user.ssn)
-          handle_errors!(response)
-          Mobile::V0::Adapters::Rating.new.disability_ratings(response)
+          combine_response = common_service.get_rating_info
+          individual_response = compensation_service.get_rated_disabilities
+          Mobile::V0::Adapters::Rating.new.disability_ratings(combine_response, individual_response)
+        rescue => e
+          status_code = e.respond_to?("response") ? e.response[:status] : e.status_code
+          if status_code == 400
+            raise Common::Exceptions::BackendServiceException, 'MOBL_404_rating_not_found'
+          elsif status_code == 502
+            raise Common::Exceptions::BackendServiceException, 'MOBL_502_upstream_error'
+          elsif status_code == 403
+            raise Common::Exceptions::BackendServiceException, 'MOBL_403_rating_forbidden'
+          else
+            raise e
+          end
         end
 
         private
 
-        def rating_service
-          @rating_service ||= BGS::Services.new(external_uid: @user.icn, external_key: @user.email)
+        def common_service
+          EVSS::CommonService.new(auth_headers)
         end
 
-        def handle_errors!(response)
-          raise_error! unless response[:disability_rating_record].instance_of?(Hash)
+        def compensation_service
+          EVSS::DisabilityCompensationForm::Service.new(auth_headers)
         end
 
-        def raise_error!
-          raise Common::Exceptions::BackendServiceException.new(
-            'BGS_RTG_502',
-            source: self.class.to_s
-          )
+        def auth_headers
+          EVSS::DisabilityCompensationAuthHeaders.new(@user).add_headers(EVSS::AuthHeaders.new(@user).to_h)
         end
       end
     end
