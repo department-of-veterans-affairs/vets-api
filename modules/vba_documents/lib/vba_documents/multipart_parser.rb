@@ -7,16 +7,16 @@ module VBADocuments
     LINE_BREAK = "\r\n"
     CARRIAGE_RETURN = "\r"
 
-    def self.parse(infile)
+    def self.parse(infile, submission = nil)
       if base64_encoded(infile)
-        create_file_from_base64(infile)
+        create_file_from_base64(infile, submission)
       else
-        parse_file(infile)
+        parse_file(infile, submission)
       end
     end
 
     # rubocop:disable Metrics/MethodLength
-    def self.parse_file(infile)
+    def self.parse_file(infile, submission = nil)
       parts = {}
       begin
         input = if infile.is_a? String
@@ -33,6 +33,7 @@ module VBADocuments
           content_type = get_content_type(headers)
           body, moreparts = consume_body(lines, separator, content_type)
           parts[partname] = body
+          record_sha256(submission, partname, body) if submission
           break unless moreparts
         end
       ensure
@@ -52,7 +53,7 @@ module VBADocuments
       content.start_with?('data:multipart/form-data;base64,')
     end
 
-    def self.create_file_from_base64(infile)
+    def self.create_file_from_base64(infile, submission = nil)
       FileUtils.mkdir_p '/tmp/vets-api'
       if infile.is_a? String
         contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile.shellescape}`
@@ -63,12 +64,13 @@ module VBADocuments
         contents = content.sub %r{data:((multipart)/.{3,}),}, ''
       end
       decoded_data = Base64.decode64(contents)
+      record_sha256(submission, 'base64', decoded_data) if submission
       filename = "temp_upload_#{Time.zone.now.to_i}"
 
       File.open("/tmp/vets-api/#{filename}", 'wb') do |f|
         f.write(decoded_data)
       end
-      parse(File.open("/tmp/vets-api/#{filename}"))
+      parse(File.open("/tmp/vets-api/#{filename}"), submission)
     end
 
     def self.validate_size(infile)
@@ -155,8 +157,7 @@ module VBADocuments
         begin
           line = lines.next[0]
         rescue StopIteration
-          raise VBADocuments::UploadError.new(code: 'DOC101',
-                                              detail: 'Unexpected end of payload')
+          raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Unexpected end of payload')
         end
         linechomp = line.chomp(LINE_BREAK)
         if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")
@@ -166,9 +167,30 @@ module VBADocuments
           tf.rewind
           return tf, true
         else
+          # AWS appends a new line at the end of the pdf, we must remove it to maintain the original sha256 value
+          line.chomp! if valid_encoding(line) && end_of_pdf(line)
           tf.write(line)
         end
       end
+    end
+
+    def self.record_sha256(submission, partname, body)
+      submission.metadata['sha_256'] = {} unless submission.metadata['sha_256']
+      sha256_value = if body.instance_of?(Tempfile)
+                       Digest::SHA256.file(body).hexdigest
+                     else
+                       Digest::SHA256.hexdigest(body)
+                     end
+      submission.metadata['sha_256'][partname] = sha256_value
+      submission.save!
+    end
+
+    def self.valid_encoding(line)
+      line.encoding.name == 'ASCII-8BIT' || line.encoding.name == 'UTF-8'
+    end
+
+    def self.end_of_pdf(line)
+      /%%EOF\n\r\n/.match?(line) || /%EOF\r\n/.match?(line) || /%EOF\n/.match?(line)
     end
   end
 end
