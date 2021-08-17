@@ -34,49 +34,49 @@ class AppealsApi::SwaggerSharedComponents
         type: :string,
         name: 'X-VA-SSN',
         required: true,
-        description: 'veteran\'s SSN'
+        description: 'Veteran\'s SSN'
       },
       veteran_first_name_header: {
         in: :header,
         type: :string,
         name: 'X-VA-First-Name',
         required: true,
-        description: 'veteran\'s first name'
+        description: 'Veteran\'s first name'
       },
       veteran_middle_initial_header: {
         in: :header,
         type: :string,
         name: 'X-VA-Middle-Initial',
         required: false,
-        description: 'veteran\'s middle initial'
+        description: 'Veteran\'s middle initial'
       },
       veteran_last_name_header: {
         in: :header,
         type: :string,
         name: 'X-VA-Last-Name',
         required: true,
-        description: 'veteran\'s last name'
+        description: 'Veteran\'s last name'
       },
       veteran_birth_date_header: {
         in: :header,
         type: :string,
         name: 'X-VA-Birth-Date',
         required: true,
-        description: 'veteran\'s birth date'
+        description: 'Veteran\'s birth date'
       },
       veteran_file_number_header: {
         in: :header,
         type: :string,
         name: 'X-VA-File-Number',
         required: false,
-        description: 'veteran\'s file number'
+        description: 'Veteran\'s file number'
       },
       veteran_insurance_policy_number_header: {
         in: :header,
         type: :string,
         name: 'X-VA-Insurance-Policy-Number',
         required: false,
-        description: 'veteran\'s insurance policy number'
+        description: 'Veteran\'s insurance policy number'
       },
       consumer_username_header: {
         in: :header,
@@ -108,34 +108,41 @@ class AppealsApi::SwaggerSharedComponents
       hlr_response_schema: {
         type: :object,
         properties: {
-          id: {
-            type: :string,
-            pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
-          },
-          type: {
-            type: :string,
-            enum: ['higherLevelReview']
-          },
-          attributes: {
+          data: {
             properties: {
-              status: {
+              id: {
                 type: :string,
-                enum: AppealsApi::HlrStatus::V2_STATUSES
+                pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
               },
-              updatedAt: {
+              type: {
                 type: :string,
-                pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z'
+                enum: ['higherLevelReview']
               },
-              createdAt: {
-                type: :string,
-                pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z'
-              },
-              formData: {
-                '$ref' => '#/components/schemas/hlrCreate'
+              attributes: {
+                properties: {
+                  status: {
+                    type: :string,
+                    example: AppealsApi::HlrStatus::V2_STATUSES.first,
+                    enum: AppealsApi::HlrStatus::V2_STATUSES
+                  },
+                  updatedAt: {
+                    type: :string,
+                    pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z'
+                  },
+                  createdAt: {
+                    type: :string,
+                    pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z'
+                  },
+                  formData: {
+                    '$ref' => '#/components/schemas/hlrCreate'
+                  }
+                }
               }
-            }
+            },
+            required: %w[id type attributes]
           }
-        }
+        },
+        required: ['data']
       }
     }
   end
