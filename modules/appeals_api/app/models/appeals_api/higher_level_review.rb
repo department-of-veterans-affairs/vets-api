@@ -223,8 +223,8 @@ module AppealsApi
                                            })
 
       email_handler = Events::Handler.new(event_type: :hlr_received, opts: {
-                                            email: email_v2,
-                                            veteran_first_name: first_name,
+                                            email_identifier: email_identifier,
+                                            first_name: first_name,
                                             date_submitted: date_signed,
                                             guid: id
                                           })
@@ -232,7 +232,7 @@ module AppealsApi
       update!(status: status, code: code, detail: detail)
 
       update_handler.handle!
-      email_handler.handle! if able_to_send_email? && status == 'submitted'
+      email_handler.handle! if status == 'submitted' && email_identifier.present?
     end
 
     def informal_conference_rep
@@ -245,8 +245,22 @@ module AppealsApi
 
     private
 
-    def able_to_send_email?
-      api_version&.upcase == 'V2' && email_v2.present?
+    def mpi_veteran
+      AppealsApi::Veteran.new(
+        ssn: ssn,
+        first_name: first_name,
+        last_name: last_name,
+        birth_date: birth_date.iso8601
+      )
+    end
+
+    def email_identifier
+      return { id_type: 'email', id_value: email } if email.present?
+      return { id_type: 'email', id_value: email_v2 } if email_v2.present?
+
+      icn = mpi_veteran.mpi_icn
+
+      return { id_type: 'ICN', id_value: icn } if icn.present?
     end
 
     def data_attributes
