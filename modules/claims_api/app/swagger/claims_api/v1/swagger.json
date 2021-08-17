@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "fbbd5a18-c8bb-4193-bc17-0d6f86f75bf1",
+                    "id": "9085bbc4-2f00-4e85-8f4f-293fa7f32805",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "6047f5fe-f76e-4100-83ee-a354935772d3",
+                          "id": "4be791f6-1598-47d1-a774-5b36efbc627a",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-08-13T20:15:32.320Z"
+                          "uploaded_at": "2021-08-17T16:38:11.179Z"
                         }
                       ]
                     }
@@ -1397,28 +1397,25 @@
                                     "example": "Air Force",
                                     "enum": [
                                       "Air Force",
-                                      "Air Force Reserves",
                                       "Air National Guard",
                                       "Army",
                                       "Army National Guard",
-                                      "Army Reserves",
-                                      "Coast Guard",
-                                      "Coast Guard Reserves",
-                                      "Marine Corps",
-                                      "Marine Corps Reserves",
-                                      "National Oceanic &amp; Atmospheric Administration",
-                                      "Navy",
-                                      "Navy Reserves",
-                                      "Public Health Service",
-                                      "Air Force Academy",
-                                      "Army Air Corps or Army Air Force",
                                       "Army Nurse Corps",
-                                      "Coast Guard Academy",
+                                      "Coast Guard",
                                       "Merchant Marine",
-                                      "Naval Academy",
-                                      "Other",
-                                      "US Military Academy",
-                                      "Women's Army Corps"
+                                      "Navy",
+                                      "Public Health Service",
+                                      "Air Force Civilian",
+                                      "Army Air Corps",
+                                      "Commonwealth Army Veteran",
+                                      "Guerrilla Combination Service",
+                                      "Marine",
+                                      "National Oceanic and Atmospheric Administration",
+                                      "Regular Philippine Scout",
+                                      "Regular Scout Service",
+                                      "Special Philippine Scout",
+                                      "Unknown",
+                                      "Woman Air Corps"
                                     ]
                                   },
                                   "activeDutyBeginDate": {
@@ -2275,7 +2272,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e5600e0e-b94c-415a-b087-5fa7b30b20a6",
+                    "id": "ddfaf06f-4486-4004-9cd1-e5496136b722",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2293,13 +2290,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-13T20:15:32.808Z",
+                      "updated_at": "2021-08-17T16:38:11.651Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "e5600e0e-b94c-415a-b087-5fa7b30b20a6",
+                      "token": "ddfaf06f-4486-4004-9cd1-e5496136b722",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3097,28 +3094,25 @@
                                       "example": "Air Force",
                                       "enum": [
                                         "Air Force",
-                                        "Air Force Reserves",
                                         "Air National Guard",
                                         "Army",
                                         "Army National Guard",
-                                        "Army Reserves",
-                                        "Coast Guard",
-                                        "Coast Guard Reserves",
-                                        "Marine Corps",
-                                        "Marine Corps Reserves",
-                                        "National Oceanic &amp; Atmospheric Administration",
-                                        "Navy",
-                                        "Navy Reserves",
-                                        "Public Health Service",
-                                        "Air Force Academy",
-                                        "Army Air Corps or Army Air Force",
                                         "Army Nurse Corps",
-                                        "Coast Guard Academy",
+                                        "Coast Guard",
                                         "Merchant Marine",
-                                        "Naval Academy",
-                                        "Other",
-                                        "US Military Academy",
-                                        "Women's Army Corps"
+                                        "Navy",
+                                        "Public Health Service",
+                                        "Air Force Civilian",
+                                        "Army Air Corps",
+                                        "Commonwealth Army Veteran",
+                                        "Guerrilla Combination Service",
+                                        "Marine",
+                                        "National Oceanic and Atmospheric Administration",
+                                        "Regular Philippine Scout",
+                                        "Regular Scout Service",
+                                        "Special Philippine Scout",
+                                        "Unknown",
+                                        "Woman Air Corps"
                                       ]
                                     },
                                     "activeDutyBeginDate": {
@@ -3988,7 +3982,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d8cabd57-aa42-4459-836c-4523af5c9d53",
+                    "id": "0fad9c32-23b7-432e-9472-b337b3f9e4e1",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4006,13 +4000,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-13T20:15:33.356Z",
+                      "updated_at": "2021-08-17T16:38:12.177Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "d8cabd57-aa42-4459-836c-4523af5c9d53",
+                      "token": "0fad9c32-23b7-432e-9472-b337b3f9e4e1",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5211,28 +5205,25 @@
                                       "example": "Air Force",
                                       "enum": [
                                         "Air Force",
-                                        "Air Force Reserves",
                                         "Air National Guard",
                                         "Army",
                                         "Army National Guard",
-                                        "Army Reserves",
-                                        "Coast Guard",
-                                        "Coast Guard Reserves",
-                                        "Marine Corps",
-                                        "Marine Corps Reserves",
-                                        "National Oceanic &amp; Atmospheric Administration",
-                                        "Navy",
-                                        "Navy Reserves",
-                                        "Public Health Service",
-                                        "Air Force Academy",
-                                        "Army Air Corps or Army Air Force",
                                         "Army Nurse Corps",
-                                        "Coast Guard Academy",
+                                        "Coast Guard",
                                         "Merchant Marine",
-                                        "Naval Academy",
-                                        "Other",
-                                        "US Military Academy",
-                                        "Women's Army Corps"
+                                        "Navy",
+                                        "Public Health Service",
+                                        "Air Force Civilian",
+                                        "Army Air Corps",
+                                        "Commonwealth Army Veteran",
+                                        "Guerrilla Combination Service",
+                                        "Marine",
+                                        "National Oceanic and Atmospheric Administration",
+                                        "Regular Philippine Scout",
+                                        "Regular Scout Service",
+                                        "Special Philippine Scout",
+                                        "Unknown",
+                                        "Woman Air Corps"
                                       ]
                                     },
                                     "activeDutyBeginDate": {
@@ -6102,7 +6093,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e2689d2a-eb60-4954-9d25-496f6d1a7eba",
+                    "id": "59e9a229-3010-4a93-b790-939c3e7986e3",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6116,7 +6107,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-13T20:15:34.405Z",
+                      "updated_at": "2021-08-17T16:38:13.026Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6125,7 +6116,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "fe2cbff2-cb1b-45fc-9fbe-0ecc76967645",
+                          "id": "2c49ffea-6b81-4758-b108-bbbe3c9dd8de",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8082,11 +8073,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b49790e1-a413-45ac-ab72-3c222ac30f83",
+                    "id": "3a5fd789-d212-4549-bb16-fdd524eabf37",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-08-13",
+                      "date_request_accepted": "2021-08-17",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8795,11 +8786,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4a1539b7-9452-4a22-aacd-2b3ecc299404",
+                    "id": "7ca11805-f0d2-485a-97bb-2c95111a0d7b",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-13",
+                      "date_request_accepted": "2021-08-17",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9120,11 +9111,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7ce54e2c-6bae-40ac-8714-2032ab83ef60",
+                    "id": "8f9fdd15-17b7-40d9-9256-1eee542440f7",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-13",
+                      "date_request_accepted": "2021-08-17",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
