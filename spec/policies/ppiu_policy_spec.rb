@@ -31,6 +31,32 @@ describe PPIUPolicy do
     end
   end
 
+  permissions :full_access? do
+    context 'with an idme user' do
+      context 'with a loa1 user' do
+        let(:user) { build(:user) }
+
+        it 'disallows access' do
+          expect(described_class).not_to permit(user, :ppiu)
+        end
+      end
+
+      context 'with a loa3 user' do
+        it 'allows access' do
+          expect(described_class).to permit(user, :ppiu)
+        end
+      end
+    end
+
+    context 'with a non idme user' do
+      let(:user) { build(:user, :mhv) }
+
+      it 'disallows access' do
+        expect(described_class).not_to permit(user, :ppiu)
+      end
+    end
+  end
+
   permissions :access_update? do
     context 'with a user who is competent, has no fiduciary, and is not deceased' do
       it 'allows access' do

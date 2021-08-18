@@ -7,6 +7,10 @@ PPIUPolicy = Struct.new(:user, :ppiu) do
     user.loa3? && user.multifactor && Flipper.enabled?(:direct_deposit_cnp, user)
   end
 
+  def full_access?
+    user.identity.sign_in[:service_name] == 'idme' && user.loa3?
+  end
+
   def access_update?
     res = EVSS::PPIU::Service.new(user).get_payment_information
 
