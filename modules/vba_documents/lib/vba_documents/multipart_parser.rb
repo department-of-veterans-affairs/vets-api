@@ -64,7 +64,6 @@ module VBADocuments
         contents = content.sub %r{data:((multipart)/.{3,}),}, ''
       end
       decoded_data = Base64.decode64(contents)
-      record_sha256(submission, 'base64', decoded_data) if submission
       filename = "temp_upload_#{Time.zone.now.to_i}"
 
       File.open("/tmp/vets-api/#{filename}", 'wb') do |f|
@@ -168,7 +167,7 @@ module VBADocuments
           return tf, true
         else
           # AWS appends a new line at the end of the pdf, we must remove it to maintain the original sha256 value
-          line.chomp! if valid_encoding(line) && end_of_pdf(line)
+          line.chomp! if end_of_pdf(line)
           tf.write(line)
         end
       end
@@ -190,7 +189,9 @@ module VBADocuments
     end
 
     def self.end_of_pdf(line)
-      /%%EOF\n\r\n/.match?(line) || /%EOF\r\n/.match?(line) || /%EOF\n/.match?(line)
+      /%%EOF\n\r\n/.match?(line) || /%EOF\r\n/.match?(line) || /%EOF\n/.match?(line) if valid_encoding(line)
+    rescue => e
+      Rails.logger.error('VBADocuments::MultipartParser Error', e)
     end
   end
 end
