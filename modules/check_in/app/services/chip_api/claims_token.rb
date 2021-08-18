@@ -22,7 +22,7 @@ module ChipApi
     # @return [String]
     #
     def static
-      @static ||= Base64.encode64("vetsapiTempUser:#{chip_api.tmp_api_user}")
+      @static ||= Base64.encode64("#{chip_api.tmp_api_username}:#{chip_api.tmp_api_user}")
     end
 
     ##
