@@ -44,6 +44,14 @@ describe PPIUPolicy do
   end
 
   permissions :access_update? do
+    context 'with a user that doesnt have full access' do
+      let(:user) { build(:user, :loa3, :mhv) }
+
+      it 'disallows access' do
+        expect(described_class).not_to permit(user, :ppiu)
+      end
+    end
+
     context 'with a user who is competent, has no fiduciary, and is not deceased' do
       it 'allows access' do
         VCR.use_cassette('evss/ppiu/payment_information') do

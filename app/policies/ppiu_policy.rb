@@ -12,6 +12,8 @@ PPIUPolicy = Struct.new(:user, :ppiu) do
   end
 
   def access_update?
+    return false unless full_access?
+
     res = EVSS::PPIU::Service.new(user).get_payment_information
 
     res.responses.first.control_information.authorized?
