@@ -168,7 +168,7 @@ module VBADocuments
         else
           # Some clients appends a new line at the end of the pdf
           # we must remove it to maintain the original sha256 value
-          line.chomp! # if end_of_pdf(line)
+          # line.chomp! # if end_of_pdf(line)
           tf.write(line)
         end
       end
