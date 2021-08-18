@@ -8,7 +8,7 @@ PPIUPolicy = Struct.new(:user, :ppiu) do
   end
 
   def full_access?
-    user.identity.sign_in[:service_name] == 'idme' && user.loa3?
+    user.identity.sign_in[:service_name] == 'idme'
   end
 
   def access_update?
