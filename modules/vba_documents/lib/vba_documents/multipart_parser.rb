@@ -7,9 +7,9 @@ module VBADocuments
     LINE_BREAK = "\r\n"
     CARRIAGE_RETURN = "\r"
 
-    def self.parse(infile, submission = nil)
+    def self.parse(infile)
       if base64_encoded(infile)
-        create_file_from_base64(infile, submission)
+        create_file_from_base64(infile)
       else
         parse_file(infile)
       end
@@ -53,7 +53,7 @@ module VBADocuments
       content.start_with?('data:multipart/form-data;base64,')
     end
 
-    def self.create_file_from_base64(infile, submission = nil)
+    def self.create_file_from_base64(infile)
       FileUtils.mkdir_p '/tmp/vets-api'
       if infile.is_a? String
         contents = `sed -r 's/data:multipart\\/.{3,},//g' #{infile.shellescape}`
@@ -69,7 +69,7 @@ module VBADocuments
       File.open("/tmp/vets-api/#{filename}", 'wb') do |f|
         f.write(decoded_data)
       end
-      parse(File.open("/tmp/vets-api/#{filename}"), submission)
+      parse(File.open("/tmp/vets-api/#{filename}"))
     end
 
     def self.validate_size(infile)
