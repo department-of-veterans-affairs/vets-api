@@ -101,11 +101,11 @@ RSpec.describe Rack::Attack do
 
     before do
       limit.times do
-        get endpoint, nil, headers
+        get endpoint, params: nil, session: headers
         expect(last_response.status).not_to eq(429)
       end
 
-      get endpoint, nil, other_headers
+      get endpoint, params: nil, session: other_headers
     end
 
     context 'response status for repeated requests from the same IP' do
