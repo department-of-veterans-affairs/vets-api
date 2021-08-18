@@ -173,7 +173,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(faraday_response).to receive(:body).and_return('')
       allow(faraday_response).to receive(:success?).and_return(true)
       capture_body = nil
-      valid_doc_sha = '6dffa10f0f81aaa08bda1530796cdb5ff8bddb883c74b2f7b46f200145667460'
+      # valid_doc_sha = '6dffa10f0f81aaa08bda1530796cdb5ff8bddb883c74b2f7b46f200145667460'
       expect(client_stub).to receive(:upload) { |arg|
         capture_body = arg
         faraday_response
