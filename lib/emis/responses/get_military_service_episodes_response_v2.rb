@@ -18,6 +18,8 @@ module EMIS
       def item_schema
         {
           'personnelCategoryTypeCode' => {},
+          'personnelOrganizationCode' => {},
+          'personnelSegmentIdentifier' => {},
           'serviceEpisodeStartDate' => { rename: 'begin_date' },
           'serviceEpisodeEndDate' => { rename: 'end_date' },
           'serviceEpisodeTerminationReason' => { rename: 'termination_reason' },
