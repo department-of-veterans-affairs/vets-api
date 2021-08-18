@@ -288,5 +288,11 @@ module EMISRedis
         }
       end
     end
+
+    # @return [Array<EMIS::Models::GuardReserveServicePeriod>] Cached
+    #  array of veteran's Guard and reserve service periods
+    def guard_reserve_service_periods
+      @guard_reserve_service_periods ||= items_from_response('get_guard_reserve_service_periods')
+    end
   end
 end
