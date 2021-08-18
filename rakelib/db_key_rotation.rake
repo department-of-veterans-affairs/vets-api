@@ -26,15 +26,17 @@ namespace :attr_encrypted do
     end
 
     ApplicationRecord.descendants.each do |model|
+      puts "updating database encryption key for: #{model.name}"
       unless model.encrypted_attributes.empty?
         encrypted_attributes = model.encrypted_attributes.keys
-
-        encrypted_attributes.each do |attribute|
-          old_attribute = model.send(attribute)
-          model.send("#{attribute}=", old_attribute)
-          model.save!
-        rescue
-          model.database_key = Settings.db_encryption_key
+        model.all.each do |record|
+          encrypted_attributes.each do |attribute|
+            old_attribute = record.send(attribute)
+            record.send("#{attribute}=", old_attribute)
+            record.save!
+          rescue
+            record.database_key = Settings.db_encryption_key
+          end
         end
       end
     rescue => e
