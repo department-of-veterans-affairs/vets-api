@@ -206,7 +206,10 @@ module ClaimsApi
         def confinements_within_service_periods?(confinements, service_periods)
           confinements.each do |confinement|
             next if service_periods.any? do |service_period|
-              time_range = Date.parse(service_period['activeDutyBeginDate'])..Date.parse(service_period['activeDutyEndDate'])
+              active_duty_start = Date.parse(service_period['activeDutyBeginDate'])
+              active_duty_end = Date.parse(service_period['activeDutyEndDate'])
+              time_range = active_duty_start..active_duty_end
+
               time_range.cover?(Date.parse(confinement['confinementBeginDate'])) &&
               time_range.cover?(Date.parse(confinement['confinementEndDate']))
             end
