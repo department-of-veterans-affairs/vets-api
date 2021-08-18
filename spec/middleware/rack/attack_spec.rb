@@ -101,11 +101,11 @@ RSpec.describe Rack::Attack do
 
     before do
       limit.times do
-        get endpoint, params: nil, session: headers
+        get endpoint, nil, headers # rubocop:disable Rails/HttpPositionalArguments
         expect(last_response.status).not_to eq(429)
       end
 
-      get endpoint, params: nil, session: other_headers
+      get endpoint, nil, other_headers # rubocop:disable Rails/HttpPositionalArguments
     end
 
     context 'response status for repeated requests from the same IP' do
