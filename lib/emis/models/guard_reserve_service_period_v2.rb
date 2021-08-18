@@ -94,6 +94,9 @@ module EMIS
     class GuardReserveServicePeriodV2
       include Virtus.model
 
+      attribute :personnel_category_type_code, String
+      attribute :personnel_organization_code, String
+      attribute :personnel_segment_identifier, String
       attribute :segment_identifier, String
       attribute :begin_date, Date
       attribute :end_date, Date

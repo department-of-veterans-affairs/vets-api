@@ -15,7 +15,9 @@ module EMIS
       # (see EMIS::Responses::GetCombatPayResponse#item_schema)
       def item_schema
         {
-          'guardReserveSegmentIdentifier' => { rename: 'segment_identifier' },
+          'personnelCategoryTypeCode' => {},
+          'personnelOrganizationCode' => {},
+          'personnelSegmentIdentifier' => {},
           'guardReservePeriodStartDate' => { rename: 'begin_date' },
           'guardReservePeriodEndDate' => { rename: 'end_date' },
           'guardReservePeriodTerminationReason' => { rename: 'termination_reason' },
