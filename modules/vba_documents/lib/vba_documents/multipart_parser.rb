@@ -16,7 +16,7 @@ module VBADocuments
     end
 
     # rubocop:disable Metrics/MethodLength
-    def self.parse_file(infile, submission = nil)
+    def self.parse_file(infile)
       parts = {}
       begin
         input = if infile.is_a? String
