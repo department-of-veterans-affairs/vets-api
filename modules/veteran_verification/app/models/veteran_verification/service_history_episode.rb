@@ -51,14 +51,16 @@ module VeteranVerification
 
       episodes = episodes.select do |episode|
         bool = true
-        if %w[V N Q].include? episode.personnel_category_type_code
+        if episode.personnel_category_type_code != 'A' && (%w[V N Q].include? episode.personnel_category_type_code)
           reserve_periods = emis.guard_reserve_service_periods if reserve_periods.nil?
           reserve_period = reserve_periods.find do |r|
             r.personnel_category_type_code == episode.personnel_category_type_code \
               && r.personnel_organization_code == episode.personnel_organization_code \
               && r.personnel_segment_identifier == episode.personnel_segment_identifier
           end
-          bool = !reserve_period.nil? && (%w[J N P Q Z].exclude? reserve_period.statute_code)
+          bool = !reserve_period.nil? \
+            && reserve_period.training_indicator_code != 'Y' \
+            && (%w[J N P Q Z].exclude? reserve_period.statute_code)
         end
         bool
       end
