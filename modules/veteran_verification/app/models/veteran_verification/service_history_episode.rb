@@ -54,7 +54,9 @@ module VeteranVerification
         if %w[V N Q].include? episode.personnel_category_type_code
           reserve_periods = emis.guard_reserve_service_periods if reserve_periods.nil?
           reserve_period = reserve_periods.find do |r|
-            r.begin_date == episode.begin_date && r.end_date == episode.end_date
+            r.personnel_category_type_code == episode.personnel_category_type_code \
+              && r.personnel_organization_code == episode.personnel_organization_code \
+              && r.personnel_segment_identifier == episode.personnel_segment_identifier
           end
           bool = !reserve_period.nil? && (%w[J N P Q Z].exclude? reserve_period.statute_code)
         end

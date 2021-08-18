@@ -9,7 +9,7 @@ module EMIS
     class GetGuardReserveServicePeriodsResponseV2 < EMIS::Responses::Response
       # (see EMIS::Responses::GetCombatPayResponse#item_tag_name)
       def item_tag_name
-        'guardReserveServicePeriodsData'
+        'guardReserveServicePeriods'
       end
 
       # (see EMIS::Responses::GetCombatPayResponse#item_schema)
