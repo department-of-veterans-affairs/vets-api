@@ -35,6 +35,11 @@ module EVSS
 
       validates_format_of :account_number, with: ACCOUNT_NUM_REGEX
       validates_format_of :financial_institution_routing_number, with: ROUTING_NUM_REGEX
+
+      def redact_data
+        @account_number = StringHelpers.mask_sensitive(@account_number) if @account_number.present?
+        @financial_institution_routing_number = StringHelpers.mask_sensitive(@financial_institution_routing_number) if @financial_institution_routing_number.present?
+      end
     end
   end
 end

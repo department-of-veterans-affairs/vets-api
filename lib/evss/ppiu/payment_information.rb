@@ -36,6 +36,10 @@ module EVSS
       def payment_address
         authorized? ? @payment_address : EVSS::PPIU::PaymentAddress.new
       end
+
+      def redact_data
+        payment_account.redact_data
+      end
     end
   end
 end
