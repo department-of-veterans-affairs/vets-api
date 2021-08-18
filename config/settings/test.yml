@@ -171,6 +171,13 @@ check_in:
     redis_session_prefix: check_in
     timeout: 30
 
+mcp:
+  vbs:
+    url: ~
+    host: ~
+    service_name: VBS
+    mock: false
+
 rack:
   cookie_secret: "xxxxx"
 

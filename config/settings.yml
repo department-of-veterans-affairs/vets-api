@@ -74,6 +74,13 @@ dmc:
   url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
   debts_endpoint: debt-letter/get
 
+mcp:
+  vbs:
+    url: ~
+    host: ~
+    service_name: VBS
+    mock: false
+
 fsr:
   prefill: true
 
