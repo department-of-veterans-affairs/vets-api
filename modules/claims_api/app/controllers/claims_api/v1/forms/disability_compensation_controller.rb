@@ -206,9 +206,9 @@ module ClaimsApi
         def confinements_within_service_periods?(confinements, service_periods)
           confinements.each do |confinement|
             next if service_periods.any? do |service_period|
-              time_range = service_period['activeDutyBeginDate']..service_period['activeDutyEndDate']
-              time_range.cover?(confinement['confinementBeginDate']) &&
-              time_range.cover?(confinement['confinementEndDate'])
+              time_range = Date.parse(service_period['activeDutyBeginDate'])..Date.parse(service_period['activeDutyEndDate'])
+              time_range.cover?(Date.parse(confinement['confinementBeginDate'])) &&
+              time_range.cover?(Date.parse(confinement['confinementEndDate']))
             end
 
             return false
@@ -221,8 +221,8 @@ module ClaimsApi
           return true if confinements.length < 2
 
           confinements.combination(2) do |combo|
-            range1 = combo[0]['confinementBeginDate']..combo[0]['confinementEndDate']
-            range2 = combo[1]['confinementBeginDate']..combo[1]['confinementEndDate']
+            range1 = Date.parse(combo[0]['confinementBeginDate'])..Date.parse(combo[0]['confinementEndDate'])
+            range2 = Date.parse(combo[1]['confinementBeginDate'])..Date.parse(combo[1]['confinementEndDate'])
             return false if range1.overlaps?(range2)
           end
 
