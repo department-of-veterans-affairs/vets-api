@@ -94,26 +94,6 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'facility_locator/ip' do
-    before do
-      limit.times do
-        post endpoint, headers: headers
-        expect(last_response.status).not_to eq(429)
-      end
-
-      post endpoint, headers: headers
-    end
-
-    context 'limit PPMS abuse' do
-      let(:limit) { 3 }
-      let(:endpoint) { '/facilities_api/v1/ccp/provider' }
-
-      it 'limits requests' do
-        expect(last_response.status).to eq(429)
-      end
-    end
-  end
-
   describe 'vic rate-limits', run_at: 'Thu, 26 Dec 2015 15:54:20 GMT' do
     before do
       limit.times do
