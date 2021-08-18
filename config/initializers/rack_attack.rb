@@ -4,7 +4,7 @@ class Rack::Attack
   # we're behind a load balancer and/or proxy, which is what request.ip returns
   class Request < ::Rack::Request
     def remote_ip
-      @remote_ip ||= (env['action_dispatch.remote_ip'] || env['X-Real-Ip'] || ip).to_s
+      @remote_ip ||= (env['X-Real-Ip'] || ip).to_s
     end
   end
 
