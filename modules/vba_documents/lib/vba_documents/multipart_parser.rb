@@ -11,7 +11,7 @@ module VBADocuments
       if base64_encoded(infile)
         create_file_from_base64(infile, submission)
       else
-        parse_file(infile, submission)
+        parse_file(infile)
       end
     end
 
