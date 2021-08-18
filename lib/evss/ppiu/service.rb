@@ -18,7 +18,8 @@ module EVSS
       def initialize(*args)
         super
 
-        raise Common::Exceptions::Unauthorized unless PPIUPolicy.new(@user).access?
+        @policy = PPIUPolicy.new(@user)
+        raise Common::Exceptions::Unauthorized unless @policy.access?
       end
 
       # GETs a user's payment information
