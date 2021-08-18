@@ -4,7 +4,7 @@ require 'evss/ppiu/service'
 
 PPIUPolicy = Struct.new(:user, :ppiu) do
   def access?
-    user.loa3? && user.multifactor && Flipper.enabled?(:direct_deposit_cnp, user)
+    user.loa3? && Flipper.enabled?(:direct_deposit_cnp, user)
   end
 
   def full_access?

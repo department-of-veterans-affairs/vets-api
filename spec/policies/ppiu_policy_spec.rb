@@ -6,10 +6,6 @@ describe PPIUPolicy do
   let(:user) { build(:evss_user) }
 
   permissions :access? do
-    before do
-      expect(user).to receive(:multifactor).and_return(true)
-    end
-
     context 'with a user with the feature enabled' do
       before do
         expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(true)
