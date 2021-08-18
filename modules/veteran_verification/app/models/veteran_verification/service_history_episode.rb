@@ -48,6 +48,19 @@ module VeteranVerification
     def self.episodes(emis, user)
       episodes = emis.service_episodes_by_begin_date.reverse
       deployments = emis.deployments.sort_by { |ep| ep.begin_date || Time.zone.today + 3650 }.reverse
+
+      episodes = episodes.select do |episode|
+        bool = true
+        if %w[V N Q].include? episode.personnel_category_type_code
+          reserve_periods = emis.guard_reserve_service_periods if reserve_periods.nil?
+          reserve_period = reserve_periods.find do |r|
+            r.begin_date == episode.begin_date && r.end_date == episode.end_date
+          end
+          bool = !reserve_period.nil? && (%w[J N P Q Z].exclude? reserve_period.statute_code)
+        end
+        bool
+      end
+
       episodes.map do |episode|
         deployments_for_episode, deployments = deployments.partition do |dep|
           (dep.begin_date >= episode.begin_date) && (episode.end_date.nil? || dep.end_date <= episode.end_date)
