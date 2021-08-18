@@ -33,7 +33,7 @@ module VBADocuments
           content_type = get_content_type(headers)
           body, moreparts = consume_body(lines, separator, content_type)
           parts[partname] = body
-          record_sha256(submission, partname, body) if submission
+          # record_sha256(submission, partname, body) if submission
           break unless moreparts
         end
       ensure
