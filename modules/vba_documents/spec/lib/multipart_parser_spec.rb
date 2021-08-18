@@ -121,7 +121,7 @@ RSpec.describe VBADocuments::MultipartParser do
           valid_doc = FixtureHelper.fetch(get_fixture('base_64'), file_or_stringio)
           # base64_sha256 = 'bc804eb019b59176731a624eae864d8e08bc8ddcd1fbc29c5eacbc7fef3e8545'
           submission = VBADocuments::UploadSubmission.new
-          result = described_class.parse(valid_doc, submission)
+          result = described_class.parse(valid_doc)
           expect(result.size).to eq(2)
           expect(result).to have_key('metadata')
           expect(result['metadata']).to be_a(String)
