@@ -37,6 +37,7 @@ namespace :attr_encrypted do
               record.save!
             rescue
               record.database_key = Settings.db_encryption_key
+              retry
             end
           end
         end
