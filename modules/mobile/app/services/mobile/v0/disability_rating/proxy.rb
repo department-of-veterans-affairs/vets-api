@@ -11,8 +11,8 @@ module Mobile
         end
 
         def get_disability_ratings
-          combine_response = common_service.get_rating_info
-          individual_response = compensation_service.get_rated_disabilities
+          combine_response, individual_response = Parallel.map([get_combine_rating, get_individual_ratings],
+                                                               in_threads: 2, &:call)
           Mobile::V0::Adapters::Rating.new.disability_ratings(combine_response, individual_response)
         rescue => e
           status_code = e.respond_to?('response') ? e.response[:status] : e.status_code
@@ -40,6 +40,22 @@ module Mobile
 
         def auth_headers
           EVSS::DisabilityCompensationAuthHeaders.new(@user).add_headers(EVSS::AuthHeaders.new(@user).to_h)
+        end
+
+        def get_combine_rating
+          lambda {
+            begin
+              common_service.get_rating_info
+            end
+          }
+        end
+
+        def get_individual_ratings
+          lambda {
+            begin
+              compensation_service.get_rated_disabilities
+            end
+          }
         end
       end
     end
