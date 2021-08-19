@@ -784,6 +784,7 @@ flipper:
     - mccurdy_devin@bah.com
     - mdewey@governmentcio.com
     - micah@adhocteam.us
+    - michel.mcdonald@adhocteam.us
     - michael.chelen@va.gov
     - michael.fleet@oddball.io
     - michael.pelz-sherman@gcio.com
@@ -817,6 +818,7 @@ flipper:
     - zmorel@governmentcio.com
     - kha.huynh@thoughtworks.com
     - zach.morel@gcio.com
+
 
 bgs:
   application: ~
