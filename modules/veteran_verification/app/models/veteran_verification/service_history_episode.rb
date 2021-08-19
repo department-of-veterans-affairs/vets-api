@@ -47,8 +47,8 @@ module VeteranVerification
 
     def self.filter_non_active_guard_periods(episodes, emis)
       episodes.select do |episode|
-        bool = true
-        if episode.personnel_category_type_code != 'A' && (%w[V N Q].include? episode.personnel_category_type_code)
+        bool = episode.personnel_category_type_code == 'A'
+        if (%w[V N Q].include? episode.personnel_category_type_code)
           reserve_periods = emis.guard_reserve_service_periods if reserve_periods.nil?
           reserve_period = reserve_periods.find do |r|
             r.personnel_category_type_code == episode.personnel_category_type_code \
@@ -67,7 +67,6 @@ module VeteranVerification
     def self.episodes(emis, user)
       episodes = emis.service_episodes_by_begin_date.reverse
       deployments = emis.deployments.sort_by { |ep| ep.begin_date || Time.zone.today + 3650 }.reverse
-
       episodes = filter_non_active_guard_periods(episodes, emis)
 
       episodes.map do |episode|
