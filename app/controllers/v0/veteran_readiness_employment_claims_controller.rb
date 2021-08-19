@@ -17,7 +17,7 @@ module V0
 
       claim.send_to_central_mail! if current_user && current_user.participant_id.blank?
       claim.send_to_vre(current_user)
-
+      clear_saved_form(claim.form_id)
       render json: claim
     end
 

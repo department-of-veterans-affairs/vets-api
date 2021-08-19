@@ -77,6 +77,7 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
           dan.hinze@adhocteam.us
           ryan.link@oddball.io
           christopher.stone@libertyits.com
+          jeff.wallace@oddball.io
         ]
       )
     end

@@ -279,6 +279,10 @@ FactoryBot.define do
       last_signed_in { Time.zone.parse('2017-12-07T00:55:09Z') }
       ssn { '796068949' }
 
+      transient do
+        multifactor { true }
+      end
+
       after(:build) do
         stub_mpi(build(:mvi_profile, birls_id: '796068948'))
       end

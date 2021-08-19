@@ -114,6 +114,8 @@ module EVSS
       end
 
       def get_banking_info
+        return {} unless @user.authorize :ppiu, :access?
+
         service = EVSS::PPIU::Service.new(@user)
         response = service.get_payment_information
         account = response.responses.first.payment_account

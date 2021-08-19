@@ -13,8 +13,11 @@ module FacilitiesApi
       # Dev swagger site for testing endpoints
       # https://dev.dws.ppms.va.gov/swagger
       class Client < Common::Client::Base
-        MIN_RESULTS = 1
-        MAX_RESULTS = 50
+        DEGREES_OF_ACCURACY = 6
+        RADIUS_MAX = 500
+        RADIUS_MIN = 1
+        RESULTS_MAX = 50
+        RESULTS_MIN = 2
 
         configuration FacilitiesApi::V1::PPMS::Configuration
 
@@ -106,12 +109,15 @@ module FacilitiesApi
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
 
-          cnr = params.slice(:latitude, :longitude, :radius)
+          latitude = Float(params.fetch(:latitude)).round(DEGREES_OF_ACCURACY)
+          longitude = Float(params.fetch(:longitude)).round(DEGREES_OF_ACCURACY)
+          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
+          max_results = (per_page * page + 1).clamp(RESULTS_MIN, RESULTS_MAX)
 
           {
-            address: [cnr[:latitude], cnr[:longitude]].join(','),
-            radius: cnr[:radius],
-            maxResults: (per_page * page + 1).clamp(MIN_RESULTS, MAX_RESULTS)
+            address: [latitude, longitude].join(','),
+            radius: radius,
+            maxResults: max_results
           }
         end
 
