@@ -10,11 +10,8 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     robert.shinners@va.gov
   ].freeze
 
-  STAGING_STEM_RECIPIENTS = %w[
-    Delli-Gatti_Michael@bah.com
-    sonntag_adam@bah.com
-  ].freeze
-
+  STAGING_STEM_RECIPIENTS = []
+  
   def add_stem_recipients
     return STAGING_STEM_RECIPIENTS.dup if FeatureFlipper.staging_email?
 

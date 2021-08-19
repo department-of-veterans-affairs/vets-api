@@ -22,17 +22,7 @@ RSpec.describe CreateDailySpoolFilesMailer, type: %i[mailer aws_helpers] do
         expect(subject.subject).to eq(subject_txt)
       end
       it 'emails the the right staging recipients' do
-        expect(subject.to).to eq(
-          %w[
-            sonntag_adam@bah.com
-            shawkey_daniel@bah.com
-            neel_darrell@bah.com
-            turner_desiree@bah.com
-            mccurdy_devin@bah.com
-            roth_matthew@bah.com
-            delli-gatti_michael@bah.com
-          ]
-        )
+        expect(subject.to).to eq([])
       end
     end
 
