@@ -320,6 +320,12 @@ paths:
             application/json:
               schema:
                 $ref: "./schemas/Errors.yml"
+        '403':
+          description: Client was forbidden from upstream resource.
+          content:
+            application/json:
+              schema:
+                $ref: "./schemas/Errors.yml"
         '404':
           description: The requested resource could not be found.
           content:
