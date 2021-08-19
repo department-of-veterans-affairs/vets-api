@@ -37,7 +37,7 @@ module MedicalCopays
       def get_copays
         raise InvalidVBSRequestError, request_data.errors unless request_data.valid?
 
-        response = request.post('/GetStatementsByEDIPIAndVistaAccountNumber', request_data.to_hash)
+        response = request.post('/Prod/GetStatementsByEDIPIAndVistaAccountNumber', request_data.to_hash)
 
         ResponseData.build(response: response).handle
       end

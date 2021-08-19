@@ -63,8 +63,8 @@ module MedicalCopays
         conn.use :breakers
         conn.use Faraday::Response::RaiseError
         conn.response :raise_error, error_prefix: service_name
-        conn.response :betamocks if mock_enabled?
         conn.response :json
+        conn.response :betamocks if mock_enabled?
         conn.adapter Faraday.default_adapter
       end
     end
