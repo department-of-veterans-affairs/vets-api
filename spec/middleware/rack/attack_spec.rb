@@ -95,21 +95,32 @@ RSpec.describe Rack::Attack do
   end
 
   describe 'facility_locator/ip' do
+    let(:endpoint) { '/facilities_api/v1/ccp/provider' }
+    let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
+    let(:limit) { 3 }
+
     before do
       limit.times do
-        post endpoint, headers: headers
+        get endpoint, nil, headers # rubocop:disable Rails/HttpPositionalArguments
         expect(last_response.status).not_to eq(429)
       end
 
-      post endpoint, headers: headers
+      get endpoint, nil, other_headers # rubocop:disable Rails/HttpPositionalArguments
     end
 
-    context 'limit PPMS abuse' do
-      let(:limit) { 3 }
-      let(:endpoint) { '/facilities_api/v1/ccp/provider' }
+    context 'response status for repeated requests from the same IP' do
+      let(:other_headers) { headers }
 
       it 'limits requests' do
         expect(last_response.status).to eq(429)
+      end
+    end
+
+    context 'response status for request from different IP' do
+      let(:other_headers) { { 'X-Real-Ip' => '4.3.2.1' } }
+
+      it 'limits requests' do
+        expect(last_response.status).not_to eq(429)
       end
     end
   end

@@ -1,6 +1,13 @@
 # frozen_string_literal: true
 
 class Rack::Attack
+  # we're behind a load balancer and/or proxy, which is what request.ip returns
+  class Request < ::Rack::Request
+    def remote_ip
+      @remote_ip ||= (env['X-Real-Ip'] || ip).to_s
+    end
+  end
+
   # .to_h because hashes from config_for don't support non-symbol keys
   redis_options = REDIS_CONFIG[:redis].to_h
   Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.new(redis_options))
@@ -13,7 +20,7 @@ class Rack::Attack
   # See https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/Postmortems/2021-08-16-facility-locator-possible-DOS.md
   # for details.
   throttle('facility_locator/ip', limit: 3, period: 1.minute) do |req|
-    req.ip if req.path == '/facilities_api/v1/ccp/provider'
+    req.remote_ip if req.path == '/facilities_api/v1/ccp/provider'
   end
 
   throttle('vic_profile_photos_download/ip', limit: 8, period: 5.minutes) do |req|

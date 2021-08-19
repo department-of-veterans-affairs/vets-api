@@ -19,19 +19,11 @@ properties:
         type: object
         required:
           - combinedDisabilityRating
-          - combinedEffectiveDate
-          - legalEffectiveDate
           - individualRatings
         properties:
           combinedDisabilityRating:
             type: number
             example: 100
-          combinedEffectiveDate:
-            type: string
-            example: "2019-01-01T00:00:00+00:00"
-          legalEffectiveDate:
-            type: string
-            example: "2018-12-31T00:00:00+00:00"
           individualRatings:
             type: array
             items:

@@ -165,10 +165,18 @@ check_in:
     host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_id: 2dcdrrn5zc
+    tmp_api_username: vetsapiTempUser
     mock: false
     key_path: ~
     redis_session_prefix: check_in
     timeout: 30
+
+mcp:
+  vbs:
+    url: https://fake_url.com:9000
+    host: ~
+    service_name: VBS
+    mock: false
 
 rack:
   cookie_secret: "xxxxx"

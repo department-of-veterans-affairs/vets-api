@@ -153,6 +153,24 @@ module ClaimsApi
           validate_form_526_location_codes!
           validate_form_526_veteran_homelessness!
           validate_form_526_service_pay!
+          validate_form_526_title10_activation_date!
+        end
+
+        def validate_form_526_title10_activation_date!
+          title10_activation_date = form_attributes.dig('serviceInformation',
+                                                        'reservesNationalGuardService',
+                                                        'title10Activation',
+                                                        'title10ActivationDate')
+          return if title10_activation_date.blank?
+
+          end_dates = form_attributes['serviceInformation']['servicePeriods'].map do |service_period|
+            Date.parse(service_period['activeDutyEndDate'])
+          end
+
+          return if Date.parse(title10_activation_date) > end_dates.min &&
+                    Date.parse(title10_activation_date) <= Time.zone.now
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('title10ActivationDate', title10_activation_date)
         end
 
         def validate_form_526_submission_claim_date!
