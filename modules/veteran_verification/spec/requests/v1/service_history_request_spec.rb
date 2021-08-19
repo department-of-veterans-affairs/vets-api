@@ -22,15 +22,14 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     end
 
     context 'with valid emis responses' do
-      it '2' do
+      it 'Non title 32 reserve period should not be filtered out' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('emis/get_guard_reserve_service_periods_v2/valid') do
+          VCR.use_cassette('emis/get_guard_reserve_service_periods_v2/non_title_32') do
             VCR.use_cassette('emis/get_deployment_v2/valid') do
-              VCR.use_cassette('emis/get_military_service_episodes_v2/valid_reserve_episode_data') do
+              VCR.use_cassette('emis/get_military_service_episodes_v2/reserve_episode_data') do
                 get '/services/veteran_verification/v1/service_history', params: nil, headers: headers(auth_header)
                 expect(response).to have_http_status(:ok)
-                expect(response.body).to be_a(String)
-                puts response.body.to_json
+                expect(JSON.parse(response.body)['data'].length).to eq(1)
                 expect(response).to match_response_schema('service_and_deployment_history_response')
               end
             end
@@ -38,15 +37,14 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
         end
       end
 
-      it '3' do
+      it 'Title 32 reserve period should be filtered out' do
         with_okta_user(scopes) do |auth_header|
-          VCR.use_cassette('emis/get_guard_reserve_service_periods_v2/valid_32') do
+          VCR.use_cassette('emis/get_guard_reserve_service_periods_v2/title_32') do
             VCR.use_cassette('emis/get_deployment_v2/valid') do
               VCR.use_cassette('emis/get_military_service_episodes_v2/valid_reserve_episode_data') do
                 get '/services/veteran_verification/v1/service_history', params: nil, headers: headers(auth_header)
                 expect(response).to have_http_status(:ok)
-                expect(response.body).to be_a(String)
-                puts response.body.to_json
+                expect(JSON.parse(response.body)['data'].length).to eq(0)
                 expect(response).to match_response_schema('service_and_deployment_history_response')
               end
             end
@@ -112,7 +110,6 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
         end
       end
 
-
       context 'with request for a jws' do
         it 'returns a jwt with the claims in the payload' do
           with_okta_user(scopes) do |auth_header|
@@ -141,7 +138,6 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
           end
         end
       end
-
     end
 
     context 'when emis response is invalid' do
