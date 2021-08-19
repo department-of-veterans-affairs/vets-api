@@ -28,6 +28,8 @@ module Identity
               select(extension, :assigning_facility)
             when :icn_with_aaid
               select_icn_with_aaid(extension)
+            when :facility_to_ids
+              build_hash(extension, %i[assigning_facility id])
             end
           { id_to_parse => parsed_ids }
         end.reduce(:merge)
@@ -91,6 +93,19 @@ module Identity
         return unless status == 'P'
 
         identifiers_array.join(IDENTIFIERS_SPLIT_TOKEN)
+      end
+
+      def build_hash(extensions, (key, value))
+        return nil if extensions.empty?
+
+        key_token = select_token_position(key)
+        value_token = select_token_position(value)
+        ids_hash = Hash.new { |h, k| h[k] = [] }
+
+        extensions.each_with_object(ids_hash) do |e, hsh|
+          split_string = e[:extension].split(IDENTIFIERS_SPLIT_TOKEN)
+          hsh[split_string[key_token]] << split_string[value_token]
+        end
       end
     end
   end
