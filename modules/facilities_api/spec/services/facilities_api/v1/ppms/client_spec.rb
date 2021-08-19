@@ -136,6 +136,7 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
       describe 'base params' do
         let(:client) { FacilitiesApi::V1::PPMS::Client.new }
         let(:fake_response) { double('fake_response') }
+
         before do
           allow(fake_response).to receive(:body)
         end
@@ -237,10 +238,10 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
             ).and_return(fake_response)
 
             client.provider_locator(params.merge(
-              specialties: %w[Code1],
-              latitude: 40.123456789012345,
-              longitude: -74.123456789012345)
-            )
+                                      specialties: %w[Code1],
+                                      latitude: 40.123456789012345,
+                                      longitude: -74.123456789012345
+                                    ))
           end
         end
       end
