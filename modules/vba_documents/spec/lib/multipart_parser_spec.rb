@@ -47,15 +47,6 @@ RSpec.describe VBADocuments::MultipartParser do
           expect(result['attachment1']).to be_a(Tempfile)
         end
 
-        # it "calculates the sha256 correctly and does not modify the pdf #{file_or_stringio}" do
-        #   pdf_sha256 = Digest::SHA256.file('modules/vba_documents/spec/fixtures/valid_doc.pdf').hexdigest
-        #   valid_doc = FixtureHelper.fetch(get_fixture('valid_multipart_pdf_attachments.blob'), file_or_stringio)
-        #   submission = VBADocuments::UploadSubmission.new
-        #   result = described_class.parse(valid_doc, submission)
-        #   expect(Digest::SHA256.file(result['attachment1']).hexdigest).to eq(pdf_sha256)
-        #   expect(submission.metadata['sha_256']['attachment1']).to eq(pdf_sha256)
-        # end
-
         it "raises on a malformed multipart payload #{file_or_stringio}" do
           invalid_doc = FixtureHelper.fetch(get_fixture('invalid_multipart_no_boundary.blob'), file_or_stringio)
           expect { described_class.parse(invalid_doc) }.to raise_error do |error|
@@ -125,7 +116,6 @@ RSpec.describe VBADocuments::MultipartParser do
           expect(result['metadata']).to be_a(String)
           expect(result).to have_key('content')
           expect(result['content']).to be_a(Tempfile)
-          # expect(submission.metadata['sha_256']['base64']).to eq(base64_sha256)
         end
       end
     end
