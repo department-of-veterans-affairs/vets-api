@@ -37,9 +37,7 @@ module EVSS
         authorized? ? @payment_address : EVSS::PPIU::PaymentAddress.new
       end
 
-      def redact_data
-        payment_account.redact_data
-      end
+      delegate :redact_data, to: :payment_account
     end
   end
 end

@@ -38,7 +38,9 @@ module EVSS
 
       def redact_data
         @account_number = StringHelpers.mask_sensitive(@account_number) if @account_number.present?
-        @financial_institution_routing_number = StringHelpers.mask_sensitive(@financial_institution_routing_number) if @financial_institution_routing_number.present?
+        if @financial_institution_routing_number.present?
+          @financial_institution_routing_number = StringHelpers.mask_sensitive(@financial_institution_routing_number)
+        end
       end
     end
   end

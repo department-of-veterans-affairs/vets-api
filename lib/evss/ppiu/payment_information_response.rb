@@ -22,9 +22,7 @@ module EVSS
       end
 
       def redact_data
-        responses.each do |response|
-          response.redact_data
-        end
+        responses.each(&:redact_data)
       end
     end
   end
