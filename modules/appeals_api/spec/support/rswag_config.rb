@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/MethodLength, Layout/LineLength
+# rubocop:disable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
 class AppealsApi::RswagConfig
   def config
     {
@@ -10,8 +10,7 @@ class AppealsApi::RswagConfig
           title: 'Decision Reviews',
           version: 'v2',
           termsOfService: 'https://developer.va.gov/terms-of-service',
-          description: File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2',
-                                                              'api_description.md'))
+          description: File.read(AppealsApi::Engine.root.join('app', 'swagger', 'appeals_api', 'v2', 'api_description.md'))
         },
         tags: [
           {
@@ -34,7 +33,8 @@ class AppealsApi::RswagConfig
           schemas: [
             generic_schemas,
             hlr_v2_schemas('#/components/schemas'),
-            contestable_issues_schema
+            contestable_issues_schema,
+            nod_schemas('#/components/schemas')
           ].reduce(&:merge)
         },
         paths: {},
@@ -348,5 +348,140 @@ class AppealsApi::RswagConfig
       }
     }
   end
+
+  def nod_schemas(ref_root)
+    {
+      'nodCreateRoot': {
+        'type': 'object',
+        'additionalProperties': false,
+        'properties': {
+          'data': { '$ref': "#{ref_root}/nodCreateData" },
+          'included': { '$ref': "#{ref_root}/nodCreateIncluded" }
+        },
+        'required': %w[data included]
+      },
+      'nodCreateData': {
+        'type': 'object',
+        'additionalProperties': false,
+        'properties': {
+          'type': { 'type': 'string', 'enum': ['noticeOfDisagreement'] },
+          'attributes': { '$ref': "#{ref_root}/nodCreateDataAttributes" }
+        },
+        'required': %w[type attributes]
+      },
+      'nodCreateDataAttributes': {
+        'type': 'object',
+        'additionalProperties': false,
+        'properties': {
+          'veteran': { '$ref': "#{ref_root}/nodCreateVeteran" },
+          'boardReviewOption': { '$ref': "#{ref_root}/nodCreateBoardReviewOption" },
+          'hearingTypePreference': { '$ref': "#{ref_root}/nodCreateHearingTypePreference" },
+          'timezone': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'time_zones.json'))),
+          'socOptIn': { 'type': 'boolean' }
+        },
+        'required': %w[boardReviewOption socOptIn]
+      },
+
+      'nodCreateVeteran': {
+        'type': 'object',
+        'additionalProperties': false,
+        'properties': {
+          'homeless': { 'type': 'boolean' },
+          'address': { '$ref': "#{ref_root}/nodCreateAddress" },
+          'phone': { '$ref': "#{ref_root}/nodCreatePhone" },
+          'emailAddressText': { '$ref': "#{ref_root}/nodCreateEmail" },
+          'representativesName': { 'type': 'string', 'maxLength': 120 }
+        },
+        'required': %w[homeless phone emailAddressText],
+        'if': { 'properties': { 'homeless': { 'const': false } } },
+        'then': { 'required': ['address'] }
+      },
+
+      'nodCreateAddress': {
+        'type': 'object',
+        'additionalProperties': false,
+        'properties': {
+          'addressLine1': { 'type': 'string' },
+          'addressLine2': { 'type': 'string' },
+          'addressLine3': { 'type': 'string' },
+          'city': { 'type': 'string' },
+          'stateCode': JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'state_codes.json'))),
+          'countryName': { 'type': 'string' },
+          'zipCode5': {
+            'type': 'string',
+            'pattern': '^[0-9]{5}$',
+            'minLength': 5, 'maxLength': 5,
+            'description': '5-digit zipcode. Use "00000" if Veteran is outside the United States'
+          },
+          'internationalPostalCode': { 'type': 'string' }
+        },
+        'required': %w[addressLine1 city countryName zipCode5]
+      },
+
+      'nodCreatePhone': {
+        '$comment': 'the phone fields must not exceed 20 chars, when concatenated',
+        'type': 'object',
+        'additionalProperties': false,
+        'properties': {
+          'countryCode': { 'type': 'string', 'pattern': '^[0-9]+$', 'minLength': 1, 'maxLength': 3 },
+          'areaCode': { 'type': 'string', 'pattern': '^[2-9][0-9]{2}$', 'minLength': 1, 'maxLength': 4 },
+          'phoneNumber': { 'type': 'string', 'pattern': '^[0-9]{1,14}$', 'minLength': 1, 'maxLength': 14 },
+          'phoneNumberExt': { 'type': 'string', 'pattern': '^[a-zA-Z0-9]{1,10}$', 'minLength': 1, 'maxLength': 10 }
+        },
+        'required': %w[areaCode phoneNumber]
+      },
+
+      'nodCreateEmail': {
+        'type': 'string',
+        'minLength': 6,
+        'maxLength': 255,
+        'format': 'email'
+      },
+
+      'nodCreateIncluded': {
+        'type': 'array',
+        'items': { '$ref': "#{ref_root}/nodCreateContestableIssue" },
+        'minItems': 1,
+        'maxItems': 100,
+        'uniqueItems': true
+      },
+
+      'nodCreateContestableIssue': {
+        'type': 'object',
+        'additionalProperties': false,
+        'properties': {
+          'type': { 'type': 'string', 'enum': ['contestableIssue'] },
+          'attributes': { '$ref': "#{ref_root}/nodCreateContestableIssueAttributes" }
+        },
+        'required': %w[type attributes]
+      },
+
+      'nodCreateContestableIssueAttributes': {
+        'type': 'object',
+        'additionalProperties': false,
+        'properties': {
+          'issue': { '$ref': "#{ref_root}/nonBlankString", 'maxLength': 180 },
+          'decisionDate': { '$ref': "#{ref_root}/nodCreateDate" },
+          'decisionIssueId': { 'type': 'integer' },
+          'ratingIssueReferenceId': { 'type': 'string' },
+          'ratingDecisionReferenceId': { 'type': 'string' },
+          'disagreementArea': { 'type': 'string', 'maxLength': 90 }
+        },
+        'required': %w[issue decisionDate]
+      },
+
+      'nodCreateDate': { 'type': 'string', 'pattern': '^[0-9]{4}-[0-9]{2}-[0-9]{2}$', 'maxLength': 10, 'minLength': 10 },
+
+      'nodCreateBoardReviewOption': {
+        'type': 'string',
+        'enum': %w[direct_review evidence_submission hearing]
+      },
+
+      'nodCreateHearingTypePreference': {
+        'type': 'string',
+        'enum': %w[virtual_hearing video_conference central_office]
+      }
+    }
+  end
 end
-# rubocop:enable Metrics/MethodLength, Layout/LineLength
+# rubocop:enable Metrics/MethodLength, Layout/LineLength, Metrics/ClassLength
