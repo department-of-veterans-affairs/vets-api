@@ -44,17 +44,13 @@ module Mobile
 
         def get_combine_rating
           lambda {
-            begin
-              common_service.get_rating_info
-            end
+            common_service.get_rating_info
           }
         end
 
         def get_individual_ratings
           lambda {
-            begin
-              compensation_service.get_rated_disabilities
-            end
+            compensation_service.get_rated_disabilities
           }
         end
       end
