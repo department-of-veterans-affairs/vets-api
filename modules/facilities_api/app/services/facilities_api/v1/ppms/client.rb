@@ -109,9 +109,9 @@ module FacilitiesApi
           page = Integer(params[:page] || 1)
           per_page = Integer(params[:per_page] || BaseFacility.per_page)
 
-          latitude = params.fetch(:latitude).round(DEGREES_OF_ACCURACY)
-          longitude = params.fetch(:longitude).round(DEGREES_OF_ACCURACY)
-          radius = params.fetch(:radius).clamp(RADIUS_MIN, RADIUS_MAX)
+          latitude = Float(params.fetch(:latitude)).round(DEGREES_OF_ACCURACY)
+          longitude = Float(params.fetch(:longitude)).round(DEGREES_OF_ACCURACY)
+          radius = Integer(params.fetch(:radius)).clamp(RADIUS_MIN, RADIUS_MAX)
           max_results = (per_page * page + 1).clamp(RESULTS_MIN, RESULTS_MAX)
 
           {
