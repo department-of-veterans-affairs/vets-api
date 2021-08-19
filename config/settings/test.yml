@@ -173,7 +173,7 @@ check_in:
 
 mcp:
   vbs:
-    url: ~
+    url: https://fake_url.com:9000
     host: ~
     service_name: VBS
     mock: false

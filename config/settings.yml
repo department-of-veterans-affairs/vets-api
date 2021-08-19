@@ -79,7 +79,7 @@ mcp:
     url: ~
     host: ~
     service_name: VBS
-    mock: false
+    mock: true
 
 fsr:
   prefill: true

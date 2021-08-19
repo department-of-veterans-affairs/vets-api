@@ -31,15 +31,15 @@ RSpec.describe MedicalCopays::VBS::Service do
     end
 
     it 'returns a response hash' do
-      url = '/GetStatementsByEDIPIAndVistaAccountNumber'
+      url = '/Prod/GetStatementsByEDIPIAndVistaAccountNumber'
       data = { edipi: '123456789', vistaAccountNumbers: ['36546'] }
-      response = Faraday::Response.new(body: 'FooBar', status: 200)
+      response = Faraday::Response.new(body: [{ 'foo_bar' => 'bar' }], status: 200)
 
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
       allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return(data)
       allow_any_instance_of(MedicalCopays::Request).to receive(:post).with(url, data).and_return(response)
 
-      expect(subject.get_copays).to eq({ data: 'FooBar', status: 200 })
+      expect(subject.get_copays).to eq({ data: [{ 'fooBar' => 'bar' }], status: 200 })
     end
   end
 end
