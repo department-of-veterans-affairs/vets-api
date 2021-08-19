@@ -29,8 +29,18 @@ describe PPIUPolicy do
 
   permissions :full_access? do
     context 'with an idme user' do
-      it 'allows access' do
-        expect(described_class).to permit(user, :ppiu)
+      context 'with a loa1 user' do
+        let(:user) { build(:user) }
+
+        it 'disallows access' do
+          expect(described_class).not_to permit(user, :ppiu)
+        end
+      end
+
+      context 'with a loa3 user' do
+        it 'allows access' do
+          expect(described_class).to permit(user, :ppiu)
+        end
       end
     end
 
