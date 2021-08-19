@@ -11,8 +11,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
     end
 
     let(:filename) { 'foo' }
-    stem_exists = false
-    let(:mail) { described_class.build(filename, stem_exists).deliver_now }
+    let(:mail) { described_class.build(filename).deliver_now }
 
     context 'when sending staging emails' do
       before do
@@ -78,8 +77,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
     end
 
     let(:filename) { 'foo' }
-    stem_exists = true
-    let(:mail) { described_class.build(filename, stem_exists).deliver_now }
+    let(:mail) { described_class.build(filename).deliver_now }
 
     context 'when sending staging emails' do
       before do
@@ -131,8 +129,6 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             Ricardo.DaSilva@va.gov
             shay.norton@va.gov
             tammy.hurley1@va.gov
-            kyle.pietrosanto@va.gov
-            robert.shinners@va.gov
           ]
         )
       end
