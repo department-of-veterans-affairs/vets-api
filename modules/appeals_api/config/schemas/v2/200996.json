@@ -18,7 +18,7 @@
       "type": "object",
       "properties": {
         "countryCode":     { "type": "string", "pattern": "^[0-9]+$", "minLength": 1, "maxLength": 3 },
-        "areaCode":        { "type": "string", "pattern": "^[0-9]{3,4}$", "minLength": 1, "maxLength": 4 },
+        "areaCode":        { "type": "string", "pattern": "^[0-9]{1,4}$", "minLength": 1, "maxLength": 4 },
         "phoneNumber":     { "type": "string", "pattern": "^[0-9]{1,14}$", "minLength": 1, "maxLength": 14 },
         "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$", "minLength": 1, "maxLength": 10 }
       },
@@ -110,7 +110,7 @@
                   "additionalProperties": false,
                   "required": [ "firstName", "lastName", "phone" ]
                 },
-                "socOptIn":                  { "type": "boolean" }
+                "socOptIn": { "type": "boolean" }
               },
               "required": [
                 "informalConference",
