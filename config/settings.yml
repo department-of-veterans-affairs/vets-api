@@ -819,7 +819,6 @@ flipper:
     - kha.huynh@thoughtworks.com
     - zach.morel@gcio.com
 
-
 bgs:
   application: ~
   client_station_id: ~
