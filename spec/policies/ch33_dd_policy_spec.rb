@@ -5,6 +5,22 @@ require 'rails_helper'
 describe Ch33DdPolicy do
   let(:user) { FactoryBot.build(:ch33_dd_user) }
 
+  permissions :full_access? do
+    context 'with an idme user' do
+      it 'allows access' do
+        expect(described_class).to permit(user, :ch33_dd)
+      end
+    end
+
+    context 'with a non idme user' do
+      let(:user) { build(:user, :loa3, :mhv) }
+
+      it 'disallows access' do
+        expect(described_class).not_to permit(user, :ch33_dd)
+      end
+    end
+  end
+
   permissions :access? do
     context 'with a user with the feature enabled' do
       before do

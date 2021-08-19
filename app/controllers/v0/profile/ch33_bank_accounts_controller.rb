@@ -6,6 +6,7 @@ module V0
   module Profile
     class Ch33BankAccountsController < ApplicationController
       before_action { authorize :ch33_dd, :access? }
+      before_action(only: :update) { authorize(:ch33_dd, :full_access?) }
 
       def index
         render_find_ch33_dd_eft
