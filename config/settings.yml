@@ -1,6 +1,6 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
 
-vsp_environment: 
+vsp_environment:
 
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
@@ -73,6 +73,13 @@ dmc:
   mock_fsr: false
   url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4465/api/v1/digital-services/
   debts_endpoint: debt-letter/get
+
+mcp:
+  vbs:
+    url: ~
+    host: ~
+    service_name: VBS
+    mock: false
 
 fsr:
   prefill: true
@@ -467,6 +474,16 @@ vba_documents:
     topic_arns:
       - vetsgov-arn
       - vagov-arn
+  slack:
+    enabled: false
+    default_alert_url:
+    invalid_parts_alert_url:
+    deployment_notification_benefits_url:
+    deployment_notification_forms_url:
+    in_flight_notification_hung_time_in_days: 14
+    renotification_in_minutes: 240
+    update_stalled_notification_in_minutes: 180
+    daily_notification_hour: 7
   webhooks:
     registration_next_run_in_minutes: 15
     registration_max_retries: 3
@@ -1068,6 +1085,7 @@ check_in:
     host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_id: 2dcdrrn5zc
+    tmp_api_username: vetsapiTempUser
     mock: false
     key_path: ~
     redis_session_prefix: check_in

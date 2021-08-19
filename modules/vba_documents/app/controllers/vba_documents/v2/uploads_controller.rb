@@ -88,7 +88,7 @@ module VBADocuments
           upload_model.save!
           parts = VBADocuments::MultipartParser.parse(StringIO.new(request.raw_post))
           inspector = VBADocuments::PDFInspector.new(pdf: parts)
-          validate_parts(parts)
+          validate_parts(upload_model, parts)
           validate_metadata(parts[META_PART_NAME], submission_version: upload_model.metadata['version'].to_i)
           update_pdf_metadata(upload_model, inspector)
           perfect_metadata(upload_model, parts, Time.zone.now)
