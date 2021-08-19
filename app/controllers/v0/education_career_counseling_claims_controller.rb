@@ -3,6 +3,7 @@
 module V0
   class EducationCareerCounselingClaimsController < ClaimsBaseController
     def create
+      load_user
       claim = SavedClaim::EducationCareerCounselingClaim.new(form: filtered_params[:form])
 
       unless claim.save
