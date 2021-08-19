@@ -44,7 +44,6 @@ module EducationForm
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@time.to_date}.csv"
       csv_array_data = create_csv_array
-      stem_exists = csv_array_data[:stem_exists]
       csv_array = csv_array_data[:csv_array]
       CSV.open(filename, 'wb') do |csv|
         csv_array.each do |row|
@@ -54,7 +53,7 @@ module EducationForm
 
       return unless FeatureFlipper.send_edu_report_email?
 
-      SpoolSubmissionsReportMailer.build(filename, stem_exists).deliver_now
+      SpoolSubmissionsReportMailer.build(filename).deliver_now
     end
   end
 end
