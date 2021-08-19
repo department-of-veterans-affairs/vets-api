@@ -25,24 +25,26 @@ namespace :attr_encrypted do
       end
     end
 
-    ApplicationRecord.descendants.each do |model|
-      puts "updating database encryption key for: #{model.name}"
-      unless model.encrypted_attributes.empty?
-        encrypted_attributes = model.encrypted_attributes.keys
-        model.all.each do |record|
-          encrypted_attributes.each do |attribute|
-            old_attribute = record.send(attribute)
-            record.send("#{attribute}=", old_attribute)
-            record.save!
-          rescue
-            record.database_key = Settings.db_encryption_key
+    ActiveRecord::Base.transaction do
+      ApplicationRecord.descendants.each do |model|
+        puts "updating database encryption key for: #{model.name}"
+        unless model.encrypted_attributes.empty?
+          encrypted_attributes = model.encrypted_attributes.keys
+          model.all.each do |record|
+            encrypted_attributes.each do |attribute|
+              old_attribute = record.send(attribute)
+              record.send("#{attribute}=", old_attribute)
+              record.save!
+            rescue
+              record.database_key = Settings.db_encryption_key
+            end
           end
         end
+      rescue => e
+        puts "....rolling back transaction. Error occured: #{e.inspect}"
+        Rails.logger.error("Error running the db key rotation rake task, rolling back: #{e}")
+        raise ActiveRecord::Rollback # makes sure the transaction gets completely rolled back
       end
-    rescue => e
-      puts "....rolling back transaction. Error occured: #{e.inspect}"
-      Rails.logger.error("Error running the db key rotation rake task, rolling back: #{e}")
-      raise ActiveRecord::Rollback # makes sure the transaction gets completely rolled back
     end
   end
 end
