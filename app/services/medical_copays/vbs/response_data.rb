@@ -23,8 +23,8 @@ module MedicalCopays
       end
 
       def initialize(opts)
-        @body = opts[:response]&.body
-        @status = opts[:response]&.status
+        @body = opts[:response].body || []
+        @status = opts[:response].status
       end
 
       ##
@@ -35,7 +35,7 @@ module MedicalCopays
       def handle
         case status
         when 200
-          { data: body, status: status }
+          { data: transformed_body, status: status }
         when 400
           { data: { message: 'Bad request' }, status: status }
         when 401
@@ -46,6 +46,17 @@ module MedicalCopays
           { data: { message: 'Resource not found' }, status: status }
         else
           { data: { message: 'Something went wrong' }, status: status }
+        end
+      end
+
+      ##
+      # Camelize and lowercase all keys in the response body
+      #
+      # @return [Array]
+      #
+      def transformed_body
+        body.each do |copay|
+          copay.deep_transform_keys! { |key| key.camelize(:lower) }
         end
       end
     end

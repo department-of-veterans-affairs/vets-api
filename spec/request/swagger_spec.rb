@@ -5,6 +5,7 @@ require 'rails_helper'
 require 'support/bb_client_helpers'
 require 'support/pagerduty/services/spec_setup'
 require 'support/stub_debt_letters'
+require 'support/medical_copays/stub_medical_copays'
 require 'support/stub_efolder_documents'
 require 'support/stub_financial_status_report'
 require 'support/sm_client_helpers'
@@ -500,6 +501,26 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             headers.merge(
               'id' => CGI.escape(document_id)
             )
+          )
+        end
+      end
+    end
+
+    context 'medical copays tests' do
+      let(:user) { build(:user, :loa3) }
+      let(:headers) do
+        { '_headers' => { 'Cookie' => sign_in(user, nil, true) } }
+      end
+
+      context 'medical copays index' do
+        stub_medical_copays(:index)
+
+        it 'validates the route' do
+          expect(subject).to validate(
+            :get,
+            '/v0/medical_copays',
+            200,
+            headers
           )
         end
       end

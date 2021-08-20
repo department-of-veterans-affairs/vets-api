@@ -76,10 +76,10 @@ dmc:
 
 mcp:
   vbs:
-    url: ~
-    host: ~
+    url: https://fake_url.com:9000
+    host: fake_url.com
     service_name: VBS
-    mock: false
+    mock: true
 
 fsr:
   prefill: true
@@ -786,6 +786,7 @@ flipper:
     - micah@adhocteam.us
     - michael.chelen@va.gov
     - michael.fleet@oddball.io
+    - michael.pelz-sherman@gcio.com
     - mnunemak@thoughtworks.com
     - n.ratana@gmail.com
     - narin@adhocteam.us

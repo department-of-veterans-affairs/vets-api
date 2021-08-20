@@ -51,6 +51,10 @@ class Rack::Attack
     req.ip if req.path.starts_with?('/check_in/v0') && (req.post? || req.get?)
   end
 
+  throttle('medical_copays/ip', limit: 20, period: 1.minute) do |req|
+    req.ip if req.path.starts_with?('/v0/medical_copays') && req.get?
+  end
+
   # Source: https://github.com/kickstarter/rack-attack#x-ratelimit-headers-for-well-behaved-clients
   Rack::Attack.throttled_response = lambda do |env|
     rate_limit = env['rack.attack.match_data']
