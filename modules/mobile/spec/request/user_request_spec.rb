@@ -137,7 +137,6 @@ RSpec.describe 'user', type: :request do
             appeals
             appointments
             claims
-            directDepositBenefits
             lettersAndDocuments
             militaryServiceHistory
             userProfileUpdate
