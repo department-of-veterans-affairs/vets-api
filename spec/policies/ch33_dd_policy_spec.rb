@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Ch33DdPolicy do
   let(:user) { FactoryBot.build(:ch33_dd_user) }
 
-  permissions :full_access? do
+  permissions :access? do
     context 'with an idme user' do
       it 'allows access' do
         expect(described_class).to permit(user, :ch33_dd)
@@ -19,9 +19,7 @@ describe Ch33DdPolicy do
         expect(described_class).not_to permit(user, :ch33_dd)
       end
     end
-  end
 
-  permissions :access? do
     context 'with a user with the feature enabled' do
       before do
         expect(Flipper).to receive(:enabled?).with(:direct_deposit_edu, instance_of(User)).and_return(true)
