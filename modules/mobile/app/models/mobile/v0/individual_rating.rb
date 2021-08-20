@@ -9,7 +9,6 @@ module Mobile
       attribute :effective_date, Types::Date
       attribute :rating_percentage, Types::Integer
       attribute :diagnostic_text, Types::String
-      attribute :type, Types::String
     end
   end
 end
