@@ -173,7 +173,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(faraday_response).to receive(:body).and_return('')
       allow(faraday_response).to receive(:success?).and_return(true)
       capture_body = nil
-      # valid_doc_sha = '6dffa10f0f81aaa08bda1530796cdb5ff8bddb883c74b2f7b46f200145667460'
       expect(client_stub).to receive(:upload) { |arg|
         capture_body = arg
         faraday_response
@@ -182,7 +181,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to be_a(Hash)
       expect(capture_body).to have_key('metadata')
       expect(capture_body).to have_key('document')
-      # expect(Digest::SHA256.file(capture_body['document'].local_path).hexdigest).to eq(valid_doc_sha)
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)

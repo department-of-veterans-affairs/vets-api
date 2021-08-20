@@ -88,6 +88,10 @@ module V0
         key :name, 'site'
         key :description, 'Site service availability and feedback'
       end
+      tag do
+        key :name, 'medical_copays'
+        key :description, 'Veteran Medical Copay information for VA facilities'
+      end
       key :host, Settings.hostname
       key :schemes, %w[https http]
       key :basePath, '/'
@@ -150,6 +154,7 @@ module V0
       Swagger::Requests::Letters,
       Swagger::Requests::MaintenanceWindows,
       Swagger::Requests::MDOT::Supplies,
+      Swagger::Requests::MedicalCopays,
       Swagger::Requests::Messages::Folders,
       Swagger::Requests::Messages::Messages,
       Swagger::Requests::Messages::MessageDrafts,
