@@ -20,10 +20,6 @@ module EVSS
       def initialize(status, response = nil)
         super(status, response.body) if response
       end
-
-      def redact_data
-        responses.each(&:redact_data)
-      end
     end
   end
 end
