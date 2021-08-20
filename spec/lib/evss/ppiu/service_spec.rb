@@ -36,19 +36,6 @@ describe EVSS::PPIU::Service do
         end
       end
 
-      context 'with a user that doesnt have full access' do
-        before do
-          expect_any_instance_of(PPIUPolicy).to receive(:full_access?).and_return(false)
-        end
-
-        it 'redacts bank numbers' do
-          VCR.use_cassette('evss/ppiu/payment_information') do
-            expect(pay_info.payment_account.financial_institution_routing_number).to eq('*****2115')
-            expect(pay_info.payment_account.account_number).to eq('*********1234')
-          end
-        end
-      end
-
       it 'has pay account and pay address data' do
         VCR.use_cassette('evss/ppiu/payment_information') do
           expect(pay_info.payment_account.financial_institution_routing_number).to eq('042102115')
