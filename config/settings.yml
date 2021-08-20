@@ -76,7 +76,7 @@ dmc:
 
 mcp:
   vbs:
-    url: ~
+    url: http://fake.com
     host: ~
     service_name: VBS
     mock: true
