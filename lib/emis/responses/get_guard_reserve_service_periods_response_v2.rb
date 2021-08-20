@@ -18,6 +18,7 @@ module EMIS
           'personnelCategoryTypeCode' => {},
           'personnelOrganizationCode' => {},
           'personnelSegmentIdentifier' => {},
+          'narrativeReasonForSeparationTxt' => {},
           'guardReservePeriodStartDate' => { rename: 'begin_date' },
           'guardReservePeriodEndDate' => { rename: 'end_date' },
           'guardReservePeriodTerminationReason' => { rename: 'termination_reason' },

@@ -97,6 +97,7 @@ module EMIS
       attribute :personnel_category_type_code, String
       attribute :personnel_organization_code, String
       attribute :personnel_segment_identifier, String
+      attribute :narrative_reason_for_separation_txt, String
       attribute :segment_identifier, String
       attribute :begin_date, Date
       attribute :end_date, Date
