@@ -25,6 +25,10 @@ describe AppealsApi::HigherLevelReview::Phone do
       expect(phone(nil, '888', '5554444', '9').to_s).to eq '888-555-4444 ext 9'
     end
 
+    it 'preserves leading 0s' do
+      expect(phone(nil, '022', '0120123', '0').to_s).to eq '022-012-0123 ext 0'
+    end
+
     it 'shrinks extension to stay within 20 characters (notice missing space)' do
       phone = phone_with_ext('9')
       expect(phone.to_s).to eq '+6-888-555-4444 ext9'
@@ -74,8 +78,8 @@ describe AppealsApi::HigherLevelReview::Phone do
     end
 
     it 'uses less formatting when phone number is less than ten digits' do
-      p = phone('99', '888', '33', 'ZeBrA2')
-      expect(p.to_s).to eq '+99-88833 ext ZeBrA2'
+      p = phone('99', '02', '3333', 'ZeBrA2')
+      expect(p.to_s).to eq '+99-023333 extZeBrA2'
       expect(p.too_long?).to be false
     end
 
