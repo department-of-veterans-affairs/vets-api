@@ -311,7 +311,9 @@
           "description": "Object describing Veteran Homelessness if applicable.",
           "type": "object",
           "additionalProperties": false,
-          "required": ["pointOfContact"],
+          "dependentRequired": {
+            "pointOfContact": ["currentlyHomeless", "homelessnessRisk"]
+            },
           "properties": {
             "pointOfContact": {
               "description": "Object describing Homeless Veteran Point of Contact.",
@@ -975,6 +977,17 @@
               }
             }
           }
+        },
+        "if": {
+          "properties": {
+            "disabilityActionType": {
+              "enum": ["INCREASE"]
+            }
+          },
+          "required": ["disabilityActionType"]
+        },
+        "then": {
+          "required": ["ratedDisabilityId"]
         }
       }
     },
@@ -1065,9 +1078,15 @@
           "required": ["receiving", "payment"],
           "properties": {
             "receiving": {
-              "description": "Is Veteran getting Retiree pay.",
+              "description": "Is Veteran getting Retiree pay?",
               "type": "boolean",
               "example": true
+            },
+            "willReceiveInFuture": {
+              "description": "Will Veteran get Retiree pay in future?",
+              "type": "boolean",
+              "default": false,
+              "example": false
             },
             "payment": {
               "description": "Part of DoD paying Retirement Benefits.",

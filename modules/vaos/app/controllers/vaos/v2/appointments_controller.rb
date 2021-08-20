@@ -64,9 +64,11 @@ module VAOS
                       :clinic,
                       :reason,
                       :service_type,
+                      :preferred_language,
                       slot: %i[id start end],
                       contact: [telecom: %i[type value]],
-                      requested_periods: %i[start end])
+                      requested_periods: %i[start end],
+                      practitioner_ids: %i[system value])
       end
 
       def start_date

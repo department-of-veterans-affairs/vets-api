@@ -12,6 +12,8 @@ FactoryBot.define do
       kind { 'cc' }
       status { 'proposed' }
       location_id { '983' }
+      practitioner_ids { [{ system: 'HSRM', value: '1234567890' }] }
+      preferred_language { 'English' }
       reason { 'Testing' }
 
       contact do

@@ -57,6 +57,20 @@ describe AppealsApi::V2::DecisionReviews::HigherLevelReviewsController, type: :r
           }
         )
       end
+
+      it 'fails when homeless is false but no address is provided' do
+        data = JSON.parse(@data)
+        data['data']['attributes']['veteran']['homeless'] = false
+        data['data']['attributes']['veteran'].delete('address')
+
+        post(path, params: data.to_json, headers: @minimum_required_headers)
+        expect(response.status).to eq(422)
+
+        error = parsed['errors'][0]
+        expect(error['title']).to eq 'Missing required fields'
+        expect(error['code']).to eq '145'
+        expect(error['meta']['missing_fields']).to match_array(['address'])
+      end
     end
 
     it 'create the job to build the PDF' do

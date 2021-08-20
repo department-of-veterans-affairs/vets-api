@@ -155,8 +155,7 @@ module VBADocuments
         begin
           line = lines.next[0]
         rescue StopIteration
-          raise VBADocuments::UploadError.new(code: 'DOC101',
-                                              detail: 'Unexpected end of payload')
+          raise VBADocuments::UploadError.new(code: 'DOC101', detail: 'Unexpected end of payload')
         end
         linechomp = line.chomp(LINE_BREAK)
         if (linechomp == "#{separator}--") || (linechomp == "#{separator}--#{CARRIAGE_RETURN}")

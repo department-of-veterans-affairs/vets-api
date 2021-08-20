@@ -118,6 +118,9 @@ features:
     actor_type: user
     description: Iteration of new features for discharge wizard
     enable_in_development: true
+  facilities_ppms_suppress_all:
+    actor_type: user
+    description: Hide all ppms search options
   facilities_ppms_suppress_community_care:
     actor_type: user
     description: Hide ppms community care searches
@@ -366,10 +369,6 @@ features:
     actor_type: user
     description: Set up toggle in anticipation of the next iteration of the homepage and appointment cards.
     enable_in_development: true
-  va_online_scheduling_provider_selection:
-    actor_type: user
-    description: Enables the community care provider selection field
-    enable_in_development: true
   va_online_scheduling_requests:
     actor_type: user
     description: Allows veterans to submit requests for VA appointments
@@ -398,6 +397,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for VAOS variant testing.
+  va_online_scheduling_cc_iterations:
+    actor_type: user
+    enable_in_development: true
+    description: Toggle for VAOS community care flow iterations.
   va_view_dependents_access:
     actor_type: user
     description: Allows us to gate the View/ Modify dependents content in a progressive rollout
