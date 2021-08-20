@@ -68,3 +68,6 @@ docker_debugging
 
 # Ignore lock files in modules (gems)
 modules/**/Gemfile.lock
+
+# Ignore JetBrains ide files
+.idea

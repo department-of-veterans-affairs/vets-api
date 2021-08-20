@@ -135,7 +135,10 @@ module MPI
         full_mvi_ids = get_extensions(patient.locate('id'))
         parsed_mvi_ids = parse_xml_gcids(patient.locate('id'))
         log_inactive_mhv_ids(parsed_mvi_ids[:mhv_ids].to_a, parsed_mvi_ids[:active_mhv_ids].to_a)
+        create_ids_obj(full_mvi_ids, parsed_mvi_ids, historical_icns)
+      end
 
+      def create_ids_obj(full_mvi_ids, parsed_mvi_ids, historical_icns)
         {
           full_mvi_ids: full_mvi_ids,
           icn: parsed_mvi_ids[:icn],
@@ -144,6 +147,7 @@ module MPI
           edipi: sanitize_edipi(parsed_mvi_ids[:edipi]),
           participant_id: sanitize_id(parsed_mvi_ids[:vba_corp_id]),
           vha_facility_ids: parsed_mvi_ids[:vha_facility_ids],
+          vha_facility_hash: parsed_mvi_ids[:vha_facility_hash],
           sec_id: parsed_mvi_ids[:sec_id],
           birls_id: sanitize_id(parsed_mvi_ids[:birls_id]),
           birls_ids: sanitize_id_array(parsed_mvi_ids[:birls_ids]),
