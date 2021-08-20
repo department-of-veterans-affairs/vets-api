@@ -24,6 +24,12 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
         Flipper.enable(:facility_locator_ppms_use_secure_api, feature_flag)
       end
 
+      if feature_flag
+        let(:path) { '/dws/v1.0/ProviderLocator' }
+      else
+        let(:path) { 'v1.0/ProviderLocator' }
+      end
+
       context 'StatsD notifications' do
         context 'PPMS responds Successfully' do
           it "sends a 'facilities.ppms.request.faraday' notification to any subscribers listening" do
@@ -127,16 +133,123 @@ RSpec.describe FacilitiesApi::V1::PPMS::Client, team: :facilities, vcr: vcr_opti
         end
       end
 
+      describe 'base params' do
+        let(:client) { FacilitiesApi::V1::PPMS::Client.new }
+        let(:fake_response) { double('fake_response') }
+
+        before do
+          allow(fake_response).to receive(:body)
+        end
+
+        describe 'Clamping Results' do
+          it 'page and per_page is not required' do
+            expect(client).to receive(:perform).with(
+              :get,
+              path,
+              {
+                address: '40.415217,-74.057114',
+                maxResults: 11,
+                radius: 200,
+                specialtycode1: 'Code1'
+              }
+            ).and_return(fake_response)
+
+            client.provider_locator(params.merge(specialties: %w[Code1]))
+          end
+
+          it 'maxResults cannot be greater then 50' do
+            expect(client).to receive(:perform).with(
+              :get,
+              path,
+              {
+                address: '40.415217,-74.057114',
+                maxResults: 50,
+                radius: 200,
+                specialtycode1: 'Code1'
+              }
+            ).exactly(3).and_return(fake_response)
+
+            client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 60))
+            client.provider_locator(params.merge(specialties: %w[Code1], page: 60, per_page: 1))
+            client.provider_locator(params.merge(specialties: %w[Code1], page: 60, per_page: 60))
+          end
+
+          it 'maxResults cannot be less than 2' do
+            expect(client).to receive(:perform).with(
+              :get,
+              path,
+              {
+                address: '40.415217,-74.057114',
+                maxResults: 2,
+                radius: 200,
+                specialtycode1: 'Code1'
+              }
+            ).exactly(4).and_return(fake_response)
+
+            client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 1))
+            client.provider_locator(params.merge(specialties: %w[Code1], page: 1, per_page: 0))
+            client.provider_locator(params.merge(specialties: %w[Code1], page: 0, per_page: 0))
+            client.provider_locator(params.merge(specialties: %w[Code1], page: -10, per_page: 1))
+          end
+        end
+
+        describe 'Clamping Radius' do
+          it 'limits radius to 500' do
+            expect(client).to receive(:perform).with(
+              :get,
+              path,
+              {
+                address: '40.415217,-74.057114',
+                maxResults: 11,
+                radius: 500,
+                specialtycode1: 'Code1'
+              }
+            ).and_return(fake_response)
+
+            client.provider_locator(params.merge(specialties: %w[Code1], radius: 600))
+          end
+          it 'limits radius to 1' do
+            expect(client).to receive(:perform).with(
+              :get,
+              path,
+              {
+                address: '40.415217,-74.057114',
+                maxResults: 11,
+                radius: 1,
+                specialtycode1: 'Code1'
+              }
+            ).and_return(fake_response)
+
+            client.provider_locator(params.merge(specialties: %w[Code1], radius: 1))
+          end
+        end
+
+        describe 'Sanitizing Longitude and Latitude' do
+          it 'only sends 5 digits of accuracy to ppms' do
+            expect(client).to receive(:perform).with(
+              :get,
+              path,
+              {
+                address: '40.123457,-74.123457',
+                maxResults: 11,
+                radius: 200,
+                specialtycode1: 'Code1'
+              }
+            ).and_return(fake_response)
+
+            client.provider_locator(params.merge(
+                                      specialties: %w[Code1],
+                                      latitude: 40.123456789012345,
+                                      longitude: -74.123456789012345
+                                    ))
+          end
+        end
+      end
+
       describe '#provider_locator' do
         describe 'Require between 1 and 5 Specialties' do
           let(:client) { FacilitiesApi::V1::PPMS::Client.new }
           let(:fake_response) { double('fake_response') }
-
-          if feature_flag
-            let(:path) { '/dws/v1.0/ProviderLocator' }
-          else
-            let(:path) { 'v1.0/ProviderLocator' }
-          end
 
           it 'accepts upto 5 specialties' do
             allow(fake_response).to receive(:body)

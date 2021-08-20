@@ -98,6 +98,15 @@ FactoryBot.define do
       mhv_ids { ['123456'] }
       active_mhv_ids { ['123456'] }
       vha_facility_ids { %w[516 553 200HD 200IP 200MHV] }
+      vha_facility_hash {
+        {
+          '516' => ['12345'],
+          '553' => ['2'],
+          '200HD' => ['12345'],
+          '200IP' => ['TKIP123456'],
+          '200MHV' => ['123456']
+        }
+      }
       edipi { '1234567890' }
       participant_id { '12345678' }
       birls = ['796122306']
@@ -132,6 +141,7 @@ FactoryBot.define do
         mhv_ids { nil }
         active_mhv_ids { nil }
         vha_facility_ids { ['200MHS'] }
+        vha_facility_hash { { '200MHS' => ['1100792239'] } }
         participant_id { '9100792239' }
         edipi { nil }
         vet360_id { nil }
@@ -149,6 +159,7 @@ FactoryBot.define do
         mhv_ids { %w[12345678901 12345678902] }
         active_mhv_ids { %w[12345678901] }
         vha_facility_ids { %w[200MH 200MH] }
+        vha_facility_hash { { '200MH' => %w[12345678901 12345678902] } }
         edipi { '1122334455' }
         participant_id { '12345678' }
         birls = ['123412345']

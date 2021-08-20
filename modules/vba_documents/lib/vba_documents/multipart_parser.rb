@@ -33,7 +33,6 @@ module VBADocuments
           content_type = get_content_type(headers)
           body, moreparts = consume_body(lines, separator, content_type)
           parts[partname] = body
-          # record_sha256(submission, partname, body) if submission
           break unless moreparts
         end
       ensure
@@ -166,33 +165,9 @@ module VBADocuments
           tf.rewind
           return tf, true
         else
-          # Some clients appends a new line at the end of the pdf
-          # we must remove it to maintain the original sha256 value
-          # line.chomp! # if end_of_pdf(line)
           tf.write(line)
         end
       end
-    end
-
-    def self.record_sha256(submission, partname, body)
-      submission.metadata['sha_256'] = {} unless submission.metadata['sha_256']
-      sha256_value = if body.instance_of?(Tempfile)
-                       Digest::SHA256.file(body).hexdigest
-                     else
-                       Digest::SHA256.hexdigest(body)
-                     end
-      submission.metadata['sha_256'][partname] = sha256_value
-      submission.save!
-    end
-
-    def self.valid_encoding(line)
-      line.encoding.name == 'ASCII-8BIT' || line.encoding.name == 'UTF-8'
-    end
-
-    def self.end_of_pdf(line)
-      /%%EOF\n\r\n/.match?(line) || /%EOF\r\n/.match?(line) || /%EOF\n/.match?(line) if valid_encoding(line)
-    rescue => e
-      Rails.logger.error('VBADocuments::MultipartParser Error', e)
     end
   end
 end

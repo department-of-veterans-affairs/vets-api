@@ -5,7 +5,12 @@
       "informalConference": true,
       "benefitType": "compensation",
       "veteran": {
-        "address": { "zipCode5": "66002" },
+        "address": {
+          "addressLine1": "123 Somestreet",
+          "city": "Sometown",
+          "countryCodeISO2": "US",
+          "zipCode5": "66002"
+        },
         "phone": {
           "countryCode": "1",
           "areaCode": "555",
