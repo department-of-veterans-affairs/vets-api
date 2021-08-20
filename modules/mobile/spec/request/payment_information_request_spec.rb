@@ -6,7 +6,10 @@ require_relative '../support/matchers/json_schema_matcher'
 
 RSpec.describe 'payment_information', type: :request do
   include JsonSchemaMatchers
-  before { iam_sign_in }
+  before do
+    allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'idme')
+    iam_sign_in
+  end
 
   let(:user) { create(:user, :mhv) }
   let(:get_payment_info_body) do
@@ -117,9 +120,9 @@ RSpec.describe 'payment_information', type: :request do
       end
     end
 
-    context 'with a user without multifactor' do
+    context 'with a non idme user' do
       before do
-        iam_sign_in(FactoryBot.build(:iam_user, :no_multifactor))
+        allow_any_instance_of(UserIdentity).to receive(:sign_in).and_return(service_name: 'iam_ssoe')
       end
 
       it 'returns forbidden' do
