@@ -4,7 +4,6 @@ required:
   - effectiveDate
   - ratingPercentage
   - diagnosticText
-  - type
 properties:
   decision:
     type: string
@@ -18,6 +17,3 @@ properties:
   diagnosticText:
     type: string
     example: "Hearing Loss"
-  type:
-    type: string
-    example: "Limitation of flexion, knee"

@@ -5,6 +5,7 @@ require_dependency 'mobile/application_controller'
 module Mobile
   module V0
     class DisabilityRatingController < ApplicationController
+      before_action { authorize :evss, :access? }
       def index
         response = rating_proxy.get_disability_ratings
         render json: Mobile::V0::DisabilityRatingSerializer.new(response)

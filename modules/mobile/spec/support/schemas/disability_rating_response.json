@@ -17,12 +17,6 @@
             "combinedDisabilityRating": {
               "type": "integer"
             },
-            "combinedEffectiveDate": {
-              "type": "string"
-            },
-            "legalEffectiveDate": {
-              "type": "string"
-            },
             "individualRatings": {
               "type": "array",
               "items": {
@@ -35,6 +29,9 @@
                     "type": "integer"
                   },
                   "effectiveDate": {
+                    "type": "string"
+                  },
+                  "diagnosticText": {
                     "type": "string"
                   }
                 }

@@ -70,7 +70,8 @@ module Identity
         birls_ids: { regex: BIRLS_IDS_REGEX, root_oid: VA_ROOT_OID, type: :multiple_ids },
         vha_facility_ids: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility },
         cerner_facility_ids: { regex: CERNER_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility },
-        icn_with_aaid: { regex: PERMANENT_ICN_REGEX, root_oid: VA_ROOT_OID, type: :icn_with_aaid }
+        icn_with_aaid: { regex: PERMANENT_ICN_REGEX, root_oid: VA_ROOT_OID, type: :icn_with_aaid },
+        vha_facility_hash: { regex: VHA_FACILITY_IDS_REGEX, root_oid: VA_ROOT_OID, type: :facility_to_ids }
       }.freeze
     end
   end

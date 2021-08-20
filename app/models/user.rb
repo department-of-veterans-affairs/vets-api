@@ -312,6 +312,10 @@ class User < Common::RedisStore
     mpi_profile&.vha_facility_ids || []
   end
 
+  def vha_facility_hash
+    mpi_profile&.vha_facility_hash || {}
+  end
+
   def can_access_id_card?
     loa3? && edipi.present? &&
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)

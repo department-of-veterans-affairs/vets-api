@@ -26,6 +26,7 @@ describe MPI::Service do
       :address_austin,
       given_names: %w[Mitchell G],
       vha_facility_ids: [],
+      vha_facility_hash: nil,
       sec_id: '1008714701',
       birls_id: '796122306',
       birls_ids: ['796122306'],
