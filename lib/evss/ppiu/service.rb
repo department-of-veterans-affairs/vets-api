@@ -18,8 +18,7 @@ module EVSS
       def initialize(*args)
         super
 
-        @policy = PPIUPolicy.new(@user)
-        raise Common::Exceptions::Unauthorized unless @policy.access?
+        raise Common::Exceptions::Unauthorized unless PPIUPolicy.new(@user).access?
       end
 
       # GETs a user's payment information
@@ -30,9 +29,7 @@ module EVSS
         with_monitoring_and_error_handling do
           raw_response = perform(:get, 'paymentInformation', paymentType: 'CNP')
 
-          res = PaymentInformationResponse.new(raw_response.status, raw_response)
-          res.redact_data unless @policy.full_access?
-          res
+          PaymentInformationResponse.new(raw_response.status, raw_response)
         end
       end
 

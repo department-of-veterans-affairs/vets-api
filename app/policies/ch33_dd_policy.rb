@@ -2,10 +2,6 @@
 
 Ch33DdPolicy = Struct.new(:user, :ch33_dd) do
   def access?
-    user.loa3? && Flipper.enabled?(:direct_deposit_edu, user)
-  end
-
-  def full_access?
-    user.identity.sign_in[:service_name] == 'idme'
+    user.loa3? && user.identity.sign_in[:service_name] == 'idme' && Flipper.enabled?(:direct_deposit_edu, user)
   end
 end

@@ -6,28 +6,6 @@ describe PPIUPolicy do
   let(:user) { build(:evss_user) }
 
   permissions :access? do
-    context 'with a user with the feature enabled' do
-      before do
-        expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(true)
-      end
-
-      it 'allows access' do
-        expect(described_class).to permit(user, :ppiu)
-      end
-    end
-
-    context 'with a user with the feature disabled' do
-      before do
-        expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(false)
-      end
-
-      it 'disallows access' do
-        expect(described_class).not_to permit(user, :ppiu)
-      end
-    end
-  end
-
-  permissions :full_access? do
     context 'with an idme user' do
       context 'with a loa1 user' do
         let(:user) { build(:user) }
@@ -51,17 +29,29 @@ describe PPIUPolicy do
         expect(described_class).not_to permit(user, :ppiu)
       end
     end
-  end
 
-  permissions :access_update? do
-    context 'with a user that doesnt have full access' do
-      let(:user) { build(:user, :loa3, :mhv) }
+    context 'with a user with the feature enabled' do
+      before do
+        expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(true)
+      end
+
+      it 'allows access' do
+        expect(described_class).to permit(user, :ppiu)
+      end
+    end
+
+    context 'with a user with the feature disabled' do
+      before do
+        expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(false)
+      end
 
       it 'disallows access' do
         expect(described_class).not_to permit(user, :ppiu)
       end
     end
+  end
 
+  permissions :access_update? do
     context 'with a user who is competent, has no fiduciary, and is not deceased' do
       it 'allows access' do
         VCR.use_cassette('evss/ppiu/payment_information') do
