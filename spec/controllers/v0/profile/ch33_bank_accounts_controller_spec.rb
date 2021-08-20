@@ -28,10 +28,7 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
     context 'with a non idme user' do
       let(:user) { build(:user, :loa3, :mhv) }
 
-      it 'doesnt allow updates' do
-        put(:update)
-        expect(response.status).to eq(403)
-      end
+      expect_unauthorized
     end
   end
 
