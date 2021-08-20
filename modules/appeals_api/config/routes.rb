@@ -50,6 +50,12 @@ AppealsApi::Engine.routes.draw do
         end
       end
 
+      namespace :notice_of_disagreements do
+        resources :evidence_submissions,
+                  only: %i[create show],
+                  controller: '/appeals_api/v1/decision_reviews/notice_of_disagreements/evidence_submissions'
+      end
+
       resources :notice_of_disagreements, only: %i[create show],
                                           controller: '/appeals_api/v1/decision_reviews/notice_of_disagreements' do
         collection do
