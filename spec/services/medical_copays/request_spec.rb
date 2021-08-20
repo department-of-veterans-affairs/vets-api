@@ -21,7 +21,7 @@ RSpec.describe MedicalCopays::Request do
     end
 
     it 'has a url' do
-      expect(subject.url).to eq(nil)
+      expect(subject.url).to eq('https://fake_url.com:9000')
     end
   end
 

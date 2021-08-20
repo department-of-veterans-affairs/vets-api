@@ -27,7 +27,8 @@ describe Identity::Parsers::GCIds do
           birls_ids: nil,
           vet360_id: nil,
           icn_with_aaid: nil,
-          birls_id: nil
+          birls_id: nil,
+          vha_facility_hash: nil
         }
       end
       let(:ids) { [] }
@@ -49,6 +50,42 @@ describe Identity::Parsers::GCIds do
       let(:ids) { [OpenStruct.new(attributes: { extension: id_object, root: root_oid })] }
       let(:id) { '123454321' }
       let(:root_oid) { va_root_oid }
+
+      context 'and the ids include a vha_facility with multiple vista account numbers' do
+        let(:id_object_one) { "#{id}^PI^200M^USVHA^P" }
+        let(:id_object_two) { '987656789^PI^200M^USVHA^P' }
+        let(:ids) do
+          [
+            OpenStruct.new(attributes: { extension: id_object_one, root: root_oid }),
+            OpenStruct.new(attributes: { extension: id_object_two, root: root_oid })
+          ]
+        end
+        let(:facility_hash) do
+          { '200M' => %w[123454321 987656789] }
+        end
+
+        it 'maps both vista accounts to the same vha_facility id' do
+          expect(subject[:vha_facility_hash]).to eq(facility_hash)
+        end
+      end
+
+      context 'and the ids include multiple vha_facilites' do
+        let(:id_objects) { ["#{id}^PI^200M^USVHA^A", '987656789^PI^984^USVHA^A', '133230796^PI^200M^USVHA^P'] }
+        let(:ids) do
+          structs = []
+          id_objects.each do |id_object|
+            structs << OpenStruct.new(attributes: { extension: id_object, root: root_oid })
+          end
+          structs
+        end
+        let(:facility_hash) do
+          { '200M' => %w[123454321 133230796], '984' => ['987656789'] }
+        end
+
+        it 'maps both vista accounts to their respective vha_facility id' do
+          expect(subject[:vha_facility_hash]).to eq(facility_hash)
+        end
+      end
 
       context 'and the format of the ids matches the icn regex' do
         let(:id_object) { "#{id}^NI^200M^USVHA^P" }
