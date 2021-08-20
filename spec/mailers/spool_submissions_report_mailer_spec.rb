@@ -81,7 +81,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
 
     context 'when sending staging emails' do
       before do
-        expect(FeatureFlipper).to receive(:staging_email?).twice.and_return(true)
+        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
       end
 
       it 'sends the right email' do
@@ -109,7 +109,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
 
     context 'when not sending staging emails' do
       before do
-        expect(FeatureFlipper).to receive(:staging_email?).twice.and_return(false)
+        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(false)
       end
 
       it 'emails the the right recipients' do
