@@ -36,6 +36,7 @@ namespace :attr_encrypted do
               record.send("#{attribute}=", old_attribute)
               record.save!
             rescue
+              puts "Retrying... Encryption Key Error"
               record.database_key = Settings.db_encryption_key
               retry
             end
