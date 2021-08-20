@@ -28,7 +28,6 @@ module EVSS
       def get_payment_information
         with_monitoring_and_error_handling do
           raw_response = perform(:get, 'paymentInformation', paymentType: 'CNP')
-
           PaymentInformationResponse.new(raw_response.status, raw_response)
         end
       end
