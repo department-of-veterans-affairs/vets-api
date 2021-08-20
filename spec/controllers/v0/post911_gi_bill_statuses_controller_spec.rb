@@ -95,6 +95,18 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
         end
       end
 
+      describe 'when EVSS returns invalid user info' do
+        # special EVSS CI user ssn=796066622
+        let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066622', uuid: '89b40886-95e3-4a5b-824e-a4658b707508') }
+
+        it 'responds with a 500' do
+          VCR.use_cassette('evss/gi_bill_status/vet_with_invalid_info') do
+            get :show
+            expect(response).to have_http_status(:error)
+          end
+        end
+      end
+
       describe 'when EVSS partners return invalid data' do
         # special EVSS CI user ssn=301010304
         let(:user) { FactoryBot.create(:user, :loa3, ssn: '301010304', uuid: 'aaaa1a') }
