@@ -5,7 +5,13 @@
       "informalConference": false,
       "benefitType": "compensation",
       "veteran": {
-        "homeless": false
+        "homeless": false,
+        "address": {
+          "addressLine1": "123 Some St.",
+          "city": "Sometown",
+          "countryCodeISO2": "US",
+          "zipCode5": "12345"
+        }
       },
       "socOptIn": true
     }
