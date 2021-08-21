@@ -16,7 +16,7 @@
                 "type": "string"
               },
               "branch_of_service": {
-                "type": "string"
+                "type": ["string", null]
               },
               "start_date": {
                 "type": "string"
@@ -25,7 +25,7 @@
                 "type": "string"
               },
               "pay_grade": {
-                "type": "string"
+                "type": ["string", null]
               },
               "separation_reason": {
                 "type": "string"

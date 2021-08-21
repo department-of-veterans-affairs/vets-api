@@ -47,11 +47,12 @@ module VeteranVerification
 
     def self.fetch_non_32_guard_periods(emis, user)
       reserve_periods = emis.guard_reserve_service_periods
-      reserve_periods.filter do |reserve_period|
+      reserve_periods = reserve_periods.filter do |reserve_period|
         !reserve_period.nil? \
                 && reserve_period.training_indicator_code != 'Y' \
                 && (%w[J N P Q Z].exclude? reserve_period.statute_code)
       end
+
       reserve_periods.map do |reserve_period|
         ServiceHistoryEpisode.new(
           id: episode_identifier(reserve_period, user),
