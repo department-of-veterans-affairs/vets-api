@@ -36,43 +36,76 @@ jobs:
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
       CI: true
-      DATABASE_URL: "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test?pool=4"
-      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners (setup-ruby)
+      NODE_EXTRA_CA_CERTS: '/etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem' # Needed for self-hosted runners (cache, upload-artifact)
       RAILS_ENV: test
-      "Settings.binaries.clamdscan": "clamscan"
-      "Settings.saml.cert_path": "spec/support/certificates/ruby-saml.crt"
-      "Settings.saml.key_path": "spec/support/certificates/ruby-saml.key"
-      "Settings.test_database_url": "postgis://vets-api:postgres@127.0.0.1:5432/vets_api_test"
       TERM: xterm-256color
+      DOCKER_IMAGE: ${{ github.sha }}-${{ github.run_id }}${{ github.run_number }}
     runs-on: asg
-
-    services:
-      postgres:
-        image: postgis/postgis:11-2.5
-        credentials:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
-        env:
-          POSTGRES_USER: vets-api
-          POSTGRES_PASSWORD: postgres
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 15
-        ports:
-          - 5432:5432
-
     steps:
       - uses: actions/checkout@v2
 
-      - uses: ruby/setup-ruby@v1
-        env:
-          ImageOS: ubuntu20
+      - uses: docker/login-action@v1
         with:
-          bundler-cache: true
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Setup Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Setup Environment
+        run: |
+          echo "VETS_API_USER_ID=$(id -u)" >> $GITHUB_ENV
+          echo "BUILDX_CONTAINER_ID=$(docker ps | grep ${{ steps.buildx.outputs.name }} | cut -f1 -d' ' | tr -d '[:space:]')" >> $GITHUB_ENV
+
+      - name: Setup Docker
+        run: |
+          docker volume create --name=test_bundle
+          cp /etc/ssl/certs/VA-Internal-S2-RCA1-v1.cer.pem config/ca-trust/
+          docker cp config/ca-trust/VA-Internal-S2-RCA1-v1.cer.pem ${{ env.BUILDX_CONTAINER_ID }}:/usr/local/share/ca-certificates/
+          docker exec -d  ${{ env.BUILDX_CONTAINER_ID }} update-ca-certificates
+
+      - name: Cache Docker Layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ secrets.CACHE_VERSION }}-{{ env.DOCKER_IMAGE}}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ secrets.CACHE_VERSION }}-
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          build-args: |
+            sidekiq_license=${{ env.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
+            userid=${{ env.VETS_API_USER_ID }}
+          context: .
+          target: development
+          push: false
+          load: true
+          tags: vets-api:${{ env.DOCKER_IMAGE }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      # Temp fix
+      # https://github.com/docker/build-push-action/issues/252
+      # https://github.com/moby/buildkit/issues/1896
+      - name: Move Docker Cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
       - name: Setup Database
-        run: bundle exec parallel_test -n 14 -e 'bundle exec rake db:reset'
+        run: |
+             docker-compose -f docker-compose.test.yml -f  docker-compose.gha.yml -p ${{ env.DOCKER_IMAGE}} \
+             run --rm --service-ports vets-api bash \
+             -c "RAILS_ENV=test DISABLE_BOOTSNAP=true parallel_test -n 14 -e 'bundle exec rake db:reset'"
 
       - name: Run Specs
-        run: bundle exec parallel_rspec spec/ modules -n 14 -o '--color --tty'
+        run: |
+             docker-compose -f docker-compose.test.yml -f docker-compose.gha.yml -p ${{ env.DOCKER_IMAGE}} \
+             run --rm --service-ports vets-api bash \
+             -c "DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 14 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v2
@@ -88,6 +121,12 @@ jobs:
           name: Test Results
           path: log/*.xml
           if-no-files-found: ignore
+
+      - name: Docker Cleanup
+        if: always()
+        run: |
+          docker rmi -f vets-api:${{ env.DOCKER_IMAGE }} 2> /dev/null || true
+          docker rm -f ${{ env.DOCKER_IMAGE }}_postgres_1 2> /dev/null || true
 
   publish_results:
     name: Publish Results
@@ -129,3 +168,4 @@ jobs:
           result_path: Coverage Report/.last_run.json
           min_coverage: 90
           token: ${{ secrets.GITHUB_TOKEN }}
+
