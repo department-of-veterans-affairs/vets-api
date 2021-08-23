@@ -148,6 +148,17 @@ module EMISRedis
 
       "#{branch} #{category}".strip
     end
+
+    def get_guard_personnel_category_type(guard_service_period)
+      case guard_service_period.personnel_category_type_code
+      when 'N'
+        'National Guard'
+      when 'V' || 'Q'
+        'Reserve'
+      else
+        ''
+      end
+    end
     # rubocop:enable Metrics/CyclomaticComplexity,  Lint/DuplicateBranch
 
     # @return [Array<Hash>] Data about the veteran's service periods

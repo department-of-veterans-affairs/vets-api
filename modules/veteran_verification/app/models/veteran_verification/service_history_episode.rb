@@ -58,6 +58,7 @@ module VeteranVerification
           id: episode_identifier(reserve_period, user),
           first_name: user.first_name,
           last_name: user.last_name,
+          branch_of_service: emis.guard_reserve_service_periods(reserve_period),
           end_date: reserve_period.end_date,
           discharge_type: reserve_period.character_of_service_code,
           start_date: reserve_period.begin_date,
