@@ -1082,7 +1082,7 @@ DEPENDENCIES
   rack-cors
   rack-test
   rack-vcr
-  rails (~> 6.1.4)
+  rails (~> 6.1)
   rails-session_cookie
   rails_semantic_logger (~> 4.6)
   rainbow
