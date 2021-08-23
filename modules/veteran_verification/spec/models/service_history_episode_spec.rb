@@ -14,7 +14,7 @@ describe VeteranVerification::ServiceHistoryEpisode, skip_emis: true do
             expect(result.length).to eq(1)
             expect(result[0][:first_name]).to eq('abraham')
             expect(result[0][:last_name]).to eq('lincoln')
-            expect(result[0][:branch_of_service]).to eq(nil)
+            expect(result[0][:branch_of_service]).to eq("Reserve")
             expect(result[0][:pay_grade]).to eq(nil)
             expect(result[0][:deployments].length).to eq(0)
           end
