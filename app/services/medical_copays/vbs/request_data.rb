@@ -9,12 +9,12 @@ module MedicalCopays
     #   @return [User]
     # @!attribute edipi
     #   @return [String]
-    # @!attribute vista_account_numbers
-    #   @return [Array]
+    # @!attribute vha_facility_hash
+    #   @return [Hash]
     # @!attribute errors
     #   @return [Array]
     class RequestData
-      attr_reader :user, :edipi, :vista_account_numbers
+      attr_reader :user, :edipi, :vha_facility_hash, :vista_account_numbers
       attr_accessor :errors
 
       ##
@@ -68,7 +68,8 @@ module MedicalCopays
       def initialize(opts)
         @user = opts[:user]
         @edipi = user.edipi
-        @vista_account_numbers = user.try(:vista_account_numbers) || []
+        @vha_facility_hash = user.vha_facility_hash
+        @vista_account_numbers = MedicalCopays::VistaAccountNumbers.build(data: vha_facility_hash)
         @errors = []
       end
 
@@ -80,7 +81,7 @@ module MedicalCopays
       def to_hash
         {
           edipi: edipi,
-          vistaAccountNumbers: vista_account_numbers
+          vistaAccountNumbers: vista_account_numbers.list
         }
       end
 

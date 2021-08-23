@@ -151,6 +151,7 @@ module ClaimsApi
           validate_form_526_application_expiration_date!
           validate_form_526_claimant_certification!
           validate_form_526_location_codes!
+          validate_form_526_service_information_confinements!
           validate_form_526_veteran_homelessness!
           validate_form_526_service_pay!
           validate_form_526_title10_activation_date!
@@ -206,6 +207,47 @@ module ClaimsApi
             raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
                                                               form_attributes['separationLocationCode'])
           end
+        end
+
+        def validate_form_526_service_information_confinements!
+          confinements = form_attributes['serviceInformation']['confinements']
+          service_periods = form_attributes['serviceInformation']['servicePeriods']
+
+          return if confinements.nil?
+
+          return if confinements_within_service_periods?(confinements,
+                                                         service_periods) && confinements_dont_overlap?(confinements)
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('confinements', confinements)
+        end
+
+        def confinements_within_service_periods?(confinements, service_periods)
+          confinements.each do |confinement|
+            next if service_periods.any? do |service_period|
+              active_duty_start = Date.parse(service_period['activeDutyBeginDate'])
+              active_duty_end = Date.parse(service_period['activeDutyEndDate'])
+              time_range = active_duty_start..active_duty_end
+
+              time_range.cover?(Date.parse(confinement['confinementBeginDate'])) &&
+              time_range.cover?(Date.parse(confinement['confinementEndDate']))
+            end
+
+            return false
+          end
+
+          true
+        end
+
+        def confinements_dont_overlap?(confinements)
+          return true if confinements.length < 2
+
+          confinements.combination(2) do |combo|
+            range1 = Date.parse(combo[0]['confinementBeginDate'])..Date.parse(combo[0]['confinementEndDate'])
+            range2 = Date.parse(combo[1]['confinementBeginDate'])..Date.parse(combo[1]['confinementEndDate'])
+            return false if range1.overlaps?(range2)
+          end
+
+          true
         end
 
         def validate_form_526_veteran_homelessness!

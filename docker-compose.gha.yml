@@ -1,0 +1,8 @@
+version: '3.4'
+services:
+  vets-api:
+    tmpfs:
+      - /tmp
+volumes:
+  test_bundle:
+    external: true
