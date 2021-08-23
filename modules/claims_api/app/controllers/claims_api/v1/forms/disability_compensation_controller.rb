@@ -161,14 +161,14 @@ module ClaimsApi
         def validate_form_526_change_of_address!
           validate_form_526_change_of_address_ending_date!
           validate_form_526_change_of_address_beginning_date!
+          validate_form_526_change_of_address_country!
         end
 
         def validate_form_526_change_of_address_beginning_date!
           change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
           return if change_of_address.blank?
-          return if change_of_address['addressChangeType'] == 'TEMPORARY' && 
-                    change_of_address['beginningDate'].present? &&
-                    Date.parse(change_of_address['beginningDate']) > Time.zone.now
+          return unless change_of_address['addressChangeType'] == 'TEMPORARY'
+          return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
 
           raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
         end
@@ -180,6 +180,16 @@ module ClaimsApi
           return if change_of_address['addressChangeType'] == 'PERMANENT' && change_of_address['endingDate'].blank?
 
           raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', change_of_address['endingDate'])
+        end
+
+        def validate_form_526_change_of_address_country!
+          change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+          return if change_of_address.blank?
+
+          countries = EVSS::ReferenceData::Service.new(@current_user).get_countries.countries
+          return if countries.include?(change_of_address['country'])
+
+          raise ::Common::Exceptions::InvalidFieldValue.new('country', change_of_address['country'])
         end
 
         def validate_form_526_title10_activation_date!
