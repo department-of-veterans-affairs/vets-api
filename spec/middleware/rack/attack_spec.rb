@@ -94,6 +94,28 @@ RSpec.describe Rack::Attack do
     end
   end
 
+  describe 'medical_copays/ip' do
+    before do
+      allow_any_instance_of(MedicalCopays::VBS::Service).to receive(:get_copays).and_return([])
+    end
+
+    context 'when more than 20 requests' do
+      before do
+        20.times do
+          get '/v0/medical_copays', headers: headers
+
+          expect(last_response.status).to eq(401)
+        end
+      end
+
+      it 'throttles with status 429' do
+        get '/v0/medical_copays', headers: headers
+
+        expect(last_response.status).to eq(429)
+      end
+    end
+  end
+
   describe 'facility_locator/ip' do
     let(:endpoint) { '/facilities_api/v1/ccp/provider' }
     let(:headers) { { 'X-Real-Ip' => '1.2.3.4' } }
