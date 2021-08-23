@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "06a820c7-7ced-4eee-9d08-63cbbc2c55cb",
+                    "id": "f08a1a28-3d66-4278-90af-9905090ed644",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "c8a0e6a1-49c1-4cae-a765-190a03f91658",
+                          "id": "fd3b9411-2a1b-4005-a537-f4912e2dc832",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-08-16T21:15:33.817Z"
+                          "uploaded_at": "2021-08-18T21:41:28.871Z"
                         }
                       ]
                     }
@@ -1397,28 +1397,25 @@
                                     "example": "Air Force",
                                     "enum": [
                                       "Air Force",
-                                      "Air Force Reserves",
                                       "Air National Guard",
                                       "Army",
                                       "Army National Guard",
-                                      "Army Reserves",
-                                      "Coast Guard",
-                                      "Coast Guard Reserves",
-                                      "Marine Corps",
-                                      "Marine Corps Reserves",
-                                      "National Oceanic &amp; Atmospheric Administration",
-                                      "Navy",
-                                      "Navy Reserves",
-                                      "Public Health Service",
-                                      "Air Force Academy",
-                                      "Army Air Corps or Army Air Force",
                                       "Army Nurse Corps",
-                                      "Coast Guard Academy",
+                                      "Coast Guard",
                                       "Merchant Marine",
-                                      "Naval Academy",
-                                      "Other",
-                                      "US Military Academy",
-                                      "Women's Army Corps"
+                                      "Navy",
+                                      "Public Health Service",
+                                      "Air Force Civilian",
+                                      "Army Air Corps",
+                                      "Commonwealth Army Veteran",
+                                      "Guerrilla Combination Service",
+                                      "Marine",
+                                      "National Oceanic and Atmospheric Administration",
+                                      "Regular Philippine Scout",
+                                      "Regular Scout Service",
+                                      "Special Philippine Scout",
+                                      "Unknown",
+                                      "Woman Air Corps"
                                     ]
                                   },
                                   "activeDutyBeginDate": {
@@ -2063,11 +2060,6 @@
                           "description": "Details about Veteran receiving Service Pay from DoD.",
                           "type": "object",
                           "additionalProperties": false,
-                          "required": [
-                            "waiveVABenefitsToRetainTrainingPay",
-                            "waiveVABenefitsToRetainRetiredPay",
-                            "militaryRetiredPay"
-                          ],
                           "properties": {
                             "waiveVABenefitsToRetainTrainingPay": {
                               "description": "Is Veteran Waiving benefits to retain training pay.",
@@ -2136,13 +2128,97 @@
                                         "Women's Army Corps"
                                       ],
                                       "example": "Air Force"
+                                    },
+                                    "amount": {
+                                      "description": "Amount being received.",
+                                      "type": "number",
+                                      "minimum": 1,
+                                      "maximum": 999999,
+                                      "example": 100
                                     }
                                   }
+                                },
+                                "willReceiveInfuture": {
+                                  "description": "Will military retired pay be received in the future?",
+                                  "type": "boolean",
+                                  "default": false,
+                                  "example": false
+                                },
+                                "futurePayExplanation": {
+                                  "description": "Explains why future pay will be received.",
+                                  "type": "string",
+                                  "example": "Will be retiring soon."
                                 }
                               }
                             },
                             "hasSeparationPay": {
                               "type": "boolean"
+                            },
+                            "separationPay": {
+                              "description": "Details about separation pay.",
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "received"
+                              ],
+                              "properties": {
+                                "received": {
+                                  "description": "Has separation pay been received?",
+                                  "type": "boolean",
+                                  "example": true,
+                                  "default": true
+                                },
+                                "payment": {
+                                  "description": "Separation pay payment details.",
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "properties": {
+                                    "serviceBranch": {
+                                      "description": "Branch of Service making payments.",
+                                      "type": "string",
+                                      "enum": [
+                                        "Air Force",
+                                        "Air Force Reserves",
+                                        "Air National Guard",
+                                        "Army",
+                                        "Army National Guard",
+                                        "Army Reserves",
+                                        "Coast Guard",
+                                        "Coast Guard Reserves",
+                                        "Marine Corps",
+                                        "Marine Corps Reserves",
+                                        "National Oceanic &amp; Atmospheric Administration",
+                                        "Navy",
+                                        "Navy Reserves",
+                                        "Public Health Service",
+                                        "Air Force Academy",
+                                        "Army Air Corps or Army Air Force",
+                                        "Army Nurse Corps",
+                                        "Coast Guard Academy",
+                                        "Merchant Marine",
+                                        "Naval Academy",
+                                        "Other",
+                                        "US Military Academy",
+                                        "Women's Army Corps"
+                                      ],
+                                      "example": "Air Force"
+                                    },
+                                    "amount": {
+                                      "description": "Amount being received.",
+                                      "type": "number",
+                                      "minimum": 1,
+                                      "maximum": 999999,
+                                      "example": 100
+                                    }
+                                  }
+                                },
+                                "receivedDate": {
+                                  "description": "Approximate date separation pay was received.",
+                                  "type": "string",
+                                  "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$",
+                                  "example": "2018-03-02"
+                                }
+                              }
                             }
                           }
                         },
@@ -2292,7 +2368,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d2508fcd-fd1e-49a8-a98d-04b1b540ccd3",
+                    "id": "e3485ba4-39af-410e-9fb8-0335156ad749",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2310,13 +2386,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-16T21:15:34.331Z",
+                      "updated_at": "2021-08-18T21:41:29.378Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "d2508fcd-fd1e-49a8-a98d-04b1b540ccd3",
+                      "token": "e3485ba4-39af-410e-9fb8-0335156ad749",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -3114,28 +3190,25 @@
                                       "example": "Air Force",
                                       "enum": [
                                         "Air Force",
-                                        "Air Force Reserves",
                                         "Air National Guard",
                                         "Army",
                                         "Army National Guard",
-                                        "Army Reserves",
-                                        "Coast Guard",
-                                        "Coast Guard Reserves",
-                                        "Marine Corps",
-                                        "Marine Corps Reserves",
-                                        "National Oceanic &amp; Atmospheric Administration",
-                                        "Navy",
-                                        "Navy Reserves",
-                                        "Public Health Service",
-                                        "Air Force Academy",
-                                        "Army Air Corps or Army Air Force",
                                         "Army Nurse Corps",
-                                        "Coast Guard Academy",
+                                        "Coast Guard",
                                         "Merchant Marine",
-                                        "Naval Academy",
-                                        "Other",
-                                        "US Military Academy",
-                                        "Women's Army Corps"
+                                        "Navy",
+                                        "Public Health Service",
+                                        "Air Force Civilian",
+                                        "Army Air Corps",
+                                        "Commonwealth Army Veteran",
+                                        "Guerrilla Combination Service",
+                                        "Marine",
+                                        "National Oceanic and Atmospheric Administration",
+                                        "Regular Philippine Scout",
+                                        "Regular Scout Service",
+                                        "Special Philippine Scout",
+                                        "Unknown",
+                                        "Woman Air Corps"
                                       ]
                                     },
                                     "activeDutyBeginDate": {
@@ -3780,11 +3853,6 @@
                             "description": "Details about Veteran receiving Service Pay from DoD.",
                             "type": "object",
                             "additionalProperties": false,
-                            "required": [
-                              "waiveVABenefitsToRetainTrainingPay",
-                              "waiveVABenefitsToRetainRetiredPay",
-                              "militaryRetiredPay"
-                            ],
                             "properties": {
                               "waiveVABenefitsToRetainTrainingPay": {
                                 "description": "Is Veteran Waiving benefits to retain training pay.",
@@ -3853,13 +3921,97 @@
                                           "Women's Army Corps"
                                         ],
                                         "example": "Air Force"
+                                      },
+                                      "amount": {
+                                        "description": "Amount being received.",
+                                        "type": "number",
+                                        "minimum": 1,
+                                        "maximum": 999999,
+                                        "example": 100
                                       }
                                     }
+                                  },
+                                  "willReceiveInfuture": {
+                                    "description": "Will military retired pay be received in the future?",
+                                    "type": "boolean",
+                                    "default": false,
+                                    "example": false
+                                  },
+                                  "futurePayExplanation": {
+                                    "description": "Explains why future pay will be received.",
+                                    "type": "string",
+                                    "example": "Will be retiring soon."
                                   }
                                 }
                               },
                               "hasSeparationPay": {
                                 "type": "boolean"
+                              },
+                              "separationPay": {
+                                "description": "Details about separation pay.",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "received"
+                                ],
+                                "properties": {
+                                  "received": {
+                                    "description": "Has separation pay been received?",
+                                    "type": "boolean",
+                                    "example": true,
+                                    "default": true
+                                  },
+                                  "payment": {
+                                    "description": "Separation pay payment details.",
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "serviceBranch": {
+                                        "description": "Branch of Service making payments.",
+                                        "type": "string",
+                                        "enum": [
+                                          "Air Force",
+                                          "Air Force Reserves",
+                                          "Air National Guard",
+                                          "Army",
+                                          "Army National Guard",
+                                          "Army Reserves",
+                                          "Coast Guard",
+                                          "Coast Guard Reserves",
+                                          "Marine Corps",
+                                          "Marine Corps Reserves",
+                                          "National Oceanic &amp; Atmospheric Administration",
+                                          "Navy",
+                                          "Navy Reserves",
+                                          "Public Health Service",
+                                          "Air Force Academy",
+                                          "Army Air Corps or Army Air Force",
+                                          "Army Nurse Corps",
+                                          "Coast Guard Academy",
+                                          "Merchant Marine",
+                                          "Naval Academy",
+                                          "Other",
+                                          "US Military Academy",
+                                          "Women's Army Corps"
+                                        ],
+                                        "example": "Air Force"
+                                      },
+                                      "amount": {
+                                        "description": "Amount being received.",
+                                        "type": "number",
+                                        "minimum": 1,
+                                        "maximum": 999999,
+                                        "example": 100
+                                      }
+                                    }
+                                  },
+                                  "receivedDate": {
+                                    "description": "Approximate date separation pay was received.",
+                                    "type": "string",
+                                    "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$",
+                                    "example": "2018-03-02"
+                                  }
+                                }
                               }
                             }
                           },
@@ -4022,7 +4174,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "477f8b7b-3e80-4521-bda6-a9c967f768aa",
+                    "id": "0ad8e22c-a76f-402b-9078-cc8b51727969",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4040,13 +4192,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-16T21:15:34.682Z",
+                      "updated_at": "2021-08-18T21:41:29.707Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "477f8b7b-3e80-4521-bda6-a9c967f768aa",
+                      "token": "0ad8e22c-a76f-402b-9078-cc8b51727969",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5245,28 +5397,25 @@
                                       "example": "Air Force",
                                       "enum": [
                                         "Air Force",
-                                        "Air Force Reserves",
                                         "Air National Guard",
                                         "Army",
                                         "Army National Guard",
-                                        "Army Reserves",
-                                        "Coast Guard",
-                                        "Coast Guard Reserves",
-                                        "Marine Corps",
-                                        "Marine Corps Reserves",
-                                        "National Oceanic &amp; Atmospheric Administration",
-                                        "Navy",
-                                        "Navy Reserves",
-                                        "Public Health Service",
-                                        "Air Force Academy",
-                                        "Army Air Corps or Army Air Force",
                                         "Army Nurse Corps",
-                                        "Coast Guard Academy",
+                                        "Coast Guard",
                                         "Merchant Marine",
-                                        "Naval Academy",
-                                        "Other",
-                                        "US Military Academy",
-                                        "Women's Army Corps"
+                                        "Navy",
+                                        "Public Health Service",
+                                        "Air Force Civilian",
+                                        "Army Air Corps",
+                                        "Commonwealth Army Veteran",
+                                        "Guerrilla Combination Service",
+                                        "Marine",
+                                        "National Oceanic and Atmospheric Administration",
+                                        "Regular Philippine Scout",
+                                        "Regular Scout Service",
+                                        "Special Philippine Scout",
+                                        "Unknown",
+                                        "Woman Air Corps"
                                       ]
                                     },
                                     "activeDutyBeginDate": {
@@ -5911,11 +6060,6 @@
                             "description": "Details about Veteran receiving Service Pay from DoD.",
                             "type": "object",
                             "additionalProperties": false,
-                            "required": [
-                              "waiveVABenefitsToRetainTrainingPay",
-                              "waiveVABenefitsToRetainRetiredPay",
-                              "militaryRetiredPay"
-                            ],
                             "properties": {
                               "waiveVABenefitsToRetainTrainingPay": {
                                 "description": "Is Veteran Waiving benefits to retain training pay.",
@@ -5984,13 +6128,97 @@
                                           "Women's Army Corps"
                                         ],
                                         "example": "Air Force"
+                                      },
+                                      "amount": {
+                                        "description": "Amount being received.",
+                                        "type": "number",
+                                        "minimum": 1,
+                                        "maximum": 999999,
+                                        "example": 100
                                       }
                                     }
+                                  },
+                                  "willReceiveInfuture": {
+                                    "description": "Will military retired pay be received in the future?",
+                                    "type": "boolean",
+                                    "default": false,
+                                    "example": false
+                                  },
+                                  "futurePayExplanation": {
+                                    "description": "Explains why future pay will be received.",
+                                    "type": "string",
+                                    "example": "Will be retiring soon."
                                   }
                                 }
                               },
                               "hasSeparationPay": {
                                 "type": "boolean"
+                              },
+                              "separationPay": {
+                                "description": "Details about separation pay.",
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": [
+                                  "received"
+                                ],
+                                "properties": {
+                                  "received": {
+                                    "description": "Has separation pay been received?",
+                                    "type": "boolean",
+                                    "example": true,
+                                    "default": true
+                                  },
+                                  "payment": {
+                                    "description": "Separation pay payment details.",
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "serviceBranch": {
+                                        "description": "Branch of Service making payments.",
+                                        "type": "string",
+                                        "enum": [
+                                          "Air Force",
+                                          "Air Force Reserves",
+                                          "Air National Guard",
+                                          "Army",
+                                          "Army National Guard",
+                                          "Army Reserves",
+                                          "Coast Guard",
+                                          "Coast Guard Reserves",
+                                          "Marine Corps",
+                                          "Marine Corps Reserves",
+                                          "National Oceanic &amp; Atmospheric Administration",
+                                          "Navy",
+                                          "Navy Reserves",
+                                          "Public Health Service",
+                                          "Air Force Academy",
+                                          "Army Air Corps or Army Air Force",
+                                          "Army Nurse Corps",
+                                          "Coast Guard Academy",
+                                          "Merchant Marine",
+                                          "Naval Academy",
+                                          "Other",
+                                          "US Military Academy",
+                                          "Women's Army Corps"
+                                        ],
+                                        "example": "Air Force"
+                                      },
+                                      "amount": {
+                                        "description": "Amount being received.",
+                                        "type": "number",
+                                        "minimum": 1,
+                                        "maximum": 999999,
+                                        "example": 100
+                                      }
+                                    }
+                                  },
+                                  "receivedDate": {
+                                    "description": "Approximate date separation pay was received.",
+                                    "type": "string",
+                                    "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$",
+                                    "example": "2018-03-02"
+                                  }
+                                }
                               }
                             }
                           },
@@ -6153,7 +6381,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0b5e253d-14e5-4455-849b-fa9e8405db09",
+                    "id": "03d43f02-3bb3-4168-9536-e452b53e27f6",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6167,7 +6395,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-16T21:15:35.423Z",
+                      "updated_at": "2021-08-18T21:41:30.498Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6176,7 +6404,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "933b3e6a-2c8c-4b87-9554-bb6fb2a247c8",
+                          "id": "06ef35f1-cb27-4e0a-bf46-a2e88792b311",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8133,11 +8361,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "24674f79-f7bb-45b0-b74d-d0aca7645286",
+                    "id": "66a84033-91aa-4c94-9997-bbd263b44d0d",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-08-16",
+                      "date_request_accepted": "2021-08-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -8846,11 +9074,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e60c8cdd-26b8-4305-8097-fa896f29b9f4",
+                    "id": "4cba24cc-077e-48c5-86cc-bca46209f7fb",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-16",
+                      "date_request_accepted": "2021-08-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9171,11 +9399,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ab49d4b3-9c31-485b-9781-5855510453fa",
+                    "id": "d1b23f6e-9a3c-4b2a-a827-c5dc66f0b11a",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-16",
+                      "date_request_accepted": "2021-08-18",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
