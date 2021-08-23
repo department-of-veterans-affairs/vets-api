@@ -13,7 +13,7 @@ RSpec.describe MedicalCopays::Request do
 
   describe 'settings' do
     it 'has a host' do
-      expect(subject.host).to eq(nil)
+      expect(subject.host).to eq('fake_url.com')
     end
 
     it 'has service_name' do
@@ -39,7 +39,7 @@ RSpec.describe MedicalCopays::Request do
 
   describe '#headers' do
     it 'has request headers' do
-      expect(subject.headers).to eq({ 'Host' => nil, 'Content-Type' => 'application/json' })
+      expect(subject.headers).to eq({ 'Host' => 'fake_url.com', 'Content-Type' => 'application/json' })
     end
   end
 

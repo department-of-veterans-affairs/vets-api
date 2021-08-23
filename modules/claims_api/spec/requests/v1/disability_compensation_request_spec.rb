@@ -762,9 +762,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             'payment': {
               'serviceBranch': 'Air Force'
             }
-          },
-          'waiveVABenefitsToRetainTrainingPay': false,
-          'waiveVABenefitsToRetainRetiredPay': false
+          }
         }
       end
 
@@ -863,85 +861,85 @@ RSpec.describe 'Disability Claims ', type: :request do
           end
         end
       end
+    end
 
-      describe "'disabilities.ratedDisabilityId' validations" do
-        context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
-          context "and 'disabilities.ratedDisabilityId' is not provided" do
-            before do
-              stub_mpi
-            end
-
-            it 'responds with an unprocessible entity' do
-              with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    disabilities = [
-                      {
-                        disabilityActionType: 'INCREASE',
-                        name: 'PTSD (post traumatic stress disorder)'
-                      }
-                    ]
-                    params['data']['attributes']['disabilities'] = disabilities
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(422)
-                  end
-                end
-              end
-            end
+    describe "'disabilities.ratedDisabilityId' validations" do
+      context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
+        context "and 'disabilities.ratedDisabilityId' is not provided" do
+          before do
+            stub_mpi
           end
 
-          context "and 'disabilities.ratedDisabilityId' is provided" do
-            before do
-              stub_mpi
-            end
-
-            it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    disabilities = [
-                      {
-                        ratedDisabilityId: '1100583',
-                        disabilityActionType: 'INCREASE',
-                        name: 'PTSD (post traumatic stress disorder)'
-                      }
-                    ]
-                    params['data']['attributes']['disabilities'] = disabilities
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
-                  end
+          it 'responds with an unprocessible entity' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
+                    {
+                      disabilityActionType: 'INCREASE',
+                      name: 'PTSD (post traumatic stress disorder)'
+                    }
+                  ]
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(422)
                 end
               end
             end
           end
         end
 
-        context "when 'disabilites.disabilityActionType' equals value other than 'INCREASE'" do
-          context "and 'disabilities.ratedDisabilityId' is not provided" do
-            before do
-              stub_mpi
-            end
+        context "and 'disabilities.ratedDisabilityId' is provided" do
+          before do
+            stub_mpi
+          end
 
-            it 'responds with a 200' do
-              with_okta_user(scopes) do |auth_header|
-                VCR.use_cassette('evss/claims/claims') do
-                  VCR.use_cassette('evss/reference_data/get_intake_sites') do
-                    json_data = JSON.parse data
-                    params = json_data
-                    disabilities = [
-                      {
-                        disabilityActionType: 'NONE',
-                        name: 'PTSD (post traumatic stress disorder)'
-                      }
-                    ]
-                    params['data']['attributes']['disabilities'] = disabilities
-                    post path, params: params.to_json, headers: headers.merge(auth_header)
-                    expect(response.status).to eq(200)
-                  end
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
+                    {
+                      ratedDisabilityId: '1100583',
+                      disabilityActionType: 'INCREASE',
+                      name: 'PTSD (post traumatic stress disorder)'
+                    }
+                  ]
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      context "when 'disabilites.disabilityActionType' equals value other than 'INCREASE'" do
+        context "and 'disabilities.ratedDisabilityId' is not provided" do
+          before do
+            stub_mpi
+          end
+
+          it 'responds with a 200' do
+            with_okta_user(scopes) do |auth_header|
+              VCR.use_cassette('evss/claims/claims') do
+                VCR.use_cassette('evss/reference_data/get_intake_sites') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
+                    {
+                      disabilityActionType: 'NONE',
+                      name: 'PTSD (post traumatic stress disorder)'
+                    }
+                  ]
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response.status).to eq(200)
                 end
               end
             end

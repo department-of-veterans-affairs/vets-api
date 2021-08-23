@@ -498,6 +498,20 @@ RSpec.describe User, type: :model do
         end
       end
 
+      describe '#vha_facility_hash' do
+        let(:user) { build(:user, :loa3) }
+        let(:vha_facility_hash) { { '400' => %w[123456789 999888777] } }
+        let(:mvi_profile) { build(:mvi_profile, vha_facility_hash: vha_facility_hash) }
+
+        before do
+          stub_mpi(mvi_profile)
+        end
+
+        it 'returns the users vha_facility_hash' do
+          expect(user.vha_facility_hash).to eq(vha_facility_hash)
+        end
+      end
+
       describe 'set_mhv_ids do' do
         let(:mvi_profile) { build(:mvi_profile) }
         let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
