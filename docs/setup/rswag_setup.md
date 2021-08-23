@@ -169,9 +169,12 @@ describe 'Higher-Level Reviews', swagger_doc: 'modules/appeals_api/app/swagger/a
           },
           required: ['data']
           # schemas can be defined several ways:
-          #   inline (as shown above)
-          #   referenced from the Rswag config - schema '$ref' => '#/components/schemas/errors_object'
-          #   or loaded from plain json files - schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
+          #   inline (as shown above):
+          #       schema type: :object, ...
+          #   referenced from the Rswag config:
+          #       schema '$ref' => '#/components/schemas/errors_object'
+          #   or loaded from plain json files:
+          #       schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
 
         hlr = FactoryBot.create(:minimal_higher_level_review_v2)
         let(:uuid) { hlr.id }
