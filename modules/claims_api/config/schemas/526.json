@@ -171,9 +171,15 @@
           "description": "A Change of Address Object being submitted.",
           "type": "object",
           "additionalProperties": false,
+          "required": ["country", "type", "addressLine1", "addressChangeType", "beginningDate"],
           "properties": {
             "beginningDate": {
               "description": "Date in YYYY-MM-DD the Veteran changed address.",
+              "type": "string",
+              "example": "2018-06-04"
+            },
+            "endingDate": {
+              "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
               "type": "string",
               "example": "2018-06-04"
             },
@@ -246,6 +252,20 @@
             {
               "if": {
                 "properties": {
+                  "addressChangeType": {
+                    "const": "TEMPORARY"
+                  }
+                }
+              },
+              "then": {
+                "required": [
+                  "endingDate"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
                   "type": {
                     "const": "INTERNATIONAL"
                   }
@@ -253,12 +273,7 @@
               },
               "then": {
                 "required": [
-                  "beginningDate",
-                  "addressChangeType",
-                  "addressLine1",
                   "city",
-                  "country",
-                  "type",
                   "internationalPostalCode"
                 ]
               }
@@ -273,13 +288,8 @@
               },
               "then": {
                 "required": [
-                  "beginningDate",
-                  "addressChangeType",
-                  "addressLine1",
                   "city",
-                  "country",
                   "zipFirstFive",
-                  "type",
                   "state"
                 ]
               }
@@ -294,14 +304,9 @@
               },
               "then": {
                 "required": [
-                  "beginningDate",
-                  "addressChangeType",
-                  "addressLine1",
-                  "country",
                   "zipFirstFive",
                   "militaryStateCode",
-                  "militaryPostOfficeTypeCode",
-                  "type"
+                  "militaryPostOfficeTypeCode"
                 ]
               }
             }
