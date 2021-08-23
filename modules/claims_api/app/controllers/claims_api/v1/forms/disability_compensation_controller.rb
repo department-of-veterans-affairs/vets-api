@@ -165,6 +165,7 @@ module ClaimsApi
 
         def validate_form_526_change_of_address_beginning_date!
           change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+          return if change_of_address.blank?
           return if change_of_address['addressChangeType'] == 'TEMPORARY' && 
                     change_of_address['beginningDate'].present? &&
                     Date.parse(change_of_address['beginningDate']) > Time.zone.now
@@ -174,6 +175,7 @@ module ClaimsApi
 
         def validate_form_526_change_of_address_ending_date!
           change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+          return if change_of_address.blank?
           return if change_of_address['addressChangeType'] == 'TEMPORARY' && change_of_address['endingDate'].present?
           return if change_of_address['addressChangeType'] == 'PERMANENT' && change_of_address['endingDate'].blank?
 

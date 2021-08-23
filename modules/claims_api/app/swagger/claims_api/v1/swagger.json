@@ -496,7 +496,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f08a1a28-3d66-4278-90af-9905090ed644",
+                    "id": "3c60839d-c8a8-4d7b-8d6f-54081b6ec948",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": 600118851,
@@ -545,11 +545,11 @@
                       "status": "Initial review",
                       "supporting_documents": [
                         {
-                          "id": "fd3b9411-2a1b-4005-a537-f4912e2dc832",
+                          "id": "c7a570f7-896b-4442-af00-7fd18c18d4a9",
                           "type": "claim_supporting_document",
                           "md5": "d927c7e283b3158a54822a493d06181d",
                           "filename": "extras.pdf",
-                          "uploaded_at": "2021-08-18T21:41:28.871Z"
+                          "uploaded_at": "2021-08-23T14:12:40.538Z"
                         }
                       ]
                     }
@@ -1120,9 +1120,21 @@
                               "description": "A Change of Address Object being submitted.",
                               "type": "object",
                               "additionalProperties": false,
+                              "required": [
+                                "country",
+                                "type",
+                                "addressLine1",
+                                "addressChangeType",
+                                "beginningDate"
+                              ],
                               "properties": {
                                 "beginningDate": {
                                   "description": "Date in YYYY-MM-DD the Veteran changed address.",
+                                  "type": "string",
+                                  "example": "2018-06-04"
+                                },
+                                "endingDate": {
+                                  "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                   "type": "string",
                                   "example": "2018-06-04"
                                 },
@@ -1199,6 +1211,20 @@
                                 {
                                   "if": {
                                     "properties": {
+                                      "addressChangeType": {
+                                        "const": "TEMPORARY"
+                                      }
+                                    }
+                                  },
+                                  "then": {
+                                    "required": [
+                                      "endingDate"
+                                    ]
+                                  }
+                                },
+                                {
+                                  "if": {
+                                    "properties": {
                                       "type": {
                                         "const": "INTERNATIONAL"
                                       }
@@ -1206,12 +1232,7 @@
                                   },
                                   "then": {
                                     "required": [
-                                      "beginningDate",
-                                      "addressChangeType",
-                                      "addressLine1",
                                       "city",
-                                      "country",
-                                      "type",
                                       "internationalPostalCode"
                                     ]
                                   }
@@ -1226,13 +1247,8 @@
                                   },
                                   "then": {
                                     "required": [
-                                      "beginningDate",
-                                      "addressChangeType",
-                                      "addressLine1",
                                       "city",
-                                      "country",
                                       "zipFirstFive",
-                                      "type",
                                       "state"
                                     ]
                                   }
@@ -1247,14 +1263,9 @@
                                   },
                                   "then": {
                                     "required": [
-                                      "beginningDate",
-                                      "addressChangeType",
-                                      "addressLine1",
-                                      "country",
                                       "zipFirstFive",
                                       "militaryStateCode",
-                                      "militaryPostOfficeTypeCode",
-                                      "type"
+                                      "militaryPostOfficeTypeCode"
                                     ]
                                   }
                                 }
@@ -2368,7 +2379,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e3485ba4-39af-410e-9fb8-0335156ad749",
+                    "id": "4305bb80-f62d-4005-8fab-1774fd68b66e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -2386,13 +2397,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-18T21:41:29.378Z",
+                      "updated_at": "2021-08-23T14:12:40.857Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "e3485ba4-39af-410e-9fb8-0335156ad749",
+                      "token": "4305bb80-f62d-4005-8fab-1774fd68b66e",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -2913,9 +2924,21 @@
                                 "description": "A Change of Address Object being submitted.",
                                 "type": "object",
                                 "additionalProperties": false,
+                                "required": [
+                                  "country",
+                                  "type",
+                                  "addressLine1",
+                                  "addressChangeType",
+                                  "beginningDate"
+                                ],
                                 "properties": {
                                   "beginningDate": {
                                     "description": "Date in YYYY-MM-DD the Veteran changed address.",
+                                    "type": "string",
+                                    "example": "2018-06-04"
+                                  },
+                                  "endingDate": {
+                                    "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                     "type": "string",
                                     "example": "2018-06-04"
                                   },
@@ -2992,6 +3015,20 @@
                                   {
                                     "if": {
                                       "properties": {
+                                        "addressChangeType": {
+                                          "const": "TEMPORARY"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "endingDate"
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "if": {
+                                      "properties": {
                                         "type": {
                                           "const": "INTERNATIONAL"
                                         }
@@ -2999,12 +3036,7 @@
                                     },
                                     "then": {
                                       "required": [
-                                        "beginningDate",
-                                        "addressChangeType",
-                                        "addressLine1",
                                         "city",
-                                        "country",
-                                        "type",
                                         "internationalPostalCode"
                                       ]
                                     }
@@ -3019,13 +3051,8 @@
                                     },
                                     "then": {
                                       "required": [
-                                        "beginningDate",
-                                        "addressChangeType",
-                                        "addressLine1",
                                         "city",
-                                        "country",
                                         "zipFirstFive",
-                                        "type",
                                         "state"
                                       ]
                                     }
@@ -3040,14 +3067,9 @@
                                     },
                                     "then": {
                                       "required": [
-                                        "beginningDate",
-                                        "addressChangeType",
-                                        "addressLine1",
-                                        "country",
                                         "zipFirstFive",
                                         "militaryStateCode",
-                                        "militaryPostOfficeTypeCode",
-                                        "type"
+                                        "militaryPostOfficeTypeCode"
                                       ]
                                     }
                                   }
@@ -4174,7 +4196,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0ad8e22c-a76f-402b-9078-cc8b51727969",
+                    "id": "e1e8cf6d-cbe0-40ce-b239-53e1f288f342",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -4192,13 +4214,13 @@
                       "current_phase_back": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-18T21:41:29.707Z",
+                      "updated_at": "2021-08-23T14:12:41.152Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
 
                       ],
-                      "token": "0ad8e22c-a76f-402b-9078-cc8b51727969",
+                      "token": "e1e8cf6d-cbe0-40ce-b239-53e1f288f342",
                       "status": "pending",
                       "flashes": [
                         "Hardship",
@@ -5120,9 +5142,21 @@
                                 "description": "A Change of Address Object being submitted.",
                                 "type": "object",
                                 "additionalProperties": false,
+                                "required": [
+                                  "country",
+                                  "type",
+                                  "addressLine1",
+                                  "addressChangeType",
+                                  "beginningDate"
+                                ],
                                 "properties": {
                                   "beginningDate": {
                                     "description": "Date in YYYY-MM-DD the Veteran changed address.",
+                                    "type": "string",
+                                    "example": "2018-06-04"
+                                  },
+                                  "endingDate": {
+                                    "description": "Date in YYYY-MM-DD the changed address expires, if change is temporary.",
                                     "type": "string",
                                     "example": "2018-06-04"
                                   },
@@ -5199,6 +5233,20 @@
                                   {
                                     "if": {
                                       "properties": {
+                                        "addressChangeType": {
+                                          "const": "TEMPORARY"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "endingDate"
+                                      ]
+                                    }
+                                  },
+                                  {
+                                    "if": {
+                                      "properties": {
                                         "type": {
                                           "const": "INTERNATIONAL"
                                         }
@@ -5206,12 +5254,7 @@
                                     },
                                     "then": {
                                       "required": [
-                                        "beginningDate",
-                                        "addressChangeType",
-                                        "addressLine1",
                                         "city",
-                                        "country",
-                                        "type",
                                         "internationalPostalCode"
                                       ]
                                     }
@@ -5226,13 +5269,8 @@
                                     },
                                     "then": {
                                       "required": [
-                                        "beginningDate",
-                                        "addressChangeType",
-                                        "addressLine1",
                                         "city",
-                                        "country",
                                         "zipFirstFive",
-                                        "type",
                                         "state"
                                       ]
                                     }
@@ -5247,14 +5285,9 @@
                                     },
                                     "then": {
                                       "required": [
-                                        "beginningDate",
-                                        "addressChangeType",
-                                        "addressLine1",
-                                        "country",
                                         "zipFirstFive",
                                         "militaryStateCode",
-                                        "militaryPostOfficeTypeCode",
-                                        "type"
+                                        "militaryPostOfficeTypeCode"
                                       ]
                                     }
                                   }
@@ -6381,7 +6414,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "03d43f02-3bb3-4168-9536-e452b53e27f6",
+                    "id": "bb6f4259-5348-465c-9240-cae6a88a105e",
                     "type": "claims_api_claim",
                     "attributes": {
                       "evss_id": null,
@@ -6395,7 +6428,7 @@
                       "decision_letter_sent": null,
                       "requested_decision": null,
                       "claim_type": null,
-                      "updated_at": "2021-08-18T21:41:30.498Z",
+                      "updated_at": "2021-08-23T14:12:41.790Z",
                       "contention_list": null,
                       "va_representative": null,
                       "events_timeline": [
@@ -6404,7 +6437,7 @@
                       "status": "pending",
                       "supporting_documents": [
                         {
-                          "id": "06ef35f1-cb27-4e0a-bf46-a2e88792b311",
+                          "id": "c67dc297-3225-4e8d-a8c2-b5beffdcb995",
                           "type": "claim_supporting_document",
                           "md5": null,
                           "filename": null,
@@ -8361,11 +8394,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "66a84033-91aa-4c94-9997-bbd263b44d0d",
+                    "id": "7ab88a3e-4731-45d5-9362-5a4018e0d5a5",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "pending",
-                      "date_request_accepted": "2021-08-18",
+                      "date_request_accepted": "2021-08-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9074,11 +9107,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4cba24cc-077e-48c5-86cc-bca46209f7fb",
+                    "id": "001810da-8737-4973-a4a7-5b4e239631e0",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-18",
+                      "date_request_accepted": "2021-08-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
@@ -9399,11 +9432,11 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d1b23f6e-9a3c-4b2a-a827-c5dc66f0b11a",
+                    "id": "37d03f0a-9190-4ffa-89bf-809d8ef9e0a3",
                     "type": "claims_api_power_of_attorneys",
                     "attributes": {
                       "status": "submitted",
-                      "date_request_accepted": "2021-08-18",
+                      "date_request_accepted": "2021-08-23",
                       "representative": {
                         "service_organization": {
                           "poa_code": "074"
