@@ -12,6 +12,7 @@ module ClaimsApi
       dan.hinze@adhocteam.us
       ryan.link@oddball.io
       christopher.stone@libertyits.com
+      jeff.wallace@oddball.io
     ].freeze
 
     def build(date_from, date_to, data)
