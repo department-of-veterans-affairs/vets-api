@@ -113,6 +113,14 @@ properties:
         description: Booking status of the appointment. Note that 'HIDDEN' means that the status should be hidden, the appointment should still be visible.
         enum: [ BOOKED, CANCELLED, HIDDEN ]
         example: BOOKED
+      statusDetail:
+        type: string
+        description: For a cancelled appointment return details about who or why it was cancelled.
+        enum: [ CANCELLED BY CLINIC & AUTO RE-BOOK,
+                CANCELLED BY CLINIC,
+                CANCELLED BY PATIENT & AUTO-REBOOK,
+                CANCELLED BY PATIENT ]
+        example: BOOKED
       timeZone:
         type: string
         example: "America/Los_Angeles"

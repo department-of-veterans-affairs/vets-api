@@ -95,7 +95,7 @@ module Mobile
           start_date_utc = start_date_utc(appointment_hash)
           time_zone = time_zone(facility_id)
           start_date_local = start_date_utc.in_time_zone(time_zone)
-          status = status(details, type, start_date_utc)
+          status, status_detail = status(details, type, start_date_utc)
 
           cancel_id = if booked_va_appointment?(status, type)
                         Mobile::V0::Appointment.encode_cancel_id(
@@ -119,6 +119,7 @@ module Mobile
             start_date_local: start_date_local,
             start_date_utc: start_date_utc,
             status: status,
+            status_detail: status_detail,
             time_zone: time_zone,
             vetext_id: vetext_id(appointment_hash, start_date_local)
           }
@@ -142,10 +143,10 @@ module Mobile
 
         def status(details, type, start_date)
           status = va?(type) ? details[:current_status] : details.dig(:status, :code)
-          return STATUSES[:hidden] if should_hide_status?(start_date.past?, status)
-          return STATUSES[:cancelled] if CANCELLED_STATUS.include?(status)
+          return [STATUSES[:hidden], nil] if should_hide_status?(start_date.past?, status)
+          return [STATUSES[:cancelled], status] if CANCELLED_STATUS.include?(status)
 
-          STATUSES[:booked]
+          [STATUSES[:booked], nil]
         end
 
         def start_date_utc(appointment_hash)

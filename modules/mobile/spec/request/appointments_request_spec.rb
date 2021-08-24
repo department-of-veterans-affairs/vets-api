@@ -261,6 +261,7 @@ RSpec.describe 'appointments', type: :request do
 
         let(:first_appointment) { response.parsed_body['data'].first['attributes'] }
         let(:last_appointment) { response.parsed_body['data'].last['attributes'] }
+        let(:cancelled_appointment) { response.parsed_body['data'][6]['attributes'] }
 
         it 'returns an ok response' do
           expect(response).to have_http_status(:ok)
@@ -272,6 +273,10 @@ RSpec.describe 'appointments', type: :request do
 
         it 'sorts the appointments by startDateUtc ascending' do
           expect(first_appointment['startDateUtc']).to be < last_appointment['startDateUtc']
+        end
+
+        it 'includes a status detail for cancelled appointments' do
+          expect(cancelled_appointment['statusDetail']).to eq('CANCELLED BY PATIENT')
         end
 
         it 'includes the expected properties for a VA appointment' do
@@ -306,6 +311,7 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
                 'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
                 'status' => 'BOOKED',
+                'statusDetail' => nil,
                 'timeZone' => 'America/Denver',
                 'vetextId' => '308;20201103.090000'
               }
@@ -349,6 +355,7 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-25T19:30:00.000-05:00',
                 'startDateUtc' => '2020-11-26T00:30:00.000Z',
                 'status' => 'BOOKED',
+                'statusDetail' => nil,
                 'timeZone' => 'America/New_York',
                 'vetextId' => nil
               }
@@ -417,6 +424,7 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-03T09:00:00.000-07:00',
                 'startDateUtc' => '2020-11-03T16:00:00.000+00:00',
                 'status' => 'BOOKED',
+                'statusDetail' => nil,
                 'timeZone' => 'America/Denver',
                 'vetextId' => '308;20201103.090000'
               }
@@ -460,6 +468,7 @@ RSpec.describe 'appointments', type: :request do
                 'startDateLocal' => '2020-11-25T19:30:00.000-05:00',
                 'startDateUtc' => '2020-11-26T00:30:00.000Z',
                 'status' => 'BOOKED',
+                'statusDetail' => nil,
                 'timeZone' => 'America/New_York',
                 'vetextId' => nil
               }

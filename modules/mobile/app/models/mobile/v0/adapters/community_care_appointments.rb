@@ -55,6 +55,7 @@ module Mobile
             start_date_local: start_date_local,
             start_date_utc: start_date_utc,
             status: BOOKED_STATUS,
+            status_detail: nil, # not currently used by community care appointments
             time_zone: time_zone,
             vetext_id: nil
           }
