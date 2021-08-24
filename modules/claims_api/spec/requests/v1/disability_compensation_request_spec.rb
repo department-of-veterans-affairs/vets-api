@@ -259,7 +259,7 @@ RSpec.describe 'Disability Claims ', type: :request do
             }
           end
 
-          it 'raises an exception that endingDate is provided but should not be' do
+          it 'raises an exception that country is invalid' do
             with_okta_user(scopes) do |auth_header|
               VCR.use_cassette('evss/claims/claims') do
                 VCR.use_cassette('evss/reference_data/get_intake_sites') do
