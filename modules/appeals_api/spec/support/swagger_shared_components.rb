@@ -143,6 +143,45 @@ class AppealsApi::SwaggerSharedComponents
           }
         },
         required: ['data']
+      },
+      nod_response_schema: {
+        type: :object,
+        properties: {
+          data: {
+            properties: {
+              id: {
+                type: :string,
+                pattern: '^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$'
+              },
+              type: {
+                type: :string,
+                enum: ['noticeOfDisagreement']
+              },
+              attributes: {
+                properties: {
+                  status: {
+                    type: :string,
+                    example: AppealsApi::NodStatus::STATUSES.first,
+                    enum: AppealsApi::NodStatus::STATUSES
+                  },
+                  updatedAt: {
+                    type: :string,
+                    pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z'
+                  },
+                  createdAt: {
+                    type: :string,
+                    pattern: '\d{4}(-\d{2}){2}T\d{2}(:\d{2}){2}\.\d{3}Z'
+                  },
+                  formData: {
+                    '$ref' => '#/components/schemas/nodCreateRoot'
+                  }
+                }
+              }
+            },
+            required: %w[id type attributes]
+          }
+        },
+        required: ['data']
       }
     }
   end
