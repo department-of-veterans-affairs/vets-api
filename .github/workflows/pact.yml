@@ -29,6 +29,9 @@ jobs:
 
       redis:
         image: circleci/redis:5.0-alpine
+        credentials:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
     steps:
       - uses: actions/checkout@v2
