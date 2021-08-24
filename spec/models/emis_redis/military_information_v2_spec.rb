@@ -76,7 +76,7 @@ describe EMISRedis::MilitaryInformationV2, skip_emis: true do
     it 'gets the service period' do
       VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
         expect(subject.service_periods).to eq(
-          [{ service_branch: 'Army National Guard', date_range: { from: '2002-02-02', to: '2008-12-01' } }]
+          [{ service_branch: 'Army', date_range: { from: '2002-02-02', to: '2008-12-01' } }]
         )
       end
     end
@@ -84,8 +84,8 @@ describe EMISRedis::MilitaryInformationV2, skip_emis: true do
     it 'gets the all service periods' do
       VCR.use_cassette('emis/get_military_service_episodes_v2/valid_multiple_episodes') do
         expect(subject.service_periods).to eq(
-          [{ service_branch: 'Army National Guard', date_range: { from: '2010-02-02', to: '2016-12-01' } },
-           { service_branch: 'Army National Guard', date_range: { from: '2002-02-02', to: '2008-12-01' } }]
+          [{ service_branch: 'Army', date_range: { from: '2010-02-02', to: '2016-12-01' } },
+           { service_branch: 'Army', date_range: { from: '2002-02-02', to: '2008-12-01' } }]
         )
       end
     end
@@ -285,7 +285,7 @@ describe EMISRedis::MilitaryInformationV2, skip_emis: true do
       it 'for the episode, it should return the branch of service, start date, and end date' do
         VCR.use_cassette('emis/get_military_service_episodes_v2/valid') do
           service_history = [
-            service_history_object('Army', 'N', begin_date: '2002-02-02', end_date: '2008-12-01')
+            service_history_object('Army', 'A', begin_date: '2002-02-02', end_date: '2008-12-01')
           ]
 
           expect(subject.service_history.as_json).to eq service_history
@@ -297,8 +297,8 @@ describe EMISRedis::MilitaryInformationV2, skip_emis: true do
       it 'for each episode, it should return the branch of service, start date, and end date' do
         VCR.use_cassette('emis/get_military_service_episodes_v2/valid_multiple_episodes') do
           service_history = [
-            service_history_object('Army', 'N', begin_date: '2010-02-02', end_date: '2016-12-01'),
-            service_history_object('Army', 'N', begin_date: '2002-02-02', end_date: '2008-12-01')
+            service_history_object('Army', 'A', begin_date: '2010-02-02', end_date: '2016-12-01'),
+            service_history_object('Army', 'A', begin_date: '2002-02-02', end_date: '2008-12-01')
           ]
 
           expect(subject.service_history.as_json).to eq service_history

@@ -409,6 +409,13 @@
 
   - :method: :post
     :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
+    :file_path: "emis/v2/guard_reserve_service_periods"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '<v11:eMISguardReserveServicePeriodsRequest>\s*<v12:edipiORicn>\s*<v13:edipiORicnValue>(\d+)'
+
+  - :method: :post
+    :path: "/VIERSService/eMIS/v2/MilitaryInformationService"
     :file_path: "emis/v2/deployment"
     :cache_multiple_responses:
       :uid_location: body
