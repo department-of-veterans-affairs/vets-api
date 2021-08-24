@@ -6,6 +6,17 @@ RSpec.describe MedicalCopays::VBS::RequestData do
   subject { described_class.build(user: user) }
 
   let(:user) { build(:user, :loa3) }
+  let(:facility_vista_data) do
+    {
+      '516' => %w[12345 67891234],
+      '553' => %w[2 87234689]
+    }
+  end
+
+  before do
+    allow(user).to receive(:vha_facility_hash).and_return(facility_vista_data)
+    allow(user).to receive(:edipi).and_return('123')
+  end
 
   describe 'attributes' do
     it 'responds to user' do
@@ -16,8 +27,8 @@ RSpec.describe MedicalCopays::VBS::RequestData do
       expect(subject.respond_to?(:edipi)).to be(true)
     end
 
-    it 'responds to vista_account_numbers' do
-      expect(subject.respond_to?(:vista_account_numbers)).to be(true)
+    it 'responds to vha_facility_hash' do
+      expect(subject.respond_to?(:vha_facility_hash)).to be(true)
     end
   end
 
@@ -29,21 +40,18 @@ RSpec.describe MedicalCopays::VBS::RequestData do
 
   describe '#to_hash' do
     it 'returns a data hash' do
-      allow(user).to receive(:edipi).and_return('123')
-      allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:vista_account_numbers)
-        .and_return([])
+      hsh = {
+        edipi: '123',
+        vistaAccountNumbers: %w[5160000000012345 5160000067891234 5530000000000002 5530000087234689]
+      }
 
-      expect(subject.to_hash).to eq({ edipi: '123', vistaAccountNumbers: [] })
+      expect(subject.to_hash).to eq(hsh)
     end
   end
 
   describe '#valid?' do
     context 'when no errors' do
       it 'returns true' do
-        allow(user).to receive(:edipi).and_return('123')
-        allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:vista_account_numbers)
-          .and_return([])
-
         expect(subject.valid?).to be(true)
       end
     end
@@ -51,8 +59,7 @@ RSpec.describe MedicalCopays::VBS::RequestData do
     context 'when errors' do
       it 'returns false' do
         allow(user).to receive(:edipi).and_return(1)
-        allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:vista_account_numbers)
-          .and_return({})
+        allow(user).to receive(:vha_facility_hash).and_return({})
 
         expect(subject.valid?).to be(false)
       end
