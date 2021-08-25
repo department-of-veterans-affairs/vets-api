@@ -21,7 +21,8 @@ module AppealsApi::V1
             upload = VBADocuments::UploadSubmission.create! consumer_name: 'appeals_api_nod_evidence_submission'
             submission = AppealsApi::EvidenceSubmission.create! submission_attributes.merge(upload_submission: upload)
 
-            render json: submission,
+            render status: :accepted,
+                   json: submission,
                    serializer: AppealsApi::EvidenceSubmissionSerializer,
                    key_transform: :camel_lower,
                    render_location: true

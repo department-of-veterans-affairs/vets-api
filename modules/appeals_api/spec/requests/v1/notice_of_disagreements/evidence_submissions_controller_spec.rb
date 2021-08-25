@@ -48,6 +48,16 @@ describe AppealsApi::V1::DecisionReviews::NoticeOfDisagreements::EvidenceSubmiss
       end
 
       context "when nod record 'auth_headers' are present" do
+        it 'returns success with 202' do
+          with_s3_settings do
+            notice_of_disagreement.update(board_review_option: 'evidence_submission')
+            post path, params: { nod_uuid: notice_of_disagreement.id }, headers: headers
+
+            expect(response.status).to eq 202
+            expect(response.body).to include notice_of_disagreement.id
+          end
+        end
+
         it "returns an error if request 'headers['X-VA-SSN'] and NOD record SSNs do not match" do
           with_s3_settings do
             notice_of_disagreement.update(board_review_option: 'evidence_submission')
