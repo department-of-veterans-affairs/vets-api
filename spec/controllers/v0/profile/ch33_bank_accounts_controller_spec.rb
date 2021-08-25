@@ -25,8 +25,8 @@ RSpec.describe V0::Profile::Ch33BankAccountsController, type: :controller do
       expect_unauthorized
     end
 
-    context 'with a non multifactor user' do
-      let(:user) { build(:user, :loa3) }
+    context 'with a non idme user' do
+      let(:user) { build(:user, :loa3, :mhv) }
 
       expect_unauthorized
     end

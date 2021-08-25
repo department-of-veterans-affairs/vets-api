@@ -10,7 +10,7 @@ describe EVSS::PPIU::Service do
 
   describe 'with an unauthorized user' do
     before do
-      expect(Flipper).to receive(:enabled?).with(:direct_deposit_cnp, instance_of(User)).and_return(false)
+      expect_any_instance_of(PPIUPolicy).to receive(:access?).and_return(false)
     end
 
     it 'raises an exception when creating the service' do

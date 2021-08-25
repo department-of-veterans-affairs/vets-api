@@ -1038,6 +1038,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'PPIU' do
+      let(:mhv_user) { create(:user, :loa3) }
+
       it 'supports getting payment information' do
         expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
         VCR.use_cassette('evss/ppiu/payment_information') do
